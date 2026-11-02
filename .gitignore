@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+*.log
+build/
+
+# AI 원본 이미지(가공 전)
+assets/**/source/

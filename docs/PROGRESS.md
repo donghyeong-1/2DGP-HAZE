@@ -27,7 +27,7 @@
 2. [ ] GitHub 저장소 생성, 원격 연결, 첫 커밋 (제출용 주소). 커밋 전 용량이 큰 원본 이미지 포함 여부 결정
 3. [ ] 영상 녹화, YouTube 업로드(공개), e-class 제출
 4. [ ] 이미지 생성 모델명과 이용 조건 확인 후 `docs/ASSETS.md` 보완
-5. [ ] 1주차(11/5~11/11): `docs/기획서.md` 5장(구현 설계) 기준으로 `src/` 뼈대, 플레이어 이동·2단 점프·타일 충돌, 상태 머신 (완료 기준은 5.9)
+5. [~] 1주차(11/5~11/11): 뼈대·이동·2단 점프·충돌·상태 머신·대시 슬롯 구현 완료(5.9 항목 대부분). 남은 것: 마우스 조준 방향 확인, 직접 플레이 점검, 동작 프레임 교체
 6. [ ] (발표 후) 스프라이트 동작 프레임 제작, 무료 에셋(타일·UI·사운드) 선정
 
 ## 열린 질문
@@ -47,3 +47,4 @@
 - 2026-10-31 [Claude/Gemini] 기획서 초안과 수정, 공유 규칙 작성, 초기 PPT와 대본 생성
 2026-11-02 [Claude Code] 기획서 PPT 검토 반영: 게이지 한계 기준 문장, 대미지 예시 36→45 근거, 비교표 대상 구체화, 표지 이름, transitions 설치 / make_plan_deck.py, make_presentation_1st.py, make_mockups.py, 기획서.md, DECISIONS.md
 2026-11-05 [Claude Code] 기획서 5장 구현 설계 추가(폴더 구조, 루프, 좌표·충돌, 플레이어 FSM, config 수치, 방 데이터, 게이지·무기·적 설계, 테스트, 1주차 완료 기준) / docs/기획서.md, DECISIONS.md, sprite_spec.md, PROGRESS.md
+2026-11-05 [Claude Code] 1주차 구현: src/(game_framework, game_world, config, haze_gauge, player 상태 머신·2단 점프·대시 슬롯·타일 충돌, room, ui, title/play/pause/ending 모드), data/rooms/test_01.txt, tests/(게이지 11개, 플레이어 13개 통과), README.md, 임시 이미지 생성 도구

@@ -17,6 +17,7 @@
 | 11/3 (화) | YouTube 업로드(공개), GitHub 커밋, e-class 제출 (자정 전) | 예정 |
 
 ## 완료
+- 주인공 마스터 v2 시험 원화와 1배 비교 제작 (승인 대기)
 - 주인공 마스터 스틸컷 시험 1장과 1배 비교 제작 (승인 대기; 비율 차이 확인)
 - 기획서(`docs/기획서.md`), 발표 PPT 10장(`docs/presentation_1st.pptx`), 기획서 PPT 32장(`docs/plan_deck.pptx`), 대본(`docs/script_1st.md`)
 - 설계 목업 15종(`assets/presentation_examples/`, `tools/make_mockups.py`)
@@ -24,7 +25,7 @@
 - 공유 규칙(AGENTS.md)과 결정 기록(DECISIONS.md 맨 위 "현재 기준 요약")
 
 ## 다음 할 일 (우선순위 순)
-- [ ] 주인공 스틸컷 시험을 검토하고 기준 이미지와의 비율·의상 차이 및 후속 작업 여부 결정
+- [ ] 주인공 마스터 v2 승인 여부 검토: 1배에서 눈은 작고 전체 너비가 키의 35% 미만
 1. [ ] 대본을 소리 내어 읽어 90초에 맞추기 (현재 약 500자, 95초 추정), 표지에 이름 추가
 2. [ ] GitHub 저장소 생성, 원격 연결, 첫 커밋 (제출용 주소). 커밋 전 용량이 큰 원본 이미지 포함 여부 결정
 3. [ ] 영상 녹화, YouTube 업로드(공개), e-class 제출
@@ -57,3 +58,6 @@
 
 2026-11-07 [Codex] 주인공 마스터 스틸컷 시험 및 1배 비교 / assets/sprites/forge/, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-07 [Claude Code] hibit 마무리 변형 4종 시험(눈 약함 확인), tools/finish_character.py, sprite_spec hibit 절, Codex 재생성 프롬프트, 결정 기록 / tools/finish_character.py, docs/*, .gitignore
+
+2026-11-07 [Codex] 주인공 마스터 v2 및 1배 비교 / assets/sprites/forge/hero_v2/, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-07 [Claude Code] 주인공 v2 검토(합격), 나머지 6종 일괄 생성 프롬프트 작성 / docs/ai_commands.md, DECISIONS.md, PROGRESS.md

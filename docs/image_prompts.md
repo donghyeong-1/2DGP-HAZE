@@ -153,3 +153,15 @@ OpenAI 내장 이미지 생성 도구(모델명 미제공). 이미지 1은 수�
 ```text
 Create exactly ONE square image. Use the attached reference as the exact identity and costume: same slim young man, short tousled spiky white hair and long front fringe, pale face, black fitted short-sleeve shirt and black dark trousers, dark shoes, teal forearm and belt accents, same body and head proportions. Adapt to a clear RIGHT-facing side profile, standing relaxed idle, both intact arms visibly separated, empty hands, feet grounded. Full figure centered, generous margins. Clean flat cel-shaded lineless 2D art for later pixel conversion: no outlines or line art, at most 3 flat tones per material, crisp angular solid shapes; no gradients, no texture, no dithering, no pixel grid. No weapon, no text, no logo. Entire background flat pure magenta #FF00FF without shadow or ground.
 ```
+
+
+## 주인공 마스터 v2 (2026-11-07)
+
+- 기준: `assets/sprites/unified/n09_idle.png`, 화풍: `assets/sprites/forge/master/master_rgba.png` (순서대로 직접 첨부).
+- 경로: Codex 내장 image_gen (host_image, 세부 모델명 미제공), 원화 1장; 비용 정보 미제공.
+- 후처리: `tools/finish_character.py`의 hibit, 키 82px(외곽선 포함), 팔레트 24색 및 외곽선. 사용자 승인 대기, 게임 미적용.
+- 실사용 프롬프트 (`hero_v2/prompt/prompt.txt`는 생성기 템플릿이며 실제 전달문과 다름):
+
+```text
+Edit the SECOND image: it is the previous master still, preserve its clean flat lineless cel-shaded visual style, same white-haired male and dark clothes with teal accents, same right-facing profile and relaxed standing pose. The FIRST image is the original game sprite and controls identity, white hair and worn black clothes; do not invent a new character. Change the second image as follows: visibly widen shoulders and torso: body depth in profile is at least 35 percent of total character height, with somewhat larger head around one sixth the full height. Make the visible profile eye strongly exaggerated, dark teal to near-black, at least 3 percent of full figure height, distinct dark eyebrow, clear nose and mouth, readable after downsampling. Indicate worn torn sleeves and ragged trouser hems using large simple shapes, no tiny details. Both arms must be visible, naturally separated, both feet on same ground line; no weapons. Full body centered with generous margins. Flat opaque colors without outlines, no gradients or texture. Solid pure magenta #FF00FF background; no shadow, no ground, no letters, no symbols or text.
+```

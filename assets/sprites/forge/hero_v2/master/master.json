@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-07T06:10:16.459Z",
+  "name": "n09_v2",
+  "subject": "N-09 same young male prisoner",
+  "identity_recap": "N-09 same young male prisoner (same young male with spiky white hair, dark worn shirt and pants, dark boots and teal accents as the reference)",
+  "facing": "right",
+  "view": "right-facing side profile",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      399,
+      138,
+      626,
+      926
+    ],
+    "anchor": [
+      528.0,
+      926.0
+    ],
+    "opaque_area_px": 112103,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "c9d2fb2ba852ea233d854bc0d02728561d952b6c124403731f22131b1d8f1485",
+      "bytes": 163723,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "ca312b6ba02a27dbba244fcc83f368476c103f0c30cbd3531534258baf9a9ff6",
+      "bytes": 1272879,
+      "size": [
+        1024,
+        1536
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "ed22ebbdffd359f51be9af88b28f59032dcf20cd56cfd79612cf162327a221f7",
+      "bytes": 1225
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "6783f69b9a79b14e3f8130b394917a19a2db66cbc672d200534ddb9d32a86709",
+      "bytes": 2212
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../unified/n09_idle.png",
+      "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036",
+      "bytes": 3695
+    },
+    {
+      "role": "style",
+      "path": "../../master/master_rgba.png",
+      "sha256": "ed47410e5f3512968774bcf4756523597dd35de2393a96d907919d8a415534d6",
+      "bytes": 138979
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1024,
+      1536
+    ],
+    "source_subject_bbox": [
+      286,
+      55,
+      697,
+      1484
+    ],
+    "crop_box": [
+      280,
+      49,
+      703,
+      1490
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.5514345696291113,
+    "offset": [
+      240.9699090272918,
+      107.67109867039888
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 2621,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "ca312b6ba02a27dbba244fcc83f368476c103f0c30cbd3531534258baf9a9ff6",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        4.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.7639675140380859,
+      "distance_from_declared": 6.93
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.0183166487276808,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 370701
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

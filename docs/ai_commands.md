@@ -213,3 +213,23 @@ Use $generate2dsprite to make ONE master still of the player (--finish hibit), a
 저장: assets/sprites/forge/hero_v2/. 끝나면 python tools/finish_character.py assets/sprites/forge/hero_v2/<master_rgba 경로> n09_v2 를 실행하고, 기존 unified/n09_idle.png와 1배로 나란히 놓은 비교 이미지를 hero_v2/compare_1x.png로 저장한 뒤 눈이 보이는지 솔직하게 알려줘. docs/image_prompts.md에 프롬프트·날짜 기록, 끝나면 PROGRESS "진행 중"을 비워.
 ```
 나머지 6종은 위 형식에서 1)~3)을 캐릭터에 맞게 바꾸고 기준 이미지를 각 `unified/<이름>_idle.png`로 한다. 키는 `docs/sprite_spec.md` 표의 값.
+
+
+## Codex 프롬프트: 나머지 6종 마스터 일괄 생성 (hibit) (2026-11-07)
+주인공 v2(`assets/sprites/forge/hero_v2/n09_v2_idle.png`)가 합격했다. 아래 하나를 붙여 넣으면 6종을 차례로 만들고, 마지막에 7종을 1배로 나란히 놓은 비교 이미지를 만든다. 이미지 생성 사용량이 많으니 한 번에 하나씩 돌리고 싶으면 SUBJECT 줄 하나만 남겨 여러 번 나눠 붙인다.
+```text
+AGENTS.md, docs/sprite_spec.md, docs/pixel_rules.md를 읽고 규칙을 따라줘. PROGRESS.md "진행 중"에 "[Codex] 적·보스 마스터 6종"을 적고 시작해.
+Use $generate2dsprite to make ONE master still per character below (--finish hibit), one at a time. No animation, no video.
+공통 화풍 기준(반드시 같은 화풍): 주인공 assets/sprites/forge/hero_v2/master/master_rgba.png. 납작하고 선 없는 색면, 마젠타 배경, 오른쪽 옆모습, 큰 덩어리의 낡은 느낌, 잔 디테일 금지, 작은 얼굴 요소(눈)는 8배 축소에서 사라지니 크고 굵게 과장, 청록(cyan) 포인트색 공통, 같은 채도·명암 단계.
+각 캐릭터는 assets/sprites/forge/<이름>_v2/ 에 만들고, 만든 뒤 `python tools/finish_character.py <그 폴더의 master_rgba 경로> <이름>_v2` 를 실행해(키는 규격표 자동 적용 대신 --height로 지정: 아래 표).
+참고 이미지(정체성): assets/sprites/unified/<이름>_idle.png.
+
+1) enemy_slum_v2 (--height 78): gaunt bald hostile prisoner in torn gray clothing, hunched, clenched fists, faint cyan veins, big dark wild eyes.
+2) enemy_thrower_v2 (--height 82): dark-haired scavenger prisoner with goggles, scrap-metal shield on the left arm, holding a piece of junk in the right hand, patched clothes with rust accents.
+3) enemy_guard_v2 (--height 90): bulky armored prison guard, helmet with a large cyan visor, big steel riot shield in front and a heavy baton, wide silhouette.
+4) enemy_hound_v2 (--height 54): lean four-legged mutated hound of dark smoke and bone, glowing cyan eye (large), low crouched, side view facing right (body length about 1.4 x height).
+5) boss_crasher_v2 (--height 130): very large bald factory boss, massive body, rusted steel-beam mechanical arms with enormous fists, rust armor plates, cyan steam vents, big dark eyes.
+6) boss_ark_v2 (--height 106): tall mature dark-haired warden in a long dark coat, military cap, glowing cyan crystals on the chest, cold expression with a large clear eye, no mask, no weapon.
+
+각 캐릭터마다: 결과 크기·반투명 수·색 수를 알려주고 눈이 보이는지 확인해줘. 모두 끝나면 주인공 v2 + 6종을 1배로 바닥을 맞춰 나란히 놓은 assets/sprites/forge/lineup_1x.png 를 만들고, 서로 화풍(도트 굵기, 채도, 명암)이 어긋나 보이는 캐릭터를 솔직하게 알려줘. docs/image_prompts.md에 프롬프트·날짜 기록, 끝나면 PROGRESS "진행 중"을 비워.
+```

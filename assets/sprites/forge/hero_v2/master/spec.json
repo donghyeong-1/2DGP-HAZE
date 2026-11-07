@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "n09_v2",
+  "subject": "N-09 same young male prisoner",
+  "identity": "same young male with spiky white hair, dark worn shirt and pants, dark boots and teal accents as the reference",
+  "pose": "idle, both arms visible, feet grounded, no weapon",
+  "recap": "N-09 same young male prisoner (same young male with spiky white hair, dark worn shirt and pants, dark boots and teal accents as the reference)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": "right-facing side profile",
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified/n09_idle.png",
+    "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036"
+  },
+  "style_ref": {
+    "path": "../../master/master_rgba.png",
+    "sha256": "ed47410e5f3512968774bcf4756523597dd35de2393a96d907919d8a415534d6"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": "Exaggerate dark teal eye at least 3 percent of height, clear eyebrow, nose and mouth; head one sixth height, broad shoulders and torso 35 percent of height, large torn sleeve and trouser hem shapes."
+}

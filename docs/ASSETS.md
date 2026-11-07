@@ -63,3 +63,15 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 - 폰트 파일은 수정하지 않고 그대로 포함한다. 파일 자체를 단독으로 판매하지 않는다.
 - 엔딩 크레딧의 `[External Assets]`에 "Galmuri font by Lee Minseo (SIL OFL 1.1)"를 표기한다.
+
+## 이펙트 (2026-11-07)
+| 파일 | 제작자 | 출처 | 라이선스 | 비고 |
+|---|---|---|---|---|
+| `assets/effects/*` | patch-gg (pixelfx) | https://github.com/patch-gg/pixelfx | MIT (`pixelfx-LICENSE`, `pixelfx-NOTICE.md`) | pixelfx 코드로 렌더링 후 `tools/finish_effects.py`로 알파 디더·48색·15fps로 마무리. 일부 코드는 Hugo Duprez(Sprite Fusion VFX), rehan-remade(Hollow Crown)의 MIT 코드를 바탕으로 함 |
+
+- pixelfx의 `Patch Pixel` 폰트(gallery/fonts)는 별도 권리라서 쓰지 않는다.
+- 엔딩 크레딧에 pixelfx, Hugo Duprez, rehan-remade를 표기한다.
+
+## 이미지 생성 스킬 (2026-11-07, 개발 도구이며 게임에 포함되지 않음)
+- agent-sprite-forge (0x0funky, MIT, commit 6b3da5c): `~/.codex/skills`와 `~/.claude/skills`에 설치. 그 도구로 만든 에셋은 사용한 모델·날짜·프롬프트를 `docs/image_prompts.md`에 기록하고 이 표에 추가한다.
+- codixel (mankidev, MIT, commit 604a9dc): `~/.claude/skills/codixel`에 설치(SKILL.md와 core/pixel.js).

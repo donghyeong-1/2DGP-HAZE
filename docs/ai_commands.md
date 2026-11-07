@@ -189,3 +189,11 @@ tools\make_presentation_1st.py, tools\make_plan_deck.py 를 수정해 실행한�
 - PROGRESS.md의 "진행 중"을 비우고 "작업 로그"에 "[Codex] PPT 가독성 개선 / 바꾼 파일" 한 줄을 추가한다.
 - 최종 보고: 슬라이드별 바뀐 점, 줄인 문장 목록, 확인한 슬라이드, 확인하지 못한 것, 남은 문제.
 ```
+
+
+## Codex에서 agent-sprite-forge로 스프라이트 만들기 (2026-11-07, 미검증)
+설치됨: `~/.codex/skills`의 codeart2d, generate2dmap, generate2dmedia, generate2dsprite, video2dsprite. 이 PC에는 영상 경로와 ffmpeg가 없어 character 애니메이션을 영상에서 뽑는 `video2dsprite`는 쓰지 않는다.
+1. Codex에서 `$generate2dsprite`로 마스터 스틸컷 한 장을 만든다. 기준 이미지는 `assets/sprites/unified/n09_idle.png`, 옆모습·오른쪽을 봄, 흰 머리, 같은 도트 굵기, `--finish hibit`(플랫 원화 → 후처리로 픽셀화, 이진 알파, 1px 외곽선).
+2. 동작(걷기, 달리기, 점프, 공격, 피격)은 Codex 이미지 생성으로 동작별 프레임 격자(예: 2×2, 3×3)를 만들어 PNG 프레임으로 `generate2dsprite`에 넘겨 정렬·팔레트·마무리를 한다.
+3. 결과는 `assets/sprites/detailed/`에 두고 `docs/sprite_spec.md`(80px, 공통 팔레트 약 60색, 외곽선 1px)와 `python tests/test_pixel_assets.py`로 확인한다.
+4. 사용한 프롬프트와 모델은 `docs/image_prompts.md`에 기록한다. 규칙은 `docs/pixel_rules.md`.

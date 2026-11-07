@@ -1,0 +1,16 @@
+{
+ "id": "impacts/crit-hit",
+ "frames": 15,
+ "frameSize": [
+  155,
+  101
+ ],
+ "columns": 4,
+ "fps": 15,
+ "loop": false,
+ "pivot": [
+  60,
+  76
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

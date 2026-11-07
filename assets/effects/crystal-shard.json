@@ -1,0 +1,16 @@
+{
+ "id": "pickups/crystal-shard",
+ "frames": 49,
+ "frameSize": [
+  39,
+  60
+ ],
+ "columns": 7,
+ "fps": 15,
+ "loop": true,
+ "pivot": [
+  19,
+  58
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

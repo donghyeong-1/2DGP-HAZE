@@ -1,0 +1,16 @@
+{
+ "id": "status/rage",
+ "frames": 19,
+ "frameSize": [
+  52,
+  55
+ ],
+ "columns": 5,
+ "fps": 15,
+ "loop": true,
+ "pivot": [
+  25,
+  52
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

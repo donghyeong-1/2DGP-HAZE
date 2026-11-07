@@ -1,0 +1,16 @@
+{
+ "id": "explosions/plasma-explosion",
+ "frames": 27,
+ "frameSize": [
+  199,
+  183
+ ],
+ "columns": 6,
+ "fps": 15,
+ "loop": false,
+ "pivot": [
+  101,
+  92
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

@@ -1,0 +1,16 @@
+{
+ "id": "melee/heavy-cleave",
+ "frames": 30,
+ "frameSize": [
+  143,
+  94
+ ],
+ "columns": 6,
+ "fps": 15,
+ "loop": false,
+ "pivot": [
+  44,
+  79
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

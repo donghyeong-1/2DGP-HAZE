@@ -18,13 +18,17 @@ def sprite_files():
     return sorted(glob.glob(os.path.join(ROOT, 'assets', 'sprites', 'unified', '*.png')))
 
 
+def effect_files():
+    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'effects', '*.png')))
+
+
 def tile_files():
     return sorted(glob.glob(os.path.join(ROOT, 'assets', 'placeholder', 'tile_*.png')))
 
 
 def test_sprites_have_binary_alpha():
     assert sprite_files(), '검사할 스프라이트가 없다'
-    for path in sprite_files() + tile_files():
+    for path in sprite_files() + tile_files() + effect_files():
         alpha = Image.open(path).convert('RGBA').getchannel('A').histogram()
         assert sum(alpha[1:255]) == 0, f'반투명 픽셀이 있다: {os.path.basename(path)}'
 
@@ -35,6 +39,18 @@ def test_sprites_within_palette_limit():
         colors = {p for p in img.get_flattened_data() if p[3] == 255} if hasattr(img, 'get_flattened_data') \
             else {p for p in img.getdata() if p[3] == 255}
         assert len(colors) <= MAX_COLORS, f'{os.path.basename(path)}: {len(colors)}색'
+
+
+def test_effects_within_palette_limit():
+    """이펙트(pixelfx 마무리본)는 시트마다 64색 이하, 프레임 수는 60 이하(용량)."""
+    import json
+    for path in effect_files():
+        img = Image.open(path).convert('RGBA')
+        colors = {p for p in img.getdata() if p[3] == 255}
+        assert len(colors) <= MAX_COLORS, f'{os.path.basename(path)}: {len(colors)}색'
+        meta = json.load(open(path[:-4] + '.json', encoding='utf-8'))
+        assert meta['frames'] <= 60, f"{os.path.basename(path)}: {meta['frames']}프레임"
+    assert os.path.exists(os.path.join(ROOT, 'assets', 'effects', 'pixelfx-LICENSE')), 'pixelfx 라이선스 동봉'
 
 
 def test_tiles_are_multiples_of_tile_size():

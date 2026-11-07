@@ -1,0 +1,16 @@
+{
+ "id": "projectiles/energy-disc",
+ "frames": 8,
+ "frameSize": [
+  88,
+  46
+ ],
+ "columns": 3,
+ "fps": 15,
+ "loop": true,
+ "pivot": [
+  72,
+  23
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

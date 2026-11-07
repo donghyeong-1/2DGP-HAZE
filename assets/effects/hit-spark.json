@@ -1,0 +1,16 @@
+{
+ "id": "impacts/hit-spark",
+ "frames": 9,
+ "frameSize": [
+  102,
+  64
+ ],
+ "columns": 3,
+ "fps": 15,
+ "loop": false,
+ "pivot": [
+  18,
+  55
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

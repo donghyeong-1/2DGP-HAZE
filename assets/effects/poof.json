@@ -1,0 +1,16 @@
+{
+ "id": "spawn/poof",
+ "frames": 25,
+ "frameSize": [
+  81,
+  70
+ ],
+ "columns": 5,
+ "fps": 15,
+ "loop": false,
+ "pivot": [
+  36,
+  61
+ ],
+ "source": "pixelfx (MIT, https://github.com/patch-gg/pixelfx), finished by tools/finish_effects.py"
+}

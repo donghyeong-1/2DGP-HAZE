@@ -1,0 +1,3 @@
+이 폴더의 이펙트는 pixelfx(patch-gg, MIT)로 만든 뒤 tools/finish_effects.py로 마무리했다.
+pixelfx-LICENSE, pixelfx-NOTICE.md를 함께 둔다. 게임 엔딩 크레딧에 pixelfx와 Hugo Duprez(Sprite Fusion VFX, MIT),
+rehan-remade(Hollow Crown, MIT)를 표기한다.

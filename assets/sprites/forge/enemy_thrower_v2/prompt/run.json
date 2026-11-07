@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-07T06:34:13.457Z",
+  "name": "enemy_thrower_v2",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "464fb5f52d418fbd72e9b118e17bf5fc9b3c542a9fce908b275898123bd4c9e1",
+    "bytes": 1905
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "b6f9fec544c1c0694f66fbc22ad6b6a646bb1e4ed166b0430917f82842328518",
+    "bytes": 780
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified/enemy_thrower_idle.png",
+      "sha256": "352a4441fcc2ae4da4cccd51be795f7789dc474784b8e76f1e864d405f9f7562",
+      "bytes": 5267
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

@@ -1,0 +1,176 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-07T06:35:38.379Z",
+  "name": "enemy_hound_v2",
+  "subject": "enemy_hound",
+  "identity_recap": "enemy_hound (Same identity as first reference, style as second reference)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      16,
+      138,
+      1008,
+      698
+    ],
+    "anchor": [
+      552.0,
+      698.0
+    ],
+    "opaque_area_px": 253411,
+    "width_limited": true
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "3ec61f132a50a94f88181124347a1993bfc694ac4370a59170d513a7d116540b",
+      "bytes": 343821,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "2073bb12357b2d2d9a3f37d2959b1b6585134468166d4a8bba4121004400a5a7",
+      "bytes": 398149,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "8e34a3268f473a5c73dedb59c4a8b28d2bd5c562812d9ad4611c406ee66e9c49",
+      "bytes": 1413413,
+      "size": [
+        1484,
+        1060
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "a0c9243cd701733a80d8380d250a764266b52e4aaa520324070fcea9f0cdce4f",
+      "bytes": 845
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "29aebf9e1cfd5316b877846166d8ed328ac35605631e4e46f0e9d5ef7edade04",
+      "bytes": 1903
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../unified/enemy_hound_idle.png",
+      "sha256": "be5dd47f8b8e96636524eaaa1f8eb9a7938fa9e58e07d4110e94aeac40b1e465",
+      "bytes": 4157
+    },
+    {
+      "role": "style",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1484,
+      1060
+    ],
+    "source_subject_bbox": [
+      48,
+      156,
+      1405,
+      921
+    ],
+    "crop_box": [
+      42,
+      150,
+      1411,
+      927
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.7310243183492999,
+    "offset": [
+      -19.089167280766446,
+      23.960206337509206
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 5061,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "8e34a3268f473a5c73dedb59c4a8b28d2bd5c562812d9ad4611c406ee66e9c49",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.6958424452016477,
+      "distance_from_declared": 6.56
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.019830740791972133,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 477138
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": [
+    "the subject is too wide for the hero framing: scaled to fit the width, 560 px tall instead of 788 px"
+  ]
+}

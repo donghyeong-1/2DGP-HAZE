@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-07T06:35:35.995Z",
+  "name": "enemy_hound_v2",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "29aebf9e1cfd5316b877846166d8ed328ac35605631e4e46f0e9d5ef7edade04",
+    "bytes": 1903
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "a4787e95bf003f56c4c384c789b6a4fa01385508ca491ff3f66a8c4ee069c147",
+    "bytes": 774
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified/enemy_hound_idle.png",
+      "sha256": "be5dd47f8b8e96636524eaaa1f8eb9a7938fa9e58e07d4110e94aeac40b1e465",
+      "bytes": 4157
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

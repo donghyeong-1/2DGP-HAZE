@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-07T06:36:54.538Z",
+  "name": "boss_ark_v2",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "85d08805ed115e86d87fb71a106c7d426d4b7ecc823cc5046283fb5ddbfc3aed",
+    "bytes": 1900
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "0131a6e5ee996fbe704c6930e6c9431c80d9be0ee4ccaeaaa37c3c313af1a331",
+    "bytes": 765
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified/boss_ark_idle.png",
+      "sha256": "47fe1906a493f952cea46f41c9aeca0167cbd294182c367db10cf38722c53cff",
+      "bytes": 7194
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

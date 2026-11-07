@@ -5,6 +5,7 @@
 규격은 docs/sprite_spec.md 를 따른다.
 """
 import os
+import sys
 
 from PIL import Image, ImageFilter
 
@@ -160,4 +161,6 @@ def main():
 
 
 if __name__ == "__main__":
+    if "--legacy" not in sys.argv:
+        sys.exit("구 방식(2026-11-07 폐기)이라 assets/sprites/unified/의 새 hibit 스프라이트를 덮어씁니다. 정말 필요하면 --legacy를 붙이세요. 새 방식은 docs/sprite_spec.md, tools/finish_character.py")
     main()

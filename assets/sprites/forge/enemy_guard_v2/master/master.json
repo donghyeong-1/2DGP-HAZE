@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-07T06:34:52.465Z",
+  "name": "enemy_guard_v2",
+  "subject": "enemy_guard",
+  "identity_recap": "enemy_guard (Same identity as first reference, style as second reference)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      256,
+      138,
+      768,
+      926
+    ],
+    "anchor": [
+      507.5,
+      926.0
+    ],
+    "opaque_area_px": 269655,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "3f6fa091340ec1de76ea04800072f47a5c7b60c4a5a9f82c00141c2560f5dbe0",
+      "bytes": 309224,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "e90e13d46b271e2391a1642e835ec3bb567aa52c436d51fec07654a1566bd066",
+      "bytes": 352762,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "a18c4dbf65c2cd3006bbb937b75cbe3d845fc0648d93a523ee1c36066a3df6ed",
+      "bytes": 1337933,
+      "size": [
+        1199,
+        1312
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "7da4a2774dc473d53e4132630b0cce6bc24cefb5cc410bd77b3be04d17ddc295",
+      "bytes": 845
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "1fa12535cb5d4861a05c3aa9fdac4adb7da8139bd5906c31dd35a82a8fd5cea5",
+      "bytes": 1903
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../unified/enemy_guard_idle.png",
+      "sha256": "24d93dcc13349180c0f8e7205f0c57029b3296c4c4d0bd7cc2693615ad16c61f",
+      "bytes": 7550
+    },
+    {
+      "role": "style",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1199,
+      1312
+    ],
+    "source_subject_bbox": [
+      203,
+      87,
+      949,
+      1236
+    ],
+    "crop_box": [
+      197,
+      81,
+      955,
+      1242
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.6858137510879025,
+    "offset": [
+      116.97127937336813,
+      78.33420365535248
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3224,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "a18c4dbf65c2cd3006bbb937b75cbe3d845fc0648d93a523ee1c36066a3df6ed",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        4.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.6338475660611486,
+      "distance_from_declared": 7.55
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.011506321610293977,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 575249
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

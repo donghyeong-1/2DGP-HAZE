@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_thrower_v2",
+  "subject": "enemy_thrower",
+  "identity": "Same identity as first reference, style as second reference",
+  "pose": null,
+  "recap": null,
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified/enemy_thrower_idle.png",
+    "sha256": "352a4441fcc2ae4da4cccd51be795f7789dc474784b8e76f1e864d405f9f7562"
+  },
+  "style_ref": {
+    "path": "../../hero_v2/master/master_rgba.png",
+    "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

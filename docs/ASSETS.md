@@ -83,3 +83,14 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/sprites/forge/n09_idle_trial.png` | OpenAI Codex 내장 image_gen, 모델명 미제공. 기존 `unified/n09_idle.png` 참조, hibit 후처리 | 생성물 이용 조건 확인 필요 | 사용자 승인 전 시험 시안, 게임 미적용 |
 
 | `assets/sprites/forge/hero_v2/n09_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공, 2026-11-07. 기존 주인공 및 시험 원화 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |
+
+## 적·보스 마스터 v2 시험 (2026-11-07)
+
+| 파일 | 출처 | 라이선스 | 사용 위치 |
+|---|---|---|---|
+| `assets/sprites/forge/enemy_slum_v2/enemy_slum_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공. 기존 캐릭터와 주인공 v2 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |
+| `assets/sprites/forge/enemy_thrower_v2/enemy_thrower_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공. 기존 캐릭터와 주인공 v2 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |
+| `assets/sprites/forge/enemy_guard_v2/enemy_guard_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공. 기존 캐릭터와 주인공 v2 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |
+| `assets/sprites/forge/enemy_hound_v2/enemy_hound_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공. 기존 캐릭터와 주인공 v2 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |
+| `assets/sprites/forge/boss_crasher_v2/boss_crasher_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공. 기존 캐릭터와 주인공 v2 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |
+| `assets/sprites/forge/boss_ark_v2/boss_ark_v2_idle.png` | Codex 내장 image_gen, 모델명 미제공. 기존 캐릭터와 주인공 v2 참조 | 생성물 이용 조건 확인 필요 | 승인 전 시험 시안, 게임 미적용 |

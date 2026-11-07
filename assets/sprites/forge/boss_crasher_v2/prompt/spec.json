@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "boss_crasher_v2",
+  "subject": "boss_crasher",
+  "identity": "Same identity as first reference, style as second reference",
+  "pose": null,
+  "recap": null,
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified/boss_crasher_idle.png",
+    "sha256": "39ff7d19cea5d373330a076d651060272ee762ef39c8d54709f15cf37015c59d"
+  },
+  "style_ref": {
+    "path": "../../hero_v2/master/master_rgba.png",
+    "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

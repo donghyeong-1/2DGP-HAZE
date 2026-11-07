@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_slum_v2",
+  "subject": "enemy_slum",
+  "identity": "Same identity as first reference, style as second reference",
+  "pose": null,
+  "recap": "enemy_slum (Same identity as first reference, style as second reference)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified/enemy_slum_idle.png",
+    "sha256": "70d22322dc16691befd9fd31d726140aac983063bfbce8a88cfa7b6f094998eb"
+  },
+  "style_ref": {
+    "path": "../../hero_v2/master/master_rgba.png",
+    "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

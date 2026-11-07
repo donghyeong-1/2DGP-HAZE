@@ -26,6 +26,7 @@ DASH_RECHARGE = 1.5        # 슬롯 한 칸 충전 시간(초)
 
 # 플레이어
 PLAYER_HP = 100
+SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(px). 그릴 때 이만큼 내려 바닥에 붙인다
 PLAYER_HB_W = 28           # 충돌 박스 너비
 PLAYER_HB_H = 72           # 충돌 박스 높이
 HIT_STUN = 0.25            # 피격 경직(초)

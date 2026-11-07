@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-07T06:36:56.549Z",
+  "name": "boss_ark_v2",
+  "subject": "boss_ark",
+  "identity_recap": "boss_ark (Same identity as first reference, style as second reference)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      341,
+      138,
+      682,
+      926
+    ],
+    "anchor": [
+      530.0,
+      926.0
+    ],
+    "opaque_area_px": 155581,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "a4cddadbe7fb17ef969eb58c82d05f33de9857bb44f51fa2653ea89399bc03f9",
+      "bytes": 214216,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "c61b154fa4ab041125559505b7372418dd50398d97a5f92d63b6b33ef43df76a",
+      "bytes": 248744,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "360c44c6dbd77a818f39dce026cbdff4bc1c48e94fadbea3619b623a0f84e750",
+      "bytes": 1289058,
+      "size": [
+        1199,
+        1312
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "bbcf3eeeb0bdf285e962202e2548d835ce9584817c877251ce07aa968ea07f2e",
+      "bytes": 833
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "85d08805ed115e86d87fb71a106c7d426d4b7ecc823cc5046283fb5ddbfc3aed",
+      "bytes": 1900
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../unified/boss_ark_idle.png",
+      "sha256": "47fe1906a493f952cea46f41c9aeca0167cbd294182c367db10cf38722c53cff",
+      "bytes": 7194
+    },
+    {
+      "role": "style",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1199,
+      1312
+    ],
+    "source_subject_bbox": [
+      332,
+      172,
+      775,
+      1196
+    ],
+    "crop_box": [
+      326,
+      166,
+      781,
+      1202
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.76953125,
+    "offset": [
+      86.064453125,
+      5.640625
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 2218,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "360c44c6dbd77a818f39dce026cbdff4bc1c48e94fadbea3619b623a0f84e750",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8318142405256412,
+      "distance_from_declared": 7.07
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.0172347846504001,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 264059
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

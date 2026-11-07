@@ -358,7 +358,7 @@ class Player:
     def draw(self):
         import assets
         img = assets.image('sprites/unified/n09_idle.png')
-        assets.draw_image(img, self.x, self.y, 'h' if self.face_dir < 0 else '')
+        assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, 'h' if self.face_dir < 0 else '')
         if config.DEBUG:
             self._draw_debug()
 

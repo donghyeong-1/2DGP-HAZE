@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-07T06:36:18.122Z",
+  "name": "boss_crasher_v2",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "420dffc96a77468ad3120c3b583454d28d6120c0318469f4405601a673c8797f",
+    "bytes": 1904
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "bf5875cfd3130edb3050a9073b18dc3e52cf63bbed722dce57c8b68f81fabf59",
+    "bytes": 777
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified/boss_crasher_idle.png",
+      "sha256": "39ff7d19cea5d373330a076d651060272ee762ef39c8d54709f15cf37015c59d",
+      "bytes": 21721
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

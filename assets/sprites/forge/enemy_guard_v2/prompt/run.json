@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-07T06:34:50.301Z",
+  "name": "enemy_guard_v2",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "1fa12535cb5d4861a05c3aa9fdac4adb7da8139bd5906c31dd35a82a8fd5cea5",
+    "bytes": 1903
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "311fa871ebac6e899e785abf814b6b8a71672d0799b421c5bdc7f0479f51de84",
+    "bytes": 774
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified/enemy_guard_idle.png",
+      "sha256": "24d93dcc13349180c0f8e7205f0c57029b3296c4c4d0bd7cc2693615ad16c61f",
+      "bytes": 7550
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

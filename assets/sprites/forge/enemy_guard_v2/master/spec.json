@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_guard_v2",
+  "subject": "enemy_guard",
+  "identity": "Same identity as first reference, style as second reference",
+  "pose": null,
+  "recap": "enemy_guard (Same identity as first reference, style as second reference)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified/enemy_guard_idle.png",
+    "sha256": "24d93dcc13349180c0f8e7205f0c57029b3296c4c4d0bd7cc2693615ad16c61f"
+  },
+  "style_ref": {
+    "path": "../../hero_v2/master/master_rgba.png",
+    "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

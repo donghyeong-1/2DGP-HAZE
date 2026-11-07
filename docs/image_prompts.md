@@ -165,3 +165,46 @@ Create exactly ONE square image. Use the attached reference as the exact identit
 ```text
 Edit the SECOND image: it is the previous master still, preserve its clean flat lineless cel-shaded visual style, same white-haired male and dark clothes with teal accents, same right-facing profile and relaxed standing pose. The FIRST image is the original game sprite and controls identity, white hair and worn black clothes; do not invent a new character. Change the second image as follows: visibly widen shoulders and torso: body depth in profile is at least 35 percent of total character height, with somewhat larger head around one sixth the full height. Make the visible profile eye strongly exaggerated, dark teal to near-black, at least 3 percent of full figure height, distinct dark eyebrow, clear nose and mouth, readable after downsampling. Indicate worn torn sleeves and ragged trouser hems using large simple shapes, no tiny details. Both arms must be visible, naturally separated, both feet on same ground line; no weapons. Full body centered with generous margins. Flat opaque colors without outlines, no gradients or texture. Solid pure magenta #FF00FF background; no shadow, no ground, no letters, no symbols or text.
 ```
+
+
+## 적·보스 마스터 6종 (2026-11-07)
+
+- 생성: Codex 내장 image_gen, host_image; 정확한 모델명과 비용 미제공. 각 1장.
+- 참조 순서: 각 `assets/sprites/unified/<이름>_idle.png`, `assets/sprites/forge/hero_v2/master/master_rgba.png`.
+- `prompt/prompt.txt`는 준비 단계 템플릿이며 아래와 `actual_prompt.txt`가 실제 전달한 프롬프트다. hibit 마감 후 사용자 검토 대기, 게임 미적용.
+
+### enemy_slum
+
+```text
+One full body character, FIRST reference is exact identity and outfit: gaunt bald hostile prisoner in ragged gray clothing, hunched, clenched fists, faint cyan veins, big dark wild visible eye. SECOND reference is the exact shared rendering style, saturation and light-shadow levels, not the identity: clean flat lineless cel-shaded angular shapes, no outlines, no texture. Side profile facing RIGHT, both feet on ground, large distinct eye, worn details as large shapes, no small decoration. Center whole figure with ample margin on solid pure magenta #FF00FF background, no ground shadow, no text or logo. Artwork for subsequent pixel conversion.
+```
+
+### enemy_thrower
+
+```text
+One full body character; FIRST reference is this exact enemy's identity: hostile dark-haired scavenger prisoner with goggles, scrap-metal shield on left arm, junk held in right hand, patched black gray clothing and restrained rust accents. SECOND reference supplies the exact shared style, palette saturation, angular cel shading and value steps only. Side view facing RIGHT, standing naturally, large high contrast visible eye or goggle lens, cyan details, oversized simple battered shapes, no fine details. Clean flat lineless art, no outline, no texture, full figure and equipment visible with ample margins. Solid pure magenta #FF00FF background, no floor shadow, no text, no logos.
+```
+
+### enemy_guard
+
+```text
+One full-body bulky armored prison guard, FIRST reference provides exact character identity: heavy dark steel helmet, large cyan visor, wide armored silhouette, big riot shield in front and a heavy baton clearly held in the other hand. SECOND reference dictates same flat lineless cel-shaded angular forms, saturation and lighting. Facing RIGHT, clear side view, feet grounded; armor worn with large simple shapes, high contrast cyan visor large enough to read at small size. Entire shield, baton and figure inside frame with ample margin. No outlines, no fine detail, no text, no logos, pure solid magenta #FF00FF background with no shadow.
+```
+
+### enemy_hound
+
+```text
+One lean four-legged hostile mutated hound, FIRST reference supplies exact identity: dark smoke and exposed bone hound, oversized single visible glowing cyan eye, low crouched body; strict right-facing SIDE PROFILE, full body length about 1.4 times height, all paws grounded, silhouette and paws fully inside margins. SECOND reference supplies only its rendering style: flat opaque lineless angular cel-shaded solid shapes, matching dark saturation and light-shadow contrast; large shapes, no fine detail. No atmospheric glow or loose smoke outside silhouette. Solid pure magenta #FF00FF background, no ground shadow, text, logo or outlines.
+```
+
+### boss_crasher
+
+```text
+One extremely large bald factory boss, FIRST reference supplies identity: massive muscular body, steel-beam mechanical arms with enormous fists, rust armor plates, cyan steam vents, hostile and big dark clear visible eye. SECOND reference supplies the flat lineless cel shaded art style and matched saturation/value steps. Full body in strict side view facing RIGHT with feet on ground, arms clearly visible, no weapon, worn details as big simple shapes. Fully opaque color shapes without black outlines, no texture; entire figure fully visible with generous margin. Solid pure magenta #FF00FF background, no shadow, text or logos.
+```
+
+### boss_ark
+
+```text
+One tall mature sinister male prison warden final boss. FIRST reference is exact character identity: long dark structured military coat, dark hair, military cap, bright cyan crystals on chest; cold mature stern expression, large clear dark eye, no mask and no weapon, both arms visible. SECOND reference controls ONLY style: matching flat lineless cel-shaded angular color shapes, same dark saturation and light-shadow steps. Full body idle, strict side profile facing RIGHT, feet on ground, generous empty margins. Large simple worn shapes with no small details. No outlines, no texture, no text, no logo; solid pure magenta #FF00FF background and no ground shadow.
+```

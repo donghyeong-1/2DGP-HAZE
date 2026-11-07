@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-07T06:36:20.456Z",
+  "name": "boss_crasher_v2",
+  "subject": "boss_crasher",
+  "identity_recap": "boss_crasher (Same identity as first reference, style as second reference)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      242,
+      138,
+      782,
+      926
+    ],
+    "anchor": [
+      529.0,
+      926.0
+    ],
+    "opaque_area_px": 266875,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "8a511866960e02628371f2ec4dfded3c24d5ce3bc4ba8e61c3305acf60adfad9",
+      "bytes": 373657,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "722e9447841ad0b3a43d0319eaa29b03f0abe2cba8f19f1072b1b18fdd7c6f44",
+      "bytes": 433464,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "3ab06452491682cbacd62c64a13e2ad0517c94ce79c40acb257676d5e61d78a1",
+      "bytes": 1446563,
+      "size": [
+        1199,
+        1312
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "d2693b3fc5d8a046dd527fbde7f7157878284e5e3fd5ad48dac002fa0f39e69b",
+      "bytes": 849
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "420dffc96a77468ad3120c3b583454d28d6120c0318469f4405601a673c8797f",
+      "bytes": 1904
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../unified/boss_crasher_idle.png",
+      "sha256": "39ff7d19cea5d373330a076d651060272ee762ef39c8d54709f15cf37015c59d",
+      "bytes": 21721
+    },
+    {
+      "role": "style",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1199,
+      1312
+    ],
+    "source_subject_bbox": [
+      194,
+      59,
+      1014,
+      1256
+    ],
+    "crop_box": [
+      188,
+      53,
+      1020,
+      1262
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.658312447786132,
+    "offset": [
+      114.37928153717627,
+      99.15956558061822
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3901,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "3ab06452491682cbacd62c64a13e2ad0517c94ce79c40acb257676d5e61d78a1",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        249.0,
+        4.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.6062388118147236,
+      "distance_from_declared": 8.77
+    },
+    "quality": "soft",
+    "interior_despill": false,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.014800884204466623,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 7,
+      "visible_px": 618409
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 3.9e-05,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

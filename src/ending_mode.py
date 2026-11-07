@@ -44,9 +44,9 @@ def draw():
     clear_canvas()
     assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
     if result == 'clear':
-        assets.draw_text(config.SCREEN_W / 2 - 150, 400, '탈출 성공', 80, (170, 230, 250))
+        assets.draw_text(config.SCREEN_W // 2, 400, '탈출 성공', (170, 230, 250), center=True)
     else:
-        assets.draw_text(config.SCREEN_W / 2 - 110, 400, '사망', 80, (225, 90, 100))
-        assets.draw_text(config.SCREEN_W / 2 - 160, 330, '게이지 또는 체력이 0이 되었습니다', 24, (170, 185, 210))
-    assets.draw_text(config.SCREEN_W / 2 - 130, 220, '아무 키나 누르면 타이틀로', 24, (150, 160, 185))
+        assets.draw_text(config.SCREEN_W // 2, 400, '사망', (225, 90, 100), center=True)
+        assets.draw_text(config.SCREEN_W // 2, 360, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
+    assets.draw_text(config.SCREEN_W // 2, 220, '아무 키나 누르면 타이틀로', (150, 160, 185), center=True)
     update_canvas()

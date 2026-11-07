@@ -55,3 +55,11 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 ## 개발용 임시 이미지 (2026-11-05)
 - `assets/placeholder/*.png` (타일, 배경, 단색 점): `tools/make_placeholder_assets.py`로 직접 생성한 이미지. 외부 에셋이 아니며 저작권 문제 없음. 실제 타일·UI 에셋을 정하면 교체한다.
+
+## 폰트 (2026-11-07)
+| 파일 | 제작자 | 출처 | 라이선스 | 용도 |
+|---|---|---|---|---|
+| `assets/fonts/Galmuri14.ttf`, `Galmuri11.ttf` (v2.40.4) | Lee Minseo (quiple) | https://github.com/quiple/galmuri | SIL OFL 1.1 (`assets/fonts/OFL.txt`) | 게임 안 글자 (14px 본문, 11px 작은 글자) |
+
+- 폰트 파일은 수정하지 않고 그대로 포함한다. 파일 자체를 단독으로 판매하지 않는다.
+- 엔딩 크레딧의 `[External Assets]`에 "Galmuri font by Lee Minseo (SIL OFL 1.1)"를 표기한다.

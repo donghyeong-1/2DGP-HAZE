@@ -47,10 +47,8 @@ def draw():
     shade.opacify(0.6)
     assets.draw_rect_image(shade, 0, 0, config.SCREEN_W, config.SCREEN_H)
     shade.opacify(1.0)
-    assets.draw_text(config.SCREEN_W / 2 - 80, 440, '일시정지', 48, (235, 240, 250))
-    assets.draw_text(config.SCREEN_W / 2 - 210, 360,
-                     'A D 이동 / Space 점프(2단) / S+Space 아래 점프', 22, (170, 185, 210))
-    assets.draw_text(config.SCREEN_W / 2 - 210, 325,
-                     'Shift·우클릭 대시(마우스 방향) / 마우스 조준', 22, (170, 185, 210))
-    assets.draw_text(config.SCREEN_W / 2 - 160, 260, 'Esc 계속하기   Q 타이틀로', 24, (110, 190, 230))
+    assets.draw_text(config.SCREEN_W // 2, 440, '일시정지', (235, 240, 250), center=True)
+    assets.draw_text(config.SCREEN_W // 2, 380, 'A D 이동 / Space 점프(2단) / S+Space 아래 점프', (170, 185, 210), center=True)
+    assets.draw_text(config.SCREEN_W // 2, 350, 'Shift·우클릭 대시(마우스 방향) / 마우스 조준', (170, 185, 210), center=True)
+    assets.draw_text(config.SCREEN_W // 2, 290, 'Esc 계속하기   Q 타이틀로', (110, 190, 230), center=True)
     update_canvas()

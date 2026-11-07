@@ -52,6 +52,18 @@ def test_no_scaling_or_rotation_in_game_code():
             assert not re.search(pattern, text), f'{os.path.basename(path)}: {pattern}'
 
 
+def test_pixel_font_native_sizes_only():
+    """픽셀 폰트는 원래 크기(14, 11)로만 쓴다. draw_text에 크기 숫자를 넘기지 않는다."""
+    import assets
+    assert set(assets.FONT_SIZES.values()) == {14, 11}
+    for size in assets.FONT_SIZES.values():
+        assert os.path.exists(os.path.join(ROOT, 'assets', 'fonts', f'Galmuri{size}.ttf'))
+    assert os.path.exists(os.path.join(ROOT, 'assets', 'fonts', 'OFL.txt'))  # 라이선스 문구 동봉
+    for path in glob.glob(os.path.join(ROOT, 'src', '*.py')):
+        text = open(path, encoding='utf-8').read()
+        assert not re.search(r"draw_text\([^)]*['\"],\s*\d{2,3}\s*,", text), os.path.basename(path)
+
+
 def test_nearest_filter_is_requested():
     text = open(os.path.join(ROOT, 'src', 'main.py'), encoding='utf-8').read()
     assert 'SDL_HINT_RENDER_SCALE_QUALITY' in text and "b'0'" in text

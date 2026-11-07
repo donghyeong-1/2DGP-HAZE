@@ -368,4 +368,4 @@ class Player:
         hw = config.PLAYER_HB_W / 2
         draw_rectangle(self.x - hw, self.y, self.x + hw, self.y + config.PLAYER_HB_H)
         draw_rectangle(self.mouse_x - 4, self.mouse_y - 4, self.mouse_x + 4, self.mouse_y + 4)
-        assets.draw_text(self.x - 40, self.y + config.PLAYER_HB_H + 18, f'{self.state} j{self.jump_count}', 16, (255, 240, 120))
+        assets.draw_text(self.x, self.y + config.PLAYER_HB_H + 18, f'{self.state} j{self.jump_count}', (255, 240, 120), small=True, center=True)

@@ -50,14 +50,14 @@ class GameUI:
         label = f'{ZONE_LABEL[g.zone]} {int(g.value)}%'
         if g.enhanced:
             label += f'  강화 {g.enhance_timer:.1f}s'
-        assets.draw_text(BAR_X, BAR_Y - 28, label, 20, ZONE_COLOR[g.zone])
+        assets.draw_text(BAR_X, BAR_Y - 24, label, ZONE_COLOR[g.zone])
 
     def _draw_dash_slots(self):
         p = self.player
         for i in range(p.dash_max):
             name = 'px_cyan' if i < p.dash_slots else 'px_gray'
             _rect(name, 40 + i * 26, config.SCREEN_H - 58, 20, 14)
-        assets.draw_text(40, config.SCREEN_H - 82, f'HP {p.hp}', 18, (235, 240, 250))
+        assets.draw_text(40, config.SCREEN_H - 82, f'HP {p.hp}', (235, 240, 250))
 
     def _draw_debug(self):
         p = self.player
@@ -68,4 +68,4 @@ class GameUI:
             'F1 디버그  F3 게이지+10  F4 게이지-10  H 피격  Esc 일시정지',
         ]
         for i, text in enumerate(lines):
-            assets.draw_text(20, 60 + (len(lines) - 1 - i) * 22, text, 16, (255, 240, 120))
+            assets.draw_text(40, config.SCREEN_H - 110 - i * 16, text, (255, 240, 120), small=True)

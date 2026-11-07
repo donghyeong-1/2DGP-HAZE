@@ -40,7 +40,7 @@ def update():
 
 def draw():
     clear_canvas()
-    assets.image('placeholder/bg.png').draw(config.SCREEN_W / 2, config.SCREEN_H / 2)
+    assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
     assets.draw_text(config.SCREEN_W / 2 - 170, 430, 'HAZE', 120, (170, 230, 250))
     assets.draw_text(config.SCREEN_W / 2 - 150, 350, '안개를 삼키고 탈출하라', 36, (110, 190, 230))
     assets.draw_text(config.SCREEN_W / 2 - 130, 200, '아무 키나 누르세요', 28, (150, 160, 185))

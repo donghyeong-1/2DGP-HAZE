@@ -45,7 +45,7 @@ def draw():
     game_world.render()
     shade = assets.image('placeholder/px_black.png')
     shade.opacify(0.6)
-    shade.draw(config.SCREEN_W / 2, config.SCREEN_H / 2, config.SCREEN_W, config.SCREEN_H)
+    assets.draw_rect_image(shade, 0, 0, config.SCREEN_W, config.SCREEN_H)
     shade.opacify(1.0)
     assets.draw_text(config.SCREEN_W / 2 - 80, 440, '일시정지', 48, (235, 240, 250))
     assets.draw_text(config.SCREEN_W / 2 - 210, 360,

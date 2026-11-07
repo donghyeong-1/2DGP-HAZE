@@ -42,7 +42,7 @@ def update():
 
 def draw():
     clear_canvas()
-    assets.image('placeholder/bg.png').draw(config.SCREEN_W / 2, config.SCREEN_H / 2)
+    assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
     if result == 'clear':
         assets.draw_text(config.SCREEN_W / 2 - 150, 400, '탈출 성공', 80, (170, 230, 250))
     else:

@@ -18,6 +18,24 @@ def image(relative_path):
     return _images[relative_path]
 
 
+def draw_image(img, x, y, flip=''):
+    """이미지를 원본 크기(1배)로 정수 좌표에 그린다. x는 가운데, y는 아래 가장자리.
+
+    픽셀 아트 규칙: 확대·축소·회전 없이 그리고, 위치는 항상 정수 픽셀에 맞춘다.
+    """
+    left = int(round(x)) - img.w // 2
+    bottom = int(round(y))
+    if flip:
+        img.composite_draw(0, flip, left + img.w / 2, bottom + img.h / 2, img.w, img.h)
+    else:
+        img.draw_to_origin(left, bottom)
+
+
+def draw_rect_image(img, left, bottom, w, h):
+    """단색 사각형(placeholder/px_*.png)을 정수 좌표로 채운다. 무늬 없는 색 칸 전용."""
+    img.draw_to_origin(int(round(left)), int(round(bottom)), int(round(w)), int(round(h)))
+
+
 def font(size):
     """한글 글꼴을 반환한다. 글꼴 파일이 없으면 None (글자는 그리지 않는다)."""
     if size not in _fonts:

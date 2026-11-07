@@ -13,7 +13,7 @@ BAR_X, BAR_Y, BAR_W, BAR_H = 340, config.SCREEN_H - 40, 600, 20
 def _rect(name, x, y, w, h):
     """왼쪽 아래 (x, y) 기준으로 단색 사각형을 그린다."""
     if w > 0:
-        assets.image('placeholder/' + name + '.png').draw(x + w / 2, y + h / 2, w, h)
+        assets.draw_rect_image(assets.image('placeholder/' + name + '.png'), x, y, w, h)
 
 
 class GameUI:

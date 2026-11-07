@@ -358,9 +358,7 @@ class Player:
     def draw(self):
         import assets
         img = assets.image('sprites/unified/n09_idle.png')
-        w, h = img.w * config.SPRITE_SCALE, img.h * config.SPRITE_SCALE
-        flip = 'h' if self.face_dir < 0 else ''
-        img.composite_draw(0, flip, self.x, self.y + h / 2, w, h)
+        assets.draw_image(img, self.x, self.y, 'h' if self.face_dir < 0 else '')
         if config.DEBUG:
             self._draw_debug()
 

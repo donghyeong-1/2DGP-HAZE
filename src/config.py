@@ -6,7 +6,7 @@ SCREEN_H = 720
 TILE = 40
 ROOM_COLS = SCREEN_W // TILE  # 32
 ROOM_ROWS = SCREEN_H // TILE  # 18
-SPRITE_SCALE = 1.0
+# 픽셀 아트는 확대·축소하지 않고 1배(원본 크기)로만 그린다. docs/pixel_rules.md 참고
 
 # 물리
 GRAVITY = 2400.0           # px/s^2

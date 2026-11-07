@@ -1,0 +1,13 @@
+Create exactly ONE square image (1024x1024).
+
+Style: clean flat cel-shaded 2D game art, painted for pixel conversion: lineless shapes with NO outline and no line art, every material in at most 3 flat tones (highlight, base, shadow), cool purple-leaning shadows and warm highlights, large crisp angular light and shadow shapes, a bold readable silhouette, no gradients, no airbrush, no texture noise, no dithering, no pixel grid. No text, no letters, no numbers, no logo, no watermark, no signature, no UI, no border, no frame, no grid.
+
+Reference image: the attached image is an image of this exact character; copy their face, hair, body shape, costume, colours, markings and equipment exactly.
+
+Subject: N-09 the same young male prisoner, full body, side view, clear right-facing profile, clearly FACING RIGHT: their face, gaze and chest turn toward the RIGHT edge of the image; forward is RIGHT and their back is toward the LEFT edge. The exact same slim young male character as the reference, tousled short white hair with long front fringe, pale face, black fitted short-sleeve top, black dark trousers, dark chunky boots, teal accents on belt and forearm, slender proportions. No mask, both arms intact. Standing idle, both arms visible naturally separated from torso, empty hands, both feet grounded.
+
+Size and position: one single figure, the top of the figure (including hair, headgear, raised weapons and effects) about 14 percent below the top edge of the canvas and its lowest point about 14 percent above the bottom edge (the figure about 72 percent of the canvas height), centred horizontally, generous empty magenta margin on every side, nothing touching or crossing the edges. The whole figure is drawn with solid, fully opaque pixels: no transparency, no semi-transparent glow, no soft aura, nothing blended with the background.
+
+Preserve the reference hairstyle, clothing silhouette and body proportions, adapt only the viewing angle to the right profile. Flat lineless colors, no outline. No weapon.
+
+Background: solid flat pure magenta #FF00FF everywhere outside the character, no shadow, no ground, no glow on the background.

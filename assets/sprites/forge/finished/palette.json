@@ -1,0 +1,156 @@
+{
+  "schema": "generate2dsprite.palette.v1",
+  "colors": [
+    {
+      "hex": "#1d2022"
+    },
+    {
+      "hex": "#252529"
+    },
+    {
+      "hex": "#28272b"
+    },
+    {
+      "hex": "#29282d"
+    },
+    {
+      "hex": "#2b2b30"
+    },
+    {
+      "hex": "#313139"
+    },
+    {
+      "hex": "#383742"
+    },
+    {
+      "hex": "#403e4b"
+    },
+    {
+      "hex": "#2c4d56"
+    },
+    {
+      "hex": "#135c67"
+    },
+    {
+      "hex": "#484558"
+    },
+    {
+      "hex": "#4a475a"
+    },
+    {
+      "hex": "#4c4a5c"
+    },
+    {
+      "hex": "#1e626e"
+    },
+    {
+      "hex": "#4e4d5f"
+    },
+    {
+      "hex": "#1a6a75"
+    },
+    {
+      "hex": "#545366"
+    },
+    {
+      "hex": "#22757e"
+    },
+    {
+      "hex": "#406876"
+    },
+    {
+      "hex": "#5f5f74"
+    },
+    {
+      "hex": "#37808d"
+    },
+    {
+      "hex": "#807472"
+    },
+    {
+      "hex": "#3e91a2"
+    },
+    {
+      "hex": "#389ba9"
+    },
+    {
+      "hex": "#439aab"
+    },
+    {
+      "hex": "#43a3b3"
+    },
+    {
+      "hex": "#56a3af"
+    },
+    {
+      "hex": "#9f8c86"
+    },
+    {
+      "hex": "#8f98ab"
+    },
+    {
+      "hex": "#bc948b"
+    },
+    {
+      "hex": "#9ba3b1"
+    },
+    {
+      "hex": "#c8a797"
+    },
+    {
+      "hex": "#daa29e"
+    },
+    {
+      "hex": "#98c6c3"
+    },
+    {
+      "hex": "#d9b19b"
+    },
+    {
+      "hex": "#b9c1ce"
+    },
+    {
+      "hex": "#ddbaa3"
+    },
+    {
+      "hex": "#c3cad7"
+    },
+    {
+      "hex": "#e3c5b0"
+    },
+    {
+      "hex": "#d2d8e0"
+    },
+    {
+      "hex": "#edd2bd"
+    },
+    {
+      "hex": "#f4dcc7"
+    },
+    {
+      "hex": "#e1e4ea"
+    },
+    {
+      "hex": "#fae2cd"
+    },
+    {
+      "hex": "#fae5d1"
+    },
+    {
+      "hex": "#fcedd3"
+    },
+    {
+      "hex": "#eff1f5"
+    },
+    {
+      "hex": "#f3f5f7"
+    },
+    {
+      "hex": "#0b1020",
+      "name": "outline"
+    }
+  ],
+  "transparent_index": 255,
+  "locked": false,
+  "source": "finish_frames hibit: 48 body colour(s) (k-means++ on luminance-weighted RGB of 74954 opaque source pixel(s), seed 0); outline #0b1020 #0b1020"
+}

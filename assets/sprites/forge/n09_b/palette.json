@@ -1,0 +1,84 @@
+{
+  "schema": "generate2dsprite.palette.v1",
+  "colors": [
+    {
+      "hex": "#1e2124"
+    },
+    {
+      "hex": "#27262b"
+    },
+    {
+      "hex": "#2a292d"
+    },
+    {
+      "hex": "#313139"
+    },
+    {
+      "hex": "#3d3d49"
+    },
+    {
+      "hex": "#4a475a"
+    },
+    {
+      "hex": "#1d626e"
+    },
+    {
+      "hex": "#26737c"
+    },
+    {
+      "hex": "#5c5c70"
+    },
+    {
+      "hex": "#3a808e"
+    },
+    {
+      "hex": "#3e92a2"
+    },
+    {
+      "hex": "#887977"
+    },
+    {
+      "hex": "#429bab"
+    },
+    {
+      "hex": "#47a4b3"
+    },
+    {
+      "hex": "#9199ac"
+    },
+    {
+      "hex": "#b9988f"
+    },
+    {
+      "hex": "#d7af9b"
+    },
+    {
+      "hex": "#b6bfcb"
+    },
+    {
+      "hex": "#e1c1aa"
+    },
+    {
+      "hex": "#c3cad7"
+    },
+    {
+      "hex": "#d8dce2"
+    },
+    {
+      "hex": "#fae3cf"
+    },
+    {
+      "hex": "#eef1f4"
+    },
+    {
+      "hex": "#f3f5f6"
+    },
+    {
+      "hex": "#0b1020",
+      "name": "outline"
+    }
+  ],
+  "transparent_index": 255,
+  "locked": false,
+  "source": "finish_frames hibit: 24 body colour(s) (k-means++ on luminance-weighted RGB of 74954 opaque source pixel(s), seed 0); outline #0b1020 #0b1020"
+}

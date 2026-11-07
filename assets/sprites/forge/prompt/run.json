@@ -1,0 +1,37 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-07T06:01:01.178Z",
+  "name": "n09",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "a2290bf99404ec984b6bf449e356facaa2274ed758e66923f97f8896c15fca0f",
+    "bytes": 2146
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "da529d90628b1418ef9b39b7979be0c6912390502f19e7b4816b7ba7bd22e66d",
+    "bytes": 1161
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../unified/n09_idle.png",
+      "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036",
+      "bytes": 3695
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

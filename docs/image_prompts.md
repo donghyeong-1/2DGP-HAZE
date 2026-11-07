@@ -140,3 +140,16 @@ OpenAI 내장 이미지 생성 도구(모델명 미제공). 이미지 1은 수�
 - 간수: `Enemy role: heavily armored oppressive prison guard with a threatening angular dark helmet and narrow cold cyan visor, menacing silhouette, scarred dark steel armor, large dark steel riot shield and heavy baton. Read as a brutal prison enforcer, not a friendly clean robot. No gore.`
 
 새 상세 원본은 `assets/sprites/detailed/`, 게임용 시안은 `assets/sprites/unified/`의 동일 이름에 반영했다. 기존 통일 세트의 색상을 팔레트로 사용해 대상 두 장만 가공했다.
+
+
+## 주인공 마스터 스틸컷 시험 (2026-11-07)
+
+- 기준: `assets/sprites/unified/n09_idle.png` (이미지 직접 첨부)
+- 생성 경로: Codex 내장 `image_gen` (host_image; 정확한 모델명 미제공), 원화 1장. 이용 조건 확인 필요.
+- 후처리: generate2dsprite의 hibit 방식, 다수결 축소, 이진 알파, 남색 1px 외곽선. 승인 전 시험 시안이며 애니메이션은 만들지 않음.
+- 결과: `assets/sprites/forge/n09_idle_trial.png`, 비교: `assets/sprites/forge/comparison_1x.png`.
+- 실제 생성 프롬프트:
+
+```text
+Create exactly ONE square image. Use the attached reference as the exact identity and costume: same slim young man, short tousled spiky white hair and long front fringe, pale face, black fitted short-sleeve shirt and black dark trousers, dark shoes, teal forearm and belt accents, same body and head proportions. Adapt to a clear RIGHT-facing side profile, standing relaxed idle, both intact arms visibly separated, empty hands, feet grounded. Full figure centered, generous margins. Clean flat cel-shaded lineless 2D art for later pixel conversion: no outlines or line art, at most 3 flat tones per material, crisp angular solid shapes; no gradients, no texture, no dithering, no pixel grid. No weapon, no text, no logo. Entire background flat pure magenta #FF00FF without shadow or ground.
+```

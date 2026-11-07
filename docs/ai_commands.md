@@ -197,3 +197,19 @@ tools\make_presentation_1st.py, tools\make_plan_deck.py 를 수정해 실행한�
 2. 동작(걷기, 달리기, 점프, 공격, 피격)은 Codex 이미지 생성으로 동작별 프레임 격자(예: 2×2, 3×3)를 만들어 PNG 프레임으로 `generate2dsprite`에 넘겨 정렬·팔레트·마무리를 한다.
 3. 결과는 `assets/sprites/detailed/`에 두고 `docs/sprite_spec.md`(80px, 공통 팔레트 약 60색, 외곽선 1px)와 `python tests/test_pixel_assets.py`로 확인한다.
 4. 사용한 프롬프트와 모델은 `docs/image_prompts.md`에 기록한다. 규칙은 `docs/pixel_rules.md`.
+
+
+## Codex 프롬프트: 마스터 스틸컷 재생성 (hibit, 눈·비율 개선) (2026-11-07)
+주인공 (눈 보존). 기존 시험 결과(`assets/sprites/forge/master/`)는 지우지 말고 `assets/sprites/forge/hero_v2/`에 새로 만들 것.
+```text
+AGENTS.md, docs/sprite_spec.md, docs/pixel_rules.md를 읽고 규칙을 따라줘. PROGRESS.md "진행 중"에 "[Codex] 주인공 마스터 v2"를 적고 시작해.
+Use $generate2dsprite to make ONE master still of the player (--finish hibit), and stop for approval. No animation, no video.
+기준: assets/sprites/unified/n09_idle.png (같은 인물·의상), 직전 시험 결과 assets/sprites/forge/master/master_rgba.png (이 화풍은 좋음, 아래만 고친다).
+고칠 점:
+1) 얼굴: 옆모습이지만 눈을 크고 굵고 어둡게(진한 청록~검정, 최소 키의 3%), 눈썹 선, 코와 입이 선명히. 작은 요소는 8배 축소에서 사라지니 과장해서 그려줘.
+2) 비율: 머리를 키의 약 1/6로 약간 크게, 어깨와 몸통을 넓게 해서 옆에서 봐도 몸 너비가 키의 35% 이상.
+3) 기준의 낡은 느낌(해진 소매·바짓단)을 큰 덩어리로 살린다. 잔 디테일 금지.
+4) 납작하고 선 없는 색면, 마젠타 배경, 오른쪽 옆모습, 두 팔 보이게 자연스럽게 벌림, 두 발 지면, 무기 없음.
+저장: assets/sprites/forge/hero_v2/. 끝나면 python tools/finish_character.py assets/sprites/forge/hero_v2/<master_rgba 경로> n09_v2 를 실행하고, 기존 unified/n09_idle.png와 1배로 나란히 놓은 비교 이미지를 hero_v2/compare_1x.png로 저장한 뒤 눈이 보이는지 솔직하게 알려줘. docs/image_prompts.md에 프롬프트·날짜 기록, 끝나면 PROGRESS "진행 중"을 비워.
+```
+나머지 6종은 위 형식에서 1)~3)을 캐릭터에 맞게 바꾸고 기준 이미지를 각 `unified/<이름>_idle.png`로 한다. 키는 `docs/sprite_spec.md` 표의 값.

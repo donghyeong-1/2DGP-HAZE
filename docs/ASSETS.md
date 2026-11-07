@@ -75,3 +75,9 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 ## 이미지 생성 스킬 (2026-11-07, 개발 도구이며 게임에 포함되지 않음)
 - agent-sprite-forge (0x0funky, MIT, commit 6b3da5c): `~/.codex/skills`와 `~/.claude/skills`에 설치. 그 도구로 만든 에셋은 사용한 모델·날짜·프롬프트를 `docs/image_prompts.md`에 기록하고 이 표에 추가한다.
 - codixel (mankidev, MIT, commit 604a9dc): `~/.claude/skills/codixel`에 설치(SKILL.md와 core/pixel.js).
+
+## 주인공 스틸컷 시험 (2026-11-07)
+
+| 파일 | 출처 | 라이선스 | 사용 위치 |
+|---|---|---|---|
+| `assets/sprites/forge/n09_idle_trial.png` | OpenAI Codex 내장 image_gen, 모델명 미제공. 기존 `unified/n09_idle.png` 참조, hibit 후처리 | 생성물 이용 조건 확인 필요 | 사용자 승인 전 시험 시안, 게임 미적용 |

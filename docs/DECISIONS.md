@@ -82,3 +82,8 @@
 - 이펙트는 pixelfx를 쓰고 `tools/finish_effects.py`로 마무리한다 (알파 디더 + 공유 48색 + 15fps). 규칙을 완화하지 않고 후처리로 맞춘다. 8개 시험 결과 모양은 대부분 유지, 반투명 연기는 점무늬가 된다.
 - 개발 도구로 agent-sprite-forge(Codex·Claude Code 양쪽 설치)와 codixel(Claude Code용)을 설치했다. 스프라이트 캐릭터 제작은 Codex에서 진행한다.
 - 제약: 영상 생성 경로(API 키 5종, Grok CLI)와 ffmpeg가 없어 `video2dsprite`(액션마다 영상 → 프레임)는 쓸 수 없다. Codex `image_gen`으로 만든 PNG 프레임을 `generate2dsprite`로 마무리하는 경로만 가능하다 (미검증).
+
+## 2026-11-07 hibit 방식 확정
+- 캐릭터는 hibit 방식(납작한 원화 → 후처리 픽셀화)으로 전체를 새로 만든다. 주인공 시험에서 도트가 일정하고 규칙(이진 알파, 64색 이하)에 맞는 것을 확인했다. 단점은 눈이 사라지는 것과 몸이 가늘어지는 것이며, 원화 요청에서 눈과 어깨를 과장하는 것으로 보완한다.
+- 마무리는 `tools/finish_character.py`로 통일(24색, 커버리지 0.3, 외곽선 #0b1020). `unified/` 대체는 비교와 테스트를 통과한 뒤에 한다.
+- AI 원본 `source.png`는 저장소에 올리지 않는다(.gitignore).

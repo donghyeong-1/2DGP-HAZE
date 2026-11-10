@@ -76,3 +76,4 @@
 
 2026-11-11 [Codex] T01 주인공 마스터 v3 제작·검사(시각 기준 일부 미달, 검토 대기) / assets/sprites/forge/hero_v3/, assets/sprites/forge/n09_v3/, assets/sprites/forge/n09_v3_idle.png, docs/codex/reports/T01.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-11 [Claude Code] 해상도 1.5배 이전(1920x1080, 타일 60): config·UI·모드 위치·플레이어 테스트, 타일 5종·로고 60px 고디테일 재제작, 캐릭터 7종 임시 재마무리, 임시 타일 삭제, 기획서 5.3·5.5 수치 갱신 / src/*, tests/test_player.py, tools/*, assets/tiles, assets/ui, assets/sprites/unified, docs/*
+2026-11-11 [Claude Code] T01 검토: 부분 합격(몸·옷 좋아짐, 얼굴·림라이트 문제) -> 재작업 v3b 지침 작성 / docs/codex/reports/T01_review.md, tasks/T01_hero_v3.md, COMMON.md, TASKS.md

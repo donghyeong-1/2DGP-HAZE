@@ -29,9 +29,11 @@
 ## 다음 할 일 (우선순위 순)
 1. [ ] **(사용자) 직접 플레이 점검**: 점프 높이·대시 거리·마우스 방향 전환 느낌, Title에서 키를 눌러 Play로 넘어가는지. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.9의 `[~]` 두 항목)
 2. [ ] 스프라이트 동작 프레임(걷기·점프·공격·피격) 제작 방법 시험 (영상 경로 없음 → Codex 이미지 격자 + `generate2dsprite` 마무리)
-3. [ ] 이미지 생성 모델명과 이용 조건 확인 후 `docs/ASSETS.md` 보완 (Codex는 모델명을 알려 주지 않음)
-4. [ ] 타이틀 로고·큰 제목 이미지 제작
-5. [ ] 무료 에셋(타일·UI·사운드) 선정, 출처 기록
+3. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기 (Codex는 모델명을 반환하지 않음)
+4. [ ] Codex로 걷기 프레임 시험, 통과하면 idle·attack·hurt·점프 (`docs/ai_commands.md` 프롬프트)
+5. [ ] Codex로 타일 세트와 배경(`tiles_v1`), 타이틀 로고(`logo_v1`) 제작
+5b. [ ] BGM: 후보(`docs/ASSETS.md`) 중 선택·다운로드(허락 필요)·라이선스 확인
+5c. [x] 효과음 9종 합성·연결 (줍기·E 강화는 해당 기능 구현 때 연결)
 6. [ ] (2주차 11/12~11/18) 마우스 조준 공격, 일반 몹 2종, 게이지 UI 연결, 충돌 박스(28×72)와 스프라이트 키(82) 정리
 
 ## 열린 질문
@@ -67,3 +69,4 @@
 2026-11-07 [Claude Code] 6종 결과 검토(7종 화풍 일치), unified 교체·legacy 보존, 구 스크립트 보호, 발 여백 보정 / assets/sprites/unified*, tools/pixelize_sprites.py, src/config.py, src/player.py, docs/*
 2026-11-09 [Claude Code] 1주차 진행 점검(체크리스트 11개 중 9개 확인, 2개 직접 확인 대기), 5.9 표기와 PROGRESS 정리 / docs/기획서.md, docs/PROGRESS.md
 2026-11-11 [Claude Code] 새 clone 검증(테스트 31개 통과), requirements.txt와 docs/SETUP.md 추가(다른 컴퓨터에서 이어서 작업하는 절차) / requirements.txt, docs/SETUP.md, AGENTS.md, README.md
+2026-11-11 [Claude Code] 효과음 9종 코드 합성·연결(tools/make_sfx.py, assets/sfx, 소리 테스트 2개), 에셋 현황·모델명·BGM 후보 정리, Codex 프롬프트(걷기·타일·로고) 작성 / tools/make_sfx.py, src/assets.py, player.py, play_mode.py, main.py, config.py, tests/test_sfx.py, docs/*

@@ -2,6 +2,7 @@
 from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_F1, SDLK_F3, SDLK_F4, SDLK_h, clear_canvas,
                     get_events, update_canvas)
 
+import assets
 import config
 import game_framework
 import game_world
@@ -18,9 +19,15 @@ def enter():
     game_world.clear()
     room = Room.load('test_01')
     player = Player(room.spawn[0], room.spawn[1], room)
+    player.gauge.listeners.append(_on_gauge_event)
     game_world.add_object(room, game_world.LAYER_BACKGROUND)
     game_world.add_object(player, game_world.LAYER_PLAYER)
     game_world.add_object(GameUI(player), game_world.LAYER_UI)
+
+
+def _on_gauge_event(name, gauge):
+    if name == 'overload':
+        assets.play_sound('overload')
 
 
 def exit():

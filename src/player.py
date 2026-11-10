@@ -7,6 +7,7 @@ import math
 
 from transitions import Machine
 
+import assets
 import config
 import room as room_module
 from haze_gauge import DEAD, HazeGauge
@@ -40,6 +41,7 @@ class _State:
 class Idle(_State):
     def enter(self):
         self.p.jump_count = 0
+        self.p.on_landing()
 
     def do(self, dt):
         self.p.vx = 0.0
@@ -56,6 +58,7 @@ class Idle(_State):
 class Run(_State):
     def enter(self):
         self.p.jump_count = 0
+        self.p.on_landing()
 
     def do(self, dt):
         p = self.p
@@ -75,6 +78,7 @@ class _Airborne(_State):
 
     def do(self, dt):
         p = self.p
+        p.air_time += dt
         p.vx = p.direction * config.RUN_SPEED * p.speed_mult()
 
 
@@ -84,6 +88,7 @@ class Jump(_Airborne):
         p.vy = config.JUMP_SPEED
         p.jump_count += 1
         p.on_ground = False
+        assets.play_sound('double_jump' if p.jump_count >= 2 else 'jump')
 
     def check(self):
         p = self.p
@@ -104,6 +109,7 @@ class Dash(_State):
     def enter(self):
         p = self.p
         p.dash_slots -= 1
+        assets.play_sound('dash')
         p.dash_left = config.DASH_TIME
         p.invuln_left = config.DASH_INVULN
         ax, ay = p.aim_vector()
@@ -139,6 +145,9 @@ class Hit(_State):
 
 
 class Dead(_State):
+    def enter(self):
+        assets.play_sound('death')
+
     def do(self, dt):
         self.p.vx = 0.0
 
@@ -150,6 +159,7 @@ class Player:
         self.vx = self.vy = 0.0
         self.on_ground = False
         self.jump_count = 0
+        self.air_time = 0.0              # 공중에 머문 시간(착지 소리용)
         self.face_dir = 1
         self.hp = config.PLAYER_HP
 
@@ -241,6 +251,12 @@ class Player:
             if event.button == SDL_BUTTON_RIGHT:
                 self.request_dash()
 
+    def on_landing(self):
+        """땅에 닿았을 때: 충분히 높은 곳에서 떨어졌으면 착지 소리를 낸다."""
+        if self.air_time > 0.25:
+            assets.play_sound('land')
+        self.air_time = 0.0
+
     def request_jump(self):
         if self.state in ('DASH', 'HIT', 'DEAD'):
             return
@@ -268,6 +284,7 @@ class Player:
         if self.hp <= 0:
             self.die()
         else:
+            assets.play_sound('hit')
             self.hit()
 
     # ----- 갱신 -----

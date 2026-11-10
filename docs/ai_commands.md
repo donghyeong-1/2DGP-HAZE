@@ -233,3 +233,31 @@ Use $generate2dsprite to make ONE master still per character below (--finish hib
 
 각 캐릭터마다: 결과 크기·반투명 수·색 수를 알려주고 눈이 보이는지 확인해줘. 모두 끝나면 주인공 v2 + 6종을 1배로 바닥을 맞춰 나란히 놓은 assets/sprites/forge/lineup_1x.png 를 만들고, 서로 화풍(도트 굵기, 채도, 명암)이 어긋나 보이는 캐릭터를 솔직하게 알려줘. docs/image_prompts.md에 프롬프트·날짜 기록, 끝나면 PROGRESS "진행 중"을 비워.
 ```
+
+
+## Codex 프롬프트: 주인공 동작 프레임 (2026-11-11, 미검증, 영상 없이 이미지 격자 방식)
+`generate2dsprite`의 `asset` 대상에는 walk/attack/hurt/idle 2×2 시트(4프레임)가 있다 (`player_*` 모드는 위·아래·좌우 4방향용이라 횡스크롤에는 쓰지 않는다). 먼저 **걷기 한 장**으로 방식이 되는지 본다.
+```text
+AGENTS.md, docs/sprite_spec.md, docs/pixel_rules.md를 읽고 규칙을 따라줘. PROGRESS.md "진행 중"에 "[Codex] 주인공 걷기 프레임 시험"을 적고 시작해.
+Use $generate2dsprite (target asset, mode walk) to make ONE 2x2 walk-cycle sheet (4 frames) of the player, then process and finish it. No video, no other actions yet.
+- 정체성·화풍 기준: assets/sprites/forge/hero_v2/master/master_rgba.png (같은 인물, 의상, 눈 크게, 납작한 색면, 선 없음). 오른쪽 옆모습, 마젠타 배경.
+- 4프레임은 걷기 주기(접촉, 내려감, 지나감, 올라감). 모든 칸에서 캐릭터 크기, 머리 높이, 발 위치(바닥선)가 같고 칸 경계를 넘지 않게.
+- 처리와 마무리: 키잉·정렬 후 finish_frames hibit. 크기와 색을 주인공과 맞추려고 --scale-ref assets/sprites/forge/hero_v2/finished/finish.json, --palette assets/sprites/forge/hero_v2/finished/palette.json, --outline #0b1020, --coverage 0.3 로 실행.
+- 저장: assets/sprites/forge/hero_walk_v1/. 프레임 4장 + 1배 가로 이어붙임 strip_1x.png.
+- 끝나면 솔직하게 알려줘: 프레임 사이 머리·몸 크기 흔들림, 발 위치 일치, 눈 보임, 팔레트가 hero_v2와 같은지, 얼굴·옷이 달라진 프레임이 있는지.
+docs/image_prompts.md에 프롬프트·날짜 기록, 끝나면 PROGRESS "진행 중"을 비우고 작업 로그에 한 줄 추가.
+```
+통과하면 같은 형식으로 idle(숨쉬기), attack(휘두르기), hurt(피격), 점프(상승·낙하: mode sheet에 프레임 설명을 직접 적음)를 만든다.
+
+## Codex 프롬프트: 타일 세트와 배경 (2026-11-11, 미검증)
+```text
+AGENTS.md, docs/pixel_rules.md, docs/기획서.md 5.3을 읽고 규칙을 따라줘. PROGRESS.md "진행 중"에 "[Codex] 타일 세트 시험"을 적고 시작해.
+Use $generate2dmap for a side-scrolling 2D action game tileset in the same hibit style as assets/sprites/forge/hero_v2 (flat lineless source, pixelized in post, 1px outline #0b1020). Dark sci-fi prison, cool navy and steel with cyan accents.
+타일 크기 40x40 px(도트는 캐릭터와 같은 1px 굵기). 만들 것: 1) solid(벽·바닥, 이음매 없이 이어짐) 2) oneway(얇은 바닥, 위쪽 10px만) 3) spike(가시) 4) 배경판 1280x720(깊이감 있는 감옥 복도, 캐릭터가 눈에 띄도록 어둡고 낮은 채도).
+결과는 assets/sprites/forge/tiles_v1/ 에 저장하고, 타일 3종을 3x3으로 이어 붙여 이음매가 보이는지, 주인공(assets/sprites/unified/n09_idle.png)을 옆에 1배로 놓은 비교 이미지를 tiles_v1/compare_1x.png로 만들어줘. 알파 0/255, 색 64개 이하를 지키고 결과를 솔직하게 알려줘.
+```
+
+## Codex 프롬프트: 타이틀 로고 (2026-11-11, 미검증)
+```text
+Use $generate2dsprite (target asset, mode single) for a game title logo: the word "HAZE" in bold angular letters made of pale cyan crystal and drifting fog, flat lineless colors on magenta key, a dark navy 1px outline after finishing. 팔레트 16색, hibit 마무리로 가로 약 320px, 같은 도트 굵기(1px). 결과 assets/sprites/forge/logo_v1/ 에 저장. AI가 글자를 틀리게 그리면(철자 오류) 그대로 쓰지 말고 알려줘.
+```

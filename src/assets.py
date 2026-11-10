@@ -39,6 +39,34 @@ def draw_rect_image(img, left, bottom, w, h):
 FONT_SIZES = {'normal': 14, 'small': 11}
 
 
+_sounds = {}
+
+
+def sound(name):
+    """assets/sfx/<name>.wav 를 불러와 캐시한다. 오디오를 쓸 수 없으면 None."""
+    if name not in _sounds:
+        try:
+            from pico2d import load_wav
+            wav = load_wav(os.path.join(ASSET_DIR, 'sfx', name + '.wav'))
+            if wav is not None:
+                import config
+                wav.set_volume(config.SFX_VOLUME)
+            _sounds[name] = wav
+        except Exception:
+            _sounds[name] = None
+    return _sounds[name]
+
+
+def play_sound(name):
+    """효과음 재생. 소리가 꺼져 있거나 오디오가 없으면 조용히 넘어간다."""
+    import config
+    if not config.SOUND_ENABLED:
+        return
+    wav = sound(name)
+    if wav is not None:
+        wav.play()
+
+
 def font(small=False):
     """한글 픽셀 폰트를 반환한다. 글꼴 파일이 없으면 None (글자는 그리지 않는다)."""
     key = 'small' if small else 'normal'

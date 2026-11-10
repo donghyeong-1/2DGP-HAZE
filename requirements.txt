@@ -1,0 +1,10 @@
+# 게임 실행에 필요한 패키지
+pico2d>=1.5
+transitions>=0.9
+
+# 에셋 제작 도구(tools/, tests/test_pixel_assets.py)에 필요한 패키지
+Pillow>=10.1
+
+# agent-sprite-forge 스킬을 쓸 때만 필요 (docs/SETUP.md 참고)
+numpy>=1.26
+scipy>=1.11

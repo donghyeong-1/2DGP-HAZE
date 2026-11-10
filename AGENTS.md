@@ -4,6 +4,7 @@
 이 파일이 유일한 기준 문서(single source of truth)이며, `CLAUDE.md`와 `GEMINI.md`는 이 파일을 참조만 한다.
 
 ## 작업 시작 시 (필수)
+0. 처음 쓰는 컴퓨터면 `docs/SETUP.md`로 환경을 준비하고, 작업 전에 `git pull`, 끝나면 커밋·푸시한다.
 1. `docs/PROGRESS.md`를 읽어 현재 상태와 다음 할 일을 확인한다.
 2. `docs/DECISIONS.md`를 읽어 이미 확정된 결정을 뒤집지 않는다.
 3. 작업을 시작하기 전에 `PROGRESS.md`의 "진행 중"에 자신의 도구 이름과 작업 내용을 적는다.

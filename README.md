@@ -23,6 +23,7 @@ python tests/test_player.py
 ```
 
 ## 문서
+- 새 컴퓨터에서 이어서 작업하기: `docs/SETUP.md`
 - 기획서: `docs/기획서.md` (5장이 구현 설계)
 - 진행 상황: `docs/PROGRESS.md`, 결정 기록: `docs/DECISIONS.md`
 - 에셋 출처: `docs/ASSETS.md`

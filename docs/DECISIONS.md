@@ -101,3 +101,8 @@
 - 효과음은 외부 음원 없이 `tools/make_sfx.py`로 코드 합성한다(저작권 문제 없음). `config.SOUND_ENABLED`는 main이 오디오를 켠 뒤에만 True라서 테스트와 창 없는 실행에서는 조용하다.
 - 타일·동작 프레임·로고는 같은 hibit 방식으로 Codex에서 만든다 (무료 타일 팩은 도트 굵기가 달라 규칙 4번에 맞지 않을 가능성이 커서 쓰지 않는다). BGM만 외부 무료(CC0)에서 고른다.
 - 이미지 생성 모델명은 알 수 없다(도구가 반환하지 않음). 제출 전에 사용자가 확인해 `docs/ASSETS.md`를 채운다.
+
+## 2026-11-11 Codex 비대화형 실행은 이 PC에서 안 된다
+- `codex exec`로 Codex를 대신 돌려 봤으나 실패했다. 설정 모델 `gpt-6.1-sol`과 앱 기록에 있던 `gpt-6.1-terra`, `gpt-6-sol`, `gpt-6-luna` 모두 "ChatGPT 계정에서 지원하지 않는 모델(model_not_found)"이라는 400 오류가 났고, `models cache` 로드 오류(`missing field base_instructions`)도 함께 나왔다. 파일은 아무것도 바뀌지 않았다.
+- 같은 모델이 Codex 앱에서는 동작했으므로(2026-11-09, 11-11 세션 기록), CLI와 앱의 모델 목록 처리가 다른 것으로 보인다. 원인 확인을 위해 `~/.codex`의 캐시를 건드리는 것은 사용자의 Codex 앱 상태를 바꾸는 일이라 하지 않았다.
+- 따라서 이미지 생성은 지금처럼 사용자가 Codex 앱에서 프롬프트(`docs/ai_commands.md`)를 붙여 넣어 실행한다.

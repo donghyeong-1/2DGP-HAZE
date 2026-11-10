@@ -112,3 +112,12 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - Ambience Pack 1 - Sci Fi Horror (Joth, OpenGameArt, CC0로 표기, 약 1분 루프 5개) https://opengameart.org/content/ambience-pack-1-sci-fi-horror
 - Elevator To Reactor (Hazmat Harry): 같은 페이지에 CC-BY 트랙이 섞여 있어 트랙별 확인 필요
 - 쓰지 않는 것: Dark Ambience Loop (qubodup)는 CC-BY 3.0/GPL이라 조건이 까다롭다.
+
+## 코드로 그린 에셋 (2026-11-11, 이미지 모델 없음, 직접 제작)
+| 파일 | 만든 방법 | 비고 |
+|---|---|---|
+| `assets/ui/logo.png` (320×96) | `tools/codeart/make_logo.py`가 SVG를 생성 → agent-sprite-forge의 codeart2d 렌더러(`svg_render.py --crisp --strict-qc`)로 1배 렌더 | 타이틀 로고 "HAZE". 알파 0/255, 8색 |
+| `assets/tiles/tile_solid_{a,b,c}.png`, `tile_oneway.png`, `tile_spike.png` (40×40) | `tools/codeart/make_tiles.py` → 같은 렌더러 | 벽 3변형(칸 위치로 선택), 얇은 바닥, 가시. 알파 0/255, 3~9색 |
+- 전체 재생성: `python tools/make_codeart.py`. 팔레트는 `tools/codeart/palette.json`.
+- 이 에셋은 코드로 직접 그린 것이라 외부 저작권이 없고, 엔딩 크레딧에는 "code-drawn"으로 표기한다. (codeart2d 스킬은 MIT, `docs/ASSETS.md`의 agent-sprite-forge 항목 참고)
+- 기존 `assets/placeholder/`의 타일은 더 이상 게임에서 쓰지 않는다 (배경 `bg.png`와 단색 점은 계속 사용).

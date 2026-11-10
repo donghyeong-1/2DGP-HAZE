@@ -23,12 +23,17 @@ def effect_files():
 
 
 def tile_files():
-    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'placeholder', 'tile_*.png')))
+    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'placeholder', 'tile_*.png')) +
+                  glob.glob(os.path.join(ROOT, 'assets', 'tiles', 'tile_*.png')))
+
+
+def ui_files():
+    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'ui', '*.png')))
 
 
 def test_sprites_have_binary_alpha():
     assert sprite_files(), '검사할 스프라이트가 없다'
-    for path in sprite_files() + tile_files() + effect_files():
+    for path in sprite_files() + tile_files() + effect_files() + ui_files():
         alpha = Image.open(path).convert('RGBA').getchannel('A').histogram()
         assert sum(alpha[1:255]) == 0, f'반투명 픽셀이 있다: {os.path.basename(path)}'
 
@@ -38,6 +43,15 @@ def test_sprites_within_palette_limit():
         img = Image.open(path).convert('RGBA')
         colors = {p for p in img.get_flattened_data() if p[3] == 255} if hasattr(img, 'get_flattened_data') \
             else {p for p in img.getdata() if p[3] == 255}
+        assert len(colors) <= MAX_COLORS, f'{os.path.basename(path)}: {len(colors)}색'
+
+
+def test_code_art_within_palette_limit():
+    """코드 아트(타일, 로고)는 색이 적다: 64색 이하."""
+    assert ui_files() and tile_files()
+    for path in tile_files() + ui_files():
+        img = Image.open(path).convert('RGBA')
+        colors = {p for p in img.getdata() if p[3] == 255}
         assert len(colors) <= MAX_COLORS, f'{os.path.basename(path)}: {len(colors)}색'
 
 

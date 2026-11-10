@@ -31,7 +31,7 @@
 2. [ ] 스프라이트 동작 프레임(걷기·점프·공격·피격) 제작 방법 시험 (영상 경로 없음 → Codex 이미지 격자 + `generate2dsprite` 마무리)
 3. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기 (Codex는 모델명을 반환하지 않음)
 4. [ ] Codex로 걷기 프레임 시험, 통과하면 idle·attack·hurt·점프 (`docs/ai_commands.md` 프롬프트)
-5. [ ] Codex로 타일 세트와 배경(`tiles_v1`), 타이틀 로고(`logo_v1`) 제작
+5. [x] 타이틀 로고·타일 5종 코드 아트로 제작·적용 (배경 이미지는 임시 그라데이션 유지)
 5b. [ ] BGM: 후보(`docs/ASSETS.md`) 중 선택·다운로드(허락 필요)·라이선스 확인
 5c. [x] 효과음 9종 합성·연결 (줍기·E 강화는 해당 기능 구현 때 연결)
 6. [ ] (2주차 11/12~11/18) 마우스 조준 공격, 일반 몹 2종, 게이지 UI 연결, 충돌 박스(28×72)와 스프라이트 키(82) 정리
@@ -70,3 +70,4 @@
 2026-11-09 [Claude Code] 1주차 진행 점검(체크리스트 11개 중 9개 확인, 2개 직접 확인 대기), 5.9 표기와 PROGRESS 정리 / docs/기획서.md, docs/PROGRESS.md
 2026-11-11 [Claude Code] 새 clone 검증(테스트 31개 통과), requirements.txt와 docs/SETUP.md 추가(다른 컴퓨터에서 이어서 작업하는 절차) / requirements.txt, docs/SETUP.md, AGENTS.md, README.md
 2026-11-11 [Claude Code] 효과음 9종 코드 합성·연결(tools/make_sfx.py, assets/sfx, 소리 테스트 2개), 에셋 현황·모델명·BGM 후보 정리, Codex 프롬프트(걷기·타일·로고) 작성 / tools/make_sfx.py, src/assets.py, player.py, play_mode.py, main.py, config.py, tests/test_sfx.py, docs/*
+2026-11-11 [Claude Code] codeart2d 스킬로 로고·타일 5종 제작(tools/codeart, tools/make_codeart.py), 방·타이틀에 적용, 코드 아트 검사 테스트 추가 / tools/*, assets/ui, assets/tiles, src/room.py, src/title_mode.py, tests/test_pixel_assets.py, docs/*

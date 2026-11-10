@@ -1,0 +1,19 @@
+{
+  "colors": {
+    "outline": "#0b1020",
+    "crystal-core": "#eaffff",
+    "crystal-light": "#a6ecfb",
+    "crystal-mid": "#3fb1cf",
+    "crystal-dark": "#1f6a8a",
+    "crystal-deep": "#164a66",
+    "fog-light": "#6f93bd",
+    "fog-dark": "#3b5880",
+    "steel-base": "#2a3550",
+    "steel-light": "#4d6285",
+    "steel-dark": "#1a2238",
+    "steel-deep": "#121a2c",
+    "rivet": "#8fa5c8",
+    "danger": "#c8505e",
+    "danger-dark": "#7d2c3a"
+  }
+}

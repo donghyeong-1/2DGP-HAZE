@@ -41,8 +41,7 @@ def update():
 def draw():
     clear_canvas()
     assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
-    # TODO: 큰 제목은 픽셀 폰트를 키우지 않고 로고 이미지(스프라이트)로 교체한다
-    assets.draw_text(config.SCREEN_W // 2, 430, 'HAZE', (170, 230, 250), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 380, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
+    assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 400)  # 코드로 그린 로고 (tools/make_codeart.py)
+    assets.draw_text(config.SCREEN_W // 2, 360, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
     assets.draw_text(config.SCREEN_W // 2, 200, '아무 키나 누르세요', (150, 160, 185), center=True)
     update_canvas()

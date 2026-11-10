@@ -77,16 +77,16 @@ class Room:
 
     def draw(self):
         assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
-        solid = assets.image('placeholder/tile_solid.png')
-        oneway = assets.image('placeholder/tile_oneway.png')
-        spike = assets.image('placeholder/tile_spike.png')
+        solids = [assets.image(f'tiles/tile_solid_{v}.png') for v in 'abc']  # 벽은 3변형을 칸 위치로 골라 단조로움을 줄인다
+        oneway = assets.image('tiles/tile_oneway.png')
+        spike = assets.image('tiles/tile_spike.png')
         half = config.TILE // 2
         for row, line in enumerate(self.rows):
             bottom = config.SCREEN_H - (row + 1) * config.TILE
             for col, ch in enumerate(line):
                 cx = col * config.TILE + half
                 if ch == SOLID:
-                    assets.draw_image(solid, cx, bottom)
+                    assets.draw_image(solids[(col * 7 + row * 13) % 3], cx, bottom)
                 elif ch == ONEWAY:
                     assets.draw_image(oneway, cx, bottom)  # 이미지의 위쪽 10px만 판으로 칠해져 있다
                 elif ch == SPIKE:

@@ -106,3 +106,7 @@
 - `codex exec`로 Codex를 대신 돌려 봤으나 실패했다. 설정 모델 `gpt-6.1-sol`과 앱 기록에 있던 `gpt-6.1-terra`, `gpt-6-sol`, `gpt-6-luna` 모두 "ChatGPT 계정에서 지원하지 않는 모델(model_not_found)"이라는 400 오류가 났고, `models cache` 로드 오류(`missing field base_instructions`)도 함께 나왔다. 파일은 아무것도 바뀌지 않았다.
 - 같은 모델이 Codex 앱에서는 동작했으므로(2026-11-09, 11-11 세션 기록), CLI와 앱의 모델 목록 처리가 다른 것으로 보인다. 원인 확인을 위해 `~/.codex`의 캐시를 건드리는 것은 사용자의 Codex 앱 상태를 바꾸는 일이라 하지 않았다.
 - 따라서 이미지 생성은 지금처럼 사용자가 Codex 앱에서 프롬프트(`docs/ai_commands.md`)를 붙여 넣어 실행한다.
+
+## 2026-11-11 로고·타일은 코드 아트로 확정
+- 이미지 생성 경로(Codex)를 제가 직접 돌릴 수 없고 AI가 글자를 틀릴 위험이 있어, 타이틀 로고와 타일은 codeart2d 스킬로 코드에서 그렸다 (`tools/make_codeart.py`). 외곽선 #0b1020 1px, 도트 1px로 캐릭터와 같은 굵기. 결과는 코드 아트임을 문서에 밝힌다.
+- 타일은 `assets/tiles/`를 쓰고, 벽은 3변형을 칸 위치로 고른다. 이 결정으로 `docs/ai_commands.md`의 Codex 타일·로고 프롬프트는 필요 없어졌다(보관).

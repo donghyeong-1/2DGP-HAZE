@@ -114,3 +114,9 @@
 ## 2026-11-11 외부 툴 사용 허용 확인, Codex 분담 검토 시작
 - 과목 공지: 맵 에디터 같은 외부 툴을 써도 되고 적극 사용을 권장한다. 따라서 방 데이터를 텍스트 대신 맵 에디터(LDtk 또는 Tiled)로 만드는 안을 검토한다. 확정 전.
 - Codex와의 역할 분담(이미지 생성·에셋은 Codex, 게임 로직·테스트·문서는 Claude Code)을 검토 중이며, 규칙은 확정 후 AGENTS.md에 적는다.
+
+## 2026-11-11 Codex 분담 확정, 작업 큐 방식
+- 분담: 이미지 에셋은 Codex, 게임 로직·테스트·문서·코드 아트·검토·커밋은 Claude Code. 규칙은 AGENTS.md "역할 분담", 운영은 `docs/codex/`.
+- 사용자는 프롬프트를 직접 쓰지 않는다. Codex에는 "docs/codex/TASKS.md를 읽고 ready인 첫 작업을 진행해줘" 한 줄만 입력한다. 작업별 프롬프트·합격 기준은 `docs/codex/tasks/T0x_*.md`.
+- Codex는 커밋하지 않고 `assets/sprites/forge/`·`docs/codex/reports/` 안에서만 쓴다. 결과는 `tools/check_sprites.py`로 같은 기준으로 검사하고, Claude Code가 검토 후 커밋한다.
+- 해상도 1.5배: 화면 1920×1080, 타일 60px, 캐릭터 키 ×1.5(주인공 123px), 색 40개. 에셋 재제작은 T01~T03, 코드 상수 이전은 Claude Code가 이어서 한다.

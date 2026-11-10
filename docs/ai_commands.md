@@ -1,3 +1,5 @@
+> **2026-11-11 알림**: Codex에 시킬 프롬프트는 이제 `docs/codex/tasks/`에 작업별로 정리되어 있다. 사용자는 `docs/codex/TASKS.md`를 읽게 하는 한 줄만 입력하면 된다. 이 문서의 아래 Codex 프롬프트들은 이전 기록이다.
+
 # 다른 AI에게 내릴 명령어 (ai_commands)
 
 > 참고(과거 기준): 이 문서의 일부 명령은 이전 상태(PPT 자리 표시, 파일 구조)를 기준으로 쓰였다. 현재 규칙은 `docs/DECISIONS.md`의 "현재 기준 요약", PPT는 `docs/slide_image_guide.md`를 따른다.

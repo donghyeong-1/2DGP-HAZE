@@ -33,11 +33,13 @@
 2. `python tools/finish_character.py <master_rgba.png> <이름>`: 팔레트 24색, 가장자리 커버리지 0.3, 외곽선 #0b1020 1px, 키는 아래 표.
 3. 결과는 `assets/sprites/forge/<이름>_idle.png`. 확인 후 `unified/`를 대체한다. 대체 전에 `python tests/test_pixel_assets.py`와 게임 안 1배 비교를 거친다.
 
-| 이름 | 키(외곽선 포함) |
-|---|---|
-| n09 (주인공) | 82 |
-| enemy_slum / enemy_thrower / enemy_guard | 78 / 82 / 90 |
-| enemy_hound | 54 |
-| boss_ark / boss_crasher | 106 / 130 |
+| 이름 | 키(외곽선 포함) | 1280×720 기준 (구) |
+|---|---|---|
+| n09 (주인공) | **123** | 82 |
+| enemy_slum / enemy_thrower / enemy_guard | **117 / 123 / 135** | 78 / 82 / 90 |
+| enemy_hound | **81** | 54 |
+| boss_ark / boss_crasher | **159 / 195** | 106 / 130 |
+
+2026-11-11 결정: 화면 1920×1080, 타일 60px로 올리면서 모든 키를 1.5배로 한다(`tools/finish_character.py`의 `SCALE`). 팔레트는 40색으로 늘렸다(`check_sprites.py` 상한은 48색). 7종을 이 크기로 다시 만드는 작업은 `docs/codex/`의 T01~T03.
 
 **알려진 한계 (주인공 시험 결과)**: 눈 같은 작은 얼굴 요소는 8배 축소에서 사라진다(눈이 1px도 안 됨). 마무리 설정으로는 약하게만 살아나므로, 원화에서 **눈을 굵고 크게, 머리를 크게(키의 약 1/6)** 그려 달라고 요청한다. 주인공 시험은 몸 너비가 16~20px로 기존(30px)보다 가늘다. 어깨를 넓게 요청한다.

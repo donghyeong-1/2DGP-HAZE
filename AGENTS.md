@@ -18,6 +18,11 @@
 - 같은 파일을 두 도구가 동시에 수정하지 않는다. "진행 중"에 적힌 파일은 건드리지 않는다.
 - 확정되지 않은 사항은 임의로 정하지 말고 `PROGRESS.md`의 "열린 질문"에 적는다.
 
+## 역할 분담 (Claude Code / Codex)
+- **Claude Code**: `src/`, `tests/`, `tools/`, `data/`, 문서, 코드로 그리는 에셋(`assets/tiles`, `assets/ui`, `assets/effects`), 결과 검토와 커밋·푸시.
+- **Codex**: 이미지 생성이 필요한 에셋. 작업 목록과 프롬프트는 전부 `docs/codex/`에 있다. 사용자가 "docs/codex/TASKS.md를 읽고 상태가 ready인 첫 작업을 진행해줘"라고 하면 `docs/codex/COMMON.md`와 해당 작업 파일(`docs/codex/tasks/`)을 따른다. Codex는 `assets/sprites/forge/`와 `docs/codex/reports/` 안에서만 쓰고, 커밋은 하지 않는다.
+- 서로의 영역 파일은 건드리지 않는다. 작업 전 `PROGRESS.md`의 "진행 중"을 확인한다.
+
 ## 프로젝트 요약
 - 과목: 2D 게임 프로그래밍 (Python, pico2d), 순수 창작 2D 게임
 - 장르: 횡스크롤 액션 로그라이크 (마우스 조준, 방 단위 던전, 사망 시 처음부터)

@@ -77,3 +77,5 @@
 2026-11-11 [Codex] T01 주인공 마스터 v3 제작·검사(시각 기준 일부 미달, 검토 대기) / assets/sprites/forge/hero_v3/, assets/sprites/forge/n09_v3/, assets/sprites/forge/n09_v3_idle.png, docs/codex/reports/T01.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-11 [Claude Code] 해상도 1.5배 이전(1920x1080, 타일 60): config·UI·모드 위치·플레이어 테스트, 타일 5종·로고 60px 고디테일 재제작, 캐릭터 7종 임시 재마무리, 임시 타일 삭제, 기획서 5.3·5.5 수치 갱신 / src/*, tests/test_player.py, tools/*, assets/tiles, assets/ui, assets/sprites/unified, docs/*
 2026-11-11 [Claude Code] T01 검토: 부분 합격(몸·옷 좋아짐, 얼굴·림라이트 문제) -> 재작업 v3b 지침 작성 / docs/codex/reports/T01_review.md, tasks/T01_hero_v3.md, COMMON.md, TASKS.md
+2026-11-11 [Codex] T01 주인공 v3b 재작업 및 1배·얼굴 비교, 스프라이트와 픽셀 검사 통과, 검토 대기 / assets/sprites/forge/hero_v3b/, assets/sprites/forge/n09_v3b/, assets/sprites/forge/n09_v3b_idle.png, docs/codex/reports/T01.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-11 [Claude Code] T01 v3b 검토 합격, T02·T03·T04 ready로 전환, 후속 작업 기준을 v3b로 변경, 게임의 주인공 스프라이트를 v3b로 교체 / docs/codex/*, DECISIONS.md, PROGRESS.md, assets/sprites/unified/n09_idle.png

@@ -6,7 +6,7 @@
 사냥개와 보스 2종의 마스터 스틸컷을 주인공 v3와 같은 화풍·디테일로 만들고 마무리한다. 한 번에 한 캐릭터씩 차례로.
 
 ## 화풍 기준
-T02와 같다 (화풍 기준은 `hero_v3/master/master_rgba.png`, 정체성 기준은 각 `unified_legacy/<이름>_idle.png`).
+T02와 같다 (화풍 기준은 `hero_v3b/master/master_rgba.png`, 정체성 기준은 각 `unified_legacy/<이름>_idle.png`).
 
 ## 캐릭터 (이름 / 키 / 설명)
 | 이름 | 목표 키 | 설명 |

@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "n09_v3b",
+  "subject": "N-09, white-haired young male prisoner",
+  "identity": "Edit the FIRST image of N-09, the established v3 master. The SECOND (legacy sprite) and THIRD (v2 master) are identity checks only. Return one 1024×1024 full-body right-facing side-profile still on uniform pure magenta #FF00FF with no floor or shadow. Preserve the first image's composition, height-to-width ratio, pose, silhouette below the neck, spiky short white hair identity, torn black short-sleeve shirt and pants, folds, cyan bands and belt, and lace-up boots with distinct soles. Keep flat opaque lineless cel-shaded color shapes, upper-left light, no gradients or textures. Change only these details: (1) sweep the front fringe sideways and UP above the brow so the entire visible eye has clear skin around it. Build a bold deep teal eye shape, at least one quarter the whole head width and at least 4% of whole figure height vertically. Put ONE sizable off-white highlight square fully inside the dark teal iris, occupying roughly one fifth of the eye, distinct from any sclera. A separate thick dark eyebrow, clear nose profile, simple dark-brown mouth mark, and simple ear. Preserve the white and blue-gray hair clusters. (2) All exposed skin is exactly two flat peach/tan values, warm pale peach and muted ochre tan. No pink, red, purple, mauve, gray, teal or cyan anywhere on skin; dark brown mouth only. (3) Remove all cyan lighting from head, face, hair and exposed arms. Keep the teal accessories. Add only a few short muted teal rim accents inside the rear-facing cloth or leather edges; no continuous neon outline. (4) Simplify hands to relaxed closed shapes with a single distinct thumb, no finger stripes. Leave ample margin above hair and under boots. No weapon, mask, text, logos, or any drawn contour outline.",
+  "pose": null,
+  "recap": "N-09, white-haired young male prisoner (Edit the FIRST image of N-09, the established v3 master. The SECOND (legacy sprite) and THIRD (v2 master) are identity checks only. Return one 1024×1024 full-body right-facing side-profile still on uniform pure magenta #FF00FF with no floor or shadow. Preserve the first image's composition, height-to-width ratio, pose, silhouette below the neck, spiky short white hair identity, torn black short-sleeve shirt and pants, folds, cyan bands and belt, and lace-up boots with distinct soles. Keep flat opaque lineless cel-shaded color shapes, upper-left light, no gradients or textures. Change only these details: (1) sweep the front fringe sideways and UP above the brow so the entire visible eye has clear skin around it. Build a bold deep teal eye shape, at least one quarter the whole head width and at least 4% of whole figure height vertically. Put ONE sizable off-white highlight square fully inside the dark teal iris, occupying roughly one fifth of the eye, distinct from any sclera. A separate thick dark eyebrow, clear nose profile, simple dark-brown mouth mark, and simple ear. Preserve the white and blue-gray hair clusters. (2) All exposed skin is exactly two flat peach/tan values, warm pale peach and muted ochre tan. No pink, red, purple, mauve, gray, teal or cyan anywhere on skin; dark brown mouth only. (3) Remove all cyan lighting from head, face, hair and exposed arms. Keep the teal accessories. Add only a few short muted teal rim accents inside the rear-facing cloth or leather edges; no continuous neon outline. (4) Simplify hands to relaxed closed shapes with a single distinct thumb, no finger stripes. Leave ample margin above hair and under boots. No weapon, mask, text, logos, or any drawn contour outline)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified_legacy/n09_idle.png",
+    "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036"
+  },
+  "style_ref": {
+    "path": "../../hero_v3/master/master_rgba.png",
+    "sha256": "8d10c5c619a739cf70acad2f140d76bc8f98da2d8f40ab7ba761b97d79ed1468"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

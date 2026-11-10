@@ -123,3 +123,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 기존 `assets/placeholder/`의 타일은 더 이상 게임에서 쓰지 않는다 (배경 `bg.png`와 단색 점은 계속 사용).
 
 2026-11-11 [Codex] T01 `assets/sprites/forge/n09_v3_idle.png`: Codex image_gen(모델명 미제공), 기존 주인공 참조 후 hibit 처리. 생성물 이용 조건 확인 필요, 검토 대기·게임 미적용.
+
+2026-11-11 [Codex] T01 `assets/sprites/forge/n09_v3b_idle.png`. 프로젝트 주인공 참조로 Codex 내장 image_gen(모델명 미제공) 생성 후 generate2dsprite hibit 마감. 생성물 이용 조건 확인 필요. 검토 대기.

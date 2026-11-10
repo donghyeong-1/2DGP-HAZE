@@ -19,7 +19,7 @@ T04와 같다: 모든 칸에서 얼굴, 의상, 몸 크기가 같고 바닥선 �
 ## 절차 (동작마다 반복)
 1. `$generate2dsprite` `asset` 대상으로 해당 모드(idle/attack/hurt/직접 설명한 sheet) 시트 생성. 저장: `assets/sprites/forge/<이름>/`.
 2. `process`로 프레임 분리 → `frames_raw/`.
-3. `python tools/finish_character.py assets/sprites/forge/<이름>/frames_raw <이름> --like n09_v3`
+3. `python tools/finish_character.py assets/sprites/forge/<이름>/frames_raw <이름> --like n09_v3b`
 4. `python tools/check_sprites.py assets/sprites/forge/<이름>/frames/*.png` 통과.
 5. 네 동작이 끝나면 보고서 `docs/codex/reports/T05.md`, 상태 `review`.
 

@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-10T16:57:02.328Z",
+  "name": "n09_v3b",
+  "subject": "N-09, white-haired young male prisoner",
+  "identity_recap": "N-09, white-haired young male prisoner (Edit the FIRST image of N-09, the established v3 master. The SECOND (legacy sprite) and THIRD (v2 master) are identity checks only. Return one 1024×1024 full-body right-facing side-profile still on uniform pure magenta #FF00FF with no floor or shadow. Preserve the first image's composition, height-to-width ratio, pose, silhouette below the neck, spiky short white hair identity, torn black short-sleeve shirt and pants, folds, cyan bands and belt, and lace-up boots with distinct soles. Keep flat opaque lineless cel-shaded color shapes, upper-left light, no gradients or textures. Change only these details: (1) sweep the front fringe sideways and UP above the brow so the entire visible eye has clear skin around it. Build a bold deep teal eye shape, at least one quarter the whole head width and at least 4% of whole figure height vertically. Put ONE sizable off-white highlight square fully inside the dark teal iris, occupying roughly one fifth of the eye, distinct from any sclera. A separate thick dark eyebrow, clear nose profile, simple dark-brown mouth mark, and simple ear. Preserve the white and blue-gray hair clusters. (2) All exposed skin is exactly two flat peach/tan values, warm pale peach and muted ochre tan. No pink, red, purple, mauve, gray, teal or cyan anywhere on skin; dark brown mouth only. (3) Remove all cyan lighting from head, face, hair and exposed arms. Keep the teal accessories. Add only a few short muted teal rim accents inside the rear-facing cloth or leather edges; no continuous neon outline. (4) Simplify hands to relaxed closed shapes with a single distinct thumb, no finger stripes. Leave ample margin above hair and under boots. No weapon, mask, text, logos, or any drawn contour outline)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      388,
+      138,
+      636,
+      926
+    ],
+    "anchor": [
+      520.5,
+      926.0
+    ],
+    "opaque_area_px": 121003,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "db98cb0528b1c10c8738233cef5d2cf82f9bac26cb5ebdd72985857986081c95",
+      "bytes": 197833,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "95e3eecad18b66be63987271c47cd905a4e13228d3fd856d1836602058a58910",
+      "bytes": 235055,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "51fdab8aa647bd99e152a43fa6dadc4678974ea5a6470302e0527db208466c23",
+      "bytes": 1300493,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "3a0ef97ab8cdd40803fdb80c18bfbfe92d03c200080cadc58e197f84ac398a20",
+      "bytes": 4248
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "729d840b6857b16f8e342c06de087a2b2ab17f425ec759cbf30a229309102374",
+      "bytes": 3605
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/n09_idle.png",
+      "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036",
+      "bytes": 3695
+    },
+    {
+      "role": "style",
+      "path": "../../../hero_v3/master/master_rgba.png",
+      "sha256": "8d10c5c619a739cf70acad2f140d76bc8f98da2d8f40ab7ba761b97d79ed1468",
+      "bytes": 243779
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      472,
+      166,
+      776,
+      1135
+    ],
+    "crop_box": [
+      466,
+      160,
+      782,
+      1141
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.8132094943240454,
+    "offset": [
+      4.557275541795661,
+      3.0072239422084692
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 2594,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "51fdab8aa647bd99e152a43fa6dadc4678974ea5a6470302e0527db208466c23",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        7.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8821945213911973,
+      "distance_from_declared": 9.0
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.033762719203290756,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 184760
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

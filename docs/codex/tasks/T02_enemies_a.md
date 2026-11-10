@@ -6,7 +6,7 @@
 적 3종의 마스터 스틸컷을 주인공 v3와 **같은 화풍·같은 디테일 수준**으로 만들고 픽셀 스프라이트로 마무리한다. 한 번에 한 캐릭터씩 차례로 만든다.
 
 ## 화풍 기준
-- 화풍·음영·림라이트 기준: `assets/sprites/forge/hero_v3/master/master_rgba.png` (T01 결과). 채도, 명암 단계, 눈 크기 비율을 맞춘다.
+- 화풍·음영·림라이트 기준: `assets/sprites/forge/hero_v3b/master/master_rgba.png` (T01 결과). 채도, 명암 단계, 눈 크기 비율을 맞춘다.
 - 정체성 기준: 각 캐릭터의 `assets/sprites/unified_legacy/<이름>_idle.png`.
 - 청록(cyan)은 모든 캐릭터 공통 포인트색으로 쓴다.
 
@@ -28,7 +28,7 @@
 2. `python tools/finish_character.py assets/sprites/forge/<이름>/master/master_rgba.png <이름>`
    (결과: `assets/sprites/forge/<이름>/`의 마무리 결과와 `assets/sprites/forge/<이름>_idle.png`)
 3. `python tools/check_sprites.py assets/sprites/forge/<이름>_idle.png` 통과 확인.
-4. 세 캐릭터가 모두 끝나면 `n09_v3_idle.png`와 세 적을 1배로 나란히 놓은 `assets/sprites/forge/lineup_v3_a_1x.png`를 만든다 (진한 남색 배경, 바닥선 맞춤, 확대하지 않음).
+4. 세 캐릭터가 모두 끝나면 `n09_v3b_idle.png`와 세 적을 1배로 나란히 놓은 `assets/sprites/forge/lineup_v3_a_1x.png`를 만든다 (진한 남색 배경, 바닥선 맞춤, 확대하지 않음).
 5. 보고서 `docs/codex/reports/T02.md` 작성, 상태 `review` (COMMON.md 5절).
 
 ## 합격 기준

@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_slum_v3",
+  "subject": "enemy_slum",
+  "identity": "Create one full-body still of the SAME gaunt bald hostile prisoner as the first reference. Hunched and bony, tense clenched fists, shredded charcoal gray prison vest and pants, prominent frayed rope belt knotted at front, bare feet with dirty cloth wraps, no weapon. Angular gaunt face, dark wild visible eye with one bold pale glint and distinct brow; faint thin dusty teal veins as small markings on forearm skin only, no glowing light on the skin. Keep worn gray cloth near the hero's values, hands and ragged details legible as large flat shapes. FIRST reference fixes character identity. SECOND is the approved Haze hero and fixes rendering only: same restrained saturation, angular flat lineless cel shapes and 3 value steps per fabric or metal; pale warm tan skin with one darker tan shadow, no pink or purple. Upper-left light. Small muted cyan accents on rear cloth edges only, no rim light on bare skin, hair or face. No continuous neon contour, gradients, antialias-like glow or painted pixel grid. One full body standing sprite master facing strictly RIGHT in side profile, eye or facial mark at least 3% of figure height, generous clear margin on all sides, both feet on a common ground line. Square composition, perfectly solid pure magenta #FF00FF, no ground, text, logos or shadows.",
+  "pose": null,
+  "recap": "enemy_slum (Create one full-body still of the SAME gaunt bald hostile prisoner as the first reference. Hunched and bony, tense clenched fists, shredded charcoal gray prison vest and pants, prominent frayed rope belt knotted at front, bare feet with dirty cloth wraps, no weapon. Angular gaunt face, dark wild visible eye with one bold pale glint and distinct brow; faint thin dusty teal veins as small markings on forearm skin only, no glowing light on the skin. Keep worn gray cloth near the hero's values, hands and ragged details legible as large flat shapes. FIRST reference fixes character identity. SECOND is the approved Haze hero and fixes rendering only: same restrained saturation, angular flat lineless cel shapes and 3 value steps per fabric or metal; pale warm tan skin with one darker tan shadow, no pink or purple. Upper-left light. Small muted cyan accents on rear cloth edges only, no rim light on bare skin, hair or face. No continuous neon contour, gradients, antialias-like glow or painted pixel grid. One full body standing sprite master facing strictly RIGHT in side profile, eye or facial mark at least 3% of figure height, generous clear margin on all sides, both feet on a common ground line. Square composition, perfectly solid pure magenta #FF00FF, no ground, text, logos or shadows)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified_legacy/enemy_slum_idle.png",
+    "sha256": "70d22322dc16691befd9fd31d726140aac983063bfbce8a88cfa7b6f094998eb"
+  },
+  "style_ref": {
+    "path": "../../hero_v3b/master/master_rgba.png",
+    "sha256": "95e3eecad18b66be63987271c47cd905a4e13228d3fd856d1836602058a58910"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

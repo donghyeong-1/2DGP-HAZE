@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-10T17:50:35.451Z",
+  "name": "enemy_guard_v3",
+  "subject": "enemy_guard",
+  "identity_recap": "enemy_guard (Create one full-body still of the SAME heavy prison guard from the first reference. Broad imposing silhouette. Closed charcoal steel helmet with large distinct dark cyan visor, matching the wraparound slot of the original but thick enough to read at gameplay size. One steel shield with three simple block stripe markings, held in FRONT toward the RIGHT edge. In the other hand a short heavy police baton, pointed forward and down, visibly separate from shield. Keep large shoulder protectors, padded chest vest with three clearly grouped utility pouches, reinforced knees and dark armored boots. Muted dark blue-gray base, slate gray highlights and near-black shadows on steel; limited subdued cyan on visor and one or two small armor accents, no glaring neon cyan. The visor's solid cyan opening should be at least 4% of figure height, with a pale accent at upper edge. Preserve leftmost big shoulder plate and separated legs for clear silhouette. FIRST reference fixes character identity. SECOND is the approved Haze hero and fixes rendering only: same restrained saturation, angular flat lineless cel shapes and 3 value steps per fabric or metal; pale warm tan skin with one darker tan shadow, no pink or purple. Upper-left light. Small muted cyan accents on rear cloth edges only, no rim light on bare skin, hair or face. No continuous neon contour, gradients, antialias-like glow or painted pixel grid. One full body standing sprite master facing strictly RIGHT in side profile, eye or facial mark at least 3% of figure height, generous clear margin on all sides, both feet on a common ground line. Square composition, perfectly solid pure magenta #FF00FF, no ground, text, logos or shadows)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      288,
+      138,
+      737,
+      926
+    ],
+    "anchor": [
+      497.5,
+      926.0
+    ],
+    "opaque_area_px": 235065,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "3ee51fbda7c2939c560592d3f9d64ecb77cc8e83232ab832b81c902da8f2cdb7",
+      "bytes": 295692,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "f3e3c51046e3de11bdbfd776a45a4e547b7389e1d146222265ce57f3dd4d9f0a",
+      "bytes": 340930,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "a21034916e9578ad55e2fe38954f9601753ebd8853886e48d79534f2431625a6",
+      "bytes": 1364254,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "c87b71f88c5f33f3a99d9f8922b7df2e53b580ba7e49f8b9d3d36dcc2c45037f",
+      "bytes": 4128
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "538951c62909c78ba6033a6aa0247959842f699a16b994578eb04676f07584ae",
+      "bytes": 3540
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../unified_legacy/enemy_guard_idle.png",
+      "sha256": "24d93dcc13349180c0f8e7205f0c57029b3296c4c4d0bd7cc2693615ad16c61f",
+      "bytes": 7550
+    },
+    {
+      "role": "style",
+      "path": "../../hero_v3b/master/master_rgba.png",
+      "sha256": "95e3eecad18b66be63987271c47cd905a4e13228d3fd856d1836602058a58910",
+      "bytes": 235055
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      297,
+      40,
+      961,
+      1207
+    ],
+    "crop_box": [
+      291,
+      34,
+      967,
+      1213
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.675235646958012,
+    "offset": [
+      87.27677806341046,
+      110.99057412167951
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3216,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "prompt",
+    "run": "../prompt",
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "a21034916e9578ad55e2fe38954f9601753ebd8853886e48d79534f2431625a6",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.6700694937285216,
+      "distance_from_declared": 7.07
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.013373593764781519,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 517961
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

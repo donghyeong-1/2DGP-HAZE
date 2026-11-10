@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-10T17:48:44.073Z",
+  "name": "enemy_slum_v3",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "83f5d1dae28d169b90e9cc9f34ac27c43eff9ea2faaf43ab50cb37fd15a5219d",
+    "bytes": 3140
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "1c1d49450953a3ad1de1b02d013bdf0ec6b9e3672807ea99c6ad70479f901dc9",
+    "bytes": 2018
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified_legacy/enemy_slum_idle.png",
+      "sha256": "70d22322dc16691befd9fd31d726140aac983063bfbce8a88cfa7b6f094998eb",
+      "bytes": 3746
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v3b/master/master_rgba.png",
+      "sha256": "95e3eecad18b66be63987271c47cd905a4e13228d3fd856d1836602058a58910",
+      "bytes": 235055
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

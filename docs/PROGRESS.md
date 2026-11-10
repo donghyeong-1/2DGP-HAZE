@@ -73,3 +73,6 @@
 2026-11-11 [Claude Code] codeart2d 스킬로 로고·타일 5종 제작(tools/codeart, tools/make_codeart.py), 방·타이틀에 적용, 코드 아트 검사 테스트 추가 / tools/*, assets/ui, assets/tiles, src/room.py, src/title_mode.py, tests/test_pixel_assets.py, docs/*
 2026-11-11 [Claude Code] 외부 툴 허용 공지를 AGENTS.md·DECISIONS에 기록, Codex 분담·맵 에디터 도입 검토 / AGENTS.md, docs/DECISIONS.md, docs/PROGRESS.md (해상도 1920x1080 이전은 보류, 코드 변경 없음)
 2026-11-11 [Claude Code] Codex 작업 큐 세팅(docs/codex: TASKS, COMMON, T01~T06, 보고서 양식), tools/check_sprites.py, finish_character.py를 1.5배·--like·프레임 폴더 지원으로 확장, AGENTS.md 역할 분담 추가 / docs/codex/*, tools/*, AGENTS.md, docs/sprite_spec.md, docs/ai_commands.md, docs/DECISIONS.md
+
+2026-11-11 [Codex] T01 주인공 마스터 v3 제작·검사(시각 기준 일부 미달, 검토 대기) / assets/sprites/forge/hero_v3/, assets/sprites/forge/n09_v3/, assets/sprites/forge/n09_v3_idle.png, docs/codex/reports/T01.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-11 [Claude Code] 해상도 1.5배 이전(1920x1080, 타일 60): config·UI·모드 위치·플레이어 테스트, 타일 5종·로고 60px 고디테일 재제작, 캐릭터 7종 임시 재마무리, 임시 타일 삭제, 기획서 5.3·5.5 수치 갱신 / src/*, tests/test_player.py, tools/*, assets/tiles, assets/ui, assets/sprites/unified, docs/*

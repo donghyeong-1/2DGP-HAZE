@@ -41,7 +41,7 @@ def update():
 def draw():
     clear_canvas()
     assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
-    assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 400)  # 코드로 그린 로고 (tools/make_codeart.py)
-    assets.draw_text(config.SCREEN_W // 2, 360, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 200, '아무 키나 누르세요', (150, 160, 185), center=True)
+    assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 600)  # 코드로 그린 로고 (tools/make_codeart.py)
+    assets.draw_text(config.SCREEN_W // 2, 545, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
+    assets.draw_text(config.SCREEN_W // 2, 300, '아무 키나 누르세요', (150, 160, 185), center=True)
     update_canvas()

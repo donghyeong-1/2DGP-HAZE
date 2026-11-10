@@ -7,7 +7,7 @@ ZONE_LABEL = {FADE: '페이드', NORMAL: '노멀', AWAKE: '각성', CRITICAL: '�
 ZONE_COLOR = {FADE: (225, 70, 80), NORMAL: (110, 150, 220), AWAKE: (90, 210, 240),
               CRITICAL: (240, 150, 60), OVERLOAD: (250, 220, 90), DEAD: (225, 70, 80)}
 
-BAR_X, BAR_Y, BAR_W, BAR_H = 340, config.SCREEN_H - 40, 600, 20
+BAR_X, BAR_Y, BAR_W, BAR_H = 510, config.SCREEN_H - 60, 900, 30
 
 
 def _rect(name, x, y, w, h):
@@ -34,7 +34,7 @@ class GameUI:
 
     def _draw_gauge(self):
         g = self.player.gauge
-        _rect('px_black', BAR_X - 3, BAR_Y - 3, BAR_W + 6, BAR_H + 6)
+        _rect('px_black', BAR_X - 4, BAR_Y - 4, BAR_W + 8, BAR_H + 8)
         # 구간 띠 (페이드 / 노멀 / 각성 / 위험)
         bounds = [(0, config.ZONE_FADE_MAX, 'px_red'), (config.ZONE_FADE_MAX, config.ZONE_NORMAL_MAX, 'px_blue'),
                   (config.ZONE_NORMAL_MAX, g.cap - config.CRITICAL_MARGIN, 'px_cyan'),
@@ -46,18 +46,18 @@ class GameUI:
             if fill > 0:
                 _rect(name, x0, BAR_Y, self._x_of(lo + fill) - x0, BAR_H)
         # 현재 값 표시선
-        _rect('px_white', self._x_of(g.value) - 2, BAR_Y - 6, 4, BAR_H + 12)
+        _rect('px_white', self._x_of(g.value) - 3, BAR_Y - 9, 6, BAR_H + 18)
         label = f'{ZONE_LABEL[g.zone]} {int(g.value)}%'
         if g.enhanced:
             label += f'  강화 {g.enhance_timer:.1f}s'
-        assets.draw_text(BAR_X, BAR_Y - 24, label, ZONE_COLOR[g.zone])
+        assets.draw_text(BAR_X, BAR_Y - 30, label, ZONE_COLOR[g.zone])
 
     def _draw_dash_slots(self):
         p = self.player
         for i in range(p.dash_max):
             name = 'px_cyan' if i < p.dash_slots else 'px_gray'
-            _rect(name, 40 + i * 26, config.SCREEN_H - 58, 20, 14)
-        assets.draw_text(40, config.SCREEN_H - 82, f'HP {p.hp}', (235, 240, 250))
+            _rect(name, 60 + i * 39, config.SCREEN_H - 87, 30, 21)
+        assets.draw_text(60, config.SCREEN_H - 123, f'HP {p.hp}', (235, 240, 250))
 
     def _draw_debug(self):
         p = self.player
@@ -68,4 +68,4 @@ class GameUI:
             'F1 디버그  F3 게이지+10  F4 게이지-10  H 피격  Esc 일시정지',
         ]
         for i, text in enumerate(lines):
-            assets.draw_text(40, config.SCREEN_H - 110 - i * 16, text, (255, 240, 120), small=True)
+            assets.draw_text(60, config.SCREEN_H - 165 - i * 18, text, (255, 240, 120), small=True)

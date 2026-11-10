@@ -1,0 +1,13 @@
+Create exactly ONE square image (1024x1024).
+
+Style: clean flat cel-shaded 2D game art, painted for pixel conversion: lineless shapes with NO outline and no line art, every material in at most 3 flat tones (highlight, base, shadow), cool purple-leaning shadows and warm highlights, large crisp angular light and shadow shapes, a bold readable silhouette, no gradients, no airbrush, no texture noise, no dithering, no pixel grid. No text, no letters, no numbers, no logo, no watermark, no signature, no UI, no border, no frame, no grid.
+
+Reference images: the FIRST attached image is an image of this exact character; copy their face, hair, body shape, costume, colours, markings and equipment exactly. The SECOND attached image is an approved in-game sprite of another character from the same game: match its flat cel-shaded style, outline weight, shading, figure size and position on the canvas; do NOT copy that character's face, hair, outfit, equipment or colours.
+
+Subject: N-09 the same white-haired young male prisoner, right-facing side view, clearly FACING RIGHT: their face, gaze and chest turn toward the RIGHT edge of the image; forward is RIGHT and their back is toward the LEFT edge. Same person and clothing as first reference, same white hair and dark short-sleeve top, trousers, boots, cyan bands and belt. Standing idle with both arms visible and feet grounded, no weapon.
+
+Size and position: one single figure, the top of the figure (including hair, headgear, raised weapons and effects) about 14 percent below the top edge of the canvas and its lowest point about 14 percent above the bottom edge (the figure about 72 percent of the canvas height), centred horizontally, generous empty magenta margin on every side, nothing touching or crossing the edges. The whole figure is drawn with solid, fully opaque pixels: no transparency, no semi-transparent glow, no soft aura, nothing blended with the background.
+
+Emphasize broad body, expressive big eye, clearly separated fingers, worn cloth folds and three-tone shading with cyan rim light.
+
+Background: solid flat pure magenta #FF00FF everywhere outside the character, no shadow, no ground, no glow on the background.

@@ -7,9 +7,19 @@ import random
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent / "logo.svg"
-W, H = 320, 96
-LETTER_W, LETTER_H = 64, 62
-ORIGINS = [(12, 8), (90, 8), (168, 8), (246, 8)]
+K = 1.5  # 1280x720 기준 로고(320x96) 대비 배율. 좌표는 모두 정수로 반올림한다
+W, H = 480, 144
+ORIGINS = [(18, 12), (134, 12), (250, 12), (366, 12)]
+
+
+def S(v):
+    return round(v * K)
+
+
+def scale_nums(text):
+    """경로·점 목록의 모든 숫자를 K배 하고 정수로 반올림한다. (문자 L, M, Z 등은 그대로)"""
+    import re
+    return re.sub(r"-?\d+(?:\.\d+)?", lambda m: str(round(float(m.group()) * K)), text)
 
 # 글자 윤곽 (글자 왼쪽 위가 0,0). A는 안쪽 구멍을 evenodd로 뚫는다.
 LETTERS = {
@@ -21,41 +31,41 @@ LETTERS = {
 
 
 def letter(idx, ch, x0, y0):
-    d = LETTERS[ch]
+    d = scale_nums(LETTERS[ch])
     cid = f"clip{idx}"
     return f"""  <g transform="translate({x0} {y0})">
     <clipPath id="{cid}"><path fill-rule="evenodd" d="{d}"/></clipPath>
     <path class="c-outline" stroke-width="2" stroke-linejoin="miter" style="stroke:#0b1020" fill-rule="evenodd" d="{d}"/>
     <path class="c-crystal-mid" fill-rule="evenodd" d="{d}"/>
     <g clip-path="url(#{cid})">
-      <rect class="c-crystal-light" x="-2" y="-2" width="70" height="10"/>
-      <rect class="c-crystal-core" x="-2" y="-2" width="70" height="3"/>
-      <polygon class="c-crystal-light" points="-2,-2 12,-2 -2,40"/>
-      <polygon class="c-crystal-dark" points="70,20 70,70 24,70"/>
-      <rect class="c-crystal-dark" x="-2" y="50" width="70" height="14"/>
-      <rect class="c-crystal-deep" x="-2" y="58" width="70" height="6"/>
+      <rect class="c-crystal-light" x="-3" y="-3" width="102" height="{S(10)}"/>
+      <rect class="c-crystal-core" x="-3" y="-3" width="102" height="{S(3)}"/>
+      <polygon class="c-crystal-light" points="{scale_nums('-2,-2 12,-2 -2,40')}"/>
+      <polygon class="c-crystal-dark" points="{scale_nums('70,20 70,70 24,70')}"/>
+      <rect class="c-crystal-dark" x="-3" y="{S(50)}" width="102" height="{S(14)}"/>
+      <rect class="c-crystal-deep" x="-3" y="{S(58)}" width="102" height="{S(6)}"/>
     </g>
   </g>"""
 
 
 def fog(rng):
     parts = []
-    for row, y in enumerate(range(76, 94, 2)):
+    for row, y in enumerate(range(S(76), S(94), 3)):
         density = 0.55 - row * 0.05
         x = 4
         while x < W - 4:
-            w = rng.randint(3, 10)
+            w = rng.randint(4, 15)
             if rng.random() < density:
                 cls = "c-fog-light" if rng.random() < 0.45 else "c-fog-dark"
-                parts.append(f'  <rect class="{cls}" x="{x}" y="{y}" width="{w}" height="2"/>')
-            x += w + rng.randint(1, 5)
+                parts.append(f'  <rect class="{cls}" x="{x}" y="{y}" width="{w}" height="3"/>')
+            x += w + rng.randint(2, 7)
     return "\n".join(parts)
 
 
 def main():
     rng = random.Random(11)
     body = "\n".join(letter(i, ch, x, y) for i, (ch, (x, y)) in enumerate(zip("HAZE", ORIGINS)))
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" shape-rendering="crispEdges" data-codeart="haze-logo" data-anchor="160 95">
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" shape-rendering="crispEdges" data-codeart="haze-logo" data-anchor="240 143">
 {fog(rng)}
 {body}
 </svg>

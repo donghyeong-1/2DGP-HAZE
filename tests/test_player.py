@@ -1,4 +1,8 @@
-"""플레이어 이동·점프·충돌 테스트 (창 없이 실행). 실행: python tests/test_player.py 또는 pytest"""
+"""플레이어 이동·점프·충돌 테스트 (창 없이 실행). 실행: python tests/test_player.py 또는 pytest
+
+모든 위치는 config.TILE 기준이라 화면 배율을 바꿔도 그대로 통한다. 방은 data/rooms/test_01.txt:
+바닥 윗면 = 16행 위, 얇은 판 3개(r13 x4~11, r9 x19~26, r5 x9~16), 기둥 x23~25(r14~15), 양쪽 벽.
+"""
 import os
 import sys
 
@@ -8,8 +12,12 @@ import config  # noqa: E402
 from player import Player  # noqa: E402
 from room import Room  # noqa: E402
 
+T = config.TILE
 DT = 1 / 60
-FLOOR_Y = 80.0
+FLOOR_Y = float(config.SCREEN_H - 16 * T)     # 바닥 윗면
+R13_TOP = float(config.SCREEN_H - 13 * T)     # 얇은 판(x 4~11칸) 윗면: 바닥에서 3칸 위
+R9_TOP = float(config.SCREEN_H - 9 * T)       # 얇은 판(x 19~26칸) 윗면: 바닥에서 7칸 위
+HB_W = config.PLAYER_HB_W
 
 
 def make_player(x=None, y=None):
@@ -35,7 +43,7 @@ def test_run_right_then_stop():
     x0 = p.x
     p.right = True
     step(p, 30)
-    assert p.state == 'RUN' and p.x > x0 + 100
+    assert p.state == 'RUN' and p.x > x0 + 1.5 * 100
     p.right = False
     step(p, 3)
     assert p.state == 'IDLE'
@@ -45,15 +53,14 @@ def test_wall_blocks_movement():
     p = make_player()
     p.left = True
     step(p, 200)
-    assert p.x >= config.TILE + config.PLAYER_HB_W / 2 - 0.01  # 왼쪽 벽(타일 0)을 넘지 못한다
+    assert p.x >= T + HB_W / 2 - 0.01  # 왼쪽 벽(타일 0)을 넘지 못한다
 
 
 def test_pillar_blocks_movement():
     p = make_player()
     p.right = True
     step(p, 300)
-    pillar_left = 23 * config.TILE
-    assert p.x <= pillar_left - config.PLAYER_HB_W / 2 + 0.01
+    assert p.x <= 23 * T - HB_W / 2 + 0.01
 
 
 def test_single_jump_height():
@@ -63,7 +70,8 @@ def test_single_jump_height():
     for _ in range(120):
         p.update(DT)
         top = max(top, p.y - FLOOR_Y)
-    assert 140 < top < 160, top
+    expected = config.JUMP_SPEED ** 2 / (2 * config.GRAVITY)
+    assert expected * 0.93 < top < expected * 1.07, (top, expected)
     assert p.state == 'IDLE' and p.jump_count == 0
 
 
@@ -80,31 +88,30 @@ def test_double_jump_allowed_third_blocked():
 
 
 def test_double_jump_reaches_higher_platform():
-    # 플랫폼(r9, 위 y=360) 아래에서 2단 점프로 올라선다 (바닥 80 -> 360, 높이 280)
-    p = make_player(x=20 * config.TILE + 20, y=FLOOR_Y)
+    # 판(위 7칸 높이)에 2단 점프로 올라선다
+    p = make_player(x=20 * T + T / 2, y=FLOOR_Y)
     p.request_jump()
     step(p, 18)
     p.request_jump()
     step(p, 90)
-    assert p.on_ground and abs(p.y - 360) < 0.01, p.y
+    assert p.on_ground and abs(p.y - R9_TOP) < 0.01, p.y
 
 
 def test_oneway_platform_passes_from_below_lands_from_above():
-    # r13 판(x 160~480, 위 y=200). 단일 점프(150)로 판 아래에서 뚫고 올라가 착지할 수 있어야 한다
-    p = make_player(x=6 * config.TILE + 20, y=FLOOR_Y)
+    # 판(바닥에서 3칸 위)은 1단 점프(3.75칸)로 아래에서 뚫고 올라가 착지할 수 있어야 한다
+    p = make_player(x=6 * T + T / 2, y=FLOOR_Y)
     p.request_jump()
     for _ in range(120):
         p.update(DT)
-        if p.on_ground and p.y > 150:
+        if p.on_ground and p.y > FLOOR_Y + T:
             break
-    # 단일 점프는 높이 150이라 판 위(120 위)로 올라가 서야 한다
-    assert p.on_ground and abs(p.y - 200) < 0.01, p.y
+    assert p.on_ground and abs(p.y - R13_TOP) < 0.01, p.y
 
 
 def test_drop_through_oneway_with_s_space():
-    p = make_player(x=6 * config.TILE + 20, y=200.0)
+    p = make_player(x=6 * T + T / 2, y=R13_TOP)
     step(p, 20)
-    assert p.on_ground and abs(p.y - 200) < 0.01
+    assert p.on_ground and abs(p.y - R13_TOP) < 0.01
     p.down = True
     p.request_jump()
     step(p, 60)
@@ -112,7 +119,7 @@ def test_drop_through_oneway_with_s_space():
 
 
 def test_walking_off_ledge_leaves_one_air_jump():
-    p = make_player(x=4 * config.TILE + 5, y=200.0)  # 판의 왼쪽 끝 근처
+    p = make_player(x=4 * T + 8, y=R13_TOP)  # 판의 왼쪽 끝 근처
     step(p, 5)
     p.left = True
     step(p, 20)
@@ -125,12 +132,12 @@ def test_walking_off_ledge_leaves_one_air_jump():
 
 def test_dash_slots_consume_and_recharge():
     p = make_player()
-    p.mouse_x, p.mouse_y = p.x + 300, p.y + 36
+    p.mouse_x, p.mouse_y = p.x + 450, p.y + config.PLAYER_HB_H / 2
     p.request_dash()
     assert p.state == 'DASH' and p.dash_slots == 1
     x0 = p.x
     step(p, 10)
-    assert p.x > x0 + 200 - 1  # 약 240px 이동 (0.15초)
+    assert p.x > x0 + 0.8 * config.DASH_SPEED * config.DASH_TIME  # 약 360px 이동
     step(p, 60)
     p.request_dash()
     assert p.dash_slots == 0

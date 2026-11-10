@@ -165,7 +165,7 @@ class Player:
 
         # 입력 상태
         self.left = self.right = self.down = False
-        self.mouse_x, self.mouse_y = x + 100.0, y + config.PLAYER_HB_H / 2
+        self.mouse_x, self.mouse_y = x + 150.0, y + config.PLAYER_HB_H / 2
 
         # 대시
         self.dash_slots = config.DASH_SLOTS_BASE
@@ -264,7 +264,7 @@ class Player:
             # S + Space: 얇은 바닥 위에 서 있으면 아래로 내려간다
             if self.room.tile_at_world(self.x, self.y - EPS) == room_module.ONEWAY:
                 self.drop_timer = config.DROP_TIME
-                self.y -= 2.0
+                self.y -= 3.0
                 self.on_ground = False
             return
         if self.jump_count >= config.MAX_JUMPS:
@@ -385,4 +385,4 @@ class Player:
         hw = config.PLAYER_HB_W / 2
         draw_rectangle(self.x - hw, self.y, self.x + hw, self.y + config.PLAYER_HB_H)
         draw_rectangle(self.mouse_x - 4, self.mouse_y - 4, self.mouse_x + 4, self.mouse_y + 4)
-        assets.draw_text(self.x, self.y + config.PLAYER_HB_H + 18, f'{self.state} j{self.jump_count}', (255, 240, 120), small=True, center=True)
+        assets.draw_text(self.x, self.y + config.PLAYER_HB_H + 27, f'{self.state} j{self.jump_count}', (255, 240, 120), small=True, center=True)

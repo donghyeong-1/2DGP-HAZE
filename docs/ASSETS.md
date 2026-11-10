@@ -121,3 +121,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 전체 재생성: `python tools/make_codeart.py`. 팔레트는 `tools/codeart/palette.json`.
 - 이 에셋은 코드로 직접 그린 것이라 외부 저작권이 없고, 엔딩 크레딧에는 "code-drawn"으로 표기한다. (codeart2d 스킬은 MIT, `docs/ASSETS.md`의 agent-sprite-forge 항목 참고)
 - 기존 `assets/placeholder/`의 타일은 더 이상 게임에서 쓰지 않는다 (배경 `bg.png`와 단색 점은 계속 사용).
+
+2026-11-11 [Codex] T01 `assets/sprites/forge/n09_v3_idle.png`: Codex image_gen(모델명 미제공), 기존 주인공 참조 후 hibit 처리. 생성물 이용 조건 확인 필요, 검토 대기·게임 미적용.

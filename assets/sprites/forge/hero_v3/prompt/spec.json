@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "n09_v3",
+  "subject": "N-09 the same white-haired young male prisoner",
+  "identity": "Same person and clothing as first reference, same white hair and dark short-sleeve top, trousers, boots, cyan bands and belt",
+  "pose": "standing idle with both arms visible and feet grounded, no weapon",
+  "recap": null,
+  "facing": "right",
+  "facing_parts": null,
+  "view": "right-facing side view",
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../unified_legacy/n09_idle.png",
+    "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036"
+  },
+  "style_ref": {
+    "path": "../../hero_v2/master/master_rgba.png",
+    "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": "Emphasize broad body, expressive big eye, clearly separated fingers, worn cloth folds and three-tone shading with cyan rim light."
+}

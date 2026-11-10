@@ -208,3 +208,5 @@ One extremely large bald factory boss, FIRST reference supplies identity: massiv
 ```text
 One tall mature sinister male prison warden final boss. FIRST reference is exact character identity: long dark structured military coat, dark hair, military cap, bright cyan crystals on chest; cold mature stern expression, large clear dark eye, no mask and no weapon, both arms visible. SECOND reference controls ONLY style: matching flat lineless cel-shaded angular color shapes, same dark saturation and light-shadow steps. Full body idle, strict side profile facing RIGHT, feet on ground, generous empty margins. Large simple worn shapes with no small details. No outlines, no texture, no text, no logo; solid pure magenta #FF00FF background and no ground shadow.
 ```
+
+2026-11-11 [Codex] T01 주인공 v3: legacy·v2 참조, 눈·실루엣·3단 음영·청록 림라이트 강화. Codex image_gen(모델명 미제공); 실제 프롬프트 `assets/sprites/forge/hero_v3/actual_prompt.txt`.

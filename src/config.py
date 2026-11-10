@@ -1,23 +1,24 @@
 """게임 전체 수치 상수. 밸런싱은 이 파일만 고친다. (pico2d에 의존하지 않는다)"""
 
 # 화면
-SCREEN_W = 1280
-SCREEN_H = 720
-TILE = 40
+# 2026-11-11: 1280x720/타일 40 -> 1920x1080/타일 60 (모든 크기 1.5배, 방은 그대로 32x18 칸). docs/DECISIONS.md
+SCREEN_W = 1920
+SCREEN_H = 1080
+TILE = 60
 ROOM_COLS = SCREEN_W // TILE  # 32
 ROOM_ROWS = SCREEN_H // TILE  # 18
 # 픽셀 아트는 확대·축소하지 않고 1배(원본 크기)로만 그린다. docs/pixel_rules.md 참고
 
 # 물리
-GRAVITY = 2400.0           # px/s^2
-MAX_FALL_SPEED = 1100.0    # px/s
-RUN_SPEED = 320.0          # px/s
-JUMP_SPEED = 850.0         # px/s (한 번에 약 150px)
+GRAVITY = 3600.0           # px/s^2
+MAX_FALL_SPEED = 1650.0    # px/s
+RUN_SPEED = 480.0          # px/s
+JUMP_SPEED = 1275.0        # px/s (한 번에 약 225px = 3.75타일)
 MAX_JUMPS = 2              # 2단 점프
 DROP_TIME = 0.2            # S+Space 로 얇은 바닥을 무시하는 시간(초)
 
 # 대시
-DASH_SPEED = 1600.0        # px/s
+DASH_SPEED = 2400.0        # px/s (거리 약 360px)
 DASH_TIME = 0.15           # 초
 DASH_INVULN = 0.25         # 초 (무적 시간)
 DASH_SLOTS_BASE = 2
@@ -27,8 +28,8 @@ DASH_RECHARGE = 1.5        # 슬롯 한 칸 충전 시간(초)
 # 플레이어
 PLAYER_HP = 100
 SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(px). 그릴 때 이만큼 내려 바닥에 붙인다
-PLAYER_HB_W = 28           # 충돌 박스 너비
-PLAYER_HB_H = 72           # 충돌 박스 높이
+PLAYER_HB_W = 42           # 충돌 박스 너비
+PLAYER_HB_H = 108          # 충돌 박스 높이 (스프라이트 키 123px의 약 88%)
 HIT_STUN = 0.25            # 피격 경직(초)
 
 # 헤이즈 게이지

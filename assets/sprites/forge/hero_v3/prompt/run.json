@@ -1,0 +1,44 @@
+{
+  "schema": "generate2dsprite.master_run.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "command": "prompt",
+  "created": "2026-11-10T15:32:18.511Z",
+  "name": "n09_v3",
+  "class": "hero",
+  "finish": "hibit",
+  "facing": "right",
+  "key": "#FF00FF",
+  "prompt": {
+    "path": "prompt.txt",
+    "sha256": "242f60c2bc5eee0b8eb5650dcad47b6a896b5eb2e0ac519843518758249dc67b",
+    "bytes": 2187
+  },
+  "spec": {
+    "path": "spec.json",
+    "sha256": "671b2222bccb005843a2674a764922ba5feb3408d9917bd1bf84424003134cf8",
+    "bytes": 1075
+  },
+  "references": [
+    {
+      "role": "identity",
+      "ordinal": "FIRST",
+      "path": "../../../unified_legacy/n09_idle.png",
+      "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036",
+      "bytes": 3695
+    },
+    {
+      "role": "style",
+      "ordinal": "SECOND",
+      "path": "../../hero_v2/master/master_rgba.png",
+      "sha256": "359f349146abc5afefdfc57b4a6dd1fea89f07f13150c199cf593e6c0f5bb14b",
+      "bytes": 190925
+    }
+  ],
+  "media": null,
+  "takes": [],
+  "status": "ok",
+  "warnings": []
+}

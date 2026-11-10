@@ -66,11 +66,13 @@ def main():
     ap.add_argument("--colors", type=int, default=40)
     ap.add_argument("--coverage", type=float, default=0.3)
     ap.add_argument("--outline", default="#0b1020")
+    ap.add_argument("--root", help="결과를 저장할 상위 폴더 (기본: assets/sprites/forge)")
     args = ap.parse_args()
 
     if not FINISH.exists():
         sys.exit(f"finish_frames.py가 없습니다: {FINISH} (agent-sprite-forge 스킬을 설치하세요. docs/SETUP.md)")
-    out = FORGE / args.name
+    forge = Path(args.root) if args.root else FORGE
+    out = forge / args.name
     if out.exists():
         sys.exit(f"이미 있습니다: {out} (지우지 말고 새 이름을 쓰세요. 예: {args.name}_2)")
 
@@ -79,7 +81,7 @@ def main():
            "--coverage", str(args.coverage), "--loop-policy", "oneshot"]
 
     if args.like:
-        ref = FORGE / args.like
+        ref = forge / args.like
         if not (ref / "finish.json").exists():
             sys.exit(f"--like 대상 결과가 없습니다: {ref}")
         character = json.loads((ref / "finish.json").read_text(encoding="utf-8")).get("character") or args.like
@@ -103,13 +105,13 @@ def main():
 
     frames = sorted((out / "frames").glob("*.png"))
     if source.is_dir():
-        strip = FORGE / f"{args.name}_strip_1x.png"
+        strip = forge / f"{args.name}_strip_1x.png"
         build_strip(out / "frames", strip)
-        print(f"저장: {out}  /  {strip.relative_to(ROOT)}  (프레임 {len(frames)}장)")
+        print(f"저장: {out}  /  {strip}  (프레임 {len(frames)}장)")
     else:
-        idle = FORGE / f"{args.name}_idle.png"
+        idle = forge / f"{args.name}_idle.png"
         shutil.copy(frames[0], idle)
-        print(f"저장: {out}  /  {idle.relative_to(ROOT)}")
+        print(f"저장: {out}  /  {idle}")
 
 
 if __name__ == "__main__":

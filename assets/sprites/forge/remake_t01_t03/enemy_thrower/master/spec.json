@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_thrower_remake",
+  "subject": "Scrap thrower",
+  "identity": "Create one new square 1024x1024 full body Haze game character master of Scrap thrower. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same dark-haired scavenger prisoner, oversized teal goggle lenses, patched worn dark clothing, boots, a separate chunk of scrap gripped in right hand and clearly riveted rusty improvised metal shield on left forearm held to the front at image right. Make goggles and shield readable. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo.",
+  "pose": null,
+  "recap": "Scrap thrower (Create one new square 1024x1024 full body Haze game character master of Scrap thrower. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same dark-haired scavenger prisoner, oversized teal goggle lenses, patched worn dark clothing, boots, a separate chunk of scrap gripped in right hand and clearly riveted rusty improvised metal shield on left forearm held to the front at image right. Make goggles and shield readable. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "mob",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../../unified_legacy/enemy_thrower_idle.png",
+    "sha256": "352a4441fcc2ae4da4cccd51be795f7789dc474784b8e76f1e864d405f9f7562"
+  },
+  "style_ref": {
+    "path": "../../n09/master/master_rgba.png",
+    "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

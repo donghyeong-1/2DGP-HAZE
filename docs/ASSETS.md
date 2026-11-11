@@ -127,3 +127,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-11 [Codex] T01 `assets/sprites/forge/n09_v3b_idle.png`. 프로젝트 주인공 참조로 Codex 내장 image_gen(모델명 미제공) 생성 후 generate2dsprite hibit 마감. 생성물 이용 조건 확인 필요. 검토 대기.
 
 2026-11-11 [Codex] T02 `assets/sprites/forge/enemy_slum_v3_idle.png`, `enemy_thrower_v3_idle.png`, `enemy_guard_v3_idle.png`. 프로젝트 캐릭터를 참조해 Codex 내장 image_gen(모델명 미제공)으로 생성하고 generate2dsprite hibit 방식으로 마감했다. 생성물 이용 조건 확인 필요. 검토 대기.
+
+2026-11-11 [Codex] T01~T03 캐릭터 7종 재제작 후보 `assets/sprites/forge/remake_t01_t03/finished/`. Codex 내장 image_gen(모델명 미제공, 생성물 이용 조건 확인 필요), agent-sprite-forge 6b3da5c(MIT), hibit 마감. 검토 대기.

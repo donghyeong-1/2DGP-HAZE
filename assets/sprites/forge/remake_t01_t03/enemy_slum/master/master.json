@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:54:30.034Z",
+  "name": "enemy_slum_remake",
+  "subject": "Slum prisoner",
+  "identity_recap": "Slum prisoner (Create one new square 1024x1024 full body Haze game character master of Slum prisoner. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same gaunt bald hostile prisoner, hunched, clenched fists, tattered dusty gray clothing with big ragged shapes, rope belt, bandaged bare feet, exaggerated big dark deranged eye, one subtle muted cyan vein accent away from the face, visibly bony silhouette. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "mob",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 471,
+    "top_margin_px": 406,
+    "lead_px": 100,
+    "preset": "mob",
+    "subject_bbox": [
+      324,
+      406,
+      500,
+      877
+    ],
+    "anchor": [
+      413.0,
+      877.0
+    ],
+    "opaque_area_px": 46804,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "453c1564418ff4be3b0a06791a1f1a4a7c7da7e56406d73187091f55574f1ef6",
+      "bytes": 93881,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "98157377b7e1022b7e8e79101525d4587cecf66f834221d0e69679161bbd19de",
+      "bytes": 108813,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "6b423a9d75f901a34145413324e43f1ec5f2b0aeabdf519f9013f2536e7ca1e4",
+      "bytes": 1303664,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "e0e768594eba2fc28ae0c83d42b35a3031d6515c07dca95faaf16e964913798b",
+      "bytes": 3085
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "84d2608417c45b9bb648b836d702371f4aaef23703a328826f112c02d18026d9",
+      "bytes": 1174
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/enemy_slum_idle.png",
+      "sha256": "70d22322dc16691befd9fd31d726140aac983063bfbce8a88cfa7b6f094998eb",
+      "bytes": 3746
+    },
+    {
+      "role": "style",
+      "path": "../../n09/master/master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      426,
+      174,
+      780,
+      1128
+    ],
+    "crop_box": [
+      420,
+      168,
+      786,
+      1134
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.4937106918238994,
+    "offset": [
+      114.29245283018867,
+      320.09433962264154
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "box",
+    "premultiplied": true,
+    "alpha_floor_px": 0,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-3eb0de51-f03a-45ab-80e7-0b6e7811f80b.png",
+    "source_sha256": "6b423a9d75f901a34145413324e43f1ec5f2b0aeabdf519f9013f2536e7ca1e4",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        3.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.876428602316288,
+      "distance_from_declared": 5.83
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.030194401605141405,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 193877
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

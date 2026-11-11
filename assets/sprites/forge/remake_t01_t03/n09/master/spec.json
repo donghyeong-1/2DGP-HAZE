@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "n09_remake",
+  "subject": "N-09 white-haired prisoner",
+  "identity": "Create ONE new square 1024x1024 sprite master for Haze, redrawing N-09 from the first approved reference; second reference confirms his identity. Full body, exactly right-facing side profile, idle grounded separated boots, both arms slightly separated, entirely within generous margins. Same white spiky short hair with 6–8 large white and blue-gray clusters, tattered charcoal short sleeve and trousers with two small tears, cyan striped arm and wrist bands, knotted cyan sash, laced dark boots with separate soles. No mask or weapon. Preserve broad 33% width and head about 1/6 of height. Sweep fringe up so oversized dark teal eye, single ivory highlight, separate brow, nose, ear and brown mouth line read at 123 pixels. Exactly two muted peach/tan skin tones, no orange cast or pink/purple. Lineless flat angular cel shading, max three values per material, light upper left, a few short muted cyan accents inside rear textile/boot edges only, absolutely no cyan on face, skin or hair. Hands relaxed closed with one visible thumb. Crisp opaque shapes, no drawn outlines, no gradients, no glow, no texture or pixel grid. Perfectly flat pure #FF00FF background, no floor, shadow, text, or labels.",
+  "pose": null,
+  "recap": "N-09 white-haired prisoner (Create ONE new square 1024x1024 sprite master for Haze, redrawing N-09 from the first approved reference; second reference confirms his identity. Full body, exactly right-facing side profile, idle grounded separated boots, both arms slightly separated, entirely within generous margins. Same white spiky short hair with 6–8 large white and blue-gray clusters, tattered charcoal short sleeve and trousers with two small tears, cyan striped arm and wrist bands, knotted cyan sash, laced dark boots with separate soles. No mask or weapon. Preserve broad 33% width and head about 1/6 of height. Sweep fringe up so oversized dark teal eye, single ivory highlight, separate brow, nose, ear and brown mouth line read at 123 pixels. Exactly two muted peach/tan skin tones, no orange cast or pink/purple. Lineless flat angular cel shading, max three values per material, light upper left, a few short muted cyan accents inside rear textile/boot edges only, absolutely no cyan on face, skin or hair. Hands relaxed closed with one visible thumb. Crisp opaque shapes, no drawn outlines, no gradients, no glow, no texture or pixel grid. Perfectly flat pure #FF00FF background, no floor, shadow, text, or labels)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../../unified_legacy/n09_idle.png",
+    "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036"
+  },
+  "style_ref": {
+    "path": "../../../hero_v3b/master/master_rgba.png",
+    "sha256": "95e3eecad18b66be63987271c47cd905a4e13228d3fd856d1836602058a58910"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

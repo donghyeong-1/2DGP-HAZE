@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:58:07.931Z",
+  "name": "boss_ark_remake",
+  "subject": "Warden Ark",
+  "identity_recap": "Warden Ark (Create one new square 1024x1024 full body Haze game character master of Warden Ark. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same tall middle-aged warden, dark hair under military peaked cap, long black coat with teal lining, a cyan crystal embedded in the chest, dark gloves and boots. Stern clear large eye and brow under cap, no mask and no weapon. Keep cap brim away from the eye and make cyan chest crystal a single bold focal point. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "boss",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 728,
+    "top_margin_px": 221,
+    "lead_px": 0,
+    "preset": "boss",
+    "subject_bbox": [
+      342,
+      221,
+      682,
+      949
+    ],
+    "anchor": [
+      546.0,
+      949.0
+    ],
+    "opaque_area_px": 139283,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "33ec05f139789d99424f4cfc75183f1d64562923e32eb70d120ce77c2795295a",
+      "bytes": 208415,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "f76a570d31b904bee748d0d31da2f2aa3cbc0d0d44a5927d9548b9f467a4abbb",
+      "bytes": 241631,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "1fc314f59b925bb0ba3c5b5c943d7e55a5935a19268cda05e52581a4e8378b96",
+      "bytes": 1325715,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "71431a4f46c5d73241e6b4a21ef965d4f36442fbc765ef377571f068d07ffcd7",
+      "bytes": 3184
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "db4775baacb54da7fb4a3598dae348df2f088516239a1f649b3d3dd3d25dd7f9",
+      "bytes": 1228
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/boss_ark_idle.png",
+      "sha256": "47fe1906a493f952cea46f41c9aeca0167cbd294182c367db10cf38722c53cff",
+      "bytes": 7194
+    },
+    {
+      "role": "style",
+      "path": "../../n09/master/master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      350,
+      135,
+      818,
+      1141
+    ],
+    "crop_box": [
+      344,
+      129,
+      824,
+      1147
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.7236580516898609,
+    "offset": [
+      89.38369781312127,
+      123.30616302186878
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 2376,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-e782a2dd-3798-4426-816d-80fd3295f153.png",
+    "source_sha256": "1fc314f59b925bb0ba3c5b5c943d7e55a5935a19268cda05e52581a4e8378b96",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        4.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.829609364864968,
+      "distance_from_declared": 6.4
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.019651251061092768,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 267413
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

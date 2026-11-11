@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "n09_fit_remake",
+  "subject": "N-09 white-haired prisoner",
+  "identity": "Edit this N-09 game sprite master. Preserve the exact right-facing identity, swept-up white hair, huge visible dark teal eye with ivory catchlight, separate brow, two peach/tan skin tones, tattered charcoal clothes with the exact same cyan bands and sash, dark boots, pure flat #FF00FF background and lineless angular cel shading. Make ONE anatomical adjustment: broaden the silhouette to at least 34% of full figure height without increasing height. Widen shoulder/torso depth in profile and separate the front and rear arms and boots slightly farther along the ground. Preserve head size, colors, skin, eye, and proportions vertically. Both boots grounded. No weapon, mask, outline, gradient, glow, noise, text or ground shadow. Square framing, whole body.",
+  "pose": null,
+  "recap": "N-09 white-haired prisoner (Edit this N-09 game sprite master. Preserve the exact right-facing identity, swept-up white hair, huge visible dark teal eye with ivory catchlight, separate brow, two peach/tan skin tones, tattered charcoal clothes with the exact same cyan bands and sash, dark boots, pure flat #FF00FF background and lineless angular cel shading. Make ONE anatomical adjustment: broaden the silhouette to at least 34% of full figure height without increasing height. Widen shoulder/torso depth in profile and separate the front and rear arms and boots slightly farther along the ground. Preserve head size, colors, skin, eye, and proportions vertically. Both boots grounded. No weapon, mask, outline, gradient, glow, noise, text or ground shadow. Square framing, whole body)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../../unified_legacy/n09_idle.png",
+    "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036"
+  },
+  "style_ref": {
+    "path": "../../n09/master/master.png",
+    "sha256": "5ea2f3e19234506c10a6ccf8b0cec2a89f9303ba1ec140c2e2ad58acc0a37fa0"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

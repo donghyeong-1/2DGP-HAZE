@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:56:48.754Z",
+  "name": "enemy_hound_remake",
+  "subject": "Mist hound",
+  "identity_recap": "Mist hound (Create one new square 1024x1024 full body Haze game character master of Mist hound. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same lean four-legged mutant hound composed of dark navy smoke and bones, crouched low, torso and tail length about 1.4 times its height. Huge luminous solid cyan eye, exposed flat ivory ribs, raised spine spikes, thin separate legs, and smoke tail as a few solid dark blue angular masses. All four legs and entire tail visible; no transparency in smoke. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "mob",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 471,
+    "top_margin_px": 406,
+    "lead_px": 100,
+    "preset": "mob",
+    "subject_bbox": [
+      16,
+      406,
+      887,
+      877
+    ],
+    "anchor": [
+      522.5,
+      877.0
+    ],
+    "opaque_area_px": 169374,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "2a5a54404e60dbd1639ddba469fac9bef7c4061bc6c502f4a762d5d03bde92f2",
+      "bytes": 267374,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "0d607fe1d175e31f1d33d049c312dbf5eb006139153199dd2ae1e68b0d82fc46",
+      "bytes": 313738,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "93cfb52688e629897f1ba4d98232b64bd1c1004ea4fcc75298c8fc3f324923b7",
+      "bytes": 1384310,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "62fcf63cf2c4dbc82334a78c6acd40486b1b6416738ecd99fe6195b01b87f699",
+      "bytes": 3271
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "f0b2923e292d7ddf1bc83144810d29c7729b298af68f7e66c0769caf1282ffa8",
+      "bytes": 1269
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/enemy_hound_idle.png",
+      "sha256": "be5dd47f8b8e96636524eaaa1f8eb9a7938fa9e58e07d4110e94aeac40b1e465",
+      "bytes": 4157
+    },
+    {
+      "role": "style",
+      "path": "../../n09/master/master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      41,
+      309,
+      1176,
+      923
+    ],
+    "crop_box": [
+      35,
+      303,
+      1182,
+      929
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.7671009771986971,
+    "offset": [
+      -15.451140065146603,
+      168.9657980456026
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 4389,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-278dbdad-ac6d-45cf-aa6c-619aca233f4f.png",
+    "source_sha256": "93cfb52688e629897f1ba4d98232b64bd1c1004ea4fcc75298c8fc3f324923b7",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        4.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8145176265297142,
+      "distance_from_declared": 6.4
+    },
+    "quality": "soft",
+    "interior_despill": false,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.00079923273657289,
+      "semitransparent_fraction": 0.03149199793495096,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 6,
+      "visible_px": 290550
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.000198,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

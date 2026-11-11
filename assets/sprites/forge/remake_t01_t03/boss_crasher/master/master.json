@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:57:33.601Z",
+  "name": "boss_crasher_remake",
+  "subject": "Crasher",
+  "identity_recap": "Crasher (Create one new square 1024x1024 full body Haze game character master of Crasher. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same huge bald industrial boss, broad low stance, giant mechanical arms with structural steel beams and massive fists, rusted armor plates and bolts, cyan steam exhaust vents, riveted belt, oversized dark visible eye with a tiny glint and face scar. Emphasize readable face and massive fist silhouettes. Flat opaque shapes only, no emitted steam. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "boss",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 728,
+    "top_margin_px": 221,
+    "lead_px": 0,
+    "preset": "boss",
+    "subject_bbox": [
+      161,
+      221,
+      863,
+      949
+    ],
+    "anchor": [
+      523.0,
+      949.0
+    ],
+    "opaque_area_px": 318744,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "f601258762f16194f551caa00bd4864b9b7d8bf5048ce6a29081ddf211571ebb",
+      "bytes": 454689,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "dc132ccca2be7e000baf672e77d260f5e225e6a35bd27d8cb0b061dc1c70ea5d",
+      "bytes": 523211,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "89562bcef0946d9e6fcdb8d7a64cedd3d60744417a56acb431cd35baa7e45585",
+      "bytes": 1551048,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "d2b222da1fbb7de987670b9c9095d8803f970f5906108a1e9cfe8352ebd1f0ca",
+      "bytes": 3246
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "18749cc1f5c38d20b2a0f820e59dd1a1a3702d7b2d99f65688d861e1a91a4987",
+      "bytes": 1258
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/boss_crasher_idle.png",
+      "sha256": "39ff7d19cea5d373330a076d651060272ee762ef39c8d54709f15cf37015c59d",
+      "bytes": 21721
+    },
+    {
+      "role": "style",
+      "path": "../../n09/master/master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      72,
+      49,
+      1181,
+      1202
+    ],
+    "crop_box": [
+      66,
+      43,
+      1187,
+      1208
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.6313963573287077,
+    "offset": [
+      116.43018213356464,
+      190.0615784908933
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 4334,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-d48c1abd-72b4-4ec0-90c9-51ff2bb445e4.png",
+    "source_sha256": "89562bcef0946d9e6fcdb8d7a64cedd3d60744417a56acb431cd35baa7e45585",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        249.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.48843700159489634,
+      "distance_from_declared": 8.37
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.013721150648693956,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 802921
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

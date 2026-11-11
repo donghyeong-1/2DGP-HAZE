@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:56:08.469Z",
+  "name": "enemy_guard_remake",
+  "subject": "Heavy armored guard",
+  "identity_recap": "Heavy armored guard (Create one new square 1024x1024 full body Haze game character master of Heavy armored guard. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same broad heavily armored prison guard. Chunky shoulder pads, chest vest utility pouches, large cyan visor on charcoal helmet, heavy reinforced boots, one steel riot shield with three graphic stripe marks held ahead at image right, distinct short police baton pointed down and forward in other hand. Use mid-value blue-gray planes for silhouette separation on a navy game background. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "mob",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 471,
+    "top_margin_px": 406,
+    "lead_px": 100,
+    "preset": "mob",
+    "subject_bbox": [
+      287,
+      406,
+      537,
+      877
+    ],
+    "anchor": [
+      404.5,
+      877.0
+    ],
+    "opaque_area_px": 80561,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "6fabfb1e2be355cbc153803618c1a079109bb10dc3d11000f6f9c1573255c3a2",
+      "bytes": 129204,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "e6689b9ebcdaf6db6b1be8fa446d195e14c69eee367fd8db33d074d2f51eb86c",
+      "bytes": 146511,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "d1778f333f773e615fc536913edf17d377f0d64a841e7a90f77f403759ba704c",
+      "bytes": 1362497,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "900305313d7320b757d040ea1202690983ada444fa68a4b0a536da0ca6021e14",
+      "bytes": 3367
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "e0562637f821b8f00de985c13b012e1766b6574bea559eb81ba047285f7fac07",
+      "bytes": 1308
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/enemy_guard_idle.png",
+      "sha256": "24d93dcc13349180c0f8e7205f0c57029b3296c4c4d0bd7cc2693615ad16c61f",
+      "bytes": 7550
+    },
+    {
+      "role": "style",
+      "path": "../../n09/master/master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      334,
+      73,
+      905,
+      1151
+    ],
+    "crop_box": [
+      328,
+      67,
+      911,
+      1157
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.43692022263450836,
+    "offset": [
+      141.3279220779221,
+      374.1048237476809
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "box",
+    "premultiplied": true,
+    "alpha_floor_px": 0,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-cc0a1daf-6697-4f44-bc3d-1833f7046cec.png",
+    "source_sha256": "d1778f333f773e615fc536913edf17d377f0d64a841e7a90f77f403759ba704c",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        4.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.7297515573768407,
+      "distance_from_declared": 6.93
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.014444551825251095,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 424243
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

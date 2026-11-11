@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:55:20.749Z",
+  "name": "enemy_thrower_remake",
+  "subject": "Scrap thrower",
+  "identity_recap": "Scrap thrower (Create one new square 1024x1024 full body Haze game character master of Scrap thrower. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same dark-haired scavenger prisoner, oversized teal goggle lenses, patched worn dark clothing, boots, a separate chunk of scrap gripped in right hand and clearly riveted rusty improvised metal shield on left forearm held to the front at image right. Make goggles and shield readable. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "mob",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 471,
+    "top_margin_px": 406,
+    "lead_px": 100,
+    "preset": "mob",
+    "subject_bbox": [
+      319,
+      406,
+      505,
+      877
+    ],
+    "anchor": [
+      415.5,
+      877.0
+    ],
+    "opaque_area_px": 47293,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "36375c1001595110c2d8e143a9a90d4f539af51a6362030a0093ed692b895767",
+      "bytes": 101409,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "a66cc73c7441ae441e77c7ca1c9a964e4143375d2f16318f2174b501d4084fe5",
+      "bytes": 116686,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "837f2421b3966ae53602a93074b7a160220dd5e2267d748771096650758793ec",
+      "bytes": 1366216,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "103fe9e5687d9641332647173127517bd8eb61c33c794e3b1250e3f73fe477a5",
+      "bytes": 3145
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "10a4b78c436ad83eb238bec96a46d183bcc49da3b65b9c0d993e5607993e1a42",
+      "bytes": 1201
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/enemy_thrower_idle.png",
+      "sha256": "352a4441fcc2ae4da4cccd51be795f7789dc474784b8e76f1e864d405f9f7562",
+      "bytes": 5267
+    },
+    {
+      "role": "style",
+      "path": "../../n09/master/master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      412,
+      116,
+      825,
+      1168
+    ],
+    "crop_box": [
+      406,
+      110,
+      831,
+      1174
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.44771863117870725,
+    "offset": [
+      135.08602661596956,
+      354.06463878326997
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "box",
+    "premultiplied": true,
+    "alpha_floor_px": 0,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-227e7201-0d10-4800-9eac-4387ef950213.png",
+    "source_sha256": "837f2421b3966ae53602a93074b7a160220dd5e2267d748771096650758793ec",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        251.0,
+        6.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8478444734425595,
+      "distance_from_declared": 8.77
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.032533966450920104,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 238397
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

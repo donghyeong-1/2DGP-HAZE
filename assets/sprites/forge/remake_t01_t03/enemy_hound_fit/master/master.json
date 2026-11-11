@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:59:25.100Z",
+  "name": "enemy_hound_fit_remake",
+  "subject": "Mist hound",
+  "identity_recap": "Mist hound (Edit the supplied right-facing Mist Hound sprite master. Keep the head, vivid cyan eye, ivory ribs and spine, all four legs, exact ground stance, existing solid navy angular cel shading and uniform pure #FF00FF backdrop. Change only the smoky tail behind the hind legs: shorten its horizontal reach by about 65%, and turn its tip slightly up. Entire silhouette including tail should measure about 1.4 times its height, instead of 1.85 times. No cropping and do not change any other body proportions, colors, or pose. One square image, whole figure within margins, no ground, text, outline, gradient or translucent effects)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "mob",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 471,
+    "top_margin_px": 406,
+    "lead_px": 100,
+    "preset": "mob",
+    "subject_bbox": [
+      84,
+      406,
+      740,
+      877
+    ],
+    "anchor": [
+      375.0,
+      877.0
+    ],
+    "opaque_area_px": 133094,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "dffb47290cb36854880f642fc6dca9939e9c0441e1adb0b6b7d3bb33bf5c9b02",
+      "bytes": 238344,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "fa4148f469de152264c73ba76c381bcc8af290e0dd3c85592838fdb9b2407999",
+      "bytes": 280965,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "4dc3effc89e09a02baf714a34f63d7347adbe06c56ceebbb4a3f2ccd116b7c60",
+      "bytes": 1354121,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "cafff54fc4da3db0d9e0a18d258c3828eb4a21a45ed4dc0c7e83eceafac54c23",
+      "bytes": 1984
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "90072d574e73adc5c14d15f451567363270b3bba5a63c32d85e45c4948baa5c0",
+      "bytes": 622
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/enemy_hound_idle.png",
+      "sha256": "be5dd47f8b8e96636524eaaa1f8eb9a7938fa9e58e07d4110e94aeac40b1e465",
+      "bytes": 4157
+    },
+    {
+      "role": "style",
+      "path": "../../enemy_hound/master/master.png",
+      "sha256": "2a5a54404e60dbd1639ddba469fac9bef7c4061bc6c502f4a762d5d03bde92f2",
+      "bytes": 267374
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      286,
+      498,
+      1085,
+      1073
+    ],
+    "crop_box": [
+      280,
+      492,
+      1091,
+      1079
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.8191304347826087,
+    "offset": [
+      -149.51391304347828,
+      -1.9269565217391573
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3635,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-a72684a6-956d-4db4-9460-e7bbedaf5005.png",
+    "source_sha256": "4dc3effc89e09a02baf714a34f63d7347adbe06c56ceebbb4a3f2ccd116b7c60",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        13.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8720019382950635,
+      "distance_from_declared": 13.93
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.037610299435845505,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 200477
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

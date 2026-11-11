@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "boss_ark_remake",
+  "subject": "Warden Ark",
+  "identity": "Create one new square 1024x1024 full body Haze game character master of Warden Ark. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same tall middle-aged warden, dark hair under military peaked cap, long black coat with teal lining, a cyan crystal embedded in the chest, dark gloves and boots. Stern clear large eye and brow under cap, no mask and no weapon. Keep cap brim away from the eye and make cyan chest crystal a single bold focal point. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo.",
+  "pose": null,
+  "recap": "Warden Ark (Create one new square 1024x1024 full body Haze game character master of Warden Ark. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same tall middle-aged warden, dark hair under military peaked cap, long black coat with teal lining, a cyan crystal embedded in the chest, dark gloves and boots. Stern clear large eye and brow under cap, no mask and no weapon. Keep cap brim away from the eye and make cyan chest crystal a single bold focal point. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "boss",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../../unified_legacy/boss_ark_idle.png",
+    "sha256": "47fe1906a493f952cea46f41c9aeca0167cbd294182c367db10cf38722c53cff"
+  },
+  "style_ref": {
+    "path": "../../n09/master/master_rgba.png",
+    "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

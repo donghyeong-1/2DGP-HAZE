@@ -1,0 +1,28 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "boss_crasher_remake",
+  "subject": "Crasher",
+  "identity": "Create one new square 1024x1024 full body Haze game character master of Crasher. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same huge bald industrial boss, broad low stance, giant mechanical arms with structural steel beams and massive fists, rusted armor plates and bolts, cyan steam exhaust vents, riveted belt, oversized dark visible eye with a tiny glint and face scar. Emphasize readable face and massive fist silhouettes. Flat opaque shapes only, no emitted steam. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo.",
+  "pose": null,
+  "recap": "Crasher (Create one new square 1024x1024 full body Haze game character master of Crasher. First reference is the same character and controls identity, costume, equipment and silhouette. Second is the new Haze hero and controls only art style and value grouping. Same huge bald industrial boss, broad low stance, giant mechanical arms with structural steel beams and massive fists, rusted armor plates and bolts, cyan steam exhaust vents, riveted belt, oversized dark visible eye with a tiny glint and face scar. Emphasize readable face and massive fist silhouettes. Flat opaque shapes only, no emitted steam. Exactly right-facing side profile, idle pose with feet grounded, all parts separated enough to read, centered with generous margins. Matte flat lineless opaque cel art intended for hi-bit pixel conversion, max three large hard-edged color planes per material, key light upper left, muted short cyan accents only on material edges and required glowing features; no continuous bright rim. On visible skin use two subdued tan values and no cyan rim, pink or purple. Large readable eye or visor at least 3% of full figure height. Pure uniform #FF00FF backdrop, no floor or cast shadow. No gradients, glow, texture grain, outline, pixel grid, text, label or logo)",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "boss",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": {
+    "path": "../../../../unified_legacy/boss_crasher_idle.png",
+    "sha256": "39ff7d19cea5d373330a076d651060272ee762ef39c8d54709f15cf37015c59d"
+  },
+  "style_ref": {
+    "path": "../../n09/master/master_rgba.png",
+    "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

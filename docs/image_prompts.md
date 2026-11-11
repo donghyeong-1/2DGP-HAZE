@@ -214,3 +214,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-11 [Codex] T01 v3b. v3 체형과 의상을 유지하고 올린 앞머리, 진청록 눈의 밝은 반사광, 살색 그림자, 짧은 옷 림라이트를 적용했다. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 `assets/sprites/forge/hero_v3b/actual_prompt.txt` 및 `attempt_01/actual_prompt.txt`.
 
 2026-11-11 [Codex] T02 적 3종 v3. 기존 캐릭터와 주인공 v3b를 참조해 폐인의 눈·로프·발 붕대, 투척병의 청록 고글·고철 방패, 간수의 바이저·강철 방패를 강조했다. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 각 `assets/sprites/forge/enemy_*_v3/actual_prompt.txt`에 있다.
+
+2026-11-11 [Codex] T01~T03 캐릭터 7종 재제작(총 9회). 우향 전신, 마젠타 배경, 선 없는 3단계 색면. 실제 프롬프트는 `assets/sprites/forge/remake_t01_t03/<캐릭터>/actual_prompt.txt`, 보고서는 `docs/codex/reports/T01_remake.md`~`T03_remake.md`.

@@ -1,0 +1,174 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-11T02:53:22.563Z",
+  "name": "n09_remake",
+  "subject": "N-09 white-haired prisoner",
+  "identity_recap": "N-09 white-haired prisoner (Create ONE new square 1024x1024 sprite master for Haze, redrawing N-09 from the first approved reference; second reference confirms his identity. Full body, exactly right-facing side profile, idle grounded separated boots, both arms slightly separated, entirely within generous margins. Same white spiky short hair with 6–8 large white and blue-gray clusters, tattered charcoal short sleeve and trousers with two small tears, cyan striped arm and wrist bands, knotted cyan sash, laced dark boots with separate soles. No mask or weapon. Preserve broad 33% width and head about 1/6 of height. Sweep fringe up so oversized dark teal eye, single ivory highlight, separate brow, nose, ear and brown mouth line read at 123 pixels. Exactly two muted peach/tan skin tones, no orange cast or pink/purple. Lineless flat angular cel shading, max three values per material, light upper left, a few short muted cyan accents inside rear textile/boot edges only, absolutely no cyan on face, skin or hair. Hands relaxed closed with one visible thumb. Crisp opaque shapes, no drawn outlines, no gradients, no glow, no texture or pixel grid. Perfectly flat pure #FF00FF background, no floor, shadow, text, or labels)",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      403,
+      138,
+      621,
+      926
+    ],
+    "anchor": [
+      512.0,
+      926.0
+    ],
+    "opaque_area_px": 107868,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "5ea2f3e19234506c10a6ccf8b0cec2a89f9303ba1ec140c2e2ad58acc0a37fa0",
+      "bytes": 183133,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "ccabfd5e7be7cf9d71ed8990afb5aac7fc2f52a715fec0c3ba8c9ba7698b92fa",
+      "bytes": 216915,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "ae65ce2335e3b2f083d21526f8d1fc1f13bc3353322909480f7207dd1fd3570a",
+      "bytes": 1271176,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "488b873bf391b1ecfcf6dbc3b8e308e1aca1fccc980cc633b7e7fa7de60c00a8",
+      "bytes": 3158
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "938c5003edb6b8a2d8a5ca0f35f5e91f27084b0b5e1e57fb3a725e9156e19e11",
+      "bytes": 1200
+    }
+  },
+  "references": [
+    {
+      "role": "identity",
+      "path": "../../../../unified_legacy/n09_idle.png",
+      "sha256": "2245127bae8baa9b257531669a131e5283d355aeefad46a3b63f97f95ee05036",
+      "bytes": 3695
+    },
+    {
+      "role": "style",
+      "path": "../../../hero_v3b/master/master_rgba.png",
+      "sha256": "95e3eecad18b66be63987271c47cd905a4e13228d3fd856d1836602058a58910",
+      "bytes": 235055
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      497,
+      164,
+      765,
+      1133
+    ],
+    "crop_box": [
+      491,
+      158,
+      771,
+      1139
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.8132094943240454,
+    "offset": [
+      -1.135190918472631,
+      4.633642930856553
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 2673,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "exec-a4fce475-6fe7-4b67-80ab-83906b90bb6a.png",
+    "source_sha256": "ae65ce2335e3b2f083d21526f8d1fc1f13bc3353322909480f7207dd1fd3570a",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8948252354825007,
+      "distance_from_declared": 6.56
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.03789100876926996,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 164894
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

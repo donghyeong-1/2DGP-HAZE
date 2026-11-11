@@ -115,6 +115,7 @@ class Dash(_State):
         ax, ay = p.aim_vector()
         p.dash_vec = (ax, ay)
         p.vy = 0.0
+        p.afterimage_timer = 0.0  # 출발 지점에도 잔상을 남긴다
 
     def do(self, dt):
         p = self.p
@@ -174,6 +175,9 @@ class Player:
         self.dash_vec = (1.0, 0.0)
         self.dash_left = 0.0
         self.invuln_left = 0.0
+
+        self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명]
+        self.afterimage_timer = 0.0
 
         self.drop_timer = 0.0
         self.hit_left = 0.0
@@ -301,10 +305,23 @@ class Player:
             self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self._move(dt)
         self.states[self.state].check()
+        self._update_afterimages(dt)
 
         # 조준 방향이 보는 방향 (조준이 거의 수직이면 이동 방향)
         if abs(self.mouse_x - self.x) > 4:
             self.face_dir = 1 if self.mouse_x > self.x else -1
+
+    def _update_afterimages(self, dt):
+        """대시 중에는 일정 간격으로 현재 모습을 남기고, 남은 잔상은 수명이 다할 때까지 옅어지다 사라진다."""
+        for ghost in self.afterimages:
+            ghost[3] -= dt
+        self.afterimages = [g for g in self.afterimages if g[3] > 0]
+        if self.state != 'DASH':
+            return
+        self.afterimage_timer -= dt
+        if self.afterimage_timer <= 0:
+            self.afterimage_timer += config.AFTERIMAGE_INTERVAL
+            self.afterimages.append([self.x, self.y, self.face_dir, config.AFTERIMAGE_LIFE])
 
     def _recharge_dash(self, dt):
         if self.dash_slots >= self.dash_max:
@@ -375,6 +392,12 @@ class Player:
     def draw(self):
         import assets
         img = assets.image('sprites/unified/n09_idle.png')
+        steps = config.AFTERIMAGE_ALPHA_STEPS
+        for gx, gy, gdir, left in self.afterimages:  # 오래된 것부터 그려 새 잔상이 위에 온다
+            age = 1.0 - left / config.AFTERIMAGE_LIFE
+            alpha = steps[min(int(age * len(steps)), len(steps) - 1)]
+            assets.draw_image_tinted(img, gx, gy - config.SPRITE_FOOT_MARGIN, 'h' if gdir < 0 else '',
+                                     config.AFTERIMAGE_COLOR, alpha)
         assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, 'h' if self.face_dir < 0 else '')
         if config.DEBUG:
             self._draw_debug()

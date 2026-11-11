@@ -25,6 +25,12 @@ DASH_SLOTS_BASE = 2
 DASH_SLOTS_MAX = 5
 DASH_RECHARGE = 1.5        # 슬롯 한 칸 충전 시간(초)
 
+# 대시 잔상 (던그리드처럼 지나간 자리에 청록빛 그림자가 남았다가 사라진다)
+AFTERIMAGE_INTERVAL = 0.016         # 이 간격(초)마다 잔상 하나를 남긴다
+AFTERIMAGE_LIFE = 0.30              # 잔상이 사라지기까지의 시간(초)
+AFTERIMAGE_COLOR = (110, 235, 225)  # 헤이즈의 청록빛 (스프라이트 색에 곱해진다)
+AFTERIMAGE_ALPHA_STEPS = (0.60, 0.38, 0.18)  # 수명을 3등분해 단계별로 옅어진다 (연속 페이드 대신 계단식)
+
 # 플레이어
 PLAYER_HP = 100
 SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(px). 그릴 때 이만큼 내려 바닥에 붙인다

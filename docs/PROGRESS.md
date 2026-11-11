@@ -81,3 +81,6 @@
 2026-11-11 [Claude Code] T01 v3b 검토 합격, T02·T03·T04 ready로 전환, 후속 작업 기준을 v3b로 변경, 게임의 주인공 스프라이트를 v3b로 교체 / docs/codex/*, DECISIONS.md, PROGRESS.md, assets/sprites/unified/n09_idle.png
 2026-11-11 [Codex] T02 적 3종 v3 제작, 1배 비교 및 픽셀 검사 통과, 검토 대기 / assets/sprites/forge/enemy_*_v3*, assets/sprites/forge/lineup_v3_a_1x.png, docs/codex/reports/T02.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-11 [Claude Code] T02 검토 합격(적 3종 v3), unified 교체 / docs/codex/reports/T02_review.md, TASKS.md, DECISIONS.md, assets/sprites/unified/
+
+2026-11-11 [Codex] T01~T03 마스터 7종 재제작 및 1배 비교, 개별 스프라이트 검사와 픽셀 테스트 통과, 검토 대기 / assets/sprites/forge/remake_t01_t03/, docs/codex/reports/T0*_remake.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
+2026-11-11 [Claude Code] 대시 잔상 효과(던그리드 스타일): 대시 중 0.016초마다 청록색 반투명 잔상을 남기고 0.3초에 3단계로 옅어짐, 테스트 2개 추가(15개 통과) / src/player.py, src/assets.py, src/config.py, tests/test_player.py

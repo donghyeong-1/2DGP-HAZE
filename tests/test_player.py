@@ -147,6 +147,26 @@ def test_dash_slots_consume_and_recharge():
     assert p.dash_slots >= 1
 
 
+def test_dash_leaves_afterimages_that_fade_out():
+    p = make_player()
+    assert p.afterimages == []
+    p.mouse_x, p.mouse_y = p.x + 450, p.y + config.PLAYER_HB_H / 2
+    p.request_dash()
+    step(p, 5)
+    xs = [g[0] for g in p.afterimages]
+    assert len(xs) >= 3 and xs == sorted(xs)       # 지나온 자리에 순서대로 남는다
+    assert xs[-1] - xs[0] > 100                     # 한 곳에 겹치지 않고 간격이 벌어진다
+    step(p, int((config.DASH_TIME + config.AFTERIMAGE_LIFE) * 60) + 5)
+    assert p.afterimages == []                      # 수명이 다하면 모두 사라진다
+
+
+def test_no_afterimages_without_dash():
+    p = make_player()
+    p.left = True
+    step(p, 30)
+    assert p.afterimages == []
+
+
 def test_dash_invulnerable():
     p = make_player()
     p.request_dash()

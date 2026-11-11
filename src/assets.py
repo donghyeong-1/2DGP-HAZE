@@ -30,6 +30,18 @@ def draw_image(img, x, y, flip=''):
         img.draw_to_origin(left, bottom)
 
 
+def draw_image_tinted(img, x, y, flip, color, alpha):
+    """색을 곱하고 투명도를 줘서 그린다(잔상용). 크기·위치 규칙은 draw_image와 같고, 끝나면 원래대로 되돌린다."""
+    from sdl2 import SDL_SetTextureColorMod
+    SDL_SetTextureColorMod(img.texture, *color)
+    img.opacify(alpha)
+    try:
+        draw_image(img, x, y, flip)
+    finally:
+        SDL_SetTextureColorMod(img.texture, 255, 255, 255)
+        img.opacify(1.0)
+
+
 def draw_rect_image(img, left, bottom, w, h):
     """단색 사각형(placeholder/px_*.png)을 정수 좌표로 채운다. 무늬 없는 색 칸 전용."""
     img.draw_to_origin(int(round(left)), int(round(bottom)), int(round(w)), int(round(h)))

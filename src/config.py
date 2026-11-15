@@ -62,6 +62,8 @@ ENHANCE_TIME = 12.0         # 강화 일격을 준비해 두는 최대 시간(�
 OVERLOAD_DAMAGE_RATIO = 0.20
 OVERLOAD_STUN = 1.5
 OVERLOAD_RESET = 30
+OVERLOAD_FLASH = 0.35        # 오버로드 순간 화면 전체가 하얗게 번쩍이는 시간(초)
+OVERLOAD_HIT_STOP = 0.16     # 폭발 순간 화면이 멈추는 시간(초)
 
 # 구간별 배율 (공격, 속도)
 MULT_FADE = (0.8, 0.8)
@@ -180,6 +182,7 @@ FINISHER_SLASH = 'pipe-slash-finisher'     # 3타는 구간과 상관없이 금�
 # 주인공 몸 주위 오라 (반복 재생). 노멀(20~49%)은 없다. E 강화 중에는 구간 오라 위에 겹친다
 AURA_BY_ZONE = {'FADE': 'aura-fade', 'AWAKE': 'aura-awake', 'CRITICAL': 'aura-critical'}
 AURA_ENHANCED = 'aura-enhanced'
+AURA_STUN = 'aura-stun'      # 오버로드 기절 중: 몸을 감싸고 튀는 전기 아크와 머리 위를 도는 별
 
 # 소리
 SOUND_ENABLED = False      # main이 오디오를 켠 뒤 True로 바꾼다 (테스트·창 없는 실행에서는 꺼져 있다)

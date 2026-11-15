@@ -12,6 +12,6 @@
   230,
   230
  ],
- "scale": 1,
- "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_aura.py"
+ "scale": 2,
+ "source": "tools/make_aura.py (code-drawn, codeart2d render QA, no image model)"
 }

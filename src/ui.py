@@ -6,6 +6,7 @@
 import assets
 import camera
 import config
+import effects
 import items
 from haze_gauge import AWAKE, CRITICAL, DEAD, FADE, NORMAL, OVERLOAD
 
@@ -40,6 +41,7 @@ class GameUI:
         pass
 
     def draw(self):
+        self._draw_screen_fx()          # 화면 전체 효과(오버로드 섬광, 기절 비네트)는 HUD 아래에 깐다
         self._draw_gauge()
         self._draw_status()
         self._draw_weapon_panel()
@@ -51,6 +53,34 @@ class GameUI:
         self._draw_reticle()
         if config.DEBUG:
             self._draw_debug()
+
+    # ----- 화면 전체 효과 (오버로드 / 기절) -----
+    def _draw_screen_fx(self):
+        import math
+        p = self.player
+        W, H = config.SCREEN_W, config.SCREEN_H
+        if effects.flash_left > 0:                              # 오버로드 순간: 화면 전체가 하얗게 번쩍였다가 가라앉는다
+            a = min(1.0, effects.flash_left / config.OVERLOAD_FLASH) ** 1.6
+            assets.draw_rect_color(0, 0, W, H, (255, 255, 255), 0.9 * a)
+        if not p.stunned:
+            return
+        t = p.aura_time
+        pulse = 0.5 + 0.5 * math.sin(t * 14)                    # 맥동
+        assets.draw_rect_color(0, 0, W, H, (255, 150, 60), 0.06 + 0.05 * pulse)      # 화면 전체 주황 틴트
+        for i in range(6):                                      # 가장자리 붉은 비네트: 안쪽으로 갈수록 옅다 (계단식)
+            inset, thick = i * 26, 26
+            a = 0.34 * (1 - i / 6) * (0.65 + 0.35 * pulse)
+            c = (255, 70, 50)
+            assets.draw_rect_color(0, H - inset - thick, W, thick, c, a)                  # 위
+            assets.draw_rect_color(0, inset, W, thick, c, a)                              # 아래
+            assets.draw_rect_color(inset, 0, thick, H, c, a)                              # 왼쪽
+            assets.draw_rect_color(W - inset - thick, 0, thick, H, c, a)                  # 오른쪽
+        seed = int(t * 20)                                      # 전기 노이즈 줄: 20Hz로 자리가 바뀌는 얇은 가로줄
+        for k in range(7):
+            y = (seed * 97 + k * 163) % H
+            assets.draw_rect_color(0, y, W, 3 + ((seed + k) % 3) * 2, (255, 242, 170), 0.15)
+        shake = int(round(4 * math.sin(t * 70)))
+        assets.draw_text(W // 2 + shake, H - 215, '오버로드!', (255, 235, 120), center=True, big=True)
 
     # ----- 게이지 -----
     def _x_of(self, value):
@@ -102,8 +132,12 @@ class GameUI:
             assets.draw_text(ix + 22, y - 90, info['glyph'], info['color'], center=True)
             if n > 1:
                 assets.draw_text(ix + 40, y - 106, f'x{n}', WHITE, small=True, center=True)
-        if p.stunned:
-            assets.draw_text(config.SCREEN_W // 2, config.SCREEN_H - 200, '오버로드! 기절', ZONE_COLOR[OVERLOAD], big=True,
+        if p.stunned:                                           # 기절 남은 시간 바
+            w = 420
+            bx, by = (config.SCREEN_W - w) // 2, config.SCREEN_H - 300
+            _frame(bx, by, w, 18, 'px_gray', border='px_black', thickness=4)
+            _rect('px_yellow', bx, by, w * p.gauge.stun_timer / config.OVERLOAD_STUN, 18)
+            assets.draw_text(config.SCREEN_W // 2, by + 44, f'기절 {p.gauge.stun_timer:.1f}s', (255, 240, 150), small=True,
                              center=True)
 
     # ----- 무기·공격 패널 (아래 가운데) -----

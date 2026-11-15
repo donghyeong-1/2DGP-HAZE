@@ -12,7 +12,8 @@
   aura-awake     각성(50~89%): 청록 불꽃이 몸을 감싸고 머리 위로 피어오름
   aura-critical  위험(90~99%): 크고 거센 주황 화염, 흩날리는 불씨, 발밑 지면 광채
   aura-enhanced  E 강화 준비: 보라색 기운이 소용돌이치며 **몸으로 모여든다**
-  overload-burst 오버로드 폭발 한 번 (codeart2d fx_build)
+  aura-stun      오버로드 기절: 몸 윤곽을 감싸며 튀는 **전기 아크**와 머리 위를 도는 별 (반복)
+  overload-burst 오버로드 폭발 한 번 (codeart2d fx_build, 화면을 가로지르는 큰 충격 링)
 노멀(20~49%)은 오라가 없다. 오라는 반복(loop) 재생이며 발 아래 중앙이 기준점(pivot)이다.
 
 그림은 PixelSpec(codeart2d.pixelspec.v1)으로 만들어 스킬의 render_pixelspec.py에 넣는다: 팔레트 정확성(알파 0/255, 팔레트 밖 색 0)을
@@ -109,6 +110,9 @@ STYLES = {
     "aura-enhanced": dict(kind="spiral", ramp=["#ffffff", "#e6ccff", "#a46bff", "#5a2fb8"], ember="#ffffff", r0=40, vscale=0.62, stretch=1.5,
                           amp=0.9, bias=0.35, rising=1, embers=26, ember_rise=-110, ember_size=1, ground=0.6, gain=1.15, seed=51),
 }
+STYLES["aura-stun"] = dict(kind="crackle", ramp=["#ffffff", "#fff6a8", "#ffd34a", "#b8741a"], ember="#fff6a8", r0=34, vscale=0.9,
+                           stretch=1.0, amp=1.0, bias=0.2, rising=1, embers=0, ember_rise=0, ember_size=1, ground=0.4, gain=1.0,
+                           seed=63)
 PALETTE_CHARS = "abcd"      # 4톤. 불씨는 e
 
 
@@ -127,6 +131,8 @@ def draw_frame(cfg, mask, d, frame):
         streak = 0.5 + 0.5 * np.sin(5 * theta + r * 0.09 + 2 * math.pi * t * 2)      # r이 클수록 위상이 앞서 안쪽으로 흐른다
         a = a * (0.12 + 1.2 * streak ** 1.5)                              # 줄기가 뚜렷하게 보이도록 대비를 키운다
         a = np.maximum(a, np.clip(1.0 - d / (cfg["r0"] * 0.32), 0, 1) * 0.7)           # 몸 가까이는 은은한 림 라이트
+    if cfg["kind"] == "crackle":
+        return draw_crackle(cfg, mask, d, frame, xs, ys)
     a = np.clip(a * cfg["gain"], 0, 1)
     dither = (BAYER[ys.astype(int) % 4, xs.astype(int) % 4] - 0.5) * 0.16
     v = a + dither * (a > 0)
@@ -157,6 +163,49 @@ def draw_frame(cfg, mask, d, frame):
         size = cfg["ember_size"] if prog < 0.55 else 1
         if 0 <= px < W - size and 0 <= py < H - size and not mask[py, px]:
             tone[py:py + size, px:px + size] = 5
+    return tone
+
+
+def draw_crackle(cfg, mask, d, frame, xs, ys):
+    """기절 오라: 몸 윤곽 둘레를 따라 튀는 전기 아크(가는 번개선)와 머리 위를 도는 별. 프레임마다 번개가 다른 자리로 튄다."""
+    t = frame / FRAMES
+    tone = np.zeros((H, W), dtype=np.uint8)
+    halo = np.clip(1.0 - d / cfg["r0"], 0, 1)
+    for k, (seed_off, width) in enumerate(((0, 0.011), (97, 0.008))):          # 두 가닥의 아크
+        n = fbm(xs, ys, t, cfg["seed"] + seed_off + 5 * (frame % 4), 1, 1.0)     # 4프레임마다 같은 번개 모양이 돌아와 반복이 닫힌다
+        ridge = np.abs(n - 0.5)                                               # 0.5 등고선을 따라 가는 선이 생긴다
+        line = (ridge < width) & (halo > 0.05 + 0.1 * k)
+        glow = (ridge < width * 2.8) & (halo > 0.15)
+        tone[glow & (tone == 0)] = 3
+        tone[line] = 1 if k == 0 else 2
+    # 몸에 달라붙은 깜빡이는 전기 광채
+    flick = 0.5 + 0.5 * math.sin(2 * math.pi * t * 4)
+    rim = (d < 3.5) & (halo > 0.8) & (flick > 0.35)
+    tone[rim & (tone == 0)] = 2
+    tone[mask] = 0
+    # 머리 위를 도는 별 네 개 (뒤쪽 별은 작고 어둡다: 타원 궤도로 입체감)
+    head_top = FEET - 125
+    cy = head_top - 12
+    for k in range(4):
+        ang = 2 * math.pi * (t + k / 4)
+        sx = int(round(CX + 48 * math.cos(ang)))
+        sy = int(round(cy + 11 * math.sin(ang)))
+        front = math.sin(ang) > 0
+        arm = 6 if front else 3                                         # 앞쪽 별은 크고 밝고, 뒤쪽 별은 작고 어둡다
+        for i in range(-arm, arm + 1):
+            for (ox, oy) in ((i, 0), (0, i)):
+                tone[sy + oy, sx + ox] = 2 if abs(i) > 1 else 1
+        if front:
+            for i in range(-3, 4):                                      # 대각 짧은 팔: 반짝이는 4각 별
+                if abs(i) > 0:
+                    tone[sy + i, sx + i] = 3
+                    tone[sy + i, sx - i] = 3
+            tone[sy - 1:sy + 2, sx - 1:sx + 2] = 1
+    # 지면의 번쩍임
+    gy = (ys - (FEET + 1)) / 8.0
+    gx = (xs - CX) / 70.0
+    ground = np.clip(1.0 - (gx * gx + gy * gy), 0, 1)
+    tone[(ground > 0.45 + 0.25 * flick) & (tone == 0)] = 3
     return tone
 
 
@@ -195,7 +244,7 @@ def run_skill(script, args, tmp):
     return result.stdout
 
 
-def pack(name, frames, size, pivot, loop, fps):
+def pack(name, frames, size, pivot, loop, fps, scale=1):
     cols = min(len(frames), 8)
     rows = (len(frames) + cols - 1) // cols
     sheet = Image.new("RGBA", (size[0] * cols, size[1] * rows), (0, 0, 0, 0))
@@ -203,8 +252,8 @@ def pack(name, frames, size, pivot, loop, fps):
         sheet.paste(f, ((i % cols) * size[0], (i // cols) * size[1]))
     sheet.save(OUT / f"{name}.png")
     meta = {"id": f"aura/{name}", "frames": len(frames), "frameSize": list(size), "columns": cols, "fps": fps,
-            "loop": loop, "pivot": list(pivot), "scale": 1,
-            "source": "tools/make_aura.py (code-drawn silhouette flame, codeart2d render_pixelspec QA, no image model)"}
+            "loop": loop, "pivot": list(pivot), "scale": scale,
+            "source": "tools/make_aura.py (code-drawn, codeart2d render QA, no image model)"}
     (OUT / f"{name}.json").write_text(json.dumps(meta, indent=1) + "\n", encoding="utf-8")
     print("saved", name, sheet.size, len(frames), "frames")
 
@@ -249,7 +298,7 @@ def build_burst():
         out = Path(tmp) / "out"
         run_skill("fx_build.py", ["--spec", str(spec_path), "--output-dir", str(out), "--route", "pixel", "--strict-qc"], tmp)
         frames = [Image.open(f).convert("RGBA") for f in sorted((out / "frames").glob("b-*.png"))]
-    pack("overload-burst", frames, (size, size), (size // 2, size // 2), False, 25)
+    pack("overload-burst", frames, (size, size), (size // 2, size // 2), False, 25, scale=2)   # 정수 2배: 화면을 가로지르는 충격 링
 
 
 def main():

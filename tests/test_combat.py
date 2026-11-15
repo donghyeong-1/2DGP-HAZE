@@ -653,6 +653,42 @@ def test_boss_arena_has_no_tall_cover_to_hide_behind():
         assert '#' not in rows[r][1:-1], f'{r}줄에 높은 엄폐물이 있다'
 
 
+def test_overload_triggers_screen_flash_hit_stop_and_zap():
+    room, p = make_world()
+    effects.reset()
+    assert effects.flash_left == 0
+    p.gauge.add(80)                                                       # 오버로드
+    assert effects.flash_left >= config.OVERLOAD_FLASH - 1e-9             # 화면 전체 섬광
+    assert effects.hit_stop_left >= config.OVERLOAD_HIT_STOP - 1e-9       # 폭발 순간 멈춤
+    assert 'overload-burst' in spawned_names()
+    effects.tick_shake(config.OVERLOAD_FLASH + 0.1)
+    assert effects.flash_left == 0                                        # 섬광은 실제 시간으로 가라앉는다
+
+
+def test_stun_aura_replaces_other_auras_and_exists():
+    assert effects.aura_names('CRITICAL', enhanced=True, stunned=True) == ['aura-stun']
+    assert effects.aura_names('AWAKE', stunned=True) == ['aura-stun']
+    assert effects.aura_names('NORMAL', stunned=False) == []
+    import json
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'effects')
+    meta = json.load(open(os.path.join(root, 'aura-stun.json'), encoding='utf-8'))
+    assert meta['loop'] is True and meta['frames'] == 16
+    burst = json.load(open(os.path.join(root, 'overload-burst.json'), encoding='utf-8'))
+    assert burst['scale'] == 2                                            # 화면을 가로지르는 큰 충격 링(정수 2배)
+
+
+def test_waking_up_from_stun_spawns_puff_once():
+    room, p = make_world()
+    p.gauge.add(80)
+    assert p.stunned
+    game_world.world[game_world.LAYER_EFFECT].clear()
+    for _ in range(int(config.OVERLOAD_STUN * 60) + 10):
+        p.gauge.tick(DT)
+        game_world.update(DT)
+    assert not p.stunned
+    assert spawned_names().count('poof') == 1                              # 깨어나는 순간 연기 한 번
+
+
 def test_player_dies_when_hp_reaches_zero():
     room, p = make_world()
     p.take_hit(config.PLAYER_HP)

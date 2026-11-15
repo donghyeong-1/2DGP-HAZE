@@ -12,6 +12,7 @@ import config
 import game_world
 
 _meta = {}
+flash_left = 0.0     # 화면 전체 섬광이 남은 시간 (오버로드 순간)
 hit_stop_left = 0.0  # 남은 타격 멈춤 시간. play_mode가 이 동안 world 갱신을 건너뛴다
 trauma = 0.0         # 화면 흔들림 세기 0~1
 _shake_time = 0.0
@@ -32,9 +33,16 @@ def tick_hit_stop(dt):
 
 
 def reset():
-    global hit_stop_left, trauma
+    global hit_stop_left, trauma, flash_left
     hit_stop_left = 0.0
     trauma = 0.0
+    flash_left = 0.0
+
+
+def request_flash(seconds):
+    """화면 전체를 하얗게 번쩍이게 한다 (UI가 flash_left를 보고 그린다)."""
+    global flash_left
+    flash_left = max(flash_left, seconds)
 
 
 def add_trauma(amount):
@@ -45,7 +53,8 @@ def add_trauma(amount):
 
 def tick_shake(real_dt):
     """흔들림을 실제 시간으로 줄인다 (타격 멈춤 중에도 계속 줄어서 화면이 어긋난 채 굳지 않는다)."""
-    global trauma, _shake_time
+    global trauma, _shake_time, flash_left
+    flash_left = max(0.0, flash_left - real_dt)            # 섬광도 타격 멈춤 중에 실제 시간으로 줄어든다
     if trauma > 0:
         _shake_time += real_dt
         trauma = max(0.0, trauma - config.SHAKE_DECAY * real_dt)
@@ -201,9 +210,11 @@ def spawn_path_slash(x0, y0, x1, y1, enhanced=False):
     game_world.add_object(PathSlash(x0, y0, x1, y1, enhanced), game_world.LAYER_EFFECT)
 
 
-def aura_names(zone, enhanced=False):
+def aura_names(zone, enhanced=False, stunned=False):
     """지금 게이지 구간과 강화 상태에서 주인공 주위에 그릴 오라 시트들. 강화 준비 중에는 보라색 강화 오라가 구간 오라를
     대체한다 (두 오라는 모두 실루엣을 감싸는 큰 불꽃이라 겹치면 지저분하다)."""
+    if stunned:                                            # 오버로드 기절: 전기 아크가 모든 오라를 대체한다
+        return [config.AURA_STUN]
     if enhanced:
         return [config.AURA_ENHANCED]
     return [config.AURA_BY_ZONE[zone]] if zone in config.AURA_BY_ZONE else []

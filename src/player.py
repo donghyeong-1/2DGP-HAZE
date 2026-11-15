@@ -186,6 +186,7 @@ class Player(TileBody):
         self.overload_mult = 1.0       # 오버로드 피해 배율
         self.items = []                # 가진 아이템 id 목록
         self.aura_time = 0.0           # 오라 반복 재생 시간
+        self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
         # 입력 상태
@@ -390,7 +391,10 @@ class Player(TileBody):
     def _on_gauge_event(self, name, gauge):
         if name == 'overload':
             effects.add_trauma(config.SHAKE_OVERLOAD)
-            effects.spawn('overload-burst', *self.center, duration=0.6)   # 오버로드 폭발
+            effects.spawn('overload-burst', *self.center, duration=0.6)   # 오버로드 폭발 (화면을 가로지르는 충격 링)
+            effects.request_flash(config.OVERLOAD_FLASH)                  # 화면 전체 섬광
+            effects.request_hit_stop(config.OVERLOAD_HIT_STOP)            # 폭발 순간 멈춤
+            assets.play_sound('overload_zap')
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
             self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult))
             if self.hp <= 0 and self.state != 'DEAD':
@@ -404,6 +408,11 @@ class Player(TileBody):
         self._recharge_dash(dt)
         self._sync_mouse()
         self.aura_time += dt
+        if self._was_stunned and not self.stunned and self.state != 'DEAD':   # 기절에서 깨어나는 순간
+            effects.spawn('poof', self.x, self.y + 10, duration=0.5)
+            effects.add_trauma(0.2)
+            assets.play_sound('stun_end')
+        self._was_stunned = self.stunned
         self.drop_timer = max(0.0, self.drop_timer - dt)
         self.weapon.update(dt)
         if self.state != 'DASH':
@@ -478,11 +487,20 @@ class Player(TileBody):
             assets.draw_image_tinted(img, gx, gy - config.SPRITE_FOOT_MARGIN, 'h' if gdir < 0 else '',
                                      config.AFTERIMAGE_COLOR, alpha)
         blink = self.invuln_left > 0 and self.state != 'DASH' and int(self.invuln_left * 20) % 2 == 0  # 피격 무적 중 깜빡임
-        if self.state != 'DEAD':   # 게이지 구간·강화에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
-            for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced):
+        stunned = self.stunned and self.state != 'DEAD'
+        if self.state != 'DEAD':   # 게이지 구간·강화·기절에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
+            for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned):
                 effects.draw_loop(name, self.x, self.y, self.aura_time)
         if not blink:
-            assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, 'h' if self.face_dir < 0 else '')
+            flip = 'h' if self.face_dir < 0 else ''
+            if stunned:                                 # 기절: 몸이 덜덜 떨리고 노랗게 번쩍인다
+                jx = int(round(3 * math.sin(self.aura_time * 95)))
+                if int(self.aura_time * 18) % 2 == 0:
+                    assets.draw_image_tinted(img, self.x + jx, self.y - config.SPRITE_FOOT_MARGIN, flip, (255, 240, 140), 1.0)
+                else:
+                    assets.draw_image(img, self.x + jx, self.y - config.SPRITE_FOOT_MARGIN, flip)
+            else:
+                assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, flip)
         if config.DEBUG:
             self._draw_debug()
 

@@ -101,6 +101,17 @@ def swing():
     return (lowpass(noise(s), 5) * 0.7 + triangle(sweep(260, 520, s)) * 0.25) * envelope(s, 0.01, 0.8)
 
 
+def overload_zap():
+    s = 0.55
+    buzz = square(sweep(900, 140, s, 1.4), 0.5) * 0.45 * (1 + 0.6 * np.sin(2 * np.pi * 38 * t_axis(s)))   # 치직거리는 하강음
+    return (buzz + lowpass(noise(s), 2) * 0.7 + triangle(sweep(70, 40, s)) * 0.5) * envelope(s, 0.004, 0.9)
+
+
+def stun_end():
+    s = 0.22
+    return (triangle(sweep(300, 620, s)) * 0.45 + square(sweep(600, 1200, s), 0.25) * 0.12) * envelope(s, 0.006, 0.8)
+
+
 def swing_fade():
     s = 0.13
     return (lowpass(noise(s), 14) * 0.5 + triangle(sweep(150, 230, s)) * 0.2) * envelope(s, 0.012, 0.85) * 0.7   # 약하고 낮다
@@ -136,7 +147,7 @@ def throw():
     return (lowpass(noise(s), 8) * 0.5 + square(sweep(180, 420, s), 0.4) * 0.3) * envelope(s, 0.01, 0.7)
 
 
-SOUNDS = {"jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
+SOUNDS = {"overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
           "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw}

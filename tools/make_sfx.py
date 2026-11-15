@@ -101,6 +101,26 @@ def swing():
     return (lowpass(noise(s), 5) * 0.7 + triangle(sweep(260, 520, s)) * 0.25) * envelope(s, 0.01, 0.8)
 
 
+def swing_fade():
+    s = 0.13
+    return (lowpass(noise(s), 14) * 0.5 + triangle(sweep(150, 230, s)) * 0.2) * envelope(s, 0.012, 0.85) * 0.7   # 약하고 낮다
+
+
+def swing_awake():
+    s = 0.12
+    return (lowpass(noise(s), 4) * 0.6 + triangle(sweep(320, 760, s)) * 0.35) * envelope(s, 0.008, 0.8)         # 밝고 높다
+
+
+def swing_critical():
+    s = 0.15
+    return (lowpass(noise(s), 3) * 0.8 + square(sweep(200, 620, s), 0.3) * 0.3 + triangle(sweep(90, 60, s)) * 0.4) * envelope(s, 0.008, 0.85)   # 묵직하고 거칠다
+
+
+def swing_enhanced():
+    s = 0.2
+    return (triangle(sweep(260, 1000, s)) * 0.4 + square(sweep(520, 1560, s), 0.25) * 0.22 + lowpass(noise(s), 5) * 0.4) * envelope(s, 0.01, 0.85)   # 위로 쓸어 올리는 반짝임
+
+
 def enemy_hit():
     s = 0.09
     return (square(sweep(520, 240, s), 0.5) * 0.5 + noise(s) * 0.35) * envelope(s, release=0.7)
@@ -118,7 +138,8 @@ def throw():
 
 SOUNDS = {"jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
-          "swing": swing, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw}
+          "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
+          "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw}
 GAIN = 0.55  # 전체 음량 (클리핑 방지)
 
 

@@ -1,0 +1,28 @@
+{
+ "id": "melee/dash-strike",
+ "frames": 30,
+ "variants": 5,
+ "variantAngles": [
+  0,
+  45,
+  90,
+  -45,
+  -90
+ ],
+ "frameSize": [
+  620,
+  620
+ ],
+ "columns": 6,
+ "fps": 25,
+ "loop": false,
+ "pivot": [
+  310,
+  310
+ ],
+ "scale": 1,
+ "impactMs": 130,
+ "durationMs": 260,
+ "style": "dash",
+ "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_slash.py"
+}

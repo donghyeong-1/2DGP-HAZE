@@ -58,7 +58,7 @@ ZONE_NORMAL_MAX = 50        # value < 50 이면 노멀 (20~49), 각성은 50부�
 CRITICAL_MARGIN = 10        # 위험은 cap-10 이상 (한계에 따라 움직임)
 ENHANCE_COST = 25
 ENHANCE_FLOOR = 5           # 사용 후 최소 이만큼 남아야 한다 (사용 가능 하한 = COST + FLOOR = 30)
-ENHANCE_TIME = 8.0
+ENHANCE_TIME = 12.0         # 강화 일격을 준비해 두는 최대 시간(초). 그 안에 공격하지 않으면 사라진다 (강화는 1회성)
 OVERLOAD_DAMAGE_RATIO = 0.20
 OVERLOAD_STUN = 1.5
 OVERLOAD_RESET = 30
@@ -104,6 +104,11 @@ ENEMY_STATS = {
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle.png',
                     projectile_speed=620.0, leap=0.0),
 }
+BOSS_LEAP_TIME = 0.8             # 보스 도약 체공 시간(초). 기둥·벽 뒤에 숨은 플레이어에게 넘어가 내려찍는다
+BOSS_LEAP_SPEED_CAP = 760.0
+BOSS_LAND_RADIUS = 210           # 도약 착지 충격 반경(px)
+BOSS_LAND_DAMAGE = 20
+
 # 보스 크래셔 (기획 3.2: 충격파 게이지 -20%, 돌진은 변화 없음). 같은 표에 두고 Boss 클래스가 패턴을 쓴다
 ENEMY_STATS['crasher'] = dict(
     hp=700, hb=(100, 180), speed=150.0, sight=2600, sight_dy=900, attack_range=190, reach_dy=260, damage=18,
@@ -116,12 +121,32 @@ SPIKE_HEIGHT = 30            # 가시 타일에서 실제로 찌르는 높이(px
 # 헤이즈 조각 (재화). 적을 처치하면 떨어뜨리고, 정비방 업그레이드에 쓴다 (정비방은 3주차)
 SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'crasher': 10}
 
-# E 무기 강화: 게이지 ENHANCE_COST를 쓰고 ENHANCE_TIME초 동안 파이프가 강해진다
-ENHANCE_DAMAGE_MULT = 1.5
-ENHANCE_REACH_MULT = 1.35
-ENHANCE_ARC_BONUS_DEG = 15
-ENHANCE_BLAST_RADIUS = 170     # 강화 무기로 처치한 적은 작은 안개 폭발을 일으킨다
-ENHANCE_BLAST_DAMAGE = 25
+# E 강화 일격 (1회성): 게이지 ENHANCE_COST를 쓰면 **다음 공격 한 번**이 강화 일격이 된다. 쓰고 나면 사라진다.
+# 강화 일격은 대미지가 크고 사거리·부채꼴이 넓으며, 맞은 적마다 안개 폭발이 일어나 주변 적에게 피해를 준다.
+ENHANCE_DAMAGE_MULT = 2.5
+ENHANCE_REACH_MULT = 1.5
+ENHANCE_ARC_BONUS_DEG = 25
+ENHANCE_BLAST_RADIUS = 190     # 맞은 적 주위로 퍼지는 안개 폭발
+ENHANCE_BLAST_DAMAGE = 30
+ENHANCE_STRIKE_COOLDOWN = 0.65  # 강화 일격 뒤 다음 공격까지
+
+# 특수 공격 (대시 평타, 점프 평타). 아무 키 없이 상황으로 정해진다: 대시 중·직후 공격 = 대시 평타, 공중 공격 = 점프 평타
+DASH_ATTACK_WINDOW = 0.22       # 대시가 끝난 뒤에도 이 시간(초) 안에 공격하면 대시 평타
+DASH_STRIKE_MULT = 1.4          # 대미지 배율
+DASH_STRIKE_LENGTH = 340        # 몸 중심에서 대시 방향으로 꿰뚫는 길이(px). 줄에 선 적을 모두 벤다 (관통)
+DASH_STRIKE_HALF_WIDTH = 95     # 줄의 반폭(px)
+DASH_STRIKE_EXTEND = 0.10       # 대시 중에 치면 대시가 이만큼(초) 더 이어진다 (돌진하며 베기)
+DASH_STRIKE_COOLDOWN = 0.40
+AIR_SPIN_MULT = 1.2             # 점프 평타(회전 베기) 대미지 배율
+AIR_SPIN_REACH = 170            # 몸 둘레 360도 사거리(px)
+AIR_HOP = 380.0                 # 회전 베기를 하면 살짝 떠오른다(px/s)
+AIR_COOLDOWN = 0.50
+PLUNGE_MULT = 1.6               # 공중에서 아래를 겨누고 치면 내려찍기: 아래로 꿰뚫고 맞으면 튕겨 오른다
+PLUNGE_LENGTH = 300
+PLUNGE_HALF_WIDTH = 80
+PLUNGE_BOUNCE = 950.0
+PLUNGE_AIM = -0.65              # 조준 y 성분이 이보다 작으면(아래를 향하면) 내려찍기
+PLUNGE_COOLDOWN = 0.55
 
 ENEMY_HIT_FLASH = 0.10       # 맞았을 때 붉게 번쩍이는 시간(초)
 ENEMY_KNOCKBACK = 260.0      # 맞았을 때 밀려나는 속도(px/s)
@@ -135,6 +160,27 @@ FONT_SCALE = 2             # 글자는 14px/11px 원본의 정수 배(28/22px)�
 DAMAGE_COLOR = (255, 238, 150)
 DAMAGE_COLOR_FINISHER = (255, 170, 80)
 DAMAGE_COLOR_ENHANCED = (130, 235, 225)
+
+# 게이지 구간별 공격 효과 (docs/기획서.md 5.12). 구간이 높을수록 궤적이 크고 화려하고, 화면 흔들림·멈춤·소리도 세진다.
+#   slash: 휘두르기 시트 / spark: 명중 효과 시트 / shake·stop: 화면 흔들림·타격 멈춤 배율 / sound: 휘두르기 소리 / damage_color: 데미지 숫자 색
+ZONE_FX = {
+    'FADE':     dict(slash='pipe-slash-fade', spark='poof', spark_time=0.3, shake=0.6, stop=0.7, sound='swing_fade',
+                     damage_color=(185, 140, 165)),
+    'NORMAL':   dict(slash='pipe-slash', spark='hit-spark', spark_time=0.22, shake=1.0, stop=1.0, sound='swing',
+                     damage_color=(255, 238, 150)),
+    'AWAKE':    dict(slash='pipe-slash-awake', spark='crit-hit', spark_time=0.28, shake=1.3, stop=1.2, sound='swing_awake',
+                     damage_color=(160, 255, 210)),
+    'CRITICAL': dict(slash='pipe-slash-critical', spark='crit-hit', spark_time=0.32, shake=1.7, stop=1.5, sound='swing_critical',
+                     damage_color=(255, 150, 90)),
+}
+ZONE_FX['OVERLOAD'] = ZONE_FX['CRITICAL']
+ZONE_FX['DEAD'] = ZONE_FX['FADE']
+ENHANCED_FX = dict(slash='pipe-slash-enhanced', spark='crit-hit', spark_time=0.34, shake=1.9, stop=1.6, sound='swing_enhanced',
+                   damage_color=(230, 190, 255))
+FINISHER_SLASH = 'pipe-slash-finisher'     # 3타는 구간과 상관없이 금색 큰 궤적
+# 주인공 몸 주위 오라 (반복 재생). 노멀(20~49%)은 없다. E 강화 중에는 구간 오라 위에 겹친다
+AURA_BY_ZONE = {'FADE': 'aura-fade', 'AWAKE': 'aura-awake', 'CRITICAL': 'aura-critical'}
+AURA_ENHANCED = 'aura-enhanced'
 
 # 소리
 SOUND_ENABLED = False      # main이 오디오를 켠 뒤 True로 바꾼다 (테스트·창 없는 실행에서는 꺼져 있다)

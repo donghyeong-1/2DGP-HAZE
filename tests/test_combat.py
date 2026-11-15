@@ -303,6 +303,252 @@ def test_slash_variant_follows_aim_direction():
         assert (v, flip) == (name, flip_expected), (deg, v, flip)
 
 
+def set_gauge(p, value):
+    p.gauge.value = float(value)
+    p.gauge.zone = p.gauge._zone_of(float(value))
+
+
+def spawned_names():
+    return [o.name for o in game_world.world[game_world.LAYER_EFFECT] if hasattr(o, 'name')]
+
+
+def test_slash_sheet_depends_on_zone_finisher_and_enhance():
+    assert effects.slash_sheet('FADE') == 'pipe-slash-fade'
+    assert effects.slash_sheet('NORMAL') == 'pipe-slash'
+    assert effects.slash_sheet('AWAKE') == 'pipe-slash-awake'
+    assert effects.slash_sheet('CRITICAL') == 'pipe-slash-critical'
+    assert effects.slash_sheet('AWAKE', finisher=True) == 'pipe-slash-finisher'                # 3타는 금색 큰 궤적
+    assert effects.slash_sheet('FADE', finisher=True, enhanced=True) == 'pipe-slash-enhanced'    # 강화가 가장 우선
+    assert len({effects.slash_sheet(z) for z in ('FADE', 'NORMAL', 'AWAKE', 'CRITICAL')}) == 4  # 구간마다 다르다
+
+
+def test_every_zone_has_attack_fx_and_hit_effects_get_stronger():
+    for zone in ('FADE', 'NORMAL', 'AWAKE', 'CRITICAL', 'OVERLOAD', 'DEAD'):
+        fx = config.ZONE_FX[zone]
+        assert {'slash', 'spark', 'shake', 'stop', 'sound', 'damage_color'} <= set(fx)
+    order = [config.ZONE_FX[z] for z in ('FADE', 'NORMAL', 'AWAKE', 'CRITICAL')]
+    assert [f['shake'] for f in order] == sorted(f['shake'] for f in order)      # 구간이 높을수록 흔들림·멈춤이 크다
+    assert [f['stop'] for f in order] == sorted(f['stop'] for f in order)
+    assert config.ENHANCED_FX['shake'] >= order[-1]['shake']
+    assert len({f['damage_color'] for f in order}) == 4                          # 데미지 숫자 색도 다르다
+
+
+def test_weapon_spawns_zone_specific_slash_and_spark():
+    seen = {}
+    for value, zone in ((10, 'FADE'), (30, 'NORMAL'), (60, 'AWAKE'), (95, 'CRITICAL')):
+        room, p = make_world()
+        freeze(add_enemy('slum', p.x + 100, room, p))
+        set_gauge(p, value)
+        p.request_attack()
+        names = spawned_names()
+        seen[zone] = names
+        assert config.ZONE_FX[zone]['slash'] in names and config.ZONE_FX[zone]['spark'] in names, (zone, names)
+    assert seen['FADE'] != seen['AWAKE'] != seen['CRITICAL']
+
+
+def test_enhanced_attack_uses_its_own_slash_and_spark():
+    room, p = make_world()
+    freeze(add_enemy('slum', p.x + 100, room, p))
+    set_gauge(p, 60)
+    assert p.request_enhance()
+    p.weapon.cooldown = 0
+    game_world.world[game_world.LAYER_EFFECT].clear()
+    p.request_attack()
+    names = spawned_names()
+    assert 'pipe-slash-enhanced' in names and 'pipe-slash-awake' not in names
+
+
+def test_aura_follows_gauge_zone_and_enhance():
+    assert effects.aura_names('NORMAL') == []                              # 노멀(20~49%)은 오라가 없다
+    assert effects.aura_names('FADE') == ['aura-fade']
+    assert effects.aura_names('AWAKE') == ['aura-awake']
+    assert effects.aura_names('CRITICAL') == ['aura-critical']
+    assert effects.aura_names('AWAKE', enhanced=True) == ['aura-awake', 'aura-enhanced']   # 구간 오라 위에 겹친다
+    assert effects.aura_names('NORMAL', enhanced=True) == ['aura-enhanced']
+
+
+def test_all_effect_sheets_used_by_zone_fx_exist_and_are_valid():
+    import json
+    names = {fx['slash'] for fx in config.ZONE_FX.values()} | {config.ENHANCED_FX['slash'], config.FINISHER_SLASH}
+    names |= set(config.AURA_BY_ZONE.values()) | {config.AURA_ENHANCED, 'overload-burst', 'poof', 'hit-spark', 'crit-hit'}
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'effects')
+    for name in names:
+        assert os.path.exists(os.path.join(root, name + '.png')), name
+        meta = json.load(open(os.path.join(root, name + '.json'), encoding='utf-8'))
+        assert meta['frames'] >= 1 and meta['frameSize'][0] > 0
+        if name in config.AURA_BY_ZONE.values() or name == config.AURA_ENHANCED:
+            assert meta['loop'] is True                                    # 오라는 반복 재생이다
+
+
+def test_draw_loop_frame_wraps_around():
+    info = effects.sheet_info('pipe-slash')                                # 시트 정보만 시험 (그리기는 창이 필요하다)
+    assert info['frames'] == info['variants'] * (info['frames'] // info['variants'])
+
+
+def test_overload_spawns_burst_and_high_zone_entry_spawns_rage():
+    room, p = make_world()
+    game_world.world[game_world.LAYER_EFFECT].clear()
+    p.gauge.add(80)                                                       # 오버로드
+    assert 'overload-burst' in spawned_names()
+    room, p = make_world()
+    set_gauge(p, 45)
+    game_world.world[game_world.LAYER_EFFECT].clear()
+    p.gauge.add(10)                                                       # 노멀 -> 각성 진입
+    assert 'rage' in spawned_names()
+
+
+def walled_room():
+    """바닥 위에 한 칸 두께의 높은 벽(15칸)이 서 있는 방. 벽 너머 공격이 막히는지 시험한다."""
+    rows = [['.'] * 32 for _ in range(18)]
+    for c in range(32):
+        rows[0][c] = rows[16][c] = rows[17][c] = '#'
+    for r in range(18):
+        rows[r][0] = rows[r][31] = '#'
+    for r in range(8, 16):
+        rows[r][15] = '#'                                 # 열 15에 8줄 높이 벽
+    return Room([''.join(r) for r in rows])
+
+
+def make_world_with(room, player_x):
+    game_world.clear()
+    effects.reset()
+    player = Player(player_x, FLOOR_Y, room)
+    game_world.add_object(player, game_world.LAYER_PLAYER)
+    step(30)
+    player.mouse_x, player.mouse_y = player.x + 400, player.center[1]
+    return room, player
+
+
+def test_melee_does_not_reach_through_walls():
+    room, p = make_world_with(walled_room(), 14 * config.TILE + 30)        # 벽(열 15) 바로 왼쪽
+    behind = freeze(add_enemy('slum', 16 * config.TILE + 30, room, p))      # 벽 바로 오른쪽 (사거리 안)
+    p.request_attack()
+    assert behind.hp == behind.max_hp                                       # 벽 너머라 맞지 않는다
+    p.x = 16 * config.TILE + 30 + 100                                       # 같은 쪽으로 옮기면 맞는다
+    p.weapon.cooldown = 0
+    p.mouse_x, p.mouse_y = behind.x, p.center[1]
+    p.request_attack()
+    assert behind.hp < behind.max_hp
+
+
+def test_enhanced_blast_and_dash_and_spin_also_respect_walls():
+    room, p = make_world_with(walled_room(), 14 * config.TILE + 30)
+    behind = freeze(add_enemy('slum', 16 * config.TILE + 30, room, p))
+    behind.hp = behind.max_hp = 1000
+    set_gauge(p, 60)
+    p.request_enhance()
+    p.request_attack()                                                      # 강화 일격도 벽 너머에는 안 닿는다
+    assert behind.hp == behind.max_hp
+    p.request_dash()                                                        # 대시 평타
+    p.weapon.cooldown = 0
+    p.request_attack()
+    assert p.weapon.last_kind == 'dash' and behind.hp == behind.max_hp
+
+
+def test_dash_strike_pierces_a_line_of_enemies():
+    room, p = make_world()
+    a = freeze(add_enemy('slum', p.x + 110, room, p))
+    b = freeze(add_enemy('slum', p.x + 300, room, p))                       # 기본 사거리(150) 밖이지만 대시 평타 줄 안
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_dash()
+    assert p.state == 'DASH'
+    assert p.request_attack() and p.weapon.last_kind == 'dash'
+    assert a.hp < a.max_hp and b.hp < b.max_hp                              # 줄에 선 적을 모두 벤다
+    assert 'dash-strike' in spawned_names()
+    assert p.state == 'DASH' and p.dash_left >= config.DASH_STRIKE_EXTEND   # 돌진하며 벤다
+
+
+def test_dash_strike_window_closes_after_dash():
+    room, p = make_world()
+    freeze(add_enemy('slum', p.x + 110, room, p))
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_dash()
+    for _ in range(int((config.DASH_TIME + config.DASH_ATTACK_WINDOW - 0.05) * 60)):
+        game_world.update(DT)
+    assert p.state != 'DASH' and p.dash_window > 0
+    assert p.weapon.current_kind() == 'dash'                                # 막 끝난 직후에도 대시 평타
+    for _ in range(30):
+        game_world.update(DT)
+    assert p.dash_window == 0 and p.weapon.current_kind() in ('pipe', 'spin', 'plunge')
+
+
+def test_jump_attack_spins_around_the_player_and_hops():
+    room, p = make_world()
+    behind = freeze(add_enemy('slum', p.x - 120, room, p))                  # 조준 반대쪽(뒤)
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_jump()
+    for _ in range(8):
+        game_world.update(DT)
+    assert not p.on_ground
+    assert p.weapon.current_kind() == 'spin'
+    vy0 = p.vy
+    assert p.request_attack() and p.weapon.last_kind == 'spin'
+    assert behind.hp < behind.max_hp                                        # 360도라 뒤도 벤다
+    assert p.vy >= config.AIR_HOP and 'air-spin' in spawned_names()
+
+
+def test_plunge_hits_below_and_bounces():
+    room, p = make_world()
+    below = freeze(add_enemy('slum', p.x, room, p))
+    p.request_jump()
+    for _ in range(14):
+        game_world.update(DT)
+    p.mouse_x, p.mouse_y = p.x, p.y - 300                                   # 아래를 겨눈다
+    assert p.weapon.current_kind() == 'plunge'
+    p.invuln_left = 0
+    assert p.request_attack() and p.weapon.last_kind == 'plunge'
+    assert below.hp < below.max_hp
+    assert p.vy == config.PLUNGE_BOUNCE and p.jump_count <= 1               # 맞으면 튕겨 오르고 다시 뛸 수 있다
+
+
+def test_special_attacks_use_zone_damage_and_attack_bonus():
+    room, p = make_world()
+    e = freeze(add_enemy('slum', p.x + 110, room, p))
+    e.hp = e.max_hp = 1000
+    p.attack_bonus = 1.5
+    set_gauge(p, 60)
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_dash()
+    p.request_attack()
+    expected = config.PIPE_DAMAGE * config.MULT_AWAKE[0] * 1.5 * config.DASH_STRIKE_MULT
+    assert abs((e.max_hp - e.hp) - expected) < 1e-6
+
+
+def test_attack_blocked_only_while_hit_or_stunned_not_while_dashing():
+    room, p = make_world()
+    p.request_dash()
+    assert p.request_attack()                                               # 대시 중에도 공격할 수 있다
+    p2room, p2 = make_world()
+    p2.take_hit(5)
+    p2.invuln_left = 0
+    assert p2.state == 'HIT' and not p2.request_attack()
+
+
+def test_boss_leaps_over_cover_when_player_hides():
+    from boss import Boss
+    room, p = make_world_with(Room.load('boss_arena', {'L'}), 10 * config.TILE)
+    boss = Boss(38 * config.TILE, 2 * config.TILE, room, p)
+    game_world.add_object(boss, game_world.LAYER_ENEMY)
+    step(20)
+    room.line_blocked = lambda *a, **k: True                                # 플레이어가 벽 뒤에 숨은 상황
+    assert boss._choose_pattern() == 'leap'
+    boss.pattern = 'leap'
+    boss.engage()
+    x0 = boss.x
+    step(60 * 4)
+    assert boss.x < x0 - 400                                               # 숨은 플레이어 쪽으로 넘어왔다
+    assert boss.state in ('CHASE', 'ATTACK')
+
+
+def test_boss_arena_has_no_tall_cover_to_hide_behind():
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'rooms', 'boss_arena.txt')
+    with open(path, encoding='utf-8') as f:
+        rows = [line.strip() for line in f.read().splitlines() if line.strip()]
+    stand = len(rows) - 3
+    for r in range(1, stand):                                              # 바닥 위 공중 줄에는 벽(#)이 없다 (1칸 단은 stand 줄)
+        assert '#' not in rows[r][1:-1], f'{r}줄에 높은 엄폐물이 있다'
+
+
 def test_player_dies_when_hp_reaches_zero():
     room, p = make_world()
     p.take_hit(config.PLAYER_HP)

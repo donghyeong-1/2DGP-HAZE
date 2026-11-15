@@ -23,5 +23,6 @@
  "scale": 1,
  "impactMs": 130,
  "durationMs": 260,
+ "style": "finisher",
  "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_slash.py"
 }

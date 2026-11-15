@@ -10,18 +10,19 @@
   -90
  ],
  "frameSize": [
-  540,
-  540
+  560,
+  560
  ],
  "columns": 6,
  "fps": 25,
  "loop": false,
  "pivot": [
-  270,
-  270
+  280,
+  280
  ],
  "scale": 1,
  "impactMs": 130,
  "durationMs": 260,
+ "style": "cross",
  "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_slash.py"
 }

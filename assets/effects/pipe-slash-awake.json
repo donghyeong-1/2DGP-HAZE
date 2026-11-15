@@ -1,0 +1,28 @@
+{
+ "id": "melee/pipe-slash-awake",
+ "frames": 30,
+ "variants": 5,
+ "variantAngles": [
+  0,
+  45,
+  90,
+  -45,
+  -90
+ ],
+ "frameSize": [
+  440,
+  440
+ ],
+ "columns": 6,
+ "fps": 25,
+ "loop": false,
+ "pivot": [
+  220,
+  220
+ ],
+ "scale": 1,
+ "impactMs": 130,
+ "durationMs": 260,
+ "style": "double",
+ "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_slash.py"
+}

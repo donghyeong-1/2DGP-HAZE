@@ -73,7 +73,7 @@ class GameUI:
         _rect('px_white', self._x_of(g.value) - 4, BAR_Y - 11, 8, BAR_H + 22)
         label = f'{ZONE_LABEL[g.zone]} {int(g.value)}%'
         if g.enhanced:
-            label += f'   강화 {g.enhance_timer:.1f}s'
+            label += '   강화 일격 준비'
         assets.draw_text(BAR_X, BAR_Y - 34, label, ZONE_COLOR[g.zone])
         mult = g.zone_multipliers()
         text = f'공격력 x{mult["attack"]:g}  이동 x{mult["speed"]:g}'
@@ -114,7 +114,12 @@ class GameUI:
         px, py, pw, ph = (config.SCREEN_W - 760) // 2, 14, 760, 92
         _frame(px, py, pw, ph, 'px_black', border='px_gray', thickness=3)
         assets.draw_text(px + 24, py + ph - 26, '철파이프', WHITE)
-        assets.draw_text(px + 24, py + 24, '좌클릭 공격', DIM, small=True)
+        kind = w.current_kind()
+        names = {'pipe': ('기본 3연타', DIM), 'dash': ('대시 평타: 돌진 베기', (255, 225, 120)),
+                 'spin': ('점프 평타: 회전 베기', (170, 225, 255)), 'plunge': ('내려찍기', (170, 225, 255)),
+                 'enhanced': ('강화 일격!', (225, 190, 255))}
+        text, color = names[kind]
+        assets.draw_text(px + 24, py + 24, text, color, small=True)
         # 콤보 3칸: 이어 칠수록 켜지고 3타(마무리)는 주황
         for i in range(3):
             lit = i < w.combo
@@ -127,13 +132,13 @@ class GameUI:
         _rect('px_white' if w.ready else 'px_yellow', px + 230, py + 10, 164 * ratio, 10)
         # E 강화 상태
         ex = px + 450
-        if g.enhanced:
-            _frame(ex, py + 30, 270, 40, 'px_gray', border='px_black', thickness=3)
+        if g.enhanced:                                           # 강화 일격 준비 (1회성): 바는 준비가 풀리기까지 남은 시간
+            _frame(ex, py + 30, 270, 40, 'px_gray', border='px_white', thickness=3)
             _rect('px_cyan', ex, py + 30, 270 * g.enhance_timer / config.ENHANCE_TIME, 40)
-            assets.draw_text(ex + 12, py + 50, f'E 강화 중 {g.enhance_timer:.1f}s', (10, 20, 40), small=True)
+            assets.draw_text(ex + 12, py + 50, '강화 일격 준비: 다음 공격 1회', (10, 20, 40), small=True)
         elif g.can_enhance():
             _frame(ex, py + 30, 270, 40, 'px_cyan', border='px_white', thickness=3)
-            assets.draw_text(ex + 12, py + 50, f'E 강화 가능 (-{config.ENHANCE_COST}%)', (10, 20, 40), small=True)
+            assets.draw_text(ex + 12, py + 50, f'E 강화 일격 준비 (-{config.ENHANCE_COST}%)', (10, 20, 40), small=True)
         else:
             _frame(ex, py + 30, 270, 40, 'px_gray', border='px_black', thickness=3)
             assets.draw_text(ex + 12, py + 50, f'E 강화: 게이지 {g.enhance_min}%+', DIM, small=True)

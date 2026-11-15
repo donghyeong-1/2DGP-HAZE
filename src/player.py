@@ -120,9 +120,11 @@ class Dash(_State):
         p.dash_vec = (ax, ay)
         p.vy = 0.0
         p.afterimage_timer = 0.0  # 출발 지점에도 잔상을 남긴다
+        p.dash_window = config.DASH_ATTACK_WINDOW
 
     def do(self, dt):
         p = self.p
+        p.dash_window = config.DASH_ATTACK_WINDOW      # 대시하는 동안은 계속 대시 평타를 칠 수 있다
         p.vx = p.dash_vec[0] * config.DASH_SPEED
         p.vy = p.dash_vec[1] * config.DASH_SPEED
         p.dash_left -= dt
@@ -175,6 +177,7 @@ class Player(TileBody):
         self.kill_bonus = 0            # 처치 시 게이지 추가 상승
         self.overload_mult = 1.0       # 오버로드 피해 배율
         self.items = []                # 가진 아이템 id 목록
+        self.aura_time = 0.0           # 오라 반복 재생 시간
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
         # 입력 상태
@@ -199,6 +202,7 @@ class Player(TileBody):
         self.weapon = Pipe(self)         # 장착 무기 (2주차는 철파이프 하나)
         self.attack_held = False         # 좌클릭을 누르고 있으면 쿨타임마다 이어서 친다
         self.interact_pressed = False    # F를 눌렀다 (stage가 이번 프레임에 소비한다)
+        self.dash_window = 0.0           # 대시 중이거나 막 끝난 뒤 남은 시간: 이 동안 공격하면 대시 평타
         self.shards = 0                  # 헤이즈 조각(재화). 죽으면 처음부터이므로 이번 플레이 동안만 유지
 
         # 상태 객체와 transitions 상태 머신 (Player 객체에 self.state 속성이 생긴다)
@@ -327,7 +331,7 @@ class Player(TileBody):
         return True
 
     def request_attack(self):
-        if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned:
+        if self.state in ('HIT', 'DEAD') or self.stunned:   # 대시 중에는 대시 평타를 칠 수 있다
             return False
         return self.weapon.try_attack()
 
@@ -374,17 +378,24 @@ class Player(TileBody):
     def _on_gauge_event(self, name, gauge):
         if name == 'overload':
             effects.add_trauma(config.SHAKE_OVERLOAD)
+            effects.spawn('overload-burst', *self.center, duration=0.6)   # 오버로드 폭발
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
             self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult))
             if self.hp <= 0 and self.state != 'DEAD':
                 self.die()
+        elif name in ('zone:AWAKE', 'zone:CRITICAL'):
+            effects.spawn('rage', self.x, self.y + config.PLAYER_HB_H + 10, duration=0.5)   # 높은 구간에 들어서는 순간 표시
+            effects.add_trauma(0.15)
 
     # ----- 갱신 -----
     def update(self, dt):
         self._recharge_dash(dt)
         self._sync_mouse()
+        self.aura_time += dt
         self.drop_timer = max(0.0, self.drop_timer - dt)
         self.weapon.update(dt)
+        if self.state != 'DASH':
+            self.dash_window = max(0.0, self.dash_window - dt)
         self.coyote_left = config.COYOTE_TIME if self.on_ground else max(0.0, self.coyote_left - dt)
         self.jump_buffer_left = max(0.0, self.jump_buffer_left - dt)
         if self.attack_held:
@@ -455,6 +466,9 @@ class Player(TileBody):
             assets.draw_image_tinted(img, gx, gy - config.SPRITE_FOOT_MARGIN, 'h' if gdir < 0 else '',
                                      config.AFTERIMAGE_COLOR, alpha)
         blink = self.invuln_left > 0 and self.state != 'DASH' and int(self.invuln_left * 20) % 2 == 0  # 피격 무적 중 깜빡임
+        if self.state != 'DEAD':   # 게이지 구간·강화에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
+            for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced):
+                effects.draw_loop(name, self.x, self.y, self.aura_time)
         if not blink:
             assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, 'h' if self.face_dir < 0 else '')
         if config.DEBUG:

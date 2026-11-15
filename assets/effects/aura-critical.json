@@ -1,0 +1,17 @@
+{
+ "id": "aura/aura-critical",
+ "frames": 16,
+ "frameSize": [
+  380,
+  440
+ ],
+ "columns": 8,
+ "fps": 20,
+ "loop": true,
+ "pivot": [
+  190,
+  306
+ ],
+ "scale": 1,
+ "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_aura.py"
+}

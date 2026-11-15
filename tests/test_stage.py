@@ -335,20 +335,43 @@ def test_camera_centers_room_smaller_than_screen():
 
 
 # ----- E 강화 (이전 테스트 유지) -----
-def test_enhance_costs_gauge_and_boosts_pipe():
+def test_enhance_costs_gauge_and_arms_one_strike_only():
+    """E는 게이지를 쓰고 다음 공격 한 번을 강화 일격으로 만든다. 한 번 휘두르면 준비가 끝난다 (1회성)."""
     stage, p = make_stage()
     p.gauge.value = 60.0
     p.gauge.zone = p.gauge._zone_of(60.0)
     assert p.request_enhance() and p.gauge.enhanced
     assert p.gauge.value == 60.0 - config.ENHANCE_COST
-    assert not p.request_enhance()                              # 강화 중에는 다시 못 쓴다
+    assert not p.request_enhance()                              # 준비 중에는 다시 못 쓴다
     e = Enemy('slum', p.x + 100, FLOOR_Y, stage.room, p)
     e.stats = dict(e.stats, speed=0.0, sight=0)
     e.hp = e.max_hp = 1000
     game_world.add_object(e, game_world.LAYER_ENEMY)
     p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    mult = p.gauge.zone_multipliers()['attack']
     p.request_attack()
-    assert e.max_hp - e.hp == config.PIPE_DAMAGE * config.ENHANCE_DAMAGE_MULT * p.gauge.zone_multipliers()['attack']
+    assert e.max_hp - e.hp == config.PIPE_DAMAGE * config.ENHANCE_DAMAGE_MULT * mult      # 강화 일격
+    assert not p.gauge.enhanced                                 # 한 번 쓰면 사라진다
+    assert p.weapon.last_kind == 'enhanced'
+    hp1 = e.hp
+    for _ in range(60):
+        game_world.update(DT)
+    p.weapon.cooldown = 0
+    p.request_attack()
+    assert hp1 - e.hp == config.PIPE_DAMAGE * mult              # 다음 공격은 보통 공격이다
+    assert p.weapon.last_kind == 'pipe'
+
+
+def test_enhance_expires_if_unused():
+    stage, p = make_stage()
+    p.gauge.value = 60.0
+    p.gauge.zone = p.gauge._zone_of(60.0)
+    p.request_enhance()
+    p.gauge.tick(config.ENHANCE_TIME + 0.1)
+    assert not p.gauge.enhanced                                 # 오래 안 쓰면 준비가 풀린다
+    p.gauge.value = 60.0
+    p.gauge.zone = p.gauge._zone_of(60.0)
+    assert p.request_enhance()                                  # 다시 준비할 수 있다
 
 
 def test_enhance_refused_when_gauge_too_low():
@@ -358,20 +381,21 @@ def test_enhance_refused_when_gauge_too_low():
     assert not p.request_enhance() and p.gauge.value == 29.0
 
 
-def test_enhanced_kill_blasts_neighbours():
+def test_enhanced_strike_blasts_around_every_enemy_it_hits():
     stage, p = make_stage()
     p.gauge.value = 60.0
     p.gauge.zone = p.gauge._zone_of(60.0)
     p.request_enhance()
     a = Enemy('slum', p.x + 100, FLOOR_Y, stage.room, p)
-    b = Enemy('slum', p.x + 230, FLOOR_Y, stage.room, p)  # 파이프 사거리(약 202) 밖, 폭발 반경 안
+    b = Enemy('slum', p.x + 280, FLOOR_Y, stage.room, p)  # 강화 사거리(225) 밖, 폭발 반경(190) 안
     for e in (a, b):
         e.stats = dict(e.stats, speed=0.0, sight=0)
+        e.hp = e.max_hp = 1000
         game_world.add_object(e, game_world.LAYER_ENEMY)
-    a.hp = 1
     p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
     p.request_attack()
-    assert not a.alive and b.hp == b.max_hp - config.ENHANCE_BLAST_DAMAGE
+    assert a.hp < a.max_hp                                      # 죽이지 않아도 맞은 적 주위에 폭발이 퍼진다
+    assert b.hp == b.max_hp - config.ENHANCE_BLAST_DAMAGE
 
 
 def test_kill_drops_shards():

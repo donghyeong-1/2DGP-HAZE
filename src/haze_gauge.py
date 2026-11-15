@@ -26,7 +26,7 @@ class HazeGauge:
         self.zone = self._zone_of(self.value)
         self.decay_interval = config.GAUGE_DECAY_INTERVAL
         self.enhance_cost = config.ENHANCE_COST
-        self.enhance_timer = 0.0   # 남은 강화 시간
+        self.enhance_timer = 0.0   # 강화 일격 준비가 남은 시간 (0이면 준비 안 됨)
         self.stun_timer = 0.0      # 오버로드 기절 남은 시간
         self._timer = 0.0          # 감소/상승 주기 타이머
         self._high_haze = False
@@ -112,6 +112,10 @@ class HazeGauge:
 
     def can_enhance(self):
         return self.zone != DEAD and not self.enhanced and self.value >= self.enhance_min
+
+    def consume_enhance(self):
+        """강화 일격을 썼다: 준비 상태를 끈다 (강화는 1회성)."""
+        self.enhance_timer = 0.0
 
     def use_enhance(self):
         if not self.can_enhance():

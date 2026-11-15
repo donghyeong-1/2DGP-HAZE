@@ -71,6 +71,16 @@ class Room:
                     rects.append((col * config.TILE, bottom, (col + 1) * config.TILE, bottom + config.SPIKE_HEIGHT))
         return rects
 
+    def line_blocked(self, x0, y0, x1, y1, step=18):
+        """두 점 사이의 직선이 단단한 벽(#, 잠긴 문)에 막히는가. 근접 공격이 벽을 뚫고 맞지 않게 하는 시야 검사."""
+        dist = max(abs(x1 - x0), abs(y1 - y0))
+        n = max(1, int(dist // step))
+        for i in range(1, n):
+            t = i / n
+            if self.tile_at_world(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t) == SOLID:
+                return True
+        return False
+
     def door_open(self, direction):
         return direction in self.links and not self.locked
 

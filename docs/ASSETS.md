@@ -120,6 +120,10 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/ui/logo.png` (320×96) | `tools/codeart/make_logo.py`가 SVG를 생성 → agent-sprite-forge의 codeart2d 렌더러(`svg_render.py --crisp --strict-qc`)로 1배 렌더 | 타이틀 로고 "HAZE". 알파 0/255, 8색 |
 | `assets/sprites/unified/proj_scrap.png` (42×24) | `tools/codeart/make_scrap.py` → codeart2d 렌더러 (`python tools/make_codeart.py proj_scrap`) | 고철 투척병이 던지는 고철 파이프 조각. 코드로 그린 것(code-drawn). 알파 0/255, 9색 |
 | `assets/effects/pipe-slash.png`, `pipe-slash-finisher.png`, `pipe-slash-enhanced.png` (+ `.json`) | `tools/make_slash.py` → **codeart2d 스킬의 `fx_build.py`**(fx.v1 slash + sparks, `--route pixel --strict-qc`)가 그리고 시트로 묶음. 이미지 모델 없음 | 철파이프 휘두르기. 5방향(오른쪽·오른쪽 위·위·오른쪽 아래·아래)×6프레임, 왼쪽은 좌우 반전. 일반(청백), 3타(주황), E 강화(청록)에 충격 불꽃 포함. 알파 0/255, 팔레트 정확(스킬 QA 통과). code-drawn |
+| `assets/effects/pipe-slash-fade/awake/critical.png`, `pipe-slash-enhanced.png` (+ `.json`) | `tools/make_slash.py` (codeart2d `fx_build.py`) | 게이지 구간(페이드·각성·위험)과 E 강화(보라)별 휘두르기. 구간마다 색·크기가 다름. code-drawn |
+| `assets/effects/aura-fade/awake/critical/enhanced.png`, `overload-burst.png` (+ `.json`) | `tools/make_aura.py` (codeart2d `fx_build.py`, 16프레임 반복 / 폭발은 한 번) | 주인공 **몸 중심에서 기운이 흘러나오는** 오라(구간별 4종: 빨려 나감/사방으로 뻗음/거센 분출/모여듦)와 오버로드 폭발. 발 아래 중앙이 기준점. code-drawn |
+| `assets/effects/dash-strike.png`, `air-spin.png` (+ `.json`) | `tools/make_slash.py` (codeart2d `fx_build.py`) | 대시 평타(돌진 베기, 5방향 × 6프레임)와 점프 평타(회전 베기 360도). 내려찍기는 dash-strike의 아래 방향. code-drawn |
+| `assets/sfx/swing_{fade,awake,critical,enhanced}.wav` | `tools/make_sfx.py` (코드 합성) | 구간·강화별 휘두르기 소리 4종 |
 | `assets/tiles/tile_solid_{a,b,c}.png`, `tile_oneway.png`, `tile_spike.png` (40×40) | `tools/codeart/make_tiles.py` → 같은 렌더러 | 벽 3변형(칸 위치로 선택), 얇은 바닥, 가시. 알파 0/255, 3~9색 |
 - 전체 재생성: `python tools/make_codeart.py`. 팔레트는 `tools/codeart/palette.json`.
 - 이 에셋은 코드로 직접 그린 것이라 외부 저작권이 없고, 엔딩 크레딧에는 "code-drawn"으로 표기한다. (codeart2d 스킬은 MIT, `docs/ASSETS.md`의 agent-sprite-forge 항목 참고)

@@ -129,6 +129,48 @@ def spawn(name, x, y, flip=False, duration=0.35, variant=0):
     game_world.add_object(SheetEffect(name, x, y, flip, duration, variant), game_world.LAYER_EFFECT)
 
 
+def fx_for(zone, enhanced=False):
+    """공격 효과 묶음: E 강화 중이면 강화용, 아니면 게이지 구간용."""
+    return config.ENHANCED_FX if enhanced else config.ZONE_FX[zone]
+
+
+def slash_sheet(zone, finisher=False, enhanced=False):
+    """휘두르기 시트 이름. 강화 > 3타 > 구간 순으로 정한다."""
+    if enhanced:
+        return config.ENHANCED_FX['slash']
+    if finisher:
+        return config.FINISHER_SLASH
+    return config.ZONE_FX[zone]['slash']
+
+
+def special_sheet(kind):
+    """대시 평타·점프 평타의 효과 시트: (시트 이름, 방향 변형이 있는가)."""
+    return {'dash': ('dash-strike', True), 'plunge': ('dash-strike', True), 'spin': ('air-spin', False)}[kind]
+
+
+def aura_names(zone, enhanced=False):
+    """지금 게이지 구간과 강화 상태에서 주인공 주위에 그릴 오라 시트들 (뒤에서 앞 순서)."""
+    names = []
+    if zone in config.AURA_BY_ZONE:
+        names.append(config.AURA_BY_ZONE[zone])
+    if enhanced:
+        names.append(config.AURA_ENHANCED)
+    return names
+
+
+def draw_loop(name, x, y, t, flip=False):
+    """반복 재생 시트(오라)를 t초 지점의 프레임으로 (x, y)에 그린다. y는 발 높이, 기준점(pivot)을 거기에 맞춘다."""
+    info = sheet_info(name)
+    fw, fh = info['frameSize']
+    px, py = info['pivot']
+    i = int(t * info['fps']) % info['frames']
+    cols = info['columns']
+    img = assets.image(f'effects/{name}.png')
+    s = info.get('scale', 1)
+    left, bottom = (i % cols) * fw, img.h - (i // cols + 1) * fh
+    assets.draw_clip(img, left, bottom, fw, fh, x - ((fw - px) if flip else px) * s, y - (fh - py) * s, 'h' if flip else '', s)
+
+
 def slash_variant(ax, ay, angles=(0, 45, 90, -45, -90)):
     """조준 벡터에 가장 가까운 휘두르기 방향 변형과 좌우 반전 여부를 돌려준다. 왼쪽 조준은 오른쪽 변형을 반전해 쓴다."""
     flip = ax < -1e-3

@@ -6,6 +6,7 @@ ASSET_DIR = os.path.join(ROOT, 'assets')
 DATA_DIR = os.path.join(ROOT, 'data')
 
 _images = {}
+draw_offset = (0, 0)  # 화면 흔들림. 세계(타일·캐릭터·이펙트)를 그릴 때만 정수 픽셀로 켠다
 _fonts = {}
 
 
@@ -22,8 +23,8 @@ def draw_image(img, x, y, flip=''):
 
     픽셀 아트 규칙: 확대·축소·회전 없이 그리고, 위치는 항상 정수 픽셀에 맞춘다.
     """
-    left = int(round(x)) - img.w // 2
-    bottom = int(round(y))
+    left = int(round(x)) - img.w // 2 + draw_offset[0]
+    bottom = int(round(y)) + draw_offset[1]
     if flip:
         img.composite_draw(0, flip, left + img.w / 2, bottom + img.h / 2, img.w, img.h)
     else:
@@ -40,6 +41,15 @@ def draw_image_tinted(img, x, y, flip, color, alpha):
     finally:
         SDL_SetTextureColorMod(img.texture, 255, 255, 255)
         img.opacify(1.0)
+
+
+def draw_clip(img, left, bottom, w, h, x, y, flip=''):
+    """시트에서 (left, bottom, w, h) 칸을 잘라 원본 크기로, 화면의 왼쪽 아래 (x, y)에 그린다. 정수 좌표만 쓴다."""
+    x, y = int(round(x)) + draw_offset[0], int(round(y)) + draw_offset[1]
+    if flip:
+        img.clip_composite_draw(left, bottom, w, h, 0, flip, x + w / 2, y + h / 2, w, h)
+    else:
+        img.clip_draw_to_origin(left, bottom, w, h, x, y)
 
 
 def draw_rect_image(img, left, bottom, w, h):

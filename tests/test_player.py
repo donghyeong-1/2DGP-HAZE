@@ -130,6 +130,49 @@ def test_walking_off_ledge_leaves_one_air_jump():
     assert p.jump_count == 2
 
 
+def test_coyote_time_allows_ground_jump_just_after_walking_off_ledge():
+    p = make_player(x=4 * T + 20)                # 얇은 판(x 4~11칸) 왼쪽 끝 근처에 올라선다
+    p.y = R13_TOP + 1
+    step(p, 20)
+    assert p.on_ground and p.y == R13_TOP
+    p.x = 4 * T - HB_W / 2 - 2                   # 판 바깥으로 걸어 나온 것처럼 옮긴다
+    step(p, 3)                                      # 떨어지기 시작 (유예 시간 안)
+    assert p.state == 'FALL' and p.coyote_left > 0
+    p.request_jump()
+    assert p.state == 'JUMP' and p.jump_count == 1   # 땅 위 첫 점프로 쳐 주고 공중 점프는 한 번 남는다
+    p.request_jump()
+    assert p.jump_count == 2
+
+
+def test_coyote_time_expires():
+    p = make_player(x=4 * T + 20)
+    p.y = R13_TOP + 1
+    step(p, 20)
+    p.x = 4 * T - HB_W / 2 - 2
+    step(p, int((config.COYOTE_TIME + 0.05) * 60))
+    p.request_jump()
+    assert p.state == 'JUMP' and p.jump_count == 2   # 유예가 끝났으니 공중 점프로만 뛴다
+
+
+def test_jump_buffer_fires_on_landing():
+    p = make_player()
+    p.request_jump()
+    step(p, 5)
+    p.request_jump()                              # 2단 점프까지 쓴다
+    assert p.jump_count == 2
+    for _ in range(300):                          # 땅 가까이 내려올 때까지
+        step(p, 1)
+        if p.state == 'FALL' and p.y - FLOOR_Y < 40:
+            break
+    p.request_jump()                              # 착지 직전에 미리 누른다
+    assert p.jump_buffer_left > 0 and p.jump_count == 2
+    for _ in range(30):
+        step(p, 1)
+        if p.state == 'JUMP':
+            break
+    assert p.state == 'JUMP' and p.jump_count == 1   # 착지하자마자 뛰었다
+
+
 def test_dash_slots_consume_and_recharge():
     p = make_player()
     p.mouse_x, p.mouse_y = p.x + 450, p.y + config.PLAYER_HB_H / 2

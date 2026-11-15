@@ -9,10 +9,11 @@ from transitions import Machine
 
 import assets
 import config
+import effects
 import room as room_module
+from body import EPS, TileBody
 from haze_gauge import DEAD, HazeGauge
-
-EPS = 1.0  # 충돌 판정에서 모서리 접촉을 겹침으로 보지 않기 위한 여유(px)
+from weapon import Pipe
 
 STATE_NAMES = ['IDLE', 'RUN', 'JUMP', 'FALL', 'DASH', 'HIT', 'DEAD']
 
@@ -88,6 +89,8 @@ class Jump(_Airborne):
         p.vy = config.JUMP_SPEED
         p.jump_count += 1
         p.on_ground = False
+        p.coyote_left = 0.0       # 뛰었으면 코요테 점프 기회는 쓴 것이다 (이중 점프 방지)
+        p.jump_buffer_left = 0.0
         assets.play_sound('double_jump' if p.jump_count >= 2 else 'jump')
 
     def check(self):
@@ -153,7 +156,7 @@ class Dead(_State):
         self.p.vx = 0.0
 
 
-class Player:
+class Player(TileBody):
     def __init__(self, x, y, room):
         self.room = room
         self.x, self.y = x, y            # 발 아래 중앙 좌표
@@ -161,6 +164,8 @@ class Player:
         self.on_ground = False
         self.jump_count = 0
         self.air_time = 0.0              # 공중에 머문 시간(착지 소리용)
+        self.coyote_left = 0.0           # 땅에서 막 떨어졌을 때 남은 점프 유예 시간
+        self.jump_buffer_left = 0.0      # 점프를 미리 눌러 둔 채 남은 시간
         self.face_dir = 1
         self.hp = config.PLAYER_HP
 
@@ -182,6 +187,10 @@ class Player:
         self.drop_timer = 0.0
         self.hit_left = 0.0
         self.gauge = HazeGauge()
+        self.gauge.listeners.append(self._on_gauge_event)
+        self.weapon = Pipe(self)         # 장착 무기 (2주차는 철파이프 하나)
+        self.attack_held = False         # 좌클릭을 누르고 있으면 쿨타임마다 이어서 친다
+        self.shards = 0                  # 헤이즈 조각(재화). 죽으면 처음부터이므로 이번 플레이 동안만 유지
 
         # 상태 객체와 transitions 상태 머신 (Player 객체에 self.state 속성이 생긴다)
         self.states = {
@@ -212,7 +221,26 @@ class Player:
     # ----- 입력 -----
     @property
     def direction(self):
+        if self.stunned:
+            return 0
         return int(self.right) - int(self.left)
+
+    @property
+    def stunned(self):
+        """오버로드 기절 중에는 이동·점프·대시·공격을 할 수 없다."""
+        return self.gauge.stun_timer > 0
+
+    @property
+    def stop_on_wall(self):
+        return self.state != 'DASH'  # 대시 중에는 벽에 닿아도 속도를 유지한다
+
+    @property
+    def center(self):
+        return (self.x, self.y + config.PLAYER_HB_H / 2)
+
+    def rect(self):
+        hw = config.PLAYER_HB_W / 2
+        return (self.x - hw, self.y, self.x + hw, self.y + config.PLAYER_HB_H)
 
     def speed_mult(self):
         return self.gauge.zone_multipliers()['speed']
@@ -227,8 +255,8 @@ class Player:
         return (dx / length, dy / length)
 
     def handle_event(self, event):
-        from pico2d import (SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,
-                            SDL_MOUSEMOTION, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_s, SDLK_SPACE, SDLK_w,
+        from pico2d import (SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,
+                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDLK_a, SDLK_d, SDLK_e, SDLK_LSHIFT, SDLK_s, SDLK_SPACE, SDLK_w,
                             get_canvas_height)
         if event.type == SDL_KEYDOWN:
             if event.key == SDLK_a:
@@ -241,6 +269,8 @@ class Player:
                 self.request_jump()
             elif event.key == SDLK_LSHIFT:
                 self.request_dash()
+            elif event.key == SDLK_e:
+                self.request_enhance()
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
                 self.left = False
@@ -254,6 +284,12 @@ class Player:
             self.mouse_x, self.mouse_y = event.x, get_canvas_height() - 1 - event.y
             if event.button == SDL_BUTTON_RIGHT:
                 self.request_dash()
+            elif event.button == SDL_BUTTON_LEFT:
+                self.attack_held = True
+                self.request_attack()
+        elif event.type == SDL_MOUSEBUTTONUP:
+            if event.button == SDL_BUTTON_LEFT:
+                self.attack_held = False
 
     def on_landing(self):
         """땅에 닿았을 때: 충분히 높은 곳에서 떨어졌으면 착지 소리를 낸다."""
@@ -261,8 +297,24 @@ class Player:
             assets.play_sound('land')
         self.air_time = 0.0
 
+    def request_enhance(self):
+        """E: 게이지를 쓰고 무기를 잠시 강화한다. 게이지가 모자라거나 이미 강화 중이면 아무 일도 없다."""
+        if self.state in ('HIT', 'DEAD') or self.stunned:
+            return False
+        if not self.gauge.use_enhance():
+            return False
+        assets.play_sound('enhance')
+        effects.spawn('rage', self.x, self.y + config.PLAYER_HB_H + 10, duration=0.6)
+        effects.add_trauma(0.25)
+        return True
+
+    def request_attack(self):
+        if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned:
+            return False
+        return self.weapon.try_attack()
+
     def request_jump(self):
-        if self.state in ('DASH', 'HIT', 'DEAD'):
+        if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned:
             return
         if self.down and self.state in ('IDLE', 'RUN'):
             # S + Space: 얇은 바닥 위에 서 있으면 아래로 내려간다
@@ -271,30 +323,53 @@ class Player:
                 self.y -= 3.0
                 self.on_ground = False
             return
+        if self.state == 'FALL' and self.coyote_left > 0 and self.jump_count == 1:
+            self.jump_count = 0  # 막 걸어 떨어진 직후라면 땅 위 첫 점프로 쳐 준다 (공중 점프는 그대로 한 번 남는다)
+            self.jump()
+            return
         if self.jump_count >= config.MAX_JUMPS:
+            self.jump_buffer_left = config.JUMP_BUFFER  # 점프를 다 썼으면 눌러 둔 것을 기억했다가 착지하면 뛴다
             return
         self.jump()
 
     def request_dash(self):
-        if self.state in ('DASH', 'HIT', 'DEAD') or self.dash_slots <= 0:
+        if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned or self.dash_slots <= 0:
             return
         self.dash()
 
-    def take_hit(self, damage=0):
-        """피격. 대시 무적 중에는 무시한다. (2주차 전투에서 연결)"""
+    def take_hit(self, damage=0, gauge_delta=0):
+        """피격. 대시 무적과 피격 직후 무적 중에는 무시한다. 맞으면 게이지가 줄고(LOSS_DAMAGED),
+        적 종류별 추가 변화(gauge_delta, 예: 간수 +15)도 받는다."""
         if self.invuln_left > 0 or self.state == 'DEAD':
             return
         self.hp = max(0, self.hp - damage)
+        self.gauge.add(config.LOSS_DAMAGED + gauge_delta, 'damaged')
         if self.hp <= 0:
             self.die()
-        else:
+        elif self.state != 'DEAD':
             assets.play_sound('hit')
+            self.invuln_left = config.HIT_INVULN
             self.hit()
+        effects.add_trauma(config.SHAKE_DAMAGED)
+        effects.request_hit_stop(config.HIT_STOP_DAMAGED)
+
+    def _on_gauge_event(self, name, gauge):
+        if name == 'overload':
+            effects.add_trauma(config.SHAKE_OVERLOAD)
+            # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
+            self.hp = max(0, self.hp - int(config.PLAYER_HP * config.OVERLOAD_DAMAGE_RATIO))
+            if self.hp <= 0 and self.state != 'DEAD':
+                self.die()
 
     # ----- 갱신 -----
     def update(self, dt):
         self._recharge_dash(dt)
         self.drop_timer = max(0.0, self.drop_timer - dt)
+        self.weapon.update(dt)
+        self.coyote_left = config.COYOTE_TIME if self.on_ground else max(0.0, self.coyote_left - dt)
+        self.jump_buffer_left = max(0.0, self.jump_buffer_left - dt)
+        if self.attack_held:
+            self.request_attack()
         self.invuln_left = max(0.0, self.invuln_left - dt)
         if self.gauge.zone == DEAD and self.state != 'DEAD':
             self.die()
@@ -303,8 +378,11 @@ class Player:
         state.do(dt)
         if state.gravity:
             self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
-        self._move(dt)
+        self.move_with_tiles(dt)
         self.states[self.state].check()
+        if self.jump_buffer_left > 0 and self.state in ('IDLE', 'RUN'):
+            self.jump_buffer_left = 0.0  # 착지하자마자 눌러 둔 점프
+            self.request_jump()
         self._update_afterimages(dt)
 
         # 조준 방향이 보는 방향 (조준이 거의 수직이면 이동 방향)
@@ -332,62 +410,6 @@ class Player:
             self.dash_charge -= config.DASH_RECHARGE
             self.dash_slots += 1
 
-    # ----- 타일 충돌 (축 분리) -----
-    def _move(self, dt):
-        dx, dy = self.vx * dt, self.vy * dt
-        self.x += dx
-        if dx != 0:
-            self._resolve_x(dx)
-        prev_y = self.y
-        self.y += dy
-        self.on_ground = False
-        if dy != 0:
-            self._resolve_y(dy, prev_y)
-
-    def _tile_range_x(self):
-        hw = config.PLAYER_HB_W / 2
-        return self.room.col_of(self.x - hw + EPS), self.room.col_of(self.x + hw - EPS)
-
-    def _resolve_x(self, dx):
-        hw = config.PLAYER_HB_W / 2
-        r = self.room
-        row_top = r.row_of(self.y + config.PLAYER_HB_H - EPS)
-        row_bottom = r.row_of(self.y + EPS)
-        for row in range(row_top, row_bottom + 1):
-            for col in range(r.col_of(self.x - hw), r.col_of(self.x + hw) + 1):
-                if r.tile_at(col, row) != room_module.SOLID:
-                    continue
-                if dx > 0:
-                    self.x = min(self.x, col * config.TILE - hw)
-                else:
-                    self.x = max(self.x, (col + 1) * config.TILE + hw)
-                if self.state != 'DASH':
-                    self.vx = 0.0
-
-    def _resolve_y(self, dy, prev_y):
-        r = self.room
-        col_a, col_b = self._tile_range_x()
-        top = self.y + config.PLAYER_HB_H
-        row_top = r.row_of(top)
-        row_bottom = r.row_of(self.y)
-        for row in range(row_top, row_bottom + 1):
-            for col in range(col_a, col_b + 1):
-                ch = r.tile_at(col, row)
-                if ch == room_module.SOLID:
-                    if dy < 0 and r.tile_top(row) <= prev_y + EPS:
-                        self.y = max(self.y, r.tile_top(row))
-                        self.vy = 0.0
-                        self.on_ground = True
-                    elif dy > 0 and r.tile_bottom(row) >= prev_y + config.PLAYER_HB_H - EPS:
-                        self.y = min(self.y, r.tile_bottom(row) - config.PLAYER_HB_H)
-                        self.vy = 0.0
-                elif ch == room_module.ONEWAY and dy < 0 and self.drop_timer <= 0:
-                    tile_top = r.tile_top(row)
-                    if prev_y >= tile_top - EPS and self.y < tile_top + EPS:
-                        self.y = max(self.y, tile_top)
-                        self.vy = 0.0
-                        self.on_ground = True
-
     # ----- 그리기 -----
     def draw(self):
         import assets
@@ -398,7 +420,9 @@ class Player:
             alpha = steps[min(int(age * len(steps)), len(steps) - 1)]
             assets.draw_image_tinted(img, gx, gy - config.SPRITE_FOOT_MARGIN, 'h' if gdir < 0 else '',
                                      config.AFTERIMAGE_COLOR, alpha)
-        assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, 'h' if self.face_dir < 0 else '')
+        blink = self.invuln_left > 0 and self.state != 'DASH' and int(self.invuln_left * 20) % 2 == 0  # 피격 무적 중 깜빡임
+        if not blink:
+            assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, 'h' if self.face_dir < 0 else '')
         if config.DEBUG:
             self._draw_debug()
 

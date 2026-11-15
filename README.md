@@ -12,14 +12,19 @@ python src/main.py
 | A / D | 이동 |
 | Space, W | 점프 (공중에서 한 번 더) |
 | S + Space | 얇은 바닥 아래로 내려가기 |
-| Shift, 마우스 우클릭 | 마우스 방향 대시 (슬롯 2개) |
+| 마우스 좌클릭 | 마우스 방향으로 철파이프 공격 (꾹 누르면 이어서, 3타째가 강하다) |
+| E | 게이지 25%를 쓰고 파이프를 8초간 강화 (처치한 적은 폭발) |
+| Shift, 마우스 우클릭 | 마우스 방향 대시 (슬롯 2개, 지나간 자리에 잔상) |
 | Esc | 일시정지 |
-| F1 | 디버그 표시 (F3/F4 게이지 ±10, H 피격) |
+| F1 | 디버그 표시 (F3/F4 게이지 ±10, F5 적 재생성, H 피격) |
 
 ## 테스트
 ```
+python tests/run_all.py     # 전부 (아래를 개별로도 실행 가능)
 python tests/test_gauge.py
 python tests/test_player.py
+python tests/test_stage.py
+python tests/test_combat.py
 ```
 
 ## 문서

@@ -75,7 +75,8 @@ def test_tiles_are_multiples_of_tile_size():
 
 def test_no_scaling_or_rotation_in_game_code():
     """코드에서 배율·회전 그리기를 쓰지 않는다 (draw_rect_image는 단색 칸 전용으로 예외)."""
-    banned = [r'rotate_draw', r'composite_draw\(\s*[^0\s)]']
+    banned = [r'rotate_draw', r'composite_draw\(\s*[^0\s)]',
+              r'clip_composite_draw\(\s*[^,]+,[^,]+,[^,]+,[^,]+,\s*[^0\s,]']  # 각도 인자는 항상 0
     for path in glob.glob(os.path.join(ROOT, 'src', '*.py')):
         text = open(path, encoding='utf-8').read()
         for pattern in banned:

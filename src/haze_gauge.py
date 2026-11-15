@@ -31,6 +31,7 @@ class HazeGauge:
         self._timer = 0.0          # 감소/상승 주기 타이머
         self._high_haze = False
         self.listeners = []        # 이벤트 수신 함수 목록: f(name, gauge)
+        self.change_listeners = []  # 값이 바뀔 때마다 부르는 함수 목록: f(delta, reason) (화면에 +3 같은 글자를 띄울 때)
 
     # ----- 구간 판정 -----
     def _zone_of(self, value):
@@ -62,6 +63,8 @@ class HazeGauge:
         if self.zone == DEAD:
             return
         self.value += delta
+        for f in self.change_listeners:
+            f(delta, reason)
         if self.value <= 0:
             self.value = 0.0
             self._set_zone(DEAD)

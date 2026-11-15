@@ -1,6 +1,6 @@
 # 진행상황 (PROGRESS)
 
-마지막 갱신: 2026-11-07 [Codex]
+마지막 갱신: 2026-11-15 [Claude Code]
 
 ## 진행 중
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
@@ -27,14 +27,12 @@
 - 공유 규칙(AGENTS.md)과 결정 기록(DECISIONS.md 맨 위 "현재 기준 요약")
 
 ## 다음 할 일 (우선순위 순)
-1. [ ] **(사용자) 직접 플레이 점검**: 점프 높이·대시 거리·마우스 방향 전환 느낌, Title에서 키를 눌러 Play로 넘어가는지. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.9의 `[~]` 두 항목)
-2. [ ] 스프라이트 동작 프레임(걷기·점프·공격·피격) 제작 방법 시험 (영상 경로 없음 → Codex 이미지 격자 + `generate2dsprite` 마무리)
-3. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기 (Codex는 모델명을 반환하지 않음)
-4. [ ] Codex로 걷기 프레임 시험, 통과하면 idle·attack·hurt·점프 (`docs/ai_commands.md` 프롬프트)
-5. [x] 타이틀 로고·타일 5종 코드 아트로 제작·적용 (배경 이미지는 임시 그라데이션 유지)
-5b. [ ] BGM: 후보(`docs/ASSETS.md`) 중 선택·다운로드(허락 필요)·라이선스 확인
-5c. [x] 효과음 9종 합성·연결 (줍기·E 강화는 해당 기능 구현 때 연결)
-6. [ ] (2주차 11/12~11/18) 마우스 조준 공격, 일반 몹 2종, 게이지 UI 연결, 충돌 박스(28×72)와 스프라이트 키(82) 정리
+1. [ ] **(사용자) 2차 발표 제출 (발표 당일 0시 1분까지)**: `python src/main.py`로 데모 녹화(순서는 `docs/script_2nd.md`) → 소리·글자 확인 → YouTube 업로드 → e-class에 영상 링크와 GitHub 링크 제출. PPT는 `docs/presentation_2nd.pptx`
+2. [ ] **(사용자) 직접 플레이 점검**: 공격 사거리, 적 속도·체력, 피격 무적, 대시 잔상, 점프 느낌. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.10의 `[ ]`)
+3. [ ] **(사용자)** Codex 작업: T03 검토(`review`), T04 주인공 걷기 프레임, T06 배경 3종 시작 (`docs/codex/TASKS.md`의 한 줄 명령)
+4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기. BGM 후보 선택(다운로드는 허락 필요)
+5. [x] 2주차 Claude 작업(조준 공격, 적 2종, 게이지 연결, 충돌 박스) + 3주차 앞당김(방 잠금·전환, 미니맵, 고농도 방, E 강화, 조각) (11/15)
+6. [ ] (3주차 11/19~) 정비방과 업그레이드(조각 사용), 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 크래셔·아크, 걷기 프레임이 오면 애니메이션 연결, 가변 점프 높이·접근성 옵션
 
 ## 열린 질문
 - 타이틀 로고와 큰 제목 글자("탈출 성공" 등)는 픽셀 폰트를 키울 수 없어 이미지로 만들어야 한다 (지금은 14px 글자로 임시 표시)
@@ -84,3 +82,6 @@
 
 2026-11-11 [Codex] T01~T03 마스터 7종 재제작 및 1배 비교, 개별 스프라이트 검사와 픽셀 테스트 통과, 검토 대기 / assets/sprites/forge/remake_t01_t03/, docs/codex/reports/T0*_remake.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
 2026-11-11 [Claude Code] 대시 잔상 효과(던그리드 스타일): 대시 중 0.016초마다 청록색 반투명 잔상을 남기고 0.3초에 3단계로 옅어짐, 테스트 2개 추가(15개 통과) / src/player.py, src/assets.py, src/config.py, tests/test_player.py
+2026-11-15 [Claude Code] 2주차 전투 구현: 철파이프 마우스 조준 공격(3연타·부채꼴 판정·화면 멈춤), 적 2종(슬럼·투척병, transitions FSM), 고철 투사체(codeart2d 스프라이트), 게이지 전투 연결(+3/+8/-5, 오버로드 피해·기절), 피격 무적, 체력 바·남은 적 UI, 충돌 body.py 분리, 효과음 4종, 테스트 16개 추가 / src/(body, effects, weapon, enemy, projectile, player, play_mode, ui, haze_gauge, assets, config), tests/test_combat.py, tools/*, data/rooms/test_01.txt, docs/*
+2026-11-15 [Claude Code] 외부 자료 조사(docs/REFERENCES.md)와 반영: 코요테 타임·점프 입력 버퍼, trauma 화면 흔들림, 타격 멈춤 단계화, tests/run_all.py, 테스트 7개 추가 / src/(player, effects, assets, game_world, play_mode, weapon, config), tests/*, docs/REFERENCES.md, DECISIONS.md, 기획서.md, README.md. 커뮤니티 스킬은 평가만 하고 설치 보류(사용자 결정)
+2026-11-15 [Claude Code] 2차 발표 준비: 스킬 8종 설치(gamedev-skills), 스테이지 격자·방 잠금/클리어/전환·미니맵·고농도 방(src/stage.py, data/stages, data/rooms/combat_*), E 강화(폭발)·조각 드롭, 테스트 10개 추가(스테이지), 발표 PPT 2장과 영상 대본(tools/make_presentation_2nd.py, docs/presentation_2nd.pptx, docs/script_2nd.md), 데모 캡처(assets/presentation_examples/demo_*.png) / src/*, data/*, tests/test_stage.py, tools/*, docs/*

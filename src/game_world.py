@@ -28,8 +28,11 @@ def update(dt):
             obj.update(dt)
 
 
-def render():
-    for layer in world:
+def render(before_layer=None):
+    """before_layer(번호)가 있으면 각 레이어를 그리기 직전에 부른다 (화면 흔들림을 UI에는 걸지 않으려고)."""
+    for number, layer in enumerate(world):
+        if before_layer:
+            before_layer(number)
         for obj in layer:
             obj.draw()
 

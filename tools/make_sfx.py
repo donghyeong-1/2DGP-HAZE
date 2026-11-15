@@ -96,8 +96,29 @@ def death():
     return (square(sweep(420, 70, s, 1.3), 0.5) * 0.6 + lowpass(noise(s), 18) * 0.35) * envelope(s, 0.01, 0.7)
 
 
+def swing():
+    s = 0.11
+    return (lowpass(noise(s), 5) * 0.7 + triangle(sweep(260, 520, s)) * 0.25) * envelope(s, 0.01, 0.8)
+
+
+def enemy_hit():
+    s = 0.09
+    return (square(sweep(520, 240, s), 0.5) * 0.5 + noise(s) * 0.35) * envelope(s, release=0.7)
+
+
+def enemy_die():
+    s = 0.32
+    return (square(sweep(380, 90, s, 1.2), 0.5) * 0.5 + lowpass(noise(s), 10) * 0.4) * envelope(s, 0.005, 0.75)
+
+
+def throw():
+    s = 0.12
+    return (lowpass(noise(s), 8) * 0.5 + square(sweep(180, 420, s), 0.4) * 0.3) * envelope(s, 0.01, 0.7)
+
+
 SOUNDS = {"jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
-          "pickup": pickup, "enhance": enhance, "overload": overload, "death": death}
+          "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
+          "swing": swing, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw}
 GAIN = 0.55  # 전체 음량 (클리핑 방지)
 
 

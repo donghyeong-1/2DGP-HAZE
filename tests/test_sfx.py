@@ -8,7 +8,8 @@ sys.path.insert(0, os.path.join(ROOT, 'src'))
 
 import config  # noqa: E402
 
-NAMES = ['jump', 'double_jump', 'dash', 'land', 'hit', 'pickup', 'enhance', 'overload', 'death']
+NAMES = ["jump", "double_jump", "dash", "land", "hit", "pickup", "enhance", "overload", "death",
+         "swing", "enemy_hit", "enemy_die", "throw"]
 
 
 def test_sfx_files_are_valid_short_wavs():

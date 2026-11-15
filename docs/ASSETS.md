@@ -74,6 +74,7 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 ## 이미지 생성 스킬 (2026-11-07, 개발 도구이며 게임에 포함되지 않음)
 - agent-sprite-forge (0x0funky, MIT, commit 6b3da5c): `~/.codex/skills`와 `~/.claude/skills`에 설치. 그 도구로 만든 에셋은 사용한 모델·날짜·프롬프트를 `docs/image_prompts.md`에 기록하고 이 표에 추가한다.
+- awesome-gamedev-agent-skills (gamedev-skills, Apache-2.0, 2026-11-15): game-feel, platformer, input-systems, physics-tuning, level-design, game-ui-ux, roguelike, pygame-core 8개를 `~/.claude/skills`에 설치(참고 지침 문서이며 게임에 포함되지 않음). 자세한 평가는 `docs/REFERENCES.md`.
 - codixel (mankidev, MIT, commit 604a9dc): `~/.claude/skills/codixel`에 설치(SKILL.md와 core/pixel.js).
 
 ## 주인공 스틸컷 시험 (2026-11-07)
@@ -101,7 +102,7 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | 캐릭터 7종(주인공·적 4·보스 2) | `assets/sprites/unified/` | Codex(agent-sprite-forge `generate2dsprite` + `finish_frames` hibit)로 만든 납작한 원화를 `tools/finish_character.py`로 픽셀화. 원화·결과는 `assets/sprites/forge/` | AI 생성물. 이미지 모델명은 아래 참고 | 사용 중 (구 파일은 `unified_legacy/`) |
 | 이펙트 8종 | `assets/effects/` | pixelfx 렌더 후 `tools/finish_effects.py` | pixelfx MIT (`pixelfx-LICENSE`) | 보관 (아직 게임 연결 전) |
 | 폰트 | `assets/fonts/` | 갈무리 14px·11px | SIL OFL 1.1 (`OFL.txt`) | 사용 중 |
-| 효과음 9종 | `assets/sfx/` | `tools/make_sfx.py`로 코드 합성(사각파·삼각파·잡음). 외부 음원 없음 | 직접 제작, 제한 없음(CC0로 취급) | 점프·2단 점프·대시·착지·피격·사망·오버로드 연결, 줍기·E 강화는 연결 전 |
+| 효과음 13종 (2주차에 휘두르기·적 피격·적 사망·투척 4종 추가) | `assets/sfx/` | `tools/make_sfx.py`로 코드 합성(사각파·삼각파·잡음). 외부 음원 없음 | 직접 제작, 제한 없음(CC0로 취급) | 점프·2단 점프·대시·착지·피격·사망·오버로드 연결, 줍기·E 강화는 연결 전 |
 | 임시 타일·배경 | `assets/placeholder/` | `tools/make_placeholder_assets.py` | 직접 제작 | 실제 타일 에셋으로 교체 예정 |
 | BGM | (없음) | | | 후보만 정함 (아래) |
 
@@ -117,6 +118,7 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | 파일 | 만든 방법 | 비고 |
 |---|---|---|
 | `assets/ui/logo.png` (320×96) | `tools/codeart/make_logo.py`가 SVG를 생성 → agent-sprite-forge의 codeart2d 렌더러(`svg_render.py --crisp --strict-qc`)로 1배 렌더 | 타이틀 로고 "HAZE". 알파 0/255, 8색 |
+| `assets/sprites/unified/proj_scrap.png` (42×24) | `tools/codeart/make_scrap.py` → codeart2d 렌더러 (`python tools/make_codeart.py proj_scrap`) | 고철 투척병이 던지는 고철 파이프 조각. 코드로 그린 것(code-drawn). 알파 0/255, 9색 |
 | `assets/tiles/tile_solid_{a,b,c}.png`, `tile_oneway.png`, `tile_spike.png` (40×40) | `tools/codeart/make_tiles.py` → 같은 렌더러 | 벽 3변형(칸 위치로 선택), 얇은 바닥, 가시. 알파 0/255, 3~9색 |
 - 전체 재생성: `python tools/make_codeart.py`. 팔레트는 `tools/codeart/palette.json`.
 - 이 에셋은 코드로 직접 그린 것이라 외부 저작권이 없고, 엔딩 크레딧에는 "code-drawn"으로 표기한다. (codeart2d 스킬은 MIT, `docs/ASSETS.md`의 agent-sprite-forge 항목 참고)

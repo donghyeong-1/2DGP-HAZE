@@ -186,8 +186,9 @@ class Enemy(TileBody):
                              small=True, center=True)
 
     def _draw_hp_bar(self):
-        w = 54
+        w, h = 96, 12
         left = self.x - w / 2
-        bottom = self.y + self.hb_h + 12
-        assets.draw_rect_image(assets.image('placeholder/px_black.png'), left - 2, bottom - 2, w + 4, 10)
-        assets.draw_rect_image(assets.image('placeholder/px_red.png'), left, bottom, w * max(0.0, self.hp) / self.max_hp, 6)
+        bottom = self.y + self.hb_h + 14
+        assets.draw_rect_image(assets.image('placeholder/px_black.png'), left - 3, bottom - 3, w + 6, h + 6)
+        assets.draw_rect_image(assets.image('placeholder/px_gray.png'), left, bottom, w, h)
+        assets.draw_rect_image(assets.image('placeholder/px_red.png'), left, bottom, w * max(0.0, self.hp) / self.max_hp, h)

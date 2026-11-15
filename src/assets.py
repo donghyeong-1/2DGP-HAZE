@@ -43,13 +43,16 @@ def draw_image_tinted(img, x, y, flip, color, alpha):
         img.opacify(1.0)
 
 
-def draw_clip(img, left, bottom, w, h, x, y, flip=''):
-    """시트에서 (left, bottom, w, h) 칸을 잘라 원본 크기로, 화면의 왼쪽 아래 (x, y)에 그린다. 정수 좌표만 쓴다."""
+def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):
+    """시트에서 (left, bottom, w, h) 칸을 잘라 화면의 왼쪽 아래 (x, y)에 그린다. 정수 좌표만 쓰고,
+    scale은 정수(최근접 확대)만 허용한다. 이펙트에서만 2배를 쓴다 (docs/pixel_rules.md)."""
+    assert isinstance(scale, int) and scale >= 1, '배율은 정수만'
     x, y = int(round(x)) + draw_offset[0], int(round(y)) + draw_offset[1]
+    dw, dh = w * scale, h * scale
     if flip:
-        img.clip_composite_draw(left, bottom, w, h, 0, flip, x + w / 2, y + h / 2, w, h)
+        img.clip_composite_draw(left, bottom, w, h, 0, flip, x + dw / 2, y + dh / 2, dw, dh)
     else:
-        img.clip_draw_to_origin(left, bottom, w, h, x, y)
+        img.clip_draw_to_origin(left, bottom, w, h, x, y, dw, dh)
 
 
 def draw_rect_image(img, left, bottom, w, h):
@@ -58,7 +61,8 @@ def draw_rect_image(img, left, bottom, w, h):
 
 
 # 갈무리(Galmuri, SIL OFL 1.1) 픽셀 폰트. 글자는 폰트의 원래 크기로만 그린다(docs/pixel_rules.md 규칙 6).
-FONT_SIZES = {'normal': 14, 'small': 11}
+FONT_SIZES = {'normal': 14, 'small': 11}   # 원본(도트 하나가 1px) 크기. 실제로는 이 값의 정수 배로 불러온다
+FONT_MULTIPLES = {'normal': 1, 'small': 1, 'big': 3}  # 종류별 추가 배수 (big은 14px의 3배 = 42px, 제목용)
 
 
 _sounds = {}
@@ -89,22 +93,34 @@ def play_sound(name):
         wav.play()
 
 
-def font(small=False):
-    """한글 픽셀 폰트를 반환한다. 글꼴 파일이 없으면 None (글자는 그리지 않는다)."""
-    key = 'small' if small else 'normal'
+def _font_key(small=False, big=False):
+    return 'big' if big else ('small' if small else 'normal')
+
+
+def _font_px(key):
+    import config
+    if key == 'big':
+        return FONT_SIZES['normal'] * FONT_MULTIPLES['big']  # 14px의 3배
+    return FONT_SIZES[key] * config.FONT_SCALE
+
+
+def font(small=False, big=False):
+    """한글 픽셀 폰트를 반환한다. 갈무리는 도트 격자 폰트라 원본 크기의 정수 배(28/22/42px)로 불러오면
+    도트가 정확히 정수 배로 커진다. 글꼴 파일이 없으면 None (글자는 그리지 않는다)."""
+    key = _font_key(small, big)
     if key not in _fonts:
-        size = FONT_SIZES[key]
-        path = os.path.join(ASSET_DIR, 'fonts', f'Galmuri{size}.ttf')
+        base = FONT_SIZES['normal' if key == 'big' else key]
+        path = os.path.join(ASSET_DIR, 'fonts', f'Galmuri{base}.ttf')
         if os.path.exists(path):
             from pico2d import load_font
-            _fonts[key] = load_font(path, size)
+            _fonts[key] = load_font(path, _font_px(key))
         else:
             _fonts[key] = None
     return _fonts[key]
 
 
-def text_width(text, small=False):
-    f = font(small)
+def text_width(text, small=False, big=False):
+    f = font(small, big)
     if f is None:
         return 0
     import ctypes
@@ -114,10 +130,10 @@ def text_width(text, small=False):
     return w.value
 
 
-def draw_text(x, y, text, color=(255, 255, 255), small=False, center=False):
-    """글자를 그린다. center=True면 x가 글자의 가운데. 위치는 정수로 맞춘다."""
-    f = font(small)
+def draw_text(x, y, text, color=(255, 255, 255), small=False, center=False, big=False):
+    """글자를 그린다. center=True면 x가 글자의 가운데. 위치는 정수로 맞춘다. big은 제목용 큰 글자."""
+    f = font(small, big)
     if f is None:
         return
-    left = int(round(x)) - (text_width(text, small) // 2 if center else 0)
+    left = int(round(x)) - (text_width(text, small, big) // 2 if center else 0)
     f.draw(left, int(round(y)), text, color)

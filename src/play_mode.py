@@ -1,6 +1,6 @@
 """전투 진행 모드. 방을 불러오고 플레이어·UI를 world에 넣어 갱신한다."""
 from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_F1, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_h, clear_canvas,
-                    get_events, update_canvas)
+                    get_events, hide_cursor, show_cursor, update_canvas)
 
 import assets
 import config
@@ -19,6 +19,7 @@ clear_notice = 0.0  # "방 클리어" 안내를 보여 줄 남은 시간
 
 def enter():
     global room, player, stage, clear_notice
+    hide_cursor()  # 화면의 조준점(십자)을 대신 쓴다
     game_world.clear()
     effects.reset()
     clear_notice = 0.0
@@ -47,7 +48,7 @@ _FLOAT_REASONS = {'hit', 'kill', 'damaged', 'enhance'}
 def _on_gauge_change(delta, reason):
     if reason in _FLOAT_REASONS and delta != 0:
         color = (130, 235, 225) if delta > 0 else (240, 110, 120)
-        effects.float_text(player.x, player.y + config.PLAYER_HB_H + 36, f'{delta:+g}%', color)
+        effects.float_text(player.x, player.y + config.PLAYER_HB_H + 40, f'{delta:+g}%', color)
 
 
 def _on_gauge_event(name, gauge):
@@ -57,14 +58,15 @@ def _on_gauge_event(name, gauge):
 
 def exit():
     game_world.clear()
+    show_cursor()
 
 
 def pause():
-    pass
+    show_cursor()
 
 
 def resume():
-    pass
+    hide_cursor()
 
 
 def handle_events():

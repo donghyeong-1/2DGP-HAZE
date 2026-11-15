@@ -42,7 +42,7 @@ class Pipe:
         ax, ay = p.aim_vector()
         cx, cy = p.center
         assets.play_sound('swing')
-        effects.spawn('heavy-cleave', cx + ax * 70, cy + ay * 70, flip=ax < 0, duration=0.24)
+        effects.spawn('heavy-cleave', cx + ax * 90, cy + ay * 90, flip=ax < 0, duration=0.24)
 
         enhanced = p.gauge.enhanced
         mult = p.gauge.zone_multipliers()['attack'] * (config.PIPE_FINISHER_MULT if finisher else 1.0)
@@ -55,6 +55,10 @@ class Pipe:
                 killed = enemy.take_damage(damage, from_x=p.x)
                 p.gauge.add(gain, 'hit')
                 effects.spawn('crit-hit' if enhanced else 'hit-spark', *enemy.center, duration=0.3 if enhanced else 0.22)
+                ex, ey = enemy.center
+                color = (config.DAMAGE_COLOR_ENHANCED if enhanced else
+                         config.DAMAGE_COLOR_FINISHER if finisher else config.DAMAGE_COLOR)
+                effects.float_text(ex, ey + enemy.hb_h / 2 + 70, str(int(round(damage))), color, big=finisher or enhanced)
                 effects.request_hit_stop(config.HIT_STOP * (2 if finisher else 1))
                 effects.add_trauma(config.SHAKE_FINISHER if finisher else config.SHAKE_HIT)
                 if killed:

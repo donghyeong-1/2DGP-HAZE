@@ -116,6 +116,14 @@ ENEMY_KNOCKBACK = 260.0      # 맞았을 때 밀려나는 속도(px/s)
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)
 PROJECTILE_HB = (30, 18)
 
+# 화면 효과·UI 크기. 1920x1080에서는 원본 크기 효과와 14px 글자가 작아서, 정수 배율(최근접)로만 키운다.
+# docs/pixel_rules.md "정수 배율 예외" 참고. 월드 스프라이트와 타일은 1배 그대로다.
+EFFECT_SCALE = 2           # 타격 불꽃·휘두르기·연기 등 이펙트 시트 배율
+FONT_SCALE = 2             # 글자는 14px/11px 원본의 정수 배(28/22px)로만 그린다. 큰 글자는 3배(42px)
+DAMAGE_COLOR = (255, 238, 150)
+DAMAGE_COLOR_FINISHER = (255, 170, 80)
+DAMAGE_COLOR_ENHANCED = (130, 235, 225)
+
 # 소리
 SOUND_ENABLED = False      # main이 오디오를 켠 뒤 True로 바꾼다 (테스트·창 없는 실행에서는 꺼져 있다)
 SFX_VOLUME = 64            # 0~128

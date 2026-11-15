@@ -84,9 +84,12 @@ def test_no_scaling_or_rotation_in_game_code():
 
 
 def test_pixel_font_native_sizes_only():
-    """픽셀 폰트는 원래 크기(14, 11)로만 쓴다. draw_text에 크기 숫자를 넘기지 않는다."""
+    """픽셀 폰트는 원래 크기(14, 11)의 정수 배로만 쓴다. draw_text에 크기 숫자를 넘기지 않는다."""
     import assets
+    import config
     assert set(assets.FONT_SIZES.values()) == {14, 11}
+    assert isinstance(config.FONT_SCALE, int) and isinstance(config.EFFECT_SCALE, int)
+    assert all(isinstance(v, int) and v >= 1 for v in assets.FONT_MULTIPLES.values())
     for size in assets.FONT_SIZES.values():
         assert os.path.exists(os.path.join(ROOT, 'assets', 'fonts', f'Galmuri{size}.ttf'))
     assert os.path.exists(os.path.join(ROOT, 'assets', 'fonts', 'OFL.txt'))  # 라이선스 문구 동봉

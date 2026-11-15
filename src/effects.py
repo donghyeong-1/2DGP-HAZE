@@ -97,18 +97,20 @@ class SheetEffect:
         img = assets.image(f'effects/{self.name}.png')
         sheet_h = img.h
         left, bottom = col * fw, sheet_h - (row + 1) * fh
-        dx = self.x - ((fw - px) if self.flip else px)
-        dy = self.y - (fh - py)
-        assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '')
+        s = config.EFFECT_SCALE  # 정수 배율(최근접)로만 키운다. pivot도 같은 배율로 옮긴다
+        dx = self.x - ((fw - px) if self.flip else px) * s
+        dy = self.y - (fh - py) * s
+        assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '', s)
 
 
 class FloatText:
     """게이지 증감 같은 짧은 글자. 위로 떠오르며 사라진다."""
 
-    def __init__(self, x, y, text, color, life=0.8, rise=54):
+    def __init__(self, x, y, text, color, life=0.8, rise=70, big=False):
         self.x, self.y0 = x, y
         self.text, self.color = text, color
         self.life, self.time, self.rise = life, 0.0, rise
+        self.big = big
 
     def update(self, dt):
         self.time += dt
@@ -117,12 +119,12 @@ class FloatText:
 
     def draw(self):
         t = self.time / self.life
-        assets.draw_text(self.x, self.y0 + self.rise * t, self.text, self.color, small=True, center=True)
+        assets.draw_text(self.x, self.y0 + self.rise * t, self.text, self.color, center=True, big=self.big)
 
 
 def spawn(name, x, y, flip=False, duration=0.35):
     game_world.add_object(SheetEffect(name, x, y, flip, duration), game_world.LAYER_EFFECT)
 
 
-def float_text(x, y, text, color):
-    game_world.add_object(FloatText(x, y, text, color), game_world.LAYER_EFFECT)
+def float_text(x, y, text, color, big=False, life=0.8):
+    game_world.add_object(FloatText(x, y, text, color, life=life, big=big), game_world.LAYER_EFFECT)

@@ -8,6 +8,7 @@ import math
 from transitions import Machine
 
 import assets
+import camera
 import config
 import effects
 import room as room_module
@@ -167,7 +168,14 @@ class Player(TileBody):
         self.coyote_left = 0.0           # 땅에서 막 떨어졌을 때 남은 점프 유예 시간
         self.jump_buffer_left = 0.0      # 점프를 미리 눌러 둔 채 남은 시간
         self.face_dir = 1
-        self.hp = config.PLAYER_HP
+        self.max_hp = config.PLAYER_HP
+        self.hp = self.max_hp
+        # 이번 판 동안 아이템·업그레이드로 얻는 보너스 (죽으면 처음부터이므로 Player와 함께 사라진다)
+        self.attack_bonus = 1.0        # 공격력 배율
+        self.kill_bonus = 0            # 처치 시 게이지 추가 상승
+        self.overload_mult = 1.0       # 오버로드 피해 배율
+        self.items = []                # 가진 아이템 id 목록
+        self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
         # 입력 상태
         self.left = self.right = self.down = False
@@ -190,6 +198,7 @@ class Player(TileBody):
         self.gauge.listeners.append(self._on_gauge_event)
         self.weapon = Pipe(self)         # 장착 무기 (2주차는 철파이프 하나)
         self.attack_held = False         # 좌클릭을 누르고 있으면 쿨타임마다 이어서 친다
+        self.interact_pressed = False    # F를 눌렀다 (stage가 이번 프레임에 소비한다)
         self.shards = 0                  # 헤이즈 조각(재화). 죽으면 처음부터이므로 이번 플레이 동안만 유지
 
         # 상태 객체와 transitions 상태 머신 (Player 객체에 self.state 속성이 생긴다)
@@ -256,7 +265,7 @@ class Player(TileBody):
 
     def handle_event(self, event):
         from pico2d import (SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,
-                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDLK_a, SDLK_d, SDLK_e, SDLK_LSHIFT, SDLK_s, SDLK_SPACE, SDLK_w,
+                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDLK_a, SDLK_d, SDLK_e, SDLK_f, SDLK_LSHIFT, SDLK_s, SDLK_SPACE, SDLK_w,
                             get_canvas_height)
         if event.type == SDL_KEYDOWN:
             if event.key == SDLK_a:
@@ -271,6 +280,8 @@ class Player(TileBody):
                 self.request_dash()
             elif event.key == SDLK_e:
                 self.request_enhance()
+            elif event.key == SDLK_f:
+                self.interact_pressed = True   # 진열대 앞에서 F: stage가 처리한다
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
                 self.left = False
@@ -279,9 +290,11 @@ class Player(TileBody):
             elif event.key == SDLK_s:
                 self.down = False
         elif event.type == SDL_MOUSEMOTION:
-            self.mouse_x, self.mouse_y = event.x, get_canvas_height() - 1 - event.y
+            self.mouse_screen = (event.x, get_canvas_height() - 1 - event.y)
+            self._sync_mouse()
         elif event.type == SDL_MOUSEBUTTONDOWN:
-            self.mouse_x, self.mouse_y = event.x, get_canvas_height() - 1 - event.y
+            self.mouse_screen = (event.x, get_canvas_height() - 1 - event.y)
+            self._sync_mouse()
             if event.button == SDL_BUTTON_RIGHT:
                 self.request_dash()
             elif event.button == SDL_BUTTON_LEFT:
@@ -290,6 +303,11 @@ class Player(TileBody):
         elif event.type == SDL_MOUSEBUTTONUP:
             if event.button == SDL_BUTTON_LEFT:
                 self.attack_held = False
+
+    def _sync_mouse(self):
+        """화면 좌표의 마우스를 월드 좌표로 바꾼다 (카메라가 방을 따라 움직이므로 매 프레임 다시 구한다)."""
+        if self.mouse_screen is not None:
+            self.mouse_x, self.mouse_y = camera.to_world(*self.mouse_screen)
 
     def on_landing(self):
         """땅에 닿았을 때: 충분히 높은 곳에서 떨어졌으면 착지 소리를 낸다."""
@@ -357,13 +375,14 @@ class Player(TileBody):
         if name == 'overload':
             effects.add_trauma(config.SHAKE_OVERLOAD)
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
-            self.hp = max(0, self.hp - int(config.PLAYER_HP * config.OVERLOAD_DAMAGE_RATIO))
+            self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult))
             if self.hp <= 0 and self.state != 'DEAD':
                 self.die()
 
     # ----- 갱신 -----
     def update(self, dt):
         self._recharge_dash(dt)
+        self._sync_mouse()
         self.drop_timer = max(0.0, self.drop_timer - dt)
         self.weapon.update(dt)
         self.coyote_left = config.COYOTE_TIME if self.on_ground else max(0.0, self.coyote_left - dt)
@@ -379,6 +398,7 @@ class Player(TileBody):
         if state.gravity:
             self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self.move_with_tiles(dt)
+        self._check_spikes()
         self.states[self.state].check()
         if self.jump_buffer_left > 0 and self.state in ('IDLE', 'RUN'):
             self.jump_buffer_left = 0.0  # 착지하자마자 눌러 둔 점프
@@ -388,6 +408,20 @@ class Player(TileBody):
         # 조준 방향이 보는 방향 (조준이 거의 수직이면 이동 방향)
         if abs(self.mouse_x - self.x) > 4:
             self.face_dir = 1 if self.mouse_x > self.x else -1
+
+    def _check_spikes(self):
+        """가시 타일에 닿으면 피해를 받고 위로 튕긴다. 대시 무적·피격 직후 무적 중에는 그냥 지나간다."""
+        if self.state == 'DEAD' or self.invuln_left > 0 or self.room is None:
+            return
+        me = self.rect()
+        for rect in self.room.spike_rects():
+            if me[0] < rect[2] and rect[0] < me[2] and me[1] < rect[3] and rect[1] < me[3]:
+                before = self.hp
+                self.take_hit(config.SPIKE_DAMAGE)
+                if self.hp < before and self.state != 'DEAD':
+                    self.vy = config.SPIKE_BOUNCE   # 가시에 찔려 튕겨 오른다
+                    self.on_ground = False
+                return
 
     def _update_afterimages(self, dt):
         """대시 중에는 일정 간격으로 현재 모습을 남기고, 남은 잔상은 수명이 다할 때까지 옅어지다 사라진다."""

@@ -4,7 +4,9 @@
 바는 단색 칸(placeholder/px_*.png)을 정수 좌표로 채워서 그린다. 실제 UI 에셋은 이후 교체.
 """
 import assets
+import camera
 import config
+import items
 from haze_gauge import AWAKE, CRITICAL, DEAD, FADE, NORMAL, OVERLOAD
 
 ZONE_LABEL = {FADE: '페이드', NORMAL: '노멀', AWAKE: '각성', CRITICAL: '위험', OVERLOAD: '오버로드', DEAD: '사망'}
@@ -44,6 +46,8 @@ class GameUI:
         if self.stage is not None:
             self._draw_minimap()
             self._draw_room_notice()
+            self._draw_boss_bar()
+            self._draw_message()
         self._draw_reticle()
         if config.DEBUG:
             self._draw_debug()
@@ -81,12 +85,23 @@ class GameUI:
         top = config.SCREEN_H - 90
         for i in range(p.dash_max):
             _frame(70 + i * 62, top, 48, 30, 'px_cyan' if i < p.dash_slots else 'px_gray')
-        hp_w, hp_h = 380, 30
+        hp_w, hp_h = int(380 * p.max_hp / config.PLAYER_HP), 30
         y = top - 70
         _frame(70, y, hp_w, hp_h, 'px_gray')
-        _rect('px_red', 70, y, hp_w * p.hp / config.PLAYER_HP, hp_h)
-        assets.draw_text(70 + 12, y + hp_h // 2, f'HP {p.hp}/{config.PLAYER_HP}', WHITE, small=True)
+        _rect('px_red', 70, y, hp_w * p.hp / p.max_hp, hp_h)
+        assets.draw_text(70 + 12, y + hp_h // 2, f'HP {p.hp}/{p.max_hp}', WHITE, small=True)
         assets.draw_text(70, y - 40, f'헤이즈 조각 {p.shards}', TEAL)
+        # 가진 아이템: 색 칸에 한 글자 (같은 아이템을 여러 번 얻으면 개수)
+        counts = {}
+        for item_id in p.items:
+            counts[item_id] = counts.get(item_id, 0) + 1
+        for i, (item_id, n) in enumerate(counts.items()):
+            ix = 70 + i * 54
+            info = items.ITEMS[item_id]
+            _frame(ix, y - 112, 44, 44, 'px_black', border='px_gray', thickness=3)
+            assets.draw_text(ix + 22, y - 90, info['glyph'], info['color'], center=True)
+            if n > 1:
+                assets.draw_text(ix + 40, y - 106, f'x{n}', WHITE, small=True, center=True)
         if p.stunned:
             assets.draw_text(config.SCREEN_W // 2, config.SCREEN_H - 200, '오버로드! 기절', ZONE_COLOR[OVERLOAD], big=True,
                              center=True)
@@ -126,7 +141,8 @@ class GameUI:
     # ----- 조준점 -----
     def _draw_reticle(self):
         p = self.player
-        x, y = int(p.mouse_x), int(p.mouse_y)
+        x, y = p.mouse_screen if p.mouse_screen is not None else camera.to_screen(p.mouse_x, p.mouse_y)
+        x, y = int(x), int(y)
         arms = ((-22, -2, 14, 4), (8, -2, 14, 4), (-2, 8, 4, 14), (-2, -22, 4, 14))  # 십자 네 팔
         color = 'px_white' if p.weapon.ready else 'px_gray'
         for dx, dy, w, h in arms:
@@ -137,28 +153,51 @@ class GameUI:
     # ----- 미니맵 -----
     def _draw_minimap(self):
         """오른쪽 위 미니맵: 방문한 방과 이웃 방. 현재 방은 흰색, 클리어한 방은 청록, 고농도 방은 주황 테두리."""
-        cell_w, cell_h, gap = 54, 34, 10
-        base_x, base_y = config.SCREEN_W - 90 - 3 * (cell_w + gap), config.SCREEN_H - 110
+        cell_w, cell_h, gap = 40, 26, 8
+        cells = self.stage.minimap_cells()
+        xs = [c[0][0] for c in cells]
+        ys = [c[0][1] for c in cells]
+        right = config.SCREEN_W - 80
+        base_x = right - (max(xs) - min(xs) + 1) * (cell_w + gap)
+        base_y = config.SCREEN_H - 110 - (max(ys) - min(ys)) * (cell_h + gap)
         colors = {'current': 'px_white', 'cleared': 'px_cyan', 'visited': 'px_blue', 'unknown': 'px_gray'}
-        for (cx, cy), state, high in self.stage.minimap_cells():
-            x = base_x + cx * (cell_w + gap)
-            y = base_y + cy * (cell_h + gap)
-            _rect('px_orange' if high else 'px_black', x - 4, y - 4, cell_w + 8, cell_h + 8)
+        kind_border = {'gold': 'px_yellow', 'boss': 'px_red', 'shop': 'px_blue'}
+        for (cx, cy), state, kind, high in cells:
+            x = base_x + (cx - min(xs)) * (cell_w + gap)
+            y = base_y + (cy - min(ys)) * (cell_h + gap)
+            border = kind_border.get(kind, 'px_orange' if high else 'px_black')
+            _rect(border, x - 4, y - 4, cell_w + 8, cell_h + 8)
             _rect(colors[state], x, y, cell_w, cell_h)
-        assets.draw_text(base_x, base_y - 34, '지도', DIM, small=True)
+        legend = '지도: 황금 노랑 / 정비 파랑 / 보스 빨강'
+        assets.draw_text(right - assets.text_width(legend, True), base_y - 34, legend, DIM, small=True)
 
     def _draw_room_notice(self):
         import play_mode  # 방 클리어 안내 시간은 play_mode가 갖고 있다
         cx = config.SCREEN_W // 2
         if play_mode.clear_notice > 0:
-            goal = self.stage.layout[self.stage.coord].get('goal')
-            text = '탈출구가 열렸다 ->' if goal else '방 클리어! 오른쪽 문이 열렸다 ->'
+            text = '방 클리어! 열린 문으로 이동하라'
             assets.draw_text(cx, config.SCREEN_H - 175, text, (170, 230, 250), center=True)
         elif self.stage.room.locked:
             assets.draw_text(cx, config.SCREEN_H - 175, f'적을 모두 처치하라 ({self.stage.enemy_count()})', (240, 140, 150),
                              center=True)
         if self.stage.room.is_high_haze:
             assets.draw_text(cx, config.SCREEN_H - 212, '고농도 방: 헤이즈가 계속 차오른다', TEAL, small=True, center=True)
+
+    def _draw_boss_bar(self):
+        boss = self.stage.boss
+        if boss is None or not boss.alive:
+            return
+        w = 900
+        x = (config.SCREEN_W - w) // 2
+        y = 150
+        _frame(x, y, w, 26, 'px_gray', border='px_black', thickness=5)
+        _rect('px_red', x, y, w * max(0.0, boss.hp) / boss.max_hp, 26)
+        assets.draw_text(config.SCREEN_W // 2, y + 56, '크래셔', (255, 150, 150), center=True)
+
+    def _draw_message(self):
+        import play_mode
+        if play_mode.message_time > 0:
+            assets.draw_text(config.SCREEN_W // 2, 300, play_mode.message, (255, 240, 150), center=True)
 
     def _draw_debug(self):
         p = self.player

@@ -3,6 +3,7 @@ from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_F1, SDLK_F3, SDLK_F
                     get_events, hide_cursor, show_cursor, update_canvas)
 
 import assets
+import camera
 import config
 import effects
 import game_framework
@@ -15,10 +16,13 @@ room = None
 player = None
 stage = None
 clear_notice = 0.0  # "방 클리어" 안내를 보여 줄 남은 시간
+message = ''        # 아이템 획득·구매 실패 같은 짧은 안내
+message_time = 0.0
 
 
 def enter():
-    global room, player, stage, clear_notice
+    global room, player, stage, clear_notice, message_time
+    message_time = 0.0
     hide_cursor()  # 화면의 조준점(십자)을 대신 쓴다
     game_world.clear()
     effects.reset()
@@ -28,10 +32,17 @@ def enter():
     player.gauge.change_listeners.append(_on_gauge_change)
     stage = Stage(player)
     stage.on_clear = _on_room_cleared
+    stage.on_message = _show_message
     stage.start()
     room = stage.room
     game_world.add_object(player, game_world.LAYER_PLAYER)
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
+
+
+def _show_message(text):
+    global message, message_time
+    message, message_time = text, 2.5
+    assets.play_sound('pickup')
 
 
 def _on_room_cleared(stage_):
@@ -96,11 +107,13 @@ def update():
     effects.tick_shake(dt)
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
         return
-    global clear_notice, room
+    global clear_notice, room, message_time
     clear_notice = max(0.0, clear_notice - dt)
+    message_time = max(0.0, message_time - dt)
     game_world.update(dt)
     stage.update()
     room = stage.room
+    camera.update(player, room, dt)
     if room.locked:
         clear_notice = 0.0  # 새 방에 들어오면 이전 방의 클리어 안내를 지운다
     player.gauge.tick(dt, room.is_high_haze)
@@ -123,5 +136,10 @@ def draw():
 
 
 def _apply_shake(layer):
-    """세계 레이어에만 화면 흔들림을 걸고 UI는 제자리에 둔다."""
-    assets.draw_offset = effects.shake_offset() if layer < game_world.LAYER_UI else (0, 0)
+    """세계 레이어에는 카메라 이동과 화면 흔들림을 걸고 UI는 제자리에 둔다. 둘 다 정수 픽셀이다."""
+    if layer < game_world.LAYER_UI:
+        sx, sy = effects.shake_offset()
+        cx, cy = camera.offset()
+        assets.draw_offset = (cx + sx, cy + sy)
+    else:
+        assets.draw_offset = (0, 0)

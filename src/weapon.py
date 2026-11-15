@@ -42,10 +42,13 @@ class Pipe:
         ax, ay = p.aim_vector()
         cx, cy = p.center
         assets.play_sound('swing')
-        effects.spawn('heavy-cleave', cx + ax * 90, cy + ay * 90, flip=ax < 0, duration=0.24)
-
         enhanced = p.gauge.enhanced
-        mult = p.gauge.zone_multipliers()['attack'] * (config.PIPE_FINISHER_MULT if finisher else 1.0)
+        # 휘두르기 궤적: 조준 방향에 맞춘 5방향(+좌우 반전) 사전 렌더 프레임. 몸 중심에서 시작한다
+        sheet = 'pipe-slash-enhanced' if enhanced else ('pipe-slash-finisher' if finisher else 'pipe-slash')
+        variant, flip = effects.slash_variant(ax, ay)
+        effects.spawn(sheet, cx, cy, flip=flip, duration=0.22, variant=variant)
+
+        mult = p.gauge.zone_multipliers()['attack'] * (config.PIPE_FINISHER_MULT if finisher else 1.0) * p.attack_bonus
         if enhanced:
             mult *= config.ENHANCE_DAMAGE_MULT
         damage = config.PIPE_DAMAGE * mult
@@ -62,7 +65,7 @@ class Pipe:
                 effects.request_hit_stop(config.HIT_STOP * (2 if finisher else 1))
                 effects.add_trauma(config.SHAKE_FINISHER if finisher else config.SHAKE_HIT)
                 if killed:
-                    p.gauge.add(config.GAIN_KILL, 'kill')
+                    p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
                     effects.add_trauma(config.SHAKE_KILL)
                     if enhanced:
                         self._blast(enemy)

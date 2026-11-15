@@ -31,6 +31,8 @@ class Enemy(TileBody):
         self.struck = False        # 이번 공격의 타격을 이미 냈는가
         self.cooldown = 0.0
         self.hit_left = 0.0
+        self.leap_cooldown = 0.0   # 도약 재사용 대기
+        self.blocked_time = 0.0    # 가려는데 앞이 막혀 있던 시간 (벽·기둥에 막힘 감지)
         self.machine = Machine(
             model=self,
             states=['IDLE', 'CHASE', 'ATTACK', 'HIT', 'DEAD'],
@@ -84,19 +86,27 @@ class Enemy(TileBody):
     def update(self, dt):
         self.flash = max(0.0, self.flash - dt)
         self.cooldown = max(0.0, self.cooldown - dt)
+        self.leap_cooldown = max(0.0, self.leap_cooldown - dt)
         if self.player.x != self.x and self.state not in ('ATTACK', 'HIT'):
             self.face_dir = 1 if self.player.x > self.x else -1
 
+        before_x = self.x
         getattr(self, '_do_' + self.state.lower())(dt)
         self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self.move_with_tiles(dt)
+        # 걸어가려는데 거의 못 움직였으면 막힌 것이다 (기둥, 벽)
+        if self.state == 'CHASE' and self.vx != 0 and abs(self.x - before_x) < 0.5 and self.on_ground:
+            self.blocked_time += dt
+        else:
+            self.blocked_time = 0.0
 
     def _player_alive(self):
         return self.player.state != 'DEAD'
 
     def _do_idle(self, dt):
         self.vx = 0.0
-        if self._player_alive() and self.distance_x() <= self.stats['sight'] and abs(self.player.y - self.y) < 240:
+        s = self.stats
+        if self._player_alive() and self.distance_x() <= s['sight'] and abs(self.player.y - self.y) < s['sight_dy']:
             self.see()
 
     def _do_chase(self, dt):
@@ -104,19 +114,35 @@ class Enemy(TileBody):
         if not self._player_alive():
             self.vx = 0.0
             return
-        in_range = self.distance_x() <= s['attack_range'] and abs(self.player.y - self.y) < 200
+        dy = self.player.y - self.y
+        in_range = self.distance_x() <= s['attack_range'] and abs(dy) < s['reach_dy']
         if in_range and self.cooldown <= 0 and self.on_ground:
             self.vx = 0.0
             self.engage()
             return
-        # 쫓는다. 발 앞이 낭떠러지면 멈춘다 (고정형은 speed 0)
-        if s['speed'] > 0 and not in_range and self._floor_ahead():
+        if s['speed'] <= 0:                          # 고정형(투척병)은 제자리에서 기다린다
+            self.vx = 0.0
+            return
+        if in_range:                                 # 사거리 안이면 멈춰서 공격 차례를 기다린다
+            self.vx = 0.0
+            return
+        # 위층의 플레이어를 쫓거나 기둥에 막히면 뛰어오른다
+        if self.on_ground and self.leap_cooldown <= 0 and s['leap'] > 0 and (
+                (dy > 90 and self.distance_x() < 360) or (self.blocked_time > 0.2 and dy > -40)):
+            self.vy = s['leap']
+            self.leap_cooldown = config.LEAP_COOLDOWN
+        # 아래층의 플레이어를 쫓을 때는 낭떠러지도 걸어서 내려간다
+        if not self.on_ground:
+            self.vx = self.face_dir * s['speed'] * 1.4          # 공중에서는 조금 더 멀리 날아가 발판에 닿는다
+        elif self._floor_ahead() or dy < -100:
             self.vx = self.face_dir * s['speed']
         else:
             self.vx = 0.0
 
     def _floor_ahead(self):
         ahead_x = self.x + self.face_dir * (self.hb_w / 2 + 6)
+        if self.room.tile_at_world(ahead_x, self.y + 6) == room_module.SPIKE:  # 가시로는 걸어 들어가지 않는다
+            return False
         below = self.room.tile_at_world(ahead_x, self.y - 4)
         return below in (room_module.SOLID, room_module.ONEWAY)
 

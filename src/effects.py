@@ -70,18 +70,21 @@ def sheet_info(name):
 class SheetEffect:
     """시트 한 장을 duration초에 걸쳐 한 번 재생하고 사라진다. (x, y)에 시트의 pivot을 맞춘다."""
 
-    def __init__(self, name, x, y, flip=False, duration=0.35):
+    def __init__(self, name, x, y, flip=False, duration=0.35, variant=0):
         self.name = name
         self.x, self.y = x, y
         self.flip = flip
         self.duration = duration
+        self.variant = variant           # 방향 변형 줄 번호 (휘두르기처럼 variants가 있는 시트만)
         self.time = 0.0
         self.info = sheet_info(name)
 
     @property
     def frame(self):
-        n = self.info['frames']
-        return min(n - 1, int(self.time / self.duration * n))
+        """variants가 있는 시트는 줄마다 같은 길이의 애니메이션이다. 시간에 맞춰 그 줄 안의 프레임을 고른다."""
+        variants = self.info.get('variants', 1)
+        n = self.info['frames'] // variants
+        return self.variant * n + min(n - 1, int(self.time / self.duration * n))
 
     def update(self, dt):
         self.time += dt
@@ -97,7 +100,7 @@ class SheetEffect:
         img = assets.image(f'effects/{self.name}.png')
         sheet_h = img.h
         left, bottom = col * fw, sheet_h - (row + 1) * fh
-        s = config.EFFECT_SCALE  # 정수 배율(최근접)로만 키운다. pivot도 같은 배율로 옮긴다
+        s = self.info.get('scale', config.EFFECT_SCALE)  # 정수 배율(최근접)로만 키운다. pivot도 같은 배율로 옮긴다
         dx = self.x - ((fw - px) if self.flip else px) * s
         dy = self.y - (fh - py) * s
         assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '', s)
@@ -122,8 +125,16 @@ class FloatText:
         assets.draw_text(self.x, self.y0 + self.rise * t, self.text, self.color, center=True, big=self.big)
 
 
-def spawn(name, x, y, flip=False, duration=0.35):
-    game_world.add_object(SheetEffect(name, x, y, flip, duration), game_world.LAYER_EFFECT)
+def spawn(name, x, y, flip=False, duration=0.35, variant=0):
+    game_world.add_object(SheetEffect(name, x, y, flip, duration, variant), game_world.LAYER_EFFECT)
+
+
+def slash_variant(ax, ay, angles=(0, 45, 90, -45, -90)):
+    """조준 벡터에 가장 가까운 휘두르기 방향 변형과 좌우 반전 여부를 돌려준다. 왼쪽 조준은 오른쪽 변형을 반전해 쓴다."""
+    flip = ax < -1e-3
+    ang = math.degrees(math.atan2(ay, abs(ax)))   # 왼쪽 조준은 세로축으로 접어 -90~90도로
+    best = min(range(len(angles)), key=lambda i: abs(angles[i] - ang))
+    return best, flip
 
 
 def float_text(x, y, text, color, big=False, life=0.8):

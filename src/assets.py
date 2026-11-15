@@ -57,7 +57,7 @@ def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):
 
 def draw_rect_image(img, left, bottom, w, h):
     """단색 사각형(placeholder/px_*.png)을 정수 좌표로 채운다. 무늬 없는 색 칸 전용."""
-    img.draw_to_origin(int(round(left)), int(round(bottom)), int(round(w)), int(round(h)))
+    img.draw_to_origin(int(round(left)) + draw_offset[0], int(round(bottom)) + draw_offset[1], int(round(w)), int(round(h)))
 
 
 # 갈무리(Galmuri, SIL OFL 1.1) 픽셀 폰트. 글자는 폰트의 원래 크기로만 그린다(docs/pixel_rules.md 규칙 6).
@@ -136,4 +136,4 @@ def draw_text(x, y, text, color=(255, 255, 255), small=False, center=False, big=
     if f is None:
         return
     left = int(round(x)) - (text_width(text, small, big) // 2 if center else 0)
-    f.draw(left, int(round(y)), text, color)
+    f.draw(left + draw_offset[0], int(round(y)) + draw_offset[1], text, color)

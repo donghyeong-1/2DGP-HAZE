@@ -228,6 +228,81 @@ def test_taking_damage_shakes_and_freezes_briefly():
     assert effects.trauma >= config.SHAKE_DAMAGED and effects.hit_stop_left >= config.HIT_STOP_DAMAGED
 
 
+def make_world_in(room_name, player_x, links=('L', 'R')):
+    game_world.clear()
+    effects.reset()
+    room = Room.load(room_name, links)
+    player = Player(player_x, FLOOR_Y, room)
+    game_world.add_object(player, game_world.LAYER_PLAYER)
+    step(30)
+    return room, player
+
+
+def test_spike_hurts_bounces_and_costs_gauge():
+    room, p = make_world_in('pit_02', 300.0)
+    p.x, p.y, p.vy = 14 * config.TILE + 30, FLOOR_Y + 40, 0.0       # 가시 구덩이(13~18칸) 안쪽 바로 위에서 떨어뜨린다
+    hp0, g0 = p.hp, p.gauge.value
+    step(10)
+    assert p.hp == hp0 - config.SPIKE_DAMAGE
+    assert p.gauge.value <= g0 + config.LOSS_DAMAGED + 1
+    assert p.vy > 0 or p.y > FLOOR_Y + 5                          # 위로 튕겨 올랐다
+    hp1 = p.hp
+    step(20)
+    assert p.hp == hp1                                            # 피격 직후 무적이라 연속 피해가 없다
+
+
+def test_dash_through_spikes_is_safe():
+    room, p = make_world_in('pit_02', 12 * config.TILE)
+    p.mouse_x, p.mouse_y = p.x + 600, p.center[1]
+    p.request_dash()
+    step(12)
+    assert p.hp == config.PLAYER_HP                               # 대시 무적 중에는 가시도 지나간다
+
+
+def test_slum_leaps_up_to_chase_player_on_higher_ground():
+    room, p = make_world_in('hall_01', 14 * config.TILE + 30)    # 입구 홀의 낮은 단(14~15줄) 위로 올라간다
+    p.y = 1080 - 14 * config.TILE                                  # 단 윗면
+    step(30)
+    e = Enemy('slum', 10 * config.TILE + 30, FLOOR_Y, room, p)
+    game_world.add_object(e, game_world.LAYER_ENEMY)
+    top = 1080 - 14 * config.TILE
+    for _ in range(60 * 6):
+        step(1)
+        if e.y >= top - 1:
+            break
+    assert e.y >= top - 1, '슬럼이 단 위로 뛰어오르지 못했다'
+
+
+def test_slum_walks_down_ledge_to_chase_lower_player():
+    room, p = make_world_in('hall_01', 4 * config.TILE)           # 플레이어는 바닥
+    top = 1080 - 14 * config.TILE
+    e = Enemy('slum', 15 * config.TILE, top, room, p)             # 슬럼은 단 위
+    game_world.add_object(e, game_world.LAYER_ENEMY)
+    for _ in range(60 * 5):
+        step(1)
+        if e.y <= FLOOR_Y + 1 and e.x < 12 * config.TILE:
+            break
+    assert e.y <= FLOOR_Y + 1, '슬럼이 단 아래로 내려오지 못했다'
+
+
+def test_thrower_ignores_player_on_another_tier():
+    room, p = make_world_in('hall_01', 11 * config.TILE)          # 플레이어는 바닥
+    ledge_top = 1080 - 11 * config.TILE                           # 오른쪽 얇은 발판 윗면 (바닥보다 5줄 위)
+    t = Enemy('thrower', 20 * config.TILE + 30, ledge_top, room, p)
+    game_world.add_object(t, game_world.LAYER_ENEMY)
+    step(60 * 3)
+    assert t.state in ('IDLE', 'CHASE') and not any(
+        type(o).__name__ == 'Scrap' for o in game_world.world[game_world.LAYER_EFFECT])   # 층이 달라서 던지지 않는다
+
+
+def test_slash_variant_follows_aim_direction():
+    import math
+    for deg, flip_expected, name in ((0, False, 0), (45, False, 1), (90, False, 2), (-45, False, 3), (-90, False, 4),
+                                     (180, True, 0), (135, True, 1), (-135, True, 3)):
+        v, flip = effects.slash_variant(math.cos(math.radians(deg)), math.sin(math.radians(deg)))
+        assert (v, flip) == (name, flip_expected), (deg, v, flip)
+
+
 def test_player_dies_when_hp_reaches_zero():
     room, p = make_world()
     p.take_hit(config.PLAYER_HP)

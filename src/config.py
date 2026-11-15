@@ -94,15 +94,27 @@ SHAKE_DAMAGED = 0.5         # 내가 맞음
 SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
 
 # 적 (hb = 충돌 박스 너비·높이, 스프라이트 키에서 위쪽 여유를 뺀 값)
+# sight_dy: 이 높이 차(px) 안에 플레이어가 있어야 발견, reach_dy: 이 높이 차 안일 때만 공격(투척병은 같은 층만 노린다)
+# leap: 위층의 플레이어를 쫓아 뛰어오르는 속도(0이면 못 뛴다)
 ENEMY_STATS = {
-    'slum': dict(hp=60, hb=(42, 102), speed=210.0, sight=620, attack_range=95, damage=12,
-                 windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle.png'),
-    'thrower': dict(hp=45, hb=(48, 108), speed=0.0, sight=900, attack_range=820, damage=10,
+    'slum': dict(hp=60, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
+                 windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle.png',
+                 leap=1250.0),
+    'thrower': dict(hp=45, hb=(48, 108), speed=0.0, sight=900, sight_dy=130, attack_range=820, reach_dy=130, damage=10,
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle.png',
-                    projectile_speed=620.0),
+                    projectile_speed=620.0, leap=0.0),
 }
+# 보스 크래셔 (기획 3.2: 충격파 게이지 -20%, 돌진은 변화 없음). 같은 표에 두고 Boss 클래스가 패턴을 쓴다
+ENEMY_STATS['crasher'] = dict(
+    hp=700, hb=(100, 180), speed=150.0, sight=2600, sight_dy=900, attack_range=190, reach_dy=260, damage=18,
+    windup=0.5, attack_time=0.2, cooldown=0.9, gain_on_hit=0, sprite='boss_crasher_idle.png', leap=0.0,
+    charge_speed=950.0, charge_time=0.55, charge_damage=24, wave_speed=520.0, wave_damage=12, wave_gauge=-15)
+LEAP_COOLDOWN = 1.4          # 뛰어오른 뒤 다음 도약까지(초)
+SPIKE_DAMAGE = 15            # 가시에 닿았을 때 피해 (게이지는 피격과 같이 -5)
+SPIKE_BOUNCE = 900.0         # 가시에 닿으면 위로 튕겨 나가는 속도(px/s)
+SPIKE_HEIGHT = 30            # 가시 타일에서 실제로 찌르는 높이(px, 타일 아래쪽)
 # 헤이즈 조각 (재화). 적을 처치하면 떨어뜨리고, 정비방 업그레이드에 쓴다 (정비방은 3주차)
-SHARDS_PER_KILL = {'slum': 1, 'thrower': 2}
+SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'crasher': 10}
 
 # E 무기 강화: 게이지 ENHANCE_COST를 쓰고 ENHANCE_TIME초 동안 파이프가 강해진다
 ENHANCE_DAMAGE_MULT = 1.5

@@ -44,6 +44,6 @@ def draw():
     assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 600)  # 코드로 그린 로고 (tools/make_codeart.py)
     assets.draw_text(config.SCREEN_W // 2, 545, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
     assets.draw_text(config.SCREEN_W // 2, 330, '아무 키나 누르세요', (150, 160, 185), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 270, 'A D 이동  Space 점프  마우스 조준·좌클릭 공격  Shift 대시  E 강화', (110, 125, 150),
+    assets.draw_text(config.SCREEN_W // 2, 270, 'A D 이동  Space 점프  마우스 조준·좌클릭 공격  Shift 대시  E 강화  F 상호작용', (110, 125, 150),
                      small=True, center=True)
     update_canvas()

@@ -10,18 +10,18 @@
   -90
  ],
  "frameSize": [
-  380,
-  380
+  190,
+  190
  ],
  "columns": 6,
  "fps": 25,
  "loop": false,
  "pivot": [
-  190,
-  190
+  95,
+  95
  ],
- "scale": 1,
- "impactMs": 130,
- "durationMs": 260,
- "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_slash.py"
+ "scale": 2,
+ "impactMs": 120,
+ "durationMs": 240,
+ "source": "tools/make_slash_hq.py (code-drawn, numpy, no image model)"
 }

@@ -140,3 +140,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-11 [Codex] T01~T03 캐릭터 7종 재제작 후보 `assets/sprites/forge/remake_t01_t03/finished/`. Codex 내장 image_gen(모델명 미제공, 생성물 이용 조건 확인 필요), agent-sprite-forge 6b3da5c(MIT), hibit 마감. 검토 대기.
 | `assets/effects/aura-stun.png` (+ `.json`) | `tools/make_aura.py` (PixelSpec, codeart2d `render_pixelspec.py --strict-qc`) | 오버로드 기절 중 몸을 감싸는 전기 아크와 머리 위를 도는 별 (240×320, 16프레임 반복). `overload-burst`는 정수 2배로 다시 만듦. code-drawn |
 | `assets/sfx/overload_zap.wav`, `stun_end.wav` | `tools/make_sfx.py` (합성) | 오버로드 폭발 치직 소리, 기절에서 깨어나는 소리. 직접 합성, 저작권 문제 없음 |
+| `assets/effects/pipe-slash*.png`, `dash-strike.png`, `air-spin*.png` (+ `.json`) | `tools/make_slash_hq.py` (numpy + Pillow로 직접 그림, 이미지 모델 없음; 이전 `make_slash.py`의 fx_build 판을 대체) | 휘두르기 계열 검기 전부를 다시 만듦: 꼬리·머리가 뾰족한 초승달, 머리가 앞서고 꼬리가 따라잡는 스윙, 바깥 가장자리 흰 코어의 4톤+베이어 디더링, 1px 외곽선, 보조 호·링·섬광·불꽃. 190~310칸 격자에 그려 정수 2배(json scale=2). 방향 5종은 미리 돌려 그림. 구간·강화별 모양이 다르다. code-drawn |

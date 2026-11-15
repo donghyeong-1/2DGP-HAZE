@@ -363,7 +363,7 @@ def test_aura_follows_gauge_zone_and_enhance():
     assert effects.aura_names('FADE') == ['aura-fade']
     assert effects.aura_names('AWAKE') == ['aura-awake']
     assert effects.aura_names('CRITICAL') == ['aura-critical']
-    assert effects.aura_names('AWAKE', enhanced=True) == ['aura-awake', 'aura-enhanced']   # 구간 오라 위에 겹친다
+    assert effects.aura_names('AWAKE', enhanced=True) == ['aura-enhanced']                # 강화 준비 중에는 강화 오라가 대체한다
     assert effects.aura_names('NORMAL', enhanced=True) == ['aura-enhanced']
 
 
@@ -431,7 +431,7 @@ def test_melee_does_not_reach_through_walls():
     assert behind.hp < behind.max_hp
 
 
-def test_enhanced_blast_and_dash_and_spin_also_respect_walls():
+def test_enhanced_blast_also_respects_walls():
     room, p = make_world_with(walled_room(), 14 * config.TILE + 30)
     behind = freeze(add_enemy('slum', 16 * config.TILE + 30, room, p))
     behind.hp = behind.max_hp = 1000
@@ -439,35 +439,76 @@ def test_enhanced_blast_and_dash_and_spin_also_respect_walls():
     p.request_enhance()
     p.request_attack()                                                      # 강화 일격도 벽 너머에는 안 닿는다
     assert behind.hp == behind.max_hp
-    p.request_dash()                                                        # 대시 평타
-    p.weapon.cooldown = 0
-    p.request_attack()
-    assert p.weapon.last_kind == 'dash' and behind.hp == behind.max_hp
 
 
-def test_dash_strike_pierces_a_line_of_enemies():
-    room, p = make_world()
-    a = freeze(add_enemy('slum', p.x + 110, room, p))
-    b = freeze(add_enemy('slum', p.x + 300, room, p))                       # 기본 사거리(150) 밖이지만 대시 평타 줄 안
-    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+def dash_until_done(p, attack=True):
+    """대시하고(옵션: 대시 중에 평타를 눌러 두고) 대시가 끝날 때까지 프레임을 돌린다."""
     p.request_dash()
     assert p.state == 'DASH'
+    if attack:
+        assert p.request_attack() and p.weapon.last_kind == 'dash'
+    for _ in range(60):
+        game_world.update(DT)
+        if p.state != 'DASH':
+            break
+    assert p.state != 'DASH'
+
+
+def test_dash_strike_cuts_the_whole_path_travelled_when_the_dash_ends():
+    room, p = make_world()
+    a = freeze(add_enemy('slum', p.x + 110, room, p))
+    b = freeze(add_enemy('slum', p.x + 300, room, p))                       # 대시가 지나온 경로 위 (기본 사거리 150 밖)
+    c = freeze(add_enemy('slum', p.x + 520, room, p))                       # 경로가 끝난 뒤 (대시 거리 360 밖)
+    d = freeze(add_enemy('slum', p.x - 150, room, p))                       # 출발점 뒤
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_dash()
     assert p.request_attack() and p.weapon.last_kind == 'dash'
-    assert a.hp < a.max_hp and b.hp < b.max_hp                              # 줄에 선 적을 모두 벤다
-    assert 'dash-strike' in spawned_names()
-    assert p.state == 'DASH' and p.dash_left >= config.DASH_STRIKE_EXTEND   # 돌진하며 벤다
+    assert a.hp == a.max_hp and b.hp == b.max_hp                           # 대시 중에는 아직 베지 않는다
+    for _ in range(60):
+        game_world.update(DT)
+        if p.state != 'DASH':
+            break
+    assert a.hp < a.max_hp and b.hp < b.max_hp                              # 대시가 끝나는 순간 지나온 경로를 한 번에 벤다
+    assert c.hp == c.max_hp and d.hp == d.max_hp                            # 경로 밖은 맞지 않는다
+    assert 'path-slash' in spawned_names()                                  # 지나온 직선을 긋는 효과
+
+
+def test_dash_strike_path_is_a_straight_line_from_start_to_end():
+    room, p = make_world()
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    x0, y0 = p.center
+    dash_until_done(p, attack=False)
+    x1, y1, = p.center
+    ox, oy, ex, ey = p.last_dash_path
+    assert abs(ox - x0) < 1 and abs(oy - y0) < 1                            # 시작
+    assert abs(ex - x1) < 1 and abs(ey - y1) < 1                            # 끝
+    assert ex - ox > 0.8 * config.DASH_SPEED * config.DASH_TIME             # 약 360px
+
+
+def test_dash_strike_pressed_right_after_the_dash_still_cuts_the_path():
+    room, p = make_world()
+    a = freeze(add_enemy('slum', p.x + 200, room, p))
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    dash_until_done(p, attack=False)
+    assert a.hp == a.max_hp
+    assert p.dash_window > 0 and p.weapon.current_kind() == 'dash'
+    assert p.request_attack()
+    assert a.hp < a.max_hp                                                  # 끝난 직후(0.22초 안)에는 바로 벤다
+
+
+def test_dash_strike_skips_enemies_behind_walls():
+    room, p = make_world_with(walled_room(), 12 * config.TILE)
+    behind = freeze(add_enemy('slum', 16 * config.TILE + 30, room, p))
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    dash_until_done(p)                                                      # 벽(열 15)에서 멈춰 경로가 짧아진다
+    assert behind.hp == behind.max_hp
 
 
 def test_dash_strike_window_closes_after_dash():
     room, p = make_world()
-    freeze(add_enemy('slum', p.x + 110, room, p))
     p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
-    p.request_dash()
-    for _ in range(int((config.DASH_TIME + config.DASH_ATTACK_WINDOW - 0.05) * 60)):
-        game_world.update(DT)
-    assert p.state != 'DASH' and p.dash_window > 0
-    assert p.weapon.current_kind() == 'dash'                                # 막 끝난 직후에도 대시 평타
-    for _ in range(30):
+    dash_until_done(p, attack=False)
+    for _ in range(int(config.DASH_ATTACK_WINDOW * 60) + 6):
         game_world.update(DT)
     assert p.dash_window == 0 and p.weapon.current_kind() in ('pipe', 'spin', 'plunge')
 
@@ -503,15 +544,78 @@ def test_plunge_hits_below_and_bounces():
 
 def test_special_attacks_use_zone_damage_and_attack_bonus():
     room, p = make_world()
-    e = freeze(add_enemy('slum', p.x + 110, room, p))
+    e = freeze(add_enemy('slum', p.x + 200, room, p))
     e.hp = e.max_hp = 1000
     p.attack_bonus = 1.5
     set_gauge(p, 60)
     p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
-    p.request_dash()
-    p.request_attack()
+    dash_until_done(p)
     expected = config.PIPE_DAMAGE * config.MULT_AWAKE[0] * 1.5 * config.DASH_STRIKE_MULT
     assert abs((e.max_hp - e.hp) - expected) < 1e-6
+
+
+def test_enhanced_applies_to_the_dash_strike_and_is_consumed():
+    room, p = make_world()
+    e = freeze(add_enemy('slum', p.x + 200, room, p))
+    e.hp = e.max_hp = 1000
+    set_gauge(p, 60)
+    assert p.request_enhance()
+    mult = p.gauge.zone_multipliers()['attack']                               # 강화 비용을 쓴 뒤의 구간 배율
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    dash_until_done(p)
+    assert p.weapon.last_kind == 'dash' and p.weapon.last_enhanced              # 강화가 대시 평타에 얹혔다
+    assert not p.gauge.enhanced                                               # 쓰고 나면 사라진다
+    assert abs((e.max_hp - e.hp) - config.PIPE_DAMAGE * mult * config.ENHANCE_DAMAGE_MULT) < 1e-6
+    enhanced_lines = [o for o in game_world.world[game_world.LAYER_EFFECT] if getattr(o, 'name', '') == 'path-slash']
+    assert enhanced_lines and all(o.enhanced for o in enhanced_lines)          # 보라색 강화 직선
+
+
+def test_enhanced_dash_strike_is_wider_and_blasts_around_each_enemy():
+    room, p = make_world()
+    off = freeze(add_enemy('slum', p.x + 200, room, p))
+    off.y += 0                                                                  # 경로 위
+    near = freeze(add_enemy('slum', p.x + 330, room, p))
+    for e in (off, near):
+        e.hp = e.max_hp = 1000
+    set_gauge(p, 60)
+    p.request_enhance()
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    dash_until_done(p)
+    assert off.hp < off.max_hp and near.hp < near.max_hp
+    assert config.DASH_STRIKE_ENHANCED_HALF_WIDTH > config.DASH_STRIKE_HALF_WIDTH
+
+
+def test_enhanced_applies_to_the_jump_attack_and_plunge():
+    room, p = make_world()
+    behind = freeze(add_enemy('slum', p.x - 200, room, p))                      # 일반 회전 사거리(170) 밖, 강화 사거리(255) 안
+    behind.hp = behind.max_hp = 1000
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_jump()
+    for _ in range(8):
+        game_world.update(DT)
+    set_gauge(p, 60)
+    assert p.request_enhance()
+    assert p.weapon.current_kind() == 'spin'
+    p.request_attack()
+    assert p.weapon.last_kind == 'spin' and p.weapon.last_enhanced and not p.gauge.enhanced
+    assert 'air-spin-enhanced' in spawned_names()
+    assert behind.hp < behind.max_hp                                            # 강화로 사거리가 늘었다
+    # 내려찍기도 강화된다
+    room2, q = make_world()
+    below = freeze(add_enemy('slum', q.x, room2, q))
+    below.hp = below.max_hp = 1000
+    q.request_jump()
+    for _ in range(14):
+        game_world.update(DT)
+    set_gauge(q, 60)
+    q.request_enhance()
+    mult2 = q.gauge.zone_multipliers()['attack']
+    q.mouse_x, q.mouse_y = q.x, q.y - 300
+    q.invuln_left = 0
+    q.request_attack()
+    assert q.weapon.last_kind == 'plunge' and q.weapon.last_enhanced
+    assert 'pipe-slash-enhanced' in spawned_names()
+    assert abs((below.max_hp - below.hp) - config.PIPE_DAMAGE * mult2 * config.ENHANCE_DAMAGE_MULT) < 1e-6
 
 
 def test_attack_blocked_only_while_hit_or_stunned_not_while_dashing():

@@ -2,16 +2,16 @@
  "id": "aura/aura-fade",
  "frames": 16,
  "frameSize": [
-  380,
-  440
+  240,
+  320
  ],
  "columns": 8,
  "fps": 20,
  "loop": true,
  "pivot": [
-  190,
-  306
+  120,
+  296
  ],
  "scale": 1,
- "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_aura.py"
+ "source": "tools/make_aura.py (code-drawn silhouette flame, codeart2d render_pixelspec QA, no image model)"
 }

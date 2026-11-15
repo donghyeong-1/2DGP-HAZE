@@ -133,9 +133,8 @@ ENHANCE_STRIKE_COOLDOWN = 0.65  # 강화 일격 뒤 다음 공격까지
 # 특수 공격 (대시 평타, 점프 평타). 아무 키 없이 상황으로 정해진다: 대시 중·직후 공격 = 대시 평타, 공중 공격 = 점프 평타
 DASH_ATTACK_WINDOW = 0.22       # 대시가 끝난 뒤에도 이 시간(초) 안에 공격하면 대시 평타
 DASH_STRIKE_MULT = 1.4          # 대미지 배율
-DASH_STRIKE_LENGTH = 340        # 몸 중심에서 대시 방향으로 꿰뚫는 길이(px). 줄에 선 적을 모두 벤다 (관통)
-DASH_STRIKE_HALF_WIDTH = 95     # 줄의 반폭(px)
-DASH_STRIKE_EXTEND = 0.10       # 대시 중에 치면 대시가 이만큼(초) 더 이어진다 (돌진하며 베기)
+DASH_STRIKE_HALF_WIDTH = 70     # 대시로 지나온 경로(직선) 양옆으로 이 반폭(px) 안의 적을 모두 벤다 (관통)
+DASH_STRIKE_ENHANCED_HALF_WIDTH = 115   # 강화된 대시 평타는 경로 양옆이 더 넓다
 DASH_STRIKE_COOLDOWN = 0.40
 AIR_SPIN_MULT = 1.2             # 점프 평타(회전 베기) 대미지 배율
 AIR_SPIN_REACH = 170            # 몸 둘레 360도 사거리(px)

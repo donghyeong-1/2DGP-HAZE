@@ -1,0 +1,24 @@
+{
+ "id": "melee/air-spin-enhanced",
+ "frames": 6,
+ "variants": 1,
+ "variantAngles": [
+  0
+ ],
+ "frameSize": [
+  580,
+  580
+ ],
+ "columns": 6,
+ "fps": 25,
+ "loop": false,
+ "pivot": [
+  290,
+  290
+ ],
+ "scale": 1,
+ "impactMs": 130,
+ "durationMs": 260,
+ "style": "spin",
+ "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_slash.py"
+}

@@ -55,6 +55,19 @@ def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):
         img.clip_draw_to_origin(left, bottom, w, h, x, y, dw, dh)
 
 
+def draw_rect_color(left, bottom, w, h, color, alpha=1.0):
+    """임의 색의 단색 사각형을 정수 좌표로 채운다 (직선 이펙트 같은 코드 그림용). 확대·회전 없이 사각형만 쓴다."""
+    from sdl2 import SDL_SetTextureColorMod
+    img = image('placeholder/px_white.png')
+    SDL_SetTextureColorMod(img.texture, *color)
+    img.opacify(alpha)
+    try:
+        draw_rect_image(img, left, bottom, w, h)
+    finally:
+        SDL_SetTextureColorMod(img.texture, 255, 255, 255)
+        img.opacify(1.0)
+
+
 def draw_rect_image(img, left, bottom, w, h):
     """단색 사각형(placeholder/px_*.png)을 정수 좌표로 채운다. 무늬 없는 색 칸 전용."""
     img.draw_to_origin(int(round(left)) + draw_offset[0], int(round(bottom)) + draw_offset[1], int(round(w)), int(round(h)))

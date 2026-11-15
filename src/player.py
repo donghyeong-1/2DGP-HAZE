@@ -121,6 +121,8 @@ class Dash(_State):
         p.vy = 0.0
         p.afterimage_timer = 0.0  # 출발 지점에도 잔상을 남긴다
         p.dash_window = config.DASH_ATTACK_WINDOW
+        p.dash_origin = p.center
+        p.dash_strike_queued = False
 
     def do(self, dt):
         p = self.p
@@ -134,7 +136,13 @@ class Dash(_State):
         if p.dash_left <= 0:
             p.vx = 0.0
             p.vy = 0.0
+            ox, oy = p.dash_origin
+            cx, cy = p.center
+            p.last_dash_path = (ox, oy, cx, cy)        # 지나온 직선
             p.dash_end()
+            if p.dash_strike_queued:                   # 대시 중에 눌러 둔 평타: 지나온 경로를 한 번에 벤다
+                p.dash_strike_queued = False
+                p.weapon.resolve_dash_strike(p.dash_strike_enhanced)
 
 
 class Hit(_State):
@@ -203,6 +211,10 @@ class Player(TileBody):
         self.attack_held = False         # 좌클릭을 누르고 있으면 쿨타임마다 이어서 친다
         self.interact_pressed = False    # F를 눌렀다 (stage가 이번 프레임에 소비한다)
         self.dash_window = 0.0           # 대시 중이거나 막 끝난 뒤 남은 시간: 이 동안 공격하면 대시 평타
+        self.dash_origin = (x, y)        # 이번 대시를 시작한 몸 중심
+        self.last_dash_path = None       # 마지막 대시가 지나온 직선 (x0, y0, x1, y1). 대시 평타가 이 경로를 벤다
+        self.dash_strike_queued = False  # 대시 중에 평타를 눌렀다: 대시가 끝나면 지나온 경로를 벤다
+        self.dash_strike_enhanced = False
         self.shards = 0                  # 헤이즈 조각(재화). 죽으면 처음부터이므로 이번 플레이 동안만 유지
 
         # 상태 객체와 transitions 상태 머신 (Player 객체에 self.state 속성이 생긴다)

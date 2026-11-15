@@ -12,6 +12,8 @@
   pipe-slash-enhanced   강화    엇갈린 X자 두 줄기 + 몸 둘레 충격 링 + 큰 섬광 (보라, 강화 일격 1회)
   dash-strike           대시 평타  앞으로 길게 뻗는 돌진 베기 (두 줄기 + 뒤로 흐르는 속도선)
   air-spin              점프 평타  몸 둘레 한 바퀴 회전 베기 (두 겹 원)
+  air-spin-enhanced     강화된 점프 평타  더 큰 보라색 회전 베기
+(대시 평타는 시트가 아니라 지나온 경로를 훑는 직선이라 effects.PathSlash가 코드로 그린다)
 
 그리기는 codeart2d 스킬의 fx_build.py가 하고, 이 스크립트는 스펙을 만들어 호출한 뒤 프레임을 시트로 묶는다. 팔레트 정확성과
 "궤적이 충격 프레임에서 끝난다"는 스킬의 QA가 보장한다. 이미지 모델 없이 코드로 그린 에셋이다 (문서에 code-drawn으로 표기).
@@ -55,6 +57,8 @@ SHEETS = {
                                 sparks=["#ffffff", "#e6ccff", "#a46bff"], sparks_count=14),
     "dash-strike": dict(style="dash", size=620, radius=250, width=76, ramp=["#ffffff", "#fff1b8", "#ffd35a", "#c98a1e"],
                         sparks=["#ffffff", "#fff1b8", "#ffd35a"], sparks_count=10),
+    "air-spin-enhanced": dict(style="spin", size=580, radius=176, width=96, ramp=["#ffffff", "#e6ccff", "#a46bff", "#5a2fb8"],
+                              sparks=["#ffffff", "#e6ccff", "#a46bff"], sparks_count=16, aims=[0]),
     "air-spin": dict(style="spin", size=420, radius=124, width=66, ramp=["#ffffff", "#d6f3ff", "#8fd6ff", "#4a8fd0"],
                      sparks=["#ffffff", "#d6f3ff", "#8fd6ff"], sparks_count=10, aims=[0]),
 }

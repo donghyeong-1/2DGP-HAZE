@@ -106,6 +106,50 @@ class SheetEffect:
         assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '', s)
 
 
+# 직선 베기 색 (밝음 -> 어두움): 대시 평타는 금색, 강화는 보라+흰 코어
+PATH_COLORS = {False: [(255, 255, 255), (255, 241, 184), (255, 211, 90), (201, 138, 30)],
+               True: [(255, 255, 255), (230, 204, 255), (164, 107, 255), (90, 47, 184)]}
+
+
+class PathSlash:
+    """대시로 지나온 자리를 한 줄로 가르는 직선 베기. 코드로 그리는 픽셀 선이다 (확대·회전 없음, 사각 블록을 이어 붙임).
+
+    중간이 두껍고 양 끝이 가늘며, 바깥에서 안쪽으로 4톤(어두움 -> 흰 코어)이 겹치고 시간이 지나며 가늘어지고 어두워진다.
+    """
+
+    def __init__(self, x0, y0, x1, y1, enhanced=False, life=0.32):
+        self.p0, self.p1 = (x0, y0), (x1, y1)
+        self.enhanced = enhanced
+        self.life, self.time = life, 0.0
+        self.name = 'path-slash'
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        (x0, y0), (x1, y1) = self.p0, self.p1
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 1:
+            return
+        t = self.time / self.life
+        base = (44 if self.enhanced else 30) * (1.0 - t) ** 0.8 + 2
+        colors = PATH_COLORS[self.enhanced]
+        # 바깥(어두움) -> 코어(흰색) 순서로 점점 가늘게 덧그린다
+        for layer, (color, scale) in enumerate(zip(reversed(colors), (1.0, 0.72, 0.46, 0.22))):
+            step = 5
+            n = max(2, int(length // step))
+            for i in range(n + 1):
+                s = i / n
+                taper = math.sin(math.pi * min(1.0, max(0.0, s))) ** 0.6          # 양 끝은 가늘다
+                size = int(base * scale * max(0.18, taper))
+                if size < 2:
+                    continue
+                cx, cy = x0 + (x1 - x0) * s, y0 + (y1 - y0) * s
+                assets.draw_rect_color(int(round(cx - size / 2)), int(round(cy - size / 2)), size, size, color)
+
+
 class FloatText:
     """게이지 증감 같은 짧은 글자. 위로 떠오르며 사라진다."""
 
@@ -143,19 +187,26 @@ def slash_sheet(zone, finisher=False, enhanced=False):
     return config.ZONE_FX[zone]['slash']
 
 
-def special_sheet(kind):
-    """대시 평타·점프 평타의 효과 시트: (시트 이름, 방향 변형이 있는가)."""
-    return {'dash': ('dash-strike', True), 'plunge': ('dash-strike', True), 'spin': ('air-spin', False)}[kind]
+def special_sheet(kind, enhanced=False):
+    """점프 평타·내려찍기의 효과 시트: (시트 이름, 방향 변형이 있는가). 강화되면 보라색 큰 시트로 바뀐다.
+    (대시 평타는 시트가 아니라 지나온 경로를 훑는 PathSlash 직선이다.)"""
+    if kind == 'spin':
+        return ('air-spin-enhanced' if enhanced else 'air-spin', False)
+    if kind == 'plunge':
+        return ('pipe-slash-enhanced' if enhanced else 'dash-strike', True)
+    raise KeyError(kind)
+
+
+def spawn_path_slash(x0, y0, x1, y1, enhanced=False):
+    game_world.add_object(PathSlash(x0, y0, x1, y1, enhanced), game_world.LAYER_EFFECT)
 
 
 def aura_names(zone, enhanced=False):
-    """지금 게이지 구간과 강화 상태에서 주인공 주위에 그릴 오라 시트들 (뒤에서 앞 순서)."""
-    names = []
-    if zone in config.AURA_BY_ZONE:
-        names.append(config.AURA_BY_ZONE[zone])
+    """지금 게이지 구간과 강화 상태에서 주인공 주위에 그릴 오라 시트들. 강화 준비 중에는 보라색 강화 오라가 구간 오라를
+    대체한다 (두 오라는 모두 실루엣을 감싸는 큰 불꽃이라 겹치면 지저분하다)."""
     if enhanced:
-        names.append(config.AURA_ENHANCED)
-    return names
+        return [config.AURA_ENHANCED]
+    return [config.AURA_BY_ZONE[zone]] if zone in config.AURA_BY_ZONE else []
 
 
 def draw_loop(name, x, y, t, flip=False):

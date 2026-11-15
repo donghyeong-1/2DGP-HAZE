@@ -115,10 +115,11 @@ class GameUI:
         _frame(px, py, pw, ph, 'px_black', border='px_gray', thickness=3)
         assets.draw_text(px + 24, py + ph - 26, '철파이프', WHITE)
         kind = w.current_kind()
-        names = {'pipe': ('기본 3연타', DIM), 'dash': ('대시 평타: 돌진 베기', (255, 225, 120)),
-                 'spin': ('점프 평타: 회전 베기', (170, 225, 255)), 'plunge': ('내려찍기', (170, 225, 255)),
-                 'enhanced': ('강화 일격!', (225, 190, 255))}
+        names = {'pipe': ('기본 3연타', DIM), 'dash': ('대시 평타: 지나온 길 베기', (255, 225, 120)),
+                 'spin': ('점프 평타: 회전 베기', (170, 225, 255)), 'plunge': ('내려찍기', (170, 225, 255))}
         text, color = names[kind]
+        if g.enhanced:                                   # 강화는 지금 나가는 공격에 얹힌다
+            text, color = '강화 ' + text.split(':')[0], (225, 190, 255)
         assets.draw_text(px + 24, py + 24, text, color, small=True)
         # 콤보 3칸: 이어 칠수록 켜지고 3타(마무리)는 주황
         for i in range(3):

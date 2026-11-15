@@ -1,119 +1,198 @@
-"""주인공 주변 오라(게이지 구간별)와 오버로드 폭발을 codeart2d 스킬의 fx.v1 경로로 만들어 assets/effects/ 에 묶는다.
+"""주인공 오라(게이지 구간별)와 오버로드 폭발을 코드로 그려 codeart2d 스킬로 검사·렌더링해 assets/effects/ 에 묶는다.
 
-게이지 구간마다 주인공 **몸 한가운데에서 기운이 흘러나오는** 모양이 다르다 (docs/기획서.md 5.12). 발밑에 깔리는 링이 아니라
-몸을 중심으로 사방으로 뻗는 기운, 위로 솟는 불꽃, 안으로 빨려 드는 기운이다.
-  aura-fade      페이드(1~19%): 몸에서 기운이 힘없이 **빨려 나간다**(바깥에서 안으로 흩어지는 어두운 줄기)
-  aura-awake     각성(50~89%): 몸 중심의 별빛이 맥동하며 **청록 기운이 사방으로 뻗고** 위로 피어오른다
-  aura-critical  위험(90~99%): 별빛이 크게 터지며 **주황 기운이 거세게 분출**하고 몸을 따라 불꽃이 솟는다
-  aura-enhanced  E 강화 준비: 보라색 기운이 **몸으로 모여든다**(강화 일격 1회를 충전 중)
-  overload-burst 오버로드 폭발 한 번 (게이지 100%)
+오라는 **캐릭터 실루엣을 따라 일렁이는 큰 기운**이다 (드래곤볼의 기, 던그리드·데드셀 류 화염 오라처럼 몸 윤곽에서 불꽃 혀가 위로
+피어오르는 모양). 발밑 링이나 먼지 몇 개가 아니라 다음 방식으로 만든다:
+  1. 주인공 스프라이트(n09_idle.png)의 알파를 실루엣 마스크로 쓴다. 위로 번지게 늘린 마스크까지의 거리장을 구한다.
+  2. 위로 흘러 올라가는 주기적 노이즈(fBm)로 반지름을 일렁이게 해서 가는 끝을 가진 **불꽃 혀**를 만든다 (시간이 한 바퀴 돌면
+     노이즈가 정확히 한 주기 이동하므로 반복이 매끄럽게 닫힌다).
+  3. 세기를 4톤 + 베이어 디더링으로 양자화해 도트 질감을 낸다. 몸 가까이는 밝은 림 라이트, 바깥은 어두운 끝.
+  4. 불씨 입자가 위로 떠올라 사라진다. 발밑에는 납작한 지면 광채.
+구간마다 모양이 다르다 (docs/기획서.md 5.12):
+  aura-fade      페이드(1~19%): 작고 흐릿한 적갈색 기운이 **몸으로 빨려 들어가듯** 아래로 흩어짐
+  aura-awake     각성(50~89%): 청록 불꽃이 몸을 감싸고 머리 위로 피어오름
+  aura-critical  위험(90~99%): 크고 거센 주황 화염, 흩날리는 불씨, 발밑 지면 광채
+  aura-enhanced  E 강화 준비: 보라색 기운이 소용돌이치며 **몸으로 모여든다**
+  overload-burst 오버로드 폭발 한 번 (codeart2d fx_build)
 노멀(20~49%)은 오라가 없다. 오라는 반복(loop) 재생이며 발 아래 중앙이 기준점(pivot)이다.
 
-이미지 모델 없이 코드로 그린 에셋이다 (codeart2d 스킬 fx_build.py, 문서에 code-drawn으로 표기).
-사용: python tools/make_aura.py [이름 ...]   (굽는 데 몇 분 걸린다)
+그림은 PixelSpec(codeart2d.pixelspec.v1)으로 만들어 스킬의 render_pixelspec.py에 넣는다: 팔레트 정확성(알파 0/255, 팔레트 밖 색 0)을
+스킬이 검사한다(--strict-qc). 이미지 모델 없이 코드로 그린 에셋이다 (문서에 code-drawn으로 표기).
+참고 방향: 픽셀 아트 화염 오라 에셋팩들(OpenGameArt fire aura 128x128 14프레임 반복, 에너지 오라 56x56 팩)의 크기·프레임 수와
+"몸 윤곽에서 위로 번지는 불꽃" 구성을 참고했다. 도면을 옮긴 것은 없다.
+
+사용: python tools/make_aura.py [이름 ...]
 """
 import json
+import math
 import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "effects"
+SPRITE = ROOT / "assets" / "sprites" / "unified" / "n09_idle.png"
 SKILL_CANDIDATES = [Path.home() / ".claude" / "skills" / "codeart2d", Path.home() / ".codex" / "skills" / "codeart2d"]
-SKILL = next((p for p in SKILL_CANDIDATES if (p / "scripts" / "fx_build.py").exists()), SKILL_CANDIDATES[0])
+SKILL = next((p for p in SKILL_CANDIDATES if (p / "scripts" / "render_pixelspec.py").exists()), SKILL_CANDIDATES[0])
 
-W, H = 380, 440                 # 오라 캔버스. 기준점은 발 아래 중앙. 몸 중심에서 사방으로 뻗는 줄기 여유를 둔다
-OX, OY = 190, 306
-INK = "#0b1020"
-PERIOD = 800                    # 오라 한 바퀴(ms). 두 번 맥동한다
-FRAME_MS = 50
-BODY = OY - 66                  # 몸 한가운데 (가슴) 높이: 기운이 여기서 흘러나온다
-import math
-
-
-def sparks(colors, origin, at, count, angle, spread, speed, life, length, gravity=0):
-    return {"type": "sparks", "colors": colors, "origin": origin, "atMs": at, "count": count, "angle": angle,
-            "spread": spread, "speed": speed, "lifeMs": life, "length": length, "width": 2, "gravity": gravity}
+W, H = 240, 320            # 오라 캔버스(1배). 캐릭터는 42x125라 사방으로 큼직하게 번진다
+FEET = 296                 # 발 아래 모서리 줄 (아래 여유는 지면 광채)
+CX = W // 2
+FRAMES = 16
+PERIOD_MS = 800
+BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
 
 
-def ring(colors, origin, at, radius, width, squash=1.0, life=420):
-    return {"type": "ring", "colors": colors, "origin": origin, "atMs": at, "lifeMs": life, "radius": radius,
-            "width": width, "squash": squash}
+# ----- 노이즈 -----
+def _table(seed, rows, cols):
+    return np.random.default_rng(seed).random((rows, cols))
 
 
-def star(colors, at, radius, rays, ray_length, life=420):
-    return {"type": "flash", "colors": colors, "origin": [OX, BODY], "atMs": at, "radius": radius, "rays": rays,
-            "rayLength": ray_length, "lifeMs": life}
+def vnoise(xs, ys, cell, rows, seed, scroll, stretch=1.0):
+    """y 방향으로 rows칸 주기인 값 노이즈. scroll(칸)만큼 위로 흘러간다. rows칸 이동하면 정확히 같은 모양이 된다."""
+    tbl = _table(seed, rows, 64)
+    gx = xs / (cell / stretch)                 # stretch > 1이면 가로를 촘촘하게 = 세로로 긴 줄기(불꽃 혀)
+    gy = ys / (cell * stretch) + scroll
+    x0, y0 = np.floor(gx).astype(int), np.floor(gy).astype(int)
+    fx, fy = gx - x0, gy - y0
+    sx, sy = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy)
+
+    def at(ix, iy):
+        return tbl[iy % rows, ix % 64]
+    top = at(x0, y0) * (1 - sx) + at(x0 + 1, y0) * sx
+    bot = at(x0, y0 + 1) * (1 - sx) + at(x0 + 1, y0 + 1) * sx
+    return top * (1 - sy) + bot * sy
 
 
-def inward(colors, count_dirs, dist, at, speed, life, length, per=3):
-    """바깥 고리 위에서 몸 중심으로 향하는 줄기들 (기운이 빨려 나가거나 모여드는 모양)."""
-    out = []
-    for k in range(count_dirs):
-        deg = k * 360 / count_dirs + (at / 400) * 20
-        o = [round(OX + dist * math.cos(math.radians(deg)), 1), round(BODY + dist * 0.9 * math.sin(math.radians(deg)), 1)]
-        out.append(sparks(colors, o, at, per, deg + 180, 14, speed, life, length))
+def fbm(xs, ys, t, seed, rising=1, stretch=1.0):
+    """세 옥타브. 한 바퀴(t=1)에 각 옥타브가 자기 주기(rows칸)를 정수 번 이동한다. rising이 -1이면 아래로 흘러간다."""
+    total, weight, norm = 0.0, 0.5, 0.0
+    for octave, (cell, rows, wraps) in enumerate(((46, 8, 1), (23, 8, 2), (11.5, 8, 4))):
+        total += weight * vnoise(xs, ys, cell, rows, seed + octave, rising * t * rows * wraps, stretch)
+        norm += weight
+        weight *= 0.55
+    return total / norm
+
+
+# ----- 실루엣 -----
+def silhouette_mask():
+    im = Image.open(SPRITE).convert("RGBA")
+    mask = np.zeros((H, W), dtype=bool)
+    a = np.array(im)[:, :, 3] > 0
+    h, w = a.shape
+    mask[FEET - h + 2:FEET + 2, CX - w // 2:CX - w // 2 + w] = a        # 스프라이트 아래 여백 1~2px를 발 줄에 맞춘다
+    return mask
+
+
+def smear_up(mask, k, step=2):
+    """실루엣을 위로 k픽셀까지 늘린 마스크 (불꽃이 머리 위로 피어오르는 길)."""
+    out = mask.copy()
+    for s in range(step, k + 1, step):
+        out[:-s] |= mask[s:]
     return out
 
 
-AURAS = {
-    "aura-fade": dict(
-        palette={"a": "#c9a3b8", "b": "#8a4a63", "c": "#52293f", "d": "#2c1626"},
-        primitives=[
-            *inward(["a", "b", "c"], 7, 120, 0, 280, 420, 12), *inward(["a", "b", "c"], 7, 120, 400, 280, 420, 12),
-            {"type": "dust", "colors": ["b", "c", "d"], "origin": [OX, BODY + 30], "count": 5, "spread": 40, "rise": 10,
-             "drift": 6, "radius": [3, 6], "lifeMs": 790},
-        ]),
-    "aura-awake": dict(
-        palette={"a": "#f4fff9", "b": "#a2f7d2", "c": "#3fd6a4", "d": "#1f8a78"},
-        primitives=[
-            star(["a", "b", "c"], 0, 14, 8, 78), star(["a", "b", "c"], 400, 14, 8, 78),
-            sparks(["a", "b", "c"], [OX, BODY], 0, 14, 0, 360, 300, 420, 22),
-            sparks(["a", "b", "c"], [OX, BODY], 400, 14, 0, 360, 300, 420, 22),
-            ring(["b", "c", "d"], [OX, BODY], 0, [20, 130], [5, 1], 1.25),
-            ring(["b", "c", "d"], [OX, BODY], 400, [20, 130], [5, 1], 1.25),
-            {"type": "dust", "colors": ["a", "b", "c", "d"], "origin": [OX, BODY + 10], "count": 8, "spread": 44, "rise": 110,
-             "drift": 8, "radius": [3, 7], "lifeMs": 790},
-        ]),
-    "aura-critical": dict(
-        palette={"a": "#fff4d6", "b": "#ffb347", "c": "#ff5a2e", "d": "#a3262a"},
-        primitives=[
-            star(["a", "b", "c"], 0, 20, 10, 118), star(["a", "b", "c"], 400, 20, 10, 118),
-            sparks(["a", "b", "c"], [OX, BODY], 0, 26, 0, 360, 340, 420, 28),
-            sparks(["a", "b", "c"], [OX, BODY], 400, 26, 0, 360, 340, 420, 28),
-            ring(["b", "c", "d"], [OX, BODY], 0, [24, 150], [8, 1], 1.2),
-            ring(["b", "c", "d"], [OX, BODY], 400, [24, 150], [8, 1], 1.2),
-            {"type": "dust", "colors": ["a", "b", "c", "d"], "origin": [OX, OY - 6], "count": 16, "spread": 66, "rise": 215,
-             "drift": 16, "radius": [7, 15], "lifeMs": 790},
-            sparks(["a", "b"], [OX, BODY - 60], 0, 10, -90, 60, 360, 420, 24),
-            sparks(["a", "b"], [OX, BODY - 60], 400, 10, -90, 60, 360, 420, 24),
-        ]),
-    "aura-enhanced": dict(
-        palette={"a": "#ffffff", "b": "#e6ccff", "c": "#a46bff", "d": "#5a2fb8"},
-        primitives=[
-            *inward(["a", "b", "c"], 9, 150, 0, 380, 420, 16, per=4), *inward(["a", "b", "c"], 9, 150, 400, 380, 420, 16, per=4),
-            star(["a", "b", "c"], 0, 10, 6, 46), star(["a", "b", "c"], 400, 10, 6, 46),
-            ring(["b", "c", "d"], [OX, BODY], 0, [10, 60], [6, 1], 1.3), ring(["b", "c", "d"], [OX, BODY], 400, [10, 60], [6, 1], 1.3),
-        ]),
+# ----- 구간별 설정 -----
+# ramp: 밝음 -> 어두움 4톤, ember: 불씨 색. r0: 몸 둘레 기본 반지름(px), smear: 위로 번지는 길이(px)
+STYLES = {
+    "aura-fade": dict(kind="flame", ramp=["#d7bccb", "#9d6a80", "#6a3f55", "#3a2233"], ember="#d7bccb", r0=24, vscale=0.8, stretch=1.6,
+                      amp=0.8, bias=0.1, rising=-1, embers=10, ember_rise=-46, ember_size=1, ground=0.5, gain=1.0, seed=11),
+    "aura-awake": dict(kind="flame", ramp=["#f4fff9", "#a2f7d2", "#3fd6a4", "#1f8a78"], ember="#f4fff9", r0=26, vscale=0.42, stretch=2.4,
+                       amp=0.95, bias=0.45, rising=1, embers=16, ember_rise=120, ember_size=1, ground=0.7, gain=1.0, seed=23),
+    "aura-critical": dict(kind="flame", ramp=["#fff4d6", "#ffb347", "#ff5a2e", "#a3262a"], ember="#ffe9a8", r0=30, vscale=0.52, stretch=2.6,
+                          amp=1.15, bias=0.7, rising=1, embers=34, ember_rise=170, ember_size=2, ground=1.0, gain=1.15, seed=37),
+    "aura-enhanced": dict(kind="spiral", ramp=["#ffffff", "#e6ccff", "#a46bff", "#5a2fb8"], ember="#ffffff", r0=40, vscale=0.62, stretch=1.5,
+                          amp=0.9, bias=0.35, rising=1, embers=26, ember_rise=-110, ember_size=1, ground=0.6, gain=1.15, seed=51),
 }
+PALETTE_CHARS = "abcd"      # 4톤. 불씨는 e
 
-BURST = dict(size=460, palette={"a": "#ffffff", "b": "#fff1a6", "c": "#ffb347", "d": "#ff5a2e"})
+
+def draw_frame(cfg, mask, d, frame):
+    """한 프레임의 팔레트 인덱스 배열 (0 투명, 1~4 톤, 5 불씨)."""
+    t = frame / FRAMES
+    ys, xs = np.mgrid[0:H, 0:W].astype(float)
+    n = fbm(xs, ys, t, cfg["seed"], cfg["rising"], cfg["stretch"])
+    height = np.clip((FEET - ys) / 125.0, 0, 1.6)                       # 발 위 높이(몸 키 단위)
+    radius = cfg["r0"] * (0.25 + cfg["amp"] * n * n * 2.2) * (0.7 + cfg["bias"] * height)     # 노이즈를 제곱해 혀와 틈이 뚜렷하게
+    a = np.clip(1.0 - d / np.maximum(radius, 1e-3), 0, 1) ** 1.25
+    if cfg["kind"] == "spiral":                                          # 몸으로 모여드는 소용돌이 줄기
+        yc = FEET - 62
+        theta = np.arctan2((ys - yc) * 0.8, xs - CX)
+        r = np.hypot(xs - CX, (ys - yc) * 0.8)
+        streak = 0.5 + 0.5 * np.sin(5 * theta + r * 0.09 + 2 * math.pi * t * 2)      # r이 클수록 위상이 앞서 안쪽으로 흐른다
+        a = a * (0.12 + 1.2 * streak ** 1.5)                              # 줄기가 뚜렷하게 보이도록 대비를 키운다
+        a = np.maximum(a, np.clip(1.0 - d / (cfg["r0"] * 0.32), 0, 1) * 0.7)           # 몸 가까이는 은은한 림 라이트
+    a = np.clip(a * cfg["gain"], 0, 1)
+    dither = (BAYER[ys.astype(int) % 4, xs.astype(int) % 4] - 0.5) * 0.16
+    v = a + dither * (a > 0)
+    tone = np.zeros((H, W), dtype=np.uint8)
+    tone[(a > 0.02) & (v > 0.04)] = 4
+    tone[v > 0.2] = 3
+    tone[v > 0.46] = 2
+    tone[v > 0.78] = 1
+    tone[mask] = 0                                                        # 몸 안쪽은 비운다 (스프라이트가 위에 그려진다)
+    # 지면 광채: 발밑의 납작한 타원
+    gy = (ys - (FEET + 1)) / 9.0
+    gx = (xs - CX) / (42 + 40 * cfg["ground"])
+    ground = np.clip(1.0 - (gx * gx + gy * gy), 0, 1) * cfg["ground"]
+    gt = (ground + dither * (ground > 0)) > 0.34
+    tone[gt & (tone == 0)] = 3
+    tone[(ground + dither) > 0.7] = 2
+    # 불씨: 위(또는 아래)로 떠오르며 사라진다. 한 바퀴에 한 번 올라가고 80%만 보여서 다시 시작하는 순간이 안 보인다
+    rng = np.random.default_rng(cfg["seed"] * 7)
+    for i in range(cfg["embers"]):
+        ex = CX + rng.normal(0, 34)
+        ey = FEET - rng.uniform(8, 120)
+        phase = rng.random()
+        prog = (t + phase) % 1.0
+        if prog > 0.8:
+            continue
+        px = int(round(ex + 6 * math.sin(2 * math.pi * (prog + phase) * 1.5 + i)))
+        py = int(round(ey - cfg["ember_rise"] * prog))
+        size = cfg["ember_size"] if prog < 0.55 else 1
+        if 0 <= px < W - size and 0 <= py < H - size and not mask[py, px]:
+            tone[py:py + size, px:px + size] = 5
+    return tone
 
 
-def run_fx(spec, tmp):
-    spec_path = Path(tmp) / "spec.fx.json"
-    spec_path.write_text(json.dumps(spec, indent=1), encoding="utf-8")
-    out = Path(tmp) / "out"
-    cmd = [sys.executable, str(SKILL / "scripts" / "fx_build.py"), "--spec", str(spec_path), "--output-dir", str(out),
-           "--route", "pixel", "--strict-qc"]
+def to_segments(tone):
+    """팔레트 인덱스 배열을 PixelSpec 세그먼트(줄마다 '13.6a13.' 형식)로 바꾼다."""
+    chars = ".abcde"
+    rows = []
+    for row in tone:
+        out, run, cur = [], 0, None
+        for v in row:
+            if v == cur:
+                run += 1
+                continue
+            if cur is not None:
+                out.append((f"{run}" if run > 1 else "") + chars[cur])
+            cur, run = v, 1
+        out.append((f"{run}" if run > 1 else "") + chars[cur])
+        rows.append("".join(out))
+    return rows
+
+
+def make_spec(name, cfg, frames):
+    palette = {c: col for c, col in zip(PALETTE_CHARS, cfg["ramp"])}
+    palette["e"] = cfg["ember"]
+    layers = [{"name": "aura", "origin": [0, 0], "segments": to_segments(frames[0])}]
+    fl = [{"name": f"f{i:02d}", "layers": {"aura": {"segments": to_segments(f)}}} for i, f in enumerate(frames)]
+    return {"schema": "codeart2d.pixelspec.v1", "name": name, "canvas": [W, H], "anchor_px": [CX, FEET],
+            "palette": palette, "layers": layers, "frames": fl}
+
+
+def run_skill(script, args, tmp):
+    cmd = [sys.executable, str(SKILL / "scripts" / script), *args]
     result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", env={**os.environ, "PYTHONUTF8": "1"})
     if result.returncode != 0:
-        sys.exit(result.stdout + result.stderr)
-    return out
+        sys.exit(f"{script}: " + result.stdout + result.stderr)
+    return result.stdout
 
 
 def pack(name, frames, size, pivot, loop, fps):
@@ -125,19 +204,31 @@ def pack(name, frames, size, pivot, loop, fps):
     sheet.save(OUT / f"{name}.png")
     meta = {"id": f"aura/{name}", "frames": len(frames), "frameSize": list(size), "columns": cols, "fps": fps,
             "loop": loop, "pivot": list(pivot), "scale": 1,
-            "source": "codeart2d fx_build.py (code-drawn, no image model), tools/make_aura.py"}
+            "source": "tools/make_aura.py (code-drawn silhouette flame, codeart2d render_pixelspec QA, no image model)"}
     (OUT / f"{name}.json").write_text(json.dumps(meta, indent=1) + "\n", encoding="utf-8")
     print("saved", name, sheet.size, len(frames), "frames")
 
 
-def build_aura(name, cfg):
-    spec = {"schema": "codeart2d.fx.v1", "canvas": [W, H], "origin": [OX, OY], "palette": {**cfg["palette"], "ink": INK},
-            "effects": [{"id": "a", "durationMs": PERIOD, "impactMs": 0, "frameMs": FRAME_MS, "seed": 5, "loop": True,
-                         "outline": "ink", "primitives": cfg["primitives"]}]}
+def build_aura(name):
+    cfg = STYLES[name]
+    mask = silhouette_mask()
+    d = ndimage.distance_transform_edt(~mask, sampling=(cfg["vscale"], 1.0))     # 세로 거리를 줄여 불꽃이 위아래로 길게 닿는다
+    frames = [draw_frame(cfg, mask, d, i) for i in range(FRAMES)]
+    spec = make_spec(name, cfg, frames)
     with tempfile.TemporaryDirectory() as tmp:
-        out = run_fx(spec, tmp)
-        frames = [Image.open(f).convert("RGBA") for f in sorted((out / "frames").glob("a-*.png"))]
-    pack(name, frames, (W, H), (OX, OY), True, round(1000 / FRAME_MS))
+        spec_path = Path(tmp) / f"{name}.pixelspec.json"
+        spec_path.write_text(json.dumps(spec), encoding="utf-8")
+        out = Path(tmp) / "out"
+        run_skill("render_pixelspec.py", ["--spec", str(spec_path), "--output-dir", str(out), "--strict-qc"], tmp)
+        files = sorted(out.rglob("f*.png"))
+        images = [Image.open(f).convert("RGBA") for f in files]
+    assert len(images) == FRAMES, f"프레임 수가 다르다: {len(images)} (같은 프레임은 한 번만 저장되므로 디자인을 확인)"
+    pack(name, images, (W, H), (CX, FEET), True, round(1000 / (PERIOD_MS / FRAMES)))
+
+
+# ----- 오버로드 폭발 (fx_build) -----
+BURST = dict(size=460, palette={"a": "#ffffff", "b": "#fff1a6", "c": "#ffb347", "d": "#ff5a2e"})
+INK = "#0b1020"
 
 
 def build_burst():
@@ -153,20 +244,23 @@ def build_burst():
                              {"type": "sparks", "colors": ["a", "b", "c"], "origin": [c, c], "count": 30, "spread": 360,
                               "speed": 420, "lifeMs": 480, "length": 20, "width": 3}]}]}
     with tempfile.TemporaryDirectory() as tmp:
-        out = run_fx(spec, tmp)
+        spec_path = Path(tmp) / "spec.fx.json"
+        spec_path.write_text(json.dumps(spec, indent=1), encoding="utf-8")
+        out = Path(tmp) / "out"
+        run_skill("fx_build.py", ["--spec", str(spec_path), "--output-dir", str(out), "--route", "pixel", "--strict-qc"], tmp)
         frames = [Image.open(f).convert("RGBA") for f in sorted((out / "frames").glob("b-*.png"))]
     pack("overload-burst", frames, (size, size), (size // 2, size // 2), False, 25)
 
 
 def main():
-    if not (SKILL / "scripts" / "fx_build.py").exists():
+    if not (SKILL / "scripts" / "render_pixelspec.py").exists():
         sys.exit(f"codeart2d 스킬이 없습니다: {SKILL} (docs/SETUP.md의 agent-sprite-forge 설치 참고)")
-    wanted = sys.argv[1:] or [*AURAS, "overload-burst"]
+    wanted = sys.argv[1:] or [*STYLES, "overload-burst"]
     for name in wanted:
         if name == "overload-burst":
             build_burst()
         else:
-            build_aura(name, AURAS[name])
+            build_aura(name)
 
 
 if __name__ == "__main__":

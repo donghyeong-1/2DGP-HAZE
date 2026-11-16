@@ -36,6 +36,9 @@ AFTERIMAGE_ALPHA_STEPS = (0.60, 0.38, 0.18)  # 수명을 3등분해 단계별로
 
 # 플레이어
 PLAYER_HP = 100
+WALK_FRAMES = 4          # 걷기 프레임 수 (assets/sprites/unified/n09_walk_1~4.png, 발 기준점 x=37)
+WALK_PIVOT_X = 37        # 걷기 프레임에서 발 중앙의 x (캔버스 86px 기준)
+WALK_FRAME_PX = 56.0     # 걷기 프레임 한 장이 지나가는 이동 거리(px). 달리는 속도에 맞춰 발이 바닥을 미끄러지지 않게 한다
 SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(px). 그릴 때 이만큼 내려 바닥에 붙인다
 PLAYER_HB_W = 42           # 충돌 박스 너비
 PLAYER_HB_H = 108          # 충돌 박스 높이 (스프라이트 키 123px의 약 88%)

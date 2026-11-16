@@ -770,6 +770,28 @@ def test_dash_aimed_down_on_solid_ground_becomes_a_horizontal_dash():
     run_frames(15)
     assert abs(p.x - x0) > 150 and p.on_ground                         # 바닥에 박히지 않고 옆으로 대시한다
 
+
+def test_walk_phase_advances_with_distance_and_resets_when_stopped():
+    room, p = make_world()
+    p.right = True
+    run_frames(30)
+    assert p.state == 'RUN' and p.walk_phase > 1.5                       # 달리면 걷기 프레임이 넘어간다
+    assert abs(p.walk_phase - (p.x - 300.0) / config.WALK_FRAME_PX) < 1.0   # 이동 거리에 비례 (발이 미끄러지지 않는다)
+    p.right = False
+    run_frames(10)
+    assert p.walk_phase == 0.0                                            # 멈추면 첫 프레임부터 다시
+
+
+def test_walk_frames_and_remade_enemy_sprites_are_in_place():
+    from PIL import Image
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
+    for i in range(1, config.WALK_FRAMES + 1):
+        im = Image.open(os.path.join(base, f'n09_walk_{i}.png'))
+        assert im.size[1] == 125 and 0 < config.WALK_PIVOT_X < im.size[0]
+    for name, height in (('enemy_slum', 119), ('enemy_thrower', 125), ('enemy_guard', 137), ('enemy_hound', 83),
+                         ('boss_crasher', 197), ('boss_ark', 161)):
+        assert Image.open(os.path.join(base, name + '_idle.png')).size[1] == height, name
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

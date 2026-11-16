@@ -96,3 +96,4 @@
 2026-11-16 [Claude Code] 타수 증가(구간·강화별 추가 타격 ExtraHits), 아래로 겨눈 대시(얇은 발판 통과/단단한 바닥은 수평), 방 12개 구조 재설계(tools/build_rooms.py)와 자동 타일링 타일 세트·뒷벽·소품·배경 6테마 재제작(tools/make_tiles_hq.py), Room 겉모습 계산·테마, 테스트 추가 / src/(weapon, player, room, stage, config, title_mode, ending_mode), data/rooms/*, data/stages/stage1.py, tools/*, assets/tiles/tile_set_*, assets/backgrounds/*, tests/*, docs/*
 
 2026-11-16 [Codex] Claude Code의 호환 스킬 9개 설치, T04 걷기 4프레임과 T06 배경판 3종 제작·검사 / assets/sprites/forge/, docs/codex/reports/T04.md, docs/codex/reports/T06.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
+2026-11-16 [Claude Code] Codex T02·T03 재제작 적·보스 6종과 T04 걷기 4프레임을 게임에 적용(player._body_image, WALK_*), 테스트 2개 추가 / src/(player, config), assets/sprites/unified/*, tests/test_combat.py, docs/*

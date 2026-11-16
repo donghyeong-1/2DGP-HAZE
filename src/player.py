@@ -194,6 +194,7 @@ class Player(TileBody):
         self.overload_mult = 1.0       # 오버로드 피해 배율
         self.items = []                # 가진 아이템 id 목록
         self.aura_time = 0.0           # 오라 반복 재생 시간
+        self.walk_phase = 0.0          # 걷기 프레임 위상 (이동한 거리에 비례, 멈추면 0)
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
@@ -416,6 +417,10 @@ class Player(TileBody):
         self._recharge_dash(dt)
         self._sync_mouse()
         self.aura_time += dt
+        if self.state == 'RUN' and self.on_ground:
+            self.walk_phase += abs(self.vx) * dt / config.WALK_FRAME_PX
+        else:
+            self.walk_phase = 0.0
         if self._was_stunned and not self.stunned and self.state != 'DEAD':   # 기절에서 깨어나는 순간
             effects.spawn('poof', self.x, self.y + 10, duration=0.5)
             effects.add_trauma(0.2)
@@ -485,9 +490,19 @@ class Player(TileBody):
             self.dash_slots += 1
 
     # ----- 그리기 -----
+    def _body_image(self):
+        """지금 그릴 몸 이미지와 발 기준점을 맞추는 가로 보정(dx). 달리는 중에는 걷기 4프레임, 아니면 대기 이미지."""
+        import assets
+        if self.state == 'RUN' and self.on_ground and not self.stunned:
+            img = assets.image(f'sprites/unified/n09_walk_{int(self.walk_phase) % config.WALK_FRAMES + 1}.png')
+            if self.face_dir < 0:      # 좌우 반전하면 발 기준점도 반대편으로 옮겨진다
+                return img, img.w // 2 - (img.w - 1 - config.WALK_PIVOT_X)
+            return img, img.w // 2 - config.WALK_PIVOT_X
+        return assets.image('sprites/unified/n09_idle.png'), 0
+
     def draw(self):
         import assets
-        img = assets.image('sprites/unified/n09_idle.png')
+        img, dx = self._body_image()
         steps = config.AFTERIMAGE_ALPHA_STEPS
         for gx, gy, gdir, left in self.afterimages:  # 오래된 것부터 그려 새 잔상이 위에 온다
             age = 1.0 - left / config.AFTERIMAGE_LIFE
@@ -504,11 +519,11 @@ class Player(TileBody):
             if stunned:                                 # 기절: 몸이 덜덜 떨리고 노랗게 번쩍인다
                 jx = int(round(3 * math.sin(self.aura_time * 95)))
                 if int(self.aura_time * 18) % 2 == 0:
-                    assets.draw_image_tinted(img, self.x + jx, self.y - config.SPRITE_FOOT_MARGIN, flip, (255, 240, 140), 1.0)
+                    assets.draw_image_tinted(img, self.x + jx + dx, self.y - config.SPRITE_FOOT_MARGIN, flip, (255, 240, 140), 1.0)
                 else:
-                    assets.draw_image(img, self.x + jx, self.y - config.SPRITE_FOOT_MARGIN, flip)
+                    assets.draw_image(img, self.x + jx + dx, self.y - config.SPRITE_FOOT_MARGIN, flip)
             else:
-                assets.draw_image(img, self.x, self.y - config.SPRITE_FOOT_MARGIN, flip)
+                assets.draw_image(img, self.x + dx, self.y - config.SPRITE_FOOT_MARGIN, flip)
         if config.DEBUG:
             self._draw_debug()
 

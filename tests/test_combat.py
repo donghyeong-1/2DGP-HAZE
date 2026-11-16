@@ -786,6 +786,8 @@ def test_walk_frames_and_remade_enemy_sprites_are_in_place():
     from PIL import Image
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
     for prefix, (count, px, py) in config.PLAYER_FRAMES.items():
+        if 'swing' in prefix:                       # 공격 자세는 방향마다 캔버스가 달라 따로 검사한다
+            continue
         for i in range(1, count + 1):
             im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
             assert im.size[1] in (125, 127) and 0 < px < im.size[0] and 0 < py <= im.size[1], (prefix, i)
@@ -812,6 +814,29 @@ def test_body_frame_follows_state():
     assert p.state == 'HIT' and p._body_frame() == ('n09_hurt', 1)                # 맞자마자 첫 프레임
     run_frames(12)
     assert p.state != 'HIT' or p._body_frame() == ('n09_hurt', 2)
+
+
+def test_attack_shows_swing_pose_by_aim_direction():
+    for aim_dy, expected in ((0.0, 'side'), (200.0, 'upfwd'), (600.0, 'up'), (-200.0, 'downfwd'), (-600.0, 'down')):
+        room, p = make_world()
+        p.mouse_x, p.mouse_y = p.x + 300, p.center[1] + aim_dy
+        assert p.request_attack()
+        assert p.swing_dir == expected, (aim_dy, p.swing_dir)
+        assert p._body_frame() == ('n09_swing_' + expected, 1)               # 준비 프레임으로 시작
+        run_frames(int(config.SWING_TIME * 60 * 0.5))
+        assert p._body_frame() == ('n09_swing_' + expected, 2)               # 타격
+        run_frames(30)
+        assert p._body_frame()[0] != 'n09_swing_' + expected                 # 끝나면 대기로 돌아간다
+
+
+def test_swing_frames_exist_for_every_direction():
+    from PIL import Image
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
+    for d in ('side', 'up', 'down', 'upfwd', 'downfwd'):
+        count, px, py = config.PLAYER_FRAMES['n09_swing_' + d]
+        for i in range(1, count + 1):
+            im = Image.open(os.path.join(base, f'n09_swing_{d}_{i}.png'))
+            assert py == im.size[1] - 1 and 0 < px < im.size[0], (d, i, im.size)
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

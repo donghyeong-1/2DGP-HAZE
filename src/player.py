@@ -195,6 +195,8 @@ class Player(TileBody):
         self.items = []                # 가진 아이템 id 목록
         self.aura_time = 0.0           # 오라 반복 재생 시간
         self.walk_phase = 0.0          # 걷기 프레임 위상 (이동한 거리에 비례, 멈추면 0)
+        self.swing_left = 0.0          # 공격 자세 남은 시간 (철파이프를 든 3프레임)
+        self.swing_dir = 'side'        # 공격 자세 방향: side / up / down / upfwd / downfwd
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
@@ -417,6 +419,7 @@ class Player(TileBody):
         self._recharge_dash(dt)
         self._sync_mouse()
         self.aura_time += dt
+        self.swing_left = max(0.0, self.swing_left - dt)
         if self.state == 'RUN' and self.on_ground:
             self.walk_phase += abs(self.vx) * dt / config.WALK_FRAME_PX
         else:
@@ -490,12 +493,29 @@ class Player(TileBody):
             self.dash_slots += 1
 
     # ----- 그리기 -----
+    def start_swing(self, ax, ay):
+        """공격 자세를 시작한다. 조준 y 성분으로 위·앞 위·수평·앞 아래·아래 중 가까운 방향을 고른다 (좌우는 반전으로 처리)."""
+        if ay > 0.85:
+            self.swing_dir = 'up'
+        elif ay > 0.35:
+            self.swing_dir = 'upfwd'
+        elif ay < -0.85:
+            self.swing_dir = 'down'
+        elif ay < -0.35:
+            self.swing_dir = 'downfwd'
+        else:
+            self.swing_dir = 'side'
+        self.swing_left = config.SWING_TIME
+
     def _body_frame(self):
         """지금 상태에 맞는 몸 이미지 이름: 달리기 걷기 4장, 서 있기 숨쉬기 4장, 공중 점프 4장, 피격 2장. 없으면 대기 한 장."""
         if self.state == 'HIT':
             return 'n09_hurt', 1 if self.hit_left > config.HIT_STUN / 2 else 2
         if self.stunned or self.state in ('DASH', 'DEAD'):
             return 'n09_idle', 0
+        if self.swing_left > 0:       # 철파이프를 휘두르는 자세: 준비 -> 타격 -> 마무리
+            done = 1.0 - self.swing_left / config.SWING_TIME
+            return 'n09_swing_' + self.swing_dir, 1 if done < 0.3 else 2 if done < 0.65 else 3
         if not self.on_ground and self.state in ('JUMP', 'FALL'):
             if self.vy > config.JUMP_RISE_VY:
                 return 'n09_jump', 2

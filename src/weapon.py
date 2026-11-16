@@ -166,6 +166,7 @@ class Pipe:
         ax, ay = p.aim_vector()
         cx, cy = p.center
         fx = self._fx(enhanced)                          # 게이지 구간(또는 강화)에 따라 모양·색·반응이 다르다
+        p.start_swing(ax, ay)                            # 철파이프를 든 공격 자세
         assets.play_sound(fx['sound'])
         variant, flip = effects.slash_variant(ax, ay)
         if enhanced:
@@ -271,6 +272,7 @@ class Pipe:
         cx, cy = p.center
         fx = self._fx(enhanced)
         assets.play_sound(fx['sound'])
+        p.start_swing(0.0, -1.0)
         sheet, _ = effects.special_sheet('plunge', enhanced)
         effects.spawn(sheet, cx, cy, duration=0.26, variant=4)             # 아래 방향 변형
         k = 1.35 if enhanced else 1.0

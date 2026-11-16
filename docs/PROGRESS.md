@@ -29,7 +29,7 @@
 ## 다음 할 일 (우선순위 순)
 1. [ ] **(사용자) 2차 발표 제출 (발표 당일 0시 1분까지)**: `python src/main.py`로 데모 녹화(순서는 `docs/script_2nd.md`) → 소리·글자 확인 → YouTube 업로드 → e-class에 영상 링크와 GitHub 링크 제출. PPT는 `docs/presentation_2nd.pptx`
 2. [ ] **(사용자) 직접 플레이 점검**: 공격 사거리, 적 속도·체력, 피격 무적, 대시 잔상, 점프 느낌. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.10의 `[ ]`)
-3. [ ] **(사용자)** Codex 작업: T03·T04·T05·T06 제작본 검토(`review`) (`docs/codex/TASKS.md`의 한 줄 명령)
+3. [ ] **(사용자)** Codex 작업: T06·T07·T08 제작본 검토(`review`), 다음 제작 T09 (`docs/codex/TASKS.md`의 한 줄 명령)
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기. BGM 후보 선택(다운로드는 허락 필요)
 5. [x] 2주차 Claude 작업(조준 공격, 적 2종, 게이지 연결, 충돌 박스) + 3주차 앞당김(방 잠금·전환, 미니맵, 고농도 방, E 강화, 조각) (11/15)
 6. [ ] (3주차 11/19~) 정비방과 업그레이드(조각 사용), 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 크래셔·아크, 걷기 프레임이 오면 애니메이션 연결, 가변 점프 높이·접근성 옵션
@@ -100,3 +100,8 @@
 2026-11-16 [Codex] T05 주인공 대기·공격·피격·점프 14프레임 제작 및 검사, 검토 대기 / assets/sprites/forge/hero_actions_v3/, assets/sprites/forge/n09_*_v3*/, docs/codex/reports/T05.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
 2026-11-16 [Claude Code] Codex T02·T03 재제작 적·보스 6종과 T04 걷기 4프레임을 게임에 적용(player._body_image, WALK_*), 테스트 2개 추가 / src/(player, config), assets/sprites/unified/*, tests/test_combat.py, docs/*
 2026-11-16 [Claude Code] Codex T05 검토·적용(대기 숨쉬기·피격·점프 프레임, player._body_frame, config.PLAYER_FRAMES), Codex 작업 큐 T07~T12 작성(철파이프 공격, 대시·내려찍기·사망, 적 애니메이션, 크래셔, 사망·엔딩 화면, 간수·사냥개·아크 blocked) / src/(player, config), assets/sprites/unified/*, tests/test_combat.py, docs/codex/TASKS.md, docs/codex/tasks/T07~T12, docs/*
+
+2026-11-16 [Codex] T07 철파이프 공격 5방향 15프레임 제작, 1배 비교·스프라이트 검사·픽셀 테스트, 검토 대기 / assets/sprites/forge/hero_pipe_v3/, assets/sprites/forge/n09_swing_*_v3*/, docs/codex/reports/T07.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
+2026-11-16 [Claude Code] Codex T07 검토·적용(철파이프 공격 자세 5방향, player.start_swing·_body_frame, config.SWING_TIME), 테스트 2개 추가 / src/(player, weapon, config), assets/sprites/unified/n09_swing_*, tests/test_combat.py, docs/*
+
+2026-11-16 [Codex] T08 대시·내려찍기·사망 7프레임 제작 및 검사, 검토 대기 / assets/sprites/forge/hero_special_v3/, assets/sprites/forge/n09_dash_v3*, n09_plunge_v3*, n09_death_v3*, docs/codex/reports/T08.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md

@@ -220,3 +220,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-16 [Codex] T04 N-09 우향 걷기 4포즈, T06 감옥 복도·철골 공장·감시자의 탑. 원화별 실제 프롬프트는 forge 아래 hero_walk_v3/ 및 backgrounds_v1/의 actual_prompt.txt에 기록.
 
 2026-11-16 [Codex] T05 N-09 v3b 기준 우향 대기·빈손 공격·피격·점프 시트. 실제 프롬프트는 assets/sprites/forge/hero_actions_v3/<동작>/actual_prompt.txt.
+
+2026-11-16 [Codex] T07 N-09 v3b 기준 철파이프 우향 공격 5방향. 실제 프롬프트는 assets/sprites/forge/hero_pipe_v3/<방향>/actual_prompt.txt에 기록.
+
+2026-11-16 [Codex] T08 N-09 v3b 기준 우향 대시·파이프 내려찍기·사망. 실제 프롬프트는 assets/sprites/forge/hero_special_v3/<동작>/actual_prompt.txt.

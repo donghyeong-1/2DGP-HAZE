@@ -490,24 +490,44 @@ class Player(TileBody):
             self.dash_slots += 1
 
     # ----- 그리기 -----
+    def _body_frame(self):
+        """지금 상태에 맞는 몸 이미지 이름: 달리기 걷기 4장, 서 있기 숨쉬기 4장, 공중 점프 4장, 피격 2장. 없으면 대기 한 장."""
+        if self.state == 'HIT':
+            return 'n09_hurt', 1 if self.hit_left > config.HIT_STUN / 2 else 2
+        if self.stunned or self.state in ('DASH', 'DEAD'):
+            return 'n09_idle', 0
+        if not self.on_ground and self.state in ('JUMP', 'FALL'):
+            if self.vy > config.JUMP_RISE_VY:
+                return 'n09_jump', 2
+            return ('n09_jump', 3) if self.vy > -config.JUMP_RISE_VY else ('n09_jump', 4)
+        if self.state == 'RUN' and self.on_ground:
+            return 'n09_walk', int(self.walk_phase) % config.PLAYER_FRAMES['n09_walk'][0] + 1
+        if self.state == 'IDLE':
+            return 'n09_idle', int(self.aura_time / config.IDLE_FRAME_TIME) % config.PLAYER_FRAMES['n09_idle'][0] + 1
+        return 'n09_idle', 0
+
     def _body_image(self):
-        """지금 그릴 몸 이미지와 발 기준점을 맞추는 가로 보정(dx). 달리는 중에는 걷기 4프레임, 아니면 대기 이미지."""
+        """(이미지, 가로 보정 dx, 발 아래 여백 margin). 프레임마다 캔버스와 발 기준점이 달라 그릴 때 기준점을 발 위치에 맞춘다."""
         import assets
-        if self.state == 'RUN' and self.on_ground and not self.stunned:
-            img = assets.image(f'sprites/unified/n09_walk_{int(self.walk_phase) % config.WALK_FRAMES + 1}.png')
-            if self.face_dir < 0:      # 좌우 반전하면 발 기준점도 반대편으로 옮겨진다
-                return img, img.w // 2 - (img.w - 1 - config.WALK_PIVOT_X)
-            return img, img.w // 2 - config.WALK_PIVOT_X
-        return assets.image('sprites/unified/n09_idle.png'), 0
+        prefix, n = self._body_frame()
+        if n == 0:
+            return assets.image('sprites/unified/n09_idle.png'), 0, config.SPRITE_FOOT_MARGIN
+        img = assets.image(f'sprites/unified/{prefix}_{n}.png')
+        _, px, py = config.PLAYER_FRAMES[prefix]
+        if self.face_dir < 0:          # 좌우 반전하면 발 기준점도 반대편으로 옮겨진다
+            dx = img.w // 2 - (img.w - 1 - px)
+        else:
+            dx = img.w // 2 - px
+        return img, dx, img.h - py
 
     def draw(self):
         import assets
-        img, dx = self._body_image()
+        img, dx, foot = self._body_image()
         steps = config.AFTERIMAGE_ALPHA_STEPS
         for gx, gy, gdir, left in self.afterimages:  # 오래된 것부터 그려 새 잔상이 위에 온다
             age = 1.0 - left / config.AFTERIMAGE_LIFE
             alpha = steps[min(int(age * len(steps)), len(steps) - 1)]
-            assets.draw_image_tinted(img, gx, gy - config.SPRITE_FOOT_MARGIN, 'h' if gdir < 0 else '',
+            assets.draw_image_tinted(img, gx, gy - foot, 'h' if gdir < 0 else '',
                                      config.AFTERIMAGE_COLOR, alpha)
         blink = self.invuln_left > 0 and self.state != 'DASH' and int(self.invuln_left * 20) % 2 == 0  # 피격 무적 중 깜빡임
         stunned = self.stunned and self.state != 'DEAD'
@@ -519,11 +539,11 @@ class Player(TileBody):
             if stunned:                                 # 기절: 몸이 덜덜 떨리고 노랗게 번쩍인다
                 jx = int(round(3 * math.sin(self.aura_time * 95)))
                 if int(self.aura_time * 18) % 2 == 0:
-                    assets.draw_image_tinted(img, self.x + jx + dx, self.y - config.SPRITE_FOOT_MARGIN, flip, (255, 240, 140), 1.0)
+                    assets.draw_image_tinted(img, self.x + jx + dx, self.y - foot, flip, (255, 240, 140), 1.0)
                 else:
-                    assets.draw_image(img, self.x + jx + dx, self.y - config.SPRITE_FOOT_MARGIN, flip)
+                    assets.draw_image(img, self.x + jx + dx, self.y - foot, flip)
             else:
-                assets.draw_image(img, self.x + dx, self.y - config.SPRITE_FOOT_MARGIN, flip)
+                assets.draw_image(img, self.x + dx, self.y - foot, flip)
         if config.DEBUG:
             self._draw_debug()
 

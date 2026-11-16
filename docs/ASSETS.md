@@ -145,5 +145,8 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/backgrounds/bg_<테마>.png` | `tools/make_tiles_hq.py` | 1920x1080 먼 배경(아치 회랑, 헤이즈 결정, 바닥 안개, 비네트를 4톤 디더링으로, 논리 960x540의 2배). 제목 화면은 haze, 엔딩은 gold. code-drawn |
 
 2026-11-16 [Codex] T04 n09_walk_v3b 및 T06 backgrounds_v1 제작 후보. Codex 내장 image_gen(모델명 미제공, 생성물 이용 조건 확인 필요), agent-sprite-forge 6b3da5c(MIT), hibit. 검토 대기.
+
+2026-11-16 [Codex] T05 대기·공격·피격·점프 14프레임. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), 기존 v3b 팔레트로 hibit. 검토 대기. docs/codex/reports/T05.md.
 | `assets/sprites/unified/n09_walk_1~4.png` | Codex T04 결과(`forge/n09_walk_v3b/frames/`)를 2026-11-16 게임에 적용 | 주인공 걷기 4프레임(86x125, 발 기준점 x=37). 달리는 이동 거리에 맞춰 넘어간다(`config.WALK_FRAME_PX`). AI 생성 + hibit 후처리 |
 | `assets/sprites/unified/{enemy_slum,enemy_thrower,enemy_guard,enemy_hound,boss_crasher,boss_ark}_idle.png` | Codex T02·T03 재제작(`forge/remake_t01_t03/finished/`)을 2026-11-16 게임에 적용 | 음영·디테일을 강화한 적·보스 6종으로 교체(사냥개는 fit판). 주인공 재제작판(T01 remake)은 걷기와 비율이 달라 보류 |
+| `assets/sprites/unified/n09_idle_1~4.png`, `n09_hurt_1~2.png`, `n09_jump_1~4.png` | Codex T05 결과(`forge/n09_breathe_v3`, `n09_hurt_v3`, `n09_jump_v3b`)를 2026-11-16 게임에 적용 | 주인공 숨쉬기 대기 4·피격 2·점프(상승·정점·하강) 4프레임. 프레임마다 발 기준점이 달라 `config.PLAYER_FRAMES`의 기준점으로 맞춰 그린다. 공격 프레임(빈손 펀치)은 쓰지 않고 T07(철파이프 공격)로 다시 시킨다 |

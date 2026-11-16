@@ -218,3 +218,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-11 [Codex] T01~T03 캐릭터 7종 재제작(총 9회). 우향 전신, 마젠타 배경, 선 없는 3단계 색면. 실제 프롬프트는 `assets/sprites/forge/remake_t01_t03/<캐릭터>/actual_prompt.txt`, 보고서는 `docs/codex/reports/T01_remake.md`~`T03_remake.md`.
 
 2026-11-16 [Codex] T04 N-09 우향 걷기 4포즈, T06 감옥 복도·철골 공장·감시자의 탑. 원화별 실제 프롬프트는 forge 아래 hero_walk_v3/ 및 backgrounds_v1/의 actual_prompt.txt에 기록.
+
+2026-11-16 [Codex] T05 N-09 v3b 기준 우향 대기·빈손 공격·피격·점프 시트. 실제 프롬프트는 assets/sprites/forge/hero_actions_v3/<동작>/actual_prompt.txt.

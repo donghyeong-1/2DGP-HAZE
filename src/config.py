@@ -36,6 +36,10 @@ AFTERIMAGE_ALPHA_STEPS = (0.60, 0.38, 0.18)  # 수명을 3등분해 단계별로
 
 # 플레이어
 PLAYER_HP = 100
+# 주인공 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 기준점은 프레임 왼쪽 위 기준 px (Codex 마감 도구의 anchor)
+PLAYER_FRAMES = {'n09_idle': (4, 21, 124), 'n09_hurt': (2, 41, 124), 'n09_jump': (4, 48, 125), 'n09_walk': (4, 37, 124)}
+IDLE_FRAME_TIME = 0.25   # 숨쉬는 대기 프레임 한 장의 시간(초)
+JUMP_RISE_VY = 350.0     # 점프 프레임: vy가 이 값보다 크면 상승, 작고 -이 값보다 크면 정점, 그 아래면 하강
 WALK_FRAMES = 4          # 걷기 프레임 수 (assets/sprites/unified/n09_walk_1~4.png, 발 기준점 x=37)
 WALK_PIVOT_X = 37        # 걷기 프레임에서 발 중앙의 x (캔버스 86px 기준)
 WALK_FRAME_PX = 56.0     # 걷기 프레임 한 장이 지나가는 이동 거리(px). 달리는 속도에 맞춰 발이 바닥을 미끄러지지 않게 한다

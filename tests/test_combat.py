@@ -785,12 +785,33 @@ def test_walk_phase_advances_with_distance_and_resets_when_stopped():
 def test_walk_frames_and_remade_enemy_sprites_are_in_place():
     from PIL import Image
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
-    for i in range(1, config.WALK_FRAMES + 1):
-        im = Image.open(os.path.join(base, f'n09_walk_{i}.png'))
-        assert im.size[1] == 125 and 0 < config.WALK_PIVOT_X < im.size[0]
+    for prefix, (count, px, py) in config.PLAYER_FRAMES.items():
+        for i in range(1, count + 1):
+            im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
+            assert im.size[1] in (125, 127) and 0 < px < im.size[0] and 0 < py <= im.size[1], (prefix, i)
     for name, height in (('enemy_slum', 119), ('enemy_thrower', 125), ('enemy_guard', 137), ('enemy_hound', 83),
                          ('boss_crasher', 197), ('boss_ark', 161)):
         assert Image.open(os.path.join(base, name + '_idle.png')).size[1] == height, name
+
+
+def test_body_frame_follows_state():
+    room, p = make_world()
+    assert p._body_frame()[0] == 'n09_idle' and p._body_frame()[1] >= 1           # 서 있으면 숨쉬기
+    p.right = True
+    run_frames(10)
+    assert p._body_frame()[0] == 'n09_walk'
+    p.right = False
+    run_frames(10)
+    p.request_jump()
+    run_frames(3)
+    assert p._body_frame() == ('n09_jump', 2)                                     # 상승
+    run_frames(40)
+    assert p._body_frame()[0] in ('n09_jump', 'n09_idle')
+    p.invuln_left = 0
+    p.take_hit(5)
+    assert p.state == 'HIT' and p._body_frame() == ('n09_hurt', 1)                # 맞자마자 첫 프레임
+    run_frames(12)
+    assert p.state != 'HIT' or p._body_frame() == ('n09_hurt', 2)
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

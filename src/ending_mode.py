@@ -42,11 +42,14 @@ def update():
 
 def draw():
     clear_canvas()
-    assets.draw_image(assets.image('backgrounds/bg_gold.png'), config.SCREEN_W // 2, 0)
+    cx = config.SCREEN_W // 2
     if result == 'clear':
-        assets.draw_text(config.SCREEN_W // 2, 600, '탈출 성공', (170, 230, 250), center=True, big=True)
-    else:
-        assets.draw_text(config.SCREEN_W // 2, 600, '사망', (225, 90, 100), center=True, big=True)
-        assets.draw_text(config.SCREEN_W // 2, 540, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 330, '아무 키나 누르면 타이틀로', (150, 160, 185), center=True)
+        assets.draw_image(assets.image('backgrounds/screen_ending.png'), cx, 0)
+        assets.draw_text(cx, 600, '탈출 성공', (170, 230, 250), center=True, big=True)
+        assets.draw_text(cx, 330, '아무 키나 누르면 타이틀로', (150, 160, 185), center=True)
+    else:                                                          # 사망 화면: 쓰러진 인물 위쪽에 글자를 둔다
+        assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
+        assets.draw_text(cx, 640, '사망', (225, 90, 100), center=True, big=True)
+        assets.draw_text(cx, 580, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
+        assets.draw_text(cx, 450, '아무 키나 누르면 타이틀로', (150, 160, 185), center=True)
     update_canvas()

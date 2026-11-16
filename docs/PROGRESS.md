@@ -114,3 +114,4 @@
 
 2026-11-16 [Codex] T11 사망·엔딩 일러스트 2장과 문구 합성 비교 제작, 1920×1080·32색·불투명 검사 및 픽셀 테스트 통과 / assets/sprites/forge/screens_v1/, docs/codex/reports/T11.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
 2026-11-16 [Claude Code] Codex T10 검토·적용(크래셔 패턴별 동작 그림, Boss._body_frame, ENEMY_FRAME_LIFT), 테스트 2개 추가 / src/(boss, enemy, config), assets/sprites/unified/boss_crasher_*, tests/test_combat.py, docs/*
+2026-11-16 [Claude Code] Codex T11 검토·적용(사망·엔딩 화면 일러스트, 사망 후 1.3초 뒤 화면 전환), 테스트 추가 / src/(ending_mode, play_mode, config), assets/backgrounds/screen_*, tests/test_combat.py, docs/*

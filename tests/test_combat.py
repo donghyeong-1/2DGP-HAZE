@@ -928,6 +928,15 @@ def test_boss_frame_files_exist():
             im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
             assert 0 < px < im.size[0] and 0 < py <= im.size[1], (prefix, i, im.size)
 
+
+def test_death_screen_waits_for_the_fall_animation():
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+    for name in ('screen_death.png', 'screen_ending.png'):
+        assert os.path.exists(os.path.join(root, 'assets', 'backgrounds', name)), name
+    assert config.DEATH_SCREEN_DELAY > config.DEATH_FRAME_TIMES[1]            # 엎어지는 프레임까지 보여 준 뒤 넘어간다
+    src = open(os.path.join(root, 'src', 'play_mode.py'), encoding='utf-8').read()
+    assert 'dead_time >= config.DEATH_SCREEN_DELAY' in src
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

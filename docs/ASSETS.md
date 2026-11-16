@@ -164,3 +164,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 2026-11-16 [Codex] T11 사망·엔딩 화면 후보 2장 assets/sprites/forge/screens_v1/screen_*.png. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), generate2dmap hibit 32색. 검토 대기. docs/codex/reports/T11.md.
 | `assets/sprites/unified/boss_crasher_{idle_1~2,smash_1~3,charge_1~2,leap_1~3,hurt_1}.png` | Codex T10 결과(`forge/boss_crasher_*_v3`, 돌진은 `charge_v3b`)를 2026-11-16 게임에 적용 | 크래셔 대기 2·찍기(예고·내려침·마무리) 3·돌진 2·도약(웅크림·공중·착지) 3·피격 1프레임. 발 기준점은 `config.ENEMY_FRAMES`, 도약 공중 프레임은 뜬 높이(41px)만큼 기준점을 낮춘다 |
+| `assets/backgrounds/screen_death.png`, `screen_ending.png` | Codex T11 결과(`forge/screens_v1/screen_*_v3.png`)를 2026-11-16 게임에 적용 | 사망 화면(쓰러진 주인공, 헤이즈가 걷히는 감옥 복도)과 엔딩 화면(탈출구로 걸어 나가는 뒷모습). 1920x1080 32색, 글자는 게임이 얹는다 |

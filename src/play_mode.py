@@ -122,7 +122,7 @@ def update():
         ending_mode.result = 'clear'
         game_framework.change_mode(ending_mode)
         return
-    if player.state == 'DEAD':
+    if player.state == 'DEAD' and player.dead_time >= config.DEATH_SCREEN_DELAY:   # 쓰러지는 동작을 보여 준 뒤 사망 화면으로
         import ending_mode
         ending_mode.result = 'dead'
         game_framework.change_mode(ending_mode)

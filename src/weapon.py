@@ -25,6 +25,45 @@ def _enemy_points(enemy):
     return [(x, bottom + 12), (x, (bottom + top) / 2), (x, top - 12)]
 
 
+class ExtraHits:
+    """첫 타격 뒤에 같은 적에게 이어지는 추가 타격 (게이지 구간·강화로 타수가 늘어난다). 짧은 간격으로 작은 불꽃과 숫자가 튄다."""
+
+    def __init__(self, owner, enemy, damage, fx, count, big):
+        self.owner, self.enemy, self.damage, self.fx = owner, enemy, damage, fx
+        self.left, self.big = count, big
+        self.index = 0
+        self.timer = config.EXTRA_HIT_INTERVAL
+
+    def update(self, dt):
+        self.timer -= dt
+        if self.timer > 0:
+            return
+        self.timer += config.EXTRA_HIT_INTERVAL
+        enemy, p = self.enemy, self.owner
+        if not enemy.alive or p.state == 'DEAD':
+            game_world.remove_object(self)
+            return
+        killed = enemy.take_damage(self.damage, from_x=p.x)
+        p.gauge.add(config.EXTRA_HIT_GAIN, 'hit')
+        ex, ey = enemy.center
+        jx, jy = ((-1) ** self.index) * (10 + 6 * self.index), (self.index % 2) * 14 - 7      # 불꽃이 조금씩 다른 자리에 튄다
+        effects.spawn(self.fx['spark'], ex + jx, ey + jy, duration=self.fx['spark_time'])
+        effects.float_text(ex + jx * 2, ey + enemy.hb_h / 2 + 70 + 22 * (self.index + 1), str(int(round(self.damage))),
+                           self.fx['damage_color'], big=False, life=0.5)
+        effects.add_trauma(config.SHAKE_HIT * 0.5)
+        assets.play_sound('enemy_hit')
+        if killed:
+            p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+            effects.add_trauma(config.SHAKE_KILL)
+        self.index += 1
+        self.left -= 1
+        if killed or self.left <= 0:
+            game_world.remove_object(self)
+
+    def draw(self):
+        pass
+
+
 class Pipe:
     def __init__(self, owner):
         self.owner = owner
@@ -97,6 +136,9 @@ class Pipe:
             effects.add_trauma(config.SHAKE_KILL)
         if blast:
             self._blast(enemy)
+        extra = max(config.EXTRA_HITS.get(p.gauge.zone, 0), config.ENHANCED_EXTRA_HITS if fx is config.ENHANCED_FX else 0)
+        if extra and not killed:                         # 타수 증가: 첫 타격 뒤에 작은 추가 타격이 이어진다
+            game_world.add_object(ExtraHits(p, enemy, damage * config.EXTRA_HIT_RATIO, fx, extra, big), game_world.LAYER_EFFECT)
         return killed
 
     def _damage(self, mult):

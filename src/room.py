@@ -21,14 +21,27 @@ DOOR_TINT = {'gold': (255, 215, 90), 'boss': (255, 90, 100), 'shop': (120, 215, 
 DOOR_LABEL = {'gold': '황금방', 'boss': '보스', 'shop': '정비방'}
 
 
+# 타일 세트(assets/tiles/tile_set_<테마>.png)의 칸 위치. 16열 x 5줄, 칸 60x60, 줄 0이 맨 위
+ATLAS_H = 300
+ATLAS_ONEWAY, ATLAS_SPIKE, ATLAS_BACK, ATLAS_DECOR = 0, 4, 6, 0     # 줄 3: 얇은 바닥 0~3, 가시 4~5, 뒷벽 6~9 / 줄 4: 소품
+DECOR_CHAIN_TOP, DECOR_CHAIN, DECOR_LAMP, DECOR_PIPE, DECOR_BANNER, DECOR_WINDOW, DECOR_CRATE, DECOR_BARREL, DECOR_VENT = range(9)
+THEMES = ('cell', 'foundry', 'haze', 'gold', 'shop', 'boss')
+
+
+def _hash(a, b=0, c=0):
+    return ((a * 73856093) ^ (b * 19349663) ^ (c * 83492791)) & 0xFFFF
+
+
 class Room:
-    def __init__(self, rows, links=None, high_haze=False):
+    def __init__(self, rows, links=None, high_haze=False, theme='cell', name=''):
         assert rows and all(len(r) == len(rows[0]) for r in rows), '방은 직사각형이어야 한다'
         assert len(rows) >= 12 and len(rows[0]) >= 16, f'방이 너무 작다: {len(rows[0])}x{len(rows)}'
         self.rows = rows
         self.cols, self.nrows = len(rows[0]), len(rows)
         self.width, self.height = self.cols * config.TILE, self.nrows * config.TILE
         self.is_high_haze = high_haze
+        self.theme = theme if theme in THEMES else 'cell'
+        self.name = name
         self.links = set(links or ())   # 이웃 방(또는 탈출구)이 있어서 열릴 수 있는 출입구 방향. 나머지 출입구는 벽이다
         self.locked = False             # 전투 중에는 출입구가 잠긴다
         self.door_hints = {}            # 방향 -> 문 너머 방 종류('gold', 'boss', 'shop'): 문 색과 이름으로 알려 준다
@@ -53,13 +66,84 @@ class Room:
                     self.boss_spawn = (x, y)
                 elif ch in DOOR_CHARS:
                     self.exits.setdefault(ch, []).append((col, row))
+        self._build_look()
+
+    # ----- 겉모습 계산 (방을 읽을 때 한 번) -----
+    def _wallish(self, col, row):
+        """자동 타일링에서 이웃이 벽처럼 이어지는가. 방 바깥과 출입구도 벽으로 본다."""
+        if col < 0 or col >= self.cols or row < 0 or row >= self.nrows:
+            return True
+        ch = self.rows[row][col]
+        return ch == SOLID or ch in DOOR_CHARS
+
+    def _build_look(self):
+        """벽 타일의 이웃 마스크, 뒷벽이 보일 칸, 장식 소품 위치를 정한다. 방 이름과 칸 좌표로만 정해지는 고정 배치다."""
+        seed = sum(ord(c) for c in self.name) + self.cols
+        self.masks = {}
+        self.back = {}
+        self.decor = []            # (소품 번호, 열, 줄)
+        near_marker = set()        # 문·스폰·진열대 근처는 소품을 두지 않는다
+        for row in range(self.nrows):
+            for col in range(self.cols):
+                ch = self.rows[row][col]
+                if ch in DOOR_CHARS or ch in 'PEstIB':
+                    for dc in range(-3, 4):
+                        for dr in range(-3, 4):
+                            near_marker.add((col + dc, row + dr))
+        for row in range(self.nrows):
+            for col in range(self.cols):
+                ch = self.rows[row][col]
+                if ch == SOLID or ch in DOOR_CHARS:
+                    m = 0
+                    if not self._wallish(col, row - 1):
+                        m |= 1
+                    if not self._wallish(col + 1, row):
+                        m |= 2
+                    if not self._wallish(col, row + 1):
+                        m |= 4
+                    if not self._wallish(col - 1, row):
+                        m |= 8
+                    self.masks[(col, row)] = m
+                    continue
+                near_wall = any(self._wallish(col + dc, row + dr) for dc in range(-2, 3) for dr in range(-2, 3))
+                if near_wall:                                    # 벽 가까이에만 뒷벽을 깐다 (나머지는 먼 배경이 보인다)
+                    pick = _hash(col, row, seed) % 20                # 판넬 55%, 리벳 25%, 파이프 10%, 환기구 10%
+                    self.back[(col, row)] = 0 if pick < 11 else 2 if pick < 16 else 1 if pick < 18 else 3
+        for row in range(1, self.nrows - 2):
+            for col in range(1, self.cols - 1):
+                if (col, row) in near_marker or self.rows[row][col] != EMPTY:
+                    continue
+                h = _hash(col, row, seed) % 100
+                above, below = self._wallish(col, row - 1), self._wallish(col, row + 1) or self.rows[row + 1][col] == ONEWAY
+                if above and self.rows[row - 1][col] == SOLID:
+                    if h < 7:
+                        self.decor.append((DECOR_CHAIN_TOP, col, row))
+                        k = 1
+                        while k < 3 and row + k < self.nrows - 3 and self.rows[row + k][col] == EMPTY and _hash(col, row, k) % 3:
+                            self.decor.append((DECOR_CHAIN, col, row + k))
+                            k += 1
+                    elif h < 11:
+                        self.decor.append((DECOR_LAMP, col, row))
+                    elif h < 15:
+                        self.decor.append((DECOR_BANNER, col, row))
+                    elif row == 1 and h < 55:
+                        self.decor.append((DECOR_PIPE, col, row))
+                elif below and self.rows[row + 1][col] == SOLID and not above:
+                    if h < 5:
+                        self.decor.append((DECOR_CRATE, col, row))
+                    elif h < 9:
+                        self.decor.append((DECOR_BARREL, col, row))
+                    elif h < (16 if self.theme == 'haze' else 11):
+                        self.decor.append((DECOR_VENT, col, row))
+                elif (col, row) in self.back and h < 3 and 3 <= row < self.nrows - 5:
+                    self.decor.append((DECOR_WINDOW, col, row))
 
     @classmethod
-    def load(cls, name, links=None, high_haze=False):
+    def load(cls, name, links=None, high_haze=False, theme='cell'):
         path = os.path.join(assets.DATA_DIR, 'rooms', name + '.txt')
         with open(path, encoding='utf-8') as f:
             rows = [line.rstrip('\r') for line in f.read().split('\n') if line.strip('\r') != '']
-        return cls(rows, links, high_haze)
+        return cls(rows, links, high_haze, theme, name)
 
     def spike_rects(self):
         """가시 타일마다 실제로 찌르는 사각형 (left, bottom, right, top). 타일 아래쪽 SPIKE_HEIGHT만 위험하다."""
@@ -133,34 +217,59 @@ class Room:
     def update(self, dt):
         pass
 
+    def _cell(self, atlas, acol, arow, col, bottom, tint=None):
+        """타일 세트에서 한 칸을 잘라 (col, 아래 모서리 bottom)에 그린다."""
+        t = config.TILE
+        if tint:
+            from sdl2 import SDL_SetTextureColorMod
+            SDL_SetTextureColorMod(atlas.texture, *tint)
+        assets.draw_clip(atlas, acol * t, ATLAS_H - (arow + 1) * t, t, t, col * t, bottom)
+        if tint:
+            SDL_SetTextureColorMod(atlas.texture, 255, 255, 255)
+
+    def _wall(self, atlas, col, row, bottom, tint=None):
+        variant = _hash(col, row, 5) % 3
+        self._cell(atlas, self.masks.get((col, row), 0), variant, col, bottom, tint)
+
     def draw(self):
         screen_offset = assets.draw_offset
         assets.draw_offset = (0, 0)  # 배경은 화면에 고정 (카메라를 따라 움직이지 않는다)
-        assets.draw_image(assets.image('placeholder/bg.png'), config.SCREEN_W // 2, 0)
+        assets.draw_image(assets.image(f'backgrounds/bg_{self.theme}.png'), config.SCREEN_W // 2, 0)
         assets.draw_offset = screen_offset
-        solids = [assets.image(f'tiles/tile_solid_{v}.png') for v in 'abc']  # 벽은 3변형을 칸 위치로 골라 단조로움을 줄인다
-        oneway = assets.image('tiles/tile_oneway.png')
-        spike = assets.image('tiles/tile_spike.png')
-        half = config.TILE // 2
+        atlas = assets.image(f'tiles/tile_set_{self.theme}.png')
+        t = config.TILE
         # 화면에 보이는 칸만 그린다
-        c0 = max(0, int(camera.x // config.TILE) - 1)
-        c1 = min(self.cols - 1, int((camera.x + config.SCREEN_W) // config.TILE) + 1)
+        c0 = max(0, int(camera.x // t) - 1)
+        c1 = min(self.cols - 1, int((camera.x + config.SCREEN_W) // t) + 1)
         r0 = max(0, self.row_of(camera.y + config.SCREEN_H) - 1)
         r1 = min(self.nrows - 1, self.row_of(camera.y) + 1)
+        # 1) 뒷벽과 뒤쪽 소품
+        for row in range(r0, r1 + 1):
+            bottom = self.height - (row + 1) * t
+            for col in range(c0, c1 + 1):
+                kind = self.back.get((col, row))
+                if kind is not None:
+                    self._cell(atlas, ATLAS_BACK + kind, 3, col, bottom)
+        for kind, col, row in self.decor:
+            if c0 <= col <= c1 and r0 <= row <= r1:
+                self._cell(atlas, ATLAS_DECOR + kind, 4, col, self.height - (row + 1) * t)
+        # 2) 벽·바닥·가시
         for row in range(r0, r1 + 1):
             line = self.rows[row]
-            bottom = self.height - (row + 1) * config.TILE
+            bottom = self.height - (row + 1) * t
             for col in range(c0, c1 + 1):
                 ch = line[col]
-                cx = col * config.TILE + half
                 if ch in DOOR_CHARS:
-                    self._draw_door(ch, col, row, cx, bottom, solids[(col * 7 + row * 13) % 3])
+                    self._draw_door(ch, col, row, col * t + t // 2, bottom, atlas)
                 elif ch == SOLID:
-                    assets.draw_image(solids[(col * 7 + row * 13) % 3], cx, bottom)
-                elif ch == ONEWAY:
-                    assets.draw_image(oneway, cx, bottom)  # 이미지의 위쪽 10px만 판으로 칠해져 있다
+                    self._wall(atlas, col, row, bottom)
+                elif ch == ONEWAY:                                   # 얇은 바닥: 이웃 얇은 바닥에 따라 끝 모양이 달라진다
+                    left = col > 0 and line[col - 1] == ONEWAY
+                    right = col < self.cols - 1 and line[col + 1] == ONEWAY
+                    kind = 2 if left and right else 3 if left else 1 if right else 0
+                    self._cell(atlas, ATLAS_ONEWAY + kind, 3, col, bottom)
                 elif ch == SPIKE:
-                    assets.draw_image(spike, cx, bottom)
+                    self._cell(atlas, ATLAS_SPIKE + _hash(col, row) % 2, 3, col, bottom)
         if self.is_high_haze:
             haze = assets.image('placeholder/px_cyan.png')  # 고농도 방: 화면 전체에 옅은 청록빛 안개
             haze.opacify(0.10)
@@ -170,13 +279,13 @@ class Room:
             assets.draw_offset = screen_offset
             haze.opacify(1.0)
 
-    def _draw_door(self, ch, col, row, cx, bottom, wall_tile):
+    def _draw_door(self, ch, col, row, cx, bottom, atlas):
         """출입구 그리기. 이어진 방이 없으면 벽, 잠겼으면 붉은 문, 열렸으면 문 너머 방 종류 색의 빛이 새어 들어온다."""
         if ch not in self.links:
-            assets.draw_image(wall_tile, cx, bottom)
+            self._wall(atlas, col, row, bottom)
             return
         if self.locked:
-            assets.draw_image_tinted(wall_tile, cx, bottom, '', (255, 110, 120), 1.0)
+            self._wall(atlas, col, row, bottom, tint=(255, 110, 120))
             return
         hint = self.door_hints.get(ch)
         name = 'px_yellow' if hint == 'gold' else 'px_red' if hint == 'boss' else 'px_blue' if hint == 'shop' else 'px_cyan'

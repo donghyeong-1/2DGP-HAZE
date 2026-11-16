@@ -22,6 +22,7 @@ JUMP_BUFFER = 0.12         # 착지 직전에 누른 점프를 기억했다가 �
 # 대시
 DASH_SPEED = 2400.0        # px/s (거리 약 360px)
 DASH_TIME = 0.15           # 초
+DASH_DOWN_AIM = 0.5        # 땅 위에서 조준이 이 값보다 아래(y 성분)면 아래 대시: 얇은 발판은 뚫고, 단단한 바닥은 수평 대시
 DASH_INVULN = 0.25         # 초 (무적 시간)
 DASH_SLOTS_BASE = 2
 DASH_SLOTS_MAX = 5
@@ -50,6 +51,12 @@ GAUGE_DECAY_AMOUNT = 1
 HIGH_HAZE_INTERVAL = 2.0    # 고농도 방: 감소 대신 상승
 HIGH_HAZE_AMOUNT = 1
 GAIN_HIT = 3
+# 타수 증가 (던그리드의 다단히트처럼): 높은 구간과 강화 공격은 한 번 맞을 때 추가 타격이 이어진다
+EXTRA_HITS = {'FADE': 0, 'NORMAL': 0, 'AWAKE': 1, 'CRITICAL': 2, 'OVERLOAD': 2, 'DEAD': 0}
+ENHANCED_EXTRA_HITS = 3     # 강화 공격은 구간과 상관없이 추가 3타
+EXTRA_HIT_INTERVAL = 0.07   # 추가 타격 간격(초)
+EXTRA_HIT_RATIO = 0.4       # 추가 타격 한 번의 피해 비율 (첫 타격 대비)
+EXTRA_HIT_GAIN = 1          # 추가 타격 한 번에 오르는 게이지
 GAIN_KILL = 8
 GAIN_BOSS_HIT = 2
 LOSS_DAMAGED = -5

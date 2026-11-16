@@ -1,0 +1,346 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "n09_walk_v3b",
+  "character": "n09_v3b",
+  "role": null,
+  "source": {
+    "frames": "../hero_walk_v3/take_02/frames_raw",
+    "count": 4,
+    "size": [
+      1024,
+      1024
+    ],
+    "pattern": "*.png",
+    "registration": null
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 121,
+    "feetPx": 907,
+    "heightPx": 786,
+    "areaPx": 128682,
+    "stanceX": 473.0,
+    "centroid": [
+      492.3748853763541,
+      531.3111857136196
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    473.0,
+    907.0
+  ],
+  "scale": 0.15394402035623408,
+  "scaleSource": "scale-ref",
+  "targetHeight": 122.99999999999999,
+  "scaleRef": {
+    "path": "../n09_v3b/finish.json",
+    "sha256": "c35767e451ff48f02a84bb76131b92d1ea44369f0d77e9732a037de3ff86f923",
+    "bytes": 7142,
+    "clip": "n09_v3b",
+    "character": "n09_v3b",
+    "scale": 0.15394402035623408,
+    "restAreaPx": 121003.0,
+    "areaRatio": 1.063461,
+    "correction": 0.969704,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    86,
+    125
+  ],
+  "anchor": [
+    37,
+    124
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      86,
+      125
+    ],
+    "sourceAnchor": [
+      37,
+      124
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 123.0,
+    "areaPx": 3049.604,
+    "bodyHeightPx": 121.0,
+    "outlinePx": 1,
+    "measuredHeightPx": 123,
+    "measuredAreaPx": 3622
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.15394402035623408,
+      "size": [
+        86,
+        125
+      ],
+      "anchor": [
+        37,
+        124
+      ],
+      "targetHeight": 122.99999999999999,
+      "flicker": {
+        "pairs": 3,
+        "alphaFlipsPerPair": 2434.0,
+        "indexFlipsPerPair": 1303.667,
+        "noiseFlipsPerPair": 68.333,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../n09_v3b/palette.json",
+    "sha256": "a04414aa7e9350ec3e78502b86caef12f6132fcc76f131876430d3c3533289ab",
+    "bytes": 1902,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 1859,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 38,
+    "noiseFlipReduction": 0.0639,
+    "plainMajority": {
+      "pairs": 3,
+      "alphaFlipsPerPair": 2480.667,
+      "indexFlipsPerPair": 1287.333,
+      "noiseFlipsPerPair": 73.0,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 22,
+    "lonePixelsFixed": 436
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/walk-1.png",
+      "sha256": "5ddf6c3ecca156a44acdffafc918d3e547d6ee6abc24f65a129d670ea83e3d5e",
+      "sourceFile": "walk-1.png",
+      "sourceSha256": "567aa67e47c09dd1d4b7e7cd30325eb5d1d88f57c1f2f5f3e16b69b4cbcd08d7",
+      "opaquePx": 3622
+    },
+    {
+      "file": "frames/walk-2.png",
+      "sha256": "1e006fc5f03d14c1542417023155a15bd086b7891b98135c29ca02c38ce6d154",
+      "sourceFile": "walk-2.png",
+      "sourceSha256": "ac20c803742a5296ee2895b358ca7eda641a7102257fa77f34570642a8dcd6d0",
+      "opaquePx": 3420
+    },
+    {
+      "file": "frames/walk-3.png",
+      "sha256": "f5a5c7c46dd8d0a7c91c64b541917ef6bca3cc55b8741cb49d602640ed3754e6",
+      "sourceFile": "walk-3.png",
+      "sourceSha256": "e5c654c43140f91d89439ea49706bb1362a062712c41c4bef8d30ccc7ce39c36",
+      "opaquePx": 3409
+    },
+    {
+      "file": "frames/walk-4.png",
+      "sha256": "6e0078bd80879432ac377a8065314f7460ac862b87a693c1578241bb15dbcf36",
+      "sourceFile": "walk-4.png",
+      "sourceSha256": "92feebd2267342996f2d337b379f2bf95ee5f2b23ecace173382d4f722c9e2c1",
+      "opaquePx": 3514
+    }
+  ],
+  "flicker": {
+    "pairs": 3,
+    "alphaFlipsPerPair": 2434.0,
+    "indexFlipsPerPair": 1303.667,
+    "noiseFlipsPerPair": 68.333,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 50,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.153944,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.0,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 3,
+          "alphaFlipsPerPair": 2434.0,
+          "indexFlipsPerPair": 1303.667,
+          "noiseFlipsPerPair": 68.333,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 6.496,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 40,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 38
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 68.333,
+          "perFrameNearest": 73.0,
+          "reduction": 0.0639
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../hero_walk_v3/take_02/frames_raw/walk-1.png",
+        "sha256": "567aa67e47c09dd1d4b7e7cd30325eb5d1d88f57c1f2f5f3e16b69b4cbcd08d7"
+      },
+      {
+        "path": "../hero_walk_v3/take_02/frames_raw/walk-2.png",
+        "sha256": "ac20c803742a5296ee2895b358ca7eda641a7102257fa77f34570642a8dcd6d0"
+      },
+      {
+        "path": "../hero_walk_v3/take_02/frames_raw/walk-3.png",
+        "sha256": "e5c654c43140f91d89439ea49706bb1362a062712c41c4bef8d30ccc7ce39c36"
+      },
+      {
+        "path": "../hero_walk_v3/take_02/frames_raw/walk-4.png",
+        "sha256": "92feebd2267342996f2d337b379f2bf95ee5f2b23ecace173382d4f722c9e2c1"
+      },
+      {
+        "path": "../n09_v3b/finish.json",
+        "sha256": "c35767e451ff48f02a84bb76131b92d1ea44369f0d77e9732a037de3ff86f923",
+        "bytes": 7142
+      },
+      {
+        "path": "../n09_v3b/palette.json",
+        "sha256": "a04414aa7e9350ec3e78502b86caef12f6132fcc76f131876430d3c3533289ab",
+        "bytes": 1902
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/walk-1.png",
+        "sha256": "5ddf6c3ecca156a44acdffafc918d3e547d6ee6abc24f65a129d670ea83e3d5e",
+        "bytes": 3686
+      },
+      {
+        "path": "frames/walk-2.png",
+        "sha256": "1e006fc5f03d14c1542417023155a15bd086b7891b98135c29ca02c38ce6d154",
+        "bytes": 3499
+      },
+      {
+        "path": "frames/walk-3.png",
+        "sha256": "f5a5c7c46dd8d0a7c91c64b541917ef6bca3cc55b8741cb49d602640ed3754e6",
+        "bytes": 3465
+      },
+      {
+        "path": "frames/walk-4.png",
+        "sha256": "6e0078bd80879432ac377a8065314f7460ac862b87a693c1578241bb15dbcf36",
+        "bytes": 3766
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "0df578c7ca31fcfb9d05ef0facf72ac8efcffac3c7385d32da899818b017d4f1",
+        "bytes": 31143
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

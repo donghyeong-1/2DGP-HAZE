@@ -353,9 +353,9 @@ def test_enhance_costs_gauge_and_arms_one_strike_only():
     assert e.max_hp - e.hp == config.PIPE_DAMAGE * config.ENHANCE_DAMAGE_MULT * mult      # 강화 일격
     assert not p.gauge.enhanced                                 # 한 번 쓰면 사라진다
     assert p.weapon.last_kind == 'pipe' and p.weapon.last_enhanced     # 기본 공격에 얹힌 강화 일격
-    hp1 = e.hp
     for _ in range(60):
-        game_world.update(DT)
+        game_world.update(DT)                                   # 강화 일격의 추가 타격이 끝난 뒤
+    hp1 = e.hp
     p.weapon.cooldown = 0
     p.request_attack()
     assert hp1 - e.hp == config.PIPE_DAMAGE * mult              # 다음 공격은 보통 공격이다

@@ -1,0 +1,84 @@
+{
+  "schema": "generate2dmap.conform.v1",
+  "tool": {
+    "name": "conform_background",
+    "version": "0.5.0"
+  },
+  "mode": "cover",
+  "source": {
+    "path": "../source.png",
+    "sha256": "d9c2963b9f6e7bff38cdb79d99a17af020d18b16d9c89b667d23a3720936244d",
+    "bytes": 1249094,
+    "size": [
+      1672,
+      941
+    ],
+    "source_mode": "RGB"
+  },
+  "output": {
+    "path": "background.png",
+    "sha256": "e2a607b1a32a575f7522e8eccad00cf67dc45449a5312e64a952a749862a2f0c",
+    "bytes": 1377569,
+    "size": [
+      1920,
+      1080
+    ]
+  },
+  "transform": {
+    "scale": 1.1483253588516746,
+    "src_rect": [
+      0.0,
+      0.25,
+      1672.0,
+      940.75
+    ],
+    "out_size": [
+      1920,
+      1080
+    ],
+    "resampler": "lanczos",
+    "focus": [
+      0.5,
+      0.5
+    ],
+    "map": "out = (src - src_rect[0:2]) * scale",
+    "inverse": "src = out / scale + src_rect[0:2]",
+    "zoom_vs_cover": 1.0,
+    "dropped_source_px": {
+      "left": 0.0,
+      "top": 0.25,
+      "right": 0.0,
+      "bottom": 0.25
+    }
+  },
+  "subjects": [],
+  "warnings": [],
+  "qa": {
+    "status": "pass",
+    "method": "conform_background: transform arithmetic (ImageOps.fit crop for cover), subject boxes mapped through it and measured against the output and its cover crops.",
+    "notProven": [
+      "The ground row is the one given; the tool does not find the painted ground in the art.",
+      "Cropping keeps the art's own perspective; a zoomed ground-fit can lose content at the edges (see dropped_source_px).",
+      "Subject and crop checks measure boxes only; look at the output at gameplay scale."
+    ],
+    "checks": [],
+    "inputs": [
+      {
+        "path": "../source.png",
+        "sha256": "d9c2963b9f6e7bff38cdb79d99a17af020d18b16d9c89b667d23a3720936244d",
+        "bytes": 1249094
+      }
+    ],
+    "outputs": [
+      {
+        "path": "background.png",
+        "sha256": "e2a607b1a32a575f7522e8eccad00cf67dc45449a5312e64a952a749862a2f0c",
+        "bytes": 1377569
+      }
+    ],
+    "tool": {
+      "name": "conform_background",
+      "version": "0.5.0"
+    }
+  }
+}

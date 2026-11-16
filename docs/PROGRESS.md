@@ -29,7 +29,7 @@
 ## 다음 할 일 (우선순위 순)
 1. [ ] **(사용자) 2차 발표 제출 (발표 당일 0시 1분까지)**: `python src/main.py`로 데모 녹화(순서는 `docs/script_2nd.md`) → 소리·글자 확인 → YouTube 업로드 → e-class에 영상 링크와 GitHub 링크 제출. PPT는 `docs/presentation_2nd.pptx`
 2. [ ] **(사용자) 직접 플레이 점검**: 공격 사거리, 적 속도·체력, 피격 무적, 대시 잔상, 점프 느낌. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.10의 `[ ]`)
-3. [ ] **(사용자)** Codex 작업: T03 검토(`review`), T04 주인공 걷기 프레임, T06 배경 3종 시작 (`docs/codex/TASKS.md`의 한 줄 명령)
+3. [ ] **(사용자)** Codex 작업: T03·T04·T06 제작본 검토(`review`). T04 합격 후 T05 시작 (`docs/codex/TASKS.md`의 한 줄 명령)
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기. BGM 후보 선택(다운로드는 허락 필요)
 5. [x] 2주차 Claude 작업(조준 공격, 적 2종, 게이지 연결, 충돌 박스) + 3주차 앞당김(방 잠금·전환, 미니맵, 고농도 방, E 강화, 조각) (11/15)
 6. [ ] (3주차 11/19~) 정비방과 업그레이드(조각 사용), 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 크래셔·아크, 걷기 프레임이 오면 애니메이션 연결, 가변 점프 높이·접근성 옵션
@@ -93,3 +93,6 @@
 2026-11-15 [Claude Code] 대시 평타를 지나온 경로 직선 베기로(effects.PathSlash, 대시 중 누르면 끝날 때 터짐), 강화가 현재 공격(기본·대시·점프·내려찍기)에 얹히도록(강화 점프 시트 air-spin-enhanced), 오라를 실루엣 기반 불꽃(240×320 16프레임, PixelSpec + render_pixelspec 검사)으로 고품질 재제작, 강화 오라가 구간 오라 대체, 테스트 수정·추가 / src/(weapon, effects, player, assets, config, ui), tools/(make_aura, make_slash), assets/effects/(aura-*, air-spin-enhanced), tests/*, docs/*
 2026-11-15 [Claude Code] 오버로드 기절 연출(사용자 요청): 화면 전체 섬광·붉은 비네트·전기 노이즈·기절 바, 주인공 전기 아크 오라(aura-stun)·몸 떨림, 회복 먼지, 효과음 2종, 테스트 3개 추가 / src/(ui, effects, player, config), tools/(make_aura, make_sfx), assets/effects/aura-stun, assets/sfx/*, tests/*, docs/*
 2026-11-15 [Claude Code] 공격 이펙트 고품질 재제작(사용자 요청): 뾰족한 초승달 검기·스윙 모션·열 색조 디더링·외곽선·링/섬광/불꽃, 9개 시트 전부 교체 / tools/make_slash_hq.py, assets/effects/(pipe-slash*, dash-strike, air-spin*), docs/*
+2026-11-16 [Claude Code] 타수 증가(구간·강화별 추가 타격 ExtraHits), 아래로 겨눈 대시(얇은 발판 통과/단단한 바닥은 수평), 방 12개 구조 재설계(tools/build_rooms.py)와 자동 타일링 타일 세트·뒷벽·소품·배경 6테마 재제작(tools/make_tiles_hq.py), Room 겉모습 계산·테마, 테스트 추가 / src/(weapon, player, room, stage, config, title_mode, ending_mode), data/rooms/*, data/stages/stage1.py, tools/*, assets/tiles/tile_set_*, assets/backgrounds/*, tests/*, docs/*
+
+2026-11-16 [Codex] Claude Code의 호환 스킬 9개 설치, T04 걷기 4프레임과 T06 배경판 3종 제작·검사 / assets/sprites/forge/, docs/codex/reports/T04.md, docs/codex/reports/T06.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md

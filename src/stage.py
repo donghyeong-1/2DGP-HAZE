@@ -91,7 +91,7 @@ class Stage:
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
         self.pedestals, self.boss = [], None
-        self.room = Room.load(info['template'], self.links_of(coord), info.get('high_haze', False))
+        self.room = Room.load(info['template'], self.links_of(coord), info.get('high_haze', False), self._theme_of(info))
         for d in self.room.links:      # 문 너머 방이 특별한 방이면 문에 표시한다
             kind = self.type_of(self.neighbour(coord, d))
             if kind in SPECIAL_TYPES:
@@ -109,6 +109,16 @@ class Stage:
         elif kind in ('gold', 'shop'):
             self._spawn_pedestals(coord, kind)
         self.room.locked = self.enemy_count() > 0
+
+    @staticmethod
+    def _theme_of(info):
+        """방의 겉모습 테마: 스테이지 데이터의 theme, 없으면 종류로 (황금방 gold, 정비방 shop, 보스 boss, 고농도 haze, 나머지 cell)."""
+        if info.get('theme'):
+            return info['theme']
+        kind = info.get('type')
+        if kind in ('gold', 'shop', 'boss'):
+            return kind
+        return 'haze' if info.get('high_haze') else 'cell'
 
     def _place_player(self, from_dir):
         p, room = self.player, self.room

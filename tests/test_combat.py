@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import config  # noqa: E402
 import effects  # noqa: E402
 import game_world  # noqa: E402
+import weapon  # noqa: E402
 from enemy import Enemy  # noqa: E402
 from player import Player  # noqa: E402
 from room import Room  # noqa: E402
@@ -240,9 +241,9 @@ def make_world_in(room_name, player_x, links=('L', 'R')):
 
 def test_spike_hurts_bounces_and_costs_gauge():
     room, p = make_world_in('pit_02', 300.0)
-    p.x, p.y, p.vy = 14 * config.TILE + 30, FLOOR_Y + 40, 0.0       # 가시 구덩이(13~18칸) 안쪽 바로 위에서 떨어뜨린다
+    p.x, p.y, p.vy = 14 * config.TILE + 30, FLOOR_Y + 40, 0.0       # 가시 구덩이(11~21칸) 안쪽 바로 위에서 떨어뜨린다
     hp0, g0 = p.hp, p.gauge.value
-    step(10)
+    step(24)                                                      # 구덩이 바닥(한 줄 아래)까지 떨어져 가시에 닿는다
     assert p.hp == hp0 - config.SPIKE_DAMAGE
     assert p.gauge.value <= g0 + config.LOSS_DAMAGED + 1
     assert p.vy > 0 or p.y > FLOOR_Y + 5                          # 위로 튕겨 올랐다
@@ -252,11 +253,12 @@ def test_spike_hurts_bounces_and_costs_gauge():
 
 
 def test_dash_through_spikes_is_safe():
-    room, p = make_world_in('pit_02', 12 * config.TILE)
+    rows = ['#' * 32] + ['#' + '.' * 30 + '#'] * 14 + ['#' + '.' * 8 + '^^^' + '.' * 19 + '#'] + ['#' * 32] * 2
+    room, p = make_world_with(Room(rows), 8 * config.TILE)
     p.mouse_x, p.mouse_y = p.x + 600, p.center[1]
     p.request_dash()
     step(12)
-    assert p.hp == config.PLAYER_HP                               # 대시 무적 중에는 가시도 지나간다
+    assert p.x > 12 * config.TILE and p.hp == config.PLAYER_HP    # 대시 무적 중에는 가시도 지나간다
 
 
 def test_slum_leaps_up_to_chase_player_on_higher_ground():
@@ -694,6 +696,79 @@ def test_player_dies_when_hp_reaches_zero():
     p.take_hit(config.PLAYER_HP)
     assert p.state == 'DEAD'
 
+
+
+def run_frames(n):
+    for _ in range(n):
+        game_world.update(DT)
+
+
+def test_higher_zones_and_enhanced_attacks_hit_more_times():
+    for value, extra in ((35, 0), (65, 1), (95, 2)):
+        room, p = make_world()
+        e = freeze(add_enemy('slum', p.x + 100, room, p))
+        e.hp = e.max_hp = 10000
+        set_gauge(p, value)
+        p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+        p.request_attack()
+        first = e.max_hp - e.hp
+        run_frames(40)
+        total = e.max_hp - e.hp
+        assert abs(total - first * (1 + extra * config.EXTRA_HIT_RATIO)) < 1e-6, (value, first, total)
+
+
+def test_enhanced_attack_adds_three_extra_hits_even_in_the_normal_zone():
+    room, p = make_world()
+    e = freeze(add_enemy('slum', p.x + 100, room, p))
+    e.hp = e.max_hp = 10000
+    set_gauge(p, 60)
+    p.request_enhance()
+    set_gauge(p, 35)
+    p.gauge.enhance_timer = 12
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.request_attack()
+    first = e.max_hp - e.hp
+    run_frames(60)
+    assert abs((e.max_hp - e.hp) - first * (1 + 3 * config.EXTRA_HIT_RATIO)) < 1e-6
+
+
+def test_extra_hits_stop_when_the_enemy_dies():
+    room, p = make_world()
+    e = freeze(add_enemy('slum', p.x + 100, room, p))
+    e.hp = e.max_hp = 10000
+    set_gauge(p, 95)
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.request_attack()
+    e.hp = 1
+    run_frames(30)                                                    # 추가 타격에 죽고 더 이상 때리지 않는다
+    assert not e.alive
+    assert not any(isinstance(o, weapon.ExtraHits) for o in game_world.world[game_world.LAYER_EFFECT])
+
+
+def test_dash_aimed_down_drops_through_a_one_way_platform():
+    room, p = make_world_with(Room(['#' * 20] + ['#' + '.' * 18 + '#'] * 8 + ['#' + '.' * 6 + '=' * 6 + '.' * 6 + '#']
+                                   + ['#' + '.' * 18 + '#'] * 4 + ['#' * 20]), 10 * config.TILE)
+    # 발판 위에 세운다
+    plat_row = 9
+    p.y = room.tile_top(plat_row)
+    p.on_ground = True
+    run_frames(10)
+    y0 = p.y
+    assert p.on_ground and room.tile_at_world(p.x, p.y - 1) == '='
+    p.mouse_x, p.mouse_y = p.x, p.y - 400                              # 마우스를 바로 아래로
+    p.request_dash()
+    assert p.state == 'DASH'
+    run_frames(20)
+    assert p.y < y0 - 100                                              # 발판을 뚫고 내려갔다
+
+
+def test_dash_aimed_down_on_solid_ground_becomes_a_horizontal_dash():
+    room, p = make_world()
+    p.mouse_x, p.mouse_y = p.x + 5, p.y - 400
+    x0 = p.x
+    p.request_dash()
+    run_frames(15)
+    assert abs(p.x - x0) > 150 and p.on_ground                         # 바닥에 박히지 않고 옆으로 대시한다
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

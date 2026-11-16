@@ -202,6 +202,34 @@ def test_checker_handles_floor_hole_door():
     assert analyze(as_rows(grid)) == []
 
 
+
+def test_autotile_masks_mark_exposed_edges():
+    rows = ['#' * 20] + ['#' + '.' * 18 + '#'] * 10 + ['#' + '.' * 6 + '###' + '.' * 9 + '#'] + ['#' * 20] * 2
+    room = Room(rows)
+    assert room.masks[(8, 11)] == 1                                                # 가운데 블록: 윗면만 드러난다
+    assert room.masks[(7, 11)] == 1 | 8 and room.masks[(9, 11)] == 1 | 2           # 양 끝은 옆면도 드러난다
+    assert room.masks[(5, 12)] == 1 and room.masks[(8, 12)] == 0                   # 바닥 첫 줄은 위만, 둘째 줄은 안쪽
+    assert room.masks[(0, 0)] == 0                                                 # 방 모서리 벽은 안쪽 칸이다
+
+
+def test_room_look_is_deterministic_and_keeps_markers_clear():
+    from room import Room
+    a, b = Room.load('hub_cavern'), Room.load('hub_cavern')
+    assert a.decor == b.decor and a.back == b.back                                 # 같은 방은 늘 같은 모양
+    assert a.decor, '소품이 하나도 없다'
+    markers = {(c, r) for r, line in enumerate(a.rows) for c, ch in enumerate(line) if ch in 'PEstIB'}
+    for kind, col, row in a.decor:
+        assert all(abs(col - mc) > 3 or abs(row - mr) > 3 for mc, mr in markers), '스폰·진열대 근처에 소품이 있다'
+    assert Room.load('boss_arena', theme='nope').theme == 'cell'                   # 모르는 테마는 기본으로
+
+
+def test_every_theme_has_a_tile_set_and_background():
+    import room as room_module
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+    for name in room_module.THEMES:
+        assert os.path.exists(os.path.join(root, 'assets', 'tiles', f'tile_set_{name}.png')), name
+        assert os.path.exists(os.path.join(root, 'assets', 'backgrounds', f'bg_{name}.png')), name
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

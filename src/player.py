@@ -117,6 +117,14 @@ class Dash(_State):
         p.dash_left = config.DASH_TIME
         p.invuln_left = config.DASH_INVULN
         ax, ay = p.aim_vector()
+        if p.on_ground and ay < -config.DASH_DOWN_AIM and p.room is not None:
+            below = p.room.tile_at_world(p.x, p.y - EPS)
+            if below == room_module.ONEWAY:                 # 얇은 발판 위에서 아래로 대시: 발판을 뚫고 내려간다
+                p.drop_timer = config.DASH_TIME + 0.12
+                p.y -= 3.0
+                p.on_ground = False
+            else:                                           # 단단한 바닥에서는 내려갈 수 없다: 보는 쪽 수평 대시로 바꾼다
+                ax, ay = (math.copysign(1.0, ax) if abs(ax) > 0.05 else float(p.face_dir)), 0.0
         p.dash_vec = (ax, ay)
         p.vy = 0.0
         p.afterimage_timer = 0.0  # 출발 지점에도 잔상을 남긴다

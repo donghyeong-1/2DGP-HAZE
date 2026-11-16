@@ -25,6 +25,8 @@ class Boss(Enemy):
         self.charge_hit = False
         self.leaping = False        # 도약 중인가
         self.air_seen = False       # 도약 뒤 땅에서 떨어진 것을 한 번 봤는가 (착지 판정용)
+        self.anim_time = 0.0        # 대기 그림을 번갈아 보여 주는 시계
+        self.land_left = 0.0        # 도약 착지 자세가 남은 시간
 
     # ----- 패턴 고르기 -----
     def _choose_pattern(self):
@@ -136,6 +138,7 @@ class Boss(Enemy):
         if self._player_alive() and abs(px - cx) <= config.BOSS_LAND_RADIUS and abs(py - cy) <= config.BOSS_LAND_RADIUS:
             self.player.take_hit(config.BOSS_LAND_DAMAGE, gauge_delta=s['wave_gauge'])    # 바로 밑에 있으면 직격
         self.cooldown = s['cooldown'] * 1.3
+        self.land_left = config.BOSS_LAND_POSE_TIME
         self.recover()
 
     def _charge_step(self):
@@ -150,6 +153,31 @@ class Boss(Enemy):
     def blocked_time_charge(self):
         ahead = self.x + self.face_dir * (self.hb_w / 2 + 8)
         return self.room.tile_at_world(ahead, self.y + 40) == '#'
+
+    # ----- 그리기: 패턴마다 동작 그림이 다르다 -----
+    def update(self, dt):
+        super().update(dt)
+        self.anim_time += dt
+        self.land_left = max(0.0, self.land_left - dt)
+
+    def _body_frame(self):
+        if self.state == 'ATTACK':
+            t = self.attack_time
+            windup, active = self._windup(), self._active()
+            if self.pattern in ('smash', 'slam'):               # 예고: 주먹을 머리 위로 -> 내려찍음 -> 주먹이 박힌 채 마무리
+                if t < windup:
+                    return 'boss_crasher_smash', 1
+                return 'boss_crasher_smash', 2 if t < windup + active * 0.6 else 3
+            if self.pattern == 'charge':                        # 예고: 몸을 숙임, 돌진: 두 발이 번갈아
+                return 'boss_crasher_charge', 1 if t < windup else int(t * 10) % 2 + 1
+            if t < windup:                                      # 도약: 웅크림 -> 공중 -> (착지는 land_left)
+                return 'boss_crasher_leap', 1
+            return 'boss_crasher_leap', 2
+        if self.land_left > 0:
+            return 'boss_crasher_leap', 3
+        if self.flash > 0:                                      # 공격 중이 아닐 때 맞으면 움찔 (경직은 없다)
+            return 'boss_crasher_hurt', 1
+        return 'boss_crasher_idle', int(self.anim_time / config.BOSS_IDLE_FRAME_TIME) % 2 + 1
 
     # ----- 피해: 경직 없음 -----
     def take_damage(self, damage, from_x=None):

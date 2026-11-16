@@ -161,3 +161,6 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 2026-11-16 [Codex] T10 크래셔 11프레임. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), T03 재제작 팔레트로 hibit. 검토 대기. docs/codex/reports/T10.md.
 | `assets/sprites/unified/enemy_slum_{walk_1~4,attack_1~3,hurt_1}.png`, `enemy_thrower_{throw_1~3,hurt_1}.png` | Codex T09 결과(`forge/enemy_slum_walk_v3c_registered`, `enemy_slum_attack_v3`, `enemy_slum_hurt_v3`, `enemy_thrower_throw_v3`, `enemy_thrower_hurt_v3`)를 2026-11-16 게임에 적용 | 슬럼 걷기 4·공격 3(예고·타격·회복)·피격 1, 투척병 던지기 3·피격 1. 발 기준점은 `config.ENEMY_FRAMES` |
+
+2026-11-16 [Codex] T11 사망·엔딩 화면 후보 2장 assets/sprites/forge/screens_v1/screen_*.png. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), generate2dmap hibit 32색. 검토 대기. docs/codex/reports/T11.md.
+| `assets/sprites/unified/boss_crasher_{idle_1~2,smash_1~3,charge_1~2,leap_1~3,hurt_1}.png` | Codex T10 결과(`forge/boss_crasher_*_v3`, 돌진은 `charge_v3b`)를 2026-11-16 게임에 적용 | 크래셔 대기 2·찍기(예고·내려침·마무리) 3·돌진 2·도약(웅크림·공중·착지) 3·피격 1프레임. 발 기준점은 `config.ENEMY_FRAMES`, 도약 공중 프레임은 뜬 높이(41px)만큼 기준점을 낮춘다 |

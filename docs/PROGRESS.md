@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-15 [Claude Code]
 
 ## 진행 중
-- [Codex] T11 사망·엔딩 일러스트 / assets/sprites/forge/screens_v1/, docs/codex/reports/T11.md
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 1차 발표 (2026-11-04, 지남)
 - 영상 촬영 완료(사용자 보고 11/3). GitHub 저장소 https://github.com/donghyeong-1/2DGP-HAZE 공개. e-class 제출 여부는 사용자가 확인.
@@ -29,7 +29,7 @@
 ## 다음 할 일 (우선순위 순)
 1. [ ] **(사용자) 2차 발표 제출 (발표 당일 0시 1분까지)**: `python src/main.py`로 데모 녹화(순서는 `docs/script_2nd.md`) → 소리·글자 확인 → YouTube 업로드 → e-class에 영상 링크와 GitHub 링크 제출. PPT는 `docs/presentation_2nd.pptx`
 2. [ ] **(사용자) 직접 플레이 점검**: 공격 사거리, 적 속도·체력, 피격 무적, 대시 잔상, 점프 느낌. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.10의 `[ ]`)
-3. [ ] **(사용자)** Codex 작업: T06·T09·T10 제작본 검토(`review`), 다음 제작 T11 (`docs/codex/TASKS.md`의 한 줄 명령)
+3. [ ] **(사용자)** Codex 작업: T06·T09·T10·T11 제작본 검토(`review`). T12는 구현할 적에 대한 사용자 결정 대기 (`docs/codex/TASKS.md`의 한 줄 명령)
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기. BGM 후보 선택(다운로드는 허락 필요)
 5. [x] 2주차 Claude 작업(조준 공격, 적 2종, 게이지 연결, 충돌 박스) + 3주차 앞당김(방 잠금·전환, 미니맵, 고농도 방, E 강화, 조각) (11/15)
 6. [ ] (3주차 11/19~) 정비방과 업그레이드(조각 사용), 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 크래셔·아크, 걷기 프레임이 오면 애니메이션 연결, 가변 점프 높이·접근성 옵션
@@ -111,3 +111,6 @@
 
 2026-11-16 [Codex] T10 크래셔 대기·찍기·돌진·도약·피격 11프레임 제작·검사, 검토 대기 / assets/sprites/forge/crasher_actions_v3/, assets/sprites/forge/boss_crasher_*_v3*/, docs/codex/reports/T10.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
 2026-11-16 [Claude Code] Codex T09 검토·적용(슬럼 걷기·공격·피격, 투척병 던지기·피격, Enemy._body_frame/_body_image, config.ENEMY_FRAMES), 테스트 2개 추가 / src/(enemy, config), assets/sprites/unified/enemy_slum_*·enemy_thrower_*, tests/test_combat.py, docs/*
+
+2026-11-16 [Codex] T11 사망·엔딩 일러스트 2장과 문구 합성 비교 제작, 1920×1080·32색·불투명 검사 및 픽셀 테스트 통과 / assets/sprites/forge/screens_v1/, docs/codex/reports/T11.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
+2026-11-16 [Claude Code] Codex T10 검토·적용(크래셔 패턴별 동작 그림, Boss._body_frame, ENEMY_FRAME_LIFT), 테스트 2개 추가 / src/(boss, enemy, config), assets/sprites/unified/boss_crasher_*, tests/test_combat.py, docs/*

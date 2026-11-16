@@ -132,6 +132,12 @@ ENEMY_STATS = {
 # 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
 ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
                 'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124)}
+ENEMY_FRAMES.update({'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3, 94, 246), 'boss_crasher_charge': (2, 100, 174),
+                     'boss_crasher_leap': (3, 114, 210), 'boss_crasher_hurt': (1, 96, 196)})
+# 그림 안에서 발이 캔버스 바닥보다 떠 있게 그려진 프레임의 뜬 높이(px). 이미 공중에 있는 몸에 또 띄우지 않도록 기준점을 낮춘다
+ENEMY_FRAME_LIFT = {('boss_crasher_leap', 2): 41}
+BOSS_IDLE_FRAME_TIME = 0.45      # 크래셔 대기 두 프레임이 바뀌는 간격(초)
+BOSS_LAND_POSE_TIME = 0.3        # 도약 착지 자세를 보여 주는 시간(초)
 ENEMY_WALK_FRAME_PX = 44.0       # 적 걷기 프레임 한 장이 지나가는 이동 거리(px)
 BOSS_LEAP_TIME = 0.8             # 보스 도약 체공 시간(초). 기둥·벽 뒤에 숨은 플레이어에게 넘어가 내려찍는다
 BOSS_LEAP_SPEED_CAP = 760.0

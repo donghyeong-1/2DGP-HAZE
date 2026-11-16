@@ -220,6 +220,7 @@ class Enemy(TileBody):
             return assets.image('sprites/unified/' + self.stats['sprite']), 0, config.SPRITE_FOOT_MARGIN
         img = assets.image(f'sprites/unified/{prefix}_{n}.png')
         _, px, py = config.ENEMY_FRAMES[prefix]
+        py -= config.ENEMY_FRAME_LIFT.get((prefix, n), 0)
         dx = img.w // 2 - ((img.w - 1 - px) if self.face_dir < 0 else px)
         return img, dx, img.h - py
 

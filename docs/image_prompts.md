@@ -228,3 +228,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-16 [Codex] T09 폐인 걷기·공격·피격 및 투척병 던지기·피격 5종. 실제 프롬프트는 assets/sprites/forge/enemy_actions_v3/<동작>/actual_prompt.txt 등에 기록.
 
 2026-11-16 [Codex] T10 크래셔 대기·찍기·돌진·도약·피격. 실제 프롬프트는 assets/sprites/forge/crasher_actions_v3/<동작>/actual_prompt.txt 등에 기록.
+
+2026-11-16 [Codex] T11 사망은 누운 N-09와 헤이즈 안개, 엔딩은 새벽의 열린 문으로 걸어가는 N-09 후면. 실제 프롬프트는 assets/sprites/forge/screens_v1/{death,ending}/actual_prompt.txt.

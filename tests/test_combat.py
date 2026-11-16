@@ -894,6 +894,40 @@ def test_enemy_frame_files_match_config():
             im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
             assert 0 < py <= im.size[1] and 0 < px < im.size[0], (prefix, i, im.size)
 
+
+def test_boss_frames_follow_pattern():
+    from boss import Boss
+    room, p = make_world()
+    b = Boss(p.x + 600, 120, room, p)
+    game_world.add_object(b, game_world.LAYER_ENEMY)
+    assert b._body_frame()[0] == 'boss_crasher_idle'
+    b.state, b.pattern, b.attack_time = 'ATTACK', 'slam', 0.0
+    assert b._body_frame() == ('boss_crasher_smash', 1)                   # 예고: 주먹을 든다
+    b.attack_time = b._windup() + 0.01
+    assert b._body_frame() == ('boss_crasher_smash', 2)                   # 내려찍음
+    b.attack_time = b._windup() + b._active() * 0.9
+    assert b._body_frame() == ('boss_crasher_smash', 3)                   # 마무리
+    b.pattern, b.attack_time = 'charge', b._windup() + 0.01
+    assert b._body_frame()[0] == 'boss_crasher_charge'
+    b.pattern, b.attack_time = 'leap', 0.0
+    assert b._body_frame() == ('boss_crasher_leap', 1)
+    b.attack_time = b._windup() + 0.1
+    assert b._body_frame() == ('boss_crasher_leap', 2)                    # 공중
+    b.state, b.land_left = 'CHASE', 0.2
+    assert b._body_frame() == ('boss_crasher_leap', 3)                    # 착지
+    b.land_left, b.flash = 0.0, 0.1
+    assert b._body_frame() == ('boss_crasher_hurt', 1)                    # 맞으면 움찔
+
+
+def test_boss_frame_files_exist():
+    from PIL import Image
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
+    for prefix in ('boss_crasher_idle', 'boss_crasher_smash', 'boss_crasher_charge', 'boss_crasher_leap', 'boss_crasher_hurt'):
+        count, px, py = config.ENEMY_FRAMES[prefix]
+        for i in range(1, count + 1):
+            im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
+            assert 0 < px < im.size[0] and 0 < py <= im.size[1], (prefix, i, im.size)
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

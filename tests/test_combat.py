@@ -862,6 +862,38 @@ def test_dash_death_and_plunge_poses():
     run_frames(int(config.PLUNGE_POSE_TIME * 60 * 0.5))
     assert r._body_frame()[0] in ('n09_plunge', 'n09_jump')
 
+
+def test_enemy_frames_follow_state():
+    room, p = make_world()
+    e = add_enemy('slum', p.x + 700, room, p)
+    assert e._body_frame() == (None, 0)                                   # 대기: 그림 한 장
+    run_frames(40)
+    assert e.state == 'CHASE' and e._body_frame()[0] == 'enemy_slum_walk'   # 쫓아오면 걷기
+    e.state = 'ATTACK'
+    e.attack_time = 0.0
+    assert e._body_frame() == ('enemy_slum_attack', 1)                    # 예고
+    e.attack_time = e.stats['windup'] + 0.01
+    assert e._body_frame() == ('enemy_slum_attack', 2)                    # 타격
+    e.attack_time = e.stats['windup'] + e.stats['attack_time'] * 0.9
+    assert e._body_frame() == ('enemy_slum_attack', 3)                    # 회복
+    e.state = 'HIT'
+    assert e._body_frame() == ('enemy_slum_hurt', 1)
+    th = add_enemy('thrower', p.x + 500, room, p)
+    th.state = 'ATTACK'
+    th.attack_time = 0.0
+    assert th._body_frame() == ('enemy_thrower_throw', 1)
+    th.state = 'CHASE'
+    assert th._body_frame() == (None, 0)                                  # 걷지 않는 적은 대기 그림
+
+
+def test_enemy_frame_files_match_config():
+    from PIL import Image
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
+    for prefix, (count, px, py) in config.ENEMY_FRAMES.items():
+        for i in range(1, count + 1):
+            im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
+            assert 0 < py <= im.size[1] and 0 < px < im.size[0], (prefix, i, im.size)
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

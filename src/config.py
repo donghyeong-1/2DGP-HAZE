@@ -122,11 +122,17 @@ SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
 ENEMY_STATS = {
     'slum': dict(hp=60, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
                  windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle.png',
-                 leap=1250.0),
+                 leap=1250.0,
+                 frames=dict(walk='enemy_slum_walk', attack='enemy_slum_attack', hurt='enemy_slum_hurt')),
     'thrower': dict(hp=45, hb=(48, 108), speed=0.0, sight=900, sight_dy=130, attack_range=820, reach_dy=130, damage=10,
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle.png',
-                    projectile_speed=620.0, leap=0.0),
+                    projectile_speed=620.0, leap=0.0,
+                    frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
 }
+# 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
+ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
+                'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124)}
+ENEMY_WALK_FRAME_PX = 44.0       # 적 걷기 프레임 한 장이 지나가는 이동 거리(px)
 BOSS_LEAP_TIME = 0.8             # 보스 도약 체공 시간(초). 기둥·벽 뒤에 숨은 플레이어에게 넘어가 내려찍는다
 BOSS_LEAP_SPEED_CAP = 760.0
 BOSS_LAND_RADIUS = 210           # 도약 착지 충격 반경(px)

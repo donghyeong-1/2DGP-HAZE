@@ -1,0 +1,346 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_slum_walk_v3c_registered",
+  "character": "enemy_slum_remake",
+  "role": null,
+  "source": {
+    "frames": "../enemy_actions_v3/slum_walk/take_3/frames_raw_registered",
+    "count": 4,
+    "size": [
+      1024,
+      1024
+    ],
+    "pattern": "*.png",
+    "registration": null
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 320,
+    "feetPx": 784,
+    "heightPx": 464,
+    "areaPx": 50929,
+    "stanceX": 454.5,
+    "centroid": [
+      464.7071118616113,
+      558.9144789805415
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    454.5,
+    784.0
+  ],
+  "scale": 0.24468085106382978,
+  "scaleSource": "scale-ref",
+  "targetHeight": 115.53191489361701,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/enemy_slum_remake/finish.json",
+    "sha256": "3d89d72f0b385d794500ef8dc0ad75c784a42e16cba92409034e8d32a3e30f47",
+    "bytes": 7097,
+    "clip": "enemy_slum_remake",
+    "character": "enemy_slum_remake",
+    "scale": 0.24468085106382978,
+    "restAreaPx": 46804.0,
+    "areaRatio": 1.088133,
+    "correction": 0.958647,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    89,
+    121
+  ],
+  "anchor": [
+    43,
+    118
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      89,
+      121
+    ],
+    "sourceAnchor": [
+      43,
+      118
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 115.5319,
+    "areaPx": 3049.054,
+    "bodyHeightPx": 113.5319,
+    "outlinePx": 1,
+    "measuredHeightPx": 116,
+    "measuredAreaPx": 3559
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.24468085106382978,
+      "size": [
+        89,
+        121
+      ],
+      "anchor": [
+        43,
+        118
+      ],
+      "targetHeight": 115.53191489361701,
+      "flicker": {
+        "pairs": 3,
+        "alphaFlipsPerPair": 1532.667,
+        "indexFlipsPerPair": 1467.0,
+        "noiseFlipsPerPair": 122.0,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/enemy_slum_remake/palette.json",
+    "sha256": "7189318d239bb8b618cfc25e64804868b6288371f07275338f3f86a93731e103",
+    "bytes": 1769,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 1723,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 40,
+    "noiseFlipReduction": 0.2865,
+    "plainMajority": {
+      "pairs": 3,
+      "alphaFlipsPerPair": 1555.667,
+      "indexFlipsPerPair": 1566.667,
+      "noiseFlipsPerPair": 171.0,
+      "edgeFlipsPerPair": 0.333
+    },
+    "heldIndexPx": 266,
+    "lonePixelsFixed": 842
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/sheet-1.png",
+      "sha256": "45882a5d5f299066f54b6f666db11c33790700c299458a9ae0b354b3266bbc6f",
+      "sourceFile": "sheet-1.png",
+      "sourceSha256": "a6106c72f91ff4f2a750c68568fcd1bb6fd78d1c7818afa0b3889b193b60d63a",
+      "opaquePx": 3559
+    },
+    {
+      "file": "frames/sheet-2.png",
+      "sha256": "0099f1f4bb28cdef6e777cc289d059807aa163cfe8fae772baf41f140eff78d7",
+      "sourceFile": "sheet-2.png",
+      "sourceSha256": "5f28f6a487027dac7b96156f44837c201ad4bf6fde47e0fdcd0b8ce0d9e1f59f",
+      "opaquePx": 3329
+    },
+    {
+      "file": "frames/sheet-3.png",
+      "sha256": "e9c981e4b810b8563d6f972c00dc262d262ed6f7974b4005dd70ab4764b91f92",
+      "sourceFile": "sheet-3.png",
+      "sourceSha256": "2e7e42016663e3b9f0acb2a2a961009ab9bf0dcb49dccbb8757ac855380c8431",
+      "opaquePx": 3385
+    },
+    {
+      "file": "frames/sheet-4.png",
+      "sha256": "5bfc12f210aa175788db837717e76bc246ab96f0d3e996dd0f5225768bc5c1aa",
+      "sourceFile": "sheet-4.png",
+      "sourceSha256": "6e87d711e8d54007ba1dbccc1dec6573f31c58ce7521cbd880e60818076807b1",
+      "opaquePx": 3686
+    }
+  ],
+  "flicker": {
+    "pairs": 3,
+    "alphaFlipsPerPair": 1532.667,
+    "indexFlipsPerPair": 1467.0,
+    "noiseFlipsPerPair": 122.0,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 44,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.244681,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.468,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 3,
+          "alphaFlipsPerPair": 1532.667,
+          "indexFlipsPerPair": 1467.0,
+          "noiseFlipsPerPair": 122.0,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 4.087,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 40
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 122.0,
+          "perFrameNearest": 171.0,
+          "reduction": 0.2865
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../enemy_actions_v3/slum_walk/take_3/frames_raw_registered/sheet-1.png",
+        "sha256": "a6106c72f91ff4f2a750c68568fcd1bb6fd78d1c7818afa0b3889b193b60d63a"
+      },
+      {
+        "path": "../enemy_actions_v3/slum_walk/take_3/frames_raw_registered/sheet-2.png",
+        "sha256": "5f28f6a487027dac7b96156f44837c201ad4bf6fde47e0fdcd0b8ce0d9e1f59f"
+      },
+      {
+        "path": "../enemy_actions_v3/slum_walk/take_3/frames_raw_registered/sheet-3.png",
+        "sha256": "2e7e42016663e3b9f0acb2a2a961009ab9bf0dcb49dccbb8757ac855380c8431"
+      },
+      {
+        "path": "../enemy_actions_v3/slum_walk/take_3/frames_raw_registered/sheet-4.png",
+        "sha256": "6e87d711e8d54007ba1dbccc1dec6573f31c58ce7521cbd880e60818076807b1"
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_slum_remake/finish.json",
+        "sha256": "3d89d72f0b385d794500ef8dc0ad75c784a42e16cba92409034e8d32a3e30f47",
+        "bytes": 7097
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_slum_remake/palette.json",
+        "sha256": "7189318d239bb8b618cfc25e64804868b6288371f07275338f3f86a93731e103",
+        "bytes": 1769
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/sheet-1.png",
+        "sha256": "45882a5d5f299066f54b6f666db11c33790700c299458a9ae0b354b3266bbc6f",
+        "bytes": 4329
+      },
+      {
+        "path": "frames/sheet-2.png",
+        "sha256": "0099f1f4bb28cdef6e777cc289d059807aa163cfe8fae772baf41f140eff78d7",
+        "bytes": 4322
+      },
+      {
+        "path": "frames/sheet-3.png",
+        "sha256": "e9c981e4b810b8563d6f972c00dc262d262ed6f7974b4005dd70ab4764b91f92",
+        "bytes": 4327
+      },
+      {
+        "path": "frames/sheet-4.png",
+        "sha256": "5bfc12f210aa175788db837717e76bc246ab96f0d3e996dd0f5225768bc5c1aa",
+        "bytes": 4604
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "0d532259d4a7193c52333640d8c0b09850a442839547927347791bde4d8668b0",
+        "bytes": 39681
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

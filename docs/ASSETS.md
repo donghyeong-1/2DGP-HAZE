@@ -156,3 +156,8 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 2026-11-16 [Codex] T08 대시·내려찍기·사망 7프레임. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), 기존 v3b 팔레트로 hibit. 검토 대기. docs/codex/reports/T08.md.
 | `assets/sprites/unified/n09_dash_1~2.png`, `n09_plunge_1~2.png`, `n09_death_1~3.png` | Codex T08 결과(`forge/n09_dash_v3`, `n09_plunge_v3`, `n09_death_v3`)를 2026-11-16 게임에 적용 | 주인공 대시 자세 2·내려찍기(파이프를 아래로 겨눔) 2·사망(젖혀짐·무릎 꿇음·엎어짐) 3프레임. 캔버스와 발 기준점이 달라 `config.PLAYER_FRAMES`의 기준점으로 맞춰 그린다 |
+
+2026-11-16 [Codex] T09 폐인·투척병 12프레임. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), T02 재제작 팔레트로 hibit. 검토 대기. docs/codex/reports/T09.md.
+
+2026-11-16 [Codex] T10 크래셔 11프레임. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), T03 재제작 팔레트로 hibit. 검토 대기. docs/codex/reports/T10.md.
+| `assets/sprites/unified/enemy_slum_{walk_1~4,attack_1~3,hurt_1}.png`, `enemy_thrower_{throw_1~3,hurt_1}.png` | Codex T09 결과(`forge/enemy_slum_walk_v3c_registered`, `enemy_slum_attack_v3`, `enemy_slum_hurt_v3`, `enemy_thrower_throw_v3`, `enemy_thrower_hurt_v3`)를 2026-11-16 게임에 적용 | 슬럼 걷기 4·공격 3(예고·타격·회복)·피격 1, 투척병 던지기 3·피격 1. 발 기준점은 `config.ENEMY_FRAMES` |

@@ -28,9 +28,9 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T06 | 배경판 3종 (감옥 복도, 철골 공장, 감시자의 탑) | [T06_backgrounds.md](tasks/T06_backgrounds.md) | - | review |
 | T07 | 주인공 철파이프 공격 (5방향 × 3프레임) | [T07_hero_pipe_attack.md](tasks/T07_hero_pipe_attack.md) | T05 | done·게임 적용 2026-11-16 (파이프가 가늘어 필요하면 재작업) |
 | T08 | 주인공 대시·내려찍기·사망 포즈 | [T08_hero_dash_plunge_death.md](tasks/T08_hero_dash_plunge_death.md) | T05 | done·게임 적용 2026-11-16 |
-| T09 | 슬럼·투척병 애니메이션 (걷기·공격·피격·던지기) | [T09_enemy_anims_a.md](tasks/T09_enemy_anims_a.md) | T02 | in_progress |
-| T10 | 보스 크래셔 애니메이션 (대기·찍기·돌진·도약·피격) | [T10_boss_crasher_anims.md](tasks/T10_boss_crasher_anims.md) | T03 | ready |
-| T11 | 사망·엔딩 화면 일러스트 2장 | [T11_end_screens.md](tasks/T11_end_screens.md) | - | ready |
+| T09 | 슬럼·투척병 애니메이션 (걷기·공격·피격·던지기) | [T09_enemy_anims_a.md](tasks/T09_enemy_anims_a.md) | T02 | done·게임 적용 2026-11-16 |
+| T10 | 보스 크래셔 애니메이션 (대기·찍기·돌진·도약·피격) | [T10_boss_crasher_anims.md](tasks/T10_boss_crasher_anims.md) | T03 | review |
+| T11 | 사망·엔딩 화면 일러스트 2장 | [T11_end_screens.md](tasks/T11_end_screens.md) | - | in_progress |
 | T12 | 간수·사냥개·아크 애니메이션 | [T12_guard_hound_ark_anims.md](tasks/T12_guard_hound_ark_anims.md) | 사용자 결정 | blocked |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)

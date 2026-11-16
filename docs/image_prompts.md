@@ -224,3 +224,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-16 [Codex] T07 N-09 v3b 기준 철파이프 우향 공격 5방향. 실제 프롬프트는 assets/sprites/forge/hero_pipe_v3/<방향>/actual_prompt.txt에 기록.
 
 2026-11-16 [Codex] T08 N-09 v3b 기준 우향 대시·파이프 내려찍기·사망. 실제 프롬프트는 assets/sprites/forge/hero_special_v3/<동작>/actual_prompt.txt.
+
+2026-11-16 [Codex] T09 폐인 걷기·공격·피격 및 투척병 던지기·피격 5종. 실제 프롬프트는 assets/sprites/forge/enemy_actions_v3/<동작>/actual_prompt.txt 등에 기록.
+
+2026-11-16 [Codex] T10 크래셔 대기·찍기·돌진·도약·피격. 실제 프롬프트는 assets/sprites/forge/crasher_actions_v3/<동작>/actual_prompt.txt 등에 기록.

@@ -1,0 +1,104 @@
+{
+  "schema": "generate2dsprite.palette.v1",
+  "colors": [
+    {
+      "hex": "#091425"
+    },
+    {
+      "hex": "#0a1526"
+    },
+    {
+      "hex": "#0b1729"
+    },
+    {
+      "hex": "#0b192c"
+    },
+    {
+      "hex": "#0c1a2e"
+    },
+    {
+      "hex": "#0d1d31"
+    },
+    {
+      "hex": "#0e1f35"
+    },
+    {
+      "hex": "#0f2137"
+    },
+    {
+      "hex": "#11243c"
+    },
+    {
+      "hex": "#122942"
+    },
+    {
+      "hex": "#152d47"
+    },
+    {
+      "hex": "#11314b"
+    },
+    {
+      "hex": "#17334e"
+    },
+    {
+      "hex": "#1b3a56"
+    },
+    {
+      "hex": "#0b4269"
+    },
+    {
+      "hex": "#1d3f5e"
+    },
+    {
+      "hex": "#214a67"
+    },
+    {
+      "hex": "#0c517c"
+    },
+    {
+      "hex": "#225474"
+    },
+    {
+      "hex": "#0a648f"
+    },
+    {
+      "hex": "#266385"
+    },
+    {
+      "hex": "#1175a4"
+    },
+    {
+      "hex": "#3a7b9b"
+    },
+    {
+      "hex": "#1c90b9"
+    },
+    {
+      "hex": "#8d6f5c"
+    },
+    {
+      "hex": "#3291b2"
+    },
+    {
+      "hex": "#3aadcc"
+    },
+    {
+      "hex": "#b08d71"
+    },
+    {
+      "hex": "#769eb9"
+    },
+    {
+      "hex": "#cdab8b"
+    },
+    {
+      "hex": "#9cbfd3"
+    },
+    {
+      "hex": "#c7dbe5"
+    }
+  ],
+  "transparent_index": 255,
+  "locked": false,
+  "source": "hibit_plate: k-means++ on luminance-weighted RGB of background.png, 32 colours, seed 0"
+}

@@ -1,0 +1,329 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "boss_crasher_smash_v3",
+  "character": "boss_crasher_remake",
+  "role": null,
+  "source": {
+    "frames": "../crasher_actions_v3/smash/frames_raw",
+    "count": 3,
+    "size": [
+      1536,
+      1536
+    ],
+    "pattern": "*.png",
+    "registration": null
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 356,
+    "feetPx": 1270,
+    "heightPx": 914,
+    "areaPx": 317716,
+    "stanceX": 753.5,
+    "centroid": [
+      756.6566776618112,
+      770.5115480492012
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    753.5,
+    1270.0
+  ],
+  "scale": 0.265474552957359,
+  "scaleSource": "scale-ref",
+  "targetHeight": 244.64374140302613,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/boss_crasher_remake/finish.json",
+    "sha256": "183f6a1457ed5fd139e1de1681abdb6ee8e0cb4e590c2fbd2e41db08230e991a",
+    "bytes": 7094,
+    "clip": "boss_crasher_remake",
+    "character": "boss_crasher_remake",
+    "scale": 0.265474552957359,
+    "restAreaPx": 318744.0,
+    "areaRatio": 0.996775,
+    "correction": 1.001616,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    198,
+    247
+  ],
+  "anchor": [
+    94,
+    246
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      198,
+      247
+    ],
+    "sourceAnchor": [
+      94,
+      246
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 244.6437,
+    "areaPx": 22391.587,
+    "bodyHeightPx": 242.6437,
+    "outlinePx": 1,
+    "measuredHeightPx": 245,
+    "measuredAreaPx": 23687
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.265474552957359,
+      "size": [
+        198,
+        247
+      ],
+      "anchor": [
+        94,
+        246
+      ],
+      "targetHeight": 244.64374140302613,
+      "flicker": {
+        "pairs": 2,
+        "alphaFlipsPerPair": 11325.0,
+        "indexFlipsPerPair": 11781.0,
+        "noiseFlipsPerPair": 1221.0,
+        "edgeFlipsPerPair": 0.5
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/boss_crasher_remake/palette.json",
+    "sha256": "81257275832f9f67391ae209cf1941b344012a10d2165d87db4f5f2480e46dd6",
+    "bytes": 1770,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 3005,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 41,
+    "noiseFlipReduction": 0.3234,
+    "plainMajority": {
+      "pairs": 2,
+      "alphaFlipsPerPair": 11389.5,
+      "indexFlipsPerPair": 12717.5,
+      "noiseFlipsPerPair": 1804.5,
+      "edgeFlipsPerPair": 1.0
+    },
+    "heldIndexPx": 1667,
+    "lonePixelsFixed": 4062
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/sheet-1.png",
+      "sha256": "1c8a80ee8338b3d8c4eba5673763f09f0eb3ec0e2f14e9ebf918b699e9bdc1be",
+      "sourceFile": "sheet-1.png",
+      "sourceSha256": "01271d7a9bb877a71ac4d5f35908db8880b12d9a975478d71e00abf49dedfb04",
+      "opaquePx": 23687
+    },
+    {
+      "file": "frames/sheet-2.png",
+      "sha256": "4aeafeb77475d79970b151074e9a0a2704e12aa57fc7af78eb75d676dba4b7fc",
+      "sourceFile": "sheet-2.png",
+      "sourceSha256": "38cc4d101cf1c861bbadf2074b033cc6865b12c488f576e6466d885631ef5913",
+      "opaquePx": 23340
+    },
+    {
+      "file": "frames/sheet-3.png",
+      "sha256": "903c34fa83c21d96b55019ca6feebcd2e9da54b573ceeb1340e5f832144eeb1f",
+      "sourceFile": "sheet-3.png",
+      "sourceSha256": "0dfd6531620e2a165b79567e61a4cbbfc86707548075098097e13c1e8b743c0a",
+      "opaquePx": 24011
+    }
+  ],
+  "flicker": {
+    "pairs": 2,
+    "alphaFlipsPerPair": 11325.0,
+    "indexFlipsPerPair": 11781.0,
+    "noiseFlipsPerPair": 1221.0,
+    "edgeFlipsPerPair": 0.5
+  },
+  "specksRemoved": 24,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2
+    ]
+  },
+  "qa": {
+    "status": "warn",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.265475,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.356,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 2,
+          "alphaFlipsPerPair": 11325.0,
+          "indexFlipsPerPair": 11781.0,
+          "noiseFlipsPerPair": 1221.0,
+          "edgeFlipsPerPair": 0.5
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "warn",
+        "value": 3.767,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 41
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 1221.0,
+          "perFrameNearest": 1804.5,
+          "reduction": 0.3234
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../crasher_actions_v3/smash/frames_raw/sheet-1.png",
+        "sha256": "01271d7a9bb877a71ac4d5f35908db8880b12d9a975478d71e00abf49dedfb04"
+      },
+      {
+        "path": "../crasher_actions_v3/smash/frames_raw/sheet-2.png",
+        "sha256": "38cc4d101cf1c861bbadf2074b033cc6865b12c488f576e6466d885631ef5913"
+      },
+      {
+        "path": "../crasher_actions_v3/smash/frames_raw/sheet-3.png",
+        "sha256": "0dfd6531620e2a165b79567e61a4cbbfc86707548075098097e13c1e8b743c0a"
+      },
+      {
+        "path": "../remake_t01_t03/finished/boss_crasher_remake/finish.json",
+        "sha256": "183f6a1457ed5fd139e1de1681abdb6ee8e0cb4e590c2fbd2e41db08230e991a",
+        "bytes": 7094
+      },
+      {
+        "path": "../remake_t01_t03/finished/boss_crasher_remake/palette.json",
+        "sha256": "81257275832f9f67391ae209cf1941b344012a10d2165d87db4f5f2480e46dd6",
+        "bytes": 1770
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/sheet-1.png",
+        "sha256": "1c8a80ee8338b3d8c4eba5673763f09f0eb3ec0e2f14e9ebf918b699e9bdc1be",
+        "bytes": 19671
+      },
+      {
+        "path": "frames/sheet-2.png",
+        "sha256": "4aeafeb77475d79970b151074e9a0a2704e12aa57fc7af78eb75d676dba4b7fc",
+        "bytes": 19098
+      },
+      {
+        "path": "frames/sheet-3.png",
+        "sha256": "903c34fa83c21d96b55019ca6feebcd2e9da54b573ceeb1340e5f832144eeb1f",
+        "bytes": 19730
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "dbc918748fcc5658d0d3ee7628d04804ab823bb093d55958eab3675aa848a8f3",
+        "bytes": 148146
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

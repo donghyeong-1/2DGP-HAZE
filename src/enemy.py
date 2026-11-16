@@ -33,6 +33,7 @@ class Enemy(TileBody):
         self.hit_left = 0.0
         self.leap_cooldown = 0.0   # 도약 재사용 대기
         self.blocked_time = 0.0    # 가려는데 앞이 막혀 있던 시간 (벽·기둥에 막힘 감지)
+        self.walk_phase = 0.0      # 걷기 프레임 위상 (이동한 거리에 비례)
         self.machine = Machine(
             model=self,
             states=['IDLE', 'CHASE', 'ATTACK', 'HIT', 'DEAD'],
@@ -91,6 +92,10 @@ class Enemy(TileBody):
             self.face_dir = 1 if self.player.x > self.x else -1
 
         before_x = self.x
+        if self.state == 'CHASE' and self.on_ground and self.vx != 0:
+            self.walk_phase += abs(self.vx) * dt / config.ENEMY_WALK_FRAME_PX
+        elif self.state != 'CHASE':
+            self.walk_phase = 0.0
         getattr(self, '_do_' + self.state.lower())(dt)
         self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self.move_with_tiles(dt)
@@ -192,16 +197,42 @@ class Enemy(TileBody):
         self.vx = 0.0
 
     # ----- 그리기 -----
+    def _body_frame(self):
+        """지금 상태에 맞는 동작 프레임 (접두어, 번호). 해당 동작 그림이 없는 적이나 상태는 (None, 0) = 대기 그림 한 장."""
+        frames = self.stats.get('frames', {})
+        if self.state == 'HIT' and 'hurt' in frames:
+            return frames['hurt'], 1
+        if self.state == 'ATTACK' and 'attack' in frames:
+            s = self.stats
+            t = self.attack_time
+            if t < s['windup']:
+                return frames['attack'], 1                      # 예고: 팔을 뒤로 뺀다
+            return frames['attack'], 2 if t < s['windup'] + s['attack_time'] * 0.6 else 3
+        if self.state == 'CHASE' and 'walk' in frames and self.on_ground and self.vx != 0:
+            count = config.ENEMY_FRAMES[frames['walk']][0]
+            return frames['walk'], int(self.walk_phase) % count + 1
+        return None, 0
+
+    def _body_image(self):
+        """(이미지, 가로 보정 dx, 발 아래 여백). 프레임마다 캔버스와 발 기준점이 달라 기준점을 발 위치에 맞춘다."""
+        prefix, n = self._body_frame()
+        if prefix is None:
+            return assets.image('sprites/unified/' + self.stats['sprite']), 0, config.SPRITE_FOOT_MARGIN
+        img = assets.image(f'sprites/unified/{prefix}_{n}.png')
+        _, px, py = config.ENEMY_FRAMES[prefix]
+        dx = img.w // 2 - ((img.w - 1 - px) if self.face_dir < 0 else px)
+        return img, dx, img.h - py
+
     def draw(self):
-        img = assets.image('sprites/unified/' + self.stats['sprite'])
+        img, dx, foot = self._body_image()
         flip = 'h' if self.face_dir < 0 else ''
-        y = self.y - config.SPRITE_FOOT_MARGIN
+        y = self.y - foot
         if self.flash > 0:
-            assets.draw_image_tinted(img, self.x, y, flip, (255, 90, 90), 1.0)
+            assets.draw_image_tinted(img, self.x + dx, y, flip, (255, 90, 90), 1.0)
         elif self.state == 'ATTACK' and not self.struck and int(self.attack_time * 20) % 2 == 0:
-            assets.draw_image_tinted(img, self.x, y, flip, (255, 225, 120), 1.0)  # 공격 직전 깜빡임(예고)
+            assets.draw_image_tinted(img, self.x + dx, y, flip, (255, 225, 120), 1.0)  # 공격 직전 깜빡임(예고)
         else:
-            assets.draw_image(img, self.x, y, flip)
+            assets.draw_image(img, self.x + dx, y, flip)
         if self.hp < self.max_hp:
             self._draw_hp_bar()
         if config.DEBUG:

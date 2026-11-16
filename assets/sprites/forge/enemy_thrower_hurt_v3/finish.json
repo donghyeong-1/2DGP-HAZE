@@ -1,0 +1,261 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_thrower_hurt_v3",
+  "character": "enemy_thrower_remake",
+  "role": null,
+  "source": {
+    "frames": "../enemy_actions_v3/thrower_hurt/frames_raw",
+    "count": 1,
+    "size": [
+      1024,
+      1024
+    ],
+    "pattern": "*.png",
+    "registration": null
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 488,
+    "feetPx": 954,
+    "heightPx": 466,
+    "areaPx": 52909,
+    "stanceX": 506.5,
+    "centroid": [
+      497.15521933886487,
+      720.417310854486
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    506.5,
+    954.0
+  ],
+  "scale": 0.2574468085106383,
+  "scaleSource": "scale-ref",
+  "targetHeight": 121.97021276595744,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/enemy_thrower_remake/finish.json",
+    "sha256": "1cf996cbda121cb6ef56afe865f96268d51225621483a159761c90fa4d46275c",
+    "bytes": 7090,
+    "clip": "enemy_thrower_remake",
+    "character": "enemy_thrower_remake",
+    "scale": 0.2574468085106383,
+    "restAreaPx": 47293.0,
+    "areaRatio": 1.118749,
+    "correction": 0.945439,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    58,
+    125
+  ],
+  "anchor": [
+    32,
+    124
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      58,
+      125
+    ],
+    "sourceAnchor": [
+      32,
+      124
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 121.9702,
+    "areaPx": 3506.748,
+    "bodyHeightPx": 119.9702,
+    "outlinePx": 1,
+    "measuredHeightPx": 122,
+    "measuredAreaPx": 4122
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.2574468085106383,
+      "size": [
+        58,
+        125
+      ],
+      "anchor": [
+        32,
+        124
+      ],
+      "targetHeight": 121.97021276595744,
+      "flicker": null,
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/enemy_thrower_remake/palette.json",
+    "sha256": "abbc5a36cc64f28905920bb7505a8f8bff543b2561ae6f822009c02d8a5f663b",
+    "bytes": 1769,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 516,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 41,
+    "noiseFlipReduction": null,
+    "plainMajority": null,
+    "heldIndexPx": 0,
+    "lonePixelsFixed": 248
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/sheet-1.png",
+      "sha256": "2b28c3395ebfc11293461732370667ef65cf778974bf58b9b8ec35eb8b9cfcb1",
+      "sourceFile": "sheet-1.png",
+      "sourceSha256": "f5c777174e649d69961a61024d90a8883a528758e2f6d8bc11c004ff09df0df9",
+      "opaquePx": 4122
+    }
+  ],
+  "flicker": null,
+  "specksRemoved": 17,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0
+    ]
+  },
+  "qa": {
+    "status": "warn",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.257447,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.03,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": null,
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "warn",
+        "value": 3.884,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 41
+        },
+        "threshold": 0
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../enemy_actions_v3/thrower_hurt/frames_raw/sheet-1.png",
+        "sha256": "f5c777174e649d69961a61024d90a8883a528758e2f6d8bc11c004ff09df0df9"
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_thrower_remake/finish.json",
+        "sha256": "1cf996cbda121cb6ef56afe865f96268d51225621483a159761c90fa4d46275c",
+        "bytes": 7090
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_thrower_remake/palette.json",
+        "sha256": "abbc5a36cc64f28905920bb7505a8f8bff543b2561ae6f822009c02d8a5f663b",
+        "bytes": 1769
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/sheet-1.png",
+        "sha256": "2b28c3395ebfc11293461732370667ef65cf778974bf58b9b8ec35eb8b9cfcb1",
+        "bytes": 5155
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "e26f05e6c7a80ce5f35b039480e86b30174c216c1fd5a5fde182578d6cef5dbd",
+        "bytes": 13249
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

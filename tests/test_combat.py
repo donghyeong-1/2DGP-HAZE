@@ -786,7 +786,7 @@ def test_walk_frames_and_remade_enemy_sprites_are_in_place():
     from PIL import Image
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
     for prefix, (count, px, py) in config.PLAYER_FRAMES.items():
-        if 'swing' in prefix:                       # 공격 자세는 방향마다 캔버스가 달라 따로 검사한다
+        if any(k in prefix for k in ('swing', 'dash', 'plunge', 'death')):   # 자세마다 캔버스가 달라 따로 검사한다
             continue
         for i in range(1, count + 1):
             im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
@@ -837,6 +837,30 @@ def test_swing_frames_exist_for_every_direction():
         for i in range(1, count + 1):
             im = Image.open(os.path.join(base, f'n09_swing_{d}_{i}.png'))
             assert py == im.size[1] - 1 and 0 < px < im.size[0], (d, i, im.size)
+
+
+def test_dash_death_and_plunge_poses():
+    room, p = make_world()
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.request_dash()
+    assert p.state == 'DASH' and p._body_frame()[0] == 'n09_dash'                # 대시 자세
+    run_frames(30)
+    room, q = make_world()
+    q.hp = 0
+    q.die()
+    assert q.state == 'DEAD' and q._body_frame() == ('n09_death', 1)             # 뒤로 젖혀짐
+    run_frames(int(config.DEATH_FRAME_TIMES[0] * 60) + 3)
+    assert q._body_frame() == ('n09_death', 2)                                   # 무릎 꿇음
+    run_frames(60)
+    assert q._body_frame() == ('n09_death', 3)                                   # 엎어진 채 유지
+    room, r = make_world()
+    r.request_jump()
+    run_frames(10)
+    r.mouse_x, r.mouse_y = r.x, r.y - 400
+    r.request_attack()
+    assert r.weapon.last_kind == 'plunge' and r._body_frame() == ('n09_plunge', 1)
+    run_frames(int(config.PLUNGE_POSE_TIME * 60 * 0.5))
+    assert r._body_frame()[0] in ('n09_plunge', 'n09_jump')
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

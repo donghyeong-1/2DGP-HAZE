@@ -40,6 +40,10 @@ PLAYER_HP = 100
 PLAYER_FRAMES = {'n09_idle': (4, 21, 124), 'n09_hurt': (2, 41, 124), 'n09_jump': (4, 48, 125), 'n09_walk': (4, 37, 124),
                  'n09_swing_side': (3, 53, 136), 'n09_swing_up': (3, 64, 165), 'n09_swing_down': (3, 30, 140),
                  'n09_swing_upfwd': (3, 51, 128), 'n09_swing_downfwd': (3, 47, 127)}
+PLAYER_FRAMES.update({'n09_dash': (2, 40, 79), 'n09_plunge': (2, 58, 142), 'n09_death': (3, 68, 124)})
+DASH_FRAME_TIME = 0.07   # 대시 자세 두 프레임이 바뀌는 간격(초)
+PLUNGE_POSE_TIME = 0.5   # 내려찍기 자세를 보여 주는 시간(초)
+DEATH_FRAME_TIMES = (0.2, 0.45)   # 사망 프레임이 2번, 3번으로 넘어가는 시각(초). 3번(엎어짐)은 계속 유지
 SWING_TIME = 0.27        # 공격 자세(준비·타격·마무리 3프레임)를 보여 주는 시간(초)
 IDLE_FRAME_TIME = 0.25   # 숨쉬는 대기 프레임 한 장의 시간(초)
 JUMP_RISE_VY = 350.0     # 점프 프레임: vy가 이 값보다 크면 상승, 작고 -이 값보다 크면 정점, 그 아래면 하강

@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-15 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Codex] T09 슬럼·고철 투척병 애니메이션 / assets/sprites/forge/enemy_actions_v3/, docs/codex/reports/T09.md
 
 ## 1차 발표 (2026-11-04, 지남)
 - 영상 촬영 완료(사용자 보고 11/3). GitHub 저장소 https://github.com/donghyeong-1/2DGP-HAZE 공개. e-class 제출 여부는 사용자가 확인.
@@ -105,3 +105,4 @@
 2026-11-16 [Claude Code] Codex T07 검토·적용(철파이프 공격 자세 5방향, player.start_swing·_body_frame, config.SWING_TIME), 테스트 2개 추가 / src/(player, weapon, config), assets/sprites/unified/n09_swing_*, tests/test_combat.py, docs/*
 
 2026-11-16 [Codex] T08 대시·내려찍기·사망 7프레임 제작 및 검사, 검토 대기 / assets/sprites/forge/hero_special_v3/, assets/sprites/forge/n09_dash_v3*, n09_plunge_v3*, n09_death_v3*, docs/codex/reports/T08.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
+2026-11-16 [Claude Code] Codex T08 검토·적용(대시·내려찍기·사망 자세, player._body_frame 확장, start_plunge_pose, dead_time), 테스트 추가 / src/(player, weapon, config), assets/sprites/unified/n09_dash·plunge·death_*, tests/test_combat.py, docs/*

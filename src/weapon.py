@@ -272,7 +272,7 @@ class Pipe:
         cx, cy = p.center
         fx = self._fx(enhanced)
         assets.play_sound(fx['sound'])
-        p.start_swing(0.0, -1.0)
+        p.start_plunge_pose()
         sheet, _ = effects.special_sheet('plunge', enhanced)
         effects.spawn(sheet, cx, cy, duration=0.26, variant=4)             # 아래 방향 변형
         k = 1.35 if enhanced else 1.0

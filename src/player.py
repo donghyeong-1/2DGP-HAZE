@@ -196,6 +196,8 @@ class Player(TileBody):
         self.aura_time = 0.0           # 오라 반복 재생 시간
         self.walk_phase = 0.0          # 걷기 프레임 위상 (이동한 거리에 비례, 멈추면 0)
         self.swing_left = 0.0          # 공격 자세 남은 시간 (철파이프를 든 3프레임)
+        self.swing_total = config.SWING_TIME
+        self.dead_time = 0.0           # 사망 후 지난 시간 (쓰러지는 프레임 재생용)
         self.swing_dir = 'side'        # 공격 자세 방향: side / up / down / upfwd / downfwd
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
@@ -420,6 +422,7 @@ class Player(TileBody):
         self._sync_mouse()
         self.aura_time += dt
         self.swing_left = max(0.0, self.swing_left - dt)
+        self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
             self.walk_phase += abs(self.vx) * dt / config.WALK_FRAME_PX
         else:
@@ -505,16 +508,30 @@ class Player(TileBody):
             self.swing_dir = 'downfwd'
         else:
             self.swing_dir = 'side'
+        self.swing_total = config.SWING_TIME
         self.swing_left = config.SWING_TIME
+
+    def start_plunge_pose(self):
+        """내려찍기 자세(파이프를 아래로 겨눈 두 프레임)를 보여 준다."""
+        self.swing_dir = 'plunge'
+        self.swing_total = config.PLUNGE_POSE_TIME
+        self.swing_left = config.PLUNGE_POSE_TIME
 
     def _body_frame(self):
         """지금 상태에 맞는 몸 이미지 이름: 달리기 걷기 4장, 서 있기 숨쉬기 4장, 공중 점프 4장, 피격 2장. 없으면 대기 한 장."""
         if self.state == 'HIT':
             return 'n09_hurt', 1 if self.hit_left > config.HIT_STUN / 2 else 2
-        if self.stunned or self.state in ('DASH', 'DEAD'):
+        if self.state == 'DEAD':
+            t1, t2 = config.DEATH_FRAME_TIMES
+            return 'n09_death', 1 if self.dead_time < t1 else 2 if self.dead_time < t2 else 3
+        if self.state == 'DASH':
+            return 'n09_dash', int(self.aura_time / config.DASH_FRAME_TIME) % 2 + 1
+        if self.stunned:
             return 'n09_idle', 0
+        if self.swing_left > 0 and self.swing_dir == 'plunge':
+            return 'n09_plunge', 1 if self.swing_left > self.swing_total * 0.65 else 2
         if self.swing_left > 0:       # 철파이프를 휘두르는 자세: 준비 -> 타격 -> 마무리
-            done = 1.0 - self.swing_left / config.SWING_TIME
+            done = 1.0 - self.swing_left / self.swing_total
             return 'n09_swing_' + self.swing_dir, 1 if done < 0.3 else 2 if done < 0.65 else 3
         if not self.on_ground and self.state in ('JUMP', 'FALL'):
             if self.vy > config.JUMP_RISE_VY:

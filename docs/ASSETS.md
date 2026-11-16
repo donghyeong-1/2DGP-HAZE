@@ -155,3 +155,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/sprites/unified/n09_swing_{side,up,down,upfwd,downfwd}_1~3.png` | Codex T07 결과(`forge/n09_swing_*_v3`)를 2026-11-16 게임에 적용 | 철파이프를 든 공격 자세 5방향 x 3프레임(준비·타격·마무리). 조준 방향으로 고르고 왼쪽은 좌우 반전. 방향마다 캔버스·발 기준점이 달라 `config.PLAYER_FRAMES`에 기준점을 둔다 |
 
 2026-11-16 [Codex] T08 대시·내려찍기·사망 7프레임. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), 기존 v3b 팔레트로 hibit. 검토 대기. docs/codex/reports/T08.md.
+| `assets/sprites/unified/n09_dash_1~2.png`, `n09_plunge_1~2.png`, `n09_death_1~3.png` | Codex T08 결과(`forge/n09_dash_v3`, `n09_plunge_v3`, `n09_death_v3`)를 2026-11-16 게임에 적용 | 주인공 대시 자세 2·내려찍기(파이프를 아래로 겨눔) 2·사망(젖혀짐·무릎 꿇음·엎어짐) 3프레임. 캔버스와 발 기준점이 달라 `config.PLAYER_FRAMES`의 기준점으로 맞춰 그린다 |

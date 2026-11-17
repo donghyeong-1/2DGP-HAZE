@@ -40,6 +40,13 @@
 - 과목 공지(2026-11-11 사용자 전달): 맵 에디터 같은 외부 툴을 사용해도 되고 적극 사용을 권장한다. 쓰는 도구와 버전, 라이선스는 `docs/ASSETS.md`에 기록한다.
 - 에셋은 저작권 문제가 없는 것만 사용하고 출처·라이선스를 `docs/ASSETS.md`에 기록한다. 타인의 이미지·소리는 출처와 라이선스를 확인하지 않고 사용하지 않는다.
 - 커밋 메시지는 한국어로 작성한다.
+- 규칙(전투·게이지·적 행동)을 바꿀 때는 그 규칙을 확인하는 테스트를 먼저 쓰고(실패 확인) 코드를 고친다.
+
+## 프로젝트 스킬 (`.claude/skills/`, 저장소에 포함)
+Claude Code는 스킬로 불러 쓰고, 다른 도구는 같은 파일을 절차서로 읽는다. 자세한 내용은 `docs/SKILLS.md` 8절.
+- **verify**: 커밋 전 점검. `python tools/verify.py` (테스트, PROGRESS 갱신, Codex 영역·진행 중 파일 보호, 원본·큰 파일).
+- **balance-sim**: 전투 수치를 바꾸기 전후 비교. `python tools/balance_sim.py --save/--compare tools/balance_base.json`.
+- **playtest-capture**: 실제 창 화면 캡처, 봇이 싸우는 장면 촬영. `python tools/capture.py --help`.
 
 ## 폴더 구조
 - `docs/` 기획서, 진행상황, 결정, 에셋 출처

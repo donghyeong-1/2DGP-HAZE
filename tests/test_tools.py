@@ -1,0 +1,36 @@
+"""개발 도구 검사: 밸런스 시뮬레이터가 지금 게임 코드로 돌아가는지 (창 없이). 실행: python tests/test_tools.py"""
+import os
+import sys
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+sys.path.insert(0, os.path.join(ROOT, 'src'))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+
+import balance_sim  # noqa: E402
+
+
+def test_balance_sim_runs_every_weapon_and_reports_fields():
+    for weapon_id in balance_sim.WEAPONS:
+        r = balance_sim.run_one('slum', weapon_id, 'stand', 0)
+        assert r['result'] in ('win', 'dead', 'timeout')
+        assert set(r) >= {'time', 'hp_lost', 'gauge_end', 'gauge_min', 'gauge_max', 'zones'}
+        assert abs(sum(r['zones'].values()) - 1.0) < 0.01                  # 구간 비율의 합은 1
+
+
+def test_balance_sim_is_deterministic_per_seed():
+    a = balance_sim.run_one('hound', 'pipe', 'dodge', 3)
+    b = balance_sim.run_one('hound', 'pipe', 'dodge', 3)
+    assert a == b                                                         # 같은 시드면 같은 결과 (전후 비교의 전제)
+
+
+def test_balance_sim_start_gauge_option():
+    r = balance_sim.run_one('slum', 'pipe', 'stand', 0, gauge=70)
+    assert r['gauge_max'] >= 70
+
+
+if __name__ == '__main__':
+    tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
+    for t in tests:
+        t()
+        print('통과', t.__name__)
+    print(f'{len(tests)}개 통과')

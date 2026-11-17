@@ -99,3 +99,14 @@
 - Codex에만 있는 `hatch-pet`은 이 프로젝트와 무관하다(건드리지 않음).
 - 확인: `python ~/.claude/skills/platformer/scripts/jump_tuner.py --help` 가 동작한다. 새 스킬은 **Claude Code와 Codex를 다시 시작해야** 목록에 나타난다.
 
+## 8. 프로젝트 스킬 (2026-11-17, [Claude Code])
+위 스킬들은 각자 PC의 홈 폴더에 설치하는 범용 스킬이다. 아래 3개는 **이 게임 전용**이라 저장소의 `.claude/skills/`에 넣었다. `git pull`만 하면 두 컴퓨터 모두 쓸 수 있다.
+다른 프로젝트의 스킬 목록(인수인계, 커밋 전 검증, 규칙 TDD, 밸런스 시뮬레이션, 타격감, 화면 크기별 실행, 에셋 파이프라인)을 참고해, 이 프로젝트에 아직 없던 것만 만들었다. 인수인계와 에셋 기록은 `AGENTS.md`·`docs/ASSETS.md`가 이미 하고, 타격감은 `game-feel` 스킬이 있다. 규칙 TDD는 `AGENTS.md` 코드 규칙에 한 줄로 넣었다.
+
+| 스킬 | 도구 | 하는 일 |
+|---|---|---|
+| verify | `tools/verify.py` | 커밋 전: 전체 테스트, PROGRESS 작업 로그, "진행 중"·Codex 영역 보호, AI 원본·5MB 넘는 파일 차단 |
+| balance-sim | `tools/balance_sim.py`, 기준 `tools/balance_base.json` | 봇이 실제 게임 코드로 싸워 6 시나리오 x 3 무기 x 2 봇 x 10 시드의 승률·처치 시간·잃은 HP·게이지 흐름을 잰다(수 초). 수치 변경 전후 비교 |
+| playtest-capture | `tools/capture.py` | 실제 창으로 게임 화면 캡처. 방·적·무기·게이지 지정, 봇 조작 전투를 여러 장 찍고 모아 보기 저장 |
+
+시뮬레이터가 게임 코드 변경으로 깨지지 않게 `tests/test_tools.py`가 지킨다.

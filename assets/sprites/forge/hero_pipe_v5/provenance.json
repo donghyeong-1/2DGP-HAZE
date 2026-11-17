@@ -1,0 +1,281 @@
+{
+  "generatedDatesKST": {
+    "side": "2026-11-17",
+    "upfwd": "2026-11-17",
+    "downfwd": "2026-11-18",
+    "up": "2026-11-18",
+    "down": "2026-11-18"
+  },
+  "directions": {
+    "side": {
+      "art_source": "host_image",
+      "route": "Codex host image_gen",
+      "model": null,
+      "estimateUsd": null,
+      "source": "side/source.png",
+      "sourceSha256": "46d677af7182f0587ad066a430e2a32fdedfb80ccb202e59544295dbe2652d11",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "side/actual_prompt.txt",
+      "body_reference": "../hero_v3b/master/master_rgba.png",
+      "pose_reference": "../n09_swing_side_v4_strip_1x.png",
+      "finish": "side/n09_swing_side_v5_refined/finish.json",
+      "finishToolVersion": "0.5.0",
+      "finishOverallStatus": "needs-visual-review",
+      "paletteColorsUsed": 41,
+      "floorOpaqueY": 148,
+      "soleXSpanRelativeToAnchor": [
+        [
+          -18,
+          17
+        ],
+        [
+          -20,
+          19
+        ],
+        [
+          -18,
+          17
+        ],
+        [
+          -18,
+          17
+        ],
+        [
+          -17,
+          17
+        ]
+      ],
+      "gifTimingVerified": [
+        30,
+        40,
+        100,
+        80,
+        60
+      ],
+      "exactKeyFrameRGBA": [
+        1,
+        3,
+        4
+      ]
+    },
+    "upfwd": {
+      "art_source": "host_image",
+      "route": "Codex host image_gen",
+      "model": null,
+      "estimateUsd": null,
+      "source": "upfwd/source.png",
+      "sourceSha256": "9cd8c0ab0d887853ba1d65158d0246fb71bac080b4a398d6ed94baca36d4e3f0",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "upfwd/actual_prompt.txt",
+      "body_reference": "../hero_v3b/master/master_rgba.png",
+      "pose_reference": "../n09_swing_upfwd_v4_strip_1x.png",
+      "finish": "upfwd/n09_swing_upfwd_v5_refined/finish.json",
+      "finishToolVersion": "0.5.0",
+      "finishOverallStatus": "needs-visual-review",
+      "paletteColorsUsed": 40,
+      "floorOpaqueY": 158,
+      "soleXSpanRelativeToAnchor": [
+        [
+          -17,
+          16
+        ],
+        [
+          -21,
+          20
+        ],
+        [
+          -17,
+          16
+        ],
+        [
+          -17,
+          16
+        ],
+        [
+          -19,
+          18
+        ]
+      ],
+      "gifTimingVerified": [
+        30,
+        40,
+        100,
+        80,
+        60
+      ],
+      "exactKeyFrameRGBA": [
+        1,
+        3,
+        4
+      ]
+    },
+    "downfwd": {
+      "art_source": "host_image",
+      "route": "Codex host image_gen",
+      "model": null,
+      "estimateUsd": null,
+      "source": "downfwd/source.png",
+      "sourceSha256": "18e1c891e87fc1fa2dd6aca712d3c146d4e0e45bcaca29be77eddd6687b30c0b",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "downfwd/actual_prompt.txt",
+      "body_reference": "../hero_v3b/master/master_rgba.png",
+      "pose_reference": "../n09_swing_downfwd_v4_strip_1x.png",
+      "finish": "downfwd/n09_swing_downfwd_v5/finish.json",
+      "finishToolVersion": "0.5.0",
+      "finishOverallStatus": "needs-visual-review",
+      "paletteColorsUsed": 41,
+      "floorOpaqueY": 151,
+      "soleXSpanRelativeToAnchor": [
+        [
+          -18,
+          17
+        ],
+        [
+          -24,
+          23
+        ],
+        [
+          -18,
+          17
+        ],
+        [
+          -18,
+          17
+        ],
+        [
+          -18,
+          17
+        ]
+      ],
+      "gifTimingVerified": [
+        30,
+        40,
+        100,
+        80,
+        60
+      ],
+      "exactKeyFrameRGBA": [
+        1,
+        3,
+        4
+      ]
+    },
+    "up": {
+      "art_source": "host_image",
+      "route": "Codex host image_gen",
+      "model": null,
+      "estimateUsd": null,
+      "source": "up/source.png",
+      "sourceSha256": "c9cb9e137afbeca337e207c2eac363941fcc98d330aba131b0cc084a967d2e5a",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "up/actual_prompt.txt",
+      "body_reference": "../hero_v3b/master/master_rgba.png",
+      "pose_reference": "../n09_swing_up_v4_strip_1x.png",
+      "finish": "up/n09_swing_up_v5/finish.json",
+      "finishToolVersion": "0.5.0",
+      "finishOverallStatus": "needs-visual-review",
+      "paletteColorsUsed": 41,
+      "floorOpaqueY": 172,
+      "soleXSpanRelativeToAnchor": [
+        [
+          -19,
+          18
+        ],
+        [
+          -25,
+          24
+        ],
+        [
+          -18,
+          18
+        ],
+        [
+          -19,
+          18
+        ],
+        [
+          -16,
+          16
+        ]
+      ],
+      "gifTimingVerified": [
+        30,
+        40,
+        100,
+        80,
+        60
+      ],
+      "exactKeyFrameRGBA": [
+        1,
+        3,
+        4
+      ]
+    },
+    "down": {
+      "art_source": "host_image",
+      "route": "Codex host image_gen",
+      "model": null,
+      "estimateUsd": null,
+      "source": "down/source.png",
+      "sourceSha256": "b57bb55b4bfaec8521f1c9acdf6abf8e199396b8f2fb7b34f350343dc8f3eb92",
+      "size": [
+        1536,
+        1024
+      ],
+      "prompt": "down/actual_prompt.txt",
+      "body_reference": "../hero_v3b/master/master_rgba.png",
+      "pose_reference": "../n09_swing_down_v4_strip_1x.png",
+      "finish": "down/n09_swing_down_v5/finish.json",
+      "finishToolVersion": "0.5.0",
+      "finishOverallStatus": "needs-visual-review",
+      "paletteColorsUsed": 39,
+      "floorOpaqueY": 148,
+      "soleXSpanRelativeToAnchor": [
+        [
+          -17,
+          16
+        ],
+        [
+          -24,
+          23
+        ],
+        [
+          -17,
+          16
+        ],
+        [
+          -18,
+          15
+        ],
+        [
+          -18,
+          17
+        ]
+      ],
+      "gifTimingVerified": [
+        30,
+        40,
+        100,
+        80,
+        60
+      ],
+      "exactKeyFrameRGBA": [
+        1,
+        3,
+        4
+      ]
+    }
+  }
+}

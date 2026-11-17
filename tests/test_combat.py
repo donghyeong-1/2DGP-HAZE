@@ -834,9 +834,11 @@ def test_attack_shows_swing_pose_by_aim_direction():
         p.mouse_x, p.mouse_y = p.x + 300, p.center[1] + aim_dy
         assert p.request_attack()
         assert p.swing_dir == expected, (aim_dy, p.swing_dir)
-        assert p._body_frame() == ('n09_swing_' + expected, 1)               # 준비 프레임으로 시작
+        assert p._body_frame() == ('n09_swing_' + expected, 1)               # 젖힘 프레임으로 시작
+        run_frames(int(config.SWING_TIME * 60 * 0.3))
+        assert p._body_frame() == ('n09_swing_' + expected, 3)               # 타격(최대 신장)
         run_frames(int(config.SWING_TIME * 60 * 0.5))
-        assert p._body_frame() == ('n09_swing_' + expected, 2)               # 타격
+        assert p._body_frame() == ('n09_swing_' + expected, 5)               # 회수
         run_frames(30)
         assert p._body_frame()[0] != 'n09_swing_' + expected                 # 끝나면 대기로 돌아간다
 
@@ -972,6 +974,28 @@ def test_swing_on_ground_slows_running_and_steps_toward_aim():
     assert q.x > x0 + 5                                                      # 서서 쳐도 조준 쪽으로 한 발 내딛는다
 
 
+def test_swing_shows_strike_pose_while_hit_stop_freezes_the_game():
+    """판정은 누르는 순간이고 곧바로 타격 멈춤이 걸린다. 멈춘 동안 몸이 아직 젖힌 채면 폭발만 먼저 보인다 -> 타격 자세 이상을 보인다."""
+    for style_hits in (0, 2):                                                # 1타, 3타(마무리)
+        room, p = make_world()
+        e = freeze(add_enemy('slum', p.x + 80, room, p))
+        e.hp = e.max_hp = 10 ** 6
+        p.mouse_x, p.mouse_y = e.x, e.center[1]
+        for _ in range(style_hits):
+            p.request_attack()
+            run_frames(int(max(config.PIPE_COOLDOWN) * 60) + 1)
+        effects.reset()
+        assert p.request_attack()
+        assert effects.hit_stop_left > 0                                     # 맞혔으니 멈춤이 걸렸다
+        assert p._body_frame()[1] >= 3, (style_hits, p._body_frame())       # 멈춘 화면에는 타격 자세
+        while effects.hit_stop_left > 0:                                    # 멈춤이 풀린 뒤에도 젖힘으로 되돌아가지 않는다
+            effects.tick_hit_stop(DT)
+        for _ in range(int(p.swing_left * 60)):
+            run_frames(1)
+            if p.swing_left > 0:
+                assert p._body_frame()[1] >= 3, (style_hits, p._body_frame())
+
+
 def test_combo_swings_have_different_shapes():
     room, p = make_world()
     p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
@@ -979,7 +1003,7 @@ def test_combo_swings_have_different_shapes():
     assert p.swing_style == 1 and p._body_frame() == ('n09_swing_side', 1)   # 1타: 준비부터
     run_frames(int(config.PIPE_COOLDOWN[0] * 60) + 1)
     p.request_attack()
-    assert p.swing_style == 2 and p._body_frame() == ('n09_swing_side', 2)   # 2타: 바로 타격(되치기)
+    assert p.swing_style == 2 and p._body_frame() == ('n09_swing_side', 3)   # 2타: 젖힘 없이 바로 타격(되치기)
     run_frames(int(config.PIPE_COOLDOWN[1] * 60) + 1)
     p.request_attack()
     assert p.swing_style == 3 and p.swing_total == config.SWING_STYLE_TIME[3]   # 3타: 길게 끌어 크게 내딛는다

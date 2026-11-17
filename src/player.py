@@ -204,6 +204,7 @@ class Player(TileBody):
         self.swing_dir = 'side'        # 공격 자세 방향: side / up / down / upfwd / downfwd
         self.swing_style = 1           # 연타 몇 번째 모양인가 (1·2·3, config.SWING_STYLE_TIME)
         self.lunge_vx = 0.0            # 휘두를 때 한 발 내딛는 속도 (빠르게 줄어든다)
+        self.swing_connected = False
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
@@ -579,6 +580,7 @@ class Player(TileBody):
         else:
             self.swing_dir = 'side'
         self.swing_style = 1
+        self.swing_connected = False   # 이번 휘두르기가 적을 맞혔는가 (weapon._hit이 켠다)
         self.swing_total = config.SWING_TIME
         self.swing_left = config.SWING_TIME
         self.lunge_vx = 0.0
@@ -615,10 +617,13 @@ class Player(TileBody):
             done = 1.0 - self.punch_left / self.punch_total
             first = 1 if self.punch_kind == 'throw' else 2
             return 'n09_punch', first if done < 0.2 else 3 if done < 0.7 else 4
-        if self.swing_left > 0:       # 철파이프를 휘두르는 자세: 준비 -> 타격 -> 마무리
+        if self.swing_left > 0:       # 철파이프를 휘두르는 자세: 젖힘 -> 휘두르는 중 -> 타격 -> 마무리 -> 회수
             done = 1.0 - self.swing_left / self.swing_total
-            p2, p3 = config.SWING_STYLE_PHASES.get(self.swing_style, config.SWING_PHASES)
-            return 'n09_swing_' + self.swing_dir, 1 if done < p2 else 2 if done < p3 else 3
+            phases = config.SWING_STYLE_PHASES.get(self.swing_style, config.SWING_PHASES)
+            n = 1 + sum(1 for t in phases if done >= t)
+            if self.swing_connected:        # 맞혔으면 타격 자세부터 (판정은 누르는 순간이라, 젖힌 채 멈추거나 멈춤 뒤 젖힘으로 되돌아가면 어색하다)
+                n = max(n, 3)
+            return 'n09_swing_' + self.swing_dir, n
         if not self.on_ground and self.state in ('JUMP', 'FALL'):
             if self.vy > config.JUMP_RISE_VY:
                 return 'n09_jump', 2

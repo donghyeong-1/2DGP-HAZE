@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-17)
-- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(189개).
+- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(190개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/17)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿), Q·1·2로 교체. 사슬은 남음.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔. 아크는 구현 전.
@@ -26,7 +26,7 @@
 3. [x] T12 범위 확정(간수·사냥개만, 아크 보류). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [ ] (3주차) 무기 사슬, 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
-6. [ ] **(사용자가 Codex 실행) T17 → T19 → T18**: 주인공 걷기 8프레임(T17, 적용 완료), 달리기 8프레임과 출발·멈춤·방향 전환(T19), 휘두르기 사이 프레임(T18). T19가 오면 게임에 출발·멈춤·전환 표시 시간을 구현한다. T12(사냥개·간수 동작)는 적용 완료. 작업 파일은 `docs/codex/tasks/`, 끝나면 Claude Code에게 "T17 결과를 검토해줘".
+6. [ ] **(사용자가 Codex 실행) T19**: 달리기 8프레임과 출발·멈춤·방향 전환. 걷기 8프레임(T17)·휘두르기 5장(T18)은 적용 완료. T19가 오면 게임에 출발·멈춤·전환 표시 시간을 구현한다. T12(사냥개·간수 동작)는 적용 완료. 작업 파일은 `docs/codex/tasks/`, 끝나면 Claude Code에게 "T17 결과를 검토해줘".
 7. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
 
 ## 열린 질문
@@ -140,3 +140,6 @@
 2026-11-17 [Codex] T17 v4b 걷기 무릎·발목 각도 보정과 1배 비교, 스프라이트·픽셀 검사 통과, 검토 대기 / assets/sprites/forge/hero_walk_v4b/, assets/sprites/forge/n09_walk_v4b*, docs/codex/reports/T17.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-17 [Claude Code] Codex 작업 T19 작성(주인공 달리기 8프레임 + 출발 2·멈춤 2·방향 전환 1, 이동 속도 = 키의 3.9배/초 근거, 게임에서 보여 줄 시간 명시), 추천 순서 T17 → T19 → T18 / docs/codex/(tasks/T19_hero_run_8.md, TASKS.md), docs/PROGRESS.md
 2026-11-17 [Claude Code] Codex T17 v4b 검토·적용: 주인공 걷기 4장 -> 8장(머리 흔들림 11px -> 1.4px, 걷기 SHIFT 보정 제거), 기준점 (36, 126), WALK_FRAME_PX 56 -> 28(한 주기 224px 유지), 측정으로 달리기(T19) 필요 확인 / src/(sprites, config), assets/sprites/unified/n09_walk_1~8, tests/test_sprites.py, docs/*
+
+2026-11-18 [Codex] T18 휘두르기 5방향 중간·회수 10장 추가, 기존 15장 보존, 1배 시트·GIF와 검사 기록, 검토 대기 / assets/sprites/forge/hero_pipe_v5/, assets/sprites/forge/n09_swing_*_v5/, docs/codex/reports/T18.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-18 [Claude Code] Codex T18 검토·적용: 휘두르기 3장 -> 5장(젖힘·휘두르는 중·타격·마무리·회수, 1·3·4는 T15와 픽셀 동일 확인), 연타별 단계 4개, 맞힌 휘두르기는 타격 자세부터(멈춤 중 젖힌 채 멈추던 문제·멈춤 뒤 젖힘으로 되돌아가던 문제), 테스트 1개 추가(190개) / src/(player, weapon, sprites, config), assets/sprites/unified/n09_swing_*, tests/test_combat.py, docs/*

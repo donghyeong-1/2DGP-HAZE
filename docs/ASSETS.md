@@ -216,3 +216,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-17 [Codex] T17 `assets/sprites/forge/n09_walk_v4/frames/` 8프레임. 기존 프로젝트 캐릭터 참조를 바탕으로 Codex 내장 image_gen(모델명 미제공) 생성, v3b 팔레트로 hibit 마감. 생성물 이용 조건 확인 필요. 검토 대기.
 
 2026-11-17 [Codex] T17 v4b `assets/sprites/forge/n09_walk_v4b/frames/` 8장. 프로젝트 N-09 걷기 시안을 Codex 내장 image_gen(모델명 미제공)으로 편집한 뒤 v3b 팔레트로 마감. 생성물 이용 조건 확인 필요. 2026-11-17 [Claude Code] 검토 합격, `assets/sprites/unified/n09_walk_1~8.png`로 게임에 적용(T04의 4장을 대신함).
+
+2026-11-17~18 [Codex] T18 `assets/sprites/forge/n09_swing_*_v5/frames/` 25장(기존 T15 15장, 새 중간·회수 10장). 프로젝트 N-09 원화를 참조해 generate2dsprite 0.5.0과 Codex 내장 image_gen(모델명 미제공)으로 제작하고 기존 v3b 팔레트로 hibit 마감. 원화·프롬프트 기록 `assets/sprites/forge/hero_pipe_v5/provenance.json`, 2026-11-18 [Claude Code] 검토 합격, `assets/sprites/unified/n09_swing_*_1~5.png`로 게임에 적용.

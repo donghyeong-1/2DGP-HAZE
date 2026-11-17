@@ -139,6 +139,7 @@ class Pipe:
         effects.spawn_impact(ex, ey, ex - p.x, ey - p.center[1], rays, fx['damage_color'], big=big)       # 충격 방사선
         effects.float_text(ex, ey + enemy.hb_h / 2 + 70, str(int(round(damage))), color or fx['damage_color'], big=big)
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
+        p.swing_connected = True                         # 이번 휘두르기가 맞았다: 몸은 젖힘으로 되돌아가지 않는다
         effects.add_trauma(config.SHAKE_HIT * shake * fx['shake'])
         if killed:
             p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')

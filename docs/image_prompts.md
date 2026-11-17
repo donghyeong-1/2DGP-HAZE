@@ -238,3 +238,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-17 [Codex] T17 N-09 걷기 8프레임. v3b와 기존 걷기를 참조해 좌우 지지발 교대 및 먼 팔다리 명암을 요청하고 6·7번 포즈를 수정했다. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/hero_walk_v4/take_01/actual_prompt.txt`와 `take_02/actual_prompt.txt`.
 
 2026-11-17 [Codex] T17 v4b 걷기 각도 수정. 관절 가이드로 보폭·발목 각도를 조정하고 3·7번 통과 자세를 낮춘 뒤 지지발 명암을 교정. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/hero_walk_v4b/`의 `actual_prompt.txt` 및 `take_02/`, `take_03/`.
+
+2026-11-17~18 [Codex] T18 N-09 휘두르기 5방향. v3b 마스터와 T15 키프레임을 참조해 젖힘과 최대 신장 사이, 팔꿈치를 내리며 파이프 끝을 뒤·아래로 보내는 회수 자세를 2칸 마젠타 시트로 제작. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/hero_pipe_v5/<방향>/actual_prompt.txt`.

@@ -139,6 +139,22 @@ GAUNTLET_RADIUS = 34         # 충격파 반지름(px, 크기 1.0)
 GAUNTLET_SPEED = 1050.0
 GAUNTLET_LIFE = 0.45
 GAUNTLET_COOLDOWN = 0.45
+# 헤이즈 사슬 (중거리 제어형). CHAIN_ZONE: 구간 -> (끌 수 있는 적 수, 사거리 배율, 끌려온 적 기절·충돌)
+CHAIN_DAMAGE = 20
+CHAIN_RANGE = 420.0          # 노멀 사거리(px). 각성부터 x1.3
+CHAIN_ZONE = {'DEAD': (1, 1.0, False), 'FADE': (1, 1.0, False), 'NORMAL': (1, 1.0, False),
+              'AWAKE': (2, 1.3, False), 'CRITICAL': (2, 1.3, True), 'OVERLOAD': (2, 1.3, True)}
+CHAIN_GAIN = 2               # 끌려온 적 1마리당 게이지(%). 보스는 끌려오지 않아도 맞으면 같은 만큼
+CHAIN_SPEED = 1900.0         # 갈고리가 날아가는 속도
+CHAIN_RETURN_SPEED = 2600.0  # 빈 갈고리가 돌아오는 속도
+CHAIN_PULL_SPEED = 1100.0    # 걸린 적을 끌어오는 속도
+CHAIN_PULL_GAP = 40          # 끌려온 적이 멈추는 자리: 플레이어 몸 앞에서 이만큼 떨어진 곳(px)
+CHAIN_PULL_MAX_TIME = 0.6    # 이 시간 안에 못 끌어오면(지형에 걸림) 그 자리에서 끝낸다
+CHAIN_HOOK_HB = 30           # 갈고리 판정 상자 한 변(px)
+CHAIN_STUN = 1.0             # 위험 구간·E 강화: 끌려온 적 기절 시간(초)
+CHAIN_CLASH_DAMAGE = 15      # 위험 구간: 함께 끌려온 적끼리 부딪쳐 받는 피해
+CHAIN_COOLDOWN = 0.35        # 사슬이 돌아온 뒤 다음 던지기까지
+CHAIN_ANCHOR_MULT = 1.5      # 끌려오지 않는 적(보스)에게는 갈고리가 박혀 피해 x1.5
 PIPE_REACH = 150            # 몸 중심에서 닿는 거리(px)
 PIPE_ARC_DEG = 65           # 조준 방향 기준 좌우 각도(도). 적 중심이 이 부채꼴 안이면 맞는다
 PIPE_COOLDOWN = (0.30, 0.30, 0.55)  # 1·2·3타 뒤 다음 공격까지 (3타 뒤는 길게)

@@ -1,6 +1,6 @@
 {
  "slum/pipe/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 2.6,
@@ -14,7 +14,7 @@
   }
  },
  "slum/pipe/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 3.5,
@@ -29,10 +29,10 @@
   }
  },
  "slum/knife/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 2.6,
+  "ttk": 2.5,
   "hp_lost": 0.0,
   "gauge_end": 56.0,
   "gauge_min": 30.0,
@@ -44,10 +44,10 @@
   }
  },
  "slum/knife/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 2.6,
+  "ttk": 2.5,
   "hp_lost": 0.0,
   "gauge_end": 56.0,
   "gauge_min": 30.0,
@@ -59,7 +59,7 @@
   }
  },
  "slum/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 2.6,
@@ -73,7 +73,7 @@
   }
  },
  "slum/gauntlet/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 3.5,
@@ -87,22 +87,51 @@
    "AWAKE": 0.01
   }
  },
- "thrower/pipe/stand": {
-  "n": 10,
+ "slum/chain/stand": {
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 2.2,
-  "hp_lost": 10.0,
-  "gauge_end": 45.0,
-  "gauge_min": 25.0,
-  "gauge_max": 45.0,
+  "ttk": 3.6,
+  "hp_lost": 0.6,
+  "gauge_end": 46.8,
+  "gauge_min": 30.0,
+  "gauge_max": 47.0,
   "overloads": 0.0,
   "zones": {
    "NORMAL": 1.0
   }
  },
+ "slum/chain/dodge": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 4.2,
+  "hp_lost": 1.2,
+  "gauge_end": 46.5,
+  "gauge_min": 30.0,
+  "gauge_max": 47.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0
+  }
+ },
+ "thrower/pipe/stand": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 2.3,
+  "hp_lost": 9.5,
+  "gauge_end": 45.2,
+  "gauge_min": 25.0,
+  "gauge_max": 50.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0,
+   "AWAKE": 0.0
+  }
+ },
  "thrower/pipe/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 3.5,
@@ -116,12 +145,12 @@
   }
  },
  "thrower/knife/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 1.9,
-  "hp_lost": 3.0,
-  "gauge_end": 46.5,
+  "ttk": 1.8,
+  "hp_lost": 1.5,
+  "gauge_end": 47.2,
   "gauge_min": 30.0,
   "gauge_max": 48.0,
   "overloads": 0.0,
@@ -130,12 +159,12 @@
   }
  },
  "thrower/knife/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 2.4,
-  "hp_lost": 6.0,
-  "gauge_end": 44.7,
+  "ttk": 2.2,
+  "hp_lost": 4.0,
+  "gauge_end": 45.9,
   "gauge_min": 29.0,
   "gauge_max": 48.0,
   "overloads": 0.0,
@@ -144,21 +173,22 @@
   }
  },
  "thrower/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 2.2,
-  "hp_lost": 10.0,
-  "gauge_end": 45.0,
+  "ttk": 2.3,
+  "hp_lost": 9.5,
+  "gauge_end": 45.2,
   "gauge_min": 25.0,
-  "gauge_max": 45.0,
+  "gauge_max": 50.0,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 1.0
+   "NORMAL": 1.0,
+   "AWAKE": 0.0
   }
  },
  "thrower/gauntlet/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 3.5,
@@ -171,8 +201,36 @@
    "NORMAL": 1.0
   }
  },
+ "thrower/chain/stand": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 2.6,
+  "hp_lost": 10.0,
+  "gauge_end": 39.0,
+  "gauge_min": 29.0,
+  "gauge_max": 39.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0
+  }
+ },
+ "thrower/chain/dodge": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 3.2,
+  "hp_lost": 12.0,
+  "gauge_end": 37.7,
+  "gauge_min": 23.0,
+  "gauge_max": 39.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0
+  }
+ },
  "hound/pipe/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 1.8,
@@ -186,12 +244,12 @@
   }
  },
  "hound/pipe/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 3.7,
+  "ttk": 3.6,
   "hp_lost": 0.0,
-  "gauge_end": 46.2,
+  "gauge_end": 46.3,
   "gauge_min": 30.0,
   "gauge_max": 47.0,
   "overloads": 0.0,
@@ -200,7 +258,7 @@
   }
  },
  "hound/knife/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 1.6,
@@ -214,7 +272,7 @@
   }
  },
  "hound/knife/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 1.6,
@@ -228,7 +286,7 @@
   }
  },
  "hound/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 1.8,
@@ -242,12 +300,12 @@
   }
  },
  "hound/gauntlet/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 3.7,
+  "ttk": 3.6,
   "hp_lost": 0.0,
-  "gauge_end": 46.2,
+  "gauge_end": 46.3,
   "gauge_min": 30.0,
   "gauge_max": 47.0,
   "overloads": 0.0,
@@ -255,8 +313,36 @@
    "NORMAL": 1.0
   }
  },
+ "hound/chain/stand": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 2.1,
+  "hp_lost": 0.0,
+  "gauge_end": 44.0,
+  "gauge_min": 30.0,
+  "gauge_max": 44.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0
+  }
+ },
+ "hound/chain/dodge": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 2.3,
+  "hp_lost": 0.0,
+  "gauge_end": 44.0,
+  "gauge_min": 30.0,
+  "gauge_max": 44.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0
+  }
+ },
  "guard/pipe/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 4.3,
@@ -271,10 +357,10 @@
   }
  },
  "guard/pipe/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 4.2,
+  "ttk": 4.1,
   "hp_lost": 0.0,
   "gauge_end": 62.0,
   "gauge_min": 30.0,
@@ -286,37 +372,37 @@
   }
  },
  "guard/knife/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 3.6,
   "hp_lost": 0.0,
-  "gauge_end": 64.7,
+  "gauge_end": 64.8,
   "gauge_min": 30.0,
   "gauge_max": 65.0,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.9,
-   "AWAKE": 0.1
+   "NORMAL": 0.89,
+   "AWAKE": 0.11
   }
  },
  "guard/knife/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 3.6,
   "hp_lost": 0.0,
-  "gauge_end": 64.7,
+  "gauge_end": 64.8,
   "gauge_min": 30.0,
   "gauge_max": 65.0,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.9,
-   "AWAKE": 0.1
+   "NORMAL": 0.89,
+   "AWAKE": 0.11
   }
  },
  "guard/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 4.3,
@@ -331,10 +417,10 @@
   }
  },
  "guard/gauntlet/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 4.2,
+  "ttk": 4.1,
   "hp_lost": 0.0,
   "gauge_end": 62.0,
   "gauge_min": 30.0,
@@ -345,243 +431,339 @@
    "AWAKE": 0.02
   }
  },
- "group/pipe/stand": {
-  "n": 10,
+ "guard/chain/stand": {
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 5.1,
-  "hp_lost": 21.4,
-  "gauge_end": 89.5,
+  "ttk": 5.5,
+  "hp_lost": 4.4,
+  "gauge_end": 52.0,
+  "gauge_min": 30.0,
+  "gauge_max": 53.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0,
+   "AWAKE": 0.0
+  }
+ },
+ "guard/chain/dodge": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 5.5,
+  "hp_lost": 0.0,
+  "gauge_end": 53.0,
+  "gauge_min": 30.0,
+  "gauge_max": 53.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 1.0,
+   "AWAKE": 0.0
+  }
+ },
+ "group/pipe/stand": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 4.9,
+  "hp_lost": 22.8,
+  "gauge_end": 86.0,
   "gauge_min": 30.0,
   "gauge_max": 99.0,
-  "overloads": 0.1,
+  "overloads": 0.15,
   "zones": {
-   "AWAKE": 0.52,
-   "NORMAL": 0.48,
-   "CRITICAL": 0.01
+   "AWAKE": 0.5,
+   "NORMAL": 0.49,
+   "CRITICAL": 0.0
   }
  },
  "group/pipe/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 7.9,
-  "hp_lost": 18.9,
-  "gauge_end": 87.3,
+  "hp_lost": 21.1,
+  "gauge_end": 81.0,
   "gauge_min": 30.0,
   "gauge_max": 98.0,
-  "overloads": 0.1,
+  "overloads": 0.2,
   "zones": {
-   "AWAKE": 0.53,
-   "NORMAL": 0.46,
-   "CRITICAL": 0.01
+   "AWAKE": 0.49,
+   "NORMAL": 0.49,
+   "CRITICAL": 0.02
   }
  },
  "group/knife/stand": {
-  "n": 10,
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 6.3,
+  "hp_lost": 11.0,
+  "gauge_end": 92.0,
+  "gauge_min": 30.0,
+  "gauge_max": 97.0,
+  "overloads": 0.05,
+  "zones": {
+   "AWAKE": 0.7,
+   "NORMAL": 0.29,
+   "CRITICAL": 0.01
+  }
+ },
+ "group/knife/dodge": {
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
   "ttk": 6.4,
-  "hp_lost": 11.0,
-  "gauge_end": 94.9,
+  "hp_lost": 10.5,
+  "gauge_end": 95.2,
   "gauge_min": 30.0,
   "gauge_max": 97.0,
   "overloads": 0.0,
   "zones": {
    "AWAKE": 0.71,
    "NORMAL": 0.28,
-   "CRITICAL": 0.0
-  }
- },
- "group/knife/dodge": {
-  "n": 10,
-  "win": 1.0,
-  "dead": 0.0,
-  "ttk": 6.5,
-  "hp_lost": 11.0,
-  "gauge_end": 94.9,
-  "gauge_min": 30.0,
-  "gauge_max": 97.0,
-  "overloads": 0.0,
-  "zones": {
-   "AWAKE": 0.72,
-   "NORMAL": 0.28,
-   "CRITICAL": 0.0
+   "CRITICAL": 0.01
   }
  },
  "group/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 8.5,
-  "hp_lost": 28.8,
-  "gauge_end": 56.9,
-  "gauge_min": 19.0,
+  "ttk": 9.8,
+  "hp_lost": 36.1,
+  "gauge_end": 52.0,
+  "gauge_min": 18.0,
   "gauge_max": 77.8,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.6,
-   "AWAKE": 0.39,
+   "NORMAL": 0.66,
+   "AWAKE": 0.33,
    "FADE": 0.01
   }
  },
  "group/gauntlet/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 12.9,
-  "hp_lost": 20.9,
-  "gauge_end": 56.0,
+  "ttk": 13.1,
+  "hp_lost": 23.2,
+  "gauge_end": 53.7,
   "gauge_min": 17.0,
-  "gauge_max": 78.8,
+  "gauge_max": 79.8,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.68,
-   "AWAKE": 0.3,
-   "FADE": 0.03
+   "NORMAL": 0.69,
+   "AWAKE": 0.29,
+   "FADE": 0.02
+  }
+ },
+ "group/chain/stand": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 10.1,
+  "hp_lost": 23.6,
+  "gauge_end": 73.8,
+  "gauge_min": 29.0,
+  "gauge_max": 80.0,
+  "overloads": 0.0,
+  "zones": {
+   "AWAKE": 0.54,
+   "NORMAL": 0.46
+  }
+ },
+ "group/chain/dodge": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 12.0,
+  "hp_lost": 20.6,
+  "gauge_end": 74.7,
+  "gauge_min": 30.0,
+  "gauge_max": 80.0,
+  "overloads": 0.0,
+  "zones": {
+   "AWAKE": 0.58,
+   "NORMAL": 0.42
   }
  },
  "boss/pipe/stand": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 10.0,
-  "hp_lost": 50.2,
-  "gauge_end": 79.2,
+  "ttk": 10.1,
+  "hp_lost": 48.6,
+  "gauge_end": 82.0,
   "gauge_min": 10.0,
   "gauge_max": 99.0,
-  "overloads": 0.2,
+  "overloads": 0.15,
   "zones": {
    "NORMAL": 0.53,
-   "AWAKE": 0.36,
-   "FADE": 0.11,
+   "AWAKE": 0.35,
+   "FADE": 0.12,
    "CRITICAL": 0.0
   }
  },
  "boss/pipe/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 13.7,
-  "hp_lost": 54.0,
-  "gauge_end": 37.5,
+  "ttk": 13.8,
+  "hp_lost": 55.8,
+  "gauge_end": 37.1,
   "gauge_min": 27.0,
   "gauge_max": 97.0,
   "overloads": 0.9,
   "zones": {
-   "NORMAL": 0.52,
+   "NORMAL": 0.53,
    "AWAKE": 0.42,
-   "CRITICAL": 0.06
+   "CRITICAL": 0.05
   }
  },
  "boss/knife/stand": {
-  "n": 10,
-  "win": 1.0,
-  "dead": 0.0,
-  "ttk": 9.8,
-  "hp_lost": 59.0,
-  "gauge_end": 46.8,
+  "n": 20,
+  "win": 0.95,
+  "dead": 0.05,
+  "ttk": 9.5,
+  "hp_lost": 57.5,
+  "gauge_end": 58.0,
   "gauge_min": 1.0,
   "gauge_max": 99.0,
-  "overloads": 0.7,
+  "overloads": 0.55,
   "zones": {
-   "NORMAL": 0.61,
-   "AWAKE": 0.28,
-   "FADE": 0.06,
+   "NORMAL": 0.62,
+   "AWAKE": 0.29,
+   "FADE": 0.05,
    "CRITICAL": 0.04
   }
  },
  "boss/knife/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 11.2,
-  "hp_lost": 44.2,
-  "gauge_end": 56.4,
-  "gauge_min": 11.0,
+  "ttk": 11.7,
+  "hp_lost": 43.6,
+  "gauge_end": 53.4,
+  "gauge_min": 7.0,
   "gauge_max": 99.0,
   "overloads": 1.0,
   "zones": {
-   "NORMAL": 0.59,
-   "AWAKE": 0.32,
+   "NORMAL": 0.58,
+   "AWAKE": 0.3,
    "CRITICAL": 0.06,
-   "FADE": 0.03
+   "FADE": 0.06
   }
  },
  "boss/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 0.5,
   "dead": 0.5,
-  "ttk": 16.2,
-  "hp_lost": 92.4,
-  "gauge_end": 36.5,
+  "ttk": 16.4,
+  "hp_lost": 93.5,
+  "gauge_end": 35.3,
   "gauge_min": 10.0,
-  "gauge_max": 58.8,
+  "gauge_max": 60.2,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.79,
+   "NORMAL": 0.78,
    "AWAKE": 0.13,
-   "FADE": 0.08
+   "FADE": 0.09
   }
  },
  "boss/gauntlet/dodge": {
-  "n": 10,
+  "n": 20,
   "win": 0.9,
   "dead": 0.1,
-  "ttk": 26.1,
-  "hp_lost": 80.6,
-  "gauge_end": 46.9,
-  "gauge_min": 15.7,
-  "gauge_max": 59.7,
+  "ttk": 25.8,
+  "hp_lost": 76.6,
+  "gauge_end": 46.4,
+  "gauge_min": 0.0,
+  "gauge_max": 66.3,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.87,
-   "AWAKE": 0.12,
-   "FADE": 0.0
+   "NORMAL": 0.89,
+   "AWAKE": 0.11,
+   "FADE": 0.01,
+   "DEAD": 0.0
+  }
+ },
+ "boss/chain/stand": {
+  "n": 20,
+  "win": 0.65,
+  "dead": 0.35,
+  "ttk": 15.1,
+  "hp_lost": 80.1,
+  "gauge_end": 22.6,
+  "gauge_min": 0.0,
+  "gauge_max": 56.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 0.54,
+   "FADE": 0.45,
+   "AWAKE": 0.01,
+   "DEAD": 0.0
+  }
+ },
+ "boss/chain/dodge": {
+  "n": 20,
+  "win": 1.0,
+  "dead": 0.0,
+  "ttk": 16.7,
+  "hp_lost": 45.0,
+  "gauge_end": 56.0,
+  "gauge_min": 8.0,
+  "gauge_max": 81.0,
+  "overloads": 0.0,
+  "zones": {
+   "NORMAL": 0.77,
+   "AWAKE": 0.19,
+   "FADE": 0.04
   }
  },
  "ark/pipe/stand": {
-  "n": 10,
-  "win": 1.0,
-  "dead": 0.0,
-  "ttk": 14.3,
-  "hp_lost": 79.4,
-  "gauge_end": 69.8,
-  "gauge_min": 20.0,
+  "n": 20,
+  "win": 0.95,
+  "dead": 0.05,
+  "ttk": 14.2,
+  "hp_lost": 80.6,
+  "gauge_end": 68.7,
+  "gauge_min": 4.0,
   "gauge_max": 99.0,
   "overloads": 1.2,
   "zones": {
-   "NORMAL": 0.62,
+   "NORMAL": 0.61,
    "AWAKE": 0.35,
-   "CRITICAL": 0.03
+   "CRITICAL": 0.04,
+   "FADE": 0.01
   }
  },
  "ark/pipe/dodge": {
-  "n": 10,
-  "win": 0.9,
-  "dead": 0.1,
-  "ttk": 19.1,
-  "hp_lost": 69.0,
-  "gauge_end": 68.9,
-  "gauge_min": 20.0,
+  "n": 20,
+  "win": 0.95,
+  "dead": 0.05,
+  "ttk": 19.4,
+  "hp_lost": 66.5,
+  "gauge_end": 64.0,
+  "gauge_min": 19.0,
   "gauge_max": 99.0,
-  "overloads": 1.4,
+  "overloads": 1.5,
   "zones": {
    "NORMAL": 0.49,
-   "AWAKE": 0.46,
-   "CRITICAL": 0.05
+   "AWAKE": 0.45,
+   "CRITICAL": 0.06,
+   "FADE": 0.0
   }
  },
  "ark/knife/stand": {
-  "n": 10,
-  "win": 0.4,
-  "dead": 0.6,
+  "n": 20,
+  "win": 0.7,
+  "dead": 0.3,
   "ttk": 13.8,
-  "hp_lost": 93.6,
-  "gauge_end": 61.8,
+  "hp_lost": 91.7,
+  "gauge_end": 60.5,
   "gauge_min": 22.0,
   "gauge_max": 99.0,
-  "overloads": 1.8,
+  "overloads": 1.9,
   "zones": {
    "AWAKE": 0.47,
    "NORMAL": 0.46,
@@ -589,53 +771,89 @@
   }
  },
  "ark/knife/dodge": {
-  "n": 10,
-  "win": 0.7,
-  "dead": 0.3,
-  "ttk": 26.3,
-  "hp_lost": 84.0,
-  "gauge_end": 63.7,
+  "n": 20,
+  "win": 0.75,
+  "dead": 0.25,
+  "ttk": 26.0,
+  "hp_lost": 81.5,
+  "gauge_end": 60.2,
   "gauge_min": 19.0,
   "gauge_max": 99.0,
   "overloads": 1.8,
   "zones": {
-   "AWAKE": 0.61,
-   "NORMAL": 0.33,
+   "AWAKE": 0.62,
+   "NORMAL": 0.32,
    "CRITICAL": 0.05,
    "FADE": 0.01
   }
  },
  "ark/gauntlet/stand": {
-  "n": 10,
+  "n": 20,
   "win": 0.1,
   "dead": 0.9,
-  "ttk": 27.2,
-  "hp_lost": 96.8,
-  "gauge_end": 53.3,
-  "gauge_min": 14.2,
-  "gauge_max": 91.8,
-  "overloads": 0.1,
+  "ttk": 31.3,
+  "hp_lost": 98.0,
+  "gauge_end": 47.9,
+  "gauge_min": 0.0,
+  "gauge_max": 99.5,
+  "overloads": 0.2,
   "zones": {
-   "NORMAL": 0.56,
-   "AWAKE": 0.43,
+   "NORMAL": 0.58,
+   "AWAKE": 0.4,
    "FADE": 0.01,
-   "CRITICAL": 0.0
+   "CRITICAL": 0.0,
+   "DEAD": 0.0
   }
  },
  "ark/gauntlet/dodge": {
-  "n": 10,
-  "win": 1.0,
-  "dead": 0.0,
-  "ttk": 51.4,
-  "hp_lost": 68.2,
-  "gauge_end": 51.2,
+  "n": 20,
+  "win": 0.95,
+  "dead": 0.05,
+  "ttk": 52.1,
+  "hp_lost": 68.7,
+  "gauge_end": 52.5,
   "gauge_min": 10.0,
-  "gauge_max": 78.5,
+  "gauge_max": 80.7,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.84,
-   "AWAKE": 0.15,
+   "NORMAL": 0.83,
+   "AWAKE": 0.16,
    "FADE": 0.01
+  }
+ },
+ "ark/chain/stand": {
+  "n": 20,
+  "win": 0.35,
+  "dead": 0.65,
+  "ttk": 21.4,
+  "hp_lost": 98.3,
+  "gauge_end": 64.5,
+  "gauge_min": 15.0,
+  "gauge_max": 99.0,
+  "overloads": 1.1,
+  "zones": {
+   "NORMAL": 0.52,
+   "AWAKE": 0.43,
+   "CRITICAL": 0.04,
+   "FADE": 0.0
+  }
+ },
+ "ark/chain/dodge": {
+  "n": 20,
+  "win": 0.9,
+  "dead": 0.1,
+  "ttk": 31.9,
+  "hp_lost": 72.8,
+  "gauge_end": 54.0,
+  "gauge_min": 0.0,
+  "gauge_max": 99.0,
+  "overloads": 1.0,
+  "zones": {
+   "NORMAL": 0.48,
+   "AWAKE": 0.41,
+   "CRITICAL": 0.08,
+   "FADE": 0.02,
+   "DEAD": 0.0
   }
  }
 }

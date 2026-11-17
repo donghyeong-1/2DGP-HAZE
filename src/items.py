@@ -21,9 +21,11 @@ ITEMS = {
                      color=(220, 228, 240), weapon='knife'),
     'w_gauntlet': dict(name='헤이즈 건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 충격파', price=9,
                      color=(120, 220, 245), weapon='gauntlet'),
+    'w_chain':    dict(name='헤이즈 사슬', glyph='사', desc='맞은 적을 끌어온다 (끌려온 적마다 게이지 +2%)', price=9,
+                     color=(170, 160, 255), weapon='chain'),
 }
 GOLD_POOL = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 황금방에서 나오는 것
-WEAPON_ITEMS = ['w_knife', 'w_gauntlet']   # 황금방 진열대 하나는 늘 무기다 (가진 무기는 빼고)
+WEAPON_ITEMS = ['w_knife', 'w_gauntlet', 'w_chain']   # 황금방 진열대 하나는 늘 무기다 (가진 무기는 빼고)
 SHOP_POOL = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor', 'heal']
 
 

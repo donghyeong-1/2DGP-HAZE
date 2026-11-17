@@ -1,5 +1,5 @@
-"""무기. 철파이프(기본), 투척용 식칼 묶음(구간 연동형), 헤이즈 건틀릿(소모형). 장착 2칸(철파이프 + 하나), Q·1·2로 바꾼다.
-사슬은 이후에 같은 모양으로 추가한다. 식칼·건틀릿은 맨 아래 클래스를 본다.
+"""무기. 철파이프(기본), 투척용 식칼 묶음(구간 연동형), 헤이즈 건틀릿(소모형), 헤이즈 사슬(제어형).
+장착 2칸(철파이프 + 하나), Q·1·2로 바꾼다. 식칼·건틀릿·사슬은 아래쪽 클래스를 본다.
 
 공격은 이동 상태 머신 밖의 겹침(overlay)이다. 어떤 공격이 나가는지는 상황으로 정해진다:
   대시 평타(대시 중·직후) > 점프 평타(공중: 회전 베기, 아래를 겨누면 내려찍기) > 기본 3연타.
@@ -553,4 +553,194 @@ class Blast:
         assets.draw_image(img, self.x, self.y - img.h // 2, 'h' if self.dx < 0 else '')
 
 
-WEAPONS = {'pipe': Pipe, 'knife': Knife, 'gauntlet': Gauntlet}
+# =====================================================================================================
+# 헤이즈 사슬 (중거리, 제어형): 조준 방향으로 갈고리를 던져 맞은 적을 플레이어 앞까지 끌어온다. 끌려온 적 1마리당 게이지 +2%.
+# 노멀: 1마리 / 각성: 사거리 +30%, 2마리 / 위험: 각성 + 끌려온 적 1초 기절, 함께 끌려온 적끼리 부딪쳐 충돌 피해.
+# E 강화: 사슬이 닿는 적을 모두 꿰고(관통) 끌려온 적은 1초 기절. 보스는 끌려오지 않는 대신 갈고리가 박혀 피해 x1.5.
+# 갈고리가 돌아오기 전에는 다시 던지지 못한다. 사슬 그림은 코드로 그린 고리 칸이다(회전 없음).
+# =====================================================================================================
+class Chain(Pipe):
+    name = '사슬'
+    weapon_id = 'chain'
+    base_damage = config.CHAIN_DAMAGE
+
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.hook = None               # 날아가거나 끌어오는 중인 갈고리 (없으면 던질 수 있다)
+
+    @property
+    def ready(self):
+        return self.cooldown <= 0 and self.hook is None
+
+    def current_kind(self):
+        return 'chain'
+
+    def grip(self, enhanced=None):
+        """지금 구간에서 (끌 수 있는 적 수, 사거리, 끌려온 적 기절·충돌)."""
+        p = self.owner
+        enhanced = p.gauge.enhanced if enhanced is None else enhanced
+        count, reach_mult, stun = config.CHAIN_ZONE[p.gauge.zone]
+        if enhanced:
+            count, stun = 99, True                                  # 관통: 닿는 적 모두
+        return count, config.CHAIN_RANGE * reach_mult, stun
+
+    def try_attack(self):
+        if not self.ready:
+            return False
+        p = self.owner
+        enhanced = p.gauge.enhanced
+        self.last_kind, self.last_enhanced = 'chain', enhanced
+        count, reach, stun = self.grip(enhanced)
+        ax, ay = p.aim_vector()
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 if enhanced else 1.0)
+        self.hook = ChainHook(self, ax, ay, damage, count, reach, stun, self._fx(enhanced), enhanced)
+        game_world.add_object(self.hook, game_world.LAYER_EFFECT)
+        assets.play_sound('throw')
+        p.start_punch('throw')
+        self.cooldown = self.cooldown_max = config.CHAIN_COOLDOWN
+        if enhanced:
+            effects.add_trauma(config.SHAKE_FINISHER * 0.5)
+        self._finish(enhanced)
+        return True
+
+
+class ChainHook:
+    """사슬 갈고리 하나. out(날아감) -> pull(걸린 적을 끌어옴) 또는 back(빈 갈고리가 돌아옴) -> 끝."""
+    LINK = 12                          # 고리 사이 간격(px)
+
+    def __init__(self, weapon, dx, dy, damage, count, reach, stun, fx, enhanced):
+        self.weapon, self.dx, self.dy = weapon, dx, dy
+        self.damage, self.count, self.reach, self.stun = damage, count, reach, stun
+        self.fx, self.enhanced = fx, enhanced
+        self.dist = 0.0                # 손에서 갈고리 끝까지 거리 (out·back)
+        self.phase = 'out'
+        self.hit = set()
+        self.hooked = []               # 갈고리에 맞은 적 (보스 포함)
+        self.pulled = []               # 그중 끌려오는 적
+        self.pull_time = 0.0
+        self.tip = self.origin()
+
+    def origin(self):
+        p = self.weapon.owner
+        cx, cy = p.center
+        return cx + self.dx * 20, cy + 8 + self.dy * 20
+
+    # ----- 갱신 -----
+    def update(self, dt):
+        getattr(self, '_update_' + self.phase)(dt)
+
+    def _update_out(self, dt):
+        p = self.weapon.owner
+        self.dist = min(self.reach, self.dist + config.CHAIN_SPEED * dt)
+        ox, oy = self.origin()
+        self.tip = (ox + self.dx * self.dist, oy + self.dy * self.dist)
+        room = p.room
+        if room is not None and room.tile_at_world(*self.tip) == '#':
+            effects.spawn('puff', self.tip[0], self.tip[1] - 20, duration=0.2)
+            self._end_out()
+            return
+        h = config.CHAIN_HOOK_HB / 2
+        tx, ty = self.tip
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if not enemy.alive or id(enemy) in self.hit:
+                continue
+            el, eb, er, et = enemy.rect()
+            if tx - h < er and el < tx + h and ty - h < et and eb < ty + h:
+                self.hit.add(id(enemy))
+                self.hooked.append(enemy)
+                damage = self.damage * (1.0 if enemy.pullable else config.CHAIN_ANCHOR_MULT)   # 보스에게는 박혀서 더 아프다
+                killed = self.weapon._hit(enemy, damage, config.CHAIN_GAIN, self.fx, big=self.enhanced,
+                                          shake=0.7, stop=0.5, blast=self.enhanced, extra=False)
+                if not killed and enemy.pullable:
+                    self.pulled.append(enemy)
+                    enemy.hold(0.2)
+                if len(self.hooked) >= self.count:
+                    self._end_out()
+                    return
+        if self.dist >= self.reach:
+            self._end_out()
+
+    def _end_out(self):
+        self.phase = 'pull' if self.pulled else 'back'
+
+    def _stop_x(self, index, enemy):
+        """끌려온 index번째 적이 멈추는 x: 플레이어 앞에서부터 차례로 줄 선다."""
+        p = self.weapon.owner
+        side = 1 if enemy.x >= p.x else -1
+        gap = p.hb_w / 2 + config.CHAIN_PULL_GAP
+        for e in self.pulled[:index]:
+            gap += e.hb_w
+        return p.x + side * (gap + enemy.hb_w / 2)
+
+    def _update_pull(self, dt):
+        self.pull_time += dt
+        alive = [e for e in self.pulled if e.alive]
+        done = True
+        for i, e in enumerate(alive):
+            want = self._stop_x(i, e) - e.x
+            if abs(want) <= 1.0:
+                continue
+            move = max(-config.CHAIN_PULL_SPEED * dt, min(config.CHAIN_PULL_SPEED * dt, want))
+            moved = e.pull_step(move)
+            e.hold(0.15)
+            if abs(moved) >= abs(move) * 0.5 and abs(want - moved) > 1.0:
+                done = False                                        # 아직 끌려오는 중 (벽에 막히면 거기서 멈춘다)
+        if alive:
+            self.tip = alive[0].center
+        if done or not alive or self.pull_time >= config.CHAIN_PULL_MAX_TIME:
+            self._arrive(alive)
+
+    def _arrive(self, alive):
+        """다 끌어왔다: 위험 구간·강화면 기절과 충돌, 아니면 짧은 경직."""
+        p = self.weapon.owner
+        for e in alive:
+            e.hold(config.CHAIN_STUN if self.stun else 0.18)
+        if self.stun and len(alive) >= 2:                           # 함께 끌려온 적끼리 부딪친다
+            for e in alive:
+                killed = e.take_damage(config.CHAIN_CLASH_DAMAGE, from_x=p.x)
+                ex, ey = e.center
+                effects.spawn(self.fx['spark'], ex, ey, duration=self.fx['spark_time'])
+                effects.float_text(ex, ey + e.hb_h / 2 + 70, str(config.CHAIN_CLASH_DAMAGE), (255, 200, 120))
+                if killed:
+                    p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+                else:
+                    e.hold(config.CHAIN_STUN)                       # 충돌 경직이 기절을 줄이지 않게 다시 건다
+            effects.add_trauma(config.SHAKE_FINISHER * 0.6)
+            assets.play_sound('enemy_hit')
+        self._done()
+
+    def _update_back(self, dt):
+        self.dist -= config.CHAIN_RETURN_SPEED * dt
+        ox, oy = self.origin()
+        self.tip = (ox + self.dx * max(0.0, self.dist), oy + self.dy * max(0.0, self.dist))
+        if self.dist <= 0:
+            self._done()
+
+    def _done(self):
+        w = self.weapon
+        if w.hook is self:
+            w.hook = None
+        w.cooldown = w.cooldown_max = config.CHAIN_COOLDOWN
+        game_world.remove_object(self)
+
+    # ----- 그리기: 손에서 갈고리까지 고리 칸을 늘어놓는다 -----
+    def draw(self):
+        ox, oy = self.origin()
+        tx, ty = self.tip
+        length = math.hypot(tx - ox, ty - oy)
+        glow = self.fx['damage_color'] if self.enhanced or self.stun else (186, 196, 210)
+        for i in range(int(length // self.LINK) + 1):
+            k = i * self.LINK / max(length, 1.0)
+            x, y = int(ox + (tx - ox) * k), int(oy + (ty - oy) * k)
+            assets.draw_rect_color(x - 4, y - 4, 8, 8, (12, 14, 22))                     # 외곽선
+            if i % 2:
+                assets.draw_rect_color(x - 3, y - 1, 6, 2, glow)                        # 눕힌 고리
+            else:
+                assets.draw_rect_color(x - 1, y - 3, 2, 6, glow)                        # 세운 고리
+        x, y = int(tx), int(ty)
+        assets.draw_rect_color(x - 8, y - 8, 16, 16, (12, 14, 22))                      # 갈고리 머리
+        assets.draw_rect_color(x - 6, y - 6, 12, 12, (186, 196, 210))
+        assets.draw_rect_color(x - 3, y - 3, 6, 6, (90, 210, 240))                      # 헤이즈 빛
+
+
+WEAPONS = {'pipe': Pipe, 'knife': Knife, 'gauntlet': Gauntlet, 'chain': Chain}

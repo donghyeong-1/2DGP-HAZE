@@ -201,6 +201,10 @@ class GameUI:
             ratio = w.charge_ratio
             _frame(px + 390, py + 34, 164, 26, 'px_gray', border='px_black', thickness=2)
             _rect('px_cyan' if ratio >= 1.0 else 'px_white', px + 390, py + 34, 164 * ratio, 26)
+        elif w.weapon_id == 'chain':                     # 사슬: 끌 수 있는 적 수만큼 고리 칸 (기절이 붙으면 노랑)
+            count, _, stun = w.grip()
+            for i in range(min(count, 3)):
+                _rect('px_yellow' if stun else 'px_white', px + 392 + i * 32, py + 36, 22, 22)
         else:                                            # 식칼: 이번에 던질 칼 수만큼 칸
             count, _, pierce = w.volley()
             for i in range(count):
@@ -231,6 +235,10 @@ class GameUI:
             count, _, pierce = w.volley()
             shape = '관통' if pierce else '부채꼴' if count >= 3 else '투척'
             return f'{count}발 {shape}', DIM
+        if w.weapon_id == 'chain':
+            count, _, stun = w.grip()
+            text = '관통 끌기' if count > 3 else f'{count}마리 끌기'
+            return (text + ' · 기절', (255, 225, 120)) if stun else (text, DIM)
         if kind == 'charge':
             return f'충전 {int(w.charge_ratio * 100)}% (게이지 -{int(config.GAUNTLET_DRAIN)}%/초)', (120, 220, 245)
         if kind == 'gauntlet_instant':

@@ -45,6 +45,8 @@ POUNCE_MAX_VX = 1000.0
 
 
 class Enemy(TileBody):
+    pullable = True                # 사슬로 끌어올 수 있는가 (보스는 False: 맞기만 한다)
+
     def __init__(self, kind, x, y, room, player):
         self.kind = kind
         self.stats = config.ENEMY_STATS[kind]
@@ -138,6 +140,25 @@ class Enemy(TileBody):
         self.hit_left = 0.18
         self.hurt()
         return False
+
+    # ----- 사슬에 걸림 -----
+    def hold(self, seconds):
+        """사슬에 걸려 끌려가거나 기절했다: 하던 기술을 끊고 그 시간 동안 움직이지 못한다 (간수의 슈퍼 아머와 무관).
+        단, 경직에서 막 풀린 경직 저항 시간에는 끊기지 않는다: 사슬을 연달아 던져 묶어 두지 못한다 (몸은 그래도 끌려온다)."""
+        if not self.alive:
+            return
+        self.vx = 0.0
+        if self.stagger_guard > 0 and self.state != 'HIT':
+            return
+        self.hit_left = max(self.hit_left if self.state == 'HIT' else 0.0, seconds)
+        self.hurt()
+
+    def pull_step(self, dx):
+        """사슬이 몸을 dx만큼 끌어온다. 벽에 막히면 멈춘다. 실제로 움직인 거리를 돌려준다."""
+        x0 = self.x
+        self.x += dx
+        self._resolve_x(dx)
+        return self.x - x0
 
     # ----- 갱신 -----
     def update(self, dt):

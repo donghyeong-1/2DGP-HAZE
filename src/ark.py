@@ -36,6 +36,7 @@ KEEP_FAR, KEEP_NEAR = 480, 220   # 패턴 사이 이 거리 사이를 유지한�
 
 class Ark(Enemy):
     title = '총감시관 아크'
+    pullable = False               # 사슬에 맞아도 끌려오지 않는다
 
     def __init__(self, x, y, room, player):
         super().__init__('ark', x, y, room, player)

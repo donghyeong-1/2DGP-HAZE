@@ -4,7 +4,7 @@
 주먹 자세는 Codex T05의 맨손 공격 4프레임(assets/sprites/forge/n09_attack_v3)을 그대로 쓴다 (던지기·건틀릿 공용).
 
 사용: python tools/make_weapons.py
-결과: assets/sprites/unified/proj_knife_0~7.png, proj_blast_s|m|l_1~2.png, n09_punch_1~4.png, assets/ui/icon_w_*.png
+결과: assets/sprites/unified/proj_knife_0~7.png, proj_blast_s|m|l_1~2.png, n09_punch_1~4.png, assets/ui/icon_w_*.png (철파이프·식칼·건틀릿·사슬)
 """
 import math
 import shutil
@@ -183,6 +183,31 @@ def icon_pipe():
     return outline(img)
 
 
+def icon_chain():
+    """대각선으로 늘어진 고리 사슬과 끝의 갈고리 (헤이즈 청록 빛)."""
+    img = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+    px = img.load()
+    for n in range(6):                            # 고리 6개: 눕힌 고리와 세운 고리를 번갈아 서로 걸리게 겹친다
+        cx, cy = 8 + n * 5, 40 - n * 5
+        w, h = (7, 4) if n % 2 == 0 else (4, 7)
+        for x in range(cx - w // 2, cx - w // 2 + w):
+            for y in range(cy - h // 2, cy - h // 2 + h):
+                edge = x in (cx - w // 2, cx - w // 2 + w - 1) or y in (cy - h // 2, cy - h // 2 + h - 1)
+                if edge:
+                    px[x, y] = STEEL_HI if y < cy else STEEL_LO
+    for x in range(36, 45):                       # 갈고리 머리
+        for y in range(4, 13):
+            px[x, y] = STEEL if (x + y) % 5 else STEEL_HI
+    for x in range(39, 42):
+        for y in range(7, 10):
+            px[x, y] = CYAN
+    for y in range(13, 18):                       # 휘어진 갈고리 끝
+        px[44, y] = STEEL_LO
+        px[43, y] = STEEL
+    px[42, 17] = STEEL
+    return outline(img)
+
+
 def copy_punch():
     """Codex T05의 맨손 공격 4프레임을 n09_punch_1~4.png로 옮긴다 (던지기·건틀릿 공용 자세)."""
     src = ROOT / "assets" / "sprites" / "forge" / "n09_attack_v3" / "frames"
@@ -199,6 +224,7 @@ def main():
     icon_knife().save(UI / "icon_w_knife.png")
     icon_gauntlet().save(UI / "icon_w_gauntlet.png")
     icon_pipe().save(UI / "icon_w_pipe.png")
+    icon_chain().save(UI / "icon_w_chain.png")
     copy_punch()
     print("saved knives, blasts, icons, punch frames")
 

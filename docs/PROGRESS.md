@@ -1,6 +1,6 @@
 # 진행상황 (PROGRESS)
 
-마지막 갱신: 2026-11-17 [Claude Code]
+마지막 갱신: 2026-11-18 [Claude Code]
 
 ## 진행 중
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
@@ -35,7 +35,6 @@
 - 3차(최종) 발표 일정.
 - 음악을 직접 들어 본 평가가 없다 (파형 수치만 확인).
 - 적·보스 새 기술의 난이도는 직접 플레이로 확인하지 않았다 (자동 테스트와 창 실행만).
-- (11/18) 구역 사이 체력 회복이 없어 아크(스테이지 3)에 닿을 때 체력이 많이 깎여 있을 수 있다. 시뮬레이션은 체력 100으로 시작해 아크전에서 67~81을 잃는다. 구역 시작 시 일부 회복을 넣을지 사용자 판단 필요.
 
 ## 작업 로그
 - 2026-11-01 [Claude] 로그라이크로 용어 통일, 한 줄 소개 갱신, 기획서·PPT·결정 문서 불일치 수정, 최종 재생성 / AGENTS.md, docs/*, tools/*
@@ -153,3 +152,4 @@
 2026-11-18 [Codex] T20 아크 공격·이동·순간이동·피격·페이즈·사망 23장과 예고 5종·전체 1배 비교, 동작별 GIF·좌표·검사 기록, 검토 대기 / assets/sprites/forge/ark_actions_v1/, assets/sprites/forge/boss_ark_*_v1*, docs/codex/reports/T20.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-18 [Claude Code] Codex T20 검토·적용: 아크 23장 합격(흡수·과충전 예고 정반대 확인, 서 있는 자세 허리 정렬 확인), unified 복사(tools/apply_enemy_frames.py 확장)와 sprites.FRAMES 등록. 보스 코드는 다음 작업 / tools/apply_enemy_frames.py, src/sprites.py, assets/sprites/unified/boss_ark_*, docs/*
 2026-11-18 [Claude Code] 최종 보스 아크 구현: 탄막(+5%/발)·순간이동 베기(-10%)·흡수 파동(-25%)·과충전 파동(+25%)·오염 장판(+5%/초), 흡수·과충전 번갈아, 3페이즈, 쓰러지는 자세, 코드 이펙트(탄환·파동·장판·손 빛), 보스 이름 표시, balance-sim 아크 시나리오·봇 파동 점프, 테스트 13개(213개) / src/(ark, projectile, config, stage, boss, ui), tests/test_ark.py, tools/(balance_sim, balance_base.json), docs/*
+- 2026-11-18 [Claude Code] 구역 사이 체력 회복 없음으로 확정(사용자 결정), 열린 질문 정리 / docs/(PROGRESS, DECISIONS).md

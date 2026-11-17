@@ -18,7 +18,7 @@
 - **2차 발표(11/18 수)**: 제출 마감은 **11/18 0시 1분**(11/17 밤). 영상 1분 30초(진행 상황 + 게임 데모), YouTube 링크와 GitHub 주소를 e-class에 제출. 자료 `docs/presentation_2nd.pptx`, 대본 `docs/script_2nd.md`, 촬영 순서 `docs/demo_2nd.md`.
 
 ## 다음 할 일 (우선순위 순)
-1. [ ] **(사용자) 2차 발표 제출**: 데모 녹화 → 영상 확인(소리·글자·길이) → YouTube 업로드 → e-class 제출. PPT 1장의 게임 화면 캡처는 v2 이전 모습이라 새로 찍어 교체하면 좋다.
+1. [ ] **(사용자) 2차 발표 제출**: 데모 녹화 → 영상 확인(소리·글자·길이) → YouTube 업로드 → e-class 제출.
 2. [ ] **(사용자) 직접 플레이 점검**: 점프(짧게 누르면 낮게 뜀), 대시, 공격 사거리, 적 속도·체력, 음악·효과음 크기. 수치는 `src/config.py`만 고친다 (`MUSIC_VOLUME`, `SFX_VOLUME`, `JUMP_CUT` 등).
 3. [ ] **(사용자)** T12(간수·사냥개·아크 애니메이션)는 어떤 적을 구현할지 결정이 필요하다 (`docs/codex/TASKS.md`). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
@@ -117,3 +117,4 @@
 2026-11-17 [Claude Code] v2 음악: 배경음악 3곡 합성(tools/make_music.py), 타이틀·탐험·보스·엔딩 연결, 테스트 2개 추가(총 150개) / tools/make_music.py, assets/music, src/(assets, config, title_mode, play_mode, ending_mode), tests/test_sfx.py, docs/*
 2026-11-17 [Claude Code] v2 마무리: 가변 점프(JUMP_CUT), 페이드·위험 구간 경고음과 게이지 맥박, 안 쓰는 타일·도구·임시 배경 삭제, ASSETS 맨 위 현재 기준 표, PROGRESS 위쪽 절 재작성, README 갱신, 진행 중 표시 해제 / src/(player, config, ui), tools/(make_sfx, make_codeart, make_placeholder_assets), tests/test_player.py, assets/sfx, docs/*, README.md
 2026-11-17 [Claude Code] Codex T06·T13~T16 검토·적용(아이콘, 진열대, 제목 화면, 굵은 철파이프), 장면 캡처 점검으로 무기 패널 겹침·보스 바 위치·타이틀 안내·작은 방 바깥 수정 / assets/(ui, backgrounds, sprites/unified), src/(ui, room, title_mode, config, sprites), docs/codex/*, docs/*
+2026-11-17 [Claude Code] 2차 발표 PPT 1장의 게임 화면을 현재 모습(새 타일·HUD·굵은 철파이프, 각성 구간 지상 전투)으로 교체, 지상 휘두르기 자세의 발 위치 확인 / assets/presentation_examples/demo_combat_v2.png, docs/presentation_2nd.pptx

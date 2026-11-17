@@ -121,3 +121,5 @@
 
 2026-11-17 [Codex] T13 아이템 아이콘 10종 제작 및 48×48·알파·팔레트 검사, 검토 대기 / assets/sprites/forge/icons_v1/, docs/codex/reports/T13.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
 2026-11-17 [Claude Code] 원격 커밋 확인(34개 전체 테스트 148개 통과), 이 PC에 게임 개발 지침 스킬 8종을 Claude Code·Codex 양쪽에 설치, codixel을 Codex에도 설치 / docs/SKILLS.md, docs/PROGRESS.md
+2026-11-17 [Claude Code] 2차 발표 준비 점검: 실행 검증(Title→Play), PPT 2장 렌더링 확인과 오류 수정(3주차 칸 `
+` 깨짐, 전 캐릭터 애니메이션·보스 2종 과장 표현), 촬영·제출 가이드 docs/demo_2nd.md 추가 / tools/make_presentation_2nd.py, docs/presentation_2nd.pptx, docs/demo_2nd.md

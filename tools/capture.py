@@ -14,6 +14,7 @@
   --warmup 20         첫 장 전에 흘려보낼 프레임
   --crop x0,y0,x1,y1  모아 보기에 쓸 화면 영역 (기본: 전체를 절반 크기로)
   --god               플레이어가 죽지 않게 한다
+  --hold              공격 버튼을 누른 채로 둔다 (건틀릿 충전 확인)
 
 예: python tools/capture.py --cell 1,0 --clear --spawn hound:500 --bot stand --shots 12 --every 6 --god --out shots/hound
 """
@@ -42,6 +43,7 @@ def main():
     ap.add_argument('--warmup', type=int, default=20)
     ap.add_argument('--crop')
     ap.add_argument('--god', action='store_true')
+    ap.add_argument('--hold', action='store_true')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
@@ -110,6 +112,9 @@ def main():
             print(f'경고: {spec}는 방 밖(x={x:.0f}, 방 폭 {stage.room.width})')
 
     bot_state = {}
+    if a.hold:
+        p.attack_held = True
+        p.request_attack()
     step(a.warmup, bot_state)
     shots = []
     for i in range(a.shots):

@@ -1308,11 +1308,11 @@ def test_gauntlet_charges_by_burning_gauge_and_fires_on_release():
 def test_gauntlet_drain_stops_at_floor_and_short_tap_does_nothing():
     room, p = make_world()
     p.give_weapon('gauntlet')
-    set_gauge(p, 8)
+    set_gauge(p, config.GAUNTLET_FLOOR + 3)
     p.attack_held = True
     p.request_attack()
-    run_frames(90)
-    assert p.gauge.value >= config.GAUNTLET_FLOOR - 1e-6                 # 5% 아래로는 내려가지 않는다
+    run_frames(180)
+    assert p.gauge.value >= config.GAUNTLET_FLOOR - 1e-6                 # 하한 아래로는 태우지 않는다
     p.attack_held = False
     run_frames(2)
     room, q = make_world()
@@ -1323,6 +1323,33 @@ def test_gauntlet_drain_stops_at_floor_and_short_tap_does_nothing():
     q.attack_held = False
     run_frames(1)
     assert not any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])   # 너무 짧으면 헛손질
+
+
+def test_gauntlet_floor_survives_one_boss_shockwave():
+    """충전으로 게이지를 태워도, 보스 충격파 한 방(기본 손실 + 보스 추가 손실)에 게이지 0이 되지 않는다."""
+    worst = -(config.LOSS_DAMAGED + config.ENEMY_STATS['crasher']['wave_gauge'])
+    assert config.GAUNTLET_FLOOR > worst, (config.GAUNTLET_FLOOR, worst)
+
+
+def test_gauntlet_cannot_charge_without_gauge_to_burn():
+    room, p = make_world()
+    p.give_weapon('gauntlet')
+    set_gauge(p, config.GAUNTLET_FLOOR)                                   # 태울 게이지가 없다
+    p.attack_held = True
+    p.request_attack()
+    run_frames(120)
+    assert p.weapon.charge_ratio < config.GAUNTLET_MIN_RATIO              # 공짜로 차지 않는다
+    p.attack_held = False
+    run_frames(2)
+    assert not any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])
+    room, p = make_world()
+    p.give_weapon('gauntlet')
+    set_gauge(p, config.GAUNTLET_FLOOR + 6)                               # 조금 남았으면 그만큼만 찬다
+    p.attack_held = True
+    p.request_attack()
+    run_frames(120)
+    need = 6 / config.GAUNTLET_DRAIN / config.GAUNTLET_CHARGE_TIME['NORMAL']
+    assert abs(p.weapon.charge_ratio - need) < 0.05, (p.weapon.charge_ratio, need)
 
 
 def test_gauntlet_fires_instantly_in_critical_zone_and_vents_gauge():

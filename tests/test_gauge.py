@@ -90,7 +90,7 @@ def test_enhance_cost_upgrade_lowers_threshold():
 
 
 def test_drain_respects_floor():
-    g = gauge_at(8)
+    g = gauge_at(config.GAUNTLET_FLOOR + 3)
     g.drain(10)
     assert g.value == config.GAUNTLET_FLOOR
     g.drain(10)

@@ -49,7 +49,9 @@ WEAPONS = ('pipe', 'knife', 'gauntlet')
 BOTS = ('stand', 'dodge')
 # 무기마다 봇이 서는 거리(px): 철파이프는 붙고, 식칼은 떨어져 던지고, 건틀릿은 중간에서 충전
 KEEP = {'pipe': 95, 'knife': 420, 'gauntlet': 230}
-GAUNTLET_LOW, GAUNTLET_HIGH = 25.0, 45.0          # 건틀릿 봇이 철파이프로 바꾸는/돌아오는 게이지(%)
+# 건틀릿 봇이 철파이프로 바꾸는/돌아오는 게이지(%): 충전 하한보다 조금 위에서 바꾼다
+GAUNTLET_LOW = config.GAUNTLET_FLOOR + 8.0
+GAUNTLET_HIGH = GAUNTLET_LOW + 20.0
 
 
 def arena():

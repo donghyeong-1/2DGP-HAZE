@@ -433,6 +433,7 @@ class Gauntlet(Pipe):
         super().__init__(owner)
         self.charging = False
         self.charge = 0.0
+        self.warned_empty = False      # 이번 충전에서 '게이지 부족'을 이미 알렸는지
 
     def current_kind(self):
         if self.charging:
@@ -457,7 +458,7 @@ class Gauntlet(Pipe):
             p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')
             self._fire(1.0, enhanced=False, size=config.GAUNTLET_SIZE['CRITICAL'])
             return True
-        self.charging, self.charge = True, 0.0
+        self.charging, self.charge, self.warned_empty = True, 0.0, False
         self.last_kind = 'charge'
         assets.play_sound('enhance')
         return True
@@ -473,9 +474,17 @@ class Gauntlet(Pipe):
         if not p.attack_held:
             self.release()
             return
-        if self.charge < self.charge_need():
-            p.gauge.drain(config.GAUNTLET_DRAIN * dt)               # 누르는 동안 게이지를 태운다 (5% 하한)
-        self.charge += dt
+        if self.charge >= self.charge_need():
+            return                                                  # 다 찼다: 더 태우지 않고 쥐고 있는다
+        # 누르는 동안 게이지를 태운다. 태운 만큼만 찬다: 하한(GAUNTLET_FLOOR)에 닿으면 태울 게이지가 없어 더 차지 않는다
+        want = config.GAUNTLET_DRAIN * dt
+        before = p.gauge.value
+        p.gauge.drain(want)
+        burnt = before - p.gauge.value
+        self.charge += dt * min(1.0, burnt / want)
+        if burnt < want * 0.5 and not self.warned_empty:
+            self.warned_empty = True
+            effects.float_text(p.x, p.y + config.PLAYER_HB_H + 40, '게이지 부족', (150, 200, 255))
 
     def release(self):
         if not self.charging:

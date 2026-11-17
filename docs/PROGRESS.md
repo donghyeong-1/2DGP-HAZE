@@ -25,8 +25,8 @@
 2. [ ] **(사용자) 직접 플레이 점검**: 점프(짧게 누르면 낮게 뜀), 대시, 공격 사거리, 적 속도·체력, 음악·효과음 크기. 수치는 `src/config.py`만 고친다 (`MUSIC_VOLUME`, `SFX_VOLUME`, `JUMP_CUT` 등).
 3. [x] T12 범위 확정(간수·사냥개만, 아크 보류). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
-5. [ ] **(남은 콘텐츠, 추천 순서)** ① 보스 아크: Codex T20(그림) 진행 중에 ② [x] 스테이지 2·3 방 구성·전환(11/18) → ③ 아크 패턴 코드(그림 도착 후, 지금은 크래셔가 대신 섬) → ④ 무기 사슬 → ⑤ 정비방 업그레이드 7종. 밀리면 기획서 4.2 축소안(2스테이지 + 최종 보스).
-6. [ ] **(사용자가 Codex 실행) T20 최종 보스 아크 애니메이션**(23장, 시트 A 공격 패턴부터). 끝나면 Claude Code에게 "T20 결과를 검토해줘". (T12·T17·T18·T19는 적용 완료)
+5. [ ] **(남은 콘텐츠, 추천 순서)** ① 보스 아크: Codex T20(그림) 진행 중에 ② [x] 스테이지 2·3 방 구성·전환(11/18) → ③ **아크 패턴 코드**(그림 23장 적용 완료 11/18, 지금 보스 방은 크래셔가 대신 섬) → ④ 무기 사슬 → ⑤ 정비방 업그레이드 7종. 밀리면 기획서 4.2 축소안(2스테이지 + 최종 보스).
+6. [x] Codex T20(아크 23장) 검토·그림 적용 완료. 대기 중인 Codex 작업 없음. (T12·T17~T20 적용 완료)
 7. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
 
 ## 열린 질문
@@ -148,3 +148,6 @@
 2026-11-18 [Claude Code] Codex T19 검토·적용: 조준 쪽 이동은 달리기 8장(37.5px/장), 조준 반대쪽 이동(뒷걸음)은 걷기 8장 역재생(문워크 방지), 출발 2·멈춤 2·방향 전환 1장(그림만, 속도 그대로), 벨트 기준 기준점 보정, 테스트 4개(193개) / src/(player, sprites, config), assets/sprites/unified/n09_run_*, tests/test_combat.py, docs/*
 2026-11-18 [Claude Code] Codex 작업 T20 작성(최종 보스 아크 23장: 공격 패턴 5종 예고·실행, 이동·순간이동·피격, 페이즈·사망, 예고 자세 구별이 핵심 기준), PROGRESS 다음 할 일 정리(오래된 줄) / docs/codex/(tasks/T20_boss_ark_anims.md, TASKS.md), docs/PROGRESS.md
 2026-11-18 [Claude Code] 스테이지 2(철골 공장, 12방, 보스 크래셔)·3(감시자의 탑, 8방, 보스 아크 자리 임시 크래셔) 배치와 구역 전환(next_stage, 진행 이어 감), 스테이지 1 끝을 관문 정예 전투(gate)로, 방별 적 바꾸기(swap), 구역 이름·기본 테마, 관문 문·지도 표시, 테스트 7개(200개) / src/(stage, room, ui, play_mode), data/stages/stage1~3.py, tests/(test_stage, test_rooms), docs/(level_design, DECISIONS, PROGRESS)
+
+2026-11-18 [Codex] T20 아크 공격·이동·순간이동·피격·페이즈·사망 23장과 예고 5종·전체 1배 비교, 동작별 GIF·좌표·검사 기록, 검토 대기 / assets/sprites/forge/ark_actions_v1/, assets/sprites/forge/boss_ark_*_v1*, docs/codex/reports/T20.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-18 [Claude Code] Codex T20 검토·적용: 아크 23장 합격(흡수·과충전 예고 정반대 확인, 서 있는 자세 허리 정렬 확인), unified 복사(tools/apply_enemy_frames.py 확장)와 sprites.FRAMES 등록. 보스 코드는 다음 작업 / tools/apply_enemy_frames.py, src/sprites.py, assets/sprites/unified/boss_ark_*, docs/*

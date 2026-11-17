@@ -1,0 +1,38 @@
+{
+  "sourceRoot": [
+    550,
+    950
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "sheet_cell": 1,
+      "source_root": [
+        210,
+        450
+      ],
+      "source_box": [
+        79,
+        34,
+        264,
+        451
+      ],
+      "scale_to_master": 1.7392344497607655
+    },
+    {
+      "frame": 2,
+      "sheet_cell": 2,
+      "source_root": [
+        210,
+        451
+      ],
+      "source_box": [
+        64,
+        33,
+        277,
+        452
+      ],
+      "scale_to_master": 1.7392344497607655
+    }
+  ]
+}

@@ -220,3 +220,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-17~18 [Codex] T18 `assets/sprites/forge/n09_swing_*_v5/frames/` 25장(기존 T15 15장, 새 중간·회수 10장). 프로젝트 N-09 원화를 참조해 generate2dsprite 0.5.0과 Codex 내장 image_gen(모델명 미제공)으로 제작하고 기존 v3b 팔레트로 hibit 마감. 원화·프롬프트 기록 `assets/sprites/forge/hero_pipe_v5/provenance.json`, 2026-11-18 [Claude Code] 검토 합격, `assets/sprites/unified/n09_swing_*_1~5.png`로 게임에 적용.
 
 2026-11-18 [Codex] T19 `assets/sprites/forge/{n09_run_v1,n09_run_trans_v1}/frames/` 13장. 프로젝트 N-09 마스터를 참조해 generate2dsprite 0.5.0과 Codex 내장 image_gen(모델명 미제공)으로 제작하고 v3b 팔레트로 hibit 마감. 원화와 출처는 `assets/sprites/forge/hero_run_v1/provenance.json`, 2026-11-18 [Claude Code] 검토 합격, `assets/sprites/unified/n09_run_1~8.png`, `n09_run_trans_1~5.png`로 게임에 적용.
+
+2026-11-18 [Codex] T20 assets/sprites/forge/boss_ark_*_v1/frames/ 12동작 23장. 프로젝트 자체 아크 마스터를 참조해 generate2dsprite 0.5.0 + Codex 내장 image_gen(모델명 미제공) 생성, 기존 아크 팔레트로 hibit 마감. 출처·원화·프롬프트는 assets/sprites/forge/ark_actions_v1/provenance.json. 2026-11-18 [Claude Code] 검토 합격, `tools/apply_enemy_frames.py`로 `assets/sprites/unified/boss_ark_*_N.png`에 복사.

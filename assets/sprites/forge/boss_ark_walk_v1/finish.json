@@ -1,0 +1,371 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "boss_ark_walk_v1",
+  "character": "boss_ark_remake",
+  "role": null,
+  "source": {
+    "frames": "../ark_actions_v1/B/walk/registered",
+    "count": 4,
+    "size": [
+      1400,
+      1250
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../ark_actions_v1/B/walk/registered/registration.json",
+      "sha256": "a6aaa9ef10edc367de674bb320ff0efffaf1985269db355461704c764c9f8c65",
+      "bytes": 1069
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 225,
+    "feetPx": 951,
+    "heightPx": 726,
+    "areaPx": 148489,
+    "stanceX": 453.0,
+    "centroid": [
+      462.83283273508476,
+      642.5522328253271
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    453.0,
+    951.0
+  ],
+  "scale": 0.21595598349381018,
+  "scaleSource": "scale-ref",
+  "targetHeight": 158.7840440165062,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/boss_ark_remake/finish.json",
+    "sha256": "b4f77b7a452990f5af1351839d7d840bcde2db68f3f0304cf732b41c8cadc87b",
+    "bytes": 7339,
+    "clip": "boss_ark_remake",
+    "character": "boss_ark_remake",
+    "scale": 0.21595598349381018,
+    "restAreaPx": 139283.0,
+    "areaRatio": 1.066096,
+    "correction": 0.968505,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    102,
+    161
+  ],
+  "anchor": [
+    67,
+    160
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      102,
+      161
+    ],
+    "sourceAnchor": [
+      67,
+      160
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 158.784,
+    "areaPx": 6925.08,
+    "bodyHeightPx": 156.784,
+    "outlinePx": 1,
+    "measuredHeightPx": 159,
+    "measuredAreaPx": 7607
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.21595598349381018,
+      "size": [
+        102,
+        161
+      ],
+      "anchor": [
+        67,
+        160
+      ],
+      "targetHeight": 158.7840440165062,
+      "flicker": {
+        "pairs": 3,
+        "alphaFlipsPerPair": 2368.667,
+        "indexFlipsPerPair": 4121.0,
+        "noiseFlipsPerPair": 487.333,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/boss_ark_remake/palette.json",
+    "sha256": "e3665ca0085ff6b619ff2a237aa3a3d9695f0bbfaa9a42e364954128a3272fdb",
+    "bytes": 1902,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 2296,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 41,
+    "noiseFlipReduction": 0.1085,
+    "plainMajority": {
+      "pairs": 3,
+      "alphaFlipsPerPair": 2414.0,
+      "indexFlipsPerPair": 4224.667,
+      "noiseFlipsPerPair": 546.667,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 226,
+    "lonePixelsFixed": 1440
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/walk-1.png",
+      "sha256": "e4308eb429a0232599aa954c974f5278854fcb0bfcd09dcd88c9091da47c38e1",
+      "sourceFile": "walk-1.png",
+      "sourceSha256": "c610d46cc3835b99b2e0b487e504fbe7e22c75419e71bf3a3e465d07269a212a",
+      "opaquePx": 7607
+    },
+    {
+      "file": "frames/walk-2.png",
+      "sha256": "736bc2b61c479d78a10366ff27387165b2d46985ef070fefebe35f1a3fa6f25e",
+      "sourceFile": "walk-2.png",
+      "sourceSha256": "ced9bbc36a6e31375cdfc9bc0c3eaf12c95446a66109d3397a4dd476a87e816c",
+      "opaquePx": 7235
+    },
+    {
+      "file": "frames/walk-3.png",
+      "sha256": "0204991a96cdad72076eed2763e2788db2273e66552ff61a7bfe3785f9a79816",
+      "sourceFile": "walk-3.png",
+      "sourceSha256": "1360aec6c7e8a6e3565595f01328e779d2033624fe496f395b9b02d1f25a082d",
+      "opaquePx": 7337
+    },
+    {
+      "file": "frames/walk-4.png",
+      "sha256": "2d694c6710b5dfb6e3f4f4fbcb311bbaf4eca23c94b44d6a0b1dbdaed939d5af",
+      "sourceFile": "walk-4.png",
+      "sourceSha256": "23d2445f031bcf5ea123623d2404b6aab6f85790c586e7fc42a4971beb258443",
+      "opaquePx": 7121
+    }
+  ],
+  "flicker": {
+    "pairs": 3,
+    "alphaFlipsPerPair": 2368.667,
+    "indexFlipsPerPair": 4121.0,
+    "noiseFlipsPerPair": 487.333,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 33,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.215956,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.216,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 3,
+          "alphaFlipsPerPair": 2368.667,
+          "indexFlipsPerPair": 4121.0,
+          "noiseFlipsPerPair": 487.333,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 4.631,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 41
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 487.333,
+          "perFrameNearest": 546.667,
+          "reduction": 0.1085
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../ark_actions_v1/B/walk/registered/walk-1.png",
+        "sha256": "c610d46cc3835b99b2e0b487e504fbe7e22c75419e71bf3a3e465d07269a212a"
+      },
+      {
+        "path": "../ark_actions_v1/B/walk/registered/walk-2.png",
+        "sha256": "ced9bbc36a6e31375cdfc9bc0c3eaf12c95446a66109d3397a4dd476a87e816c"
+      },
+      {
+        "path": "../ark_actions_v1/B/walk/registered/walk-3.png",
+        "sha256": "1360aec6c7e8a6e3565595f01328e779d2033624fe496f395b9b02d1f25a082d"
+      },
+      {
+        "path": "../ark_actions_v1/B/walk/registered/walk-4.png",
+        "sha256": "23d2445f031bcf5ea123623d2404b6aab6f85790c586e7fc42a4971beb258443"
+      },
+      {
+        "path": "../ark_actions_v1/B/walk/registered/registration.json",
+        "sha256": "a6aaa9ef10edc367de674bb320ff0efffaf1985269db355461704c764c9f8c65",
+        "bytes": 1069
+      },
+      {
+        "path": "../remake_t01_t03/finished/boss_ark_remake/finish.json",
+        "sha256": "b4f77b7a452990f5af1351839d7d840bcde2db68f3f0304cf732b41c8cadc87b",
+        "bytes": 7339
+      },
+      {
+        "path": "../remake_t01_t03/finished/boss_ark_remake/palette.json",
+        "sha256": "e3665ca0085ff6b619ff2a237aa3a3d9695f0bbfaa9a42e364954128a3272fdb",
+        "bytes": 1902
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/walk-1.png",
+        "sha256": "e4308eb429a0232599aa954c974f5278854fcb0bfcd09dcd88c9091da47c38e1",
+        "bytes": 7420
+      },
+      {
+        "path": "frames/walk-2.png",
+        "sha256": "736bc2b61c479d78a10366ff27387165b2d46985ef070fefebe35f1a3fa6f25e",
+        "bytes": 7151
+      },
+      {
+        "path": "frames/walk-3.png",
+        "sha256": "0204991a96cdad72076eed2763e2788db2273e66552ff61a7bfe3785f9a79816",
+        "bytes": 7049
+      },
+      {
+        "path": "frames/walk-4.png",
+        "sha256": "2d694c6710b5dfb6e3f4f4fbcb311bbaf4eca23c94b44d6a0b1dbdaed939d5af",
+        "bytes": 6851
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "235867c00552e3937325ff6f59f8ba2f502e2e60f90c8f06563059ef942e6254",
+        "bytes": 66341
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  },
+  "anchorAutomatic": [
+    46,
+    160
+  ],
+  "gameRegistration": {
+    "method": "\uc6d0\ud654\uc758 \ud5c8\ub9ac \uae30\uc900\uc744 \uacf5\ud1b5 \ubc14\ub2e5\uc120\uc5d0 \ub4f1\ub85d. 1\ubc30 PNG \uc7ac\uc0d8\ud50c\ub9c1 \uc5c6\uc74c",
+    "sourceRoot": [
+      550,
+      950
+    ],
+    "finishedRoot": [
+      67,
+      160
+    ],
+    "registration": "ark_actions_v1/B/walk/registered/registration.json"
+  }
+}

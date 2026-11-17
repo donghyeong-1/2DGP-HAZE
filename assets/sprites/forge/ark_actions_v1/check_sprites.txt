@@ -1,0 +1,148 @@
+## barrage / 기본 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+barrage-1.png                                (131, 162) 77x160        0 39
+barrage-2.png                                (131, 162) 129x160        0 40
+
+통과
+
+## slash / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+slash-1.png                                  (143, 163) 73x160        0 38
+slash-2.png                                  (143, 163) 141x149        0 40
+slash-3.png                                  (143, 163) 127x132        0 37
+
+실패:
+ - 프레임 키 차이 28px (걷기 상하 흔들림 포함해도 6px 이하여야 함)
+
+## slash / --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+slash-1.png                                  (143, 163) 73x160        0 38
+slash-2.png                                  (143, 163) 141x149        0 40
+slash-3.png                                  (143, 163) 127x132        0 37
+
+통과
+
+## absorb / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+absorb-1.png                                 (144, 165) 142x163        0 40
+absorb-2.png                                 (144, 165) 76x152        0 39
+
+실패:
+ - 프레임 키 차이 11px (걷기 상하 흔들림 포함해도 6px 이하여야 함)
+
+## absorb / --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+absorb-1.png                                 (144, 165) 142x163        0 40
+absorb-2.png                                 (144, 165) 76x152        0 39
+
+통과
+
+## overcharge / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+overcharge-1.png                             (129, 165) 98x118        0 38
+overcharge-2.png                             (129, 165) 127x163        0 39
+
+실패:
+ - 프레임 키 차이 45px (걷기 상하 흔들림 포함해도 6px 이하여야 함)
+
+## overcharge / --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+overcharge-1.png                             (129, 165) 98x118        0 38
+overcharge-2.png                             (129, 165) 127x163        0 39
+
+통과
+
+## field / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+field-1.png                                  (118, 157) 107x155        0 39
+field-2.png                                  (118, 157) 114x109        0 39
+
+실패:
+ - 프레임 키 차이 46px (걷기 상하 흔들림 포함해도 6px 이하여야 함)
+
+## field / --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+field-1.png                                  (118, 157) 107x155        0 39
+field-2.png                                  (118, 157) 114x109        0 39
+
+통과
+
+## idle / 기본 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+idle-1.png                                   (84, 161)  72x159        0 41
+idle-2.png                                   (84, 161)  81x159        0 40
+
+통과
+
+## walk / 기본 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+walk-1.png                                   (102, 161) 92x159        0 40
+walk-2.png                                   (102, 161) 89x159        0 39
+walk-3.png                                   (102, 161) 97x159        0 41
+walk-4.png                                   (102, 161) 86x159        0 40
+
+통과
+
+## vanish / 기본 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+vanish-1.png                                 (58, 161)  55x159        0 40
+키 159px (목표 159px) OK
+
+통과
+
+## appear / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+appear-1.png                                 (104, 143) 102x141        0 39
+
+실패:
+ - 키 141px, 목표 159px +-2
+
+## appear / --height 141 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+appear-1.png                                 (104, 143) 102x141        0 39
+키 141px (목표 141px) OK
+
+통과
+
+## hurt / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+hurt-1.png                                   (89, 157)  86x155        0 41
+
+실패:
+ - 키 155px, 목표 159px +-2
+
+## hurt / --height 155 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+hurt-1.png                                   (89, 157)  86x155        0 41
+키 155px (목표 155px) OK
+
+통과
+
+## phase / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+phase-1.png                                  (101, 178) 99x176        0 39
+
+실패:
+ - 키 176px, 목표 159px +-2
+
+## phase / --height 176 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+phase-1.png                                  (101, 178) 99x176        0 39
+키 176px (목표 176px) OK
+
+통과
+
+## death / 기본 (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+death-1.png                                  (227, 111) 114x109        0 38
+death-2.png                                  (227, 111) 180x39         0 35
+
+실패:
+ - 프레임 키 차이 70px (걷기 상하 흔들림 포함해도 6px 이하여야 함)
+
+## death / --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+death-1.png                                  (227, 111) 114x109        0 38
+death-2.png                                  (227, 111) 180x39         0 35
+
+통과

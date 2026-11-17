@@ -32,6 +32,12 @@ FRAMES = {
     # 보스 크래셔
     'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3, 94, 246), 'boss_crasher_charge': (2, 100, 174),
     'boss_crasher_leap': (3, 114, 210), 'boss_crasher_hurt': (1, 96, 196),
+    # 최종 보스 아크 (Codex T20). 기준점은 Codex 보고서 값(허리 기준 x, 밑창 아래 줄 y). 보스 코드는 아직 없다(스테이지 3은 임시로 크래셔)
+    'boss_ark_idle': (2, 57, 160), 'boss_ark_walk': (4, 67, 160), 'boss_ark_hurt': (1, 57, 156),
+    'boss_ark_barrage': (2, 71, 161), 'boss_ark_slash': (3, 77, 161), 'boss_ark_absorb': (2, 79, 164),
+    'boss_ark_overcharge': (2, 74, 164), 'boss_ark_field': (2, 67, 156),
+    'boss_ark_vanish': (1, 40, 160), 'boss_ark_appear': (1, 60, 142),
+    'boss_ark_phase': (1, 64, 177), 'boss_ark_death': (2, 76, 110),
 }
 # 그림 안에서 발이 캔버스 바닥보다 떠 있게 그려진 프레임의 뜬 높이(px).
 # 몸이 이미 공중에 있으므로 그림에서 또 띄우지 않도록 그만큼 기준점을 올려 잡는다.

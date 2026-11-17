@@ -1,0 +1,337 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "boss_ark_field_v1",
+  "character": "boss_ark_remake",
+  "role": null,
+  "source": {
+    "frames": "../ark_actions_v1/A/field/registered",
+    "count": 2,
+    "size": [
+      1400,
+      1250
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../ark_actions_v1/A/field/registered/registration.json",
+      "sha256": "412d7c592ceb32d8f24bbdf19e8687b5d3c2fd8f88d2c4e2b5f568777e9e7d56",
+      "bytes": 570
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 243,
+    "feetPx": 952,
+    "heightPx": 709,
+    "areaPx": 148070,
+    "stanceX": 531.0,
+    "centroid": [
+      536.2297697035186,
+      699.6506111974066
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    531.0,
+    952.0
+  ],
+  "scale": 0.21595598349381018,
+  "scaleSource": "scale-ref",
+  "targetHeight": 155.1127922971114,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/boss_ark_remake/finish.json",
+    "sha256": "b4f77b7a452990f5af1351839d7d840bcde2db68f3f0304cf732b41c8cadc87b",
+    "bytes": 7339,
+    "clip": "boss_ark_remake",
+    "character": "boss_ark_remake",
+    "scale": 0.21595598349381018,
+    "restAreaPx": 139283.0,
+    "areaRatio": 1.063087,
+    "correction": 0.969874,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    118,
+    157
+  ],
+  "anchor": [
+    67,
+    156
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      118,
+      157
+    ],
+    "sourceAnchor": [
+      67,
+      156
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 155.1128,
+    "areaPx": 6905.539,
+    "bodyHeightPx": 153.1128,
+    "outlinePx": 1,
+    "measuredHeightPx": 155,
+    "measuredAreaPx": 7678
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.21595598349381018,
+      "size": [
+        118,
+        157
+      ],
+      "anchor": [
+        67,
+        156
+      ],
+      "targetHeight": 155.1127922971114,
+      "flicker": {
+        "pairs": 1,
+        "alphaFlipsPerPair": 3287.0,
+        "indexFlipsPerPair": 4449.0,
+        "noiseFlipsPerPair": 308.0,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/boss_ark_remake/palette.json",
+    "sha256": "e3665ca0085ff6b619ff2a237aa3a3d9695f0bbfaa9a42e364954128a3272fdb",
+    "bytes": 1902,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 1188,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 39,
+    "noiseFlipReduction": 0.3714,
+    "plainMajority": {
+      "pairs": 1,
+      "alphaFlipsPerPair": 3328.0,
+      "indexFlipsPerPair": 4728.0,
+      "noiseFlipsPerPair": 490.0,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 282,
+    "lonePixelsFixed": 874
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/field-1.png",
+      "sha256": "98100d2f46cecbf7537e2dc0e108f7cefaacd31f9198cd22da5423aba1031650",
+      "sourceFile": "field-1.png",
+      "sourceSha256": "9b914161942931652a6fa31530f884279409188bd828f7d325837dcc94ca5837",
+      "opaquePx": 7678
+    },
+    {
+      "file": "frames/field-2.png",
+      "sha256": "e07aa3b546424de456ee61fde486137266d1fe196cc87da838a6ad202438b48d",
+      "sourceFile": "field-2.png",
+      "sourceSha256": "1d3af922d2511ef3c92a9dd8386f8e2d1594249f9919664fe31c97bbc675aa22",
+      "opaquePx": 7659
+    }
+  ],
+  "flicker": {
+    "pairs": 1,
+    "alphaFlipsPerPair": 3287.0,
+    "indexFlipsPerPair": 4449.0,
+    "noiseFlipsPerPair": 308.0,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 24,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.215956,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.113,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 1,
+          "alphaFlipsPerPair": 3287.0,
+          "indexFlipsPerPair": 4449.0,
+          "noiseFlipsPerPair": 308.0,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 4.631,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 40,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 39
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 308.0,
+          "perFrameNearest": 490.0,
+          "reduction": 0.3714
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../ark_actions_v1/A/field/registered/field-1.png",
+        "sha256": "9b914161942931652a6fa31530f884279409188bd828f7d325837dcc94ca5837"
+      },
+      {
+        "path": "../ark_actions_v1/A/field/registered/field-2.png",
+        "sha256": "1d3af922d2511ef3c92a9dd8386f8e2d1594249f9919664fe31c97bbc675aa22"
+      },
+      {
+        "path": "../ark_actions_v1/A/field/registered/registration.json",
+        "sha256": "412d7c592ceb32d8f24bbdf19e8687b5d3c2fd8f88d2c4e2b5f568777e9e7d56",
+        "bytes": 570
+      },
+      {
+        "path": "../remake_t01_t03/finished/boss_ark_remake/finish.json",
+        "sha256": "b4f77b7a452990f5af1351839d7d840bcde2db68f3f0304cf732b41c8cadc87b",
+        "bytes": 7339
+      },
+      {
+        "path": "../remake_t01_t03/finished/boss_ark_remake/palette.json",
+        "sha256": "e3665ca0085ff6b619ff2a237aa3a3d9695f0bbfaa9a42e364954128a3272fdb",
+        "bytes": 1902
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/field-1.png",
+        "sha256": "98100d2f46cecbf7537e2dc0e108f7cefaacd31f9198cd22da5423aba1031650",
+        "bytes": 7247
+      },
+      {
+        "path": "frames/field-2.png",
+        "sha256": "e07aa3b546424de456ee61fde486137266d1fe196cc87da838a6ad202438b48d",
+        "bytes": 6906
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "9e49a572ad1088c58dee35256f0b8b193fa93007310e746468784667339eba22",
+        "bytes": 36130
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  },
+  "anchorAutomatic": [
+    63,
+    156
+  ],
+  "gameRegistration": {
+    "method": "\uc6d0\ud654\uc758 \ud5c8\ub9ac \uae30\uc900\uc744 \uacf5\ud1b5 \ubc14\ub2e5\uc120\uc5d0 \ub4f1\ub85d. 1\ubc30 PNG \uc7ac\uc0d8\ud50c\ub9c1 \uc5c6\uc74c",
+    "sourceRoot": [
+      550,
+      950
+    ],
+    "finishedRoot": [
+      67,
+      156
+    ],
+    "registration": "ark_actions_v1/A/field/registered/registration.json"
+  }
+}

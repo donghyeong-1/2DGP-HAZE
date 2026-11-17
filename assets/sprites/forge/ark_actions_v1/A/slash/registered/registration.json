@@ -1,0 +1,53 @@
+{
+  "sourceRoot": [
+    550,
+    950
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "sheet_cell": 3,
+      "source_root": [
+        181,
+        370
+      ],
+      "source_box": [
+        83,
+        17,
+        242,
+        371
+      ],
+      "scale_to_master": 2.065340909090909
+    },
+    {
+      "frame": 2,
+      "sheet_cell": 4,
+      "source_root": [
+        184,
+        364
+      ],
+      "source_box": [
+        15,
+        35,
+        328,
+        365
+      ],
+      "scale_to_master": 2.065340909090909
+    },
+    {
+      "frame": 3,
+      "sheet_cell": 5,
+      "source_root": [
+        192,
+        364
+      ],
+      "source_box": [
+        25,
+        74,
+        307,
+        365
+      ],
+      "scale_to_master": 2.065340909090909
+    }
+  ]
+}

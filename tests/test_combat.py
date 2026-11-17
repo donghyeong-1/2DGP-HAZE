@@ -927,6 +927,255 @@ def test_hit_spawns_impact_rays_and_attack_leaves_smear():
     assert not any(isinstance(o, (effects.ImpactBurst, effects.BodyGhost)) for o in layer)   # 짧게 사라진다
 
 
+# ----- 애니메이션 자연스러움 -----
+def test_swing_on_ground_slows_running_and_steps_toward_aim():
+    room, p = make_world()
+    p.right = True
+    run_frames(20)
+    assert p.state == 'RUN'
+    full = config.RUN_SPEED * p.speed_mult()
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    x0 = p.x
+    p.request_attack()
+    run_frames(int(config.SWING_STYLE_TIME[1] * 60))
+    assert p.x - x0 < full * config.SWING_STYLE_TIME[1] * 0.8              # 그냥 달릴 때보다 덜 갔다 (거의 멈춘다)
+    room, q = make_world()
+    q.mouse_x, q.mouse_y = q.x + 300, q.center[1]
+    x0 = q.x
+    q.request_attack()
+    run_frames(15)
+    assert q.x > x0 + 5                                                      # 서서 쳐도 조준 쪽으로 한 발 내딛는다
+
+
+def test_combo_swings_have_different_shapes():
+    room, p = make_world()
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.request_attack()
+    assert p.swing_style == 1 and p._body_frame() == ('n09_swing_side', 1)   # 1타: 준비부터
+    run_frames(int(config.PIPE_COOLDOWN[0] * 60) + 1)
+    p.request_attack()
+    assert p.swing_style == 2 and p._body_frame() == ('n09_swing_side', 2)   # 2타: 바로 타격(되치기)
+    run_frames(int(config.PIPE_COOLDOWN[1] * 60) + 1)
+    p.request_attack()
+    assert p.swing_style == 3 and p.swing_total == config.SWING_STYLE_TIME[3]   # 3타: 길게 끌어 크게 내딛는다
+    assert abs(p.lunge_vx) == config.SWING_LUNGE[3]
+
+
+# ----- 적 AI 다양화 -----
+def _attack_moves(kind, distance, attacks=8):
+    """적을 플레이어 앞에 세워 두고 여러 번 공격하게 해서 쓴 기술을 모은다 (플레이어는 맞아도 죽지 않게)."""
+    room, p = make_world(player_x=300.0)
+    p.hp = p.max_hp = 10 ** 6
+    e = add_enemy(kind, 300.0 + distance, room, p)
+    e.stats = dict(e.stats, speed=0.0, keep_away=0, retreat=0.0)
+    used = []
+    for _ in range(60 * 40):
+        if e.state == 'ATTACK' and (not used or used[-1][1] != e.attacks):
+            used.append((e.move, e.attacks))
+        step(1)
+        p.invuln_left = 0
+        p.gauge.value = 50
+        if e.state != 'ATTACK':
+            e.x = 300.0 + distance                 # 덮치기·돌진으로 움직여도 같은 거리에서 다시 시작
+        if len(used) >= attacks:
+            break
+    return [m for m, _ in used]
+
+
+def test_first_attack_is_the_basic_move_then_moves_vary():
+    for kind, distance in (('slum', 90), ('thrower', 600), ('guard', 110), ('hound', 100)):
+        moves = _attack_moves(kind, distance)
+        basic = config.ENEMY_STATS[kind]['moves'][0][0]
+        assert moves and moves[0] == basic, (kind, moves)
+        if kind != 'hound':                                                # 사냥개는 이 거리에서 물기뿐 (덮치기는 멀 때)
+            assert len(set(moves)) >= 2, (kind, moves)                     # 같은 기술만 쓰지 않는다
+
+
+def test_hound_pounces_from_distance_and_hits():
+    room, p = make_world(player_x=300.0)
+    h = add_enemy('hound', 300.0 + 330, room, p)
+    h.attacks = 1                                                          # 첫 기본기는 지나간 상태
+    step(1)
+    h.state, h.cooldown = 'CHASE', 0.0
+    step(1)
+    assert h.state == 'ATTACK' and h.move == 'pounce', (h.state, h.move)    # 물기 거리 밖이면 덮친다
+    for _ in range(120):
+        if p.hp < config.PLAYER_HP:
+            break
+        step(1)
+    assert p.hp == config.PLAYER_HP - h.stats['damage']
+
+
+def test_hound_retreats_after_attacking():
+    room, p = make_world(player_x=300.0)
+    h = add_enemy('hound', 300.0 + 100, room, p)
+    p.hp = p.max_hp = 10 ** 6
+    for _ in range(120):
+        step(1)
+        if h.attacks >= 1:
+            break
+    assert h.retreat_left > 0
+    x0 = h.x
+    step(15)
+    assert h.x > x0 + 20                                                   # 치고 빠진다
+
+
+def test_thrower_hops_back_when_player_comes_close():
+    room, p = make_world(player_x=300.0)
+    t = add_enemy('thrower', 300.0 + 500, room, p)
+    p.hp = p.max_hp = 10 ** 6
+    for _ in range(180):                                                  # 첫 던지기가 끝날 때까지
+        step(1)
+        if t.attacks >= 1 and t.state == 'CHASE':
+            break
+    t.cooldown = 5.0
+    p.x = t.x - 150
+    x0 = t.x
+    step(40)
+    assert t.x > x0 + 60                                                   # 뒤로 뛰어 거리를 벌렸다
+
+
+def test_thrower_lob_arcs_onto_player():
+    room, p = make_world(player_x=300.0)
+    t = add_enemy('thrower', 300.0 + 600, room, p)
+    step(1)
+    t.state = 'CHASE'
+    t.engage()
+    t.move = 'lob'
+    step(int(t._windup_time() * 60) + 2)
+    lobs = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'Lob']
+    assert lobs and lobs[0].vy > 0                                        # 위로 던졌다
+    for _ in range(120):
+        if p.hp < config.PLAYER_HP:
+            break
+        step(1)
+    assert p.hp == config.PLAYER_HP - t.stats['damage']                    # 포물선 끝이 플레이어 자리다
+
+
+def test_guard_heavy_makes_short_shockwaves_and_keeps_attacking_when_hit():
+    room, p = make_world(player_x=300.0)
+    g = add_enemy('guard', 300.0 + 110, room, p)
+    step(1)
+    g.state = 'CHASE'
+    g.engage()
+    g.move = 'heavy'
+    g.take_damage(5, from_x=p.x)
+    assert g.state == 'ATTACK'                                             # 공격 중에는 맞아도 끊기지 않는다
+    step(int(g._windup_time() * 60) + 2)
+    assert any(type(o).__name__ == 'Shockwave' for o in game_world.world[game_world.LAYER_EFFECT])
+
+
+def test_enemies_patrol_before_seeing_player_and_spread_apart():
+    room, p = make_world(player_x=300.0)
+    e = add_enemy('slum', 300.0 + 1000, room, p)
+    xs = set()
+    for _ in range(240):
+        step(1)
+        xs.add(int(e.x))
+    assert e.state == 'IDLE' and max(xs) - min(xs) > 40, (e.state, max(xs) - min(xs))   # 제자리 주변을 걸어 다닌다
+    room, p = make_world(player_x=300.0)
+    a = add_enemy('slum', 900.0, room, p)
+    b = add_enemy('slum', 905.0, room, p)
+    a.stats = dict(a.stats, stagger=False)
+    b.stats = dict(b.stats, stagger=False)
+    step(50)
+    assert abs(a.x - b.x) > 20                                             # 한 자리에 겹쳐 서지 않는다
+
+
+# ----- 보스 패턴 다양화 -----
+def _boss_world():
+    from boss import Boss
+    room, p = make_world_with(Room.load('boss_arena', {'L'}), 10 * config.TILE)
+    boss = Boss(30 * config.TILE, FLOOR_Y + 200, room, p)
+    game_world.add_object(boss, game_world.LAYER_ENEMY)
+    step(30)
+    return room, p, boss
+
+
+def test_boss_uses_many_patterns_without_repeating():
+    room, p, boss = _boss_world()
+    room.line_blocked = lambda *a, **k: False
+    seen = []
+    for d in (100, 400, 800) * 8:
+        p.x = boss.x - d
+        boss.count = 1
+        name = boss._choose_pattern()
+        assert name != boss.last_pattern
+        boss.last_pattern = name
+        seen.append(name)
+    assert {'smash', 'combo', 'slam', 'charge', 'rubble'} <= set(seen), seen
+
+
+def test_boss_enters_phase_two_at_half_health():
+    room, p, boss = _boss_world()
+    assert boss.phase == 1
+    boss.take_damage(boss.max_hp / 2 + 1)
+    step(1)
+    assert boss.phase == 2 and boss.roar_left > 0
+    w2 = boss._windup()
+    boss.phase = 1
+    assert w2 < boss._windup()                                             # 2페이즈는 예고가 짧다
+
+
+def test_boss_rubble_warns_then_falls_on_player():
+    room, p, boss = _boss_world()
+    p.hp = p.max_hp = 10 ** 6
+    p.invuln_left = 0
+    boss.state = 'CHASE'
+    boss.pattern = 'rubble'
+    boss.engage()
+    step(int(boss._windup() * 60) + 2)
+    debris = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'Debris']
+    assert len(debris) >= 3
+    first = min(debris, key=lambda o: o.wait)
+    assert abs(first.x - p.x) < 40                                         # 첫 고철은 플레이어 자리에
+    hp0 = p.hp
+    step(int(0.6 * 60))
+    assert p.hp == hp0 and not first.falling                                # 표시가 깜빡이는 동안은 맞지 않는다
+    for _ in range(90):
+        if p.hp < hp0:
+            break
+        p.x = first.x
+        step(1)
+    assert p.hp < hp0                                                      # 피하지 않으면 맞는다
+
+
+def test_boss_combo_hits_three_times_stepping_forward():
+    room, p, boss = _boss_world()
+    p.hp = p.max_hp = 10 ** 6
+    p.x = boss.x - 170
+    boss.state = 'CHASE'
+    boss.pattern = 'combo'
+    boss.engage()
+    x0 = closest = boss.x
+    hits = []
+    for _ in range(120):
+        step(1)
+        p.invuln_left = 0
+        if boss.state == 'ATTACK' and boss.pattern == 'combo':
+            hits.append(boss.hits_done)
+            closest = min(closest, boss.x)
+    assert max(hits) == 3 and closest < x0 - 40                             # 세 번 내리치며 다가왔다
+
+
+def test_boss_phase_two_charges_back_again():
+    room, p, boss = _boss_world()
+    boss.phase = 2
+    p.hp = p.max_hp = 10 ** 6
+    p.x = boss.x - 700
+    boss.state = 'CHASE'
+    boss.pattern = 'charge'
+    boss.engage()
+    turned = False
+    for _ in range(60 * 4):
+        step(1)
+        p.invuln_left = 0
+        if boss.state == 'ATTACK' and boss.charges_left == 1 and boss.struck is False:
+            turned = True
+        if boss.state != 'ATTACK':
+            break
+    assert turned                                                          # 한 번 더 돌아서 달렸다
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

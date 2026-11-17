@@ -175,6 +175,7 @@ class Pipe:
         variant, flip = effects.slash_variant(ax, ay)
         if enhanced:
             self.combo = 0
+            p.set_swing_style(3, ax)                     # 강화 일격은 3타처럼 크게 끌어 내딛는다
             self.cooldown = config.ENHANCE_STRIKE_COOLDOWN
             effects.spawn(fx['slash'], cx, cy, flip=flip, duration=0.24, variant=variant)
             effects.add_trauma(config.SHAKE_FINISHER)
@@ -185,6 +186,7 @@ class Pipe:
             return
         self.combo = self.combo % 3 + 1
         finisher = self.combo == 3
+        p.set_swing_style(self.combo, ax)                # 1타·2타·3타마다 자세 시간과 내딛기가 다르다
         self.cooldown = config.PIPE_COOLDOWN[self.combo - 1]
         self.combo_left = self.cooldown + config.PIPE_COMBO_WINDOW
         effects.spawn(effects.slash_sheet(p.gauge.zone, finisher), cx, cy, flip=flip, duration=0.22, variant=variant)

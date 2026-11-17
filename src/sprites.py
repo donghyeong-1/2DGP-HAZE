@@ -28,6 +28,14 @@ FRAMES = {
 LIFT = {('boss_crasher_leap', 2): 41}
 STILL_FOOT_MARGIN = 1          # 정지 그림(번호 0)의 발 아래 투명 여백(px)
 
+# 프레임마다 그리는 위치를 조금 옮기는 보정 (dx: 앞쪽 +, dy: 위쪽 +), 단위 px.
+# 걷기 그림은 AI가 장마다 따로 그려 몸통(머리·골반)이 프레임마다 앞뒤로 최대 10px 흔들린다. 머리와 골반 가운데를 재서
+# 평균 위치로 맞추면 몸이 일정한 속도로 나아가 보인다. dy는 다리가 몸 밑을 지나는 프레임에서 몸이 살짝 올라가는 출렁임이다.
+SHIFT = {
+    ('n09_walk', 1): (-1, 0), ('n09_walk', 2): (-5, 1), ('n09_walk', 3): (5, 2), ('n09_walk', 4): (1, 0),
+    ('enemy_slum_walk', 1): (1, 0), ('enemy_slum_walk', 2): (-2, 1), ('enemy_slum_walk', 3): (1, 2), ('enemy_slum_walk', 4): (0, 0),
+}
+
 
 def count(name):
     return FRAMES[name][0]
@@ -46,7 +54,8 @@ def place(name, n, width, height, face_dir):
     py -= LIFT.get((name, n), 0)
     if face_dir < 0:                      # 좌우 반전하면 기준점이 반대편으로 간다
         px = width - 1 - px
-    return width // 2 - px, height - py
+    sdx, sdy = SHIFT.get((name, n), (0, 0))
+    return width // 2 - px + (sdx if face_dir >= 0 else -sdx), height - py - sdy
 
 
 def draw(name, n, x, y, face_dir=1, tint=None, alpha=1.0):

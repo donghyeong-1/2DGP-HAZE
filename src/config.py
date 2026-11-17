@@ -46,7 +46,15 @@ DASH_FRAME_TIME = 0.07   # 대시 자세 두 프레임이 바뀌는 간격(초)
 PLUNGE_POSE_TIME = 0.5   # 내려찍기 자세를 보여 주는 시간(초)
 DEATH_FRAME_TIMES = (0.2, 0.45)   # 사망 프레임이 2번, 3번으로 넘어가는 시각(초). 3번(엎어짐)은 계속 유지
 DEATH_SCREEN_DELAY = 1.3   # 사망한 뒤 쓰러지는 모습을 보여 주고 사망 화면으로 넘어가기까지의 시간(초)
-SWING_TIME = 0.27        # 공격 자세(준비·타격·마무리 3프레임)를 보여 주는 시간(초)
+SWING_TIME = 0.30        # 공격 자세(준비·타격·마무리 3프레임)를 보여 주는 시간(초)
+# 타격 판정은 누르는 순간 나간다. 그래서 준비 프레임은 아주 짧게 스치고, 타격 프레임을 길게 보여 준 뒤 마무리로 넘어간다
+SWING_PHASES = (0.12, 0.55)      # 진행률이 이 값을 넘으면 2번(타격), 3번(마무리) 프레임
+# 연타마다 모양이 다르다: 1타 = 준비→타격→마무리, 2타 = 준비 없이 바로 타격(빠른 되치기), 3타 = 준비를 길게 끌고 크게 내딛는다
+SWING_STYLE_TIME = {1: 0.30, 2: 0.24, 3: 0.38}
+SWING_STYLE_PHASES = {1: (0.12, 0.55), 2: (0.0, 0.5), 3: (0.28, 0.65)}
+SWING_MOVE_MULT = 0.3    # 휘두르는 동안 땅 위 이동 속도 배율 (선 자세로 미끄러지지 않게 거의 멈춘다)
+SWING_LUNGE = {1: 230.0, 2: 170.0, 3: 420.0}   # 휘두를 때 조준 쪽으로 한 발 내딛는 속도(px/s). 3타는 크게
+SWING_LUNGE_DECAY = 14.0  # 내딛는 속도가 줄어드는 빠르기(1/초)
 IDLE_FRAME_TIME = 0.25   # 숨쉬는 대기 프레임 한 장의 시간(초)
 JUMP_RISE_VY = 350.0     # 점프 프레임: vy가 이 값보다 크면 상승, 작고 -이 값보다 크면 정점, 그 아래면 하강
 WALK_FRAMES = 4          # 걷기 프레임 수 (assets/sprites/unified/n09_walk_1~4.png, 발 기준점 x=37)
@@ -121,21 +129,28 @@ SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
 # 적 (hb = 충돌 박스 너비·높이, 스프라이트 키에서 위쪽 여유를 뺀 값)
 # sight_dy: 이 높이 차(px) 안에 플레이어가 있어야 발견, reach_dy: 이 높이 차 안일 때만 공격(투척병은 같은 층만 노린다)
 # leap: 위층의 플레이어를 쫓아 뛰어오르는 속도(0이면 못 뛴다)
+# moves: (기술, 가중치) 목록. 첫 기술이 기본기(첫 공격). 기술 정의는 src/enemy.py MOVES
+# speed_jitter: 적마다 이동 속도가 이 범위에서 조금씩 다르다, stagger: 가끔 비틀거리며 멈춤, retreat: 공격 뒤 물러나는 시간(초)
+# patrol: 플레이어를 보기 전 제자리 좌우로 순찰하는 거리(px), keep_away: 이보다 가까우면 뒤로 뛴다, super_armor: 공격 중 경직 없음
 ENEMY_STATS = {
     'slum': dict(hp=60, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
                  windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle',
-                 leap=1250.0,
+                 leap=1250.0, moves=[('swing', 3), ('combo', 2), ('lunge', 2)], lunge_speed=560.0,
+                 speed_jitter=(0.85, 1.15), stagger=True, retreat=0.25, patrol=110,
                  frames=dict(walk='enemy_slum_walk', attack='enemy_slum_attack', hurt='enemy_slum_hurt')),
     'thrower': dict(hp=45, hb=(48, 108), speed=0.0, sight=900, sight_dy=130, attack_range=820, reach_dy=130, damage=10,
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle',
-                    projectile_speed=620.0, leap=0.0,
+                    projectile_speed=620.0, leap=0.0, moves=[('throw', 3), ('volley', 1), ('lob', 2)], keep_away=300,
                     frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
     # 사냥개: 빠르고 약하다. 멀리서 달려와 물고, 위층도 뛰어오른다 (동작 그림은 아직 정지 그림 한 장)
     'hound': dict(hp=34, hb=(84, 70), speed=400.0, sight=900, sight_dy=480, attack_range=110, reach_dy=120, damage=9,
-                  windup=0.28, attack_time=0.12, cooldown=0.9, gain_on_hit=0, sprite='enemy_hound_idle', leap=1300.0),
+                  windup=0.28, attack_time=0.12, cooldown=0.9, gain_on_hit=0, sprite='enemy_hound_idle', leap=1300.0,
+                  moves=[('bite', 2), ('pounce', 3)], speed_jitter=(0.9, 1.1), retreat=0.55, patrol=160),
     # 간수: 느리고 단단하다. 휘두르기 전 예고가 길고 맞으면 아프다 (정지 그림 한 장)
     'guard': dict(hp=150, hb=(54, 126), speed=120.0, sight=700, sight_dy=300, attack_range=125, reach_dy=200, damage=22,
-                  windup=0.8, attack_time=0.2, cooldown=1.8, gain_on_hit=0, sprite='enemy_guard_idle', leap=0.0),
+                  windup=0.8, attack_time=0.2, cooldown=1.8, gain_on_hit=0, sprite='enemy_guard_idle', leap=0.0,
+                  moves=[('swing', 3), ('heavy', 2), ('bash', 2)], bash_speed=640.0, wave_damage=8, super_armor=True,
+                  patrol=80),
 }
 # 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
 ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),

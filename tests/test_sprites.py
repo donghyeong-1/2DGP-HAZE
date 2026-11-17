@@ -37,14 +37,22 @@ def test_still_sprites_exist_for_every_enemy():
 
 def test_place_puts_the_pivot_on_the_feet():
     # 가로 86, 기준점 x=37인 그림: 가운데(43)에서 6px 오른쪽으로 옮겨 그려야 기준점이 발 위치에 온다
-    assert sprites.place('n09_walk', 1, 86, 125, 1) == (6, 1)
+    # (걷기 1번 프레임은 몸통 흔들림 보정 SHIFT가 있어 그만큼 더 옮긴다: 앞쪽 +, 반전하면 반대로)
+    sdx, sdy = sprites.SHIFT[('n09_walk', 1)]
+    assert sprites.place('n09_walk', 1, 86, 125, 1) == (6 + sdx, 1 - sdy)
     # 좌우 반전하면 기준점이 반대편(86 - 1 - 37 = 48)으로 가므로 5px 왼쪽으로
-    assert sprites.place('n09_walk', 1, 86, 125, -1) == (-5, 1)
+    assert sprites.place('n09_walk', 1, 86, 125, -1) == (-5 - sdx, 1 - sdy)
     assert sprites.place('n09_idle', 0, 42, 125, 1) == (0, sprites.STILL_FOOT_MARGIN)   # 정지 그림은 가운데
     # 도약 공중 프레임은 그림 안에서 41px 떠 있다: 그만큼 더 내려 그려 이미 공중인 몸에 또 띄우지 않는다
     _, foot_ground = sprites.place('boss_crasher_leap', 1, 226, 211, 1)
     _, foot_air = sprites.place('boss_crasher_leap', 2, 226, 211, 1)
     assert foot_air - foot_ground == 41
+
+
+def test_walk_shift_keeps_the_body_steady():
+    """걷기 보정은 몇 px 안쪽이고, 다리가 몸 밑을 지날 때만 몸을 들어 올린다 (발이 바닥 아래로 내려가지 않는다)."""
+    for (name, n), (dx, dy) in sprites.SHIFT.items():
+        assert n <= sprites.count(name) and abs(dx) <= 6 and 0 <= dy <= 3, (name, n)
 
 
 def test_ui_images_exist():

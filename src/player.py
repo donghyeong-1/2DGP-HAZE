@@ -202,6 +202,8 @@ class Player(TileBody):
         self.swing_total = config.SWING_TIME
         self.dead_time = 0.0           # 사망 후 지난 시간 (쓰러지는 프레임 재생용)
         self.swing_dir = 'side'        # 공격 자세 방향: side / up / down / upfwd / downfwd
+        self.swing_style = 1           # 연타 몇 번째 모양인가 (1·2·3, config.SWING_STYLE_TIME)
+        self.lunge_vx = 0.0            # 휘두를 때 한 발 내딛는 속도 (빠르게 줄어든다)
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
 
@@ -461,6 +463,7 @@ class Player(TileBody):
 
         state = self.states[self.state]
         state.do(dt)
+        self._apply_swing_motion(dt)
         if state.gravity:
             self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self.move_with_tiles(dt)
@@ -474,6 +477,15 @@ class Player(TileBody):
         # 조준 방향이 보는 방향 (조준이 거의 수직이면 이동 방향)
         if abs(self.mouse_x - self.x) > 4:
             self.face_dir = 1 if self.mouse_x > self.x else -1
+
+    def _apply_swing_motion(self, dt):
+        """땅 위에서 휘두르는 동안은 거의 멈추고, 조준 쪽으로 한 발 내딛는다 (선 자세로 미끄러지는 것을 막는다)."""
+        if self.lunge_vx:
+            self.lunge_vx *= max(0.0, 1.0 - config.SWING_LUNGE_DECAY * dt)
+            if abs(self.lunge_vx) < 5:
+                self.lunge_vx = 0.0
+        if self.swing_left > 0 and self.on_ground and self.state in ('IDLE', 'RUN') and self.swing_dir != 'plunge':
+            self.vx = self.vx * config.SWING_MOVE_MULT + self.lunge_vx
 
     def _check_spikes(self):
         """가시 타일에 닿으면 피해를 받고 위로 튕긴다. 대시 무적·피격 직후 무적 중에는 그냥 지나간다."""
@@ -523,8 +535,17 @@ class Player(TileBody):
             self.swing_dir = 'downfwd'
         else:
             self.swing_dir = 'side'
+        self.swing_style = 1
         self.swing_total = config.SWING_TIME
         self.swing_left = config.SWING_TIME
+        self.lunge_vx = 0.0
+
+    def set_swing_style(self, style, ax):
+        """연타 몇 번째인지에 따라 자세 시간과 내딛기를 바꾼다. 위·아래로 똑바로 휘두를 때는 내딛지 않는다."""
+        self.swing_style = style
+        self.swing_total = self.swing_left = config.SWING_STYLE_TIME[style]
+        forward = self.swing_dir in ('side', 'upfwd', 'downfwd') and abs(ax) > 0.2
+        self.lunge_vx = (1 if ax > 0 else -1) * config.SWING_LUNGE[style] if forward and self.on_ground else 0.0
 
     def start_plunge_pose(self):
         """내려찍기 자세(파이프를 아래로 겨눈 두 프레임)를 보여 준다."""
@@ -547,7 +568,8 @@ class Player(TileBody):
             return 'n09_plunge', 1 if self.swing_left > self.swing_total * 0.65 else 2
         if self.swing_left > 0:       # 철파이프를 휘두르는 자세: 준비 -> 타격 -> 마무리
             done = 1.0 - self.swing_left / self.swing_total
-            return 'n09_swing_' + self.swing_dir, 1 if done < 0.3 else 2 if done < 0.65 else 3
+            p2, p3 = config.SWING_STYLE_PHASES.get(self.swing_style, config.SWING_PHASES)
+            return 'n09_swing_' + self.swing_dir, 1 if done < p2 else 2 if done < p3 else 3
         if not self.on_ground and self.state in ('JUMP', 'FALL'):
             if self.vy > config.JUMP_RISE_VY:
                 return 'n09_jump', 2

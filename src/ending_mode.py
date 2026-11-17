@@ -12,6 +12,7 @@ _ignore_input = 0.0  # 사망 직후 누르고 있던 키로 바로 넘어가지
 def enter():
     global _ignore_input
     _ignore_input = 0.6
+    assets.play_music('title')   # 사망·탈출 화면은 차분한 곡으로 돌아간다
 
 
 def exit():

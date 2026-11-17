@@ -7,7 +7,7 @@ import game_framework
 
 
 def enter():
-    pass
+    assets.play_music('title')
 
 
 def exit():

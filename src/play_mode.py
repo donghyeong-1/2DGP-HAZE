@@ -37,6 +37,13 @@ def enter():
     room = stage.room
     game_world.add_object(player, game_world.LAYER_PLAYER)
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
+    assets.play_music(music_for(stage))
+
+
+def music_for(stage):
+    """지금 방에 맞는 곡: 살아 있는 보스가 있으면 보스 곡, 아니면 탐험 곡."""
+    boss = stage.boss
+    return 'boss' if boss is not None and boss.alive else 'explore'
 
 
 def _show_message(text):
@@ -113,6 +120,7 @@ def update():
     game_world.update(dt)
     stage.update()
     room = stage.room
+    assets.play_music(music_for(stage))
     camera.update(player, room, dt)
     if room.locked:
         clear_notice = 0.0  # 새 방에 들어오면 이전 방의 클리어 안내를 지운다

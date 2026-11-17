@@ -31,6 +31,44 @@ def test_sound_is_silent_when_disabled():
     assets.play_sound('jump')             # 예외 없이 아무 일도 하지 않아야 한다
 
 
+def test_music_files_loop_cleanly():
+    """배경음악 3곡: 20초 이상, 무음·클리핑 없음, 끝과 처음이 이어진다(반복 재생 이음매)."""
+    for name in ('title', 'explore', 'boss'):
+        path = os.path.join(ROOT, 'assets', 'music', name + '.wav')
+        assert os.path.exists(path), name
+        with wave.open(path, 'rb') as f:
+            assert f.getnchannels() == 1 and f.getsampwidth() == 2
+            n = f.getnframes()
+            assert n / f.getframerate() > 20, name
+            data = f.readframes(n)
+        samples = [int.from_bytes(data[i:i + 2], 'little', signed=True) for i in range(0, len(data), 2)]
+        peak = max(abs(s) for s in samples[::7])
+        assert 8000 < peak < 32000, f'{name}: 피크 {peak}'
+        assert abs(samples[0] - samples[-1]) < 3000, f'{name}: 반복 이음매가 튄다'
+
+
+def test_music_choice_and_silence_when_disabled():
+    import assets
+    import play_mode
+
+    class FakeBoss:
+        alive = True
+
+    class FakeStage:
+        boss = None
+
+    stage = FakeStage()
+    assert play_mode.music_for(stage) == 'explore'
+    stage.boss = FakeBoss()
+    assert play_mode.music_for(stage) == 'boss'           # 살아 있는 보스가 있으면 보스 곡
+    stage.boss.alive = False
+    assert play_mode.music_for(stage) == 'explore'
+    assets.play_music('explore')                          # 소리가 꺼져 있어도 예외 없이 곡 이름만 기억한다
+    assert assets.current_music == 'explore'
+    assets.stop_music()
+    assert assets.current_music is None
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

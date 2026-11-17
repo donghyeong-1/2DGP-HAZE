@@ -106,6 +106,38 @@ def play_sound(name):
         wav.play()
 
 
+_music = {}
+current_music = None   # 지금 틀고 있는 곡 이름 (없으면 None)
+
+
+def play_music(name):
+    """배경음악(assets/music/<name>.wav)을 반복 재생한다. 같은 곡이 이미 나오고 있으면 그대로 둔다.
+    소리가 꺼져 있거나 오디오가 없으면 곡 이름만 기억하고 조용히 넘어간다."""
+    global current_music
+    if name == current_music:
+        return
+    current_music = name
+    import config
+    if not config.SOUND_ENABLED:
+        return
+    try:
+        if name not in _music:
+            from pico2d import load_music
+            _music[name] = load_music(os.path.join(ASSET_DIR, 'music', name + '.wav'))
+        _music[name].set_volume(config.MUSIC_VOLUME)
+        _music[name].repeat_play()
+    except Exception:
+        _music[name] = None
+
+
+def stop_music():
+    global current_music
+    music = _music.get(current_music)
+    current_music = None
+    if music is not None:
+        music.stop()
+
+
 def _font_key(small=False, big=False):
     return 'big' if big else ('small' if small else 'normal')
 

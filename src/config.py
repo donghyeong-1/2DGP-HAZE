@@ -224,6 +224,7 @@ AURA_STUN = 'aura-stun'      # 오버로드 기절 중: 몸을 감싸고 튀는 
 # 소리
 SOUND_ENABLED = False      # main이 오디오를 켠 뒤 True로 바꾼다 (테스트·창 없는 실행에서는 꺼져 있다)
 SFX_VOLUME = 64            # 0~128
+MUSIC_VOLUME = 44          # 0~128 (효과음보다 작게 깔린다)
 
 # 개발용
 DEBUG = False

@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-17)
-- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(190개).
+- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(193개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/17)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿), Q·1·2로 교체. 사슬은 남음.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔. 아크는 구현 전.
@@ -26,7 +26,7 @@
 3. [x] T12 범위 확정(간수·사냥개만, 아크 보류). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [ ] (3주차) 무기 사슬, 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
-6. [ ] **(사용자가 Codex 실행) T19**: 달리기 8프레임과 출발·멈춤·방향 전환. 걷기 8프레임(T17)·휘두르기 5장(T18)은 적용 완료. T19가 오면 게임에 출발·멈춤·전환 표시 시간을 구현한다. T12(사냥개·간수 동작)는 적용 완료. 작업 파일은 `docs/codex/tasks/`, 끝나면 Claude Code에게 "T17 결과를 검토해줘".
+6. [x] Codex T17(걷기 8장)·T18(휘두르기 5장)·T19(달리기 8장과 출발·멈춤·방향 전환) 적용 완료. 대기 중인 Codex 작업 없음. T19가 오면 게임에 출발·멈춤·전환 표시 시간을 구현한다. T12(사냥개·간수 동작)는 적용 완료. 작업 파일은 `docs/codex/tasks/`, 끝나면 Claude Code에게 "T17 결과를 검토해줘".
 7. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
 
 ## 열린 질문
@@ -143,3 +143,6 @@
 
 2026-11-18 [Codex] T18 휘두르기 5방향 중간·회수 10장 추가, 기존 15장 보존, 1배 시트·GIF와 검사 기록, 검토 대기 / assets/sprites/forge/hero_pipe_v5/, assets/sprites/forge/n09_swing_*_v5/, docs/codex/reports/T18.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-18 [Claude Code] Codex T18 검토·적용: 휘두르기 3장 -> 5장(젖힘·휘두르는 중·타격·마무리·회수, 1·3·4는 T15와 픽셀 동일 확인), 연타별 단계 4개, 맞힌 휘두르기는 타격 자세부터(멈춤 중 젖힌 채 멈추던 문제·멈춤 뒤 젖힘으로 되돌아가던 문제), 테스트 1개 추가(190개) / src/(player, weapon, sprites, config), assets/sprites/unified/n09_swing_*, tests/test_combat.py, docs/*
+
+2026-11-18 [Codex] T19 달리기 8장과 출발·멈춤·방향 전환 5장, 1배 시트·GIF와 착지선·보폭 검사, 검토 대기 / assets/sprites/forge/hero_run_v1/, assets/sprites/forge/n09_run_v1/, assets/sprites/forge/n09_run_trans_v1/, docs/codex/reports/T19.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-18 [Claude Code] Codex T19 검토·적용: 조준 쪽 이동은 달리기 8장(37.5px/장), 조준 반대쪽 이동(뒷걸음)은 걷기 8장 역재생(문워크 방지), 출발 2·멈춤 2·방향 전환 1장(그림만, 속도 그대로), 벨트 기준 기준점 보정, 테스트 4개(193개) / src/(player, sprites, config), assets/sprites/unified/n09_run_*, tests/test_combat.py, docs/*

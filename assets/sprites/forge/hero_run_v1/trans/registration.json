@@ -1,0 +1,114 @@
+{
+  "source_anchor": [
+    600,
+    900
+  ],
+  "poses": [
+    {
+      "frame": 1,
+      "source_crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "source_belt": [
+        255,
+        274
+      ],
+      "source_head_y": 78,
+      "source_sole_y_exclusive": 472,
+      "belt_target_above_floor_px": 58,
+      "foot_clearance_target_px": 0,
+      "source_boot_centers_x": [
+        135,
+        304
+      ]
+    },
+    {
+      "frame": 2,
+      "source_crop": [
+        512,
+        0,
+        1024,
+        512
+      ],
+      "source_belt": [
+        780,
+        249
+      ],
+      "source_head_y": 47,
+      "source_sole_y_exclusive": 472,
+      "belt_target_above_floor_px": 65,
+      "foot_clearance_target_px": 0,
+      "source_boot_centers_x": [
+        616,
+        788
+      ]
+    },
+    {
+      "frame": 3,
+      "source_crop": [
+        1024,
+        0,
+        1536,
+        512
+      ],
+      "source_belt": [
+        1271,
+        261
+      ],
+      "source_head_y": 67,
+      "source_sole_y_exclusive": 472,
+      "belt_target_above_floor_px": 62,
+      "foot_clearance_target_px": 0,
+      "source_boot_centers_x": [
+        1187,
+        1410
+      ]
+    },
+    {
+      "frame": 4,
+      "source_crop": [
+        1536,
+        0,
+        2048,
+        512
+      ],
+      "source_belt": [
+        1809,
+        238
+      ],
+      "source_head_y": 29,
+      "source_sole_y_exclusive": 479,
+      "belt_target_above_floor_px": 63,
+      "foot_clearance_target_px": 0,
+      "source_boot_centers_x": [
+        1757,
+        1844
+      ]
+    },
+    {
+      "frame": 5,
+      "source_crop": [
+        2048,
+        0,
+        2560,
+        512
+      ],
+      "source_belt": [
+        2304,
+        254
+      ],
+      "source_head_y": 40,
+      "source_sole_y_exclusive": 477,
+      "belt_target_above_floor_px": 61,
+      "foot_clearance_target_px": 0,
+      "source_boot_centers_x": [
+        2182,
+        2414
+      ]
+    }
+  ],
+  "game_px_per_source_px_x": 0.273
+}

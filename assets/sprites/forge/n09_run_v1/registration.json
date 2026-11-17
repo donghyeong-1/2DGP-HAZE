@@ -1,0 +1,139 @@
+{
+  "size": [
+    105,
+    129
+  ],
+  "anchor": [
+    59,
+    128
+  ],
+  "colors_used": 41,
+  "frames": [
+    {
+      "index": 1,
+      "belt_x": 57.0,
+      "belt_y": 63.0,
+      "bottom_y_exclusive": 128,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 0,
+      "head_top_y": 5,
+      "boot_centers_x_estimate": [
+        10,
+        90
+      ],
+      "boot_spacing_px_estimate": 80
+    },
+    {
+      "index": 2,
+      "belt_x": 59.5,
+      "belt_y": 64.5,
+      "bottom_y_exclusive": 128,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 0,
+      "head_top_y": 7,
+      "boot_centers_x_estimate": [
+        26,
+        63
+      ],
+      "boot_spacing_px_estimate": 37
+    },
+    {
+      "index": 3,
+      "belt_x": 58.0,
+      "belt_y": 62.0,
+      "bottom_y_exclusive": 128,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 0,
+      "head_top_y": 4,
+      "boot_centers_x_estimate": [
+        22,
+        62
+      ],
+      "boot_spacing_px_estimate": 40
+    },
+    {
+      "index": 4,
+      "belt_x": 58.0,
+      "belt_y": 59.0,
+      "bottom_y_exclusive": 119,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 9,
+      "head_top_y": 2,
+      "boot_centers_x_estimate": [
+        14,
+        89
+      ],
+      "boot_spacing_px_estimate": 75
+    },
+    {
+      "index": 5,
+      "belt_x": 58.0,
+      "belt_y": 62.0,
+      "bottom_y_exclusive": 128,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 0,
+      "head_top_y": 5,
+      "boot_centers_x_estimate": [
+        8,
+        90
+      ],
+      "boot_spacing_px_estimate": 82
+    },
+    {
+      "index": 6,
+      "belt_x": 58.0,
+      "belt_y": 65.0,
+      "bottom_y_exclusive": 128,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 0,
+      "head_top_y": 7,
+      "boot_centers_x_estimate": [
+        22,
+        63
+      ],
+      "boot_spacing_px_estimate": 41
+    },
+    {
+      "index": 7,
+      "belt_x": 58.0,
+      "belt_y": 62.5,
+      "bottom_y_exclusive": 128,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 0,
+      "head_top_y": 4,
+      "boot_centers_x_estimate": [
+        19,
+        60
+      ],
+      "boot_spacing_px_estimate": 41
+    },
+    {
+      "index": 8,
+      "belt_x": 58.0,
+      "belt_y": 59.0,
+      "bottom_y_exclusive": 119,
+      "floor_y_exclusive": 128,
+      "air_clearance_px": 9,
+      "head_top_y": 2,
+      "boot_centers_x_estimate": [
+        15,
+        89
+      ],
+      "boot_spacing_px_estimate": 74
+    }
+  ],
+  "timing": {
+    "distance_px_per_frame": 37.5,
+    "nominal_ms_per_frame": 78,
+    "preview_ms": [
+      80,
+      80,
+      70,
+      80,
+      80,
+      80,
+      70,
+      80
+    ]
+  }
+}

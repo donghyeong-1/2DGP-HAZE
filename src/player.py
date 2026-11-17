@@ -197,7 +197,12 @@ class Player(TileBody):
         self.overload_mult = 1.0       # 오버로드 피해 배율
         self.items = []                # 가진 아이템 id 목록
         self.aura_time = 0.0           # 오라 반복 재생 시간
-        self.walk_phase = 0.0          # 걷기 프레임 위상 (이동한 거리에 비례, 멈추면 0)
+        self.move_dist = 0.0           # 땅 위에서 달린 거리(px). 달리기·뒷걸음 프레임이 이 거리에 비례해 넘어간다 (멈추면 0)
+        self.was_moving = False        # 지난 프레임에 땅 위에서 움직였는가 (출발·멈춤 판정)
+        self.prev_face = 1
+        self.run_time = 0.0            # 조준 쪽으로 계속 달린 시간 (멈춤 자세를 보일지)
+        self.start_left = self.stop_left = self.turn_left = 0.0   # 출발·멈춤·방향 전환 자세가 남은 시간
+        self.turn_face = 1             # 방향 전환 자세를 그릴 때 쓰는 원래 보던 쪽
         self.swing_left = 0.0          # 공격 자세 남은 시간 (철파이프를 든 3프레임)
         self.swing_total = config.SWING_TIME
         self.dead_time = 0.0           # 사망 후 지난 시간 (쓰러지는 프레임 재생용)
@@ -481,9 +486,9 @@ class Player(TileBody):
         self.punch_left = max(0.0, self.punch_left - dt)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
-            self.walk_phase += abs(self.vx) * dt / config.WALK_FRAME_PX
+            self.move_dist += abs(self.vx) * dt
         else:
-            self.walk_phase = 0.0
+            self.move_dist = 0.0
         if self._was_stunned and not self.stunned and self.state != 'DEAD':   # 기절에서 깨어나는 순간
             effects.spawn('puff', self.x, self.y + 40, duration=0.45)
             effects.add_trauma(0.2)
@@ -517,6 +522,37 @@ class Player(TileBody):
         # 조준 방향이 보는 방향 (조준이 거의 수직이면 이동 방향)
         if abs(self.mouse_x - self.x) > 4:
             self.face_dir = 1 if self.mouse_x > self.x else -1
+        self._update_move_anim(dt)
+
+    def _update_move_anim(self, dt):
+        """출발·멈춤·방향 전환 자세의 시간을 잰다. 그림만 바뀌고 속도는 그대로다 (가속·감속 없음)."""
+        self.start_left = max(0.0, self.start_left - dt)
+        self.stop_left = max(0.0, self.stop_left - dt)
+        self.turn_left = max(0.0, self.turn_left - dt)
+        moving = self.state == 'RUN' and self.on_ground         # 키를 누른 첫 프레임은 속도가 아직 0이라 상태로 본다
+        forward = moving and self._move_sign() == self.face_dir
+        if moving and self.was_moving and self.face_dir != self.prev_face:   # 달리다가 조준이 뒤로 넘어갔다
+            self.turn_left, self.turn_face = config.RUN_TURN_TIME, self.prev_face
+            self.start_left = 0.0
+        elif moving and not self.was_moving and forward:           # 서 있다가 조준 쪽으로 달리기 시작
+            self.start_left = config.RUN_START_TIME
+        if moving:
+            self.stop_left = 0.0
+        else:
+            self.start_left = 0.0
+            if self.was_moving and self.state == 'IDLE' and self.on_ground and self.run_time >= config.RUN_STOP_MIN_RUN:
+                self.stop_left = config.RUN_STOP_TIME                  # 충분히 달리다 멈췄다: 제동 자세
+        self.run_time = self.run_time + dt if forward else 0.0
+        self.prev_face = self.face_dir
+        self.was_moving = moving
+
+    def _move_sign(self):
+        """움직이는 방향 (+1 오른쪽, -1 왼쪽): 누른 키, 없으면 속도."""
+        return self.direction or (1 if self.vx >= 0 else -1)
+
+    def draw_face(self):
+        """그릴 때 쓰는 좌우 방향. 방향 전환 자세는 원래 보던 쪽 그대로 그린다(그림이 몸을 뒤로 트는 자세라서)."""
+        return self.turn_face if self.turn_left > 0 else self.face_dir
 
     def _apply_swing_motion(self, dt):
         """땅 위에서 휘두르는 동안은 거의 멈추고, 조준 쪽으로 한 발 내딛는다 (선 자세로 미끄러지는 것을 막는다)."""
@@ -629,7 +665,16 @@ class Player(TileBody):
                 return 'n09_jump', 2
             return ('n09_jump', 3) if self.vy > -config.JUMP_RISE_VY else ('n09_jump', 4)
         if self.state == 'RUN' and self.on_ground:
-            return 'n09_walk', int(self.walk_phase) % sprites.count('n09_walk') + 1
+            if self.turn_left > 0:
+                return 'n09_run_trans', 5                              # 방향 전환: 원래 보던 쪽으로 몸을 틀며 버팀
+            if self.start_left > 0:                                    # 출발: 숙이며 디딤 -> 뒷발로 차고 나감
+                return 'n09_run_trans', 1 if self.start_left > config.RUN_START_TIME / 2 else 2
+            if self._move_sign() == self.face_dir:                     # 조준 쪽으로: 달리기
+                return 'n09_run', int(self.move_dist / config.RUN_FRAME_PX) % sprites.count('n09_run') + 1
+            count = sprites.count('n09_walk')                          # 뒷걸음: 걷기를 거꾸로 (8 -> 7 -> ... -> 1)
+            return 'n09_walk', count - int(self.move_dist / config.WALK_FRAME_PX) % count
+        if self.stop_left > 0 and self.state == 'IDLE' and self.on_ground:   # 멈춤: 몸을 젖혀 제동 -> 버티며 선다
+            return 'n09_run_trans', 3 if self.stop_left > config.RUN_STOP_TIME / 2 else 4
         if self.state == 'IDLE':
             return 'n09_idle', int(self.aura_time / config.IDLE_FRAME_TIME) % sprites.count('n09_idle') + 1
         return 'n09_idle', 0
@@ -652,7 +697,7 @@ class Player(TileBody):
                 x += int(round(3 * math.sin(self.aura_time * 95)))
                 if int(self.aura_time * 18) % 2 == 0:
                     tint = (255, 240, 140)
-            sprites.draw(name, n, x, self.y, self.face_dir, tint)
+            sprites.draw(name, n, x, self.y, self.draw_face(), tint)
         if config.DEBUG:
             self._draw_debug()
 

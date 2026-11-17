@@ -797,15 +797,74 @@ def test_dash_aimed_down_on_solid_ground_becomes_a_horizontal_dash():
     assert abs(p.x - x0) > 150 and p.on_ground                         # 바닥에 박히지 않고 옆으로 대시한다
 
 
-def test_walk_phase_advances_with_distance_and_resets_when_stopped():
+def test_run_frames_follow_distance_when_moving_toward_aim():
     room, p = make_world()
+    p.mouse_x = p.x + 2000                                               # 오른쪽을 겨누고 오른쪽으로 달린다
+    p.right = True
+    run_frames(int(config.RUN_START_TIME * 60) + 20)
+    assert p.state == 'RUN' and p._body_frame()[0] == 'n09_run'          # 달리기 그림
+    n = int(p.move_dist / config.RUN_FRAME_PX) % sprites.count('n09_run') + 1
+    assert p._body_frame() == ('n09_run', n)                              # 이동 거리에 비례해 넘어간다
+    p.right = False
+    run_frames(30)
+    assert p.move_dist == 0.0                                             # 멈추면 첫 프레임부터 다시
+
+
+def test_backpedal_plays_walk_frames_in_reverse():
+    """조준 반대쪽으로 움직이면(뒷걸음) 앞으로 기운 달리기 대신 걷기 그림을 거꾸로 돌린다 (문워크 방지)."""
+    room, p = make_world(player_x=900.0)
+    p.mouse_x = p.x - 2000                                               # 왼쪽을 겨누고
+    p.right = True                                                       # 오른쪽으로 움직인다
+    seen = []
+    for _ in range(40):
+        p.mouse_x = p.x - 2000
+        run_frames(1)
+        name, n = p._body_frame()
+        assert name == 'n09_walk', name
+        if not seen or seen[-1] != n:
+            seen.append(n)
+    assert len(seen) >= 3
+    steps = [(seen[i] - seen[i + 1]) % 8 for i in range(len(seen) - 1)]
+    assert all(s == 1 for s in steps), seen                              # 번호가 거꾸로 줄어든다 (8 -> 7 -> 6 ...)
+
+
+def test_run_start_and_stop_transition_frames():
+    room, p = make_world()
+    p.mouse_x = p.x + 2000
+    p.right = True
+    run_frames(1)
+    assert p._body_frame() == ('n09_run_trans', 1)                        # 출발: 숙이며 디딤
+    run_frames(int(config.RUN_START_TIME * 60 * 0.6))
+    assert p._body_frame() == ('n09_run_trans', 2)                        # 뒷발로 차고 나감
+    run_frames(int(config.RUN_START_TIME * 60))
+    assert p._body_frame()[0] == 'n09_run'
+    run_frames(30)                                                       # 충분히 달린 뒤 멈춘다
+    p.right = False
+    run_frames(1)
+    assert p.state == 'IDLE' and p._body_frame() == ('n09_run_trans', 3)  # 멈춤: 몸을 젖혀 제동
+    run_frames(int(config.RUN_STOP_TIME * 60 * 0.6))
+    assert p._body_frame() == ('n09_run_trans', 4)                        # 버티며 선다
+    run_frames(int(config.RUN_STOP_TIME * 60))
+    assert p._body_frame()[0] == 'n09_idle'
+    p.right = True                                                       # 짧게 톡 움직이고 멈추면 제동 자세 없이 선다
+    run_frames(int(config.RUN_STOP_MIN_RUN * 60 * 0.5))
+    p.right = False
+    run_frames(1)
+    assert p._body_frame()[0] == 'n09_idle'
+
+
+def test_turn_frame_keeps_previous_facing_briefly():
+    room, p = make_world(player_x=900.0)
+    p.mouse_x = p.x + 2000
     p.right = True
     run_frames(30)
-    assert p.state == 'RUN' and p.walk_phase > 1.5                       # 달리면 걷기 프레임이 넘어간다
-    assert abs(p.walk_phase - (p.x - 300.0) / config.WALK_FRAME_PX) < 1.0   # 이동 거리에 비례 (발이 미끄러지지 않는다)
-    p.right = False
-    run_frames(10)
-    assert p.walk_phase == 0.0                                            # 멈추면 첫 프레임부터 다시
+    assert p.face_dir == 1
+    p.mouse_x = p.x - 2000                                               # 달리다가 조준이 뒤로 넘어간다
+    run_frames(1)
+    assert p.face_dir == -1 and p._body_frame() == ('n09_run_trans', 5)
+    assert p.draw_face() == 1                                            # 전환 그림은 원래 보던 쪽 그대로 그린다
+    run_frames(int(config.RUN_TURN_TIME * 60) + 2)
+    assert p.draw_face() == -1 and p._body_frame()[0] != 'n09_run_trans'
 
 
 def test_body_frame_follows_state():
@@ -813,7 +872,7 @@ def test_body_frame_follows_state():
     assert p._body_frame()[0] == 'n09_idle' and p._body_frame()[1] >= 1           # 서 있으면 숨쉬기
     p.right = True
     run_frames(10)
-    assert p._body_frame()[0] == 'n09_walk'
+    assert p._body_frame()[0] in ('n09_run', 'n09_run_trans', 'n09_walk')   # 움직이면 이동 그림
     p.right = False
     run_frames(10)
     p.request_jump()

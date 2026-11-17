@@ -1,0 +1,28 @@
+{
+  "date_kst": "2026-11-18",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "tools": "generate2dsprite process / hibit 0.5.0",
+  "run": {
+    "source": "run/source.png",
+    "prompt": "run/actual_prompt.txt",
+    "guide": "run_pose_guide.png",
+    "raw_sha256": "f2538fcf78798c08ed6bd589da4cc208fc2e4a1338605e322efa603aa0c64e55",
+    "size": [
+      1536,
+      1024
+    ]
+  },
+  "trans": {
+    "source": "trans/source.png",
+    "prompt": "trans/actual_prompt.txt",
+    "guide": "transition_pose_guide.png",
+    "raw_sha256": "99713b9f0e825707361182c4c7bffddd6b46037cb05dea9b44b692619dd27f3f",
+    "size": [
+      1536,
+      1024
+    ]
+  }
+}

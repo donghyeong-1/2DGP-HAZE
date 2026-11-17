@@ -1,0 +1,15 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "x_px_per_source_px": 0.294,
+  "poses": [
+    {"belt": [220,251], "boots_x": [55,326], "height": [121,65,0], "lean_px": 8},
+    {"belt": [588,263], "boots_x": [477,603], "height": [119,62.6,0], "lean_px": 4},
+    {"belt": [982,251], "boots_x": [857,991], "height": [122,65,0], "lean_px": 6},
+    {"belt": [1374,233], "boots_x": [1222,1477], "height": [125,68,9], "lean_px": 8},
+    {"belt": [222,764], "boots_x": [49,329], "height": [121,65,0], "lean_px": 9},
+    {"belt": [592,775], "boots_x": [465,607], "height": [119,62,0], "lean_px": 5},
+    {"belt": [982,761], "boots_x": [847,984], "height": [122,65,0], "lean_px": 6},
+    {"belt": [1375,744], "boots_x": [1224,1477], "height": [125,68,9], "lean_px": 9}
+  ]
+}

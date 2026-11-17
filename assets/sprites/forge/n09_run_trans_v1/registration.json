@@ -1,0 +1,94 @@
+{
+  "size": [
+    109,
+    125
+  ],
+  "anchor": [
+    55,
+    124
+  ],
+  "colors_used": 41,
+  "frames": [
+    {
+      "index": 1,
+      "belt_x": 55.0,
+      "belt_y": 66.5,
+      "bottom_y_exclusive": 124,
+      "floor_y_exclusive": 124,
+      "air_clearance_px": 0,
+      "head_top_y": 7,
+      "boot_centers_x_estimate": [
+        22,
+        68
+      ],
+      "boot_spacing_px_estimate": 46
+    },
+    {
+      "index": 2,
+      "belt_x": 55.0,
+      "belt_y": 58.0,
+      "bottom_y_exclusive": 124,
+      "floor_y_exclusive": 124,
+      "air_clearance_px": 0,
+      "head_top_y": 2,
+      "boot_centers_x_estimate": [
+        10,
+        57
+      ],
+      "boot_spacing_px_estimate": 47
+    },
+    {
+      "index": 3,
+      "belt_x": 56.0,
+      "belt_y": 61.0,
+      "bottom_y_exclusive": 124,
+      "floor_y_exclusive": 124,
+      "air_clearance_px": 0,
+      "head_top_y": 3,
+      "boot_centers_x_estimate": [
+        32,
+        93
+      ],
+      "boot_spacing_px_estimate": 61
+    },
+    {
+      "index": 4,
+      "belt_x": 55.0,
+      "belt_y": 60.0,
+      "bottom_y_exclusive": 124,
+      "floor_y_exclusive": 124,
+      "air_clearance_px": 0,
+      "head_top_y": 1,
+      "boot_centers_x_estimate": [
+        41,
+        65
+      ],
+      "boot_spacing_px_estimate": 24
+    },
+    {
+      "index": 5,
+      "belt_x": 55.0,
+      "belt_y": 62.0,
+      "bottom_y_exclusive": 124,
+      "floor_y_exclusive": 124,
+      "air_clearance_px": 0,
+      "head_top_y": 3,
+      "boot_centers_x_estimate": [
+        22,
+        85
+      ],
+      "boot_spacing_px_estimate": 63
+    }
+  ],
+  "timing": {
+    "start_ms": [
+      60,
+      60
+    ],
+    "stop_ms": [
+      80,
+      80
+    ],
+    "turn_ms": 80
+  }
+}

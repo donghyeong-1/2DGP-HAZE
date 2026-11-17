@@ -26,7 +26,7 @@
 3. [x] T12 범위 확정(간수·사냥개만, 아크 보류). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [ ] (3주차) 무기 사슬, 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
-6. [ ] **(사용자가 Codex 실행) T17 → T18**: 주인공 걷기 8프레임(T17), 휘두르기 사이 프레임(T18). T12(사냥개·간수 동작)는 적용 완료. 작업 파일은 `docs/codex/tasks/`, 끝나면 Claude Code에게 "T17 결과를 검토해줘".
+6. [ ] **(사용자가 Codex 실행) T17 → T19 → T18**: 주인공 걷기 8프레임(T17, 검토 대기), 달리기 8프레임과 출발·멈춤·방향 전환(T19), 휘두르기 사이 프레임(T18). T19가 오면 게임에 출발·멈춤·전환 표시 시간을 구현한다. T12(사냥개·간수 동작)는 적용 완료. 작업 파일은 `docs/codex/tasks/`, 끝나면 Claude Code에게 "T17 결과를 검토해줘".
 7. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
 
 ## 열린 질문
@@ -134,3 +134,4 @@
 2026-11-17 [Claude Code] 연타 무적 수정: 적 경직 저항(ENEMY_STAGGER_GUARD 0.9초), 슬럼 HP 60->90·사냥개 34->50 (balance-sim 전후 비교, 변형 3개 실험), 테스트 2개 추가(183개) / src/(enemy, config), tests/test_combat.py, tools/balance_base.json, docs/*
 2026-11-17 [Claude Code] 건틀릿 보스전 수정: 충전 하한 5%->25%(보스 한 방 -20에 게이지 0이 되지 않게), 태운 만큼만 충전·'게이지 부족' 표시, 시뮬레이터 봇 기준·capture.py --hold, 테스트 2개 추가(185개) / src/(weapon, config), tests/(test_combat, test_gauge), tools/(balance_sim, capture, balance_base.json), docs/*
 2026-11-17 [Claude Code] 보스 게이지: 기획의 크래셔 '헤이즈 증기 분출'(+12%) 패턴 구현(SteamVent), 고철 추가 게이지 -8 제거, 시뮬레이터 오버로드 집계 버그·보스 패턴 순서 시드별로 수정, 테스트 4개 추가(189개) / src/(boss, projectile, config), tests/(test_combat, test_tools), tools/(balance_sim, balance_base.json), .claude/skills/balance-sim, docs/*
+2026-11-17 [Claude Code] Codex 작업 T19 작성(주인공 달리기 8프레임 + 출발 2·멈춤 2·방향 전환 1, 이동 속도 = 키의 3.9배/초 근거, 게임에서 보여 줄 시간 명시), 추천 순서 T17 → T19 → T18 / docs/codex/(tasks/T19_hero_run_8.md, TASKS.md), docs/PROGRESS.md

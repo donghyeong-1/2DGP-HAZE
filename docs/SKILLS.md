@@ -91,3 +91,11 @@
 - 에셋 작업 전에 이 표를 보고 알맞은 스킬을 먼저 쓴다 (사용자 요청 2026-11-07, 메모리 "설치 스킬 적극 활용").
 - 스킬로 만든 에셋은 모델·도구·날짜·프롬프트를 `docs/ASSETS.md`와 `docs/image_prompts.md`에 기록한다.
 - 코드로 그린 에셋은 문서에 반드시 "code-drawn"으로 표기한다 (과목 공지의 오리지널리티 평가 대응).
+
+## 7. 이 PC에도 설치함 (2026-11-17, [Claude Code])
+- 위 14개를 **두 번째 컴퓨터(ohama 노트북 B)**에도 맞췄다. gamedev-skills 8종은 `npx` 대신 저장소(commit `c6ca6c4`)를 받아 원문을 읽고 복사했다. 검사 결과: 마크다운 문서와 `platformer/scripts/jump_tuner.py`(표준 라이브러리만) 외에 실행 파일이 없고, 네트워크 호출·권한 확장(`allowed-tools`)·민감 경로 접근이 없다.
+- 설치 위치: `~/.claude/skills/<이름>/`과 `~/.codex/skills/<이름>/` 양쪽. 라이선스 문구는 `~/.claude/skills/_licenses/gamedev-skills-LICENSE`, `-NOTICE`.
+- codixel은 이 PC의 Codex에도 복사했다(`SKILL.md`, `core/`). `resvg-py`는 이 PC에 이미 설치돼 있다.
+- Codex에만 있는 `hatch-pet`은 이 프로젝트와 무관하다(건드리지 않음).
+- 확인: `python ~/.claude/skills/platformer/scripts/jump_tuner.py --help` 가 동작한다. 새 스킬은 **Claude Code와 Codex를 다시 시작해야** 목록에 나타난다.
+

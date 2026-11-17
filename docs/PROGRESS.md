@@ -120,3 +120,4 @@
 2026-11-17 [Claude Code] 타격 이펙트(충격 방사선·스미어 잔상), 아이템 아이콘 10종·진열대 3종 코드 그림(tools/make_icons.py)과 HUD·진열대 적용, Codex 큐 T13~T16 작성, 2차 발표 PPT·대본 갱신(데모 화면 demo_combat_v2), 테스트 추가 / src/(effects, weapon, pedestal, ui, config), tools/make_icons.py, assets/ui/*, tests/test_combat.py, docs/*
 
 2026-11-17 [Codex] T13 아이템 아이콘 10종 제작 및 48×48·알파·팔레트 검사, 검토 대기 / assets/sprites/forge/icons_v1/, docs/codex/reports/T13.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md
+2026-11-17 [Claude Code] 원격 커밋 확인(34개 전체 테스트 148개 통과), 이 PC에 게임 개발 지침 스킬 8종을 Claude Code·Codex 양쪽에 설치, codixel을 Codex에도 설치 / docs/SKILLS.md, docs/PROGRESS.md

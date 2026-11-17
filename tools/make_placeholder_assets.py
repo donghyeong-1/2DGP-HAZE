@@ -1,4 +1,4 @@
-"""개발용 임시 이미지(배경, 단색 점)를 만든다. 타일은 tools/make_codeart.py가 만든다. 직접 만든 이미지라 저작권 문제가 없다.
+"""단색 점 이미지(px_*.png)를 만든다. HUD 사각형과 화면 효과에 쓴다. 타일·배경은 tools/make_world.py가 만든다. 직접 만든 이미지라 저작권 문제가 없다.
 
 사용: python tools/make_placeholder_assets.py
 결과: assets/placeholder/*.png  (실제 타일·UI 에셋으로 교체하면 이 파일들은 지운다)
@@ -22,19 +22,8 @@ COLORS = {
 }
 
 
-def background():
-    w, h = 1920, 1080  # 화면 크기 (src/config.py SCREEN_W/H)
-    img = Image.new("RGBA", (w, h))
-    d = ImageDraw.Draw(img)
-    for y in range(h):
-        k = y / h
-        d.line([(0, y), (w, y)], fill=(int(8 + 14 * k), int(14 + 20 * k), int(30 + 34 * k), 255))
-    return img
-
-
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    background().save(OUT / "bg.png")
     for name, rgb in COLORS.items():
         Image.new("RGBA", (2, 2), rgb + (255,)).save(OUT / f"{name}.png")
     print("saved", OUT)

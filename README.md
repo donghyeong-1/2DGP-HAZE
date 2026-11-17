@@ -10,7 +10,7 @@ python src/main.py
 | 키 | 동작 |
 |---|---|
 | A / D | 이동 |
-| Space, W | 점프 (공중에서 한 번 더) |
+| Space, W | 점프 (공중에서 한 번 더). 짧게 누르면 낮게 뛴다 |
 | S + Space | 얇은 바닥 아래로 내려가기 |
 | 마우스 좌클릭 | 마우스 방향으로 철파이프 공격 (꾹 누르면 이어서, 3타째가 강하다) |
 | 대시 중·직후 좌클릭 | 대시 평타: 앞으로 돌진하며 줄에 선 적을 모두 벤다 |
@@ -36,3 +36,13 @@ python tests/test_combat.py
 - 기획서: `docs/기획서.md` (5장이 구현 설계)
 - 진행 상황: `docs/PROGRESS.md`, 결정 기록: `docs/DECISIONS.md`
 - 에셋 출처: `docs/ASSETS.md`
+
+## 에셋 다시 만들기 (모두 코드로 생성, 외부 완성 에셋은 폰트뿐)
+```
+python tools/make_world.py     # 타일 세트·원경·중경 (6개 테마)
+python tools/make_fx.py        # 타격·폭발·먼지 이펙트
+python tools/make_hud.py       # HUD 조각
+python tools/make_sfx.py       # 효과음
+python tools/make_music.py     # 배경음악 3곡
+```
+캐릭터 그림은 Codex로 만든다 (`docs/codex/TASKS.md`). 출처와 라이선스는 `docs/ASSETS.md` 맨 위 표.

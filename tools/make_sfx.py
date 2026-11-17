@@ -147,7 +147,23 @@ def throw():
     return (lowpass(noise(s), 8) * 0.5 + square(sweep(180, 420, s), 0.4) * 0.3) * envelope(s, 0.01, 0.7)
 
 
-SOUNDS = {"overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
+def warn_low():
+    """페이드 진입 경고: 낮게 가라앉는 두 번의 맥박."""
+    s = 0.5
+    t = t_axis(s)
+    beat = np.exp(-((t % 0.25) * 22))
+    return (triangle(sweep(150, 90, s)) * 0.8 + np.sin(2 * np.pi * 60 * t) * 0.6) * beat * envelope(s, 0.004, 0.5)
+
+
+def warn_high():
+    """위험 구간 진입 경고: 높아지는 세 번의 삑."""
+    s = 0.36
+    t = t_axis(s)
+    gate = ((t % 0.12) < 0.07).astype(float)
+    return square(sweep(880, 1320, s), 0.3) * gate * envelope(s, 0.004, 0.4)
+
+
+SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
           "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw}

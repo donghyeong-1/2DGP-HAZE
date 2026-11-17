@@ -1,46 +1,35 @@
 # 진행상황 (PROGRESS)
 
-마지막 갱신: 2026-11-15 [Claude Code]
+마지막 갱신: 2026-11-17 [Claude Code]
 
 ## 진행 중
-- [Claude Code] 전체 품질 업그레이드(v2): 코드 구조 정리, 자체 제작 이펙트, 타일·배경·HUD 재제작, 전투 감각, 음악, 문서 재정리 / src/*, tools/*, assets/(tiles, backgrounds, effects, ui, sfx, music), tests/*, docs/* (assets/sprites/forge와 docs/codex는 건드리지 않음)
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
-## 1차 발표 (2026-11-04, 지남)
-- 영상 촬영 완료(사용자 보고 11/3). GitHub 저장소 https://github.com/donghyeong-1/2DGP-HAZE 공개. e-class 제출 여부는 사용자가 확인.
-- (기록) 발표일 2026-11-04, 제출 마감은 발표 당일 00:01 → 실질 마감은 11월 3일 밤
-- 제출물: 발표 영상(정확히 1분 30초, YouTube 공개 설정, 소리·화질 확인) + Git 저장소 주소 + 10p 이내 PPT
-- 1차 발표는 기획 중심 평가이므로 게임 구현은 필요 없다.
+## 지금 상태 (2026-11-17)
+- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(151개).
+- **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
+- **적**: 슬럼 폐인, 고철 투척병, 보스 크래셔 (동작 프레임 포함). 간수·사냥개·아크는 그림만 있고 구현 전.
+- **성장**: 황금방(아이템 3개 중 1개), 정비방(조각 구매), 아이템 9종.
+- **v2 품질 업그레이드 완료(11/17)**: 타일·시차 배경·문틀, 자체 제작 이펙트, HUD 재제작, 배경음악 3곡, 가변 점프·위험 구간 경고, 안 쓰는 파일 정리, 문서 재정리.
+- 에셋 출처는 `docs/ASSETS.md` 맨 위 표, 결정은 `docs/DECISIONS.md`, 스킬·도구는 `docs/SKILLS.md`, 새 컴퓨터 준비는 `docs/SETUP.md`.
 
-| 날짜 | 할 일 | 상태 |
-|---|---|---|
-| 11/1 (일) | 기획서·두 PPT·대본 최종화 | 문서와 PPT 완료, 대본 길이 확인 남음 |
-| 11/2 (월) | 영상 녹화·편집, 1분 30초 맞추기 | 예정 |
-| 11/3 (화) | YouTube 업로드(공개), GitHub 커밋, e-class 제출 (자정 전) | 예정 |
-
-## 완료
-- 캐릭터 7종 hibit 화풍 제작·검토 완료, `assets/sprites/unified/` 교체 (구 파일은 `unified_legacy/`)
-- 1주차 구현(`src/`): 프레임워크, 이동·2단 점프·대시·타일 충돌, 상태 머신, 게이지 로직, 모드 4종, 테스트 31개
-- 이펙트 8종(pixelfx 마무리), 픽셀 폰트(갈무리), 픽셀 규칙 문서와 자동 검사
-- 기획서(`docs/기획서.md`), 발표 PPT 10장(`docs/presentation_1st.pptx`), 기획서 PPT 32장(`docs/plan_deck.pptx`), 대본(`docs/script_1st.md`)
-- 설계 목업 15종(`assets/presentation_examples/`, `tools/make_mockups.py`)
-- 캐릭터 7종 콘셉트(`assets/concept/`)와 통일 규격 스프라이트(`assets/sprites/unified/`, `docs/sprite_spec.md`)
-- 공유 규칙(AGENTS.md)과 결정 기록(DECISIONS.md 맨 위 "현재 기준 요약")
+## 발표 일정
+- 1차 발표(11/4): 끝남. 자료는 `발표.pptx`, `기획서.pptx`, 대본 `docs/script_1st.md`.
+- **2차 발표(11/18 수)**: 제출 마감은 **11/18 0시 1분**(11/17 밤). 영상 1분 30초(진행 상황 + 게임 데모), YouTube 링크와 GitHub 주소를 e-class에 제출. 자료 `docs/presentation_2nd.pptx`, 대본 `docs/script_2nd.md`, 촬영 순서 `docs/demo_2nd.md`.
 
 ## 다음 할 일 (우선순위 순)
-1. [ ] **(사용자) 2차 발표 제출 (발표 당일 0시 1분까지)**: `python src/main.py`로 데모 녹화(순서는 `docs/script_2nd.md`) → 소리·글자 확인 → YouTube 업로드 → e-class에 영상 링크와 GitHub 링크 제출. PPT는 `docs/presentation_2nd.pptx`
-2. [ ] **(사용자) 직접 플레이 점검**: 공격 사거리, 적 속도·체력, 피격 무적, 대시 잔상, 점프 느낌. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.10의 `[ ]`)
-3. [ ] **(사용자)** Codex 작업: T06·T13 제작본 검토(`review`), 다음 제작 T14. T12는 구현할 적에 대한 사용자 결정 대기 (`docs/codex/TASKS.md`의 한 줄 명령)
-4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기. BGM 후보 선택(다운로드는 허락 필요)
-5. [x] 2주차 Claude 작업(조준 공격, 적 2종, 게이지 연결, 충돌 박스) + 3주차 앞당김(방 잠금·전환, 미니맵, 고농도 방, E 강화, 조각) (11/15)
-6. [ ] (3주차 11/19~) 정비방과 업그레이드(조각 사용), 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 크래셔·아크, 걷기 프레임이 오면 애니메이션 연결, 가변 점프 높이·접근성 옵션
+1. [ ] **(사용자) 2차 발표 제출**: 데모 녹화 → 영상 확인(소리·글자·길이) → YouTube 업로드 → e-class 제출. PPT 1장의 게임 화면 캡처는 v2 이전 모습이라 새로 찍어 교체하면 좋다.
+2. [ ] **(사용자) 직접 플레이 점검**: 점프(짧게 누르면 낮게 뜀), 대시, 공격 사거리, 적 속도·체력, 음악·효과음 크기. 수치는 `src/config.py`만 고친다 (`MUSIC_VOLUME`, `SFX_VOLUME`, `JUMP_CUT` 등).
+3. [ ] **(사용자) Codex 검토 대기**: T06 배경, T13 아이콘, T14 진열대·소품, T15 철파이프 굵게, T16 제목 화면. T12(간수·사냥개·아크 애니메이션)는 어떤 적을 구현할지 결정이 필요하다 (`docs/codex/TASKS.md`).
+4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
+5. [ ] (3주차 11/19~) 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
+6. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
 
 ## 열린 질문
-- 타이틀 로고와 큰 제목 글자("탈출 성공" 등)는 픽셀 폰트를 키울 수 없어 이미지로 만들어야 한다 (지금은 14px 글자로 임시 표시)
 - 코드네임 "화이트"와 주인공 이름은 임시 값이다.
-- 게이지 수치(-1%/3초, 스킬 증감 등)는 플레이 테스트 전 초안이다.
-- 2·3차 발표 일정
-- (해결 2026-11-03) 저장소 문서의 과거 기록은 중립 문장으로 정리함
+- 게이지·전투 수치는 플레이 테스트 전 초안이다.
+- 3차(최종) 발표 일정.
+- 음악을 직접 들어 본 평가가 없다 (파형 수치만 확인).
 
 ## 작업 로그
 - 2026-11-01 [Claude] 로그라이크로 용어 통일, 한 줄 소개 갱신, 기획서·PPT·결정 문서 불일치 수정, 최종 재생성 / AGENTS.md, docs/*, tools/*
@@ -126,3 +115,4 @@
 2026-11-17 [Claude Code] v2 이어서: 방 겉모습 v2를 6개 테마에 적용(room.py 새 타일 세트·시차 배경·문틀/쇠창살, make_world 전체 생성), 옛 bg_*·make_tiles_hq.py 삭제, 테스트 보강 / src/room.py, src/title_mode.py, assets/tiles, assets/backgrounds, tests/test_rooms.py, docs/ASSETS.md, DECISIONS.md
 2026-11-17 [Claude Code] v2 HUD 재제작: tools/make_hud.py(조각 16개), ui.py 입체 틀·게이지 장식·대시/콤보 칸·조준점·미니맵 아이콘·글자 받침 / tools/make_hud.py, assets/ui/hud_*, src/ui.py, docs/ASSETS.md, DECISIONS.md
 2026-11-17 [Claude Code] v2 음악: 배경음악 3곡 합성(tools/make_music.py), 타이틀·탐험·보스·엔딩 연결, 테스트 2개 추가(총 150개) / tools/make_music.py, assets/music, src/(assets, config, title_mode, play_mode, ending_mode), tests/test_sfx.py, docs/*
+2026-11-17 [Claude Code] v2 마무리: 가변 점프(JUMP_CUT), 페이드·위험 구간 경고음과 게이지 맥박, 안 쓰는 타일·도구·임시 배경 삭제, ASSETS 맨 위 현재 기준 표, PROGRESS 위쪽 절 재작성, README 갱신, 진행 중 표시 해제 / src/(player, config, ui), tools/(make_sfx, make_codeart, make_placeholder_assets), tests/test_player.py, assets/sfx, docs/*, README.md

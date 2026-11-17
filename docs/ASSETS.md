@@ -2,6 +2,30 @@
 
 사용한 모든 이미지·사운드는 아래에 기록한다. (이름 / 출처 URL / 라이선스 / 사용 위치)
 
+## 지금 게임이 쓰는 에셋 (2026-11-17 기준, 이 표가 최신이다)
+아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트 하나뿐이다.
+
+| 구분 | 위치 | 만든 방법 | 출처·라이선스 |
+|---|---|---|---|
+| 캐릭터·적·보스와 동작 프레임 | `assets/sprites/unified/` | Codex(agent-sprite-forge `generate2dsprite`, 내장 image_gen)로 원화 → `tools/finish_character.py`로 픽셀화. 작업 기록은 `docs/codex/`, 원화는 `assets/sprites/forge/` | AI 생성물 (이미지 모델명 미제공: 제출 전 확인 필요) |
+| 사망·엔딩 화면 | `assets/backgrounds/screen_*.png` | Codex `generate2dmap` (T11) | AI 생성물 |
+| 타일 세트, 원경, 중경 (6개 테마) | `assets/tiles/tile_set_*.png`, `assets/backgrounds/far_*.png`, `mid_*.png` | `tools/make_world.py` (code-drawn). 원경은 Codex 배경판(T06)에 테마 색을 다시 입힘 | 자체 제작 |
+| 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
+| HUD 조각, 아이템 아이콘·진열대, 로고 | `assets/ui/` | `tools/make_hud.py`, `make_icons.py`, `make_codeart.py`(codeart2d 스킬의 SVG 렌더러) | 자체 제작 |
+| 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
+| 효과음 21종 | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
+| 배경음악 3곡 | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
+| 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
+| 폰트 | `assets/fonts/Galmuri11.ttf`, `Galmuri14.ttf` | 갈무리 v2.40.4 (Lee Minseo) | **SIL OFL 1.1** (`assets/fonts/OFL.txt`) |
+
+- 쓰는 스킬·도구(개발용, 게임에 포함되지 않음)는 `docs/SKILLS.md`에 있다. agent-sprite-forge와 codixel은 MIT, gamedev-skills는 Apache-2.0.
+- 엔딩 크레딧에 표기할 것: Galmuri font by Lee Minseo (SIL OFL 1.1), AI 생성 이미지(도구·모델), 나머지는 자체 제작.
+- 게임에서 더는 쓰지 않는 것(기록용으로만 남음): `assets/sprites/unified_legacy/`, `assets/sprites/detailed/`, `assets/concept/`, `assets/presentation_examples/`(발표 자료용).
+
+---
+
+# 아래는 날짜별 기록
+
 | 이름 | 출처 | 라이선스 | 사용 위치 |
 |---|---|---|---|
 | `n09.png` | Gemini (모델명 확인 필요), 2026-10-31 생성. 원본 `assets/concept/source/protagonist_illust.webp` | 생성물 이용 조건 확인 필요 | 이전 발표용 (현재 미사용) |

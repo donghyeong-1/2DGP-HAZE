@@ -322,6 +322,8 @@ class Player(TileBody):
                 self.right = False
             elif event.key == SDLK_s:
                 self.down = False
+            elif event.key in (SDLK_SPACE, SDLK_w):
+                self.release_jump()
         elif event.type == SDL_MOUSEMOTION:
             self.mouse_screen = (event.x, get_canvas_height() - 1 - event.y)
             self._sync_mouse()
@@ -364,6 +366,11 @@ class Player(TileBody):
         if self.state in ('HIT', 'DEAD') or self.stunned:   # 대시 중에는 대시 평타를 칠 수 있다
             return False
         return self.weapon.try_attack()
+
+    def release_jump(self):
+        """점프 키를 뗐다: 아직 올라가는 중이면 상승을 줄여 낮게 뛴다 (최고 높이는 끝까지 누를 때만)."""
+        if self.state == 'JUMP' and self.vy > 0:
+            self.vy *= config.JUMP_CUT
 
     def request_jump(self):
         if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned:
@@ -419,6 +426,10 @@ class Player(TileBody):
         elif name in ('zone:AWAKE', 'zone:CRITICAL'):
             effects.spawn('surge', self.x, self.y, duration=0.45)      # 높은 구간에 들어서는 순간 발밑에서 기운이 솟는다
             effects.add_trauma(0.15)
+            if name == 'zone:CRITICAL':
+                assets.play_sound('warn_high')                         # 곧 폭발한다는 경고음
+        elif name == 'zone:FADE':
+            assets.play_sound('warn_low')                              # 게이지가 바닥나 간다는 경고음 (0%면 사망)
 
     # ----- 갱신 -----
     def update(self, dt):

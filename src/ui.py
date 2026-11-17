@@ -110,6 +110,10 @@ class GameUI:
 
     def _draw_gauge(self):
         g = self.player.gauge
+        if g.zone in (FADE, CRITICAL):                           # 양끝 위험 구간: 게이지 둘레가 맥박처럼 깜빡인다
+            import math
+            pulse = 0.35 + 0.35 * math.sin(self.player.aura_time * (9 if g.zone == CRITICAL else 6))
+            assets.draw_rect_color(BAR_X - 12, BAR_Y - 12, BAR_W + 24, BAR_H + 24, ZONE_COLOR[g.zone], max(0.0, pulse))
         _frame(BAR_X, BAR_Y, BAR_W, BAR_H, 'px_gray', thickness=5)
         # 구간 띠 (페이드 / 노멀 / 각성 / 위험)
         bounds = [(0, config.ZONE_FADE_MAX, 'px_red'), (config.ZONE_FADE_MAX, config.ZONE_NORMAL_MAX, 'px_blue'),

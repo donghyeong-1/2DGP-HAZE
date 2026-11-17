@@ -225,6 +225,27 @@ def test_death_when_gauge_hits_zero():
     assert p.state == 'DEAD'
 
 
+def test_releasing_jump_early_makes_a_lower_jump():
+    """점프 키를 일찍 떼면 낮게 뛰고, 끝까지 누르면 최고 높이는 그대로다 (방 도달 가능성 계산은 바뀌지 않는다)."""
+    def peak(release_after):
+        p = make_player()
+        p.request_jump()
+        top = 0.0
+        for i in range(120):
+            if i == release_after:
+                p.release_jump()
+            p.update(DT)
+            top = max(top, p.y - FLOOR_Y)
+        return top
+    full, short = peak(999), peak(4)
+    expected = config.JUMP_SPEED ** 2 / (2 * config.GRAVITY)
+    assert expected * 0.93 < full < expected * 1.07
+    assert short < full * 0.75, (short, full)
+    p = make_player()
+    p.release_jump()                      # 땅 위에서 떼는 것은 아무 영향이 없다
+    assert p.vy <= 0 and p.state == 'IDLE'
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(ROOT, 'src'))
 
 import config  # noqa: E402
 
-NAMES = ["jump", "double_jump", "dash", "land", "hit", "pickup", "enhance", "overload", "death",
+NAMES = ["warn_low", "warn_high", "jump", "double_jump", "dash", "land", "hit", "pickup", "enhance", "overload", "death",
          "overload_zap", "stun_end", "swing", "swing_fade", "swing_awake", "swing_critical", "swing_enhanced", "enemy_hit", "enemy_die", "throw"]
 
 

@@ -17,6 +17,7 @@ JUMP_SPEED = 1275.0        # px/s (한 번에 약 225px = 3.75타일)
 MAX_JUMPS = 2              # 2단 점프
 DROP_TIME = 0.2            # S+Space 로 얇은 바닥을 무시하는 시간(초)
 COYOTE_TIME = 0.10         # 낭떠러지를 걸어 떨어진 뒤에도 땅 위 점프로 쳐 주는 시간(초)
+JUMP_CUT = 0.5             # 점프 키를 일찍 떼면 남은 상승 속도에 곱한다 (짧게 누르면 낮게 뛴다. platformer 지침의 release cut)
 JUMP_BUFFER = 0.12         # 착지 직전에 누른 점프를 기억했다가 착지하면 뛰는 시간(초)
 
 # 대시

@@ -2,7 +2,7 @@
 
 이미지 모델 없이 코드로 그린 에셋이다 (agent-sprite-forge의 codeart2d 스킬 렌더러 사용).
 사용: python tools/make_codeart.py [이름 ...]
-결과: assets/ui/logo.png, assets/tiles/tile_*.png, assets/sprites/unified/proj_scrap.png
+결과: assets/ui/logo.png, assets/sprites/unified/proj_scrap.png  (타일은 tools/make_world.py가 만든다)
 """
 import shutil
 import subprocess
@@ -18,11 +18,6 @@ RENDER = next((p for p in _RENDERERS if p.exists()), _RENDERERS[0])  # Codex·Cl
 
 TARGETS = {
     "logo": ROOT / "assets" / "ui" / "logo.png",
-    "tile_solid_a": ROOT / "assets" / "tiles" / "tile_solid_a.png",
-    "tile_solid_b": ROOT / "assets" / "tiles" / "tile_solid_b.png",
-    "tile_solid_c": ROOT / "assets" / "tiles" / "tile_solid_c.png",
-    "tile_oneway": ROOT / "assets" / "tiles" / "tile_oneway.png",
-    "tile_spike": ROOT / "assets" / "tiles" / "tile_spike.png",
     "proj_scrap": ROOT / "assets" / "sprites" / "unified" / "proj_scrap.png",
 }
 
@@ -38,7 +33,6 @@ def main():
     if not RENDER.exists():
         sys.exit(f"codeart2d 렌더러가 없습니다: {RENDER} (docs/SETUP.md의 agent-sprite-forge 설치 참고)")
     run([sys.executable, str(CODEART / "make_logo.py")])
-    run([sys.executable, str(CODEART / "make_tiles.py")])
     run([sys.executable, str(CODEART / "make_scrap.py")])
     wanted = sys.argv[1:] or list(TARGETS)  # 이름을 주면 그것만 렌더링한다 (예: python tools/make_codeart.py proj_scrap)
     for name in wanted:

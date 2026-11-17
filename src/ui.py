@@ -259,7 +259,7 @@ class GameUI:
         base_x = right - (max(xs) - min(xs) + 1) * (cell_w + gap)
         base_y = config.SCREEN_H - 110 - (max(ys) - min(ys)) * (cell_h + gap)
         colors = {'current': 'px_white', 'cleared': 'px_cyan', 'visited': 'px_blue', 'unknown': 'px_gray'}
-        kind_border = {'gold': 'px_yellow', 'boss': 'px_red', 'shop': 'px_blue'}
+        kind_border = {'gold': 'px_yellow', 'boss': 'px_red', 'shop': 'px_blue', 'gate': 'px_orange'}
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
@@ -267,10 +267,10 @@ class GameUI:
             _rect('px_black', x - 5, y - 5, cell_w + 10, cell_h + 10)
             _rect(border, x - 4, y - 4, cell_w + 8, cell_h + 8)
             _rect(colors[state], x, y, cell_w, cell_h)
-            mark = kind if kind in kind_border else 'haze' if high else None
+            mark = ('boss' if kind == 'gate' else kind) if kind in kind_border else 'haze' if high else None   # 관문은 보스 아이콘(주황 테두리)
             if mark:                                             # 방 종류는 색 테두리와 함께 아이콘으로도 알려 준다
                 _icon('map_' + mark, x + cell_w // 2 - 10, y + cell_h // 2 - 8)
-        legend = '지도: 별 황금방 / 렌치 정비방 / 뿔 보스'
+        legend = '지도: 별 황금방 / 렌치 정비방 / 뿔 보스·관문'
         lw = assets.text_width(legend, True)
         assets.draw_rect_color(right - lw - 10, base_y - 50, lw + 20, 32, (11, 16, 32), 0.55)
         assets.draw_text(right - assets.text_width(legend, True), base_y - 34, legend, DIM, small=True)

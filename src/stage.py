@@ -2,9 +2,11 @@
 
 방은 격자 좌표 (열, 행)에 놓이고 행은 위로 증가한다. 방마다 위·아래·좌·우 출입구가 있을 수 있고, 어느 문으로 나갈지는 플레이어가
 고른다. 문 너머 방이 황금방·정비방·보스방이면 문 색과 이름으로 알려 준다. pico2d와 무관한 로직이라 창 없이 테스트한다.
-배치 데이터는 data/stages/stage1.py (격자 좌표 -> 방 정의).
+배치 데이터는 data/stages/stage1~3.py (격자 좌표 -> 방 정의, 구역 이름 TITLE, 기본 테마 THEME).
 
-방 종류: start(안전), combat(적을 모두 처치해야 문이 열림), gold(아이템 중 하나를 무료로), shop(조각으로 구매), boss(보스).
+방 종류: start(안전), combat(적을 모두 처치해야 문이 열림), gold(아이템 중 하나를 무료로), shop(조각으로 구매),
+boss(보스, 쓰러뜨리면 다음 구역), gate(관문: 정예 전투, 이기면 다음 구역. 보스가 없는 스테이지 1의 끝).
+구역 순서는 STAGE_ORDER. 한 구역을 끝내면 next_stage()가 같은 플레이어(체력·게이지·아이템·무기·조각 그대로)로 다음 구역을 연다.
 """
 import importlib.util
 import os
@@ -22,18 +24,40 @@ from room import Room
 
 OPPOSITE = {'L': 'R', 'R': 'L', 'U': 'D', 'D': 'U'}
 STEP = {'L': (-1, 0), 'R': (1, 0), 'U': (0, 1), 'D': (0, -1)}
-SPECIAL_TYPES = ('gold', 'shop', 'boss')   # 문에 미리 알려 주는 방 종류
+SPECIAL_TYPES = ('gold', 'shop', 'boss', 'gate')   # 문에 미리 알려 주는 방 종류
+END_TYPES = ('boss', 'gate')                        # 클리어하면 구역이 끝나는 방
+STAGE_ORDER = ('stage1', 'stage2', 'stage3')        # 기획서 2.3: 슬럼 -> 공장 -> 코어(탑)
 
 _exit_cache = {}
 
 
-def load_layout(name='stage1'):
-    """data/stages/<name>.py 에서 (START, 스테이지 딕셔너리)를 읽는다."""
+def _load_module(name):
     path = os.path.join(assets.DATA_DIR, 'stages', name + '.py')
     spec = importlib.util.spec_from_file_location('stage_data_' + name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    return module
+
+
+def load_layout(name='stage1'):
+    """data/stages/<name>.py 에서 (START, 스테이지 딕셔너리)를 읽는다."""
+    module = _load_module(name)
     return module.START, getattr(module, name.upper())
+
+
+def next_stage(stage):
+    """끝난 구역 다음 구역을 같은 플레이어로 연다. 마지막 구역이면 None(탈출 = 엔딩)."""
+    if stage.next_name is None:
+        return None
+    if stage.room is not None:                       # 지난 구역의 방·적·이펙트·진열대를 치운다
+        game_world.remove_object(stage.room)
+    for layer in (game_world.LAYER_TILES, game_world.LAYER_ENEMY, game_world.LAYER_EFFECT):
+        for obj in list(game_world.world[layer]):
+            game_world.remove_object(obj)
+    nxt = Stage(stage.player, seed=stage.seed + 1, name=stage.next_name)
+    nxt.on_clear, nxt.on_message = stage.on_clear, stage.on_message
+    nxt.start()
+    return nxt
 
 
 def template_exits(template):
@@ -44,11 +68,17 @@ def template_exits(template):
 
 
 class Stage:
-    def __init__(self, player, layout=None, start=None, seed=None):
+    def __init__(self, player, layout=None, start=None, seed=None, name='stage1'):
+        self.name = name
+        self.title, self.default_theme = '', 'cell'
         if layout is None:
-            start, layout = load_layout()
+            module = _load_module(name)
+            start, layout = module.START, getattr(module, name.upper())
+            self.title = getattr(module, 'TITLE', '')
+            self.default_theme = getattr(module, 'THEME', 'cell')
         self.layout = layout
         self.player = player
+        self.start_coord = start
         self.coord = start
         self.seed = random.randrange(1 << 30) if seed is None else seed
         self.visited = set()
@@ -57,10 +87,15 @@ class Stage:
         self.room = None
         self.pedestals = []
         self.boss = None
-        self.finished = False       # 보스를 쓰러뜨려 탈출이 끝났는가
+        self.finished = False       # 끝 방(보스·관문)을 클리어해 이 구역이 끝났는가
         self.finish_timer = 0.0
         self.on_clear = None        # 방을 클리어했을 때 부를 함수 (소리·글자용)
         self.on_message = None      # 화면에 띄울 짧은 글자: f(문구)
+
+    @property
+    def next_name(self):
+        i = STAGE_ORDER.index(self.name) if self.name in STAGE_ORDER else len(STAGE_ORDER)
+        return STAGE_ORDER[i + 1] if i + 1 < len(STAGE_ORDER) else None
 
     # ----- 방 정의 -----
     def type_of(self, coord):
@@ -91,7 +126,7 @@ class Stage:
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
         self.pedestals, self.boss = [], None
-        self.room = Room.load(info['template'], self.links_of(coord), info.get('high_haze', False), self._theme_of(info))
+        self.room = Room.load(info['template'], self.links_of(coord), info.get('high_haze', False), self.theme_of(info))
         for d in self.room.links:      # 문 너머 방이 특별한 방이면 문에 표시한다
             kind = self.type_of(self.neighbour(coord, d))
             if kind in SPECIAL_TYPES:
@@ -100,25 +135,29 @@ class Stage:
         self._place_player(from_dir)
         self.visited.add(coord)
         kind = self.type_of(coord)
-        if kind == 'combat' and coord not in self.cleared:
+        if kind in ('combat', 'gate') and coord not in self.cleared:
             self._spawn_enemies(info)
         elif kind == 'boss' and coord not in self.cleared:
             x, y = self.room.boss_spawn or (self.room.width * 0.7, config.TILE * 2)
-            self.boss = Boss(x, y, self.room, self.player)
+            self.boss = self._make_boss(info.get('boss', 'crasher'), x, y)
             game_world.add_object(self.boss, game_world.LAYER_ENEMY)
         elif kind in ('gold', 'shop'):
             self._spawn_pedestals(coord, kind)
         self.room.locked = self.enemy_count() > 0
 
-    @staticmethod
-    def _theme_of(info):
-        """방의 겉모습 테마: 스테이지 데이터의 theme, 없으면 종류로 (황금방 gold, 정비방 shop, 보스 boss, 고농도 haze, 나머지 cell)."""
+    def _make_boss(self, kind, x, y):
+        """보스 종류별 객체. 아크(스테이지 3)는 그림(Codex T20)이 오면 구현한다. 그 전까지는 크래셔가 대신 선다(임시)."""
+        return Boss(x, y, self.room, self.player)
+
+    def theme_of(self, info):
+        """방의 겉모습 테마: 방의 theme, 없으면 종류로 (황금방 gold, 정비방 shop, 보스 boss, 고농도 haze),
+        나머지는 구역의 기본 테마(슬럼 cell, 공장 foundry, 탑 haze)."""
         if info.get('theme'):
             return info['theme']
         kind = info.get('type')
         if kind in ('gold', 'shop', 'boss'):
             return kind
-        return 'haze' if info.get('high_haze') else 'cell'
+        return 'haze' if info.get('high_haze') else self.default_theme
 
     def _place_player(self, from_dir):
         p, room = self.player, self.room
@@ -148,12 +187,16 @@ class Stage:
 
     def _spawn_enemies(self, info):
         # 칸에 종류가 적힌 스폰(s, t)은 그대로, 종류 없는 E 칸은 스테이지 데이터의 enemies를 순서대로 쓴다
+        # swap: 템플릿에 적힌 종류를 이 방에서만 바꾼다 (같은 방 모양을 다른 구역에서 다른 적으로, 예: {'slum': 'guard'})
         generic = list(info.get('enemies', []))
+        swap = info.get('swap', {})
         for x, y, kind in self.room.enemy_spawns:
             if kind is None:
                 if not generic:
                     continue
                 kind = generic.pop(0)
+            else:
+                kind = swap.get(kind, kind)
             game_world.add_object(Enemy(kind, x, y, self.room, self.player), game_world.LAYER_ENEMY)
 
     def _spawn_pedestals(self, coord, kind):
@@ -179,6 +222,8 @@ class Stage:
 
     def start(self):
         self.enter_room(self.coord)
+        if self.title:
+            self._say(self.title)                        # 구역 이름을 띄운다
 
     def enemy_count(self):
         return sum(1 for e in game_world.world[game_world.LAYER_ENEMY] if e.alive)
@@ -227,7 +272,7 @@ class Stage:
             self.cleared.add(self.coord)
             if self.on_clear:
                 self.on_clear(self)
-        if self.type_of(self.coord) == 'boss' and self.coord in self.cleared and not self.finished:
+        if self.type_of(self.coord) in END_TYPES and self.coord in self.cleared and not self.finished:
             self.finish_timer += 1 / 60
             if self.finish_timer >= 2.5:
                 self.finished = True

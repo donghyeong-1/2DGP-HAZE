@@ -19,12 +19,12 @@ T = config.TILE
 FLOOR_Y = float(config.SCREEN_H - 16 * T)   # 18줄 방의 바닥 윗면
 
 
-def make_stage(seed=1):
+def make_stage(seed=1, name='stage1'):
     game_world.clear()
     effects.reset()
     player = Player(0, 0, None)
     game_world.add_object(player, game_world.LAYER_PLAYER)
-    stage = Stage(player, seed=seed)
+    stage = Stage(player, seed=seed, name=name)
     stage.start()
     for _ in range(40):
         game_world.update(DT)
@@ -226,24 +226,25 @@ def test_shop_sells_for_shards_and_marks_sold_out():
 
 # ----- 보스 -----
 def to_boss(stage, p):
-    goto(stage, p, ['R', 'R', 'R', 'R', 'R'])
-    assert stage.coord == (5, 0)
+    """스테이지 2: 시작 -> 교차로(오른쪽) -> 허브(위) -> 오른쪽 넷 -> 보스(크래셔)."""
+    goto(stage, p, ['R', 'U', 'R', 'R', 'R', 'R'])
+    assert stage.coord == (5, 1)
 
 
 def test_boss_room_spawns_boss_and_finishing_it_ends_the_stage():
-    stage, p = make_stage()
+    stage, p = make_stage(name='stage2')
     to_boss(stage, p)
     assert stage.boss is not None and stage.enemy_count() == 1 and stage.room.locked
     stage.boss.take_damage(10 ** 6)
     stage.update()
-    assert (5, 0) in stage.cleared and not stage.finished
+    assert (5, 1) in stage.cleared and not stage.finished
     for _ in range(200):
         stage.update()
     assert stage.finished and p.shards >= config.SHARDS_PER_KILL['crasher']
 
 
 def test_boss_slam_makes_shockwaves_that_cost_gauge():
-    stage, p = make_stage()
+    stage, p = make_stage(name='stage2')
     to_boss(stage, p)
     boss = stage.boss
     p.invuln_left = 0
@@ -417,6 +418,77 @@ def test_kill_drops_shards():
     p.shards = 0
     kill_all()
     assert p.shards >= n                                          # 적마다 1~2조각
+
+
+
+# ----- 스테이지 3개와 이어 가기 -----
+def test_three_stages_in_order_with_titles():
+    import stage as stage_mod
+    assert stage_mod.STAGE_ORDER == ('stage1', 'stage2', 'stage3')
+    for name, nxt in (('stage1', 'stage2'), ('stage2', 'stage3'), ('stage3', None)):
+        s, p = make_stage(name=name)
+        assert s.name == name and s.next_name == nxt and s.title           # 구역 이름이 있다
+        assert s.coord == s.start_coord and not s.room.locked and s.enemy_count() == 0
+
+
+def test_stage1_ends_at_gate_fight_without_boss():
+    """기획서: 크래셔는 스테이지 2 보스, 아크는 스테이지 3 보스. 스테이지 1은 관문 방의 정예 전투를 이기면 다음 구역으로."""
+    stage, p = make_stage()
+    kinds = [info.get('type') for info in stage.layout.values()]
+    assert 'boss' not in kinds and kinds.count('gate') == 1
+    goto(stage, p, ['R', 'R', 'R', 'R', 'R'])
+    assert stage.type_of(stage.coord) == 'gate' and stage.boss is None
+    assert stage.room.locked and stage.enemy_count() >= 4                   # 정예 무리
+    assert {e.kind for e in game_world.world[game_world.LAYER_ENEMY]} & {'guard', 'hound'}
+    clear_here(stage)
+    for _ in range(200):
+        stage.update()
+    assert stage.finished
+
+
+def test_gate_door_is_announced():
+    stage, p = make_stage()
+    goto(stage, p, ['R', 'R', 'R', 'R'])
+    clear_here(stage)
+    assert stage.room.door_hints.get('R') == 'gate'
+
+
+def test_stage_bosses_follow_design():
+    for name, boss in (('stage2', 'crasher'), ('stage3', 'ark')):
+        s, p = make_stage(name=name)
+        found = [info.get('boss') for info in s.layout.values() if info.get('type') == 'boss']
+        assert found == [boss], (name, found)
+
+
+def test_typed_spawns_can_be_swapped_per_room():
+    """템플릿에 s·t로 적힌 적도 스테이지 데이터의 swap으로 바꿀 수 있다 (같은 방 모양을 다른 구역에서 다른 적으로)."""
+    stage, p = make_stage(name='stage2')
+    swapped = [(c, info) for c, info in stage.layout.items() if info.get('swap')]
+    assert swapped
+    coord, info = swapped[0]
+    stage.enter_room(coord, 'L')
+    kinds = {e.kind for e in game_world.world[game_world.LAYER_ENEMY]}
+    for old, new in info['swap'].items():
+        assert old not in kinds or old in info['swap'].values()
+        assert new in kinds
+
+
+def test_next_stage_keeps_player_progress():
+    import stage as stage_mod
+    stage, p = make_stage()
+    p.hp, p.shards = 61, 17
+    p.give_weapon('knife')
+    p.items.append('w_dummy')
+    p.gauge.value = 47.0
+    stage.finished = True
+    nxt = stage_mod.next_stage(stage)
+    assert nxt is not None and nxt.name == 'stage2' and nxt.player is p
+    assert nxt.on_clear is stage.on_clear and nxt.on_message is stage.on_message
+    assert (p.hp, p.shards, p.weapon.weapon_id, p.gauge.value) == (61, 17, 'knife', 47.0) and 'w_dummy' in p.items
+    assert p.room is nxt.room and nxt.coord == nxt.start_coord
+    last, _ = make_stage(name='stage3')
+    last.finished = True
+    assert stage_mod.next_stage(last) is None                               # 마지막 구역 다음은 탈출(엔딩)
 
 
 if __name__ == '__main__':

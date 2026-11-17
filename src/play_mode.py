@@ -114,7 +114,7 @@ def update():
     effects.tick_shake(dt)
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
         return
-    global clear_notice, room, message_time
+    global clear_notice, room, message_time, stage
     clear_notice = max(0.0, clear_notice - dt)
     message_time = max(0.0, message_time - dt)
     game_world.update(dt)
@@ -126,9 +126,18 @@ def update():
         clear_notice = 0.0  # 새 방에 들어오면 이전 방의 클리어 안내를 지운다
     player.gauge.tick(dt, room.is_high_haze)
     if stage.finished:
-        import ending_mode
-        ending_mode.result = 'clear'
-        game_framework.change_mode(ending_mode)
+        import stage as stage_mod
+        nxt = stage_mod.next_stage(stage)              # 다음 구역 (체력·게이지·아이템·무기·조각은 그대로)
+        if nxt is None:                                  # 마지막 구역(탑)을 끝냈다: 탈출
+            import ending_mode
+            ending_mode.result = 'clear'
+            game_framework.change_mode(ending_mode)
+            return
+        stage = nxt
+        room = stage.room
+        for obj in game_world.world[game_world.LAYER_UI]:
+            if hasattr(obj, 'stage'):
+                obj.stage = stage
         return
     if player.state == 'DEAD' and player.dead_time >= config.DEATH_SCREEN_DELAY:   # 쓰러지는 동작을 보여 준 뒤 사망 화면으로
         import ending_mode

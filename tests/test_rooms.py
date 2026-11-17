@@ -11,7 +11,7 @@ import config  # noqa: E402
 import room_check  # noqa: E402
 from room import Room  # noqa: E402
 from room_check import RoomGraph, analyze  # noqa: E402
-from stage import OPPOSITE, STEP, Stage, load_layout, template_exits  # noqa: E402
+from stage import OPPOSITE, STAGE_ORDER, STEP, Stage, load_layout, template_exits  # noqa: E402
 
 
 def read_room(name):
@@ -37,8 +37,11 @@ def as_rows(grid):
 
 
 def used_templates():
-    start, layout = load_layout()
-    return {info['template'] for info in layout.values()}
+    used = set()
+    for name in STAGE_ORDER:
+        start, layout = load_layout(name)
+        used |= {info['template'] for info in layout.values()}
+    return used
 
 
 # ----- 점프 한계와 설계 기준 -----
@@ -98,36 +101,55 @@ def bfs(links, start):
 
 
 def test_stage_links_are_symmetric_and_connected():
-    start, layout = load_layout()
-    stage = Stage(None, layout, start)
-    links = graph_of(layout, stage)
-    for c, ns in links.items():
-        for n in ns:
-            assert c in links[n], f'{c} -> {n} 문이 한쪽에만 열려 있다'
-    assert len(bfs(links, start)) == len(layout), '이어지지 않은 방이 있다'
+    for name in STAGE_ORDER:
+        start, layout = load_layout(name)
+        stage = Stage(None, layout, start)
+        links = graph_of(layout, stage)
+        for c, ns in links.items():
+            for n in ns:
+                assert c in links[n], f'{name}: {c} -> {n} 문이 한쪽에만 열려 있다'
+        assert len(bfs(links, start)) == len(layout), f'{name}: 이어지지 않은 방이 있다'
+
+
+# 스테이지별 기준 (기획서 2.3): 1·2는 가지가 넉넉한 탐험형, 3은 정비방 하나와 보스로 직결되는 짧은 결전 구역
+STAGE_RULES = {'stage1': dict(rooms=10, specials=('gold', 'shop'), branch_combat=3),
+               'stage2': dict(rooms=10, specials=('gold', 'shop'), branch_combat=3),
+               'stage3': dict(rooms=6, specials=('shop',), branch_combat=1)}
 
 
 def test_stage_has_branches_with_gold_and_shop_before_boss():
-    """보스는 시작에서 멀고, 황금방·정비방이 보스로 가는 최단 길 밖의 가지에 있다. 방이 충분히 많다."""
-    start, layout = load_layout()
-    stage = Stage(None, layout, start)
-    links = graph_of(layout, stage)
-    types = {c: info.get('type', 'combat') for c, info in layout.items()}
-    boss = [c for c, t in types.items() if t == 'boss']
-    assert len(boss) == 1 and len(layout) >= 10
-    dist = bfs(links, start)
-    assert dist[boss[0]] >= 4                                        # 보스까지 방 여러 개를 지난다
-    # 최단 경로 복원
-    path, cur = [boss[0]], boss[0]
-    while cur != start:
-        cur = min(links[cur], key=lambda n: dist[n])
-        path.append(cur)
-    for special in ('gold', 'shop'):
-        found = [c for c, t in types.items() if t == special]
-        assert found, f'{special} 방이 없다'
-        assert all(c not in path for c in found), f'{special} 방이 보스로 가는 길 위에 있다 (선택하는 가지여야 한다)'
-    combat_branch = [c for c, t in types.items() if t == 'combat' and c not in path]
-    assert len(combat_branch) >= 3                                   # 돌며 조각을 모을 전투 방이 가지에 있다
+    """끝 방(보스·관문)은 시작에서 멀고, 황금방·정비방이 끝으로 가는 최단 길 밖의 가지에 있다. 방이 충분히 많다."""
+    for name in STAGE_ORDER:
+        rule = STAGE_RULES[name]
+        start, layout = load_layout(name)
+        stage = Stage(None, layout, start)
+        links = graph_of(layout, stage)
+        types = {c: info.get('type', 'combat') for c, info in layout.items()}
+        ends = [c for c, t in types.items() if t in ('boss', 'gate')]
+        assert len(ends) == 1 and len(layout) >= rule['rooms'], name
+        dist = bfs(links, start)
+        assert dist[ends[0]] >= 4, name                              # 끝 방까지 방 여러 개를 지난다
+        path, cur = [ends[0]], ends[0]                               # 최단 경로 복원
+        while cur != start:
+            cur = min(links[cur], key=lambda n: dist[n])
+            path.append(cur)
+        for special in rule['specials']:
+            found = [c for c, t in types.items() if t == special]
+            assert found, f'{name}: {special} 방이 없다'
+            assert all(c not in path for c in found), f'{name}: {special} 방이 끝으로 가는 길 위에 있다 (선택하는 가지여야 한다)'
+        combat_branch = [c for c, t in types.items() if t == 'combat' and c not in path]
+        assert len(combat_branch) >= rule['branch_combat'], name     # 돌며 조각을 모을 전투 방이 가지에 있다
+
+
+def test_later_stages_look_and_feel_different():
+    """기획서: 스테이지 2(공장)·3(탑)은 고농도 방이 있고 테마가 다르다."""
+    for name in ('stage2', 'stage3'):
+        start, layout = load_layout(name)
+        assert any(info.get('high_haze') for info in layout.values()), name
+    for name, theme in (('stage2', 'foundry'), ('stage3', 'haze')):
+        stage = Stage(None, name=name)
+        combat = [info for info in stage.layout.values() if info.get('type', 'combat') == 'combat']
+        assert sum(1 for info in combat if stage.theme_of(info) == theme) >= len(combat) // 2, name
 
 
 def test_stage_start_has_two_ways_and_hub_has_four():

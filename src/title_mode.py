@@ -40,11 +40,11 @@ def update():
 
 def draw():
     clear_canvas()
-    assets.draw_image(assets.image('backgrounds/far_haze.png'), config.SCREEN_W // 2, 0)
-    assets.draw_image(assets.image('backgrounds/mid_haze.png'), config.SCREEN_W // 2, config.SCREEN_H - 1200)
+    assets.draw_image(assets.image('backgrounds/screen_title.png'), config.SCREEN_W // 2, 0)   # Codex T16 제목 화면 일러스트
     assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 600)  # 코드로 그린 로고 (tools/make_codeart.py)
     assets.draw_text(config.SCREEN_W // 2, 545, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 330, '아무 키나 누르세요', (150, 160, 185), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 270, 'A D 이동  Space 점프  마우스 조준·좌클릭 공격  Shift 대시  E 강화  F 상호작용', (110, 125, 150),
+    assets.draw_rect_color(config.SCREEN_W // 2 - 620, 252, 1240, 110, (11, 16, 32), 0.55)   # 밝은 성벽 위에서도 안내가 읽히게
+    assets.draw_text(config.SCREEN_W // 2, 330, '아무 키나 누르세요', (235, 240, 250), center=True)
+    assets.draw_text(config.SCREEN_W // 2, 270, 'A D 이동  Space 점프  마우스 조준·좌클릭 공격  Shift 대시  E 강화  F 상호작용', (185, 200, 225),
                      small=True, center=True)
     update_canvas()

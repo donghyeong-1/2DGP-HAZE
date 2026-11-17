@@ -182,7 +182,7 @@ class GameUI:
         p = self.player
         w = p.weapon
         g = p.gauge
-        px, py, pw, ph = (config.SCREEN_W - 760) // 2, 14, 760, 92
+        px, py, pw, ph = (config.SCREEN_W - 980) // 2, 14, 980, 92   # 이름·공격 종류 | 콤보 | E 강화 (글자가 겹치지 않는 너비)
         _frame(px, py, pw, ph, 'px_black', border='px_gray', thickness=3)
         assets.draw_text(px + 24, py + ph - 26, '철파이프', WHITE)
         kind = w.current_kind()
@@ -195,24 +195,24 @@ class GameUI:
         # 콤보 3칸: 이어 칠수록 켜지고 3타(마무리)는 주황
         for i in range(3):
             lit = i < w.combo
-            _icon(('combo_fin' if i == 2 else 'combo_on') if lit else 'combo_off', px + 228 + i * 56, py + 28)
+            _icon(('combo_fin' if i == 2 else 'combo_on') if lit else 'combo_off', px + 388 + i * 56, py + 28)
         # 다음 공격까지 재충전 바
         cool = config.PIPE_COOLDOWN[max(0, w.combo - 1)]
         ratio = 1.0 if w.ready else 1.0 - w.cooldown / cool
-        _frame(px + 230, py + 10, 164, 10, 'px_gray', border='px_black', thickness=2)
-        _rect('px_white' if w.ready else 'px_yellow', px + 230, py + 10, 164 * ratio, 10)
+        _frame(px + 390, py + 10, 164, 10, 'px_gray', border='px_black', thickness=2)
+        _rect('px_white' if w.ready else 'px_yellow', px + 390, py + 10, 164 * ratio, 10)
         # E 강화 상태
-        ex = px + 450
+        ex = px + 610
         if g.enhanced:                                           # 강화 일격 준비 (1회성): 바는 준비가 풀리기까지 남은 시간
-            _frame(ex, py + 30, 270, 40, 'px_gray', border='px_white', thickness=3)
-            _rect('px_cyan', ex, py + 30, 270 * g.enhance_timer / config.ENHANCE_TIME, 40)
+            _frame(ex, py + 30, 340, 40, 'px_gray', border='px_white', thickness=3)
+            _rect('px_cyan', ex, py + 30, 340 * g.enhance_timer / config.ENHANCE_TIME, 40)
             assets.draw_text(ex + 12, py + 50, '강화 일격 준비!', (10, 20, 40), small=True)
         elif g.can_enhance():
-            _frame(ex, py + 30, 270, 40, 'px_cyan', border='px_white', thickness=3)
+            _frame(ex, py + 30, 340, 40, 'px_cyan', border='px_white', thickness=3)
             _icon('key_e', ex + 6, py + 30)
             assets.draw_text(ex + 54, py + 50, f'강화 일격 준비 (-{config.ENHANCE_COST}%)', (10, 20, 40), small=True)
         else:
-            _frame(ex, py + 30, 270, 40, 'px_gray', border='px_black', thickness=3)
+            _frame(ex, py + 30, 340, 40, 'px_gray', border='px_black', thickness=3)
             assets.draw_text(ex + 12, py + 50, f'E 강화: 게이지 {g.enhance_min}%+', DIM, small=True)
 
     # ----- 조준점 -----
@@ -267,7 +267,7 @@ class GameUI:
             return
         w = 900
         x = (config.SCREEN_W - w) // 2
-        y = 150
+        y = config.SCREEN_H - 290   # 위쪽 게이지와 안내 문구 아래 (아래쪽은 싸움이 벌어지는 바닥이라 가린다)
         _frame(x, y, w, 26, 'px_gray', border='px_black', thickness=5)
         _rect('px_red', x, y, w * max(0.0, boss.hp) / boss.max_hp, 26)
         assets.draw_text(config.SCREEN_W // 2, y + 56, '크래셔', (255, 150, 150), center=True)

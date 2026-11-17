@@ -20,7 +20,7 @@
 ## 다음 할 일 (우선순위 순)
 1. [ ] **(사용자) 2차 발표 제출**: 데모 녹화 → 영상 확인(소리·글자·길이) → YouTube 업로드 → e-class 제출. PPT 1장의 게임 화면 캡처는 v2 이전 모습이라 새로 찍어 교체하면 좋다.
 2. [ ] **(사용자) 직접 플레이 점검**: 점프(짧게 누르면 낮게 뜀), 대시, 공격 사거리, 적 속도·체력, 음악·효과음 크기. 수치는 `src/config.py`만 고친다 (`MUSIC_VOLUME`, `SFX_VOLUME`, `JUMP_CUT` 등).
-3. [ ] **(사용자) Codex 검토 대기**: T06 배경, T13 아이콘, T14 진열대·소품, T15 철파이프 굵게, T16 제목 화면. T12(간수·사냥개·아크 애니메이션)는 어떤 적을 구현할지 결정이 필요하다 (`docs/codex/TASKS.md`).
+3. [ ] **(사용자)** T12(간수·사냥개·아크 애니메이션)는 어떤 적을 구현할지 결정이 필요하다 (`docs/codex/TASKS.md`). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [ ] (3주차 11/19~) 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
 6. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
@@ -116,3 +116,4 @@
 2026-11-17 [Claude Code] v2 HUD 재제작: tools/make_hud.py(조각 16개), ui.py 입체 틀·게이지 장식·대시/콤보 칸·조준점·미니맵 아이콘·글자 받침 / tools/make_hud.py, assets/ui/hud_*, src/ui.py, docs/ASSETS.md, DECISIONS.md
 2026-11-17 [Claude Code] v2 음악: 배경음악 3곡 합성(tools/make_music.py), 타이틀·탐험·보스·엔딩 연결, 테스트 2개 추가(총 150개) / tools/make_music.py, assets/music, src/(assets, config, title_mode, play_mode, ending_mode), tests/test_sfx.py, docs/*
 2026-11-17 [Claude Code] v2 마무리: 가변 점프(JUMP_CUT), 페이드·위험 구간 경고음과 게이지 맥박, 안 쓰는 타일·도구·임시 배경 삭제, ASSETS 맨 위 현재 기준 표, PROGRESS 위쪽 절 재작성, README 갱신, 진행 중 표시 해제 / src/(player, config, ui), tools/(make_sfx, make_codeart, make_placeholder_assets), tests/test_player.py, assets/sfx, docs/*, README.md
+2026-11-17 [Claude Code] Codex T06·T13~T16 검토·적용(아이콘, 진열대, 제목 화면, 굵은 철파이프), 장면 캡처 점검으로 무기 패널 겹침·보스 바 위치·타이틀 안내·작은 방 바깥 수정 / assets/(ui, backgrounds, sprites/unified), src/(ui, room, title_mode, config, sprites), docs/codex/*, docs/*

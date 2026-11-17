@@ -308,6 +308,16 @@ class Room:
                     self._cell(atlas, ATLAS_ONEWAY + kind, ROW_MISC, col, bottom)
                 elif ch == SPIKE:
                     self._cell(atlas, ATLAS_SPIKE + _hash(col, row) % 2, ROW_MISC, col, bottom)
+        # 방이 화면보다 작으면 방 바깥을 어둡게 덮는다 (바깥으로 배경이 새어 보이지 않게)
+        ink = (6, 9, 18)
+        if self.width < config.SCREEN_W:
+            pad = (config.SCREEN_W - self.width) // 2 + 2
+            assets.draw_rect_color(-pad, -config.SCREEN_H, pad, self.height + config.SCREEN_H * 2, ink)
+            assets.draw_rect_color(self.width, -config.SCREEN_H, pad, self.height + config.SCREEN_H * 2, ink)
+        if self.height < config.SCREEN_H:
+            pad = (config.SCREEN_H - self.height) // 2 + 2
+            assets.draw_rect_color(-config.SCREEN_W, -pad, self.width + config.SCREEN_W * 2, pad, ink)
+            assets.draw_rect_color(-config.SCREEN_W, self.height, self.width + config.SCREEN_W * 2, pad, ink)
         if self.is_high_haze:
             haze = assets.image('placeholder/px_cyan.png')  # 고농도 방: 화면 전체에 옅은 청록빛 안개
             haze.opacify(0.10)

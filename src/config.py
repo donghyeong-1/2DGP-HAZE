@@ -39,8 +39,8 @@ AFTERIMAGE_ALPHA_STEPS = (0.60, 0.38, 0.18)  # 수명을 3등분해 단계별로
 PLAYER_HP = 100
 # 주인공 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 기준점은 프레임 왼쪽 위 기준 px (Codex 마감 도구의 anchor)
 PLAYER_FRAMES = {'n09_idle': (4, 21, 124), 'n09_hurt': (2, 41, 124), 'n09_jump': (4, 48, 125), 'n09_walk': (4, 37, 124),
-                 'n09_swing_side': (3, 53, 136), 'n09_swing_up': (3, 64, 165), 'n09_swing_down': (3, 30, 140),
-                 'n09_swing_upfwd': (3, 51, 128), 'n09_swing_downfwd': (3, 47, 127)}
+                 'n09_swing_side': (3, 64, 149), 'n09_swing_up': (3, 77, 173), 'n09_swing_down': (3, 45, 149),
+                 'n09_swing_upfwd': (3, 69, 145), 'n09_swing_downfwd': (3, 64, 143)}
 PLAYER_FRAMES.update({'n09_dash': (2, 40, 79), 'n09_plunge': (2, 58, 142), 'n09_death': (3, 68, 124)})
 DASH_FRAME_TIME = 0.07   # 대시 자세 두 프레임이 바뀌는 간격(초)
 PLUNGE_POSE_TIME = 0.5   # 내려찍기 자세를 보여 주는 시간(초)

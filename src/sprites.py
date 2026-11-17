@@ -14,8 +14,8 @@ FRAMES = {
     # 주인공 N-09
     'n09_idle': (4, 21, 124), 'n09_walk': (4, 37, 124), 'n09_jump': (4, 48, 125), 'n09_hurt': (2, 41, 124),
     'n09_dash': (2, 40, 79), 'n09_plunge': (2, 58, 142), 'n09_death': (3, 68, 124),
-    'n09_swing_side': (3, 53, 136), 'n09_swing_up': (3, 64, 165), 'n09_swing_down': (3, 30, 140),
-    'n09_swing_upfwd': (3, 51, 128), 'n09_swing_downfwd': (3, 47, 127),
+    'n09_swing_side': (3, 64, 149), 'n09_swing_up': (3, 77, 173), 'n09_swing_down': (3, 45, 149),
+    'n09_swing_upfwd': (3, 69, 145), 'n09_swing_downfwd': (3, 64, 143),
     # 슬럼 폐인, 고철 투척병
     'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
     'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124),

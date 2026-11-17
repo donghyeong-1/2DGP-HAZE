@@ -205,3 +205,6 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 |---|---|---|
 | `assets/music/title.wav` (27.4초), `explore.wav` (38.4초), `boss.wav` (27.4초) | `tools/make_music.py` (numpy로 직접 작곡·합성, 외부 음원·샘플 없음) | 22050Hz 모노 16비트, 반복 재생용(꼬리를 처음으로 넘겨 이음매 없음). D단조. 타이틀·엔딩은 느린 패드와 종소리, 탐험·전투는 100 BPM, 보스전은 140 BPM. 저작권 문제 없음 |
 - 이전에 조사한 외부 BGM 후보(OpenGameArt)는 쓰지 않는다.
+
+## Codex 에셋 적용 (2026-11-17)
+- `assets/ui/icon_*.png` 10종, `assets/ui/pedestal_*.png` 3종, `assets/backgrounds/screen_title.png`, `assets/sprites/unified/n09_swing_*` 15프레임을 Codex 결과(T13, T14, T16, T15)로 교체했다. 모두 agent-sprite-forge + Codex 내장 image_gen(모델명 미제공)으로 만든 AI 생성물이다. 이전의 코드 그림 아이콘·진열대(`tools/make_icons.py`)는 더 쓰지 않는다.

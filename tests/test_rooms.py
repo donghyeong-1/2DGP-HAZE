@@ -215,7 +215,7 @@ def test_autotile_masks_mark_exposed_edges():
 def test_room_look_is_deterministic_and_keeps_markers_clear():
     from room import Room
     a, b = Room.load('hub_cavern'), Room.load('hub_cavern')
-    assert a.decor == b.decor and a.back == b.back                                 # 같은 방은 늘 같은 모양
+    assert a.decor == b.decor and a.decals == b.decals and a.deep == b.deep                                 # 같은 방은 늘 같은 모양
     assert a.decor, '소품이 하나도 없다'
     markers = {(c, r) for r, line in enumerate(a.rows) for c, ch in enumerate(line) if ch in 'PEstIB'}
     for kind, col, row in a.decor:
@@ -228,7 +228,11 @@ def test_every_theme_has_a_tile_set_and_background():
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
     for name in room_module.THEMES:
         assert os.path.exists(os.path.join(root, 'assets', 'tiles', f'tile_set_{name}.png')), name
-        assert os.path.exists(os.path.join(root, 'assets', 'backgrounds', f'bg_{name}.png')), name
+        for layer in ('far', 'mid'):                                                # 원경(고정)과 중경(시차)
+            assert os.path.exists(os.path.join(root, 'assets', 'backgrounds', f'{layer}_{name}.png')), (layer, name)
+        from PIL import Image
+        atlas = Image.open(os.path.join(root, 'assets', 'tiles', f'tile_set_{name}.png'))
+        assert atlas.size == (16 * 60, room_module.ATLAS_H), (name, atlas.size)       # 그림과 room.py의 칸 배치가 같은 판이어야 한다
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

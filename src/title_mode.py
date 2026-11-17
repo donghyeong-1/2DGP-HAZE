@@ -40,7 +40,8 @@ def update():
 
 def draw():
     clear_canvas()
-    assets.draw_image(assets.image('backgrounds/bg_haze.png'), config.SCREEN_W // 2, 0)
+    assets.draw_image(assets.image('backgrounds/far_haze.png'), config.SCREEN_W // 2, 0)
+    assets.draw_image(assets.image('backgrounds/mid_haze.png'), config.SCREEN_W // 2, config.SCREEN_H - 1200)
     assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 600)  # 코드로 그린 로고 (tools/make_codeart.py)
     assets.draw_text(config.SCREEN_W // 2, 545, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
     assets.draw_text(config.SCREEN_W // 2, 330, '아무 키나 누르세요', (150, 160, 185), center=True)

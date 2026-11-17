@@ -142,8 +142,8 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/effects/aura-stun.png` (+ `.json`) | `tools/make_aura.py` (PixelSpec, codeart2d `render_pixelspec.py --strict-qc`) | 오버로드 기절 중 몸을 감싸는 전기 아크와 머리 위를 도는 별 (240×320, 16프레임 반복). `overload-burst`는 정수 2배로 다시 만듦. code-drawn |
 | `assets/sfx/overload_zap.wav`, `stun_end.wav` | `tools/make_sfx.py` (합성) | 오버로드 폭발 치직 소리, 기절에서 깨어나는 소리. 직접 합성, 저작권 문제 없음 |
 | `assets/effects/pipe-slash*.png`, `dash-strike.png`, `air-spin*.png` (+ `.json`) | `tools/make_slash_hq.py` (numpy + Pillow로 직접 그림, 이미지 모델 없음; 이전 `make_slash.py`의 fx_build 판을 대체) | 휘두르기 계열 검기 전부를 다시 만듦: 꼬리·머리가 뾰족한 초승달, 머리가 앞서고 꼬리가 따라잡는 스윙, 바깥 가장자리 흰 코어의 4톤+베이어 디더링, 1px 외곽선, 보조 호·링·섬광·불꽃. 190~310칸 격자에 그려 정수 2배(json scale=2). 방향 5종은 미리 돌려 그림. 구간·강화별 모양이 다르다. code-drawn |
-| `assets/tiles/tile_set_<테마>.png` (cell, foundry, haze, gold, shop, boss) | `tools/make_tiles_hq.py` (numpy + Pillow, 이미지 모델 없음) | 16열 x 5줄 타일 세트(칸 60x60, 논리 30x30의 정수 2배): 벽 3변형 x 16가지 자동 타일 마스크, 얇은 바닥 4, 가시 2, 뒷벽 4, 소품(사슬·램프·파이프·배너·창문·상자·통·분출구). 테마마다 8색 팔레트. 이전 `tile_solid_*`·`tile_oneway`·`tile_spike`(SVG 판)는 게임에서 더 쓰지 않는다. code-drawn |
-| `assets/backgrounds/bg_<테마>.png` | `tools/make_tiles_hq.py` | 1920x1080 먼 배경(아치 회랑, 헤이즈 결정, 바닥 안개, 비네트를 4톤 디더링으로, 논리 960x540의 2배). 제목 화면은 haze, 엔딩은 gold. code-drawn |
+| `assets/tiles/tile_set_<테마>.png` (cell, foundry, haze, gold, shop, boss) | `tools/make_world.py` (numpy + Pillow, 이미지 모델 없음, code-drawn) | v2(2026-11-17): 16열 x 9줄 타일 세트(칸 60x60, 캐릭터와 같은 1배 픽셀 밀도). 이어지는 석조 무늬 벽(이웃 마스크 16종 x 4사분면), 벽 속, 얇은 바닥, 가시, 벽 소품 6종, 매달린·바닥 소품 14종, 문틀·쇠창살·문 빛, 램프 빛. 배치는 `src/room.py`의 ATLAS 설명과 같다 |
+| `assets/backgrounds/far_<테마>.png`, `mid_<테마>.png` | `tools/make_world.py` | 원경(1920x1080, 화면 고정): Codex 배경판(`assets/sprites/forge/backgrounds_v1`, T06)에 테마 색을 다시 입힌 것. 중경(1920x1200, 가로 반복 시차 배경): 코드로 그린 기둥·들보·사슬 실루엣. 이전 `bg_<테마>.png`와 `tools/make_tiles_hq.py`는 삭제 |
 
 2026-11-16 [Codex] T04 n09_walk_v3b 및 T06 backgrounds_v1 제작 후보. Codex 내장 image_gen(모델명 미제공, 생성물 이용 조건 확인 필요), agent-sprite-forge 6b3da5c(MIT), hibit. 검토 대기.
 

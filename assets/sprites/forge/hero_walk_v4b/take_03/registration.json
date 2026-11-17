@@ -1,0 +1,66 @@
+[
+  {
+    "frame": 1,
+    "belt_x_processed": 346.0,
+    "belt_x_registered": 600.2,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.5405220004573221
+  },
+  {
+    "frame": 2,
+    "belt_x_processed": 340.0,
+    "belt_x_registered": 599.97,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.5502958579881658
+  },
+  {
+    "frame": 3,
+    "belt_x_processed": 343.0,
+    "belt_x_registered": 599.59,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.5728183770417128
+  },
+  {
+    "frame": 4,
+    "belt_x_processed": 341.0,
+    "belt_x_registered": 599.51,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.563108220450878
+  },
+  {
+    "frame": 5,
+    "belt_x_processed": 345.0,
+    "belt_x_registered": 599.67,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.5314423030086544
+  },
+  {
+    "frame": 6,
+    "belt_x_processed": 345.0,
+    "belt_x_registered": 599.67,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.5472440944881891
+  },
+  {
+    "frame": 7,
+    "belt_x_processed": 344.0,
+    "belt_x_registered": 600.13,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.5728183770417128
+  },
+  {
+    "frame": 8,
+    "belt_x_processed": 342.0,
+    "belt_x_registered": 600.05,
+    "baseline_y_registered": 820,
+    "scale_x": 1.538160469667319,
+    "scale_y": 1.563108220450878
+  }
+]

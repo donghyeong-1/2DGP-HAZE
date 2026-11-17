@@ -38,7 +38,7 @@ AFTERIMAGE_ALPHA_STEPS = (0.60, 0.38, 0.18)  # 수명을 3등분해 단계별로
 # 플레이어
 PLAYER_HP = 100
 # 주인공 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 기준점은 프레임 왼쪽 위 기준 px (Codex 마감 도구의 anchor)
-PLAYER_FRAMES = {'n09_idle': (4, 21, 124), 'n09_hurt': (2, 41, 124), 'n09_jump': (4, 48, 125), 'n09_walk': (4, 37, 124),
+PLAYER_FRAMES = {'n09_idle': (4, 21, 124), 'n09_hurt': (2, 41, 124), 'n09_jump': (4, 48, 125), 'n09_walk': (8, 36, 126),
                  'n09_swing_side': (3, 64, 149), 'n09_swing_up': (3, 77, 173), 'n09_swing_down': (3, 45, 149),
                  'n09_swing_upfwd': (3, 69, 145), 'n09_swing_downfwd': (3, 64, 143)}
 PLAYER_FRAMES.update({'n09_dash': (2, 40, 79), 'n09_plunge': (2, 58, 142), 'n09_death': (3, 68, 124)})
@@ -59,7 +59,9 @@ IDLE_FRAME_TIME = 0.25   # 숨쉬는 대기 프레임 한 장의 시간(초)
 JUMP_RISE_VY = 350.0     # 점프 프레임: vy가 이 값보다 크면 상승, 작고 -이 값보다 크면 정점, 그 아래면 하강
 WALK_FRAMES = 4          # 걷기 프레임 수 (assets/sprites/unified/n09_walk_1~4.png, 발 기준점 x=37)
 WALK_PIVOT_X = 37        # 걷기 프레임에서 발 중앙의 x (캔버스 86px 기준)
-WALK_FRAME_PX = 56.0     # 걷기 프레임 한 장이 지나가는 이동 거리(px). 달리는 속도에 맞춰 발이 바닥을 미끄러지지 않게 한다
+WALK_FRAME_PX = 28.0     # 걷기 프레임 한 장이 지나가는 이동 거리(px). 8장 한 주기 224px = 최고 속도에서 0.47초(장당 약 60ms)
+                         # 걷기 그림의 디딘 발은 한 주기에 약 82px만 움직여, 이 속도(480px/s)에서는 발이 미끄러져 보인다.
+                         # 걷기 보폭으로는 맞출 수 없는 속도라 달리기 그림(Codex T19)으로 바꿀 예정
 SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(px). 그릴 때 이만큼 내려 바닥에 붙인다
 PLAYER_HB_W = 42           # 충돌 박스 너비
 PLAYER_HB_H = 108          # 충돌 박스 높이 (스프라이트 키 123px의 약 88%)

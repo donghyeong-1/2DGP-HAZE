@@ -36,12 +36,16 @@ def test_still_sprites_exist_for_every_enemy():
 
 
 def test_place_puts_the_pivot_on_the_feet():
-    # 가로 86, 기준점 x=37인 그림: 가운데(43)에서 6px 오른쪽으로 옮겨 그려야 기준점이 발 위치에 온다
-    # (걷기 1번 프레임은 몸통 흔들림 보정 SHIFT가 있어 그만큼 더 옮긴다: 앞쪽 +, 반전하면 반대로)
-    sdx, sdy = sprites.SHIFT[('n09_walk', 1)]
-    assert sprites.place('n09_walk', 1, 86, 125, 1) == (6 + sdx, 1 - sdy)
-    # 좌우 반전하면 기준점이 반대편(86 - 1 - 37 = 48)으로 가므로 5px 왼쪽으로
-    assert sprites.place('n09_walk', 1, 86, 125, -1) == (-5 - sdx, 1 - sdy)
+    # 걷기(가로 74, 기준점 (36, 126)): 가운데(37)에서 1px 오른쪽으로 옮겨 그려야 기준점이 발 위치에 온다. 발 아래 1px
+    assert sprites.place('n09_walk', 1, 74, 127, 1) == (1, 1)
+    # 좌우 반전하면 기준점이 반대편(74 - 1 - 36 = 37)으로 가므로 가운데 그대로
+    assert sprites.place('n09_walk', 1, 74, 127, -1) == (0, 1)
+    # 위치 보정 SHIFT가 있는 프레임은 그만큼 더 옮긴다 (앞쪽 +, 반전하면 반대로)
+    w, h = size_of(sprites.path('n09_punch', 1))
+    _, px, py = sprites.FRAMES['n09_punch']
+    sdx, sdy = sprites.SHIFT[('n09_punch', 1)]
+    assert sprites.place('n09_punch', 1, w, h, 1) == (w // 2 - px + sdx, h - py - sdy)
+    assert sprites.place('n09_punch', 1, w, h, -1) == (w // 2 - (w - 1 - px) - sdx, h - py - sdy)
     assert sprites.place('n09_idle', 0, 42, 125, 1) == (0, sprites.STILL_FOOT_MARGIN)   # 정지 그림은 가운데
     # 도약 공중 프레임은 그림 안에서 41px 떠 있다: 그만큼 더 내려 그려 이미 공중인 몸에 또 띄우지 않는다
     _, foot_ground = sprites.place('boss_crasher_leap', 1, 226, 211, 1)

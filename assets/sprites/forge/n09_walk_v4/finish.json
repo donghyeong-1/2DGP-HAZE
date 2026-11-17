@@ -1,0 +1,423 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "n09_walk_v4",
+  "character": "n09_v3b",
+  "role": null,
+  "source": {
+    "frames": "../hero_walk_v4/take_02/registered",
+    "count": 8,
+    "size": [
+      1200,
+      1200
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../hero_walk_v4/take_02/registration.json",
+      "sha256": "edce06e505d4927ded0562788bf1cca391852b97c1ffdd32c1ca127ce3cd2009",
+      "bytes": 1578
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 41,
+    "feetPx": 819,
+    "heightPx": 778,
+    "areaPx": 125661,
+    "stanceX": 544.0,
+    "centroid": [
+      552.3000891286875,
+      459.7428040521721
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    544.0,
+    819.0
+  ],
+  "scale": 0.15394402035623408,
+  "scaleSource": "scale-ref",
+  "targetHeight": 121.76844783715012,
+  "scaleRef": {
+    "path": "../n09_v3b/finish.json",
+    "sha256": "39f994be14175731e977ce6bc8eaeb915ec08224dca340e00a1fe10331bd124b",
+    "bytes": 6899,
+    "clip": "n09_v3b",
+    "character": "n09_v3b",
+    "scale": 0.15394402035623408,
+    "restAreaPx": 121003.0,
+    "areaRatio": 1.038495,
+    "correction": 0.981291,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    83,
+    127
+  ],
+  "anchor": [
+    36,
+    126
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      83,
+      127
+    ],
+    "sourceAnchor": [
+      36,
+      126
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 121.7684,
+    "areaPx": 2978.01,
+    "bodyHeightPx": 119.7684,
+    "outlinePx": 1,
+    "measuredHeightPx": 122,
+    "measuredAreaPx": 3538
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.15394402035623408,
+      "size": [
+        83,
+        127
+      ],
+      "anchor": [
+        36,
+        126
+      ],
+      "targetHeight": 121.76844783715012,
+      "flicker": {
+        "pairs": 7,
+        "alphaFlipsPerPair": 1558.714,
+        "indexFlipsPerPair": 1308.429,
+        "noiseFlipsPerPair": 99.429,
+        "edgeFlipsPerPair": 0.286
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../n09_v3b/palette.json",
+    "sha256": "01c0215707a148cbb7414755f3aa9511f21df61b9243603f6d6cf1530fa202b6",
+    "bytes": 1770,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 3633,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 40,
+    "noiseFlipReduction": 0.3477,
+    "plainMajority": {
+      "pairs": 7,
+      "alphaFlipsPerPair": 1589.0,
+      "indexFlipsPerPair": 1393.429,
+      "noiseFlipsPerPair": 152.429,
+      "edgeFlipsPerPair": 0.286
+    },
+    "heldIndexPx": 586,
+    "lonePixelsFixed": 1018
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/walk-1.png",
+      "sha256": "3f7f3a91b9f7553cad8812b56be2177ddb6e0bef4371c1141fdab6b3400eb510",
+      "sourceFile": "walk-1.png",
+      "sourceSha256": "eed07201625f7abed20c20dd04195d70d47696f87b865d6416a82ef9ffa3f63a",
+      "opaquePx": 3538
+    },
+    {
+      "file": "frames/walk-2.png",
+      "sha256": "9431e6feffe4c2143e76e6ec4a3a4837c150e040c42976768e6c2f52e1d6a5c2",
+      "sourceFile": "walk-2.png",
+      "sourceSha256": "b189bfe1f5aed247dd83d2f075e340a81528f75c4726278bf366efac6afc479e",
+      "opaquePx": 3416
+    },
+    {
+      "file": "frames/walk-3.png",
+      "sha256": "fd3e1c3f7016341950719c3c07824d3a9f75e1d91f78e445e9795abb2963dd7e",
+      "sourceFile": "walk-3.png",
+      "sourceSha256": "ffecc4a51ff127c7172c091b7a11ff47d1a4dfa1e74d8aa6f77c71ad31cb9642",
+      "opaquePx": 3453
+    },
+    {
+      "file": "frames/walk-4.png",
+      "sha256": "dec3c4614671ec785c36a0223575b6440a97d81df60ef4adf6fae2991d7e9d09",
+      "sourceFile": "walk-4.png",
+      "sourceSha256": "08a7ae585720f66affdd3a349df524d80eed74a6a5177053f78dd7a36aa5aec2",
+      "opaquePx": 3478
+    },
+    {
+      "file": "frames/walk-5.png",
+      "sha256": "5d277d2d96da919dcf0de7bbd844a1a2bdc794ef7065543dd94a26fff590ad71",
+      "sourceFile": "walk-5.png",
+      "sourceSha256": "4be54621ae4ea6c2286931034a463032f29f82fbf6369abad32f2a102de2c0c9",
+      "opaquePx": 3604
+    },
+    {
+      "file": "frames/walk-6.png",
+      "sha256": "abf57137a63fcb86a3ecf3a6f8c3c3ff6a76b508a23444cc1a589ece648b7085",
+      "sourceFile": "walk-6.png",
+      "sourceSha256": "1e7a6984095be4d380dd3b5437b05d9f23a25d5868164c0430d83a6693aa33bc",
+      "opaquePx": 3388
+    },
+    {
+      "file": "frames/walk-7.png",
+      "sha256": "00dbd2d07f1863340dda11876f3aadf0c1e70c1b0de575af2235bfc491ce17ff",
+      "sourceFile": "walk-7.png",
+      "sourceSha256": "2f9edcb208436db1746df3eaa51e467db1f8bf71d979f340a9d975fa523750c2",
+      "opaquePx": 3442
+    },
+    {
+      "file": "frames/walk-8.png",
+      "sha256": "61aa5be3427b8cf85cac712edf95bb2b8d437095cfdcc72af4fe82d6ad3c609e",
+      "sourceFile": "walk-8.png",
+      "sourceSha256": "ad00b024176bcf6927e9886390dabd8092936499631b2714fa1dec9d95bece3c",
+      "opaquePx": 3551
+    }
+  ],
+  "flicker": {
+    "pairs": 7,
+    "alphaFlipsPerPair": 1558.714,
+    "indexFlipsPerPair": 1308.429,
+    "noiseFlipsPerPair": 99.429,
+    "edgeFlipsPerPair": 0.286
+  },
+  "specksRemoved": 83,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.153944,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.232,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 7,
+          "alphaFlipsPerPair": 1558.714,
+          "indexFlipsPerPair": 1308.429,
+          "noiseFlipsPerPair": 99.429,
+          "edgeFlipsPerPair": 0.286
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 6.496,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 40,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 40
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 99.429,
+          "perFrameNearest": 152.429,
+          "reduction": 0.3477
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-1.png",
+        "sha256": "eed07201625f7abed20c20dd04195d70d47696f87b865d6416a82ef9ffa3f63a"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-2.png",
+        "sha256": "b189bfe1f5aed247dd83d2f075e340a81528f75c4726278bf366efac6afc479e"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-3.png",
+        "sha256": "ffecc4a51ff127c7172c091b7a11ff47d1a4dfa1e74d8aa6f77c71ad31cb9642"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-4.png",
+        "sha256": "08a7ae585720f66affdd3a349df524d80eed74a6a5177053f78dd7a36aa5aec2"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-5.png",
+        "sha256": "4be54621ae4ea6c2286931034a463032f29f82fbf6369abad32f2a102de2c0c9"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-6.png",
+        "sha256": "1e7a6984095be4d380dd3b5437b05d9f23a25d5868164c0430d83a6693aa33bc"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-7.png",
+        "sha256": "2f9edcb208436db1746df3eaa51e467db1f8bf71d979f340a9d975fa523750c2"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registered/walk-8.png",
+        "sha256": "ad00b024176bcf6927e9886390dabd8092936499631b2714fa1dec9d95bece3c"
+      },
+      {
+        "path": "../hero_walk_v4/take_02/registration.json",
+        "sha256": "edce06e505d4927ded0562788bf1cca391852b97c1ffdd32c1ca127ce3cd2009",
+        "bytes": 1578
+      },
+      {
+        "path": "../n09_v3b/finish.json",
+        "sha256": "39f994be14175731e977ce6bc8eaeb915ec08224dca340e00a1fe10331bd124b",
+        "bytes": 6899
+      },
+      {
+        "path": "../n09_v3b/palette.json",
+        "sha256": "01c0215707a148cbb7414755f3aa9511f21df61b9243603f6d6cf1530fa202b6",
+        "bytes": 1770
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/walk-1.png",
+        "sha256": "3f7f3a91b9f7553cad8812b56be2177ddb6e0bef4371c1141fdab6b3400eb510",
+        "bytes": 3779
+      },
+      {
+        "path": "frames/walk-2.png",
+        "sha256": "9431e6feffe4c2143e76e6ec4a3a4837c150e040c42976768e6c2f52e1d6a5c2",
+        "bytes": 3687
+      },
+      {
+        "path": "frames/walk-3.png",
+        "sha256": "fd3e1c3f7016341950719c3c07824d3a9f75e1d91f78e445e9795abb2963dd7e",
+        "bytes": 3703
+      },
+      {
+        "path": "frames/walk-4.png",
+        "sha256": "dec3c4614671ec785c36a0223575b6440a97d81df60ef4adf6fae2991d7e9d09",
+        "bytes": 3845
+      },
+      {
+        "path": "frames/walk-5.png",
+        "sha256": "5d277d2d96da919dcf0de7bbd844a1a2bdc794ef7065543dd94a26fff590ad71",
+        "bytes": 3960
+      },
+      {
+        "path": "frames/walk-6.png",
+        "sha256": "abf57137a63fcb86a3ecf3a6f8c3c3ff6a76b508a23444cc1a589ece648b7085",
+        "bytes": 3939
+      },
+      {
+        "path": "frames/walk-7.png",
+        "sha256": "00dbd2d07f1863340dda11876f3aadf0c1e70c1b0de575af2235bfc491ce17ff",
+        "bytes": 3808
+      },
+      {
+        "path": "frames/walk-8.png",
+        "sha256": "61aa5be3427b8cf85cac712edf95bb2b8d437095cfdcc72af4fe82d6ad3c609e",
+        "bytes": 4038
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "49ef418606551edd0a932590178b825fbcbefcef1e346da1a638db5f311dd151",
+        "bytes": 64698
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

@@ -234,3 +234,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-17 [Codex] T13 아이템 10종의 5×2 마젠타 시트. 금속 색면, 항목별 포인트색, 유리관·모래시계 및 강화·연마 실루엣 구분. 실제 프롬프트는 assets/sprites/forge/icons_v1/actual_prompt.txt.
 
 2026-11-17 [Codex] T12 사냥개·간수 동작 9종. 기존 마스터를 참조해 달리기·걷기, 기술별 예고·타격·회수와 피격을 마젠타 격자로 제작하고 사냥개 몸통 높이를 재수정. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/guard_hound_actions_v3/*/actual_prompt.txt` 및 `hound_run/take_02/actual_prompt.txt`.
+
+2026-11-17 [Codex] T17 N-09 걷기 8프레임. v3b와 기존 걷기를 참조해 좌우 지지발 교대 및 먼 팔다리 명암을 요청하고 6·7번 포즈를 수정했다. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/hero_walk_v4/take_01/actual_prompt.txt`와 `take_02/actual_prompt.txt`.
+
+2026-11-17 [Codex] T17 v4b 걷기 각도 수정. 관절 가이드로 보폭·발목 각도를 조정하고 3·7번 통과 자세를 낮춘 뒤 지지발 명암을 교정. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/hero_walk_v4b/`의 `actual_prompt.txt` 및 `take_02/`, `take_03/`.

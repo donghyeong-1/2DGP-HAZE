@@ -212,3 +212,7 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - `assets/ui/icon_*.png` 10종, `assets/ui/pedestal_*.png` 3종, `assets/backgrounds/screen_title.png`, `assets/sprites/unified/n09_swing_*` 15프레임을 Codex 결과(T13, T14, T16, T15)로 교체했다. 모두 agent-sprite-forge + Codex 내장 image_gen(모델명 미제공)으로 만든 AI 생성물이다. 이전의 코드 그림 아이콘·진열대(`tools/make_icons.py`)는 더 쓰지 않는다.
 
 2026-11-17 [Codex] T12 간수·사냥개 23프레임(`assets/sprites/forge/enemy_guard_*_v3/frames/`, `enemy_hound_*_v3*/frames/`). 자체 캐릭터 마스터를 참조해 Codex 내장 image_gen(모델명 미제공)으로 생성하고 기존 팔레트로 hibit 마감. 생성물 이용 조건 확인 필요. 2026-11-17 [Claude Code] 검토 합격, `tools/apply_enemy_frames.py`로 `assets/sprites/unified/enemy_{hound,guard}_*_N.png`에 복사해 게임에 적용.
+
+2026-11-17 [Codex] T17 `assets/sprites/forge/n09_walk_v4/frames/` 8프레임. 기존 프로젝트 캐릭터 참조를 바탕으로 Codex 내장 image_gen(모델명 미제공) 생성, v3b 팔레트로 hibit 마감. 생성물 이용 조건 확인 필요. 검토 대기.
+
+2026-11-17 [Codex] T17 v4b `assets/sprites/forge/n09_walk_v4b/frames/` 8장. 프로젝트 N-09 걷기 시안을 Codex 내장 image_gen(모델명 미제공)으로 편집한 뒤 v3b 팔레트로 마감. 생성물 이용 조건 확인 필요. 2026-11-17 [Claude Code] 검토 합격, `assets/sprites/unified/n09_walk_1~8.png`로 게임에 적용(T04의 4장을 대신함).

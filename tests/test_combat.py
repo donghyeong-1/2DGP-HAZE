@@ -1090,6 +1090,34 @@ def test_guard_heavy_makes_short_shockwaves_and_keeps_attacking_when_hit():
     assert any(type(o).__name__ == 'Shockwave' for o in game_world.world[game_world.LAYER_EFFECT])
 
 
+def test_enemy_resists_stagger_right_after_recovering():
+    room, p = make_world(player_x=300.0)
+    e = freeze(add_enemy('slum', 300.0 + 100, room, p))
+    e.hp = e.max_hp = 1000
+    step(1)
+    e.take_damage(5, from_x=p.x)
+    assert e.state == 'HIT'                                               # 첫 타격은 경직
+    step(int(0.25 * 60))
+    assert e.state != 'HIT'
+    e.state = 'CHASE'
+    e.engage()
+    e.take_damage(5, from_x=p.x)
+    assert e.state == 'ATTACK' and e.hp == 990                            # 풀린 직후에는 맞아도 피해만 받고 공격을 이어 간다
+    step(int((config.ENEMY_STAGGER_GUARD + 0.3) * 60))
+    e.state = 'CHASE'
+    e.take_damage(5, from_x=p.x)
+    assert e.state == 'HIT'                                               # 저항 시간이 지나면 다시 경직된다
+
+
+def test_mashing_without_dodging_gets_punished():
+    """피하지 않고 철파이프만 연타하면 슬럼·사냥개에게도 맞는다 (예고를 읽고 피하는 플레이가 이득)."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tools'))
+    import balance_sim                                                    # 멀리서 다가가 연타하는 봇 (실제 싸움 흐름)
+    for kind in ('slum', 'hound'):
+        lost = sum(balance_sim.run_one(kind, 'pipe', 'stand', seed)['hp_lost'] for seed in range(4))
+        assert lost > 0, kind
+
+
 def test_enemies_patrol_before_seeing_player_and_spread_apart():
     room, p = make_world(player_x=300.0)
     e = add_enemy('slum', 300.0 + 1000, room, p)

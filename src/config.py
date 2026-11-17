@@ -156,7 +156,7 @@ SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
 # speed_jitter: 적마다 이동 속도가 이 범위에서 조금씩 다르다, stagger: 가끔 비틀거리며 멈춤, retreat: 공격 뒤 물러나는 시간(초)
 # patrol: 플레이어를 보기 전 제자리 좌우로 순찰하는 거리(px), keep_away: 이보다 가까우면 뒤로 뛴다, super_armor: 공격 중 경직 없음
 ENEMY_STATS = {
-    'slum': dict(hp=60, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
+    'slum': dict(hp=90, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
                  windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle',
                  leap=1250.0, moves=[('swing', 3), ('combo', 2), ('lunge', 2)], lunge_speed=560.0,
                  speed_jitter=(0.85, 1.15), stagger=True, retreat=0.25, patrol=110,
@@ -166,7 +166,7 @@ ENEMY_STATS = {
                     projectile_speed=620.0, leap=0.0, moves=[('throw', 3), ('volley', 1), ('lob', 2)], keep_away=300,
                     frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
     # 사냥개: 빠르고 약하다. 멀리서 달려와 물고, 위층도 뛰어오른다. walk_px: 달리기 프레임 한 장이 지나가는 거리(보폭이 커서 길게)
-    'hound': dict(hp=34, hb=(84, 70), speed=400.0, sight=900, sight_dy=480, attack_range=110, reach_dy=120, damage=9,
+    'hound': dict(hp=50, hb=(84, 70), speed=400.0, sight=900, sight_dy=480, attack_range=110, reach_dy=120, damage=9,
                   windup=0.28, attack_time=0.12, cooldown=0.9, gain_on_hit=0, sprite='enemy_hound_idle', leap=1300.0,
                   moves=[('bite', 2), ('pounce', 3)], speed_jitter=(0.9, 1.1), retreat=0.55, patrol=160, walk_px=62.0,
                   frames=dict(walk='enemy_hound_run', attack='enemy_hound_bite', pounce='enemy_hound_pounce',
@@ -188,6 +188,9 @@ ENEMY_FRAMES.update({'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3
 ENEMY_FRAME_LIFT = {('boss_crasher_leap', 2): 41}
 BOSS_IDLE_FRAME_TIME = 0.45      # 크래셔 대기 두 프레임이 바뀌는 간격(초)
 BOSS_LAND_POSE_TIME = 0.3        # 도약 착지 자세를 보여 주는 시간(초)
+# 경직 저항(초): 적이 경직에서 풀린 뒤 이 시간 동안은 맞아도 끊기지 않는다. 연타만으로 적을 묶어 두지 못하게 해서
+# 예고(깜빡임)를 보고 피하는 플레이가 이득이 되게 한다. 적마다 ENEMY_STATS의 stagger_guard로 바꿀 수 있다
+ENEMY_STAGGER_GUARD = 0.9
 ENEMY_WALK_FRAME_PX = 44.0       # 적 걷기 프레임 한 장이 지나가는 이동 거리(px)
 BOSS_LEAP_TIME = 0.8             # 보스 도약 체공 시간(초). 기둥·벽 뒤에 숨은 플레이어에게 넘어가 내려찍는다
 BOSS_LEAP_SPEED_CAP = 760.0

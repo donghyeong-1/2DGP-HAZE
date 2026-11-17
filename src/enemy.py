@@ -66,6 +66,7 @@ class Enemy(TileBody):
         self.attacks = 0           # 지금까지 쓴 공격 수 (첫 공격은 기본기)
         self.cooldown = 0.0
         self.hit_left = 0.0
+        self.stagger_guard = 0.0   # 경직 저항: 경직에서 풀린 뒤 이 시간 동안은 맞아도 끊기지 않는다
         self.leap_cooldown = 0.0   # 도약 재사용 대기
         self.blocked_time = 0.0    # 가려는데 앞이 막혀 있던 시간 (벽·기둥에 막힘 감지)
         self.walk_phase = 0.0      # 걷기 프레임 위상 (이동한 거리에 비례)
@@ -130,6 +131,8 @@ class Enemy(TileBody):
         assets.play_sound('enemy_hit')
         if self.stats.get('super_armor') and self.state == 'ATTACK':
             return False                                  # 간수는 공격 중에 맞아도 기술이 끊기지 않는다
+        if self.stagger_guard > 0:
+            return False                                  # 방금 경직에서 풀렸다: 피해만 받고 하던 일을 이어 간다 (연타로 묶어 두지 못한다)
         if from_x is not None:
             self.vx = config.ENEMY_KNOCKBACK * (1 if self.x >= from_x else -1)
         self.hit_left = 0.18
@@ -143,6 +146,8 @@ class Enemy(TileBody):
         self.leap_cooldown = max(0.0, self.leap_cooldown - dt)
         self.hop_cooldown = max(0.0, self.hop_cooldown - dt)
         self.retreat_left = max(0.0, self.retreat_left - dt)
+        if self.state != 'HIT':
+            self.stagger_guard = max(0.0, self.stagger_guard - dt)
         if self.player.x != self.x and self.state in ('CHASE',):
             self.face_dir = 1 if self.player.x > self.x else -1
 
@@ -454,6 +459,7 @@ class Enemy(TileBody):
         self.vx *= max(0.0, 1.0 - 9.0 * dt)  # 밀려나다 멈춘다
         if self.hit_left <= 0:
             self.vx = 0.0
+            self.stagger_guard = self.stats.get('stagger_guard', config.ENEMY_STAGGER_GUARD)
             self.recover_hit()
 
     def _do_dead(self, dt):

@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-17)
-- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(181개).
+- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(183개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/17)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿), Q·1·2로 교체. 사슬은 남음.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔. 아크는 구현 전.
@@ -35,7 +35,6 @@
 - 3차(최종) 발표 일정.
 - 음악을 직접 들어 본 평가가 없다 (파형 수치만 확인).
 - 적·보스 새 기술의 난이도는 직접 플레이로 확인하지 않았다 (자동 테스트와 창 실행만).
-- (11/17 밸런스 시뮬레이션) 일반 적 1:1은 연타만으로 HP를 하나도 안 잃고 이긴다: 철파이프·식칼에 맞으면 예고가 끊겨 슬럼·사냥개가 한 번도 못 친다. 의도인지, 예고 중 경직 저항(간수처럼)을 줄지 사용자 판단 필요.
 - (11/17 밸런스 시뮬레이션) 건틀릿으로 보스와 싸우면 게이지가 바닥나 죽기 쉽다(시작 게이지 30%: 사망 100%, 70%: 20~80%). 보스 피격이 게이지를 크게 깎고 충전이 게이지를 태운다. 소모형 무기의 의도된 위험인지 판단 필요.
 
 ## 작업 로그
@@ -133,3 +132,4 @@
 2026-11-17 [Codex] T12 사냥개·간수 동작 23프레임 및 1배 비교·GIF 제작, 검사와 공격 포즈별 키 차이 기록, 검토 대기 / assets/sprites/forge/guard_hound_actions_v3/, assets/sprites/forge/enemy_guard_*_v3*, assets/sprites/forge/enemy_hound_*_v3*, docs/codex/reports/T12.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-17 [Claude Code] Codex T12 검토·적용(사냥개 달리기·물기·덮치기·피격, 간수 걷기·휘두르기·내려찍기·방패 돌진·피격 23프레임), 기술별 동작 그림(frames의 기술 이름 키), 적마다 걸음 거리(walk_px), 간수 걷기 기준점 보정, tools/apply_enemy_frames.py, 테스트 1개 추가(178개) / src/(enemy, sprites, config), tools/apply_enemy_frames.py, assets/sprites/unified/enemy_hound_*·enemy_guard_*, tests/test_combat.py, docs/*
 2026-11-17 [Claude Code] 프로젝트 스킬 3종(verify, balance-sim, playtest-capture)과 도구(tools/verify.py, balance_sim.py, capture.py), 기준 결과 balance_base.json, 테스트 3개 추가(181개), 첫 시뮬레이션 결과 기록 / .claude/skills/*, tools/*, tests/test_tools.py, AGENTS.md, docs/(SKILLS, DECISIONS, PROGRESS)
+2026-11-17 [Claude Code] 연타 무적 수정: 적 경직 저항(ENEMY_STAGGER_GUARD 0.9초), 슬럼 HP 60->90·사냥개 34->50 (balance-sim 전후 비교, 변형 3개 실험), 테스트 2개 추가(183개) / src/(enemy, config), tests/test_combat.py, tools/balance_base.json, docs/*

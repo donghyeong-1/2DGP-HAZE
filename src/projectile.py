@@ -182,3 +182,62 @@ class Debris:
         img = assets.image('sprites/unified/proj_scrap.png')
         for ox, oy in ((-14, 0), (12, 16), (0, 30)):        # 고철 세 조각이 뭉쳐 떨어진다
             assets.draw_image(img, self.x + ox, self.y + oy, '')
+
+
+class SteamVent:
+    """보스의 헤이즈 증기 분출. 바닥에 청록 표시가 먼저 깜빡이고(예고), 그다음 증기 기둥이 솟는다.
+    닿으면 게이지가 오른다(한 번만, HP 피해 없음). 대시 무적 중에는 닿지 않는다."""
+    WARN = 0.6           # 표시가 깜빡이는 시간(초)
+    ERUPT = 0.8          # 기둥이 솟아 있는 시간(초)
+    W, H = 70, 260       # 기둥 크기(px)
+
+    def __init__(self, x, floor_y, delay, gauge_delta, room, player):
+        self.x, self.floor_y = x, floor_y
+        self.wait = delay
+        self.warn = self.WARN
+        self.left = self.ERUPT
+        self.erupting = False
+        self.used = False
+        self.gauge_delta = gauge_delta
+        self.room, self.player = room, player
+        self.time = 0.0
+
+    def rect(self):
+        return (self.x - self.W / 2, self.floor_y, self.x + self.W / 2, self.floor_y + self.H)
+
+    def update(self, dt):
+        self.time += dt
+        if self.wait > 0:
+            self.wait -= dt
+            return
+        if self.warn > 0:
+            self.warn -= dt
+            return
+        if not self.erupting:
+            self.erupting = True
+            effects.spawn('puff', self.x, self.floor_y + 20, duration=0.35)    # 작은 분출 (큰 폭발은 플레이어를 가린다)
+            assets.play_sound('enhance')
+        self.left -= dt
+        p = self.player
+        if (not self.used and p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect())):
+            self.used = True
+            p.gauge.add(self.gauge_delta, 'steam')
+        if self.left <= 0:
+            game_world.remove_object(self)
+
+    def draw(self):
+        if self.wait > 0:
+            return
+        x, y = int(self.x), int(self.floor_y)
+        if not self.erupting:                                # 솟을 자리 표시: 점점 빨리 깜빡인다 (고철의 노란 표시와 구분되는 청록)
+            rate = 8 if self.warn > self.WARN / 2 else 16
+            assets.draw_rect_color(x - self.W // 2, y, self.W, 40, (90, 230, 230), 0.35)     # 솟을 자리의 옅은 김
+            assets.draw_rect_color(x - 3, y, 6, self.H, (110, 235, 230), 0.15)                # 솟을 높이를 보여 주는 가는 기둥
+            if int(self.time * rate) % 2 == 0:
+                assets.draw_rect_color(x - 40, y, 80, 8, (140, 255, 245))
+            return
+        k = self.left / self.ERUPT                           # 솟았다가 옅어진다
+        h = int(self.H * min(1.0, (1.0 - k) * 4 + 0.3))
+        for i, (w, a) in enumerate(((self.W, 0.22), (self.W - 24, 0.3), (self.W - 48, 0.4))):
+            sway = int(4 * ((self.time * 9 + i) % 2 > 1)) - 2   # 증기가 좌우로 흔들린다 (정수 좌표)
+            assets.draw_rect_color(x - w // 2 + sway, y, w, h, (110, 235, 230), a * (0.4 + 0.6 * k))

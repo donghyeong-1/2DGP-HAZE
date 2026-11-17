@@ -354,7 +354,7 @@
   "gauge_end": 89.5,
   "gauge_min": 30.0,
   "gauge_max": 99.0,
-  "overloads": 0.0,
+  "overloads": 0.1,
   "zones": {
    "AWAKE": 0.52,
    "NORMAL": 0.48,
@@ -370,7 +370,7 @@
   "gauge_end": 87.3,
   "gauge_min": 30.0,
   "gauge_max": 98.0,
-  "overloads": 0.0,
+  "overloads": 0.1,
   "zones": {
    "AWAKE": 0.53,
    "NORMAL": 0.46,
@@ -445,14 +445,14 @@
   "n": 10,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 9.9,
-  "hp_lost": 48.0,
-  "gauge_end": 98.2,
+  "ttk": 10.0,
+  "hp_lost": 50.2,
+  "gauge_end": 79.2,
   "gauge_min": 10.0,
   "gauge_max": 99.0,
-  "overloads": 0.0,
+  "overloads": 0.2,
   "zones": {
-   "NORMAL": 0.52,
+   "NORMAL": 0.53,
    "AWAKE": 0.36,
    "FADE": 0.11,
    "CRITICAL": 0.0
@@ -460,81 +460,86 @@
  },
  "boss/pipe/dodge": {
   "n": 10,
-  "win": 1.0,
-  "dead": 0.0,
-  "ttk": 17.6,
-  "hp_lost": 78.0,
-  "gauge_end": 81.0,
-  "gauge_min": 10.0,
-  "gauge_max": 81.0,
+  "win": 0.7,
+  "dead": 0.3,
+  "ttk": 18.6,
+  "hp_lost": 74.2,
+  "gauge_end": 59.1,
+  "gauge_min": 0.0,
+  "gauge_max": 89.0,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.62,
-   "AWAKE": 0.2,
-   "FADE": 0.18
+   "NORMAL": 0.54,
+   "FADE": 0.31,
+   "AWAKE": 0.15,
+   "DEAD": 0.0
   }
  },
  "boss/knife/stand": {
   "n": 10,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 9.7,
-  "hp_lost": 56.4,
-  "gauge_end": 74.0,
-  "gauge_min": 22.0,
-  "gauge_max": 77.0,
-  "overloads": 0.0,
+  "ttk": 9.8,
+  "hp_lost": 59.0,
+  "gauge_end": 46.8,
+  "gauge_min": 1.0,
+  "gauge_max": 99.0,
+  "overloads": 0.7,
   "zones": {
-   "NORMAL": 0.63,
-   "AWAKE": 0.37
+   "NORMAL": 0.61,
+   "AWAKE": 0.28,
+   "FADE": 0.06,
+   "CRITICAL": 0.04
   }
  },
  "boss/knife/dodge": {
   "n": 10,
   "win": 1.0,
   "dead": 0.0,
-  "ttk": 11.7,
-  "hp_lost": 56.6,
-  "gauge_end": 68.6,
+  "ttk": 11.5,
+  "hp_lost": 51.2,
+  "gauge_end": 78.2,
   "gauge_min": 18.0,
-  "gauge_max": 79.0,
-  "overloads": 0.0,
+  "gauge_max": 99.0,
+  "overloads": 0.2,
   "zones": {
-   "NORMAL": 0.61,
-   "AWAKE": 0.38,
-   "FADE": 0.02
+   "NORMAL": 0.67,
+   "AWAKE": 0.27,
+   "FADE": 0.03,
+   "CRITICAL": 0.03
   }
  },
  "boss/gauntlet/stand": {
   "n": 10,
-  "win": 0.0,
-  "dead": 1.0,
-  "ttk": null,
-  "hp_lost": 100.0,
-  "gauge_end": 20.8,
-  "gauge_min": 4.0,
-  "gauge_max": 57.2,
+  "win": 0.5,
+  "dead": 0.5,
+  "ttk": 16.2,
+  "hp_lost": 92.4,
+  "gauge_end": 36.5,
+  "gauge_min": 10.0,
+  "gauge_max": 58.8,
   "overloads": 0.0,
   "zones": {
    "NORMAL": 0.79,
-   "AWAKE": 0.12,
+   "AWAKE": 0.13,
    "FADE": 0.08
   }
  },
  "boss/gauntlet/dodge": {
   "n": 10,
-  "win": 0.0,
-  "dead": 1.0,
-  "ttk": null,
-  "hp_lost": 100.0,
-  "gauge_end": 15.5,
-  "gauge_min": 10.0,
-  "gauge_max": 55.2,
+  "win": 0.1,
+  "dead": 0.9,
+  "ttk": 28.5,
+  "hp_lost": 84.4,
+  "gauge_end": 18.4,
+  "gauge_min": 0.0,
+  "gauge_max": 55.3,
   "overloads": 0.0,
   "zones": {
-   "NORMAL": 0.8,
-   "FADE": 0.15,
-   "AWAKE": 0.05
+   "NORMAL": 0.61,
+   "FADE": 0.36,
+   "AWAKE": 0.03,
+   "DEAD": 0.0
   }
  }
 }

@@ -1156,7 +1156,7 @@ def test_boss_uses_many_patterns_without_repeating():
         assert name != boss.last_pattern
         boss.last_pattern = name
         seen.append(name)
-    assert {'smash', 'combo', 'slam', 'charge', 'rubble'} <= set(seen), seen
+    assert {'smash', 'combo', 'slam', 'charge', 'rubble', 'steam'} <= set(seen), seen
 
 
 def test_boss_enters_phase_two_at_half_health():
@@ -1191,6 +1191,57 @@ def test_boss_rubble_warns_then_falls_on_player():
         p.x = first.x
         step(1)
     assert p.hp < hp0                                                      # 피하지 않으면 맞는다
+
+
+def test_boss_steam_vents_raise_gauge_once_without_hp_damage():
+    """헤이즈 증기 분출(기획 3.2): 바닥 표시가 깜빡인 뒤 증기가 솟고, 닿으면 게이지 +12% 한 번. HP는 그대로."""
+    room, p, boss = _boss_world()
+    p.hp = p.max_hp = 1000
+    p.invuln_left = 0
+    set_gauge(p, 40)
+    boss.state = 'CHASE'
+    boss.pattern = 'steam'
+    boss.engage()
+    step(int(boss._windup() * 60) + 2)
+    vents = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'SteamVent']
+    assert len(vents) == 2                                                 # 1페이즈 두 줄기
+    first = min(vents, key=lambda o: abs(o.x - p.x))
+    assert abs(first.x - p.x) < 40                                         # 하나는 플레이어 자리에
+    g0 = p.gauge.value
+    step(int(0.4 * 60))
+    assert not first.erupting and abs(p.gauge.value - g0) < 1.5            # 표시가 깜빡이는 동안은 닿지 않는다
+    for _ in range(90):
+        p.x = first.x
+        step(1)
+    assert p.gauge.value >= g0 + config.STEAM_GAUGE - 1.5                  # 한 번 올랐다
+    assert p.gauge.value <= g0 + config.STEAM_GAUGE + 0.5                  # 여러 번 오르지 않는다
+    assert p.hp == 1000                                                    # 피해는 없다
+
+
+def test_boss_steam_has_three_vents_in_phase_two_and_dash_avoids_it():
+    room, p, boss = _boss_world()
+    boss.phase = 2
+    boss.state = 'CHASE'
+    boss.pattern = 'steam'
+    boss.engage()
+    step(int(boss._windup() * 60) + 2)
+    vents = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'SteamVent']
+    assert len(vents) == 3
+    import projectile
+    room, p = make_world()
+    set_gauge(p, 40)
+    v = projectile.SteamVent(p.x, p.y, 0.0, config.STEAM_GAUGE, room, p)
+    game_world.add_object(v, game_world.LAYER_EFFECT)
+    step(int(projectile.SteamVent.WARN * 60) - 3)
+    p.invuln_left = 1.0                                                    # 대시 무적이면 닿지 않는다
+    step(15)
+    assert v.erupting and p.gauge.value < 41
+
+
+def test_boss_rubble_hurts_hp_but_not_extra_gauge():
+    """떨어지는 고철은 HP 피해만 준다 (기획의 크래셔 게이지 패턴은 충격파 -20, 증기 +12뿐). 게이지는 피격 기본 손실만."""
+    import boss as boss_mod
+    assert boss_mod.RUBBLE_GAUGE == 0
 
 
 def test_boss_combo_hits_three_times_stepping_forward():

@@ -28,6 +28,11 @@ def test_balance_sim_start_gauge_option():
     assert r['gauge_max'] >= 70
 
 
+def test_balance_sim_counts_overloads():
+    r = balance_sim.run_one('group', 'knife', 'stand', 0, gauge=95)       # 위험 구간에서 식칼 연사: 오버로드가 난다
+    assert r['overloads'] >= 1, r
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

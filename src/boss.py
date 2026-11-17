@@ -1,7 +1,9 @@
 """보스 크래셔. 일반 적과 같은 몸(Enemy)에 패턴 여러 개를 얹었다. 맞아도 경직되지 않는다(슈퍼 아머).
 
-패턴(기획 3.2 표가 바탕): 휘두르기, 세 번 내리치기(한 걸음씩 다가오며), 내려찍기 충격파(맞으면 게이지 -15%), 돌진,
-도약 내려찍기, 발 구르기(천장에서 고철이 떨어진다: 떨어질 자리에 붉은 표시가 먼저 깜빡인다).
+패턴(기획 3.2 표가 바탕): 휘두르기, 세 번 내리치기(한 걸음씩 다가오며), 내려찍기 충격파(맞으면 게이지 -20% = 기본 -5 + 추가 -15), 돌진,
+도약 내려찍기, 발 구르기(천장에서 고철이 떨어진다: 떨어질 자리에 노란 표시가 먼저 깜빡인다, HP 피해만),
+헤이즈 증기 분출(바닥에 청록 표시 뒤 증기 기둥이 솟는다: 닿으면 게이지 +12%, 피해 없음).
+게이지를 내리는 충격파와 올리는 증기가 섞여 게이지 유지를 어렵게 한다(기획의 '교란 패턴').
 **2페이즈(체력 절반 이하)**: 포효하며 붉어지고, 공격 간격이 짧아지며 돌진은 되돌아 한 번 더, 충격파는 두 겹,
 떨어지는 고철은 더 많아진다.
 
@@ -19,11 +21,11 @@ import game_world
 import projectile
 from enemy import Enemy
 
-PATTERNS = ('smash', 'combo', 'slam', 'charge', 'leap', 'rubble')
+PATTERNS = ('smash', 'combo', 'slam', 'charge', 'leap', 'rubble', 'steam')
 # 거리별 후보와 가중치. 2페이즈에는 PHASE2_BONUS를 더한다
 NEAR = {'smash': 3, 'combo': 3, 'slam': 1}
-MID = {'slam': 3, 'rubble': 2, 'leap': 1, 'combo': 1}
-FAR = {'charge': 3, 'rubble': 2, 'leap': 2, 'slam': 1}
+MID = {'slam': 3, 'rubble': 2, 'steam': 2, 'leap': 1, 'combo': 1}
+FAR = {'charge': 3, 'rubble': 2, 'steam': 2, 'leap': 2, 'slam': 1}
 COMBO_HITS = 3
 COMBO_GAP = 0.38          # 세 번 내리치기 간격(초). 매번 한 걸음 다가온다
 COMBO_STEP_SPEED = 420.0
@@ -31,7 +33,9 @@ QUAKE_DELAY = 0.45        # 2페이즈 충격파 두 번째 겹이 나가는 시
 RUBBLE_COUNT = (5, 7)     # 떨어지는 고철 수 (1페이즈, 2페이즈)
 RUBBLE_SPACING = 170
 RUBBLE_DAMAGE = 14
-RUBBLE_GAUGE = -8
+RUBBLE_GAUGE = 0          # 고철은 HP 피해만 (피격 기본 손실 -5는 그대로). 크래셔의 게이지 패턴은 충격파와 증기뿐
+STEAM_COUNT = (2, 3)      # 증기 기둥 수 (1페이즈, 2페이즈)
+STEAM_SPACING = 230
 BACKSTEP_VX, BACKSTEP_VY = 460.0, 760.0
 
 
@@ -75,14 +79,14 @@ class Boss(Enemy):
 
     def _windup(self):
         s = self.stats
-        mult = {'smash': 1.0, 'combo': 1.1, 'slam': 1.8, 'charge': 1.6, 'leap': 1.5, 'rubble': 1.4}[self.pattern]
+        mult = {'smash': 1.0, 'combo': 1.1, 'slam': 1.8, 'charge': 1.6, 'leap': 1.5, 'rubble': 1.4, 'steam': 1.3}[self.pattern]
         return s['windup'] * mult * (0.85 if self.phase == 2 else 1.0)
 
     def _active(self):
         s = self.stats
         return {'smash': s['attack_time'], 'combo': COMBO_GAP * (COMBO_HITS - 1) + 0.25,
                 'slam': 0.35 + (QUAKE_DELAY if self.phase == 2 else 0.0), 'charge': s['charge_time'],
-                'leap': 0.0, 'rubble': 0.55}[self.pattern]
+                'leap': 0.0, 'rubble': 0.55, 'steam': 0.55}[self.pattern]
 
     # 일반 적의 예고·깜빡임 계산이 보스 패턴 시간을 쓰게 한다
     def _windup_time(self):
@@ -187,6 +191,8 @@ class Boss(Enemy):
             self._shockwaves()
         elif self.pattern == 'rubble':
             self._stomp_rubble()
+        elif self.pattern == 'steam':
+            self._vent_steam()
         else:
             self.charging, self.charge_hit = True, False
             if self.charges_left == 0:
@@ -233,6 +239,22 @@ class Boss(Enemy):
                 continue
             game_world.add_object(projectile.Debris(x, floor, 0.12 * i, RUBBLE_DAMAGE, RUBBLE_GAUGE,
                                                     self.room, self.player), game_world.LAYER_EFFECT)
+
+    def _vent_steam(self):
+        """헤이즈 증기 분출: 플레이어 자리와 옆에 증기 기둥이 솟는다 (2페이즈는 양옆까지 세 줄기)."""
+        effects.add_trauma(0.3)
+        effects.spawn('haze-blast', self.x, self.y + 60, duration=0.5)
+        count = STEAM_COUNT[self.phase - 1]
+        px = self.player.x
+        side = 1 if self.rng.random() < 0.5 else -1
+        offsets = [0, side * STEAM_SPACING, -side * STEAM_SPACING][:count]
+        for i, ox in enumerate(offsets):
+            x = min(max(px + ox, 60), self.room.width - 60)
+            floor = projectile.floor_below(self.room, x, self.player.y + 30)
+            if floor is None:
+                continue
+            game_world.add_object(projectile.SteamVent(x, floor, 0.1 * i, config.STEAM_GAUGE, self.room, self.player),
+                                  game_world.LAYER_EFFECT)
 
     def _turn_and_charge_again(self):
         """2페이즈 돌진: 끝에서 돌아서서 짧게 예고하고 한 번 더 달린다."""
@@ -306,7 +328,7 @@ class Boss(Enemy):
                     return 'boss_crasher_smash', 1
                 local = (t - windup) % COMBO_GAP
                 return 'boss_crasher_smash', 1 if local < 0.1 else 2 if local < 0.22 else 3
-            if self.pattern in ('smash', 'slam', 'rubble'):     # 예고: 주먹을 머리 위로 -> 내려찍음 -> 주먹이 박힌 채 마무리
+            if self.pattern in ('smash', 'slam', 'rubble', 'steam'):     # 예고: 주먹을 머리 위로 -> 내려찍음 -> 주먹이 박힌 채 마무리
                 if t < windup:
                     return 'boss_crasher_smash', 1
                 return 'boss_crasher_smash', 2 if t < windup + active * 0.6 else 3

@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-17)
-- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(185개).
+- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(189개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/17)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿), Q·1·2로 교체. 사슬은 남음.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔. 아크는 구현 전.
@@ -35,7 +35,6 @@
 - 3차(최종) 발표 일정.
 - 음악을 직접 들어 본 평가가 없다 (파형 수치만 확인).
 - 적·보스 새 기술의 난이도는 직접 플레이로 확인하지 않았다 (자동 테스트와 창 실행만).
-- (11/17 밸런스 시뮬레이션) 보스에게 한 번 맞을 때마다 게이지가 -20(기본 -5, 충격파 추가 -15)이라 무기와 상관없이 게이지 사망이 잦다. 시작 게이지 85%에서 식칼·피하지 않는 봇은 사망 100%(HP는 남은 채 게이지 0). 보스전 게이지 압박을 줄일지 사용자 판단 필요.
 
 ## 작업 로그
 - 2026-11-01 [Claude] 로그라이크로 용어 통일, 한 줄 소개 갱신, 기획서·PPT·결정 문서 불일치 수정, 최종 재생성 / AGENTS.md, docs/*, tools/*
@@ -134,3 +133,4 @@
 2026-11-17 [Claude Code] 프로젝트 스킬 3종(verify, balance-sim, playtest-capture)과 도구(tools/verify.py, balance_sim.py, capture.py), 기준 결과 balance_base.json, 테스트 3개 추가(181개), 첫 시뮬레이션 결과 기록 / .claude/skills/*, tools/*, tests/test_tools.py, AGENTS.md, docs/(SKILLS, DECISIONS, PROGRESS)
 2026-11-17 [Claude Code] 연타 무적 수정: 적 경직 저항(ENEMY_STAGGER_GUARD 0.9초), 슬럼 HP 60->90·사냥개 34->50 (balance-sim 전후 비교, 변형 3개 실험), 테스트 2개 추가(183개) / src/(enemy, config), tests/test_combat.py, tools/balance_base.json, docs/*
 2026-11-17 [Claude Code] 건틀릿 보스전 수정: 충전 하한 5%->25%(보스 한 방 -20에 게이지 0이 되지 않게), 태운 만큼만 충전·'게이지 부족' 표시, 시뮬레이터 봇 기준·capture.py --hold, 테스트 2개 추가(185개) / src/(weapon, config), tests/(test_combat, test_gauge), tools/(balance_sim, capture, balance_base.json), docs/*
+2026-11-17 [Claude Code] 보스 게이지: 기획의 크래셔 '헤이즈 증기 분출'(+12%) 패턴 구현(SteamVent), 고철 추가 게이지 -8 제거, 시뮬레이터 오버로드 집계 버그·보스 패턴 순서 시드별로 수정, 테스트 4개 추가(189개) / src/(boss, projectile, config), tests/(test_combat, test_tools), tools/(balance_sim, balance_base.json), .claude/skills/balance-sim, docs/*

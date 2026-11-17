@@ -150,13 +150,15 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None):
     rng = random.Random(seed * 7919 + 1)
     for kind, d in foes:
         x = min(room.width - 2 * config.TILE, PLAYER_X + d + rng.randint(-60, 60))
-        spawn(kind, x, room, p)
+        e = spawn(kind, x, room, p)
+        if kind == 'boss':
+            e.rng = random.Random(seed)          # 보스 패턴 순서도 시드마다 다르게 (게임에서는 고정 Random(7))
 
     hp0 = p.hp
     zone_time = {}
     gmin = gmax = p.gauge.value
-    overloads = 0
-    last_zone = p.gauge.zone
+    events = []
+    p.gauge.listeners.append(lambda name, g: events.append(name))   # 오버로드는 한 번의 add 안에서 바로 리셋되므로 이벤트로 센다
     state = {}
     t = 0.0
     result = 'timeout'
@@ -167,9 +169,6 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None):
         t += DT
         z = p.gauge.zone
         zone_time[z] = zone_time.get(z, 0.0) + DT
-        if z == 'OVERLOAD' and last_zone != 'OVERLOAD':
-            overloads += 1
-        last_zone = z
         gmin, gmax = min(gmin, p.gauge.value), max(gmax, p.gauge.value)
         if p.state == 'DEAD':
             result = 'dead'
@@ -179,7 +178,7 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None):
             break
     return dict(result=result, time=round(t, 2), hp_lost=round(hp0 - max(0, p.hp), 1),
                 gauge_end=round(p.gauge.value, 1), gauge_min=round(gmin, 1), gauge_max=round(gmax, 1),
-                overloads=overloads, zones={k: round(v / t, 3) for k, v in zone_time.items()})
+                overloads=events.count('overload'), zones={k: round(v / t, 3) for k, v in zone_time.items()})
 
 
 def summarize(runs):

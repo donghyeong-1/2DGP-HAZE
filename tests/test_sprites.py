@@ -52,7 +52,9 @@ def test_place_puts_the_pivot_on_the_feet():
 def test_walk_shift_keeps_the_body_steady():
     """걷기 보정은 몇 px 안쪽이고, 다리가 몸 밑을 지날 때만 몸을 들어 올린다 (발이 바닥 아래로 내려가지 않는다)."""
     for (name, n), (dx, dy) in sprites.SHIFT.items():
-        assert n <= sprites.count(name) and abs(dx) <= 6 and 0 <= dy <= 3, (name, n)
+        assert n <= sprites.count(name) and 0 <= dy <= 3, (name, n)
+        if name.endswith('_walk'):
+            assert abs(dx) <= 6, (name, n)
 
 
 def test_ui_images_exist():

@@ -162,7 +162,8 @@ class Stage:
             rng = random.Random(f'{self.seed}:{coord}')
             pool = items.GOLD_POOL if kind == 'gold' else items.SHOP_POOL
             count = min(len(self.room.pedestals), 3 if kind == 'gold' else 4)
-            saved['stock'] = items.roll(rng, pool, count)
+            saved['stock'] = (items.roll_gold(rng, count, self.player) if kind == 'gold'
+                              else items.roll(rng, pool, count))
             saved['gone'] = set()
         for slot, (x, y) in enumerate(self.room.pedestals):
             if slot >= len(saved['stock']):

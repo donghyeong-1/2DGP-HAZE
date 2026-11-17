@@ -226,7 +226,12 @@ class Player(TileBody):
         self.hit_left = 0.0
         self.gauge = HazeGauge()
         self.gauge.listeners.append(self._on_gauge_event)
-        self.weapon = Pipe(self)         # 장착 무기 (2주차는 철파이프 하나)
+        self.weapon = Pipe(self)         # 지금 든 무기
+        self.weapons = [self.weapon, None]   # 장착 2칸: 철파이프 + 황금방에서 얻는 무기 하나 (Q·1·2로 바꾼다)
+        self.slot = 0
+        self.punch_left = 0.0            # 맨손 자세(던지기·건틀릿 발사) 남은 시간
+        self.punch_total = 0.3
+        self.punch_kind = 'throw'
         self.attack_held = False         # 좌클릭을 누르고 있으면 쿨타임마다 이어서 친다
         self.interact_pressed = False    # F를 눌렀다 (stage가 이번 프레임에 소비한다)
         self.dash_window = 0.0           # 대시 중이거나 막 끝난 뒤 남은 시간: 이 동안 공격하면 대시 평타
@@ -300,7 +305,7 @@ class Player(TileBody):
 
     def handle_event(self, event):
         from pico2d import (SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,
-                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDLK_a, SDLK_d, SDLK_e, SDLK_f, SDLK_LSHIFT, SDLK_s, SDLK_SPACE, SDLK_w,
+                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDLK_1, SDLK_2, SDLK_a, SDLK_d, SDLK_e, SDLK_f, SDLK_LSHIFT, SDLK_q, SDLK_s, SDLK_SPACE, SDLK_w,
                             get_canvas_height)
         if event.type == SDL_KEYDOWN:
             if event.key == SDLK_a:
@@ -317,6 +322,10 @@ class Player(TileBody):
                 self.request_enhance()
             elif event.key == SDLK_f:
                 self.interact_pressed = True   # 진열대 앞에서 F: stage가 처리한다
+            elif event.key == SDLK_q:
+                self.swap_weapon()
+            elif event.key in (SDLK_1, SDLK_2):
+                self.swap_weapon(0 if event.key == SDLK_1 else 1)
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
                 self.left = False
@@ -368,6 +377,35 @@ class Player(TileBody):
         if self.state in ('HIT', 'DEAD') or self.stunned:   # 대시 중에는 대시 평타를 칠 수 있다
             return False
         return self.weapon.try_attack()
+
+    # ----- 무기 -----
+    def has_weapon(self, weapon_id):
+        return any(w is not None and w.weapon_id == weapon_id for w in self.weapons)
+
+    def give_weapon(self, weapon_id):
+        """두 번째 칸에 무기를 넣고 바로 든다. 이미 다른 무기가 있으면 바꾼다 (철파이프는 늘 첫 칸)."""
+        from weapon import WEAPONS
+        self.weapons[1] = WEAPONS[weapon_id](self)
+        self.swap_weapon(1)
+
+    def swap_weapon(self, index=None):
+        """Q: 다른 칸으로, 1·2: 그 칸으로. 빈 칸이면 바꾸지 않는다. 건틀릿 충전은 풀린다."""
+        if index is None:
+            index = 1 - self.slot
+        if self.weapons[index] is None or index == self.slot and self.weapon is self.weapons[index]:
+            return False
+        if getattr(self.weapon, 'charging', False):
+            self.weapon.charging = False
+        self.slot = index
+        self.weapon = self.weapons[index]
+        assets.play_sound('pickup')
+        return True
+
+    def start_punch(self, kind):
+        """맨손 자세: 던지기(throw)·건틀릿 발사(blast). 휘두르기 자세는 끝낸다."""
+        self.punch_kind = kind
+        self.punch_total = self.punch_left = config.PUNCH_TIME[kind]
+        self.swing_left = 0.0
 
     def release_jump(self):
         """점프 키를 뗐다: 아직 올라가는 중이면 상승을 줄여 낮게 뛴다 (최고 높이는 끝까지 누를 때만)."""
@@ -439,6 +477,7 @@ class Player(TileBody):
         self._sync_mouse()
         self.aura_time += dt
         self.swing_left = max(0.0, self.swing_left - dt)
+        self.punch_left = max(0.0, self.punch_left - dt)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
             self.walk_phase += abs(self.vx) * dt / config.WALK_FRAME_PX
@@ -486,6 +525,10 @@ class Player(TileBody):
                 self.lunge_vx = 0.0
         if self.swing_left > 0 and self.on_ground and self.state in ('IDLE', 'RUN') and self.swing_dir != 'plunge':
             self.vx = self.vx * config.SWING_MOVE_MULT + self.lunge_vx
+        elif self.on_ground and self.state in ('IDLE', 'RUN'):
+            if getattr(self.weapon, 'charging', False):           # 건틀릿 충전 중에는 천천히 걷는다
+                self.vx *= config.GAUNTLET_CHARGE_MOVE
+            self.vx += self.lunge_vx                                # 건틀릿 발사 반동
 
     def _check_spikes(self):
         """가시 타일에 닿으면 피해를 받고 위로 튕긴다. 대시 무적·피격 직후 무적 중에는 그냥 지나간다."""
@@ -566,6 +609,12 @@ class Player(TileBody):
             return 'n09_idle', 0
         if self.swing_left > 0 and self.swing_dir == 'plunge':
             return 'n09_plunge', 1 if self.swing_left > self.swing_total * 0.65 else 2
+        if getattr(self.weapon, 'charging', False):          # 건틀릿 충전: 주먹을 뒤로 당긴 채
+            return 'n09_punch', 1
+        if self.punch_left > 0:       # 맨손 자세: 던지기 = 당김 -> 뻗음 -> 회수, 발사 = 모음 -> 뻗음 -> 회수
+            done = 1.0 - self.punch_left / self.punch_total
+            first = 1 if self.punch_kind == 'throw' else 2
+            return 'n09_punch', first if done < 0.2 else 3 if done < 0.7 else 4
         if self.swing_left > 0:       # 철파이프를 휘두르는 자세: 준비 -> 타격 -> 마무리
             done = 1.0 - self.swing_left / self.swing_total
             p2, p3 = config.SWING_STYLE_PHASES.get(self.swing_style, config.SWING_PHASES)

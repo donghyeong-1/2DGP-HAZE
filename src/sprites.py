@@ -16,6 +16,7 @@ FRAMES = {
     'n09_dash': (2, 40, 79), 'n09_plunge': (2, 58, 142), 'n09_death': (3, 68, 124),
     'n09_swing_side': (3, 64, 149), 'n09_swing_up': (3, 77, 173), 'n09_swing_down': (3, 45, 149),
     'n09_swing_upfwd': (3, 69, 145), 'n09_swing_downfwd': (3, 64, 143),
+    'n09_punch': (4, 36, 124),     # 맨손 자세 (Codex T05): 식칼 던지기·건틀릿 충전·발사 공용
     # 슬럼 폐인, 고철 투척병
     'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
     'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124),
@@ -33,6 +34,8 @@ STILL_FOOT_MARGIN = 1          # 정지 그림(번호 0)의 발 아래 투명 �
 # 평균 위치로 맞추면 몸이 일정한 속도로 나아가 보인다. dy는 다리가 몸 밑을 지나는 프레임에서 몸이 살짝 올라가는 출렁임이다.
 SHIFT = {
     ('n09_walk', 1): (-1, 0), ('n09_walk', 2): (-5, 1), ('n09_walk', 3): (5, 2), ('n09_walk', 4): (1, 0),
+    # 맨손 자세는 프레임마다 발 위치가 다르게 그려져 있어 발을 같은 자리에 맞춘다 (발 가운데 x: 43.5, 36, 25, 36.5)
+    ('n09_punch', 1): (-7, 0), ('n09_punch', 3): (11, 0),
     ('enemy_slum_walk', 1): (1, 0), ('enemy_slum_walk', 2): (-2, 1), ('enemy_slum_walk', 3): (1, 2), ('enemy_slum_walk', 4): (0, 0),
 }
 

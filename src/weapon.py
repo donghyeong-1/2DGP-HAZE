@@ -1,4 +1,5 @@
-"""무기. 지금은 철파이프 하나다. 식칼·건틀릿·사슬은 이후 주차에 같은 모양으로 추가한다.
+"""무기. 철파이프(기본), 투척용 식칼 묶음(구간 연동형), 헤이즈 건틀릿(소모형). 장착 2칸(철파이프 + 하나), Q·1·2로 바꾼다.
+사슬은 이후에 같은 모양으로 추가한다. 식칼·건틀릿은 맨 아래 클래스를 본다.
 
 공격은 이동 상태 머신 밖의 겹침(overlay)이다. 어떤 공격이 나가는지는 상황으로 정해진다:
   대시 평타(대시 중·직후) > 점프 평타(공중: 회전 베기, 아래를 겨누면 내려찍기) > 기본 3연타.
@@ -66,8 +67,13 @@ class ExtraHits:
 
 
 class Pipe:
+    name = '철파이프'
+    weapon_id = 'pipe'
+    base_damage = config.PIPE_DAMAGE
+
     def __init__(self, owner):
         self.owner = owner
+        self.cooldown_max = 0.3   # 지금 쿨타임의 처음 길이 (재충전 바 표시용)
         self.combo = 0            # 지금까지 이어 친 횟수 (1~3)
         self.cooldown = 0.0       # 다음 공격까지 남은 시간
         self.combo_left = 0.0     # 이 시간이 지나면 연타가 끊긴다
@@ -122,7 +128,7 @@ class Pipe:
         return [e for e in list(game_world.world[game_world.LAYER_ENEMY])
                 if e.alive and test(e) and self._visible(e, cx, cy)]
 
-    def _hit(self, enemy, damage, gain, fx, big=False, color=None, shake=1.0, stop=1.0, blast=False):
+    def _hit(self, enemy, damage, gain, fx, big=False, color=None, shake=1.0, stop=1.0, blast=False, extra=True):
         """적 하나에게 피해와 모든 맞는 반응(게이지, 불꽃, 숫자, 흔들림, 멈춤)을 준다. 죽였으면 True."""
         p = self.owner
         killed = enemy.take_damage(damage, from_x=p.x)
@@ -139,6 +145,8 @@ class Pipe:
             effects.add_trauma(config.SHAKE_KILL)
         if blast:
             self._blast(enemy)
+        if not extra:                                    # 식칼·건틀릿은 구간 효과가 발사 수·크기로 따로 있다
+            return killed
         extra = max(config.EXTRA_HITS.get(p.gauge.zone, 0), config.ENHANCED_EXTRA_HITS if fx is config.ENHANCED_FX else 0)
         if extra and not killed:                         # 타수 증가: 첫 타격 뒤에 작은 추가 타격이 이어진다
             game_world.add_object(ExtraHits(p, enemy, damage * config.EXTRA_HIT_RATIO, fx, extra, big), game_world.LAYER_EFFECT)
@@ -146,7 +154,7 @@ class Pipe:
 
     def _damage(self, mult):
         p = self.owner
-        return config.PIPE_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mult
+        return self.base_damage * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mult
 
     @staticmethod
     def _segment_hit(enemy, x0, y0, dx, dy, length, half_width):
@@ -187,7 +195,7 @@ class Pipe:
         self.combo = self.combo % 3 + 1
         finisher = self.combo == 3
         p.set_swing_style(self.combo, ax)                # 1타·2타·3타마다 자세 시간과 내딛기가 다르다
-        self.cooldown = config.PIPE_COOLDOWN[self.combo - 1]
+        self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[self.combo - 1]
         self.combo_left = self.cooldown + config.PIPE_COMBO_WINDOW
         effects.spawn(effects.slash_sheet(p.gauge.zone, finisher), cx, cy, flip=flip, duration=0.22, variant=variant)
         damage = self._damage(config.PIPE_FINISHER_MULT if finisher else 1.0)
@@ -317,3 +325,222 @@ class Pipe:
         cos_angle = (dx * ax + dy * ay) / dist
         arc = config.PIPE_ARC_DEG + (config.ENHANCE_ARC_BONUS_DEG if enhanced else 0)
         return cos_angle >= math.cos(math.radians(arc))
+
+
+# =====================================================================================================
+# 투척용 식칼 묶음 (원거리, 구간 연동형): 구간이 오를수록 한 번에 던지는 칼이 늘고, 위험 구간에서는 관통한다.
+# 노멀 2발(나란히) / 각성 3발 부채꼴 / 위험 3발 관통 / 페이드 1발. E 강화: 발사 수 +2, 모든 칼 관통.
+# 칼은 실행 중 회전하지 않고 8방향 그림(proj_knife_0~7) 중 가장 가까운 것을 쓴다.
+# =====================================================================================================
+class Knife(Pipe):
+    name = '식칼'
+    weapon_id = 'knife'
+    base_damage = config.KNIFE_DAMAGE
+
+    def current_kind(self):
+        return 'knife'
+
+    def volley(self, enhanced=None):
+        """지금 구간에서 던지는 (칼 수, 퍼지는 각도, 관통)."""
+        p = self.owner
+        enhanced = p.gauge.enhanced if enhanced is None else enhanced
+        count, spread, pierce = config.KNIFE_ZONE[p.gauge.zone]
+        if enhanced:
+            count, spread, pierce = count + config.KNIFE_ENHANCED_EXTRA, max(spread, 10), True
+        return count, spread, pierce
+
+    def try_attack(self):
+        if not self.ready:
+            return False
+        p = self.owner
+        enhanced = p.gauge.enhanced
+        self.last_kind, self.last_enhanced = 'knife', enhanced
+        count, spread, pierce = self.volley(enhanced)
+        ax, ay = p.aim_vector()
+        base = math.degrees(math.atan2(ay, ax))
+        cx, cy = p.center
+        fx = self._fx(enhanced)
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 if enhanced else 1.0)
+        for i in range(count):
+            off = 0.0 if count == 1 else -spread + 2 * spread * i / (count - 1)
+            a = math.radians(base + off)
+            game_world.add_object(ThrownKnife(self, cx, cy + 8, math.cos(a), math.sin(a), damage, pierce, fx, enhanced),
+                                  game_world.LAYER_EFFECT)
+        assets.play_sound('throw')
+        p.start_punch('throw')
+        self.cooldown = self.cooldown_max = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.KNIFE_COOLDOWN
+        if enhanced:
+            effects.add_trauma(config.SHAKE_FINISHER * 0.6)
+        self._finish(enhanced)
+        return True
+
+
+class ThrownKnife:
+    """날아가는 칼 한 자루. 벽(#)에 닿거나 사거리를 넘으면 사라지고, 관통이 아니면 첫 적에서 멈춘다."""
+
+    def __init__(self, weapon, x, y, dx, dy, damage, pierce, fx, enhanced):
+        self.weapon, self.x, self.y = weapon, x, y
+        self.dx, self.dy = dx, dy
+        self.damage, self.pierce, self.fx, self.enhanced = damage, pierce, fx, enhanced
+        self.travel = 0.0
+        self.hit = set()
+        self.frame = int(round(math.degrees(math.atan2(dy, dx)) / 45.0)) % 8   # 가장 가까운 8방향 그림
+
+    def rect(self):
+        h = config.KNIFE_HB / 2
+        return (self.x - h, self.y - h, self.x + h, self.y + h)
+
+    def update(self, dt):
+        step = config.KNIFE_SPEED * dt
+        self.x += self.dx * step
+        self.y += self.dy * step
+        self.travel += step
+        room = self.weapon.owner.room
+        if self.travel > config.KNIFE_RANGE or (room is not None and room.tile_at_world(self.x, self.y) == '#'):
+            effects.spawn('puff', self.x, self.y - 20, duration=0.2)
+            game_world.remove_object(self)
+            return
+        left, bottom, right, top = self.rect()
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if not enemy.alive or id(enemy) in self.hit:
+                continue
+            el, eb, er, et = enemy.rect()
+            if left < er and el < right and bottom < et and eb < top:
+                self.hit.add(id(enemy))
+                self.weapon._hit(enemy, self.damage, config.KNIFE_GAIN, self.fx, big=self.enhanced,
+                                 shake=0.5, stop=0.35, blast=self.enhanced, extra=False)
+                if not self.pierce:
+                    game_world.remove_object(self)
+                    return
+
+    def draw(self):
+        img = assets.image(f'sprites/unified/proj_knife_{self.frame}.png')
+        assets.draw_image(img, self.x, self.y - img.h // 2)
+
+
+# =====================================================================================================
+# 헤이즈 건틀릿 (특수, 소모형): 좌클릭을 누르는 동안 게이지를 초당 10%씩 태워(5% 아래로는 안 내려감) 충전하고,
+# 떼면 조준 방향으로 충격파를 쏜다. 충전이 많을수록 세다. 게이지가 너무 오를 때 일부러 쓰는 "배출" 무기다.
+# 노멀: 충전 1.2초 / 각성: 0.8초, 충격파 x1.3 / 위험: 충전 없이 즉시 발사, 게이지 -15% 고정, 충격파 x1.6.
+# E 강화: 충전 시간 절반, 충격파 크기·피해 x1.5.
+# =====================================================================================================
+class Gauntlet(Pipe):
+    name = '건틀릿'
+    weapon_id = 'gauntlet'
+    base_damage = config.GAUNTLET_DAMAGE
+
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.charging = False
+        self.charge = 0.0
+
+    def current_kind(self):
+        if self.charging:
+            return 'charge'
+        g = self.owner.gauge
+        return 'gauntlet_instant' if g.zone == 'CRITICAL' and not g.enhanced else 'gauntlet'
+
+    def charge_need(self):
+        p = self.owner
+        need = config.GAUNTLET_CHARGE_TIME.get(p.gauge.zone, config.GAUNTLET_CHARGE_TIME['NORMAL'])
+        return need * (0.5 if p.gauge.enhanced else 1.0)
+
+    @property
+    def charge_ratio(self):
+        return min(1.0, self.charge / max(self.charge_need(), 0.01)) if self.charging else 0.0
+
+    def try_attack(self):
+        if not self.ready or self.charging:
+            return False
+        p = self.owner
+        if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 즉시, 게이지를 크게 비운다
+            p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')
+            self._fire(1.0, enhanced=False, size=config.GAUNTLET_SIZE['CRITICAL'])
+            return True
+        self.charging, self.charge = True, 0.0
+        self.last_kind = 'charge'
+        assets.play_sound('enhance')
+        return True
+
+    def update(self, dt):
+        super().update(dt)
+        if not self.charging:
+            return
+        p = self.owner
+        if p.state in ('HIT', 'DEAD') or p.stunned:                 # 맞거나 기절하면 충전이 풀린다
+            self.charging = False
+            return
+        if not p.attack_held:
+            self.release()
+            return
+        if self.charge < self.charge_need():
+            p.gauge.drain(config.GAUNTLET_DRAIN * dt)               # 누르는 동안 게이지를 태운다 (5% 하한)
+        self.charge += dt
+
+    def release(self):
+        if not self.charging:
+            return
+        ratio = self.charge_ratio
+        self.charging = False
+        if ratio < config.GAUNTLET_MIN_RATIO:                      # 너무 짧게 누르면 헛손질
+            self.cooldown = self.cooldown_max = 0.15
+            effects.spawn('puff', *self.owner.center, duration=0.25)
+            return
+        enhanced = self.owner.gauge.enhanced
+        size = config.GAUNTLET_SIZE.get(self.owner.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
+        self._fire(ratio, enhanced, size)
+
+    def _fire(self, ratio, enhanced, size):
+        p = self.owner
+        ax, ay = p.aim_vector()
+        cx, cy = p.center
+        fx = self._fx(enhanced)
+        damage = self._damage(0.4 + 0.6 * ratio) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
+        game_world.add_object(Blast(self, cx + ax * 40, cy + ay * 40, ax, ay, damage, size, fx, enhanced),
+                              game_world.LAYER_EFFECT)
+        self.last_kind, self.last_enhanced = 'gauntlet', enhanced
+        p.start_punch('blast')
+        assets.play_sound('overload_zap' if size >= 1.5 else fx['sound'])
+        effects.add_trauma(0.25 + 0.25 * size)
+        p.lunge_vx = -ax * 260 * size                                 # 반동으로 살짝 밀린다
+        self.cooldown = self.cooldown_max = config.GAUNTLET_COOLDOWN
+        self._finish(enhanced)
+
+
+class Blast:
+    """건틀릿 충격파. 조준 방향으로 날아가며 닿는 적을 모두 친다(관통). 벽에 닿으면 터진다."""
+
+    def __init__(self, weapon, x, y, dx, dy, damage, size, fx, enhanced):
+        self.weapon, self.x, self.y, self.dx, self.dy = weapon, x, y, dx, dy
+        self.damage, self.size, self.fx, self.enhanced = damage, size, fx, enhanced
+        self.radius = config.GAUNTLET_RADIUS * size
+        self.life = config.GAUNTLET_LIFE
+        self.time = 0.0
+        self.hit = set()
+        self.sprite = 's' if size < 1.2 else 'm' if size < 1.5 else 'l'
+
+    def update(self, dt):
+        self.time += dt
+        self.life -= dt
+        step = config.GAUNTLET_SPEED * dt
+        self.x += self.dx * step
+        self.y += self.dy * step
+        room = self.weapon.owner.room
+        if self.life <= 0 or (room is not None and room.tile_at_world(self.x, self.y) == '#'):
+            effects.spawn('haze-blast', self.x, self.y - 40, duration=0.35)
+            game_world.remove_object(self)
+            return
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if not enemy.alive or id(enemy) in self.hit:
+                continue
+            if Pipe._within(enemy, self.x, self.y, self.radius):
+                self.hit.add(id(enemy))
+                self.weapon._hit(enemy, self.damage, config.GAIN_HIT, self.fx, big=self.size >= 1.5,
+                                 shake=1.0 + 0.5 * self.size, stop=1.2, blast=self.enhanced, extra=False)
+
+    def draw(self):
+        img = assets.image(f'sprites/unified/proj_blast_{self.sprite}_{int(self.time * 16) % 2 + 1}.png')
+        assets.draw_image(img, self.x, self.y - img.h // 2, 'h' if self.dx < 0 else '')
+
+
+WEAPONS = {'pipe': Pipe, 'knife': Knife, 'gauntlet': Gauntlet}

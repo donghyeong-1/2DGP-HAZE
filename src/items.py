@@ -16,14 +16,22 @@ ITEMS = {
     'power':   dict(name='파이프 연마', glyph='공', desc='공격력 +25%', price=6, color=(255, 120, 120)),
     'vigor':   dict(name='강인한 몸', glyph='체', desc='최대 체력 +25, 그만큼 회복', price=6, color=(255, 150, 170)),
     'heal':    dict(name='응급 치료', glyph='약', desc='체력 40 회복 (정비방 전용)', price=3, color=(120, 235, 150)),
+    # 무기: 두 번째 칸에 들어가고 바로 든다 (Q·1·2로 철파이프와 바꾼다). 이미 다른 무기가 있으면 바뀐다
+    'w_knife':    dict(name='투척용 식칼 묶음', glyph='칼', desc='구간이 오를수록 많이 던진다 (위험 구간 관통)', price=9,
+                     color=(220, 228, 240), weapon='knife'),
+    'w_gauntlet': dict(name='헤이즈 건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 충격파', price=9,
+                     color=(120, 220, 245), weapon='gauntlet'),
 }
 GOLD_POOL = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 황금방에서 나오는 것
+WEAPON_ITEMS = ['w_knife', 'w_gauntlet']   # 황금방 진열대 하나는 늘 무기다 (가진 무기는 빼고)
 SHOP_POOL = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor', 'heal']
 
 
 def can_take(player, item_id):
     """더 얻을 수 있는가 (이미 한계면 의미가 없다)."""
     g = player.gauge
+    if 'weapon' in ITEMS[item_id]:
+        return not player.has_weapon(ITEMS[item_id]['weapon'])
     if item_id == 'cap':
         return g.cap < config.GAUGE_CAP_MAX
     if item_id == 'enhance':
@@ -40,6 +48,9 @@ def can_take(player, item_id):
 def apply(player, item_id):
     """아이템 효과를 플레이어에게 적용한다."""
     g = player.gauge
+    if 'weapon' in ITEMS[item_id]:                 # 무기는 소지 아이템 목록이 아니라 무기 칸에 들어간다
+        player.give_weapon(ITEMS[item_id]['weapon'])
+        return
     if item_id == 'cap':
         g.cap = min(config.GAUGE_CAP_MAX, g.cap + 20)
     elif item_id == 'absorb':
@@ -71,3 +82,12 @@ def roll(rng, pool, count, player=None):
     candidates = [i for i in pool if player is None or can_take(player, i)]
     rng.shuffle(candidates)
     return candidates[:count]
+
+
+def roll_gold(rng, count, player=None):
+    """황금방 진열: 하나는 무기(가진 것은 빼고), 나머지는 일반 아이템. 무기를 모두 가졌으면 일반 아이템만."""
+    weapons = [w for w in WEAPON_ITEMS if player is None or can_take(player, w)]
+    picked = [rng.choice(weapons)] if weapons and count > 0 else []
+    picked += roll(rng, GOLD_POOL, count - len(picked), player)
+    rng.shuffle(picked)
+    return picked

@@ -108,6 +108,29 @@ GAUNTLET_FLOOR = 5          # 이 아래로는 내려가지 않음
 
 # 무기: 철파이프 (충전형, 3연타. 3타째에 게이지가 더 오른다)
 PIPE_DAMAGE = 20
+# 투척용 식칼 묶음 (구간 연동형). KNIFE_ZONE: 구간 -> (칼 수, 양옆으로 퍼지는 각도(도), 관통)
+KNIFE_DAMAGE = 11
+KNIFE_ZONE = {'DEAD': (1, 0, False), 'FADE': (1, 0, False), 'NORMAL': (2, 4, False), 'AWAKE': (3, 14, False),
+              'CRITICAL': (3, 7, True), 'OVERLOAD': (3, 7, True)}
+KNIFE_ENHANCED_EXTRA = 2     # E 강화: 칼 +2, 모두 관통
+KNIFE_SPEED = 1500.0
+KNIFE_RANGE = 950.0
+KNIFE_HB = 26                # 칼 판정 상자 한 변(px)
+KNIFE_COOLDOWN = 0.36
+KNIFE_GAIN = 2               # 칼 한 자루 명중 게이지 (여러 자루가 맞으므로 일반 타격보다 작다)
+# 헤이즈 건틀릿 (소모형). 충전 시간·크기는 구간별
+GAUNTLET_DAMAGE = 34
+GAUNTLET_CHARGE_TIME = {'DEAD': 1.2, 'FADE': 1.2, 'NORMAL': 1.2, 'AWAKE': 0.8, 'CRITICAL': 0.8, 'OVERLOAD': 0.8}
+PUNCH_TIME = {'throw': 0.26, 'blast': 0.32}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
+GAUNTLET_CHARGE_MOVE = 0.45  # 건틀릿을 충전하는 동안 땅 위 이동 속도 배율
+GAUNTLET_SIZE = {'AWAKE': 1.3, 'CRITICAL': 1.6}
+GAUNTLET_CRIT_COST = 15      # 위험 구간 즉시 발사가 비우는 게이지(%)
+GAUNTLET_ENHANCED_MULT = 1.5
+GAUNTLET_MIN_RATIO = 0.25    # 이만큼은 충전해야 나간다
+GAUNTLET_RADIUS = 34         # 충격파 반지름(px, 크기 1.0)
+GAUNTLET_SPEED = 1050.0
+GAUNTLET_LIFE = 0.45
+GAUNTLET_COOLDOWN = 0.45
 PIPE_REACH = 150            # 몸 중심에서 닿는 거리(px)
 PIPE_ARC_DEG = 65           # 조준 방향 기준 좌우 각도(도). 적 중심이 이 부채꼴 안이면 맞는다
 PIPE_COOLDOWN = (0.30, 0.30, 0.55)  # 1·2·3타 뒤 다음 공격까지 (3타 뒤는 길게)

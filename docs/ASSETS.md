@@ -13,6 +13,8 @@
 | 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
 | HUD 조각, 아이템 아이콘·진열대, 로고 | `assets/ui/` | `tools/make_hud.py`, `make_icons.py`, `make_codeart.py`(codeart2d 스킬의 SVG 렌더러) | 자체 제작 |
 | 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
+| 무기 그림(식칼 8방향, 건틀릿 충격파, 무기 아이콘 3종) | `assets/sprites/unified/proj_knife_*`, `proj_blast_*`, `assets/ui/icon_w_*` | `tools/make_weapons.py` (code-drawn) | 자체 제작 |
+| 맨손 자세(던지기·건틀릿) | `assets/sprites/unified/n09_punch_1~4.png` | Codex T05 결과(`forge/n09_attack_v3`)를 그대로 복사 | AI 생성물 |
 | 효과음 21종 | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
 | 배경음악 3곡 | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |

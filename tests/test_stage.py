@@ -163,14 +163,26 @@ def test_gold_room_gives_one_item_free_and_removes_the_others():
     stage, p = make_stage()
     to_gold(stage, p)
     assert len(stage.pedestals) == 3 and not stage.room.locked and stage.enemy_count() == 0
-    ped = stage.pedestals[0]
+    assert sum(1 for d in stage.pedestals if d.item_id in items.WEAPON_ITEMS) == 1     # 하나는 늘 무기
+    ped = next(d for d in stage.pedestals if d.item_id not in items.WEAPON_ITEMS)
     p.x, p.y = ped.x, ped.y
     msgs = []
     stage.on_message = msgs.append
     assert stage.interact() and len(p.items) == 1 and msgs
     assert all(d.gone for d in stage.pedestals)         # 하나만 얻는다
-    p.x, p.y = stage.pedestals[1].x, stage.pedestals[1].y
+    other = next(d for d in stage.pedestals if d is not ped)
+    p.x, p.y = other.x, other.y
     assert not stage.interact() and len(p.items) == 1
+
+
+def test_gold_room_weapon_goes_into_second_slot():
+    stage, p = make_stage()
+    to_gold(stage, p)
+    ped = next(d for d in stage.pedestals if d.item_id in items.WEAPON_ITEMS)
+    p.x, p.y = ped.x, ped.y
+    assert stage.interact()
+    assert p.weapons[1] is not None and p.weapon is p.weapons[1] and p.items == []     # 무기 칸에 들어가 바로 든다
+    assert p.weapons[1].weapon_id == items.ITEMS[ped.item_id]['weapon']
 
 
 def test_gold_room_remembers_choice_after_leaving():

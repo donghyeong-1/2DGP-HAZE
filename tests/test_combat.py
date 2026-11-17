@@ -1176,6 +1176,126 @@ def test_boss_phase_two_charges_back_again():
             break
     assert turned                                                          # 한 번 더 돌아서 달렸다
 
+# ----- 무기: 식칼·건틀릿·교체 -----
+def _knives():
+    return [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'ThrownKnife']
+
+
+def test_knife_count_and_pierce_follow_gauge_zone():
+    for value, count, pierce in ((10, 1, False), (35, 2, False), (65, 3, False), (95, 3, True)):
+        room, p = make_world()
+        p.give_weapon('knife')
+        set_gauge(p, value)
+        p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+        assert p.request_attack()
+        ks = _knives()
+        assert len(ks) == count and all(k.pierce == pierce for k in ks), (value, len(ks))
+    room, p = make_world()
+    p.give_weapon('knife')
+    set_gauge(p, 85)
+    p.gauge.use_enhance()                                                # 85 - 25 = 60: 각성 3발
+    p.request_attack()
+    assert len(_knives()) == 3 + config.KNIFE_ENHANCED_EXTRA and all(k.pierce for k in _knives())   # 강화: +2, 모두 관통
+    assert not p.gauge.enhanced                                                                  # 강화는 한 번 쓰면 끝
+
+
+def test_knife_flies_hits_and_stops_unless_piercing():
+    room, p = make_world()
+    p.give_weapon('knife')
+    set_gauge(p, 35)
+    a = freeze(add_enemy('slum', p.x + 300, room, p))
+    b = freeze(add_enemy('slum', p.x + 500, room, p))
+    a.hp = a.max_hp = b.hp = b.max_hp = 1000
+    p.mouse_x, p.mouse_y = p.x + 400, a.center[1]
+    p.request_attack()
+    run_frames(40)
+    assert a.hp < 1000 and b.hp == 1000                                  # 관통이 아니면 앞의 적에서 멈춘다
+    room, p = make_world()
+    p.give_weapon('knife')
+    set_gauge(p, 95)
+    a = freeze(add_enemy('slum', p.x + 300, room, p))
+    b = freeze(add_enemy('slum', p.x + 500, room, p))
+    a.hp = a.max_hp = b.hp = b.max_hp = 1000
+    p.mouse_x, p.mouse_y = p.x + 400, a.center[1]
+    p.request_attack()
+    run_frames(40)
+    assert a.hp < 1000 and b.hp < 1000                                   # 위험 구간: 뒤의 적까지 꿰뚫는다
+
+
+def test_knife_picks_nearest_of_eight_drawn_directions():
+    import weapon
+    room, p = make_world()
+    p.give_weapon('knife')
+    for deg, frame in ((0, 0), (40, 1), (95, 2), (180, 4), (-50, 7), (-100, 6)):
+        import math
+        k = weapon.ThrownKnife(p.weapon, 0, 0, math.cos(math.radians(deg)), math.sin(math.radians(deg)), 1, False, None, False)
+        assert k.frame == frame, (deg, k.frame)
+
+
+def test_gauntlet_charges_by_burning_gauge_and_fires_on_release():
+    room, p = make_world()
+    p.give_weapon('gauntlet')
+    set_gauge(p, 40)
+    e = freeze(add_enemy('slum', p.x + 250, room, p))
+    e.hp = e.max_hp = 1000
+    p.mouse_x, p.mouse_y = p.x + 400, e.center[1]
+    p.attack_held = True
+    assert p.request_attack() and p.weapon.charging
+    run_frames(int(config.GAUNTLET_CHARGE_TIME['NORMAL'] * 60) + 5)
+    assert p.weapon.charge_ratio == 1.0
+    assert p.gauge.value < 40 - config.GAUNTLET_DRAIN * 1.0              # 충전하는 동안 게이지가 탔다
+    assert p._body_frame() == ('n09_punch', 1)                           # 주먹을 당긴 자세
+    p.attack_held = False
+    run_frames(1)
+    assert not p.weapon.charging and any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])
+    run_frames(30)
+    assert e.hp < 1000
+
+
+def test_gauntlet_drain_stops_at_floor_and_short_tap_does_nothing():
+    room, p = make_world()
+    p.give_weapon('gauntlet')
+    set_gauge(p, 8)
+    p.attack_held = True
+    p.request_attack()
+    run_frames(90)
+    assert p.gauge.value >= config.GAUNTLET_FLOOR - 1e-6                 # 5% 아래로는 내려가지 않는다
+    p.attack_held = False
+    run_frames(2)
+    room, q = make_world()
+    q.give_weapon('gauntlet')
+    q.attack_held = True
+    q.request_attack()
+    run_frames(3)
+    q.attack_held = False
+    run_frames(1)
+    assert not any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])   # 너무 짧으면 헛손질
+
+
+def test_gauntlet_fires_instantly_in_critical_zone_and_vents_gauge():
+    room, p = make_world()
+    p.give_weapon('gauntlet')
+    set_gauge(p, 95)
+    p.attack_held = True
+    assert p.request_attack()
+    assert not p.weapon.charging and p.gauge.value <= 95 - config.GAUNTLET_CRIT_COST + 0.01
+    blasts = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'Blast']
+    assert blasts and blasts[0].size == config.GAUNTLET_SIZE['CRITICAL']
+
+
+def test_weapon_slots_swap_with_q_and_numbers():
+    room, p = make_world()
+    assert p.weapon.weapon_id == 'pipe' and p.weapons[1] is None
+    assert not p.swap_weapon()                                           # 빈 칸으로는 못 바꾼다
+    p.give_weapon('knife')
+    assert p.weapon.weapon_id == 'knife' and p.slot == 1                 # 얻으면 바로 든다
+    p.swap_weapon()
+    assert p.weapon.weapon_id == 'pipe'
+    p.swap_weapon(1)
+    assert p.weapon.weapon_id == 'knife'
+    p.give_weapon('gauntlet')                                            # 두 번째 칸은 바뀐다 (철파이프는 그대로)
+    assert p.weapons[0].weapon_id == 'pipe' and p.weapon.weapon_id == 'gauntlet' and not p.has_weapon('knife')
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

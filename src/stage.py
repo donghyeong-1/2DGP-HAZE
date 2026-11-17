@@ -206,19 +206,19 @@ class Stage:
         saved = self.state.setdefault(coord, {})
         if 'stock' not in saved:           # 처음 들어올 때 한 번만 뽑고, 다시 와도 같은 물건이다
             rng = random.Random(f'{self.seed}:{coord}')
-            pool = items.GOLD_POOL if kind == 'gold' else items.SHOP_POOL
             count = min(len(self.room.pedestals), 3 if kind == 'gold' else 4)
             saved['stock'] = (items.roll_gold(rng, count, self.player) if kind == 'gold'
-                              else items.roll(rng, pool, count))
+                              else items.roll_shop(rng, count, self.player))
             saved['gone'] = set()
         for slot, (x, y) in enumerate(self.room.pedestals):
             if slot >= len(saved['stock']):
                 break
             item_id = saved['stock'][slot]
-            price = 0 if kind == 'gold' else items.ITEMS[item_id]['price']
+            price = 0 if kind == 'gold' else items.price(self.player, item_id)
             ped = Pedestal(x, y, item_id, kind, price)
             ped.player = self.player
-            ped.gone = slot in saved['gone']
+            ped.gone = slot in saved['gone'] or (kind == 'shop' and item_id in items.UPGRADES
+                                                 and items.level(self.player, item_id) >= items.MAX_LEVEL)
             ped.slot = slot
             self.pedestals.append(ped)
             game_world.add_object(ped, game_world.LAYER_TILES)
@@ -248,11 +248,25 @@ class Stage:
                 self._say(f'조각이 모자라다 ({p.shards}/{ped.price})')
                 return False
             p.shards -= ped.price
+        text = items.describe(p, ped.item_id)
         items.apply(p, ped.item_id)
         info = items.ITEMS[ped.item_id]
-        self._say(f'{info["name"]} 획득: {info["desc"]}')
+        self._say(f'{info["name"]} 획득: {text}')
+        upgrade_left = (ped.mode == 'shop' and ped.item_id in items.UPGRADES
+                        and items.level(p, ped.item_id) < items.MAX_LEVEL)
+        if upgrade_left:                       # 정비방 업그레이드: 품절 대신 다음 단계가 올라온다 (값이 오른다)
+            ped.price = items.price(p, ped.item_id)
+            for other in self.pedestals:       # 기본 성장처럼 단계를 함께 쓰는 진열대도 값을 맞춘다
+                if other.mode == 'shop' and other.item_id in items.UPGRADES:
+                    other.price = items.price(p, other.item_id)
+                    other.gone = other.gone or items.level(p, other.item_id) >= items.MAX_LEVEL
+            return True
         saved['gone'].add(ped.slot)
         ped.gone = True
+        if ped.mode == 'shop':                 # 3단계를 다 샀다: 단계를 함께 쓰는 진열대도 품절
+            for other in self.pedestals:
+                if other.mode == 'shop' and other.item_id in items.UPGRADES and not items.can_take(p, other.item_id):
+                    other.gone = True
         if ped.mode == 'gold':                 # 황금방은 하나만: 나머지는 사라진다
             for other in self.pedestals:
                 other.gone = True

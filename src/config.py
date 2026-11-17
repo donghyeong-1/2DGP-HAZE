@@ -139,6 +139,12 @@ GAUNTLET_RADIUS = 34         # 충격파 반지름(px, 크기 1.0)
 GAUNTLET_SPEED = 1050.0
 GAUNTLET_LIFE = 0.45
 GAUNTLET_COOLDOWN = 0.45
+# 정비방 업그레이드 (기획서 3.4 표, 0단계 -> 3단계). 게이지 용량·흡수·결핍 방지·대시는 단계마다 일정하게 늘어 items.py에서 계산한다
+ENHANCE_COST_LEVELS = (25, 20, 17, 15)              # E 강화 비용(%)
+OVERLOAD_RESIST_LEVELS = (0.20, 0.15, 0.10, 0.05)   # 오버로드 폭발 피해(최대 체력 비율)
+GROWTH_ATTACK = 0.20         # 기본 성장(공격력) 한 단계: 공격력 +20%
+GROWTH_HP = 25               # 기본 성장(체력) 한 단계: 최대 체력 +25
+UPGRADE_PRICE_MULT = (1.0, 1.6, 2.6)   # 정비방 값 = 1단계 값 x 이 배율 (3단계는 크게)
 # 헤이즈 사슬 (중거리 제어형). CHAIN_ZONE: 구간 -> (끌 수 있는 적 수, 사거리 배율, 끌려온 적 기절·충돌)
 CHAIN_DAMAGE = 20
 CHAIN_RANGE = 420.0          # 노멀 사거리(px). 각성부터 x1.3

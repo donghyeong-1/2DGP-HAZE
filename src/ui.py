@@ -159,7 +159,7 @@ class GameUI:
         assets.draw_text(70 + 12, y + hp_h // 2, f'HP {p.hp}/{p.max_hp}', WHITE, small=True)
         assets.draw_image(assets.image('ui/icon_shard.png'), 70 + 24, y - 62)                        # 조각 아이콘
         assets.draw_text(126, y - 40, f'헤이즈 조각 {p.shards}', TEAL)
-        # 가진 아이템: 색 칸에 한 글자 (같은 아이템을 여러 번 얻으면 개수)
+        # 가진 업그레이드: 아이콘 칸, 2단계 이상이면 단계 수 (기본 성장은 공격력·체력 각각 얻은 만큼)
         counts = {}
         for item_id in p.items:
             counts[item_id] = counts.get(item_id, 0) + 1

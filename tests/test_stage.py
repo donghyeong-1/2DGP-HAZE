@@ -207,20 +207,43 @@ def to_shop(stage, p):
     assert stage.coord == (1, -1)
 
 
-def test_shop_sells_for_shards_and_marks_sold_out():
+def test_shop_has_three_upgrades_and_first_aid():
     stage, p = make_stage()
     to_shop(stage, p)
-    assert len(stage.pedestals) == 4
-    ped = stage.pedestals[0]
+    ids = [d.item_id for d in stage.pedestals]
+    assert len(ids) == 4 and ids.count('heal') == 1                 # 응급 치료는 늘 있다 (구역 사이 회복이 없으므로)
+    assert all(i in items.UPGRADES for i in ids if i != 'heal') and len(set(ids)) == 4
+
+
+def test_shop_upgrade_price_rises_by_level_and_sells_out_at_level_three():
+    stage, p = make_stage()
+    to_shop(stage, p)
+    ped = next(d for d in stage.pedestals if d.item_id != 'heal')
     p.x, p.y = ped.x, ped.y
     msgs = []
     stage.on_message = msgs.append
     p.shards = 0
-    p.hp = 10                                                   # 회복약이 팔려도 사려는 것이 한계가 아니게
     assert not stage.interact() and '모자라' in msgs[-1]        # 조각이 없으면 못 산다
-    p.shards = ped.price + 2
-    assert stage.interact()
-    assert p.shards == 2 and ped.gone                           # 값을 치렀고 품절
+    prices = []
+    for level in range(1, items.MAX_LEVEL + 1):
+        assert not ped.gone and ped.price == items.price(p, ped.item_id)
+        prices.append(ped.price)
+        p.shards = ped.price + 2
+        assert stage.interact()
+        assert p.shards == 2 and items.level(p, ped.item_id) == level   # 값을 치르고 한 단계 올랐다
+    assert prices[0] < prices[1] < prices[2]                        # 단계가 오를수록 비싸다 (3단계는 크게)
+    assert prices[2] >= 2 * prices[0]
+    assert ped.gone and not stage.interact()                        # 3단계면 품절
+
+
+def test_shop_first_aid_sells_once():
+    stage, p = make_stage()
+    to_shop(stage, p)
+    ped = next(d for d in stage.pedestals if d.item_id == 'heal')
+    p.x, p.y = ped.x, ped.y
+    p.hp, p.shards = 10, 99
+    assert stage.interact() and p.hp == 50 and ped.gone
+    p.hp = 10
     assert not stage.interact()
 
 
@@ -262,41 +285,58 @@ def test_boss_slam_makes_shockwaves_that_cost_gauge():
 
 
 # ----- 아이템 -----
-def test_each_item_applies_its_effect():
+def test_upgrades_follow_the_design_table_for_three_levels():
+    """기획서 3.4 업그레이드 표 (1 -> 2 -> 3단계)."""
     stage, p = make_stage()
     g = p.gauge
-    cap0, steady0, enh0, dash0 = g.cap, g.decay_interval, g.enhance_cost, p.dash_max
-    items.apply(p, 'cap')
-    assert g.cap == cap0 + 20
-    items.apply(p, 'steady')
-    assert g.decay_interval == steady0 + 1.5
-    items.apply(p, 'enhance')
-    assert g.enhance_cost == enh0 - 5
-    items.apply(p, 'dash')
-    assert p.dash_max == dash0 + 1
-    items.apply(p, 'power')
-    assert p.attack_bonus == 1.25
-    items.apply(p, 'absorb')
-    assert p.kill_bonus == 3
-    items.apply(p, 'resist')
-    assert abs(p.overload_mult - 0.6) < 1e-9
-    hp0 = p.max_hp
-    items.apply(p, 'vigor')
-    assert p.max_hp == hp0 + 25 and p.hp == p.max_hp
+    table = {
+        'cap':     (lambda: g.cap, [120, 140, 160]),                     # 오버로드 한계 100 -> 160%
+        'absorb':  (lambda: config.GAIN_KILL + p.kill_bonus, [10, 12, 14]),   # 처치 +8 -> +14%
+        'steady':  (lambda: g.decay_interval, [4.0, 5.0, 6.0]),          # 감소 간격 3 -> 6초
+        'enhance': (lambda: g.enhance_cost, [20, 17, 15]),               # E 비용 25 -> 15%
+        'resist':  (lambda: round(config.OVERLOAD_DAMAGE_RATIO * p.overload_mult, 3), [0.15, 0.10, 0.05]),   # 폭발 피해 20 -> 5%
+        'dash':    (lambda: p.dash_max, [3, 4, 5]),                      # 대시 슬롯 2 -> 5
+    }
+    for item_id, (read, values) in table.items():
+        for lv, want in enumerate(values, 1):
+            assert items.can_take(p, item_id)
+            items.apply(p, item_id)
+            assert items.level(p, item_id) == lv and abs(read() - want) < 1e-9, (item_id, lv, read())
+        assert not items.can_take(p, item_id)                       # 3단계가 끝
+    p.hp = p.max_hp
+    assert not items.can_take(p, 'heal')                            # 체력이 가득이면 회복약은 의미가 없다
     p.hp = 10
     items.apply(p, 'heal')
     assert p.hp == 50
 
 
-def test_items_respect_limits():
+def test_basic_growth_is_attack_or_health_sharing_three_levels():
+    """기본 성장은 공격력 / 최대 체력 중 택1: 둘이 단계 3칸을 함께 쓴다."""
     stage, p = make_stage()
-    p.gauge.cap = config.GAUGE_CAP_MAX
-    assert not items.can_take(p, 'cap')
-    p.dash_max = config.DASH_SLOTS_MAX
-    assert not items.can_take(p, 'dash')
-    p.gauge.enhance_cost = 10
-    assert not items.can_take(p, 'enhance')
-    assert not items.can_take(p, 'heal')                       # 체력이 가득이면 회복약은 의미가 없다
+    hp0 = p.max_hp
+    items.apply(p, 'power')
+    items.apply(p, 'vigor')
+    assert abs(p.attack_bonus - (1 + config.GROWTH_ATTACK)) < 1e-9
+    assert p.max_hp == hp0 + config.GROWTH_HP and p.hp == p.max_hp
+    assert items.level(p, 'power') == items.level(p, 'vigor') == 2
+    items.apply(p, 'power')
+    assert not items.can_take(p, 'power') and not items.can_take(p, 'vigor')
+
+
+def test_gold_room_item_counts_toward_the_same_level():
+    stage, p = make_stage()
+    to_gold(stage, p)
+    ped = next(d for d in stage.pedestals if d.item_id not in items.WEAPON_ITEMS)
+    p.x, p.y = ped.x, ped.y
+    assert stage.interact() and items.level(p, ped.item_id) == 1
+    assert items.price(p, ped.item_id) == items.price_at(ped.item_id, 2)   # 정비방에서는 2단계 값
+
+
+def test_pedestal_text_shows_next_level():
+    stage, p = make_stage()
+    assert items.describe(p, 'cap').startswith('1단계')
+    items.apply(p, 'cap')
+    assert items.describe(p, 'cap').startswith('2단계') and '140' in items.describe(p, 'cap')
 
 
 def test_item_bonuses_change_combat_numbers():
@@ -309,12 +349,12 @@ def test_item_bonuses_change_combat_numbers():
     game_world.add_object(e, game_world.LAYER_ENEMY)
     p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
     p.request_attack()
-    assert e.max_hp - e.hp == config.PIPE_DAMAGE * 1.25 * p.gauge.zone_multipliers()['attack']
+    assert abs(e.max_hp - e.hp - config.PIPE_DAMAGE * (1 + config.GROWTH_ATTACK) * p.gauge.zone_multipliers()['attack']) < 1e-9
     e.hp = 1
     p.weapon.cooldown = 0
     g0 = p.gauge.value
     p.request_attack()
-    assert p.gauge.value - g0 >= config.GAIN_HIT + config.GAIN_KILL + 3 - 1     # 처치 보너스 +3 (시간 감소 오차 1)
+    assert p.gauge.value - g0 >= config.GAIN_HIT + config.GAIN_KILL + 2 - 1     # 흡수 효율 1단계 +2 (시간 감소 오차 1)
 
 
 # ----- 카메라 -----

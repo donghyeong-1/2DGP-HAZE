@@ -152,4 +152,4 @@
 2026-11-18 [Codex] T20 아크 공격·이동·순간이동·피격·페이즈·사망 23장과 예고 5종·전체 1배 비교, 동작별 GIF·좌표·검사 기록, 검토 대기 / assets/sprites/forge/ark_actions_v1/, assets/sprites/forge/boss_ark_*_v1*, docs/codex/reports/T20.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-18 [Claude Code] Codex T20 검토·적용: 아크 23장 합격(흡수·과충전 예고 정반대 확인, 서 있는 자세 허리 정렬 확인), unified 복사(tools/apply_enemy_frames.py 확장)와 sprites.FRAMES 등록. 보스 코드는 다음 작업 / tools/apply_enemy_frames.py, src/sprites.py, assets/sprites/unified/boss_ark_*, docs/*
 2026-11-18 [Claude Code] 최종 보스 아크 구현: 탄막(+5%/발)·순간이동 베기(-10%)·흡수 파동(-25%)·과충전 파동(+25%)·오염 장판(+5%/초), 흡수·과충전 번갈아, 3페이즈, 쓰러지는 자세, 코드 이펙트(탄환·파동·장판·손 빛), 보스 이름 표시, balance-sim 아크 시나리오·봇 파동 점프, 테스트 13개(213개) / src/(ark, projectile, config, stage, boss, ui), tests/test_ark.py, tools/(balance_sim, balance_base.json), docs/*
-- 2026-11-18 [Claude Code] 구역 사이 체력 회복 없음으로 확정(사용자 결정), 열린 질문 정리 / docs/(PROGRESS, DECISIONS).md
+2026-11-18 [Claude Code] 구역 사이 체력 회복 없음으로 확정(사용자 결정), 열린 질문 정리 / docs/(PROGRESS, DECISIONS).md

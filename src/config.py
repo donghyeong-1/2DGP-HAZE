@@ -212,6 +212,9 @@ ZONE_FX['OVERLOAD'] = ZONE_FX['CRITICAL']
 ZONE_FX['DEAD'] = ZONE_FX['FADE']
 ENHANCED_FX = dict(slash='pipe-slash-enhanced', spark='crit-hit', spark_time=0.34, shake=1.9, stop=1.6, sound='swing_enhanced',
                    damage_color=(230, 190, 255))
+# 충격 방사선 개수 (맞은 자리에서 퍼지는 선): 구간이 높을수록, 강화는 가장 많다. 추가 타격은 작게
+IMPACT_RAYS = {'FADE': 4, 'NORMAL': 6, 'AWAKE': 8, 'CRITICAL': 10, 'OVERLOAD': 10, 'DEAD': 0, 'enhanced': 12}
+IMPACT_RAYS_EXTRA = 3
 FINISHER_SLASH = 'pipe-slash-finisher'     # 3타는 구간과 상관없이 금색 큰 궤적
 # 주인공 몸 주위 오라 (반복 재생). 노멀(20~49%)은 없다. E 강화 중에는 구간 오라 위에 겹친다
 AURA_BY_ZONE = {'FADE': 'aura-fade', 'AWAKE': 'aura-awake', 'CRITICAL': 'aura-critical'}

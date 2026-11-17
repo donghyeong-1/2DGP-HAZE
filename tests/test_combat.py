@@ -937,6 +937,31 @@ def test_death_screen_waits_for_the_fall_animation():
     src = open(os.path.join(root, 'src', 'play_mode.py'), encoding='utf-8').read()
     assert 'dead_time >= config.DEATH_SCREEN_DELAY' in src
 
+
+def test_hit_spawns_impact_rays_and_attack_leaves_smear():
+    room, p = make_world()
+    e = freeze(add_enemy('slum', p.x + 100, room, p))
+    e.hp = e.max_hp = 10000
+    set_gauge(p, 95)
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.request_attack()
+    layer = game_world.world[game_world.LAYER_EFFECT]
+    bursts = [o for o in layer if isinstance(o, effects.ImpactBurst)]
+    assert bursts and len(bursts[0].rays) == config.IMPACT_RAYS['CRITICAL']       # 위험 구간 10줄
+    assert any(isinstance(o, effects.BodyGhost) for o in layer)                    # 휘두르는 몸의 잔상
+    run_frames(30)
+    assert not any(isinstance(o, (effects.ImpactBurst, effects.BodyGhost)) for o in layer)   # 짧게 사라진다
+
+
+def test_icons_and_pedestal_images_exist():
+    import items
+    from PIL import Image
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'ui')
+    for item_id in list(items.ITEMS) + ['shard']:
+        assert Image.open(os.path.join(base, f'icon_{item_id}.png')).size == (48, 48), item_id
+    for kind in ('gold', 'shop', 'gone'):
+        assert Image.open(os.path.join(base, f'pedestal_{kind}.png')).size == (120, 150), kind
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

@@ -32,16 +32,10 @@ class Pedestal:
 
     def draw(self):
         info = self.info
-        faded = self.gone
-        base = 'px_gray' if faded else 'px_black'
-        assets.draw_rect_image(assets.image('placeholder/px_gray.png'), self.x - 46, self.y, 92, 16)          # 받침
-        assets.draw_rect_image(assets.image('placeholder/px_black.png'), self.x - 34, self.y + 16, 68, 14)
-        # 아이템 표지: 색 칸 위에 한 글자
-        color_name = 'px_gray' if faded else 'px_yellow' if self.mode == 'gold' else 'px_cyan'
-        assets.draw_rect_image(assets.image('placeholder/px_black.png'), self.x - 34, self.y + 44, 68, 68)
-        assets.draw_rect_image(assets.image('placeholder/' + color_name + '.png'), self.x - 30, self.y + 48, 60, 60)
-        glyph_color = (60, 70, 90) if faded else (10, 20, 40)
-        assets.draw_text(self.x, self.y + 78, info['glyph'], glyph_color, center=True)
+        kind = 'gone' if self.gone else self.mode                      # gold(제단) / shop(선반) / gone(품절)
+        assets.draw_image(assets.image(f'ui/pedestal_{kind}.png'), self.x, self.y)
+        if not self.gone:                                              # 받침 위 보관함에 아이템 아이콘 (1배)
+            assets.draw_image(assets.image(f'ui/icon_{self.item_id}.png'), self.x, self.y + 66)
         if self.player is not None and not self.gone and self.near(self.player):
             assets.draw_text(self.x, self.y + 190, info['name'], info['color'], center=True)
             assets.draw_text(self.x, self.y + 156, info['desc'], (200, 210, 230), small=True, center=True)

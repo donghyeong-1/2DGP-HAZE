@@ -120,18 +120,18 @@ class GameUI:
         _frame(70, y, hp_w, hp_h, 'px_gray')
         _rect('px_red', 70, y, hp_w * p.hp / p.max_hp, hp_h)
         assets.draw_text(70 + 12, y + hp_h // 2, f'HP {p.hp}/{p.max_hp}', WHITE, small=True)
-        assets.draw_text(70, y - 40, f'헤이즈 조각 {p.shards}', TEAL)
+        assets.draw_image(assets.image('ui/icon_shard.png'), 70 + 24, y - 62)                        # 조각 아이콘
+        assets.draw_text(126, y - 40, f'헤이즈 조각 {p.shards}', TEAL)
         # 가진 아이템: 색 칸에 한 글자 (같은 아이템을 여러 번 얻으면 개수)
         counts = {}
         for item_id in p.items:
             counts[item_id] = counts.get(item_id, 0) + 1
         for i, (item_id, n) in enumerate(counts.items()):
-            ix = 70 + i * 54
-            info = items.ITEMS[item_id]
-            _frame(ix, y - 112, 44, 44, 'px_black', border='px_gray', thickness=3)
-            assets.draw_text(ix + 22, y - 90, info['glyph'], info['color'], center=True)
+            ix = 70 + i * 60
+            _frame(ix, y - 136, 54, 54, 'px_black', border='px_gray', thickness=3)
+            assets.draw_image(assets.image(f'ui/icon_{item_id}.png'), ix + 27, y - 133)              # 아이템 아이콘
             if n > 1:
-                assets.draw_text(ix + 40, y - 106, f'x{n}', WHITE, small=True, center=True)
+                assets.draw_text(ix + 50, y - 128, f'x{n}', WHITE, small=True, center=True)
         if p.stunned:                                           # 기절 남은 시간 바
             w = 420
             bx, by = (config.SCREEN_W - w) // 2, config.SCREEN_H - 300

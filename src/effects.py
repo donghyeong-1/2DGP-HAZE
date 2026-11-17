@@ -178,6 +178,86 @@ class FloatText:
         assets.draw_text(self.x, self.y0 + self.rise * t, self.text, self.color, center=True, big=self.big)
 
 
+class ImpactBurst:
+    """맞은 자리에서 사방으로 뻗는 충격 방사선 (격투 게임의 집중선). 코드로 그리는 픽셀 선이다 (사각 블록, 정수 좌표).
+
+    맞은 방향 쪽 선이 더 길고, 선은 바깥으로 튀어 나가며 짧아진다. 끝 두 칸은 흰색이다.
+    """
+
+    def __init__(self, x, y, angle_deg, count, color, big=False, life=0.17):
+        self.x, self.y = x, y
+        self.color = color
+        self.life, self.time = life, 0.0
+        self.rays = []
+        for k in range(count):
+            ang = angle_deg + k * 360.0 / count + (((k * 37) % 11) - 5) * 2.0       # 고정된 어긋남 (매번 같은 모양)
+            near = abs(((ang - angle_deg + 180) % 360) - 180) < 45                    # 맞은 방향 쪽은 길게
+            length = (58 if near else 34) * (1.35 if big else 1.0) * (0.85 + 0.3 * ((k * 7) % 3) / 2)
+            self.rays.append((math.radians(ang), length))
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        p = self.time / self.life
+        r0 = 12 + 30 * p
+        for ang, length in self.rays:
+            r1 = r0 + length * (1.0 - p) ** 0.7
+            dx, dy = math.cos(ang), math.sin(ang)
+            r = r0
+            while r < r1:
+                tip = r1 - r < 11
+                size = 4 if tip else 5
+                assets.draw_rect_color(int(round(self.x + dx * r - size / 2)), int(round(self.y + dy * r - size / 2)),
+                                       size, size, (255, 255, 255) if tip else self.color)
+                r += 5
+
+
+class BodyGhost:
+    """공격 순간 몸의 잔상 (스미어). 타격 자세를 뒤쪽에 옅게 겹쳐 그려 휘두르는 속도감을 준다. 이미지는 그릴 때 불러온다."""
+
+    def __init__(self, path, pivot, x, y, face_dir, color, alpha, life=0.13, delay=0.0):
+        self.path, self.pivot = path, pivot
+        self.x, self.y, self.face_dir = x, y, face_dir
+        self.color, self.alpha = color, alpha
+        self.life, self.time, self.delay = life, 0.0, delay
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life + self.delay:
+            game_world.remove_object(self)
+
+    def draw(self):
+        if self.time < self.delay:
+            return
+        img = assets.image(self.path)
+        px, py = self.pivot
+        dx = img.w // 2 - ((img.w - 1 - px) if self.face_dir < 0 else px)
+        fade = 1.0 - (self.time - self.delay) / self.life
+        assets.draw_image_tinted(img, self.x + dx, self.y - (img.h - py), 'h' if self.face_dir < 0 else '', self.color,
+                                 max(0.0, self.alpha * fade))
+
+
+def spawn_impact(x, y, dir_x, dir_y, count, color, big=False):
+    """(x, y)에서 방향 (dir_x, dir_y) 쪽으로 더 길게 뻗는 충격 방사선을 낸다."""
+    if count <= 0:
+        return
+    angle = math.degrees(math.atan2(dir_y, dir_x)) if (dir_x or dir_y) else 0.0
+    game_world.add_object(ImpactBurst(x, y, angle, count, color, big), game_world.LAYER_EFFECT)
+
+
+def spawn_smear(path, pivot, x, y, face_dir, aim, enhanced=False):
+    """공격 자세의 잔상 두 장을 조준 반대쪽 뒤에 남긴다."""
+    color = (190, 150, 255) if enhanced else (170, 225, 255)
+    ax, ay = aim
+    for k, alpha in ((1, 0.5), (2, 0.28)):
+        game_world.add_object(
+            BodyGhost(path, pivot, x - ax * 16 * k, y - ay * 10 * k, face_dir, color, alpha, delay=0.02 * k),
+            game_world.LAYER_EFFECT)
+
+
 def spawn(name, x, y, flip=False, duration=0.35, variant=0):
     game_world.add_object(SheetEffect(name, x, y, flip, duration, variant), game_world.LAYER_EFFECT)
 

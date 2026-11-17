@@ -48,6 +48,7 @@ class ExtraHits:
         ex, ey = enemy.center
         jx, jy = ((-1) ** self.index) * (10 + 6 * self.index), (self.index % 2) * 14 - 7      # 불꽃이 조금씩 다른 자리에 튄다
         effects.spawn(self.fx['spark'], ex + jx, ey + jy, duration=self.fx['spark_time'])
+        effects.spawn_impact(ex + jx, ey + jy, ex - p.x, ey - p.center[1], config.IMPACT_RAYS_EXTRA, self.fx['damage_color'])
         effects.float_text(ex + jx * 2, ey + enemy.hb_h / 2 + 70 + 22 * (self.index + 1), str(int(round(self.damage))),
                            self.fx['damage_color'], big=False, life=0.5)
         effects.add_trauma(config.SHAKE_HIT * 0.5)
@@ -128,6 +129,8 @@ class Pipe:
         p.gauge.add(gain, 'hit')
         ex, ey = enemy.center
         effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
+        rays = config.IMPACT_RAYS['enhanced' if fx is config.ENHANCED_FX else p.gauge.zone]
+        effects.spawn_impact(ex, ey, ex - p.x, ey - p.center[1], rays, fx['damage_color'], big=big)       # 충격 방사선
         effects.float_text(ex, ey + enemy.hb_h / 2 + 70, str(int(round(damage))), color or fx['damage_color'], big=big)
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
         effects.add_trauma(config.SHAKE_HIT * shake * fx['shake'])
@@ -167,6 +170,9 @@ class Pipe:
         cx, cy = p.center
         fx = self._fx(enhanced)                          # 게이지 구간(또는 강화)에 따라 모양·색·반응이 다르다
         p.start_swing(ax, ay)                            # 철파이프를 든 공격 자세
+        prefix = 'n09_swing_' + p.swing_dir
+        effects.spawn_smear(f'sprites/unified/{prefix}_2.png', config.PLAYER_FRAMES[prefix][1:], p.x, p.y - config.SPRITE_FOOT_MARGIN * 0,
+                            p.face_dir, (ax, ay), enhanced)              # 휘두르는 몸의 잔상(스미어)
         assets.play_sound(fx['sound'])
         variant, flip = effects.slash_variant(ax, ay)
         if enhanced:

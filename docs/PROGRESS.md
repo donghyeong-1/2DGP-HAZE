@@ -116,3 +116,4 @@
 2026-11-16 [Claude Code] Codex T10 검토·적용(크래셔 패턴별 동작 그림, Boss._body_frame, ENEMY_FRAME_LIFT), 테스트 2개 추가 / src/(boss, enemy, config), assets/sprites/unified/boss_crasher_*, tests/test_combat.py, docs/*
 2026-11-16 [Claude Code] Codex T11 검토·적용(사망·엔딩 화면 일러스트, 사망 후 1.3초 뒤 화면 전환), 테스트 추가 / src/(ending_mode, play_mode, config), assets/backgrounds/screen_*, tests/test_combat.py, docs/*
 2026-11-17 [Claude Code] 설치된 스킬·도구 현황을 docs/SKILLS.md로 정리(Claude·Codex 각 14개, 게임 개발 지침 8종, 개발 도구 버전, 새 컴퓨터 설치법), SETUP·ai_commands·ASSETS·AGENTS의 어긋난 설명 수정 / docs/SKILLS.md, docs/SETUP.md, docs/ai_commands.md, docs/ASSETS.md, AGENTS.md
+2026-11-17 [Claude Code] 타격 이펙트(충격 방사선·스미어 잔상), 아이템 아이콘 10종·진열대 3종 코드 그림(tools/make_icons.py)과 HUD·진열대 적용, Codex 큐 T13~T16 작성, 2차 발표 PPT·대본 갱신(데모 화면 demo_combat_v2), 테스트 추가 / src/(effects, weapon, pedestal, ui, config), tools/make_icons.py, assets/ui/*, tests/test_combat.py, docs/*

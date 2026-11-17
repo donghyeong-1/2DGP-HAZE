@@ -130,6 +130,12 @@ ENEMY_STATS = {
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle',
                     projectile_speed=620.0, leap=0.0,
                     frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
+    # 사냥개: 빠르고 약하다. 멀리서 달려와 물고, 위층도 뛰어오른다 (동작 그림은 아직 정지 그림 한 장)
+    'hound': dict(hp=34, hb=(84, 70), speed=400.0, sight=900, sight_dy=480, attack_range=110, reach_dy=120, damage=9,
+                  windup=0.28, attack_time=0.12, cooldown=0.9, gain_on_hit=0, sprite='enemy_hound_idle', leap=1300.0),
+    # 간수: 느리고 단단하다. 휘두르기 전 예고가 길고 맞으면 아프다 (정지 그림 한 장)
+    'guard': dict(hp=150, hb=(54, 126), speed=120.0, sight=700, sight_dy=300, attack_range=125, reach_dy=200, damage=22,
+                  windup=0.8, attack_time=0.2, cooldown=1.8, gain_on_hit=0, sprite='enemy_guard_idle', leap=0.0),
 }
 # 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
 ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
@@ -156,7 +162,7 @@ SPIKE_DAMAGE = 15            # 가시에 닿았을 때 피해 (게이지는 피�
 SPIKE_BOUNCE = 900.0         # 가시에 닿으면 위로 튕겨 나가는 속도(px/s)
 SPIKE_HEIGHT = 30            # 가시 타일에서 실제로 찌르는 높이(px, 타일 아래쪽)
 # 헤이즈 조각 (재화). 적을 처치하면 떨어뜨리고, 정비방 업그레이드에 쓴다 (정비방은 3주차)
-SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'crasher': 10}
+SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'crasher': 10}
 
 # E 강화 일격 (1회성): 게이지 ENHANCE_COST를 쓰면 **다음 공격 한 번**이 강화 일격이 된다. 쓰고 나면 사라진다.
 # 강화 일격은 대미지가 크고 사거리·부채꼴이 넓으며, 맞은 적마다 안개 폭발이 일어나 주변 적에게 피해를 준다.

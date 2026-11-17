@@ -15,7 +15,7 @@ SOLID = '#'
 ONEWAY = '='
 SPIKE = '^'
 EMPTY = '.'
-SPAWN_KINDS = {'s': 'slum', 't': 'thrower'}  # 방 텍스트의 적 스폰 표시
+SPAWN_KINDS = {'s': 'slum', 't': 'thrower', 'h': 'hound', 'g': 'guard'}  # 방 텍스트의 적 스폰 표시
 DOOR_CHARS = 'LRUD'
 DOOR_TINT = {'gold': (255, 215, 90), 'boss': (255, 90, 100), 'shop': (120, 215, 255)}   # 문 너머 방 종류 표시 색
 DOOR_LABEL = {'gold': '황금방', 'boss': '보스', 'shop': '정비방'}

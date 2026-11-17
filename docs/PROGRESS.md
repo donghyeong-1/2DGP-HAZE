@@ -6,9 +6,9 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-17)
-- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(151개).
+- **플레이 가능**: 타이틀 → 스테이지 1(방 12개, 6개 테마) → 보스 크래셔 → 탈출 화면. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(154개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
-- **적**: 슬럼 폐인, 고철 투척병, 보스 크래셔 (동작 프레임 포함). 간수·사냥개·아크는 그림만 있고 구현 전.
+- **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함, 11/17 구현·정지 그림 한 장), 보스 크래셔. 아크는 구현 전.
 - **성장**: 황금방(아이템 3개 중 1개), 정비방(조각 구매), 아이템 9종.
 - **v2 품질 업그레이드 완료(11/17)**: 타일·시차 배경·문틀, 자체 제작 이펙트, HUD 재제작, 배경음악 3곡, 가변 점프·위험 구간 경고, 안 쓰는 파일 정리, 문서 재정리.
 - 에셋 출처는 `docs/ASSETS.md` 맨 위 표, 결정은 `docs/DECISIONS.md`, 스킬·도구는 `docs/SKILLS.md`, 새 컴퓨터 준비는 `docs/SETUP.md`.
@@ -22,7 +22,7 @@
 2. [ ] **(사용자) 직접 플레이 점검**: 점프(짧게 누르면 낮게 뜀), 대시, 공격 사거리, 적 속도·체력, 음악·효과음 크기. 수치는 `src/config.py`만 고친다 (`MUSIC_VOLUME`, `SFX_VOLUME`, `JUMP_CUT` 등).
 3. [ ] **(사용자)** T12(간수·사냥개·아크 애니메이션)는 어떤 적을 구현할지 결정이 필요하다 (`docs/codex/TASKS.md`). 나머지 Codex 작업(T01~T11, T13~T16)은 검토·적용 완료.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
-5. [ ] (3주차 11/19~) 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
+5. [ ] (3주차) 무기 식칼·건틀릿·사슬, 적 스테이지 2·3, 보스 아크, 정비방 업그레이드 7종.
 6. [ ] 엔딩 크레딧 화면(외부 에셋·AI 생성 표기), 접근성 옵션(흔들림 세기, 번쩍임 줄이기).
 
 ## 열린 질문
@@ -118,3 +118,4 @@
 2026-11-17 [Claude Code] v2 마무리: 가변 점프(JUMP_CUT), 페이드·위험 구간 경고음과 게이지 맥박, 안 쓰는 타일·도구·임시 배경 삭제, ASSETS 맨 위 현재 기준 표, PROGRESS 위쪽 절 재작성, README 갱신, 진행 중 표시 해제 / src/(player, config, ui), tools/(make_sfx, make_codeart, make_placeholder_assets), tests/test_player.py, assets/sfx, docs/*, README.md
 2026-11-17 [Claude Code] Codex T06·T13~T16 검토·적용(아이콘, 진열대, 제목 화면, 굵은 철파이프), 장면 캡처 점검으로 무기 패널 겹침·보스 바 위치·타이틀 안내·작은 방 바깥 수정 / assets/(ui, backgrounds, sprites/unified), src/(ui, room, title_mode, config, sprites), docs/codex/*, docs/*
 2026-11-17 [Claude Code] 2차 발표 PPT 1장의 게임 화면을 현재 모습(새 타일·HUD·굵은 철파이프, 각성 구간 지상 전투)으로 교체, 지상 휘두르기 자세의 발 위치 확인 / assets/presentation_examples/demo_combat_v2.png, docs/presentation_2nd.pptx
+2026-11-17 [Claude Code] 적 사냥개·간수 구현(수치·스폰 문자 h/g·스테이지 1 배치, 정지 그림 사용), 테스트 3개 추가(154개) / src/config.py, src/room.py, data/stages/stage1.py, tests/test_combat.py

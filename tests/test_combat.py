@@ -142,6 +142,31 @@ def test_slum_chases_and_hits_player_then_player_is_invulnerable():
     assert p.hp == config.PLAYER_HP - e.stats['damage']          # 피격 직후 무적이라 연속으로 맞지 않는다
 
 
+def test_hound_is_faster_and_weaker_than_slum_and_guard_is_tougher():
+    h, s, g = (config.ENEMY_STATS[k] for k in ('hound', 'slum', 'guard'))
+    assert h['speed'] > s['speed'] > g['speed'] and h['hp'] < s['hp'] < g['hp']
+    assert g['windup'] > s['windup'] > h['windup'] and g['damage'] > s['damage']
+
+
+def test_hound_and_guard_chase_and_hit_player():
+    for kind in ('hound', 'guard'):
+        room, p = make_world(player_x=300.0)
+        e = add_enemy(kind, 300.0 + 450, room, p)
+        for _ in range(360):
+            if p.hp < config.PLAYER_HP:
+                break
+            step(1)
+        assert p.hp == config.PLAYER_HP - e.stats['damage'], kind
+
+
+def test_hound_and_guard_sprites_exist_and_stage_spawns_them():
+    import os as _os
+    for kind in ('hound', 'guard'):
+        assert _os.path.exists(_os.path.join(_os.path.dirname(__file__), '..', 'assets', sprites.path(config.ENEMY_STATS[kind]['sprite'], 0)))
+    from room import SPAWN_KINDS
+    assert SPAWN_KINDS['h'] == 'hound' and SPAWN_KINDS['g'] == 'guard'
+
+
 def test_dash_dodges_slum_attack():
     room, p = make_world(player_x=300.0)
     e = freeze(add_enemy('slum', 300.0 + 80, room, p))

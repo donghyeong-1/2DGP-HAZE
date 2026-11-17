@@ -124,3 +124,4 @@
 2026-11-17 [Claude Code] 2차 발표 준비 점검: 실행 검증(Title→Play), PPT 2장 렌더링 확인과 오류 수정(3주차 칸 `
 ` 깨짐, 전 캐릭터 애니메이션·보스 2종 과장 표현), 촬영·제출 가이드 docs/demo_2nd.md 추가 / tools/make_presentation_2nd.py, docs/presentation_2nd.pptx, docs/demo_2nd.md
 2026-11-17 [Claude Code] v2 이어서: 방 겉모습 v2를 6개 테마에 적용(room.py 새 타일 세트·시차 배경·문틀/쇠창살, make_world 전체 생성), 옛 bg_*·make_tiles_hq.py 삭제, 테스트 보강 / src/room.py, src/title_mode.py, assets/tiles, assets/backgrounds, tests/test_rooms.py, docs/ASSETS.md, DECISIONS.md
+2026-11-17 [Claude Code] v2 HUD 재제작: tools/make_hud.py(조각 16개), ui.py 입체 틀·게이지 장식·대시/콤보 칸·조준점·미니맵 아이콘·글자 받침 / tools/make_hud.py, assets/ui/hud_*, src/ui.py, docs/ASSETS.md, DECISIONS.md

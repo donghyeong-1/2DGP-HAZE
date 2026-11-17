@@ -170,3 +170,8 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/presentation_examples/demo_combat_v2.png` | 실제 게임 캡처 (2026-11-17) | 2차 발표 1장 데모 화면 (각성 구간 전투, 충격선, HUD 아이콘) |
 
 2026-11-17 [Codex] T13 아이템 아이콘 후보 10종 assets/sprites/forge/icons_v1/icon_*.png. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), 팔레트 잠금 hibit. 검토 대기. docs/codex/reports/T13.md.
+
+## HUD 조각 (2026-11-17, code-drawn, 자체 제작)
+| 파일 | 만든 방법 | 비고 |
+|---|---|---|
+| `assets/ui/hud_*.png` 16개 (게이지 양끝 장식, 바늘, 대시 칸 on/off, 콤보 칸 off/on/fin, 조준점 ready/wait, 미니맵 아이콘 gold/boss/shop/haze, 하트, E 키) | `tools/make_hud.py` (Pillow, 이미지 모델 없음) | 도트 1px, 알파 0/255, 외곽선 #0b1020. 틀은 `src/ui.py`의 `_frame`이 사각형으로 입체 테두리를 그린다. 설계는 game-ui-ux 스킬 지침(색만으로 뜻을 전하지 않기, 글자 18px 이상, 대비)을 따랐다 |

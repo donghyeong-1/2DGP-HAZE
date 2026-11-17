@@ -73,6 +73,7 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 엔딩 크레딧에 pixelfx, Hugo Duprez, rehan-remade를 표기한다.
 
 ## 이미지 생성 스킬 (2026-11-07, 개발 도구이며 게임에 포함되지 않음)
+- 설치된 스킬·도구 전체 현황은 `docs/SKILLS.md`.
 - agent-sprite-forge (0x0funky, MIT, commit 6b3da5c): `~/.codex/skills`와 `~/.claude/skills`에 설치. 그 도구로 만든 에셋은 사용한 모델·날짜·프롬프트를 `docs/image_prompts.md`에 기록하고 이 표에 추가한다.
 - awesome-gamedev-agent-skills (gamedev-skills, Apache-2.0, 2026-11-15): game-feel, platformer, input-systems, physics-tuning, level-design, game-ui-ux, roguelike, pygame-core 8개를 `~/.claude/skills`에 설치(참고 지침 문서이며 게임에 포함되지 않음). 자세한 평가는 `docs/REFERENCES.md`.
 - codixel (mankidev, MIT, commit 604a9dc): `~/.claude/skills/codixel`에 설치(SKILL.md와 core/pixel.js).

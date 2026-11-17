@@ -31,7 +31,7 @@ AI 도구는 **프로젝트 폴더를 연 채로** 시작한다 (폴더가 다�
 |---|---|---|
 | AI 도구 로그인·구독 (Claude Code, Codex, Gemini) | AI로 작업할 때 | 각 도구에 로그인 |
 | agent-sprite-forge 스킬 | Codex·Claude로 캐릭터 이미지를 새로 만들 때 | `git clone https://github.com/0x0funky/agent-sprite-forge.git` 후 그 폴더에서 `python -m pip install -r requirements.txt`, `python tools/install_skills.py --apply --host codex` (Claude Code는 `--host claude`). 쓴 버전은 commit 6b3da5c |
-| codixel 스킬 | 선택 (지금까지 사용 안 함) | `https://github.com/mankidev/codixel`의 `SKILL.md`, `core/`를 `~/.claude/skills/codixel/`에 복사 |
+| codixel 스킬 | 선택 (설치만 해 두었고 직접 쓰지는 않았다. 전체 스킬 현황은 `docs/SKILLS.md`) | `https://github.com/mankidev/codixel`의 `SKILL.md`, `core/`를 `~/.claude/skills/codixel/`에 복사 |
 | pixelfx | 이펙트를 새로 만들 때 | `git clone https://github.com/patch-gg/pixelfx.git` (프로젝트 밖 폴더에), Node 18 이상, `node tools/render.mjs <id> --sheet` 후 `python tools/finish_effects.py <pixelfx 폴더> <id>` (`docs/pixel_rules.md`) |
 | ffmpeg, 영상 생성 API 키 | 현재 쓰지 않음 | (영상으로 동작 프레임을 만들 때만) |
 | `gh` (GitHub CLI) | 선택 | `winget install GitHub.cli` 후 `gh auth login` |

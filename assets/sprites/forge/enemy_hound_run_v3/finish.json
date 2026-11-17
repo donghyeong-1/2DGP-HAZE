@@ -1,0 +1,355 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_hound_run_v3",
+  "character": "enemy_hound_fit_remake",
+  "role": null,
+  "source": {
+    "frames": "../guard_hound_actions_v3/hound_run/registered",
+    "count": 4,
+    "size": [
+      1152,
+      1152
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../guard_hound_actions_v3/hound_run/registration.json",
+      "sha256": "e5d8d7c76d3647d6309ebc88aca2c3d036c95ed883108e1cd14cf97125c3ca9c",
+      "bytes": 710
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 334,
+    "feetPx": 799,
+    "heightPx": 465,
+    "areaPx": 138710,
+    "stanceX": 500.0,
+    "centroid": [
+      515.2014346478264,
+      575.001196741403
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    500.0,
+    799.0
+  ],
+  "scale": 0.16916488222698073,
+  "scaleSource": "scale-ref",
+  "targetHeight": 80.66167023554604,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/enemy_hound_fit_remake/finish.json",
+    "sha256": "fbd0e1154719226cf3905054176852ac1d58cc6b0d22958300748b337f203a17",
+    "bytes": 7347,
+    "clip": "enemy_hound_fit_remake",
+    "character": "enemy_hound_fit_remake",
+    "scale": 0.16916488222698073,
+    "restAreaPx": 133094.0,
+    "areaRatio": 1.042196,
+    "correction": 0.979547,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    120,
+    91
+  ],
+  "anchor": [
+    60,
+    90
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      120,
+      91
+    ],
+    "sourceAnchor": [
+      60,
+      90
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 80.6617,
+    "areaPx": 3969.43,
+    "bodyHeightPx": 78.6617,
+    "outlinePx": 1,
+    "measuredHeightPx": 80,
+    "measuredAreaPx": 4715
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.16916488222698073,
+      "size": [
+        120,
+        91
+      ],
+      "anchor": [
+        60,
+        90
+      ],
+      "targetHeight": 80.66167023554604,
+      "flicker": {
+        "pairs": 3,
+        "alphaFlipsPerPair": 2692.667,
+        "indexFlipsPerPair": 2165.667,
+        "noiseFlipsPerPair": 67.333,
+        "edgeFlipsPerPair": 0.333
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/enemy_hound_fit_remake/palette.json",
+    "sha256": "51a0cd50e96db540a1e5811e55d2b29a52db2287b6a60986647a5139449d5b47",
+    "bytes": 1902,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 2270,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 41,
+    "noiseFlipReduction": 0.5729,
+    "plainMajority": {
+      "pairs": 3,
+      "alphaFlipsPerPair": 2726.333,
+      "indexFlipsPerPair": 2302.0,
+      "noiseFlipsPerPair": 157.667,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 556,
+    "lonePixelsFixed": 1295
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/sheet-1.png",
+      "sha256": "8958383a30e20797aab72f6421ded806c5e017fa24f9ec48a216cd9c0c070095",
+      "sourceFile": "sheet-1.png",
+      "sourceSha256": "34cd984bf1699714a88df78d1a8c3b09c8f3867c061f82ecca097c5c137ce412",
+      "opaquePx": 4715
+    },
+    {
+      "file": "frames/sheet-2.png",
+      "sha256": "8ca77240118c3c4c3a12808a4e1fae77bed66fdadaa2c16da47cacc00d721322",
+      "sourceFile": "sheet-2.png",
+      "sourceSha256": "1e6f8eae29fedf41e2f0cc69df72ae44f8475a693f7d4f5f533113f2fc3f3b64",
+      "opaquePx": 4101
+    },
+    {
+      "file": "frames/sheet-3.png",
+      "sha256": "6b1b452f7581f72210e209962a416a46348d74e188b0d6748774769ece561e27",
+      "sourceFile": "sheet-3.png",
+      "sourceSha256": "d323c692384eb0f22e1f006c21883a60871c4e56da569157c891db98937616f3",
+      "opaquePx": 4775
+    },
+    {
+      "file": "frames/sheet-4.png",
+      "sha256": "40dfcbcfde9bcf5d7cf62f2d2a373ea5b4402218848962fcddd120b27c3a8140",
+      "sourceFile": "sheet-4.png",
+      "sourceSha256": "b9b360a6175ff9a55bf87a42d86a1cfef0e290d0873d05c08a6cae0624a950f0",
+      "opaquePx": 4489
+    }
+  ],
+  "flicker": {
+    "pairs": 3,
+    "alphaFlipsPerPair": 2692.667,
+    "indexFlipsPerPair": 2165.667,
+    "noiseFlipsPerPair": 67.333,
+    "edgeFlipsPerPair": 0.333
+  },
+  "specksRemoved": 69,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.169165,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.662,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 3,
+          "alphaFlipsPerPair": 2692.667,
+          "indexFlipsPerPair": 2165.667,
+          "noiseFlipsPerPair": 67.333,
+          "edgeFlipsPerPair": 0.333
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 5.911,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 41
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 67.333,
+          "perFrameNearest": 157.667,
+          "reduction": 0.5729
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../guard_hound_actions_v3/hound_run/registered/sheet-1.png",
+        "sha256": "34cd984bf1699714a88df78d1a8c3b09c8f3867c061f82ecca097c5c137ce412"
+      },
+      {
+        "path": "../guard_hound_actions_v3/hound_run/registered/sheet-2.png",
+        "sha256": "1e6f8eae29fedf41e2f0cc69df72ae44f8475a693f7d4f5f533113f2fc3f3b64"
+      },
+      {
+        "path": "../guard_hound_actions_v3/hound_run/registered/sheet-3.png",
+        "sha256": "d323c692384eb0f22e1f006c21883a60871c4e56da569157c891db98937616f3"
+      },
+      {
+        "path": "../guard_hound_actions_v3/hound_run/registered/sheet-4.png",
+        "sha256": "b9b360a6175ff9a55bf87a42d86a1cfef0e290d0873d05c08a6cae0624a950f0"
+      },
+      {
+        "path": "../guard_hound_actions_v3/hound_run/registration.json",
+        "sha256": "e5d8d7c76d3647d6309ebc88aca2c3d036c95ed883108e1cd14cf97125c3ca9c",
+        "bytes": 710
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_hound_fit_remake/finish.json",
+        "sha256": "fbd0e1154719226cf3905054176852ac1d58cc6b0d22958300748b337f203a17",
+        "bytes": 7347
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_hound_fit_remake/palette.json",
+        "sha256": "51a0cd50e96db540a1e5811e55d2b29a52db2287b6a60986647a5139449d5b47",
+        "bytes": 1902
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/sheet-1.png",
+        "sha256": "8958383a30e20797aab72f6421ded806c5e017fa24f9ec48a216cd9c0c070095",
+        "bytes": 6148
+      },
+      {
+        "path": "frames/sheet-2.png",
+        "sha256": "8ca77240118c3c4c3a12808a4e1fae77bed66fdadaa2c16da47cacc00d721322",
+        "bytes": 5260
+      },
+      {
+        "path": "frames/sheet-3.png",
+        "sha256": "6b1b452f7581f72210e209962a416a46348d74e188b0d6748774769ece561e27",
+        "bytes": 6168
+      },
+      {
+        "path": "frames/sheet-4.png",
+        "sha256": "40dfcbcfde9bcf5d7cf62f2d2a373ea5b4402218848962fcddd120b27c3a8140",
+        "bytes": 5974
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "c479720df7ed3dd4ddf38899f30cc6fa788b5612a31b91a3c7ae0501250a253e",
+        "bytes": 56016
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

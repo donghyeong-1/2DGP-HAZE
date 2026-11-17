@@ -1,0 +1,33 @@
+{
+  "scale": 1.419452887537994,
+  "poses": [
+    {
+      "frame": 1,
+      "floor_y": 800,
+      "air_margin_output_px": 0,
+      "marked_torso_source_x": 319,
+      "registered_torso_x": 511.87
+    },
+    {
+      "frame": 2,
+      "floor_y": 800,
+      "air_margin_output_px": 0,
+      "marked_torso_source_x": 941,
+      "registered_torso_x": 512.2
+    },
+    {
+      "frame": 3,
+      "floor_y": 800,
+      "air_margin_output_px": 0,
+      "marked_torso_source_x": 319,
+      "registered_torso_x": 511.87
+    },
+    {
+      "frame": 4,
+      "floor_y": 800,
+      "air_margin_output_px": 8,
+      "marked_torso_source_x": 954,
+      "registered_torso_x": 511.53
+    }
+  ]
+}

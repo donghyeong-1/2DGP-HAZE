@@ -1,0 +1,12 @@
+{
+  "scale": 1.473186119873817,
+  "poses": [
+    {
+      "frame": 1,
+      "floor_y": 800,
+      "air_margin_output_px": 0,
+      "marked_torso_source_x": null,
+      "registered_torso_x": null
+    }
+  ]
+}

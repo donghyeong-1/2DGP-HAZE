@@ -148,7 +148,7 @@ class Enemy(TileBody):
 
         before_x = self.x
         if self.state in ('CHASE', 'IDLE') and self.on_ground and self.vx != 0:
-            self.walk_phase += abs(self.vx) * dt / config.ENEMY_WALK_FRAME_PX
+            self.walk_phase += abs(self.vx) * dt / self.stats.get('walk_px', config.ENEMY_WALK_FRAME_PX)
         elif self.state not in ('CHASE', 'IDLE'):
             self.walk_phase = 0.0
         getattr(self, '_do_' + self.state.lower())(dt)
@@ -466,28 +466,37 @@ class Enemy(TileBody):
         if self.state == 'HIT' and 'hurt' in frames:
             return frames['hurt'], 1
         if self.state == 'ATTACK' and 'attack' in frames:
-            t = self.attack_time
-            windup = self._windup_time()
-            if t < windup:
-                return frames['attack'], 1                      # 예고: 팔을 뒤로 뺀다
-            after = t - windup
-            if self.move == 'combo':                            # 두 번 치기: 타격 -> 다시 당김 -> 타격
-                if after < COMBO_GAP * 0.55:
-                    return frames['attack'], 2
-                if after < COMBO_GAP:
-                    return frames['attack'], 1
-                return frames['attack'], 2 if after < COMBO_GAP + 0.12 else 3
-            if self.move == 'volley':
-                k = after % VOLLEY_GAP
-                return frames['attack'], 2 if k < VOLLEY_GAP * 0.6 and after < VOLLEY_GAP * 3 else 3
-            if self.move == 'lunge' and after < 0.18:
-                return frames['attack'], 1                      # 내딛는 동안은 당긴 채로
-            return frames['attack'], 2 if after < self._active_time() * 0.6 else 3
+            name = frames.get(self.move, frames['attack'])     # 기술 전용 그림이 있으면 그것 (간수 내려찍기·방패 돌진, 사냥개 덮치기)
+            return name, min(self._attack_frame(), sprites.count(name))
         moving = self.state in ('CHASE', 'IDLE') and self.on_ground and self.vx != 0
         if moving and 'walk' in frames:
             count = sprites.count(frames['walk'])
             return frames['walk'], int(self.walk_phase) % count + 1
         return None, 0
+
+    def _attack_frame(self):
+        """공격 동작의 프레임 번호. 1 예고(당김), 2 타격, 3 회수. 두 장짜리(덮치기·돌진)는 1 웅크림, 2 뛰어듦."""
+        t = self.attack_time
+        windup = self._windup_time()
+        if t < windup:
+            return 1                                            # 예고: 팔을 뒤로 뺀다
+        after = t - windup
+        if self.move == 'pounce':
+            return 2 if not self.on_ground else 1               # 나는 동안 앞발을 뻗고, 내려앉으면 다시 웅크린다
+        if self.move == 'bash':
+            return 2
+        if self.move == 'combo':                                # 두 번 치기: 타격 -> 다시 당김 -> 타격
+            if after < COMBO_GAP * 0.55:
+                return 2
+            if after < COMBO_GAP:
+                return 1
+            return 2 if after < COMBO_GAP + 0.12 else 3
+        if self.move == 'volley':
+            k = after % VOLLEY_GAP
+            return 2 if k < VOLLEY_GAP * 0.6 and after < VOLLEY_GAP * 3 else 3
+        if self.move == 'lunge' and after < 0.18:
+            return 1                                            # 내딛는 동안은 당긴 채로
+        return 2 if after < self._active_time() * 0.6 else 3
 
     def _pose_offset(self, name):
         """그림 한 장으로 움직이는 적(걷기 그림 없음)에게 주는 몸짓: 걸을 때 출렁임, 예고 때 몸을 뒤로 젖힘, 타격 때 앞으로."""

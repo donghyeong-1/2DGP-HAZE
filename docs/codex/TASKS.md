@@ -31,7 +31,7 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T09 | 슬럼·투척병 애니메이션 (걷기·공격·피격·던지기) | [T09_enemy_anims_a.md](tasks/T09_enemy_anims_a.md) | T02 | done·게임 적용 2026-11-16 |
 | T10 | 보스 크래셔 애니메이션 (대기·찍기·돌진·도약·피격) | [T10_boss_crasher_anims.md](tasks/T10_boss_crasher_anims.md) | T03 | done·게임 적용 2026-11-16 |
 | T11 | 사망·엔딩 화면 일러스트 2장 | [T11_end_screens.md](tasks/T11_end_screens.md) | - | done·게임 적용 2026-11-16 |
-| T12 | 간수·사냥개 애니메이션 (기술별 동작, 아크는 보류) | [T12_guard_hound_ark_anims.md](tasks/T12_guard_hound_ark_anims.md) | - | ready (2026-11-17 범위 확정) |
+| T12 | 간수·사냥개 애니메이션 (기술별 동작, 아크는 보류) | [T12_guard_hound_ark_anims.md](tasks/T12_guard_hound_ark_anims.md) | - | done·게임 적용 2026-11-17 (아크는 보류) |
 | T13 | 아이템 아이콘 10종 (48×48) | [T13_item_icons.md](tasks/T13_item_icons.md) | - | done·게임 적용 2026-11-17 (`assets/ui/icon_*.png` 교체) |
 | T14 | 진열대·문·상호작용 소품 6종 | [T14_props_pedestal_door.md](tasks/T14_props_pedestal_door.md) | - | done·진열대 3종 적용 2026-11-17 (문 3종은 미적용: 방 타일 세트의 테마별 문틀을 쓴다) |
 | T15 | 철파이프 굵게 재작업 (T07 개선, 5방향) | [T15_pipe_thicker.md](tasks/T15_pipe_thicker.md) | T07 | done·게임 적용 2026-11-17 (기준점 갱신) |

@@ -1,0 +1,270 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_guard_hurt_v3",
+  "character": "enemy_guard_remake",
+  "role": null,
+  "source": {
+    "frames": "../guard_hound_actions_v3/guard_hurt/registered",
+    "count": 1,
+    "size": [
+      1152,
+      1152
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../guard_hound_actions_v3/guard_hurt/registration.json",
+      "sha256": "fcfc4dff4fe62e14f6458040d0afddac37dc820021b0eec96c638c67ca5f9048",
+      "bytes": 219
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 330,
+    "feetPx": 800,
+    "heightPx": 470,
+    "areaPx": 91855,
+    "stanceX": 544.0,
+    "centroid": [
+      505.49612432638395,
+      564.8956344238202
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    544.0,
+    800.0
+  ],
+  "scale": 0.2823779193205945,
+  "scaleSource": "scale-ref",
+  "targetHeight": 134.7176220806794,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/enemy_guard_remake/finish.json",
+    "sha256": "55991b53432e68da941e78c18adabe8e2e8650a4c112fc64353693c3214b4737",
+    "bytes": 7328,
+    "clip": "enemy_guard_remake",
+    "character": "enemy_guard_remake",
+    "scale": 0.2823779193205945,
+    "restAreaPx": 80561.0,
+    "areaRatio": 1.140192,
+    "correction": 0.936507,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    98,
+    137
+  ],
+  "anchor": [
+    58,
+    136
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      98,
+      137
+    ],
+    "sourceAnchor": [
+      58,
+      136
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 134.7176,
+    "areaPx": 7324.269,
+    "bodyHeightPx": 132.7176,
+    "outlinePx": 1,
+    "measuredHeightPx": 135,
+    "measuredAreaPx": 8011
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.2823779193205945,
+      "size": [
+        98,
+        137
+      ],
+      "anchor": [
+        58,
+        136
+      ],
+      "targetHeight": 134.7176220806794,
+      "flicker": null,
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/enemy_guard_remake/palette.json",
+    "sha256": "3ddeee487e8d91ac37150b4f898b3406ac2cabdf2b3232ef9ca432df64a1bc12",
+    "bytes": 1901,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 582,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 39,
+    "noiseFlipReduction": null,
+    "plainMajority": null,
+    "heldIndexPx": 0,
+    "lonePixelsFixed": 685
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/sheet-1.png",
+      "sha256": "e6d783a880833ae06f21ae2a0162dc35eac63a3fe4bfdb275e2e7b3ae4af8e6b",
+      "sourceFile": "sheet-1.png",
+      "sourceSha256": "6b6a4ed78b62b41a67bd4513062241a019a5bd348ff2a587230a7e9a7148036f",
+      "opaquePx": 8011
+    }
+  ],
+  "flicker": null,
+  "specksRemoved": 3,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0
+    ]
+  },
+  "qa": {
+    "status": "warn",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.282378,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.282,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": null,
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "warn",
+        "value": 3.541,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 39,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 39
+        },
+        "threshold": 0
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../guard_hound_actions_v3/guard_hurt/registered/sheet-1.png",
+        "sha256": "6b6a4ed78b62b41a67bd4513062241a019a5bd348ff2a587230a7e9a7148036f"
+      },
+      {
+        "path": "../guard_hound_actions_v3/guard_hurt/registration.json",
+        "sha256": "fcfc4dff4fe62e14f6458040d0afddac37dc820021b0eec96c638c67ca5f9048",
+        "bytes": 219
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_guard_remake/finish.json",
+        "sha256": "55991b53432e68da941e78c18adabe8e2e8650a4c112fc64353693c3214b4737",
+        "bytes": 7328
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_guard_remake/palette.json",
+        "sha256": "3ddeee487e8d91ac37150b4f898b3406ac2cabdf2b3232ef9ca432df64a1bc12",
+        "bytes": 1901
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/sheet-1.png",
+        "sha256": "e6d783a880833ae06f21ae2a0162dc35eac63a3fe4bfdb275e2e7b3ae4af8e6b",
+        "bytes": 8394
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "d2ad5efe3a169bc2219c4272e84b7ac5af333919e4fb7cdec73c3417178fd55d",
+        "bytes": 21495
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

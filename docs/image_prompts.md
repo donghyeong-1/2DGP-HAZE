@@ -232,3 +232,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-16 [Codex] T11 사망은 누운 N-09와 헤이즈 안개, 엔딩은 새벽의 열린 문으로 걸어가는 N-09 후면. 실제 프롬프트는 assets/sprites/forge/screens_v1/{death,ending}/actual_prompt.txt.
 
 2026-11-17 [Codex] T13 아이템 10종의 5×2 마젠타 시트. 금속 색면, 항목별 포인트색, 유리관·모래시계 및 강화·연마 실루엣 구분. 실제 프롬프트는 assets/sprites/forge/icons_v1/actual_prompt.txt.
+
+2026-11-17 [Codex] T12 사냥개·간수 동작 9종. 기존 마스터를 참조해 달리기·걷기, 기술별 예고·타격·회수와 피격을 마젠타 격자로 제작하고 사냥개 몸통 높이를 재수정. Codex 내장 image_gen(모델명 미제공). 전문은 `assets/sprites/forge/guard_hound_actions_v3/*/actual_prompt.txt` 및 `hound_run/take_02/actual_prompt.txt`.

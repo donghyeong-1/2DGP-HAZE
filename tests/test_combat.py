@@ -888,6 +888,31 @@ def test_enemy_frames_follow_state():
     assert th._body_frame() == (None, 0)                                  # 걷지 않는 적은 대기 그림
 
 
+def test_hound_and_guard_use_move_specific_frames():
+    import sprites
+    room, p = make_world()
+    for kind, walk, expect in (('hound', 'enemy_hound_run', {'bite': 'enemy_hound_bite', 'pounce': 'enemy_hound_pounce'}),
+                               ('guard', 'enemy_guard_walk', {'swing': 'enemy_guard_swing', 'heavy': 'enemy_guard_heavy',
+                                                              'bash': 'enemy_guard_bash'})):
+        e = add_enemy(kind, p.x + 700, room, p)
+        e.state, e.vx, e.on_ground = 'CHASE', 100.0, True
+        assert e._body_frame()[0] == walk                                 # 걷기·달리기 그림
+        for move, name in expect.items():
+            e.state, e.move = 'ATTACK', move
+            e.attack_time = 0.0
+            assert e._body_frame() == (name, 1), (kind, move)            # 기술마다 다른 예고 자세
+            for t in (0.05, 0.2, 0.5, 1.0):                               # 어느 시점이든 그 세트에 있는 번호만
+                e.attack_time = e._windup_time() + t
+                got, n = e._body_frame()
+                assert got == name and 1 <= n <= sprites.count(name), (kind, move, t, n)
+        e.state = 'HIT'
+        assert e._body_frame() == (f'enemy_{kind}_hurt', 1)
+    h = add_enemy('hound', p.x + 300, room, p)
+    h.state, h.move, h.attack_time = 'ATTACK', 'pounce', h._windup_time() + 0.1
+    h.on_ground = False
+    assert h._body_frame() == ('enemy_hound_pounce', 2)                   # 나는 동안 앞발을 뻗는다
+
+
 def test_boss_frames_follow_pattern():
     from boss import Boss
     room, p = make_world()

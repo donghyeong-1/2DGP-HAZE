@@ -165,15 +165,19 @@ ENEMY_STATS = {
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle',
                     projectile_speed=620.0, leap=0.0, moves=[('throw', 3), ('volley', 1), ('lob', 2)], keep_away=300,
                     frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
-    # 사냥개: 빠르고 약하다. 멀리서 달려와 물고, 위층도 뛰어오른다 (동작 그림은 아직 정지 그림 한 장)
+    # 사냥개: 빠르고 약하다. 멀리서 달려와 물고, 위층도 뛰어오른다. walk_px: 달리기 프레임 한 장이 지나가는 거리(보폭이 커서 길게)
     'hound': dict(hp=34, hb=(84, 70), speed=400.0, sight=900, sight_dy=480, attack_range=110, reach_dy=120, damage=9,
                   windup=0.28, attack_time=0.12, cooldown=0.9, gain_on_hit=0, sprite='enemy_hound_idle', leap=1300.0,
-                  moves=[('bite', 2), ('pounce', 3)], speed_jitter=(0.9, 1.1), retreat=0.55, patrol=160),
-    # 간수: 느리고 단단하다. 휘두르기 전 예고가 길고 맞으면 아프다 (정지 그림 한 장)
+                  moves=[('bite', 2), ('pounce', 3)], speed_jitter=(0.9, 1.1), retreat=0.55, patrol=160, walk_px=62.0,
+                  frames=dict(walk='enemy_hound_run', attack='enemy_hound_bite', pounce='enemy_hound_pounce',
+                              hurt='enemy_hound_hurt')),
+    # 간수: 느리고 단단하다. 휘두르기 전 예고가 길고 맞으면 아프다. frames의 기술 이름 키는 그 기술 전용 동작 그림
     'guard': dict(hp=150, hb=(54, 126), speed=120.0, sight=700, sight_dy=300, attack_range=125, reach_dy=200, damage=22,
                   windup=0.8, attack_time=0.2, cooldown=1.8, gain_on_hit=0, sprite='enemy_guard_idle', leap=0.0,
                   moves=[('swing', 3), ('heavy', 2), ('bash', 2)], bash_speed=640.0, wave_damage=8, super_armor=True,
-                  patrol=80),
+                  patrol=80, walk_px=40.0,
+                  frames=dict(walk='enemy_guard_walk', attack='enemy_guard_swing', heavy='enemy_guard_heavy',
+                              bash='enemy_guard_bash', hurt='enemy_guard_hurt')),
 }
 # 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
 ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),

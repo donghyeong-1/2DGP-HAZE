@@ -1,0 +1,29 @@
+{
+  "scale": 1.419452887537994,
+  "poses": [
+    {
+      "frame": 1,
+      "torso_source_x": 319,
+      "registered_torso_x": 512.45,
+      "air_margin_output_px": 0
+    },
+    {
+      "frame": 2,
+      "torso_source_x": 939,
+      "registered_torso_x": 512.12,
+      "air_margin_output_px": 0
+    },
+    {
+      "frame": 3,
+      "torso_source_x": 319,
+      "registered_torso_x": 512.45,
+      "air_margin_output_px": 0
+    },
+    {
+      "frame": 4,
+      "torso_source_x": 950,
+      "registered_torso_x": 511.78,
+      "air_margin_output_px": 10
+    }
+  ]
+}

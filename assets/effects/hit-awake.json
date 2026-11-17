@@ -1,0 +1,17 @@
+{
+ "id": "fx/hit-awake",
+ "frames": 6,
+ "frameSize": [
+  76,
+  76
+ ],
+ "columns": 6,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  38,
+  38
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

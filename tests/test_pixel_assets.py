@@ -56,7 +56,7 @@ def test_code_art_within_palette_limit():
 
 
 def test_effects_within_palette_limit():
-    """이펙트(pixelfx 마무리본)는 시트마다 64색 이하, 프레임 수는 60 이하(용량)."""
+    """이펙트는 시트마다 64색 이하, 프레임 수는 60 이하(용량). 모두 자체 제작이다 (외부 이펙트 파일이 없어야 한다)."""
     import json
     for path in effect_files():
         img = Image.open(path).convert('RGBA')
@@ -64,7 +64,8 @@ def test_effects_within_palette_limit():
         assert len(colors) <= MAX_COLORS, f'{os.path.basename(path)}: {len(colors)}색'
         meta = json.load(open(path[:-4] + '.json', encoding='utf-8'))
         assert meta['frames'] <= 60, f"{os.path.basename(path)}: {meta['frames']}프레임"
-    assert os.path.exists(os.path.join(ROOT, 'assets', 'effects', 'pixelfx-LICENSE')), 'pixelfx 라이선스 동봉'
+    for name in os.listdir(os.path.join(ROOT, 'assets', 'effects')):
+        assert 'pixelfx' not in name.lower(), f'외부 이펙트 파일이 남아 있다: {name}'
 
 
 def test_tiles_are_multiples_of_tile_size():

@@ -11,6 +11,7 @@ import effects
 import game_world
 import projectile
 import room as room_module
+import sprites
 from body import TileBody
 
 
@@ -73,7 +74,7 @@ class Enemy(TileBody):
             self.die()
             self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1)
             assets.play_sound('enemy_die')
-            effects.spawn('poof', self.x, self.y + 8, duration=0.5)
+            effects.spawn('death-burst', *self.center, duration=0.45)   # 헤이즈 조각으로 흩어진다
             game_world.remove_object(self)
             return True
         assets.play_sound('enemy_hit')
@@ -181,7 +182,7 @@ class Enemy(TileBody):
         reach_x0 = self.x + self.face_dir * self.hb_w / 2
         reach_x1 = reach_x0 + self.face_dir * (s['attack_range'] - self.hb_w / 2 + 25)
         box = (min(reach_x0, reach_x1), self.y, max(reach_x0, reach_x1), self.y + self.hb_h)
-        effects.spawn('hit-spark', (reach_x0 + reach_x1) / 2, self.y + self.hb_h * 0.55,
+        effects.spawn('hit-normal', (reach_x0 + reach_x1) / 2, self.y + self.hb_h * 0.55,
                       flip=self.face_dir < 0, duration=0.2)
         if self._player_alive() and projectile.overlap(box, self.player.rect()):
             self.player.take_hit(s['damage'], gauge_delta=s['gain_on_hit'])
@@ -209,31 +210,20 @@ class Enemy(TileBody):
                 return frames['attack'], 1                      # 예고: 팔을 뒤로 뺀다
             return frames['attack'], 2 if t < s['windup'] + s['attack_time'] * 0.6 else 3
         if self.state == 'CHASE' and 'walk' in frames and self.on_ground and self.vx != 0:
-            count = config.ENEMY_FRAMES[frames['walk']][0]
+            count = sprites.count(frames['walk'])
             return frames['walk'], int(self.walk_phase) % count + 1
         return None, 0
 
-    def _body_image(self):
-        """(이미지, 가로 보정 dx, 발 아래 여백). 프레임마다 캔버스와 발 기준점이 달라 기준점을 발 위치에 맞춘다."""
-        prefix, n = self._body_frame()
-        if prefix is None:
-            return assets.image('sprites/unified/' + self.stats['sprite']), 0, config.SPRITE_FOOT_MARGIN
-        img = assets.image(f'sprites/unified/{prefix}_{n}.png')
-        _, px, py = config.ENEMY_FRAMES[prefix]
-        py -= config.ENEMY_FRAME_LIFT.get((prefix, n), 0)
-        dx = img.w // 2 - ((img.w - 1 - px) if self.face_dir < 0 else px)
-        return img, dx, img.h - py
-
     def draw(self):
-        img, dx, foot = self._body_image()
-        flip = 'h' if self.face_dir < 0 else ''
-        y = self.y - foot
+        name, n = self._body_frame()
+        if name is None:                                  # 동작 그림이 없으면 정지 그림 한 장
+            name = self.stats['sprite']
+        tint = None
         if self.flash > 0:
-            assets.draw_image_tinted(img, self.x + dx, y, flip, (255, 90, 90), 1.0)
+            tint = (255, 90, 90)                          # 맞은 순간 붉게
         elif self.state == 'ATTACK' and not self.struck and int(self.attack_time * 20) % 2 == 0:
-            assets.draw_image_tinted(img, self.x + dx, y, flip, (255, 225, 120), 1.0)  # 공격 직전 깜빡임(예고)
-        else:
-            assets.draw_image(img, self.x + dx, y, flip)
+            tint = (255, 225, 120)                        # 공격 직전 깜빡임(예고)
+        sprites.draw(name, n, self.x, self.y, self.face_dir, tint)
         if self.hp < self.max_hp:
             self._draw_hp_bar()
         if config.DEBUG:

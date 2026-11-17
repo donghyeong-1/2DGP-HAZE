@@ -1,0 +1,79 @@
+{
+  "source_clip": "n09_swing_upfwd_v3",
+  "size": [
+    140,
+    146
+  ],
+  "anchor": [
+    69,
+    145
+  ],
+  "original_size": [
+    109,
+    129
+  ],
+  "original_anchor": [
+    51,
+    128
+  ],
+  "translation_from_original": [
+    18,
+    17
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "hand": [
+        37.0,
+        74.0
+      ],
+      "direction_degrees_in_image_coordinates": 145.56,
+      "pipe_length_px": 69.5,
+      "thickness_median_px": 6.0,
+      "thickness_range_px": [
+        5.375,
+        7.125
+      ],
+      "old_pipe_pixels_removed": 171,
+      "shaft_finish_warnings": [],
+      "colors": 37,
+      "preserved_original_opaque_pixels": 3071
+    },
+    {
+      "frame": 2,
+      "hand": [
+        71.0,
+        49.0
+      ],
+      "direction_degrees_in_image_coordinates": -43.32,
+      "pipe_length_px": 71.12,
+      "thickness_median_px": 5.75,
+      "thickness_range_px": [
+        5.5,
+        6.875
+      ],
+      "old_pipe_pixels_removed": 172,
+      "shaft_finish_warnings": [],
+      "colors": 38,
+      "preserved_original_opaque_pixels": 3015
+    },
+    {
+      "frame": 3,
+      "hand": [
+        59.0,
+        43.0
+      ],
+      "direction_degrees_in_image_coordinates": -66.3,
+      "pipe_length_px": 69.54,
+      "thickness_median_px": 5.5,
+      "thickness_range_px": [
+        5.375,
+        6.5
+      ],
+      "old_pipe_pixels_removed": 187,
+      "shaft_finish_warnings": [],
+      "colors": 39,
+      "preserved_original_opaque_pixels": 2929
+    }
+  ]
+}

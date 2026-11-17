@@ -1,0 +1,17 @@
+{
+ "id": "fx/haze-blast",
+ "frames": 9,
+ "frameSize": [
+  190,
+  190
+ ],
+ "columns": 9,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  95,
+  95
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

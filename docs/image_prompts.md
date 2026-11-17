@@ -230,3 +230,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-16 [Codex] T10 크래셔 대기·찍기·돌진·도약·피격. 실제 프롬프트는 assets/sprites/forge/crasher_actions_v3/<동작>/actual_prompt.txt 등에 기록.
 
 2026-11-16 [Codex] T11 사망은 누운 N-09와 헤이즈 안개, 엔딩은 새벽의 열린 문으로 걸어가는 N-09 후면. 실제 프롬프트는 assets/sprites/forge/screens_v1/{death,ending}/actual_prompt.txt.
+
+2026-11-17 [Codex] T13 아이템 10종의 5×2 마젠타 시트. 금속 색면, 항목별 포인트색, 유리관·모래시계 및 강화·연마 실루엣 구분. 실제 프롬프트는 assets/sprites/forge/icons_v1/actual_prompt.txt.

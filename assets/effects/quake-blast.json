@@ -1,0 +1,17 @@
+{
+ "id": "fx/quake-blast",
+ "frames": 9,
+ "frameSize": [
+  220,
+  120
+ ],
+ "columns": 9,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  110,
+  116
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

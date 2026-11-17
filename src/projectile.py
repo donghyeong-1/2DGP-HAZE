@@ -4,6 +4,7 @@
 """
 import assets
 import config
+import effects
 import game_world
 import room as room_module
 
@@ -54,6 +55,7 @@ class Shockwave:
         self.room = room
         self.player = player
         self.life = life
+        self.time = 0.0
 
     def rect(self):
         return (self.x - 36, self.y, self.x + 36, self.y + 56)
@@ -61,6 +63,7 @@ class Shockwave:
     def update(self, dt):
         self.x += self.dir * self.speed * dt
         self.life -= dt
+        self.time += dt
         if self.life <= 0 or self.room.tile_at_world(self.x + self.dir * 36, self.y + 20) == room_module.SOLID:
             game_world.remove_object(self)
             return
@@ -70,6 +73,4 @@ class Shockwave:
             game_world.remove_object(self)
 
     def draw(self):
-        left, bottom, right, top = self.rect()
-        for name, inset, h in (('px_orange', 0, 56), ('px_yellow', 10, 40), ('px_white', 22, 22)):
-            assets.draw_rect_image(assets.image('placeholder/' + name + '.png'), left + inset, bottom, (right - left) - 2 * inset, h)
+        effects.draw_loop('shockwave', self.x, self.y, self.time, flip=self.dir < 0)   # 바닥을 달리는 불기둥 물결

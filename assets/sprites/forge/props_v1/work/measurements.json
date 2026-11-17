@@ -1,0 +1,686 @@
+{
+  "pedestal_gold": {
+    "source_art": [
+      439,
+      186
+    ],
+    "fitted_source": [
+      329,
+      186
+    ],
+    "requested_footprint": [
+      108,
+      62
+    ],
+    "canvas": [
+      120,
+      150
+    ],
+    "opaque_bbox": [
+      7,
+      89,
+      113,
+      150
+    ],
+    "finish_qa": {
+      "status": "warn",
+      "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+      "notProven": [
+        "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+        "that the target height suits the game camera and the rest of the cast (run lineup)",
+        "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+        "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+        "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+        "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+      ],
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.313514,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 1.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.19,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 9,
+            "paletteColors": 24,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 9
+          },
+          "threshold": 0
+        }
+      ],
+      "inputs": [
+        {
+          "path": "../source/f000.png",
+          "sha256": "c814f3b23c4901b3031ccd7c7441d834ad504e1414b46cdc80970b12a4afdb6b"
+        },
+        {
+          "path": "../../palette.json",
+          "sha256": "158e1f4475ae36af26e8d2157cf867d3949d27fbf778c0fe4ec796006a22e35a",
+          "bytes": 1077
+        }
+      ],
+      "outputs": [
+        {
+          "path": "frames/f000.png",
+          "sha256": "da6964278ea50111e37cb8976cd04c5735c7e4a17bd16929bb975de830a153e3",
+          "bytes": 1073
+        },
+        {
+          "path": "review-contact.png",
+          "sha256": "85b1811f448955a2bba9708400505d129748a235e69089644047d39f8dc27f8c",
+          "bytes": 2966
+        }
+      ],
+      "tool": {
+        "name": "finish_frames",
+        "version": "0.5.0"
+      }
+    }
+  },
+  "pedestal_shop": {
+    "source_art": [
+      440,
+      168
+    ],
+    "fitted_source": [
+      312,
+      168
+    ],
+    "requested_footprint": [
+      108,
+      59
+    ],
+    "canvas": [
+      120,
+      150
+    ],
+    "opaque_bbox": [
+      8,
+      93,
+      112,
+      150
+    ],
+    "finish_qa": {
+      "status": "warn",
+      "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+      "notProven": [
+        "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+        "that the target height suits the game camera and the rest of the cast (run lineup)",
+        "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+        "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+        "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+        "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+      ],
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.327381,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 0.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.055,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 13,
+            "paletteColors": 24,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 13
+          },
+          "threshold": 0
+        }
+      ],
+      "inputs": [
+        {
+          "path": "../source/f000.png",
+          "sha256": "88c194713363565fe69d258fb993a4e21e37fbe31beaaaac3147c952aca35a1f"
+        },
+        {
+          "path": "../../palette.json",
+          "sha256": "158e1f4475ae36af26e8d2157cf867d3949d27fbf778c0fe4ec796006a22e35a",
+          "bytes": 1077
+        }
+      ],
+      "outputs": [
+        {
+          "path": "frames/f000.png",
+          "sha256": "c842c8719cd1d8e61053302073861a2f9865783b915e3fc194864de75b29e900",
+          "bytes": 1535
+        },
+        {
+          "path": "review-contact.png",
+          "sha256": "011e4d8acf807c038967b99c4784762a7109888cce286a005440a1843be81146",
+          "bytes": 3951
+        }
+      ],
+      "tool": {
+        "name": "finish_frames",
+        "version": "0.5.0"
+      }
+    }
+  },
+  "pedestal_gone": {
+    "source_art": [
+      439,
+      186
+    ],
+    "fitted_source": [
+      329,
+      186
+    ],
+    "requested_footprint": [
+      108,
+      62
+    ],
+    "canvas": [
+      120,
+      150
+    ],
+    "opaque_bbox": [
+      7,
+      89,
+      113,
+      150
+    ],
+    "finish_qa": {
+      "status": "warn",
+      "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+      "notProven": [
+        "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+        "that the target height suits the game camera and the rest of the cast (run lineup)",
+        "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+        "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+        "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+        "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+      ],
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.313514,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 1.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.19,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 16,
+            "paletteColors": 24,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 16
+          },
+          "threshold": 0
+        }
+      ],
+      "inputs": [
+        {
+          "path": "../source/f000.png",
+          "sha256": "eb71d9f7fe24413b8835c3f14e962e7894a83de6ef9f863c976deecb0a92626f"
+        },
+        {
+          "path": "../../palette.json",
+          "sha256": "158e1f4475ae36af26e8d2157cf867d3949d27fbf778c0fe4ec796006a22e35a",
+          "bytes": 1077
+        }
+      ],
+      "outputs": [
+        {
+          "path": "frames/f000.png",
+          "sha256": "1aa13e011536cc54be882c4982956a656693aca6b3590118b9c5deb87c83b376",
+          "bytes": 1331
+        },
+        {
+          "path": "review-contact.png",
+          "sha256": "3135e2a8c28b27dec30e856f4495b766606267f997a5773c4543911b7d27bc3b",
+          "bytes": 3625
+        }
+      ],
+      "tool": {
+        "name": "finish_frames",
+        "version": "0.5.0"
+      }
+    }
+  },
+  "door_locked": {
+    "source_art": [
+      179,
+      440
+    ],
+    "fitted_source": [
+      137,
+      440
+    ],
+    "requested_footprint": [
+      56,
+      176
+    ],
+    "canvas": [
+      60,
+      180
+    ],
+    "opaque_bbox": [
+      2,
+      3,
+      58,
+      177
+    ],
+    "finish_qa": {
+      "status": "warn",
+      "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+      "notProven": [
+        "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+        "that the target height suits the game camera and the rest of the cast (run lineup)",
+        "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+        "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+        "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+        "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+      ],
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.3918,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 0.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.552,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 15,
+            "paletteColors": 24,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 15
+          },
+          "threshold": 0
+        }
+      ],
+      "inputs": [
+        {
+          "path": "../source/f000.png",
+          "sha256": "fa43fb023948c9ea7ee04978e1a842f2c1cfb0814da8bec17d80851de3877912"
+        },
+        {
+          "path": "../../palette.json",
+          "sha256": "158e1f4475ae36af26e8d2157cf867d3949d27fbf778c0fe4ec796006a22e35a",
+          "bytes": 1077
+        }
+      ],
+      "outputs": [
+        {
+          "path": "frames/f000.png",
+          "sha256": "d1e2db7a9e1bc8b45afebe856ab29b1bbe99a33259b9e51b073d7a6acaaca7e8",
+          "bytes": 2513
+        },
+        {
+          "path": "review-contact.png",
+          "sha256": "09c71c0bc2a8cf5e985ea938ffc1b2be3c9eaf05d443fd5d4a7ae8e67168a21f",
+          "bytes": 7177
+        }
+      ],
+      "tool": {
+        "name": "finish_frames",
+        "version": "0.5.0"
+      }
+    }
+  },
+  "door_open_h": {
+    "source_art": [
+      180,
+      440
+    ],
+    "fitted_source": [
+      137,
+      440
+    ],
+    "requested_footprint": [
+      56,
+      176
+    ],
+    "canvas": [
+      60,
+      180
+    ],
+    "opaque_bbox": [
+      2,
+      3,
+      58,
+      177
+    ],
+    "finish_qa": {
+      "status": "warn",
+      "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+      "notProven": [
+        "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+        "that the target height suits the game camera and the rest of the cast (run lineup)",
+        "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+        "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+        "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+        "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+      ],
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.3918,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 0.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.552,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 16,
+            "paletteColors": 24,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 16
+          },
+          "threshold": 0
+        }
+      ],
+      "inputs": [
+        {
+          "path": "../source/f000.png",
+          "sha256": "d5b044aac62d6a9a9fb43056c66e3800bfd518eac806f93ccc2ae7f33969c078"
+        },
+        {
+          "path": "../../palette.json",
+          "sha256": "158e1f4475ae36af26e8d2157cf867d3949d27fbf778c0fe4ec796006a22e35a",
+          "bytes": 1077
+        }
+      ],
+      "outputs": [
+        {
+          "path": "frames/f000.png",
+          "sha256": "988ca2525ce53bca023b1863bf4917e8881d8e8a76ab19cc6c587df37faf9f68",
+          "bytes": 1541
+        },
+        {
+          "path": "review-contact.png",
+          "sha256": "0254f8891706731fb7ad52406f8e075e8968a196cf6ec1f104e7c80c628e780e",
+          "bytes": 4630
+        }
+      ],
+      "tool": {
+        "name": "finish_frames",
+        "version": "0.5.0"
+      }
+    }
+  },
+  "door_open_v": {
+    "source_art": [
+      440,
+      178
+    ],
+    "fitted_source": [
+      440,
+      137
+    ],
+    "requested_footprint": [
+      176,
+      56
+    ],
+    "canvas": [
+      180,
+      60
+    ],
+    "opaque_bbox": [
+      5,
+      2,
+      175,
+      57
+    ],
+    "finish_qa": {
+      "status": "warn",
+      "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+      "notProven": [
+        "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+        "that the target height suits the game camera and the rest of the cast (run lineup)",
+        "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+        "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+        "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+        "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+      ],
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.379562,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 1.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.635,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 14,
+            "paletteColors": 24,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 14
+          },
+          "threshold": 0
+        }
+      ],
+      "inputs": [
+        {
+          "path": "../source/f000.png",
+          "sha256": "70d730ddc6f4de437000bdcfaba77322205cc905caaea6980749200ce48f2a7a"
+        },
+        {
+          "path": "../../palette.json",
+          "sha256": "158e1f4475ae36af26e8d2157cf867d3949d27fbf778c0fe4ec796006a22e35a",
+          "bytes": 1077
+        }
+      ],
+      "outputs": [
+        {
+          "path": "frames/f000.png",
+          "sha256": "557b7147d63953eb1d98cb57a3e8f00478823a4e4ae600075cf67cd0d17d3fcb",
+          "bytes": 1719
+        },
+        {
+          "path": "review-contact.png",
+          "sha256": "592d6ff4411ee1e82723831fad7b023ad6ebf3771e13cb05276982960ac406a7",
+          "bytes": 4505
+        }
+      ],
+      "tool": {
+        "name": "finish_frames",
+        "version": "0.5.0"
+      }
+    }
+  }
+}

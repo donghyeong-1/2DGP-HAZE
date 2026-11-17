@@ -168,3 +168,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | `assets/backgrounds/screen_death.png`, `screen_ending.png` | Codex T11 결과(`forge/screens_v1/screen_*_v3.png`)를 2026-11-16 게임에 적용 | 사망 화면(쓰러진 주인공, 헤이즈가 걷히는 감옥 복도)과 엔딩 화면(탈출구로 걸어 나가는 뒷모습). 1920x1080 32색, 글자는 게임이 얹는다 |
 | `assets/ui/icon_<id>.png` (cap absorb steady enhance resist dash power vigor heal shard), `assets/ui/pedestal_gold.png`, `pedestal_shop.png`, `pedestal_gone.png` | `tools/make_icons.py` (numpy + Pillow, 이미지 모델 없음) | 아이템 아이콘 10종(48x48, 24x24 격자의 정수 2배, 색 4~7개)과 진열대 3종(120x150). 진열대·HUD·황금방/정비방에 쓴다. Codex T13·T14가 합격하면 같은 이름으로 교체. code-drawn |
 | `assets/presentation_examples/demo_combat_v2.png` | 실제 게임 캡처 (2026-11-17) | 2차 발표 1장 데모 화면 (각성 구간 전투, 충격선, HUD 아이콘) |
+
+2026-11-17 [Codex] T13 아이템 아이콘 후보 10종 assets/sprites/forge/icons_v1/icon_*.png. Codex 내장 image_gen(모델명 미제공), agent-sprite-forge 6b3da5c(MIT), 팔레트 잠금 hibit. 검토 대기. docs/codex/reports/T13.md.

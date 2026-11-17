@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import config  # noqa: E402
 import effects  # noqa: E402
 import game_world  # noqa: E402
+import sprites  # noqa: E402
 import weapon  # noqa: E402
 from enemy import Enemy  # noqa: E402
 from player import Player  # noqa: E402
@@ -372,7 +373,7 @@ def test_aura_follows_gauge_zone_and_enhance():
 def test_all_effect_sheets_used_by_zone_fx_exist_and_are_valid():
     import json
     names = {fx['slash'] for fx in config.ZONE_FX.values()} | {config.ENHANCED_FX['slash'], config.FINISHER_SLASH}
-    names |= set(config.AURA_BY_ZONE.values()) | {config.AURA_ENHANCED, 'overload-burst', 'poof', 'hit-spark', 'crit-hit'}
+    names |= set(config.AURA_BY_ZONE.values()) | {config.AURA_ENHANCED, 'overload-burst', 'puff', 'surge', 'haze-blast', 'quake-blast', 'death-burst', 'dust-land', 'shockwave'}
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'effects')
     for name in names:
         assert os.path.exists(os.path.join(root, name + '.png')), name
@@ -396,7 +397,7 @@ def test_overload_spawns_burst_and_high_zone_entry_spawns_rage():
     set_gauge(p, 45)
     game_world.world[game_world.LAYER_EFFECT].clear()
     p.gauge.add(10)                                                       # 노멀 -> 각성 진입
-    assert 'rage' in spawned_names()
+    assert 'surge' in spawned_names()
 
 
 def walled_room():
@@ -688,7 +689,7 @@ def test_waking_up_from_stun_spawns_puff_once():
         p.gauge.tick(DT)
         game_world.update(DT)
     assert not p.stunned
-    assert spawned_names().count('poof') == 1                              # 깨어나는 순간 연기 한 번
+    assert spawned_names().count('puff') == 1                              # 깨어나는 순간 연기 한 번
 
 
 def test_player_dies_when_hp_reaches_zero():
@@ -782,20 +783,6 @@ def test_walk_phase_advances_with_distance_and_resets_when_stopped():
     assert p.walk_phase == 0.0                                            # 멈추면 첫 프레임부터 다시
 
 
-def test_walk_frames_and_remade_enemy_sprites_are_in_place():
-    from PIL import Image
-    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
-    for prefix, (count, px, py) in config.PLAYER_FRAMES.items():
-        if any(k in prefix for k in ('swing', 'dash', 'plunge', 'death')):   # 자세마다 캔버스가 달라 따로 검사한다
-            continue
-        for i in range(1, count + 1):
-            im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
-            assert im.size[1] in (125, 127) and 0 < px < im.size[0] and 0 < py <= im.size[1], (prefix, i)
-    for name, height in (('enemy_slum', 119), ('enemy_thrower', 125), ('enemy_guard', 137), ('enemy_hound', 83),
-                         ('boss_crasher', 197), ('boss_ark', 161)):
-        assert Image.open(os.path.join(base, name + '_idle.png')).size[1] == height, name
-
-
 def test_body_frame_follows_state():
     room, p = make_world()
     assert p._body_frame()[0] == 'n09_idle' and p._body_frame()[1] >= 1           # 서 있으면 숨쉬기
@@ -827,16 +814,6 @@ def test_attack_shows_swing_pose_by_aim_direction():
         assert p._body_frame() == ('n09_swing_' + expected, 2)               # 타격
         run_frames(30)
         assert p._body_frame()[0] != 'n09_swing_' + expected                 # 끝나면 대기로 돌아간다
-
-
-def test_swing_frames_exist_for_every_direction():
-    from PIL import Image
-    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
-    for d in ('side', 'up', 'down', 'upfwd', 'downfwd'):
-        count, px, py = config.PLAYER_FRAMES['n09_swing_' + d]
-        for i in range(1, count + 1):
-            im = Image.open(os.path.join(base, f'n09_swing_{d}_{i}.png'))
-            assert py == im.size[1] - 1 and 0 < px < im.size[0], (d, i, im.size)
 
 
 def test_dash_death_and_plunge_poses():
@@ -886,15 +863,6 @@ def test_enemy_frames_follow_state():
     assert th._body_frame() == (None, 0)                                  # 걷지 않는 적은 대기 그림
 
 
-def test_enemy_frame_files_match_config():
-    from PIL import Image
-    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
-    for prefix, (count, px, py) in config.ENEMY_FRAMES.items():
-        for i in range(1, count + 1):
-            im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
-            assert 0 < py <= im.size[1] and 0 < px < im.size[0], (prefix, i, im.size)
-
-
 def test_boss_frames_follow_pattern():
     from boss import Boss
     room, p = make_world()
@@ -919,25 +887,6 @@ def test_boss_frames_follow_pattern():
     assert b._body_frame() == ('boss_crasher_hurt', 1)                    # 맞으면 움찔
 
 
-def test_boss_frame_files_exist():
-    from PIL import Image
-    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
-    for prefix in ('boss_crasher_idle', 'boss_crasher_smash', 'boss_crasher_charge', 'boss_crasher_leap', 'boss_crasher_hurt'):
-        count, px, py = config.ENEMY_FRAMES[prefix]
-        for i in range(1, count + 1):
-            im = Image.open(os.path.join(base, f'{prefix}_{i}.png'))
-            assert 0 < px < im.size[0] and 0 < py <= im.size[1], (prefix, i, im.size)
-
-
-def test_death_screen_waits_for_the_fall_animation():
-    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-    for name in ('screen_death.png', 'screen_ending.png'):
-        assert os.path.exists(os.path.join(root, 'assets', 'backgrounds', name)), name
-    assert config.DEATH_SCREEN_DELAY > config.DEATH_FRAME_TIMES[1]            # 엎어지는 프레임까지 보여 준 뒤 넘어간다
-    src = open(os.path.join(root, 'src', 'play_mode.py'), encoding='utf-8').read()
-    assert 'dead_time >= config.DEATH_SCREEN_DELAY' in src
-
-
 def test_hit_spawns_impact_rays_and_attack_leaves_smear():
     room, p = make_world()
     e = freeze(add_enemy('slum', p.x + 100, room, p))
@@ -952,15 +901,6 @@ def test_hit_spawns_impact_rays_and_attack_leaves_smear():
     run_frames(30)
     assert not any(isinstance(o, (effects.ImpactBurst, effects.BodyGhost)) for o in layer)   # 짧게 사라진다
 
-
-def test_icons_and_pedestal_images_exist():
-    import items
-    from PIL import Image
-    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'ui')
-    for item_id in list(items.ITEMS) + ['shard']:
-        assert Image.open(os.path.join(base, f'icon_{item_id}.png')).size == (48, 48), item_id
-    for kind in ('gold', 'shop', 'gone'):
-        assert Image.open(os.path.join(base, f'pedestal_{kind}.png')).size == (120, 150), kind
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

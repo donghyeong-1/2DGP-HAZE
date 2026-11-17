@@ -122,11 +122,11 @@ SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
 # leap: 위층의 플레이어를 쫓아 뛰어오르는 속도(0이면 못 뛴다)
 ENEMY_STATS = {
     'slum': dict(hp=60, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
-                 windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle.png',
+                 windup=0.45, attack_time=0.15, cooldown=1.1, gain_on_hit=0, sprite='enemy_slum_idle',
                  leap=1250.0,
                  frames=dict(walk='enemy_slum_walk', attack='enemy_slum_attack', hurt='enemy_slum_hurt')),
     'thrower': dict(hp=45, hb=(48, 108), speed=0.0, sight=900, sight_dy=130, attack_range=820, reach_dy=130, damage=10,
-                    windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle.png',
+                    windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle',
                     projectile_speed=620.0, leap=0.0,
                     frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
 }
@@ -148,7 +148,7 @@ BOSS_LAND_DAMAGE = 20
 # 보스 크래셔 (기획 3.2: 충격파 게이지 -20%, 돌진은 변화 없음). 같은 표에 두고 Boss 클래스가 패턴을 쓴다
 ENEMY_STATS['crasher'] = dict(
     hp=700, hb=(100, 180), speed=150.0, sight=2600, sight_dy=900, attack_range=190, reach_dy=260, damage=18,
-    windup=0.5, attack_time=0.2, cooldown=0.9, gain_on_hit=0, sprite='boss_crasher_idle.png', leap=0.0,
+    windup=0.5, attack_time=0.2, cooldown=0.9, gain_on_hit=0, sprite='boss_crasher_idle', leap=0.0,
     charge_speed=950.0, charge_time=0.55, charge_damage=24, wave_speed=520.0, wave_damage=12, wave_gauge=-15)
 LEAP_COOLDOWN = 1.4          # 뛰어오른 뒤 다음 도약까지(초)
 SPIKE_DAMAGE = 15            # 가시에 닿았을 때 피해 (게이지는 피격과 같이 -5)
@@ -199,18 +199,18 @@ DAMAGE_COLOR_ENHANCED = (130, 235, 225)
 # 게이지 구간별 공격 효과 (docs/기획서.md 5.12). 구간이 높을수록 궤적이 크고 화려하고, 화면 흔들림·멈춤·소리도 세진다.
 #   slash: 휘두르기 시트 / spark: 명중 효과 시트 / shake·stop: 화면 흔들림·타격 멈춤 배율 / sound: 휘두르기 소리 / damage_color: 데미지 숫자 색
 ZONE_FX = {
-    'FADE':     dict(slash='pipe-slash-fade', spark='poof', spark_time=0.3, shake=0.6, stop=0.7, sound='swing_fade',
+    'FADE':     dict(slash='pipe-slash-fade', spark='hit-fade', spark_time=0.22, shake=0.6, stop=0.7, sound='swing_fade',
                      damage_color=(185, 140, 165)),
-    'NORMAL':   dict(slash='pipe-slash', spark='hit-spark', spark_time=0.22, shake=1.0, stop=1.0, sound='swing',
+    'NORMAL':   dict(slash='pipe-slash', spark='hit-normal', spark_time=0.24, shake=1.0, stop=1.0, sound='swing',
                      damage_color=(255, 238, 150)),
-    'AWAKE':    dict(slash='pipe-slash-awake', spark='crit-hit', spark_time=0.28, shake=1.3, stop=1.2, sound='swing_awake',
+    'AWAKE':    dict(slash='pipe-slash-awake', spark='hit-awake', spark_time=0.28, shake=1.3, stop=1.2, sound='swing_awake',
                      damage_color=(160, 255, 210)),
-    'CRITICAL': dict(slash='pipe-slash-critical', spark='crit-hit', spark_time=0.32, shake=1.7, stop=1.5, sound='swing_critical',
+    'CRITICAL': dict(slash='pipe-slash-critical', spark='hit-critical', spark_time=0.32, shake=1.7, stop=1.5, sound='swing_critical',
                      damage_color=(255, 150, 90)),
 }
 ZONE_FX['OVERLOAD'] = ZONE_FX['CRITICAL']
 ZONE_FX['DEAD'] = ZONE_FX['FADE']
-ENHANCED_FX = dict(slash='pipe-slash-enhanced', spark='crit-hit', spark_time=0.34, shake=1.9, stop=1.6, sound='swing_enhanced',
+ENHANCED_FX = dict(slash='pipe-slash-enhanced', spark='hit-enhanced', spark_time=0.34, shake=1.9, stop=1.6, sound='swing_enhanced',
                    damage_color=(230, 190, 255))
 # 충격 방사선 개수 (맞은 자리에서 퍼지는 선): 구간이 높을수록, 강화는 가장 많다. 추가 타격은 작게
 IMPACT_RAYS = {'FADE': 4, 'NORMAL': 6, 'AWAKE': 8, 'CRITICAL': 10, 'OVERLOAD': 10, 'DEAD': 0, 'enhanced': 12}

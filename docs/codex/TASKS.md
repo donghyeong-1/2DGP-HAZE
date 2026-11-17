@@ -32,10 +32,10 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T10 | 보스 크래셔 애니메이션 (대기·찍기·돌진·도약·피격) | [T10_boss_crasher_anims.md](tasks/T10_boss_crasher_anims.md) | T03 | done·게임 적용 2026-11-16 |
 | T11 | 사망·엔딩 화면 일러스트 2장 | [T11_end_screens.md](tasks/T11_end_screens.md) | - | done·게임 적용 2026-11-16 |
 | T12 | 간수·사냥개·아크 애니메이션 | [T12_guard_hound_ark_anims.md](tasks/T12_guard_hound_ark_anims.md) | 사용자 결정 | blocked |
-| T13 | 아이템 아이콘 10종 (48×48) | [T13_item_icons.md](tasks/T13_item_icons.md) | - | **ready** |
-| T14 | 진열대·문·상호작용 소품 6종 | [T14_props_pedestal_door.md](tasks/T14_props_pedestal_door.md) | - | ready |
-| T15 | 철파이프 굵게 재작업 (T07 개선, 5방향) | [T15_pipe_thicker.md](tasks/T15_pipe_thicker.md) | T07 | ready |
-| T16 | 제목 화면 일러스트 | [T16_title_screen.md](tasks/T16_title_screen.md) | - | ready |
+| T13 | 아이템 아이콘 10종 (48×48) | [T13_item_icons.md](tasks/T13_item_icons.md) | - | review |
+| T14 | 진열대·문·상호작용 소품 6종 | [T14_props_pedestal_door.md](tasks/T14_props_pedestal_door.md) | - | review |
+| T15 | 철파이프 굵게 재작업 (T07 개선, 5방향) | [T15_pipe_thicker.md](tasks/T15_pipe_thicker.md) | T07 | review |
+| T16 | 제목 화면 일러스트 | [T16_title_screen.md](tasks/T16_title_screen.md) | - | review |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.

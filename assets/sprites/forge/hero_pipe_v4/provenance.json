@@ -1,0 +1,52 @@
+{
+  "side": {
+    "route": "host_image",
+    "model": null,
+    "sha256": "73c442fb84da1fa020ddd6dd527372e0cf862cf412e09fbf7358f3abac0a3aa7",
+    "size": [
+      2172,
+      724
+    ],
+    "original_attempts": 1
+  },
+  "up": {
+    "route": "host_image",
+    "model": null,
+    "sha256": "5b4414532dd4ccbcea5b2f23daf619059f07ba23ba18dd1b0b1dce9c1f8d94bd",
+    "size": [
+      2172,
+      724
+    ],
+    "original_attempts": 1
+  },
+  "down": {
+    "route": "host_image",
+    "model": null,
+    "sha256": "c73b20c31c13333c6c020373fa0959e12bcd871c2d4d5885b0ab9c2333da051f",
+    "size": [
+      2172,
+      724
+    ],
+    "original_attempts": 1
+  },
+  "upfwd": {
+    "route": "host_image",
+    "model": null,
+    "sha256": "59ebfd61fdd718c80267c515ca16ffcbaa3b154c6661a88e00ceecdde7730af9",
+    "size": [
+      2172,
+      724
+    ],
+    "original_attempts": 1
+  },
+  "downfwd": {
+    "route": "host_image",
+    "model": null,
+    "sha256": "0a98b7b8d841482b99ec1751923c7000e0e1cb928513df659c10812df54e5dd7",
+    "size": [
+      2172,
+      724
+    ],
+    "original_attempts": 1
+  }
+}

@@ -12,6 +12,7 @@ import camera
 import config
 import effects
 import room as room_module
+import sprites
 from body import EPS, TileBody
 from haze_gauge import DEAD, HazeGauge
 from weapon import Pipe
@@ -131,6 +132,8 @@ class Dash(_State):
         p.dash_window = config.DASH_ATTACK_WINDOW
         p.dash_origin = p.center
         p.dash_strike_queued = False
+        if p.on_ground:
+            effects.spawn('dust-land', p.x, p.y, duration=0.3)          # 땅에서 출발하면 먼지가 인다
 
     def do(self, dt):
         p = self.p
@@ -214,7 +217,7 @@ class Player(TileBody):
         self.dash_left = 0.0
         self.invuln_left = 0.0
 
-        self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명]
+        self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
         self.afterimage_timer = 0.0
 
         self.drop_timer = 0.0
@@ -343,6 +346,7 @@ class Player(TileBody):
         """땅에 닿았을 때: 충분히 높은 곳에서 떨어졌으면 착지 소리를 낸다."""
         if self.air_time > 0.25:
             assets.play_sound('land')
+            effects.spawn('dust-land', self.x, self.y, duration=0.3)     # 착지 먼지
         self.air_time = 0.0
 
     def request_enhance(self):
@@ -352,7 +356,7 @@ class Player(TileBody):
         if not self.gauge.use_enhance():
             return False
         assets.play_sound('enhance')
-        effects.spawn('rage', self.x, self.y + config.PLAYER_HB_H + 10, duration=0.6)
+        effects.spawn('surge', self.x, self.y, duration=0.5)       # 발밑에서 기운이 솟는다
         effects.add_trauma(0.25)
         return True
 
@@ -413,7 +417,7 @@ class Player(TileBody):
             if self.hp <= 0 and self.state != 'DEAD':
                 self.die()
         elif name in ('zone:AWAKE', 'zone:CRITICAL'):
-            effects.spawn('rage', self.x, self.y + config.PLAYER_HB_H + 10, duration=0.5)   # 높은 구간에 들어서는 순간 표시
+            effects.spawn('surge', self.x, self.y, duration=0.45)      # 높은 구간에 들어서는 순간 발밑에서 기운이 솟는다
             effects.add_trauma(0.15)
 
     # ----- 갱신 -----
@@ -428,7 +432,7 @@ class Player(TileBody):
         else:
             self.walk_phase = 0.0
         if self._was_stunned and not self.stunned and self.state != 'DEAD':   # 기절에서 깨어나는 순간
-            effects.spawn('poof', self.x, self.y + 10, duration=0.5)
+            effects.spawn('puff', self.x, self.y + 40, duration=0.45)
             effects.add_trauma(0.2)
             assets.play_sound('stun_end')
         self._was_stunned = self.stunned
@@ -484,7 +488,7 @@ class Player(TileBody):
         self.afterimage_timer -= dt
         if self.afterimage_timer <= 0:
             self.afterimage_timer += config.AFTERIMAGE_INTERVAL
-            self.afterimages.append([self.x, self.y, self.face_dir, config.AFTERIMAGE_LIFE])
+            self.afterimages.append([self.x, self.y, self.face_dir, config.AFTERIMAGE_LIFE, self._body_frame()])
 
     def _recharge_dash(self, dt):
         if self.dash_slots >= self.dash_max:
@@ -538,49 +542,30 @@ class Player(TileBody):
                 return 'n09_jump', 2
             return ('n09_jump', 3) if self.vy > -config.JUMP_RISE_VY else ('n09_jump', 4)
         if self.state == 'RUN' and self.on_ground:
-            return 'n09_walk', int(self.walk_phase) % config.PLAYER_FRAMES['n09_walk'][0] + 1
+            return 'n09_walk', int(self.walk_phase) % sprites.count('n09_walk') + 1
         if self.state == 'IDLE':
-            return 'n09_idle', int(self.aura_time / config.IDLE_FRAME_TIME) % config.PLAYER_FRAMES['n09_idle'][0] + 1
+            return 'n09_idle', int(self.aura_time / config.IDLE_FRAME_TIME) % sprites.count('n09_idle') + 1
         return 'n09_idle', 0
 
-    def _body_image(self):
-        """(이미지, 가로 보정 dx, 발 아래 여백 margin). 프레임마다 캔버스와 발 기준점이 달라 그릴 때 기준점을 발 위치에 맞춘다."""
-        import assets
-        prefix, n = self._body_frame()
-        if n == 0:
-            return assets.image('sprites/unified/n09_idle.png'), 0, config.SPRITE_FOOT_MARGIN
-        img = assets.image(f'sprites/unified/{prefix}_{n}.png')
-        _, px, py = config.PLAYER_FRAMES[prefix]
-        if self.face_dir < 0:          # 좌우 반전하면 발 기준점도 반대편으로 옮겨진다
-            dx = img.w // 2 - (img.w - 1 - px)
-        else:
-            dx = img.w // 2 - px
-        return img, dx, img.h - py
-
     def draw(self):
-        import assets
-        img, dx, foot = self._body_image()
         steps = config.AFTERIMAGE_ALPHA_STEPS
-        for gx, gy, gdir, left in self.afterimages:  # 오래된 것부터 그려 새 잔상이 위에 온다
+        for gx, gy, gdir, left, (name, n) in self.afterimages:  # 오래된 것부터 그려 새 잔상이 위에 온다
             age = 1.0 - left / config.AFTERIMAGE_LIFE
             alpha = steps[min(int(age * len(steps)), len(steps) - 1)]
-            assets.draw_image_tinted(img, gx, gy - foot, 'h' if gdir < 0 else '',
-                                     config.AFTERIMAGE_COLOR, alpha)
-        blink = self.invuln_left > 0 and self.state != 'DASH' and int(self.invuln_left * 20) % 2 == 0  # 피격 무적 중 깜빡임
+            sprites.draw(name, n, gx, gy, gdir, config.AFTERIMAGE_COLOR, alpha)
         stunned = self.stunned and self.state != 'DEAD'
         if self.state != 'DEAD':   # 게이지 구간·강화·기절에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
             for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned):
                 effects.draw_loop(name, self.x, self.y, self.aura_time)
-        if not blink:
-            flip = 'h' if self.face_dir < 0 else ''
+        blink = self.invuln_left > 0 and self.state not in ('DASH', 'DEAD') and int(self.invuln_left * 20) % 2 == 0
+        if not blink:                                   # 피격 무적 중에는 깜빡인다
+            name, n = self._body_frame()
+            x, tint = self.x, None
             if stunned:                                 # 기절: 몸이 덜덜 떨리고 노랗게 번쩍인다
-                jx = int(round(3 * math.sin(self.aura_time * 95)))
+                x += int(round(3 * math.sin(self.aura_time * 95)))
                 if int(self.aura_time * 18) % 2 == 0:
-                    assets.draw_image_tinted(img, self.x + jx + dx, self.y - foot, flip, (255, 240, 140), 1.0)
-                else:
-                    assets.draw_image(img, self.x + jx + dx, self.y - foot, flip)
-            else:
-                assets.draw_image(img, self.x + dx, self.y - foot, flip)
+                    tint = (255, 240, 140)
+            sprites.draw(name, n, x, self.y, self.face_dir, tint)
         if config.DEBUG:
             self._draw_debug()
 

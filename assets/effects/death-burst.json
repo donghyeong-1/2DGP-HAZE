@@ -1,0 +1,17 @@
+{
+ "id": "fx/death-burst",
+ "frames": 8,
+ "frameSize": [
+  110,
+  110
+ ],
+ "columns": 8,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  55,
+  55
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

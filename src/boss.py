@@ -96,7 +96,7 @@ class Boss(Enemy):
         elif self.pattern == 'slam':
             assets.play_sound('overload')
             effects.add_trauma(0.7)
-            effects.spawn('plasma-explosion', self.x, self.y + 20, duration=0.5)
+            effects.spawn('quake-blast', self.x, self.y, duration=0.5)
             for d in (-1, 1):                  # 좌우로 바닥 충격파
                 game_world.add_object(
                     projectile.Shockwave(self.x + d * 70, self.y, d, s['wave_speed'], s['wave_damage'], s['wave_gauge'],
@@ -128,7 +128,7 @@ class Boss(Enemy):
         self.leaping = False
         assets.play_sound('overload')
         effects.add_trauma(0.8)
-        effects.spawn('plasma-explosion', self.x, self.y + 20, duration=0.5)
+        effects.spawn('quake-blast', self.x, self.y, duration=0.5)
         for d in (-1, 1):
             game_world.add_object(
                 projectile.Shockwave(self.x + d * 70, self.y, d, s['wave_speed'], s['wave_damage'], s['wave_gauge'],
@@ -192,7 +192,7 @@ class Boss(Enemy):
             self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1)
             effects.add_trauma(1.0)
             for dx, dy in ((0, 40), (-50, 100), (50, 150)):
-                effects.spawn('plasma-explosion', self.x + dx, self.y + dy, duration=0.6)
+                effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.6)
             game_world.remove_object(self)
             return True
         assets.play_sound('enemy_hit')

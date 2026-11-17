@@ -1,0 +1,160 @@
+{
+  "size": [
+    1920,
+    1080
+  ],
+  "colors": 32,
+  "non_opaque": 0,
+  "source_character_approx_box": [
+    258,
+    533,
+    340,
+    788
+  ],
+  "source_character_height_pct": 27.1,
+  "logo": {
+    "source": "assets/ui/logo.png",
+    "size": [
+      480,
+      144
+    ],
+    "left_top": [
+      720,
+      336
+    ],
+    "visible_box": [
+      724,
+      347,
+      1200,
+      477
+    ],
+    "highlight_min_contrast": 4.89,
+    "highlight_median_contrast": 6.47
+  },
+  "text_lines": [
+    {
+      "text": "안개를 삼키고 탈출하라",
+      "font_px": 28,
+      "visible_box": [
+        811,
+        520,
+        1111,
+        547
+      ],
+      "foreground": [
+        110,
+        190,
+        230
+      ],
+      "min_contrast": 7.55
+    },
+    {
+      "text": "아무 키나 누르세요",
+      "font_px": 28,
+      "visible_box": [
+        839,
+        735,
+        1082,
+        762
+      ],
+      "foreground": [
+        150,
+        160,
+        185
+      ],
+      "min_contrast": 4.6
+    },
+    {
+      "text": "A D 이동  Space 점프  마우스 조준·좌클릭 공격  Shift 대시  E 강화  F 상호작용",
+      "font_px": 22,
+      "visible_box": [
+        541,
+        798,
+        1378,
+        823
+      ],
+      "foreground": [
+        110,
+        125,
+        150
+      ],
+      "min_contrast": 2.25
+    }
+  ],
+  "art_sources": [
+    {
+      "attempt": 1,
+      "route": "host_image",
+      "model": null,
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "a85e77a206c6193407e246fab67f6fb6b8005e932393474c72f5e7fbda488d42"
+    },
+    {
+      "attempt": 2,
+      "route": "host_image",
+      "model": null,
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "d318065c401e6669aef2b455c9950ea0c4936233e0588a5cf1b913617e5d56c4"
+    },
+    {
+      "attempt": 3,
+      "route": "host_image",
+      "model": null,
+      "size": [
+        1672,
+        941
+      ],
+      "sha256": "467100d8e4691cc664c468048f8c8ba4093edbafa6065a484a67ba96b7deabe9"
+    }
+  ],
+  "forge_checks": [
+    {
+      "id": "size",
+      "status": "pass",
+      "value": [
+        1920,
+        1080
+      ],
+      "threshold": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "id": "opaque",
+      "status": "pass",
+      "value": 0,
+      "threshold": 0
+    },
+    {
+      "id": "colours",
+      "status": "pass",
+      "value": 32,
+      "threshold": 32
+    },
+    {
+      "id": "lone-pixels",
+      "status": "info",
+      "value": 0.00358,
+      "threshold": null,
+      "note": "share of plate pixels with no 4-neighbour of their colour (kept features: lights, stars, eyes)"
+    },
+    {
+      "id": "reduction",
+      "status": "warn",
+      "value": 1.0,
+      "threshold": 2.0,
+      "note": "painting px per plate px; under 2x the majority has little to vote"
+    }
+  ],
+  "requested_upper_reserve_luminance": [
+    0.011438034817140022,
+    0.037293632885467595
+  ]
+}

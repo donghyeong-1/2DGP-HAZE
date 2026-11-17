@@ -1,0 +1,226 @@
+{
+  "cap": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 11,
+    "bounds": [
+      12,
+      4,
+      34,
+      44
+    ],
+    "accent": "#5ad2f0",
+    "accent_pixels": 144,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_cap.png                                 (48, 48)   22x40         0 11\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "absorb": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 10,
+    "bounds": [
+      5,
+      3,
+      44,
+      39
+    ],
+    "accent": "#82ebe1",
+    "accent_pixels": 105,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_absorb.png                              (48, 48)   39x36         0 10\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "steady": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 10,
+    "bounds": [
+      9,
+      4,
+      39,
+      43
+    ],
+    "accent": "#6e96dc",
+    "accent_pixels": 167,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_steady.png                              (48, 48)   30x39         0 10\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "enhance": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 9,
+    "bounds": [
+      3,
+      3,
+      39,
+      42
+    ],
+    "accent": "#f0963c",
+    "accent_pixels": 305,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_enhance.png                             (48, 48)   36x39         0 9\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "resist": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 7,
+    "bounds": [
+      7,
+      6,
+      41,
+      45
+    ],
+    "accent": "#fadc5a",
+    "accent_pixels": 315,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_resist.png                              (48, 48)   34x39         0 7\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "dash": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 11,
+    "bounds": [
+      6,
+      3,
+      44,
+      41
+    ],
+    "accent": "#aac8ff",
+    "accent_pixels": 133,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_dash.png                                (48, 48)   38x38         0 11\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "power": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 9,
+    "bounds": [
+      6,
+      2,
+      45,
+      40
+    ],
+    "accent": "#ff7878",
+    "accent_pixels": 68,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_power.png                               (48, 48)   39x38         0 9\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "vigor": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 11,
+    "bounds": [
+      5,
+      2,
+      44,
+      41
+    ],
+    "accent": "#ff96aa",
+    "accent_pixels": 102,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_vigor.png                               (48, 48)   39x39         0 11\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "heal": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 11,
+    "bounds": [
+      10,
+      2,
+      38,
+      42
+    ],
+    "accent": "#78eb96",
+    "accent_pixels": 128,
+    "finish_warnings": [],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_heal.png                                (48, 48)   28x40         0 11\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  },
+  "shard": {
+    "size": [
+      48,
+      48
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "colors": 6,
+    "bounds": [
+      8,
+      2,
+      40,
+      39
+    ],
+    "accent": "#5fd6e8",
+    "accent_pixels": 301,
+    "finish_warnings": [
+      {
+        "id": "canvas-fit",
+        "status": "warn",
+        "value": {
+          "targetHeight": 39.0,
+          "fittedHeight": 37.771
+        },
+        "threshold": [
+          48,
+          48
+        ],
+        "note": "the clip did not fit the canvas at the target; it was finished smaller"
+      }
+    ],
+    "check_sprites": "파일                                           캔버스        내용 WxH     반투명 색\nicon_shard.png                               (48, 48)   32x37         0 6\n목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)\n\n통과\n"
+  }
+}

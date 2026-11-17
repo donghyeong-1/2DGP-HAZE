@@ -3,6 +3,7 @@
 마지막 갱신: 2026-11-15 [Claude Code]
 
 ## 진행 중
+- [Claude Code] 전체 품질 업그레이드(v2): 코드 구조 정리, 자체 제작 이펙트, 타일·배경·HUD 재제작, 전투 감각, 음악, 문서 재정리 / src/*, tools/*, assets/(tiles, backgrounds, effects, ui, sfx, music), tests/*, docs/* (assets/sprites/forge와 docs/codex는 건드리지 않음)
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 1차 발표 (2026-11-04, 지남)
@@ -29,7 +30,7 @@
 ## 다음 할 일 (우선순위 순)
 1. [ ] **(사용자) 2차 발표 제출 (발표 당일 0시 1분까지)**: `python src/main.py`로 데모 녹화(순서는 `docs/script_2nd.md`) → 소리·글자 확인 → YouTube 업로드 → e-class에 영상 링크와 GitHub 링크 제출. PPT는 `docs/presentation_2nd.pptx`
 2. [ ] **(사용자) 직접 플레이 점검**: 공격 사거리, 적 속도·체력, 피격 무적, 대시 잔상, 점프 느낌. 불편한 수치는 `src/config.py`만 고친다 (기획서 5.10의 `[ ]`)
-3. [ ] **(사용자)** Codex 작업: T06·T09·T10·T11 제작본 검토(`review`). T12는 구현할 적에 대한 사용자 결정 대기 (`docs/codex/TASKS.md`의 한 줄 명령)
+3. [ ] **(사용자)** Codex 작업: T06·T13 제작본 검토(`review`), 다음 제작 T14. T12는 구현할 적에 대한 사용자 결정 대기 (`docs/codex/TASKS.md`의 한 줄 명령)
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건 확인 후 `docs/ASSETS.md`의 "이미지 생성 모델" 줄 채우기. BGM 후보 선택(다운로드는 허락 필요)
 5. [x] 2주차 Claude 작업(조준 공격, 적 2종, 게이지 연결, 충돌 박스) + 3주차 앞당김(방 잠금·전환, 미니맵, 고농도 방, E 강화, 조각) (11/15)
 6. [ ] (3주차 11/19~) 정비방과 업그레이드(조각 사용), 무기 식칼·건틀릿·사슬, 적 사냥개·간수, 스테이지 2·3, 보스 크래셔·아크, 걷기 프레임이 오면 애니메이션 연결, 가변 점프 높이·접근성 옵션
@@ -117,3 +118,5 @@
 2026-11-16 [Claude Code] Codex T11 검토·적용(사망·엔딩 화면 일러스트, 사망 후 1.3초 뒤 화면 전환), 테스트 추가 / src/(ending_mode, play_mode, config), assets/backgrounds/screen_*, tests/test_combat.py, docs/*
 2026-11-17 [Claude Code] 설치된 스킬·도구 현황을 docs/SKILLS.md로 정리(Claude·Codex 각 14개, 게임 개발 지침 8종, 개발 도구 버전, 새 컴퓨터 설치법), SETUP·ai_commands·ASSETS·AGENTS의 어긋난 설명 수정 / docs/SKILLS.md, docs/SETUP.md, docs/ai_commands.md, docs/ASSETS.md, AGENTS.md
 2026-11-17 [Claude Code] 타격 이펙트(충격 방사선·스미어 잔상), 아이템 아이콘 10종·진열대 3종 코드 그림(tools/make_icons.py)과 HUD·진열대 적용, Codex 큐 T13~T16 작성, 2차 발표 PPT·대본 갱신(데모 화면 demo_combat_v2), 테스트 추가 / src/(effects, weapon, pedestal, ui, config), tools/make_icons.py, assets/ui/*, tests/test_combat.py, docs/*
+
+2026-11-17 [Codex] T13 아이템 아이콘 10종 제작 및 48×48·알파·팔레트 검사, 검토 대기 / assets/sprites/forge/icons_v1/, docs/codex/reports/T13.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md

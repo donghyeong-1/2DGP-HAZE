@@ -170,9 +170,7 @@ class Pipe:
         cx, cy = p.center
         fx = self._fx(enhanced)                          # 게이지 구간(또는 강화)에 따라 모양·색·반응이 다르다
         p.start_swing(ax, ay)                            # 철파이프를 든 공격 자세
-        prefix = 'n09_swing_' + p.swing_dir
-        effects.spawn_smear(f'sprites/unified/{prefix}_2.png', config.PLAYER_FRAMES[prefix][1:], p.x, p.y - config.SPRITE_FOOT_MARGIN * 0,
-                            p.face_dir, (ax, ay), enhanced)              # 휘두르는 몸의 잔상(스미어)
+        effects.spawn_smear(('n09_swing_' + p.swing_dir, 2), p.x, p.y, p.face_dir, (ax, ay), enhanced)   # 휘두르는 몸의 잔상
         assets.play_sound(fx['sound'])
         variant, flip = effects.slash_variant(ax, ay)
         if enhanced:
@@ -201,7 +199,7 @@ class Pipe:
         """강화된 공격에 맞은 적 주위로 안개 폭발이 퍼져 주변 적에게 피해를 준다 (벽 너머에는 닿지 않는다)."""
         p = self.owner
         bx, by = hit.center
-        effects.spawn('plasma-explosion', bx, by, duration=0.5)
+        effects.spawn('haze-blast', bx, by, duration=0.45)
         effects.add_trauma(config.SHAKE_FINISHER)
         for other in list(game_world.world[game_world.LAYER_ENEMY]):
             if other.alive and other is not hit:

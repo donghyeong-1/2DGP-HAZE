@@ -10,6 +10,7 @@ import os
 import assets
 import config
 import game_world
+import sprites
 
 _meta = {}
 flash_left = 0.0     # 화면 전체 섬광이 남은 시간 (오버로드 순간)
@@ -216,10 +217,10 @@ class ImpactBurst:
 
 
 class BodyGhost:
-    """공격 순간 몸의 잔상 (스미어). 타격 자세를 뒤쪽에 옅게 겹쳐 그려 휘두르는 속도감을 준다. 이미지는 그릴 때 불러온다."""
+    """공격 순간 몸의 잔상 (스미어). 타격 자세를 뒤쪽에 옅게 겹쳐 그려 휘두르는 속도감을 준다."""
 
-    def __init__(self, path, pivot, x, y, face_dir, color, alpha, life=0.13, delay=0.0):
-        self.path, self.pivot = path, pivot
+    def __init__(self, frame, x, y, face_dir, color, alpha, life=0.13, delay=0.0):
+        self.frame = frame                      # (그림 세트, 번호)
         self.x, self.y, self.face_dir = x, y, face_dir
         self.color, self.alpha = color, alpha
         self.life, self.time, self.delay = life, 0.0, delay
@@ -232,12 +233,8 @@ class BodyGhost:
     def draw(self):
         if self.time < self.delay:
             return
-        img = assets.image(self.path)
-        px, py = self.pivot
-        dx = img.w // 2 - ((img.w - 1 - px) if self.face_dir < 0 else px)
         fade = 1.0 - (self.time - self.delay) / self.life
-        assets.draw_image_tinted(img, self.x + dx, self.y - (img.h - py), 'h' if self.face_dir < 0 else '', self.color,
-                                 max(0.0, self.alpha * fade))
+        sprites.draw(*self.frame, self.x, self.y, self.face_dir, self.color, max(0.0, self.alpha * fade))
 
 
 def spawn_impact(x, y, dir_x, dir_y, count, color, big=False):
@@ -248,14 +245,13 @@ def spawn_impact(x, y, dir_x, dir_y, count, color, big=False):
     game_world.add_object(ImpactBurst(x, y, angle, count, color, big), game_world.LAYER_EFFECT)
 
 
-def spawn_smear(path, pivot, x, y, face_dir, aim, enhanced=False):
-    """공격 자세의 잔상 두 장을 조준 반대쪽 뒤에 남긴다."""
+def spawn_smear(frame, x, y, face_dir, aim, enhanced=False):
+    """공격 자세(frame = (그림 세트, 번호))의 잔상 두 장을 조준 반대쪽 뒤에 남긴다."""
     color = (190, 150, 255) if enhanced else (170, 225, 255)
     ax, ay = aim
     for k, alpha in ((1, 0.5), (2, 0.28)):
-        game_world.add_object(
-            BodyGhost(path, pivot, x - ax * 16 * k, y - ay * 10 * k, face_dir, color, alpha, delay=0.02 * k),
-            game_world.LAYER_EFFECT)
+        game_world.add_object(BodyGhost(frame, x - ax * 16 * k, y - ay * 10 * k, face_dir, color, alpha, delay=0.02 * k),
+                              game_world.LAYER_EFFECT)
 
 
 def spawn(name, x, y, flip=False, duration=0.35, variant=0):

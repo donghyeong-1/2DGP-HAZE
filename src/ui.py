@@ -296,7 +296,7 @@ class GameUI:
         y = config.SCREEN_H - 290   # 위쪽 게이지와 안내 문구 아래 (아래쪽은 싸움이 벌어지는 바닥이라 가린다)
         _frame(x, y, w, 26, 'px_gray', border='px_black', thickness=5)
         _rect('px_red', x, y, w * max(0.0, boss.hp) / boss.max_hp, 26)
-        assets.draw_text(config.SCREEN_W // 2, y + 56, '크래셔', (255, 150, 150), center=True)
+        assets.draw_text(config.SCREEN_W // 2, y + 56, getattr(boss, 'title', '보스'), (255, 150, 150), center=True)
 
     def _draw_message(self):
         import play_mode

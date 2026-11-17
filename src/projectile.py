@@ -241,3 +241,131 @@ class SteamVent:
         for i, (w, a) in enumerate(((self.W, 0.22), (self.W - 24, 0.3), (self.W - 48, 0.4))):
             sway = int(4 * ((self.time * 9 + i) % 2 > 1)) - 2   # 증기가 좌우로 흔들린다 (정수 좌표)
             assets.draw_rect_color(x - w // 2 + sway, y, w, h, (110, 235, 230), a * (0.4 + 0.6 * k))
+
+
+# ----- 최종 보스 아크의 패턴 (src/ark.py). 그림은 모두 코드로 그린 정수 좌표 사각형 -----
+def _gauge_delta(net):
+    """'맞았을 때 최종 게이지 변화'(net)를 take_hit의 gauge_delta로: 피격 기본 손실(LOSS_DAMAGED)을 빼 준다."""
+    return net - config.LOSS_DAMAGED
+
+
+class HazeBullet:
+    """헤이즈 탄막의 탄환 한 발. 맞으면 게이지가 오른다(최종 +5%). 벽에 닿으면 사라진다."""
+    R = 7                # 판정 반지름(px)
+
+    def __init__(self, x, y, dx, dy, room, player):
+        n = max((dx * dx + dy * dy) ** 0.5, 1e-6)
+        self.x, self.y = x, y
+        self.vx, self.vy = dx / n * config.ARK_BULLET_SPEED, dy / n * config.ARK_BULLET_SPEED
+        self.room, self.player = room, player
+        self.life = 2.5
+        self.time = 0.0
+
+    def rect(self):
+        return (self.x - self.R, self.y - self.R, self.x + self.R, self.y + self.R)
+
+    def update(self, dt):
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+        self.life -= dt
+        self.time += dt
+        if self.life <= 0 or self.room.tile_at_world(self.x, self.y) == room_module.SOLID:
+            game_world.remove_object(self)
+            return
+        p = self.player
+        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+            p.take_hit(config.ARK_BULLET_DAMAGE, gauge_delta=_gauge_delta(config.ARK_BULLET_NET))
+            game_world.remove_object(self)
+
+    def draw(self):
+        x, y = int(self.x), int(self.y)
+        pulse = 2 if int(self.time * 12) % 2 else 0
+        assets.draw_rect_color(x - 9 - pulse, y - 9 - pulse, 18 + pulse * 2, 18 + pulse * 2, (60, 200, 190), 0.35)   # 번짐
+        assets.draw_rect_color(x - 6, y - 6, 12, 12, (150, 250, 235), 0.9)
+        assets.draw_rect_color(x - 2, y - 2, 4, 4, (255, 255, 255))                                         # 심
+
+
+WAVE_COLORS = {'absorb': ((120, 80, 210), (200, 170, 255)),       # 흡수: 어두운 보라 (게이지를 빨아들인다)
+               'overcharge': ((90, 235, 220), (255, 250, 200))}   # 과충전: 밝은 청록·흰빛 (게이지를 밀어 넣는다)
+
+
+class GaugeWave:
+    """아크의 게이지 파동. 바닥을 따라 움직이는 낮은 벽이라 점프·대시로 피한다.
+    absorb(흡수)는 맞으면 최종 -25%, overcharge(과충전)는 +25%. stop_x에 닿으면(흡수는 아크 자리) 사라진다."""
+
+    def __init__(self, x, y, direction, speed, kind, room, player, stop_x=None, life=3.0):
+        self.x, self.y = x, y              # y는 바닥 윗면
+        self.dir = direction
+        self.speed = speed
+        self.kind = kind
+        self.room, self.player = room, player
+        self.stop_x = stop_x
+        self.life = life
+        self.time = 0.0
+
+    def rect(self):
+        return (self.x - 26, self.y, self.x + 26, self.y + config.ARK_WAVE_H)
+
+    def update(self, dt):
+        self.x += self.dir * self.speed * dt
+        self.life -= dt
+        self.time += dt
+        reached = self.stop_x is not None and (self.x - self.stop_x) * self.dir >= 0
+        if self.life <= 0 or reached or self.room.tile_at_world(self.x + self.dir * 26, self.y + 20) == room_module.SOLID:
+            game_world.remove_object(self)
+            return
+        p = self.player
+        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+            net = config.ARK_ABSORB_NET if self.kind == 'absorb' else config.ARK_OVERCHARGE_NET
+            p.take_hit(config.ARK_WAVE_DAMAGE, gauge_delta=_gauge_delta(net))
+            game_world.remove_object(self)
+
+    def draw(self):
+        dark, light = WAVE_COLORS[self.kind]
+        x, y, h = int(self.x), int(self.y), config.ARK_WAVE_H
+        flicker = int(self.time * 16) % 2
+        assets.draw_rect_color(x - 26, y, 52, h, dark, 0.35)
+        assets.draw_rect_color(x - 14 + flicker * 2, y, 28, h - 10, light, 0.55)
+        assets.draw_rect_color(x - 4, y, 8, h - 4, (255, 255, 255), 0.7)
+        for i in range(3):                                   # 나아가는 쪽을 가리키는 꺾쇠 (흡수는 안쪽, 과충전은 바깥쪽)
+            cx = x + self.dir * (18 + i * 10)
+            cy = y + 20 + i * 18
+            assets.draw_rect_color(cx - 3, cy, 6, 6, light, 0.8)
+
+
+class PollutionField:
+    """아크의 오염 장판. 바닥에 깔리고, 위에 서 있으면 초당 +5% 게이지가 오른다(피해 없음). 시간이 지나면 걷힌다."""
+
+    def __init__(self, x, floor_y, width, duration, room, player):
+        self.x, self.floor_y = x, floor_y
+        self.w = width
+        self.left = self.total = duration
+        self.room, self.player = room, player
+        self.acc = 0.0                        # 1%씩 모아서 올린다 (게이지 변화 횟수를 줄인다)
+        self.time = 0.0
+
+    def contains(self, p):
+        return (abs(p.x - self.x) <= self.w / 2 and abs(p.y - self.floor_y) < 30 and p.on_ground)
+
+    def update(self, dt):
+        self.left -= dt
+        self.time += dt
+        if self.left <= 0:
+            game_world.remove_object(self)
+            return
+        p = self.player
+        if p.state != 'DEAD' and self.contains(p):
+            self.acc += config.ARK_FIELD_RATE * dt
+            while self.acc >= 1.0:
+                self.acc -= 1.0
+                p.gauge.add(1.0, 'field')
+
+    def draw(self):
+        fade = min(1.0, self.left / 0.5, self.time / 0.25)   # 깔릴 때와 걷힐 때 옅게
+        x0, y = int(self.x - self.w / 2), int(self.floor_y)
+        assets.draw_rect_color(x0, y, int(self.w), 16, (70, 210, 160), 0.38 * fade)
+        assets.draw_rect_color(x0, y, int(self.w), 4, (170, 255, 210), 0.7 * fade)
+        for i in range(int(self.w // 40)):                   # 거품이 올라온다
+            bx = x0 + 14 + i * 40 + (i * 13) % 17
+            rise = int((self.time * 40 + i * 23) % 46)
+            assets.draw_rect_color(bx, y + 8 + rise, 6, 6, (150, 255, 210), 0.6 * fade * (1 - rise / 46))

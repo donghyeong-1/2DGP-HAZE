@@ -146,7 +146,10 @@ class Stage:
         self.room.locked = self.enemy_count() > 0
 
     def _make_boss(self, kind, x, y):
-        """보스 종류별 객체. 아크(스테이지 3)는 그림(Codex T20)이 오면 구현한다. 그 전까지는 크래셔가 대신 선다(임시)."""
+        """보스 종류별 객체: 크래셔(스테이지 2), 아크(스테이지 3)."""
+        if kind == 'ark':
+            from ark import Ark
+            return Ark(x, y, self.room, self.player)
         return Boss(x, y, self.room, self.player)
 
     def theme_of(self, info):

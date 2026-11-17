@@ -44,6 +44,7 @@ SCENARIOS = {
     'guard': ([('guard', 700)], 40),
     'group': ([('slum', 650), ('hound', 900), ('thrower', 1300), ('slum', 1100)], 60),
     'boss': ([('boss', 900)], 90),
+    'ark': ([('ark', 900)], 120),
 }
 WEAPONS = ('pipe', 'knife', 'gauntlet')
 BOTS = ('stand', 'dodge')
@@ -72,6 +73,9 @@ def spawn(kind, x, room, player):
     if kind == 'boss':
         from boss import Boss
         e = Boss(x, FLOOR_Y, room, player)
+    elif kind == 'ark':
+        from ark import Ark
+        e = Ark(x, FLOOR_Y, room, player)
     else:
         e = Enemy(kind, x, FLOOR_Y, room, player)
     game_world.add_object(e, game_world.LAYER_ENEMY)
@@ -94,6 +98,15 @@ def bot_step(p, bot, weapon_id, state):
     dist = abs(e.x - p.x)
     ex, ey = e.center if hasattr(e, 'center') else (e.x, e.y + 60)
     p.mouse_x, p.mouse_y = ex, ey
+
+    # 바닥 파동(크래셔 충격파, 아크 흡수·과충전 파동)이 다가오면 점프로 넘는다 (예고를 읽는 플레이)
+    if bot == 'dodge' and p.on_ground:
+        for o in game_world.world[game_world.LAYER_EFFECT]:
+            if type(o).__name__ in ('Shockwave', 'GaugeWave') and abs(o.y - p.y) < 40:
+                ahead = (p.x - o.x) * o.dir                  # 파동이 나아가는 쪽으로 플레이어까지 남은 거리
+                if 0 < ahead < 130:
+                    p.request_jump()
+                    break
 
     # 피하기: 가까운 적이 예고 중이면 반대쪽으로 대시 (한 예고에 한 번)
     # (예고가 끝나기 0.22초 전에 반응: 사람의 반응 시간 정도)
@@ -151,7 +164,7 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None):
     for kind, d in foes:
         x = min(room.width - 2 * config.TILE, PLAYER_X + d + rng.randint(-60, 60))
         e = spawn(kind, x, room, p)
-        if kind == 'boss':
+        if kind in ('boss', 'ark'):
             e.rng = random.Random(seed)          # 보스 패턴 순서도 시드마다 다르게 (게임에서는 고정 Random(7))
 
     hp0 = p.hp

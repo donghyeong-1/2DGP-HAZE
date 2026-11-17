@@ -218,7 +218,32 @@ SPIKE_DAMAGE = 15            # 가시에 닿았을 때 피해 (게이지는 피�
 SPIKE_BOUNCE = 900.0         # 가시에 닿으면 위로 튕겨 나가는 속도(px/s)
 SPIKE_HEIGHT = 30            # 가시 타일에서 실제로 찌르는 높이(px, 타일 아래쪽)
 # 헤이즈 조각 (재화). 적을 처치하면 떨어뜨리고, 정비방 업그레이드에 쓴다 (정비방은 3주차)
-SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'crasher': 10}
+# 최종 보스 아크 (기획서 3.2, src/ark.py). 3페이즈, 게이지를 위아래로 크게 흔든다. 경직 없음
+ENEMY_STATS['ark'] = dict(
+    hp=1000, hb=(60, 150), speed=120.0, sight=2600, sight_dy=900, attack_range=170, reach_dy=260, damage=18,
+    windup=0.6, attack_time=0.3, cooldown=1.1, gain_on_hit=0, sprite='boss_ark_idle', leap=0.0, walk_px=34.0)
+# 게이지 수치는 '맞았을 때 최종 변화'(피격 기본 손실 LOSS_DAMAGED -5까지 합친 값). 코드는 gauge_delta = NET - LOSS_DAMAGED로 넘긴다
+ARK_BULLET_NET = 5            # 헤이즈 탄막: 탄환 1발당 +5%
+ARK_BULLET_DAMAGE = 6
+ARK_BULLET_SPEED = 560.0
+ARK_BULLET_COUNT = (5, 7, 9)  # 페이즈별 부채꼴 탄 수
+ARK_BULLET_SPREAD = 50.0      # 부채꼴 전체 각도(도)
+ARK_SLASH_NET = -10           # 순간이동 베기 (피해는 ENEMY_STATS['ark']['damage'])
+ARK_SLASH_RANGE = 190         # 베기 앞쪽 사거리(px)
+ARK_VANISH_TIME = 0.3         # 안개로 흩어지는 시간(초) 뒤 플레이어 옆에 나타난다
+ARK_APPEAR_TIME = 0.45        # 나타난 뒤 베기 예고(초). 앞쪽 절반은 웅크린 '나타남' 자세, 뒤쪽은 손날을 당긴 자세
+ARK_TELEPORT_GAP = 150        # 플레이어 뒤쪽 이 거리에 나타난다(px)
+ARK_ABSORB_NET = -25          # 흡수 파동: 방 양끝에서 아크 쪽으로 조여 든다
+ARK_OVERCHARGE_NET = 25       # 과충전 파동: 아크에서 바깥으로 퍼진다
+ARK_WAVE_DAMAGE = 10
+ARK_WAVE_SPEED = 520.0
+ARK_WAVE_H = 80               # 파동 높이(px): 점프(약 225px)로 넘을 수 있다
+ARK_FIELD_RATE = 5.0          # 오염 장판 위에 서 있으면 초당 +5%
+ARK_FIELD_W = (300, 340, 400)  # 페이즈별 장판 폭(px)
+ARK_FIELD_TIME = (5.0, 6.0, 7.0)   # 장판이 남는 시간(초)
+ARK_PHASES = (0.66, 0.33)     # 체력 비율이 이 아래로 내려가면 2페이즈, 3페이즈
+ARK_DEATH_FALL = 0.6          # 쓰러질 때 무릎 꿇은 자세(사망 1)를 보여 주는 시간(초), 그 뒤 엎어짐(사망 2)
+SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'crasher': 10, 'ark': 20}
 
 # E 강화 일격 (1회성): 게이지 ENHANCE_COST를 쓰면 **다음 공격 한 번**이 강화 일격이 된다. 쓰고 나면 사라진다.
 # 강화 일격은 대미지가 크고 사거리·부채꼴이 넓으며, 맞은 적마다 안개 폭발이 일어나 주변 적에게 피해를 준다.

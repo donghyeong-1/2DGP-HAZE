@@ -40,6 +40,8 @@ BACKSTEP_VX, BACKSTEP_VY = 460.0, 760.0
 
 
 class Boss(Enemy):
+    title = '크래셔'
+
     def __init__(self, x, y, room, player):
         super().__init__('crasher', x, y, room, player)
         self.pattern = 'slam'

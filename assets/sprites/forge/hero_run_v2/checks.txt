@@ -1,0 +1,31 @@
+check_gait.py  (exit 0)
+8장  반 주기 차이 2252  이웃 차이 2584  비율 0.87  통과
+C:\code\2-2\2DGP-project\tools\check_gait.py:23: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  return sum(1 for v in d.getdata() if v > 40)
+
+check_sprites.py  (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+run-1.png                                    (105, 129) 98x123        0 38
+run-2.png                                    (105, 129) 69x121        0 37
+run-3.png                                    (105, 129) 73x124        0 37
+run-4.png                                    (105, 129) 96x119        0 36
+run-5.png                                    (105, 129) 98x123        0 35
+run-6.png                                    (105, 129) 65x121        0 35
+run-7.png                                    (105, 129) 74x124        0 34
+run-8.png                                    (105, 129) 94x118        0 37
+
+실패:
+ - 프레임 바닥선 차이 8px (최대 2)
+
+check_sprites.py --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+run-1.png                                    (105, 129) 98x123        0 38
+run-2.png                                    (105, 129) 69x121        0 37
+run-3.png                                    (105, 129) 73x124        0 37
+run-4.png                                    (105, 129) 96x119        0 36
+run-5.png                                    (105, 129) 98x123        0 35
+run-6.png                                    (105, 129) 65x121        0 35
+run-7.png                                    (105, 129) 74x124        0 34
+run-8.png                                    (105, 129) 94x118        0 37
+
+통과

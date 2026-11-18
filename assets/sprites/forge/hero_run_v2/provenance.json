@@ -1,0 +1,36 @@
+{
+  "date_kst": "2026-11-19",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "finish": "n09_v3b scale and palette, hibit",
+  "source_steps": {
+    "A": {
+      "source": "A/take_02/source.png",
+      "sha256": "4e2047cbcc0a0098ceacf74331d4cd184834d9ff8281a6933331f5b9e13d2911",
+      "prompt": "A/take_02/actual_prompt.txt"
+    },
+    "B": {
+      "source": "B/take_02/source.png",
+      "sha256": "d80bd691503613f10fa8960e22df9d561edce003c5db1811deb28cc9a044b04f",
+      "prompt": "B/take_02/actual_prompt.txt"
+    }
+  },
+  "source_take1": [
+    "A/source.png",
+    "B/source.png"
+  ],
+  "registration": "../n09_run_v2/registration.json",
+  "gif_timing_ms": [
+    80,
+    80,
+    70,
+    80,
+    80,
+    80,
+    70,
+    80
+  ],
+  "game_frame_time_ms": 78.125
+}

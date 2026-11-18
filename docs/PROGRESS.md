@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-18)
-- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(243개).
+- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(244개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -28,7 +28,7 @@
 5. [x] 남은 콘텐츠 모두 완료(11/18): 아크 그림(Codex T20)·스테이지 2·3·아크 보스·무기 사슬·정비방 업그레이드 7종 3단계.
 6. [x] Codex T20(아크 23장) 검토·그림 적용 완료. 대기 중인 Codex 작업 없음. (T12·T17~T20 적용 완료)
 00. [ ] **(Claude Code) v4: 사용자와 `docs/plan_v4.md`의 [확인 필요] 항목을 정한 뒤** 황금방 잠금·균열방 → E 중첩 기술 → 은신처·영구 성장 순서로 구현. Codex 그림(은신처·NPC·컷인)은 일찍 맡긴다.
-0. [ ] **(Codex → Claude Code 검토) T21 달리기 다시 그리기**: 사용자 플레이에서 "발이 서로 교차를 안 해". T19 달리기 5~8번이 1~4번과 같은 걸음이라 같은 다리·팔이 계속 앞에 나온다(`python tools/check_gait.py --name n09_run` 비율 0.39, 걷기는 1.02). Codex가 `docs/codex/tasks/T21_hero_run_alternate.md`를 하면 Claude Code가 검토(비율 0.8 이상)하고 `tools/apply_*`로 `n09_run_1~8` 교체.
+0. [x] **T21 달리기 다시 그리기 적용(11/19)**: 사용자 플레이에서 "발이 서로 교차를 안 해". T19 달리기 5~8번이 1~4번과 같은 걸음이라 같은 다리·팔이 계속 앞에 나온다(`python tools/check_gait.py --name n09_run` 비율 0.39, 걷기는 1.02). Codex가 `docs/codex/tasks/T21_hero_run_alternate.md`를 하면 Claude Code가 검토(비율 0.8 이상)하고 `tools/apply_*`로 `n09_run_1~8` 교체.
 7. [x] 엔딩 크레딧 화면과 접근성 옵션 완료(11/18). 아래는 당시 계획 기록.
    - ① 크레딧: 탈출(엔딩) 화면 뒤에 이어진다. 제작자, 사용 도구, 외부 에셋 출처·라이선스(`docs/ASSETS.md` 맨 위 표), AI 생성 에셋 표기(`docs/image_prompts.md`). 지금 엔딩은 `src/ending_mode.py`.
    - ② 접근성 옵션: 화면 흔들림 세기(끔·약하게·보통), 번쩍임 줄이기(피격·오버로드 섬광, 큰 폭발 이펙트). 일시정지(Esc) 또는 타이틀에서 바꾸고, 이번 실행 동안 유지(파일 저장은 선택). 흔들림은 `effects.add_trauma`, 섬광은 이펙트·HUD 쪽에서 한곳으로 모아 배율을 곱한다. 규칙 변경이 아니라도 옵션이 효과를 실제로 줄이는지 테스트를 먼저 쓴다.
@@ -167,3 +167,4 @@
 
 2026-11-19 [Codex] T21 달리기 8장 팔·다리 교대 재작업, 교대 비율 0.87·픽셀 검사 통과, 기존 캔버스·기준점과 1배 비교·GIF·보고서, 검토 대기 / assets/sprites/forge/hero_run_v2/, assets/sprites/forge/n09_run_v2*, docs/codex/reports/T21.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-19 [Claude Code] 페이드에서 대시·점프 공격만 강하던 버그 수정(모든 공격 범위 x0.85·추가 배율 없음, 테스트 2개), v4 방향 결정 기록과 설계안 docs/plan_v4.md / src/(weapon, config).py, tests/test_combat.py, docs/(plan_v4, DECISIONS, 기획서, PROGRESS).md
+2026-11-19 [Claude Code] Codex T21 검토·적용: 달리기 8장 걸음 교대(check_gait 0.87, 앞 다리·팔 교대와 반대쪽 팔 흔들기 확인, 캔버스·기준점 동일, 게임 창 매 프레임 캡처로 확인), 회귀 테스트(걷기·달리기 교대) / assets/sprites/unified/n09_run_1~8.png, tests/test_sprites.py, docs/codex/TASKS.md, docs/PROGRESS.md

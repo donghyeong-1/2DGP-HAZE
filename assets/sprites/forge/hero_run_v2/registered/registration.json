@@ -1,0 +1,121 @@
+{
+  "source_anchor": [
+    600,
+    900
+  ],
+  "raw_x_scale": 0.18,
+  "frames": [
+    {
+      "frame": 1,
+      "source_step": "A",
+      "source_cell": 1,
+      "source_belt": [
+        321,
+        308
+      ],
+      "source_bbox_top": 44,
+      "source_bbox_bottom": 577,
+      "head_height_target": 121,
+      "belt_height_target": 65,
+      "air_clearance_target": 0
+    },
+    {
+      "frame": 2,
+      "source_step": "A",
+      "source_cell": 2,
+      "source_belt": [
+        306,
+        307
+      ],
+      "source_bbox_top": 60,
+      "source_bbox_bottom": 577,
+      "head_height_target": 119,
+      "belt_height_target": 62,
+      "air_clearance_target": 0
+    },
+    {
+      "frame": 3,
+      "source_step": "A",
+      "source_cell": 3,
+      "source_belt": [
+        330,
+        294
+      ],
+      "source_bbox_top": 43,
+      "source_bbox_bottom": 587,
+      "head_height_target": 122,
+      "belt_height_target": 65,
+      "air_clearance_target": 0
+    },
+    {
+      "frame": 4,
+      "source_step": "A",
+      "source_cell": 4,
+      "source_belt": [
+        329,
+        276
+      ],
+      "source_bbox_top": 21,
+      "source_bbox_bottom": 501,
+      "head_height_target": 125,
+      "belt_height_target": 68,
+      "air_clearance_target": 8
+    },
+    {
+      "frame": 5,
+      "source_step": "B",
+      "source_cell": 1,
+      "source_belt": [
+        324,
+        300
+      ],
+      "source_bbox_top": 44,
+      "source_bbox_bottom": 575,
+      "head_height_target": 121,
+      "belt_height_target": 65,
+      "air_clearance_target": 0
+    },
+    {
+      "frame": 6,
+      "source_step": "B",
+      "source_cell": 2,
+      "source_belt": [
+        317,
+        306
+      ],
+      "source_bbox_top": 65,
+      "source_bbox_bottom": 574,
+      "head_height_target": 119,
+      "belt_height_target": 62,
+      "air_clearance_target": 0
+    },
+    {
+      "frame": 7,
+      "source_step": "B",
+      "source_cell": 3,
+      "source_belt": [
+        318,
+        287
+      ],
+      "source_bbox_top": 43,
+      "source_bbox_bottom": 585,
+      "head_height_target": 122,
+      "belt_height_target": 65,
+      "air_clearance_target": 0
+    },
+    {
+      "frame": 8,
+      "source_step": "B",
+      "source_cell": 4,
+      "source_belt": [
+        328,
+        272
+      ],
+      "source_bbox_top": 21,
+      "source_bbox_bottom": 492,
+      "head_height_target": 125,
+      "belt_height_target": 68,
+      "air_clearance_target": 8
+    }
+  ]
+}

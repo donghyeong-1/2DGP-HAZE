@@ -71,6 +71,16 @@ def test_ui_images_exist():
         assert size_of('backgrounds/' + name) == (config.SCREEN_W, config.SCREEN_H)
 
 
+def test_walk_and_run_cycles_alternate_left_and_right_steps():
+    """걷기·달리기 반복은 왼발·오른발 걸음이 번갈아야 한다 (T19 달리기는 같은 걸음이 두 번이라 발이 교차하지 않았다)."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tools'))
+    import check_gait
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'sprites', 'unified')
+    for name in ('n09_walk', 'n09_run'):
+        paths = [os.path.join(root, f'{name}_{i}.png') for i in range(1, 9)]
+        assert check_gait.gait_ratio(paths)[2] >= check_gait.PASS_RATIO, name
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

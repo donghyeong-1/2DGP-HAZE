@@ -244,3 +244,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-18 [Codex] T19 N-09 달리기 8장과 전환 5장. v3b 마스터와 관절 가이드로 전방 기울기·지지발 교대·두 발 체공과 출발·제동·방향 전환을 요청했다. Codex 내장 image_gen(모델명 미제공), 프롬프트 전문은 `assets/sprites/forge/hero_run_v1/{run,trans}/actual_prompt.txt`.
 
 2026-11-18 [Codex] T20 총감시관 아크 23프레임. 지정 마스터와 게임 대기 이미지를 참조해 5패턴의 예고·실행(특히 양팔 벌린 흡수와 X자로 웅크린 과충전), 이동·순간이동·피격·페이즈·사망을 선 없는 색면으로 제작. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 assets/sprites/forge/ark_actions_v1/{A,B,C}/actual_prompt.txt.
+
+2026-11-19 [Codex] T21 N-09 달리기 교대 재작업. 걸음 A·B를 별도 2×2 시트로 만들고 밝은 소매·찢어진 무릎이 가까운 팔다리에 붙어 앞뒤를 바꾸도록 요청했다. 각 시트 2차에서는 가까운 바지·부츠의 밝은 차콜과 먼 쪽의 검은 면을 강화했다. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 assets/sprites/forge/hero_run_v2/{A,B}/actual_prompt.txt 및 take_02/actual_prompt.txt.

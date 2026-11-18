@@ -1,0 +1,132 @@
+{
+  "size": [
+    105,
+    129
+  ],
+  "anchor": [
+    55,
+    128
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "belt_x": 54.0,
+      "belt_y": 63.0,
+      "opaque_box": [
+        4,
+        5,
+        102,
+        128
+      ],
+      "bottom_y_exclusive": 128,
+      "air_clearance": 0,
+      "front_leg": "near",
+      "front_arm": "far"
+    },
+    {
+      "frame": 2,
+      "belt_x": 52.0,
+      "belt_y": 66.0,
+      "opaque_box": [
+        18,
+        7,
+        87,
+        128
+      ],
+      "bottom_y_exclusive": 128,
+      "air_clearance": 0,
+      "front_leg": "near",
+      "front_arm": "far"
+    },
+    {
+      "frame": 3,
+      "belt_x": 53.0,
+      "belt_y": 63.0,
+      "opaque_box": [
+        7,
+        4,
+        80,
+        128
+      ],
+      "bottom_y_exclusive": 128,
+      "air_clearance": 0,
+      "front_leg": "far",
+      "front_arm": "near"
+    },
+    {
+      "frame": 4,
+      "belt_x": 54.0,
+      "belt_y": 60.0,
+      "opaque_box": [
+        5,
+        1,
+        101,
+        120
+      ],
+      "bottom_y_exclusive": 120,
+      "air_clearance": 8,
+      "front_leg": "far",
+      "front_arm": "near"
+    },
+    {
+      "frame": 5,
+      "belt_x": 55.0,
+      "belt_y": 63.0,
+      "opaque_box": [
+        4,
+        5,
+        102,
+        128
+      ],
+      "bottom_y_exclusive": 128,
+      "air_clearance": 0,
+      "front_leg": "far",
+      "front_arm": "near"
+    },
+    {
+      "frame": 6,
+      "belt_x": 53.0,
+      "belt_y": 65.0,
+      "opaque_box": [
+        20,
+        7,
+        85,
+        128
+      ],
+      "bottom_y_exclusive": 128,
+      "air_clearance": 0,
+      "front_leg": "far",
+      "front_arm": "near"
+    },
+    {
+      "frame": 7,
+      "belt_x": 55.0,
+      "belt_y": 63.0,
+      "opaque_box": [
+        11,
+        4,
+        85,
+        128
+      ],
+      "bottom_y_exclusive": 128,
+      "air_clearance": 0,
+      "front_leg": "near",
+      "front_arm": "far"
+    },
+    {
+      "frame": 8,
+      "belt_x": 53.0,
+      "belt_y": 59.0,
+      "opaque_box": [
+        8,
+        2,
+        102,
+        120
+      ],
+      "bottom_y_exclusive": 120,
+      "air_clearance": 8,
+      "front_leg": "near",
+      "front_arm": "far"
+    }
+  ]
+}

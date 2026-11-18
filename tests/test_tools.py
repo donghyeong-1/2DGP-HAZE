@@ -41,6 +41,22 @@ def test_check_gait_tells_alternating_steps_from_a_repeated_stride():
     assert check_gait.gait_ratio(repeated)[2] < 0.1
 
 
+def test_window_display_choice_from_argument_or_environment():
+    import window_place
+    old = os.environ.pop('HAZE_DISPLAY', None)
+    try:
+        assert window_place.wanted_display() is None                       # 정하지 않으면 옮기지 않는다
+        os.environ['HAZE_DISPLAY'] = '2'
+        assert window_place.wanted_display() == 2
+        assert window_place.wanted_display(1) == 1                          # 직접 넘긴 값이 우선
+        os.environ['HAZE_DISPLAY'] = 'abc'
+        assert window_place.wanted_display() is None
+    finally:
+        os.environ.pop('HAZE_DISPLAY', None)
+        if old is not None:
+            os.environ['HAZE_DISPLAY'] = old
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

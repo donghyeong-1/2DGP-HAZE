@@ -6,7 +6,7 @@ description: 헤이즈(pico2d)를 실제 창으로 띄워 게임 화면을 PNG�
 # playtest-capture
 
 ## 도구
-`tools/capture.py` — 게임의 `play_mode.draw()`를 그대로 렌더러에 그리고 `SDL_RenderReadPixels`로 읽는다. 실행하면 창이 잠깐 뜬다(이 PC에 디스플레이가 있어야 한다). 결과: `--out` 폴더의 `shot_NN.png`와 모아 보기 `sheet.png`, 장마다 플레이어·적 상태 한 줄.
+`tools/capture.py` — 게임의 `play_mode.draw()`를 그대로 렌더러에 그리고 `SDL_RenderReadPixels`로 읽는다. 실행하면 창이 잠깐 뜬다(이 PC에 디스플레이가 있어야 한다). **창은 두 번째 모니터에 띄운다**: `--display 2` 또는 환경 변수 `HAZE_DISPLAY=2`(사용자 요청 2026-11-18, 작업 중인 주 모니터를 가리지 않게. 그런 모니터가 없으면 기본 위치). 직접 쓰는 캡처 스크립트도 `open_canvas` 다음에 `window_place.place_window()`를 부른다. 결과: `--out` 폴더의 `shot_NN.png`와 모아 보기 `sheet.png`, 장마다 플레이어·적 상태 한 줄.
 
 결과 폴더는 스크래치패드 같은 임시 폴더에 둔다 (저장소에 넣지 않는다).
 

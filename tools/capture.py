@@ -15,6 +15,7 @@
   --crop x0,y0,x1,y1  모아 보기에 쓸 화면 영역 (기본: 전체를 절반 크기로)
   --god               플레이어가 죽지 않게 한다
   --hold              공격 버튼을 누른 채로 둔다 (건틀릿 충전 확인)
+  --display 2         창을 두 번째 모니터에 띄운다 (환경 변수 HAZE_DISPLAY=2 와 같음)
 
 예: python tools/capture.py --cell 1,0 --clear --spawn hound:500 --bot stand --shots 12 --every 6 --god --out shots/hound
 """
@@ -44,6 +45,7 @@ def main():
     ap.add_argument('--crop')
     ap.add_argument('--god', action='store_true')
     ap.add_argument('--hold', action='store_true')
+    ap.add_argument('--display', type=int, help='창을 띄울 모니터 번호 (1부터, 기본: HAZE_DISPLAY 환경 변수)')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
@@ -60,6 +62,8 @@ def main():
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b'0')        # 최근접 필터 (게임과 같게)
     open_canvas(config.SCREEN_W, config.SCREEN_H)
+    from window_place import place_window
+    place_window(a.display)                              # --display 2 또는 HAZE_DISPLAY=2: 두 번째 모니터
     W, H = config.SCREEN_W, config.SCREEN_H
     buf = (ctypes.c_ubyte * (W * H * 4))()
     draw_src = inspect.getsource(play_mode.draw)

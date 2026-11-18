@@ -7,11 +7,13 @@ import config
 import options
 import game_framework
 import title_mode
+from window_place import place_window
 
 
 def main():
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, b'0')  # 최근접(nearest) 필터: 이미지를 뭉개지 않는다
     open_canvas(config.SCREEN_W, config.SCREEN_H)
+    place_window()                 # HAZE_DISPLAY=2 이면 두 번째 모니터에 띄운다
     config.SOUND_ENABLED = True
     options.load()                 # 접근성 설정(흔들림·번쩍임)을 지난 실행에서 이어 받는다
     try:

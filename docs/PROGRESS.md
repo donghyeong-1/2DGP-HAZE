@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-18)
-- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(240개).
+- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(241개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -161,3 +161,4 @@
 2026-11-18 [Claude Code] 사용자 지적 3건 수정(오라를 보는 방향에 맞춰 좌우 반전, 휘두르기를 4번 마무리에서 끝내 5번 회수(파이프를 몸 뒤로 되감는 그림) 제외, 뒷걸음을 밝은 옷의 걷기 역재생에서 달리기 역재생+0.75배 속도로, 달리기 한 장 32px, 출발 자세 동안 0.55배에서 최고 속도로), 엔딩 크레딧(credits_mode: 탈출 화면 뒤·타이틀 C, 빨리 감기·Esc), 접근성 옵션(options·options_mode: 화면 흔들림 끔/약하게/보통, 번쩍임 줄이기, 타이틀·일시정지에서 O, ~/.haze_options.json에 저장), 테스트 9개 추가 / src/(player, config, effects, ui, title_mode, pause_mode, ending_mode, main, options, options_mode, credits_mode), tests/(test_combat, test_options), docs/*
 2026-11-18 [Claude Code] UI 전면 수정(v3): UI 부품 에셋(tools/make_ui.py: 9칸 판 7종·막대 무늬 9색×5높이·게이지 장식·키·조각·손잡이·대시/콤보 칸·바늘)과 그리기 모듈(src/hud_kit.py), HUD 재배치(바닥 비움: 왼쪽 위 무기·체력·대시·조각·공격 / 가운데 위 게이지·구간 표시 / 오른쪽 위 미니맵, 불투명 판·그림자 글자, 안내 띠), 타이틀 메뉴(게임 시작·설정·크레딧·종료, 키보드·마우스), 일시정지 창(메뉴+조작 안내), 설정 창(흔들림·번쩍임 칸, 음악·효과음 크기 막대, 마우스 지원, 음량 저장), 테스트 5개 추가 / src/(ui, hud_kit, title_mode, pause_mode, options_mode, options, assets), tools/make_ui.py, assets/ui/ui_*, tests/test_options.py, docs/*
 2026-11-18 [Claude Code] 달리기 발 교차 문제 진단: T19 달리기 5~8번이 1~4번과 거의 같은 그림(반 주기 차이 비율 0.39, 걷기 1.02), 걸음 교대 검사 도구 tools/check_gait.py와 테스트, Codex 작업 T21 작성(ready) / tools/check_gait.py, tests/test_tools.py, docs/codex/(TASKS.md, tasks/T21_hero_run_alternate.md), docs/(PROGRESS, DECISIONS).md
+2026-11-18 [Claude Code] 게임 창을 원하는 모니터에 띄우기: src/window_place.py(HAZE_DISPLAY=2), main.py·capture.py --display, 테스트 1개(241개) / src/(window_place, main).py, tools/capture.py, tests/test_tools.py, docs/SKILLS.md, .claude/skills/playtest-capture/SKILL.md

@@ -21,7 +21,7 @@
 | 폰트 | `assets/fonts/Galmuri11.ttf`, `Galmuri14.ttf` | 갈무리 v2.40.4 (Lee Minseo) | **SIL OFL 1.1** (`assets/fonts/OFL.txt`) |
 
 - 쓰는 스킬·도구(개발용, 게임에 포함되지 않음)는 `docs/SKILLS.md`에 있다. agent-sprite-forge와 codixel은 MIT, gamedev-skills는 Apache-2.0.
-- 엔딩 크레딧에 표기할 것: Galmuri font by Lee Minseo (SIL OFL 1.1), AI 생성 이미지(도구·모델), 나머지는 자체 제작.
+- 엔딩 크레딧(`src/credits_mode.py`의 `CREDITS`)에 표기한다: Galmuri font by Lee Minseo (SIL OFL 1.1), AI 생성 이미지(Codex 내장 이미지 생성, 모델명 미제공), 개발 환경(pico2d, transitions MIT, numpy, Pillow), 나머지는 자체 제작. 이 표가 바뀌면 크레딧도 함께 고친다.
 - 게임에서 더는 쓰지 않는 것(기록용으로만 남음): `assets/sprites/unified_legacy/`, `assets/sprites/detailed/`, `assets/concept/`, `assets/presentation_examples/`(발표 자료용).
 
 ---

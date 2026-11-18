@@ -33,7 +33,11 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and _ignore_input <= 0:
-            game_framework.change_mode(title_mode)
+            if result == 'clear':                      # 탈출하면 크레딧으로 이어진다
+                import credits_mode
+                game_framework.change_mode(credits_mode)
+            else:
+                game_framework.change_mode(title_mode)
 
 
 def update():
@@ -47,7 +51,7 @@ def draw():
     if result == 'clear':
         assets.draw_image(assets.image('backgrounds/screen_ending.png'), cx, 0)
         assets.draw_text(cx, 600, '탈출 성공', (170, 230, 250), center=True, big=True)
-        assets.draw_text(cx, 330, '아무 키나 누르면 타이틀로', (150, 160, 185), center=True)
+        assets.draw_text(cx, 330, '아무 키나 누르면 크레딧', (150, 160, 185), center=True)
     else:                                                          # 사망 화면: 쓰러진 인물 위쪽에 글자를 둔다
         assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
         assets.draw_text(cx, 640, '사망', (225, 90, 100), center=True, big=True)

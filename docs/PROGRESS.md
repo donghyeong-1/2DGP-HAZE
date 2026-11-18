@@ -27,7 +27,7 @@
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [x] 남은 콘텐츠 모두 완료(11/18): 아크 그림(Codex T20)·스테이지 2·3·아크 보스·무기 사슬·정비방 업그레이드 7종 3단계.
 6. [x] Codex T20(아크 23장) 검토·그림 적용 완료. 대기 중인 Codex 작업 없음. (T12·T17~T20 적용 완료)
-7. [ ] **다음 작업(Claude Code), 둘 다 한다: ① 엔딩 크레딧 화면 → ② 접근성 옵션.**
+7. [x] 엔딩 크레딧 화면과 접근성 옵션 완료(11/18). 아래는 당시 계획 기록.
    - ① 크레딧: 탈출(엔딩) 화면 뒤에 이어진다. 제작자, 사용 도구, 외부 에셋 출처·라이선스(`docs/ASSETS.md` 맨 위 표), AI 생성 에셋 표기(`docs/image_prompts.md`). 지금 엔딩은 `src/ending_mode.py`.
    - ② 접근성 옵션: 화면 흔들림 세기(끔·약하게·보통), 번쩍임 줄이기(피격·오버로드 섬광, 큰 폭발 이펙트). 일시정지(Esc) 또는 타이틀에서 바꾸고, 이번 실행 동안 유지(파일 저장은 선택). 흔들림은 `effects.add_trauma`, 섬광은 이펙트·HUD 쪽에서 한곳으로 모아 배율을 곱한다. 규칙 변경이 아니라도 옵션이 효과를 실제로 줄이는지 테스트를 먼저 쓴다.
 
@@ -157,3 +157,4 @@
 2026-11-18 [Claude Code] 구역 사이 체력 회복 없음으로 확정(사용자 결정), 열린 질문 정리 / docs/(PROGRESS, DECISIONS).md
 2026-11-18 [Claude Code] 무기 헤이즈 사슬: 갈고리로 끌어오기(노멀 1마리 / 각성 사거리 +30%·2마리 / 위험 1초 기절·충돌 피해 / E 강화 관통·기절), 끌려온 적마다 게이지 +2%, 보스는 끌려오지 않고 피해 x1.5, 경직 저항 존중(연속 묶기 방지), 황금방 무기·HUD·아이콘, balance-sim 사슬, 테스트 10개(223개) / src/(weapon, config, enemy, boss, ark, items, ui), tests/test_chain.py, tools/(make_weapons, balance_sim, capture, balance_base.json), assets/ui/icon_w_chain.png, docs/*
 2026-11-18 [Claude Code] 정비방 업그레이드 7종 3단계: 기획서 표 수치(용량·흡수·결핍 방지·강화 효율·오버로드 내성·대시·기본 성장 택1), 정비방 진열 = 업그레이드 3 + 응급 치료, 사면 다음 단계(값 x1/x1.6/x2.6), 3단계 품절, 황금방도 같은 단계, 진열대에 '다음 단계: 지금 -> 다음' 표시, 테스트 4개 추가(227개) / src/(items, stage, pedestal, config, ui), tests/test_stage.py, docs/*
+2026-11-18 [Claude Code] 사용자 지적 3건 수정(오라를 보는 방향에 맞춰 좌우 반전, 휘두르기를 4번 마무리에서 끝내 5번 회수(파이프를 몸 뒤로 되감는 그림) 제외, 뒷걸음을 밝은 옷의 걷기 역재생에서 달리기 역재생+0.75배 속도로, 달리기 한 장 32px, 출발 자세 동안 0.55배에서 최고 속도로), 엔딩 크레딧(credits_mode: 탈출 화면 뒤·타이틀 C, 빨리 감기·Esc), 접근성 옵션(options·options_mode: 화면 흔들림 끔/약하게/보통, 번쩍임 줄이기, 타이틀·일시정지에서 O, ~/.haze_options.json에 저장), 테스트 9개 추가 / src/(player, config, effects, ui, title_mode, pause_mode, ending_mode, main, options, options_mode, credits_mode), tests/(test_combat, test_options), docs/*

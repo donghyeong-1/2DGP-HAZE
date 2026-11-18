@@ -9,6 +9,7 @@ import assets
 import camera
 import config
 import effects
+import options
 import items
 from haze_gauge import AWAKE, CRITICAL, DEAD, FADE, NORMAL, OVERLOAD
 
@@ -83,7 +84,7 @@ class GameUI:
         W, H = config.SCREEN_W, config.SCREEN_H
         if effects.flash_left > 0:                              # 오버로드 순간: 화면 전체가 하얗게 번쩍였다가 가라앉는다
             a = min(1.0, effects.flash_left / config.OVERLOAD_FLASH) ** 1.6
-            assets.draw_rect_color(0, 0, W, H, (255, 255, 255), 0.9 * a)
+            assets.draw_rect_color(0, 0, W, H, (255, 255, 255), 0.9 * a * options.flash_mult())   # 접근성: 번쩍임 줄이기
         if not p.stunned:
             return
         t = p.aura_time
@@ -98,7 +99,7 @@ class GameUI:
             assets.draw_rect_color(inset, 0, thick, H, c, a)                              # 왼쪽
             assets.draw_rect_color(W - inset - thick, 0, thick, H, c, a)                  # 오른쪽
         seed = int(t * 20)                                      # 전기 노이즈 줄: 20Hz로 자리가 바뀌는 얇은 가로줄
-        for k in range(7):
+        for k in range(0 if options.reduce_flash else 7):       # 번쩍임 줄이기면 깜빡이는 줄을 그리지 않는다
             y = (seed * 97 + k * 163) % H
             assets.draw_rect_color(0, y, W, 3 + ((seed + k) % 3) * 2, (255, 242, 170), 0.15)
         shake = int(round(4 * math.sin(t * 70)))

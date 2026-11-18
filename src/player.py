@@ -65,7 +65,13 @@ class Run(_State):
 
     def do(self, dt):
         p = self.p
-        p.vx = p.direction * config.RUN_SPEED * p.speed_mult()
+        mult = p.speed_mult()
+        if p.direction and p.direction != p.face_dir:            # 뒷걸음: 조준을 유지한 채 조금 느리게 물러난다
+            mult *= config.BACKPEDAL_SPEED_MULT
+        elif p.start_left > 0:                                    # 출발 자세 동안 최고 속도까지 오른다
+            k = 1.0 - p.start_left / config.RUN_START_TIME
+            mult *= config.RUN_START_SPEED + (1.0 - config.RUN_START_SPEED) * k
+        p.vx = p.direction * config.RUN_SPEED * mult
 
     def check(self):
         p = self.p
@@ -659,6 +665,7 @@ class Player(TileBody):
             n = 1 + sum(1 for t in phases if done >= t)
             if self.swing_connected:        # 맞혔으면 타격 자세부터 (판정은 누르는 순간이라, 젖힌 채 멈추거나 멈춤 뒤 젖힘으로 되돌아가면 어색하다)
                 n = max(n, 3)
+            n = min(n, config.SWING_LAST_FRAME)   # 5번(회수)은 파이프를 몸 뒤로 되감는 그림이라 앞으로 친 뒤 뒤로 감기는 것처럼 보여 쓰지 않는다
             return 'n09_swing_' + self.swing_dir, n
         if not self.on_ground and self.state in ('JUMP', 'FALL'):
             if self.vy > config.JUMP_RISE_VY:
@@ -671,8 +678,8 @@ class Player(TileBody):
                 return 'n09_run_trans', 1 if self.start_left > config.RUN_START_TIME / 2 else 2
             if self._move_sign() == self.face_dir:                     # 조준 쪽으로: 달리기
                 return 'n09_run', int(self.move_dist / config.RUN_FRAME_PX) % sprites.count('n09_run') + 1
-            count = sprites.count('n09_walk')                          # 뒷걸음: 걷기를 거꾸로 (8 -> 7 -> ... -> 1)
-            return 'n09_walk', count - int(self.move_dist / config.WALK_FRAME_PX) % count
+            count = sprites.count('n09_run')                           # 뒷걸음: 달리기를 거꾸로 (8 -> 7 -> ... -> 1)
+            return 'n09_run', count - int(self.move_dist / config.RUN_FRAME_PX) % count
         if self.stop_left > 0 and self.state == 'IDLE' and self.on_ground:   # 멈춤: 몸을 젖혀 제동 -> 버티며 선다
             return 'n09_run_trans', 3 if self.stop_left > config.RUN_STOP_TIME / 2 else 4
         if self.state == 'IDLE':
@@ -688,7 +695,7 @@ class Player(TileBody):
         stunned = self.stunned and self.state != 'DEAD'
         if self.state != 'DEAD':   # 게이지 구간·강화·기절에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
             for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned):
-                effects.draw_loop(name, self.x, self.y, self.aura_time)
+                effects.draw_loop(name, self.x, self.y, self.aura_time, flip=self.draw_face() < 0)   # 몸 실루엣과 같은 쪽을 보게
         blink = self.invuln_left > 0 and self.state not in ('DASH', 'DEAD') and int(self.invuln_left * 20) % 2 == 0
         if not blink:                                   # 피격 무적 중에는 깜빡인다
             name, n = self._body_frame()

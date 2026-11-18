@@ -10,6 +10,7 @@ import os
 import assets
 import config
 import game_world
+import options
 import sprites
 
 _meta = {}
@@ -65,7 +66,7 @@ def shake_offset():
     """이번 프레임의 화면 흔들림 (x, y) 정수 픽셀. 서로 다른 속도의 사인파를 더해 지직거리지 않고 부드럽게 흔든다."""
     if trauma <= 0:
         return (0, 0)
-    amp = config.SHAKE_MAX_OFFSET * trauma * trauma
+    amp = config.SHAKE_MAX_OFFSET * trauma * trauma * options.shake_mult()     # 접근성: 흔들림 끔·약하게·보통
     t = _shake_time * 38.0
     return (int(round(amp * math.sin(t * 1.7))), int(round(amp * math.sin(t * 2.3 + 1.3))))
 
@@ -75,6 +76,11 @@ def sheet_info(name):
         with open(os.path.join(assets.ASSET_DIR, 'effects', name + '.json'), encoding='utf-8') as f:
             _meta[name] = json.load(f)
     return _meta[name]
+
+
+# 번쩍임 줄이기를 켜면 처음의 하얀 섬광 부분을 건너뛰는 큰 이펙트들 (전체 길이에서 건너뛸 비율)
+FLASHY = ('haze-blast', 'quake-blast', 'overload-burst', 'death-burst', 'hit-critical', 'hit-enhanced')
+FLASHY_SKIP = 0.25
 
 
 class SheetEffect:
@@ -88,6 +94,8 @@ class SheetEffect:
         self.variant = variant           # 방향 변형 줄 번호 (휘두르기처럼 variants가 있는 시트만)
         self.time = 0.0
         self.info = sheet_info(name)
+        if options.reduce_flash and name in FLASHY:  # 접근성: 번쩍임 줄이기면 하얀 중심이 큰 첫 장면을 건너뛴다
+            self.time = duration * FLASHY_SKIP
 
     @property
     def frame(self):

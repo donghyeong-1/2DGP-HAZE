@@ -810,8 +810,8 @@ def test_run_frames_follow_distance_when_moving_toward_aim():
     assert p.move_dist == 0.0                                             # 멈추면 첫 프레임부터 다시
 
 
-def test_backpedal_plays_walk_frames_in_reverse():
-    """조준 반대쪽으로 움직이면(뒷걸음) 앞으로 기운 달리기 대신 걷기 그림을 거꾸로 돌린다 (문워크 방지)."""
+def test_backpedal_plays_run_frames_in_reverse_and_slower():
+    """조준 반대쪽으로 움직이면(뒷걸음) 달리기 그림을 거꾸로 돌리고, 조금 느리게 물러난다."""
     room, p = make_world(player_x=900.0)
     p.mouse_x = p.x - 2000                                               # 왼쪽을 겨누고
     p.right = True                                                       # 오른쪽으로 움직인다
@@ -820,12 +820,37 @@ def test_backpedal_plays_walk_frames_in_reverse():
         p.mouse_x = p.x - 2000
         run_frames(1)
         name, n = p._body_frame()
-        assert name == 'n09_walk', name
+        assert name == 'n09_run', name
         if not seen or seen[-1] != n:
             seen.append(n)
     assert len(seen) >= 3
     steps = [(seen[i] - seen[i + 1]) % 8 for i in range(len(seen) - 1)]
     assert all(s == 1 for s in steps), seen                              # 번호가 거꾸로 줄어든다 (8 -> 7 -> 6 ...)
+    assert abs(p.vx - config.RUN_SPEED * config.BACKPEDAL_SPEED_MULT) < 1e-6   # 앞으로 달릴 때보다 느리다
+
+
+def test_swing_ends_on_follow_through_frame():
+    """휘두르기는 4번(마무리)에서 끝난다. 5번(파이프를 몸 뒤로 되감는 회수 그림)은 쓰지 않는다."""
+    room, p = make_world()
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.request_attack()
+    seen = set()
+    for _ in range(40):
+        run_frames(1)
+        name, n = p._body_frame()
+        if name.startswith('n09_swing'):
+            seen.add(n)
+    assert max(seen) == config.SWING_LAST_FRAME == 4, seen
+
+
+def test_run_start_ramps_speed_then_full():
+    room, p = make_world()
+    p.mouse_x = p.x + 2000
+    p.right = True
+    run_frames(2)
+    assert 0 < p.vx < config.RUN_SPEED                                    # 출발 자세 동안은 최고 속도보다 느리다
+    run_frames(int(config.RUN_START_TIME * 60) + 4)
+    assert abs(p.vx - config.RUN_SPEED * p.speed_mult()) < 1e-6
 
 
 def test_run_start_and_stop_transition_frames():
@@ -897,7 +922,7 @@ def test_attack_shows_swing_pose_by_aim_direction():
         run_frames(int(config.SWING_TIME * 60 * 0.3))
         assert p._body_frame() == ('n09_swing_' + expected, 3)               # 타격(최대 신장)
         run_frames(int(config.SWING_TIME * 60 * 0.5))
-        assert p._body_frame() == ('n09_swing_' + expected, 5)               # 회수
+        assert p._body_frame() == ('n09_swing_' + expected, 4)               # 마무리에서 끝난다 (5번 회수는 쓰지 않는다)
         run_frames(30)
         assert p._body_frame()[0] != 'n09_swing_' + expected                 # 끝나면 대기로 돌아간다
 

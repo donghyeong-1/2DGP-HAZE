@@ -1,58 +1,42 @@
-"""화면 UI: 헤이즈 게이지, 체력, 대시 슬롯, 무기·공격 패널, 조준점, 미니맵, 안내 문구.
+"""화면 UI(HUD) v3: 헤이즈 게이지, 체력·대시·조각, 무기·공격, 미니맵, 안내 띠, 보스 체력, 조준점.
 
-1920x1080에서 잘 보이도록 글자는 갈무리 14/11px의 2배(28/22px)로 그린다 (assets.draw_text).
-틀은 크기가 변하므로 사각형으로 입체 테두리를 그리고(_frame), 모양이 있는 조각(게이지 장식·바늘, 대시·콤보 칸,
-조준점, 미니맵 아이콘)은 tools/make_hud.py가 만든 assets/ui/hud_*.png를 1배로 그린다.
-색만으로 뜻을 전하지 않는다(game-ui-ux 지침): 구간은 이름, 방 종류는 아이콘, 콤보 마무리는 모양으로도 구분한다.
+배치 원칙 (2026-11-18 전면 수정):
+  * 화면 아래쪽(바닥·가시가 있는 곳)은 비워 둔다. HUD는 모두 위쪽 세 구역에 둔다:
+    왼쪽 위 = 무기 칸·체력·대시·조각·공격 상태 / 가운데 위 = 헤이즈 게이지와 구간 표시 / 오른쪽 위 = 미니맵.
+    가진 업그레이드는 왼쪽 판 바로 아래 줄, 안내 띠·보스 체력은 게이지 아래 가운데.
+  * 구역끼리 겹치지 않는다. 반투명 받침을 쓰지 않고 불투명한 테두리 판(hud_kit.panel) 위에 그린다.
+  * 글자는 그림자가 있어 밝은 배경에서도 읽힌다. 색만으로 뜻을 전하지 않는다(구간 이름, 방 종류 아이콘, 콤보 마무리 모양).
+부품 그림은 tools/make_ui.py(판·막대·칸·키)와 tools/make_hud.py(조준점·미니맵 아이콘·하트)가 만든다.
 """
+import math
+
 import assets
 import camera
 import config
 import effects
+import hud_kit as kit
 import options
-import items
 from haze_gauge import AWAKE, CRITICAL, DEAD, FADE, NORMAL, OVERLOAD
 
 ZONE_LABEL = {FADE: '페이드', NORMAL: '노멀', AWAKE: '각성', CRITICAL: '위험', OVERLOAD: '오버로드', DEAD: '사망'}
-ZONE_COLOR = {FADE: (225, 70, 80), NORMAL: (110, 150, 220), AWAKE: (90, 210, 240),
-              CRITICAL: (240, 150, 60), OVERLOAD: (250, 220, 90), DEAD: (225, 70, 80)}
-
-BAR_W, BAR_H = 960, 36
-BAR_X, BAR_Y = (config.SCREEN_W - BAR_W) // 2, config.SCREEN_H - 78
+ZONE_COLOR = {FADE: (240, 96, 104), NORMAL: (130, 170, 235), AWAKE: (110, 225, 245),
+              CRITICAL: (250, 165, 80), OVERLOAD: (250, 220, 90), DEAD: (240, 96, 104)}
+ZONE_FILL = {FADE: 'red', NORMAL: 'blue', AWAKE: 'cyan', CRITICAL: 'orange'}
 WHITE = (235, 240, 250)
 TEAL = (130, 235, 225)
 DIM = (150, 165, 190)
+GOLD = (255, 225, 120)
 
-
-def _rect(name, x, y, w, h):
-    """왼쪽 아래 (x, y) 기준으로 단색 사각형을 그린다."""
-    if w > 0:
-        assets.draw_rect_image(assets.image('placeholder/' + name + '.png'), x, y, w, h)
-
-
-BAND = {'px_black': (58, 74, 108), 'px_gray': (86, 108, 150), 'px_white': (234, 255, 255)}   # 테두리 띠 색
-
-
-def _frame(x, y, w, h, fill, border='px_black', thickness=4):
-    """입체 테두리 틀: 바깥 외곽선, 강철 띠(위는 밝고 아래는 어둡다), 안쪽 외곽선, 속."""
-    t = thickness
-    _rect('px_black', x - t, y - t, w + t * 2, h + t * 2)
-    if t >= 3:
-        r, g, b = BAND.get(border, BAND['px_black'])
-        ow, oh = w + t * 2 - 2, h + t * 2 - 2
-        assets.draw_rect_color(x - t + 1, y - t + 1, ow, oh, (r, g, b))
-        assets.draw_rect_color(x - t + 1, y + h + t - 2, ow, 1, (min(255, r + 70), min(255, g + 70), min(255, b + 64)))   # 윗변 빛
-        assets.draw_rect_color(x - t + 1, y - t + 1, ow, 1, (r // 2, g // 2, b // 2))                                    # 아랫변 그늘
-        _rect('px_black', x - 1, y - 1, w + 2, h + 2)
-    else:
-        _rect(border, x - t + 1, y - t + 1, w + t * 2 - 2, h + t * 2 - 2)
-    _rect(fill, x, y, w, h)
-
-
-def _icon(name, x, y):
-    """assets/ui/hud_<name>.png를 왼쪽 아래 (x, y)에 1배로 그린다."""
-    img = assets.image(f'ui/hud_{name}.png')
-    assets.draw_image(img, x + img.w // 2, y)
+W, H = config.SCREEN_W, config.SCREEN_H
+MARGIN = 20
+# 왼쪽 위 상태 판
+LEFT_X, LEFT_W, LEFT_H = MARGIN, 520, 164
+LEFT_Y = H - MARGIN - LEFT_H
+# 가운데 위 게이지
+BAR_W, BAR_H = 660, 24
+BAR_X, BAR_Y = (W - BAR_W) // 2, H - 52
+LABEL_Y = BAR_Y - 54                     # 구간 표시 판 (게이지 바로 아래)
+NOTICE_Y = LABEL_Y - 70                  # 안내 띠 (구간 표시 판 아래, 화면 가운데)
 
 
 class GameUI:
@@ -67,7 +51,6 @@ class GameUI:
         self._draw_screen_fx()          # 화면 전체 효과(오버로드 섬광, 기절 비네트)는 HUD 아래에 깐다
         self._draw_gauge()
         self._draw_status()
-        self._draw_weapon_panel()
         if self.stage is not None:
             self._draw_minimap()
             self._draw_room_notice()
@@ -79,9 +62,7 @@ class GameUI:
 
     # ----- 화면 전체 효과 (오버로드 / 기절) -----
     def _draw_screen_fx(self):
-        import math
         p = self.player
-        W, H = config.SCREEN_W, config.SCREEN_H
         if effects.flash_left > 0:                              # 오버로드 순간: 화면 전체가 하얗게 번쩍였다가 가라앉는다
             a = min(1.0, effects.flash_left / config.OVERLOAD_FLASH) ** 1.6
             assets.draw_rect_color(0, 0, W, H, (255, 255, 255), 0.9 * a * options.flash_mult())   # 접근성: 번쩍임 줄이기
@@ -103,134 +84,123 @@ class GameUI:
             y = (seed * 97 + k * 163) % H
             assets.draw_rect_color(0, y, W, 3 + ((seed + k) % 3) * 2, (255, 242, 170), 0.15)
         shake = int(round(4 * math.sin(t * 70)))
-        assets.draw_text(W // 2 + shake, H - 215, '오버로드!', (255, 235, 120), center=True, big=True)
+        kit.text(W // 2 + shake, NOTICE_Y - 100, '오버로드!', (255, 235, 120), center=True, big=True)
 
-    # ----- 게이지 -----
+    # ----- 게이지 (가운데 위) -----
     def _x_of(self, value):
         return BAR_X + BAR_W * min(value, self.player.gauge.cap) / self.player.gauge.cap
 
     def _draw_gauge(self):
         g = self.player.gauge
         if g.zone in (FADE, CRITICAL):                           # 양끝 위험 구간: 게이지 둘레가 맥박처럼 깜빡인다
-            import math
-            pulse = 0.35 + 0.35 * math.sin(self.player.aura_time * (9 if g.zone == CRITICAL else 6))
-            assets.draw_rect_color(BAR_X - 12, BAR_Y - 12, BAR_W + 24, BAR_H + 24, ZONE_COLOR[g.zone], max(0.0, pulse))
-        _frame(BAR_X, BAR_Y, BAR_W, BAR_H, 'px_gray', thickness=5)
-        # 구간 띠 (페이드 / 노멀 / 각성 / 위험)
-        bounds = [(0, config.ZONE_FADE_MAX, 'px_red'), (config.ZONE_FADE_MAX, config.ZONE_NORMAL_MAX, 'px_blue'),
-                  (config.ZONE_NORMAL_MAX, g.cap - config.CRITICAL_MARGIN, 'px_cyan'),
-                  (g.cap - config.CRITICAL_MARGIN, g.cap, 'px_orange')]
-        for lo, hi, name in bounds:
-            x0, x1 = self._x_of(lo), self._x_of(hi)
-            _rect('px_gray', x0, BAR_Y, x1 - x0, BAR_H)
-            fill = min(g.value, hi) - lo
-            if fill > 0:
-                _rect(name, x0, BAR_Y, self._x_of(lo + fill) - x0, BAR_H)
-        for lo, _hi, _name in bounds[1:]:                        # 구간 경계 눈금
-            _rect('px_black', self._x_of(lo) - 1, BAR_Y, 3, BAR_H)
-        assets.draw_rect_color(BAR_X, BAR_Y + BAR_H - 5, BAR_W, 5, (255, 255, 255), 0.22)   # 유리 같은 윗면 빛
-        assets.draw_rect_color(BAR_X, BAR_Y, BAR_W, 6, (11, 16, 32), 0.30)                  # 아랫면 그늘
-        _icon('gauge_cap_l', BAR_X - 40, BAR_Y - 14)
-        _icon('gauge_cap_r', BAR_X + BAR_W, BAR_Y - 14)
-        _icon('marker', self._x_of(g.value) - 12, BAR_Y - 18)        # 현재 값 바늘
-        assets.draw_rect_color(BAR_X - 6, BAR_Y - 50, BAR_W + 12, 40, (11, 16, 32), 0.55)     # 글자 받침 (밝은 벽 위에서도 읽히게)
-        label = f'{ZONE_LABEL[g.zone]} {int(g.value)}%'
-        if g.enhanced:
-            label += '   강화 일격 준비'
-        assets.draw_text(BAR_X, BAR_Y - 34, label, ZONE_COLOR[g.zone])
+            pulse = 0.5 + 0.5 * math.sin(self.player.aura_time * (9 if g.zone == CRITICAL else 6))
+            if pulse > 0.5:
+                assets.draw_rect_color(BAR_X - 9, BAR_Y - 9, BAR_W + 18, BAR_H + 18, ZONE_COLOR[g.zone])
+        kit.panel('frame', BAR_X - 5, BAR_Y - 5, BAR_W + 10, BAR_H + 10)
+        bounds = [(0, config.ZONE_FADE_MAX, FADE), (config.ZONE_FADE_MAX, config.ZONE_NORMAL_MAX, NORMAL),
+                  (config.ZONE_NORMAL_MAX, g.cap - config.CRITICAL_MARGIN, AWAKE),
+                  (g.cap - config.CRITICAL_MARGIN, g.cap, CRITICAL)]
+        for lo, hi, zone in bounds:                              # 구간마다 빈 칸 위에 자기 색으로 채운다
+            x0, x1 = round(self._x_of(lo)), round(self._x_of(hi))
+            kit.fill('empty', x0, BAR_Y, x1 - x0, BAR_H)
+            filled = min(g.value, hi) - lo
+            if filled > 0:
+                kit.fill(ZONE_FILL[zone], x0, BAR_Y, round(self._x_of(lo + filled)) - x0, BAR_H)
+        for lo, _hi, _zone in bounds[1:]:                        # 구간 경계 눈금
+            x = round(self._x_of(lo))
+            assets.draw_rect_color(x - 1, BAR_Y, 2, BAR_H, (11, 16, 32))
+        kit.icon('ui_gauge_end_l', BAR_X - 40, BAR_Y - 20)
+        kit.icon('ui_gauge_end_r', BAR_X + BAR_W - 4, BAR_Y - 20)
+        kit.icon('ui_marker', round(self._x_of(g.value)) - 8, BAR_Y - 8)   # 현재 값 바늘
+        # 구간 표시 판: 왼쪽 구간 이름과 %, 가운데 강화 준비, 오른쪽 배율
+        kit.panel('plate', BAR_X, LABEL_Y, BAR_W, 40)
+        kit.text(BAR_X + 18, LABEL_Y + 20, f'{ZONE_LABEL[g.zone]} {int(g.value)}%', ZONE_COLOR[g.zone])
         mult = g.zone_multipliers()
-        text = f'공격력 x{mult["attack"]:g}  이동 x{mult["speed"]:g}'
-        assets.draw_text(BAR_X + BAR_W - assets.text_width(text, True), BAR_Y - 32, text, DIM, small=True)
+        kit.text(BAR_X + BAR_W - 18, LABEL_Y + 20, f'공격 x{mult["attack"]:g}  이동 x{mult["speed"]:g}', DIM, small=True,
+                 right=True)
+        if g.enhanced:
+            kit.text(W // 2 + 20, LABEL_Y + 20, '강화 일격 준비', (225, 190, 255), small=True, center=True)
 
-    # ----- 체력·대시·조각 -----
+    # ----- 왼쪽 위: 무기 칸, 체력, 대시, 조각, 공격 상태 -----
     def _draw_status(self):
         p = self.player
-        top = config.SCREEN_H - 90
-        rows = 3 if p.items else 2
-        assets.draw_rect_color(24, top - 76 - rows * 66 + 60, 470, 60 + rows * 66, (11, 16, 32), 0.50)   # 왼쪽 위 상태 묶음의 받침
+        w, g = p.weapon, p.gauge
+        kit.panel('panel', LEFT_X, LEFT_Y, LEFT_W, LEFT_H)
+        # 무기 칸 (든 무기 아이콘과 이름, 다른 칸에 무기가 있으면 Q 키)
+        sx, sy = LEFT_X + 16, LEFT_Y + 52
+        kit.panel('slot_hot' if g.enhanced else 'slot', sx, sy, 96, 96)
+        kit.icon(f'icon_w_{w.weapon_id}', sx + 24, sy + 24)
+        kit.text(sx + 48, LEFT_Y + 32, w.name, WHITE, small=True, center=True)
+        if p.weapons[1 - p.slot] is not None:
+            kit.icon('ui_key_q', sx + 70, sy + 70)
+        # 체력
+        rx = LEFT_X + 132
+        hy = LEFT_Y + LEFT_H - 46
+        kit.icon('hud_heart', rx, hy - 2)
+        hp_w = LEFT_X + LEFT_W - 22 - (rx + 40)
+        kit.bar('red', rx + 40, hy - 2, hp_w, 24, p.hp / p.max_hp)
+        kit.text(rx + 52, hy + 6, f'{p.hp} / {p.max_hp}', WHITE, small=True)
+        # 대시 칸과 조각
+        dy = hy - 38
         for i in range(p.dash_max):
-            _icon('dash_on' if i < p.dash_slots else 'dash_off', 66 + i * 50, top - 2)
-        hp_w, hp_h = int(380 * p.max_hp / config.PLAYER_HP), 30
-        y = top - 70
-        _frame(70, y, hp_w, hp_h, 'px_gray')
-        _rect('px_red', 70, y, hp_w * p.hp / p.max_hp, hp_h)
-        assets.draw_rect_color(70, y + hp_h - 5, hp_w, 5, (255, 255, 255), 0.20)
-        assets.draw_rect_color(70, y, hp_w, 5, (11, 16, 32), 0.30)
-        _icon('heart', 34, y + 1)
-        assets.draw_text(70 + 12, y + hp_h // 2, f'HP {p.hp}/{p.max_hp}', WHITE, small=True)
-        assets.draw_image(assets.image('ui/icon_shard.png'), 70 + 24, y - 62)                        # 조각 아이콘
-        assets.draw_text(126, y - 40, f'헤이즈 조각 {p.shards}', TEAL)
-        # 가진 업그레이드: 아이콘 칸, 2단계 이상이면 단계 수 (기본 성장은 공격력·체력 각각 얻은 만큼)
-        counts = {}
-        for item_id in p.items:
-            counts[item_id] = counts.get(item_id, 0) + 1
-        for i, (item_id, n) in enumerate(counts.items()):
-            ix = 70 + i * 60
-            _frame(ix, y - 136, 54, 54, 'px_black', border='px_gray', thickness=3)
-            assets.draw_image(assets.image(f'ui/icon_{item_id}.png'), ix + 27, y - 133)              # 아이템 아이콘
-            if n > 1:
-                assets.draw_text(ix + 50, y - 128, f'x{n}', WHITE, small=True, center=True)
-        if p.stunned:                                           # 기절 남은 시간 바
-            w = 420
-            bx, by = (config.SCREEN_W - w) // 2, config.SCREEN_H - 300
-            _frame(bx, by, w, 18, 'px_gray', border='px_black', thickness=4)
-            _rect('px_yellow', bx, by, w * p.gauge.stun_timer / config.OVERLOAD_STUN, 18)
-            assets.draw_text(config.SCREEN_W // 2, by + 44, f'기절 {p.gauge.stun_timer:.1f}s', (255, 240, 150), small=True,
-                             center=True)
-
-    # ----- 무기·공격 패널 (아래 가운데) -----
-    def _draw_weapon_panel(self):
-        p = self.player
-        w = p.weapon
-        g = p.gauge
-        px, py, pw, ph = (config.SCREEN_W - 980) // 2, 14, 980, 92   # 이름·공격 종류 | 콤보 | E 강화 (글자가 겹치지 않는 너비)
-        _frame(px, py, pw, ph, 'px_black', border='px_gray', thickness=3)
-        assets.draw_image(assets.image(f'ui/icon_w_{w.weapon_id}.png'), px + 34, py + ph // 2 - 24)   # 든 무기 아이콘
-        assets.draw_text(px + 72, py + ph - 26, w.name, WHITE)
-        other = p.weapons[1 - p.slot]
-        if other is not None:                            # 다른 칸의 무기: Q로 바꾼다
-            assets.draw_text(px + 200, py + ph - 26, f'Q {other.name}', DIM, small=True)
-        text, color = self._attack_text(w, g)
-        if g.enhanced:                                   # 강화는 지금 나가는 공격에 얹힌다
+            kit.icon('ui_dash_on' if i < p.dash_slots else 'ui_dash_off', rx + 4 + i * 30, dy)
+        kit.icon('ui_shard_s', LEFT_X + LEFT_W - 104, dy - 3)
+        kit.text(LEFT_X + LEFT_W - 74, dy + 9, f'{p.shards}', TEAL)
+        # 공격 상태: 무기 표시 · 다음 공격까지 재충전 · E 강화
+        ay = dy - 36
+        self._draw_weapon_meter(rx + 4, ay)
+        ex = rx + 130
+        if g.enhanced:                                           # 강화 일격 준비: 풀리기까지 남은 시간
+            kit.icon('ui_key_e', ex, ay - 6)
+            kit.bar('violet', ex + 44, ay + 5, 180, 12, g.enhance_timer / config.ENHANCE_TIME)
+        elif g.can_enhance():
+            kit.icon('ui_key_e', ex, ay - 6)
+            kit.text(ex + 44, ay + 11, f'강화 일격 (-{config.ENHANCE_COST}%)', TEAL, small=True)
+        else:
+            kit.text(ex, ay + 11, f'E 강화: 게이지 {g.enhance_min}%+', (110, 122, 148), small=True)
+        ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)
+        text, color = self._attack_text(w, g)                    # 지금 나가는 공격과 재충전 막대
+        if g.enhanced:
             text, color = '강화 ' + text.split(':')[0], (225, 190, 255)
-        assets.draw_text(px + 72, py + 24, text, color, small=True)
-        if w.weapon_id == 'pipe':                        # 콤보 3칸: 이어 칠수록 켜지고 3타(마무리)는 주황
+        kit.bar('white' if w.ready else 'yellow', rx + 4, LEFT_Y + 18, 92, 8, ratio)
+        kit.text(rx + 112, LEFT_Y + 22, text, color, small=True)
+        self._draw_items()
+        if p.stunned:                                            # 기절 남은 시간 (화면 가운데)
+            bw = 420
+            bx, by = (W - bw) // 2, NOTICE_Y - 160
+            kit.bar('yellow', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
+            kit.text(W // 2, by + 34, f'기절 {p.gauge.stun_timer:.1f}s', (255, 240, 150), small=True, center=True)
+
+    def _draw_weapon_meter(self, x, y):
+        """무기마다 다른 작은 표시: 철파이프 콤보 3칸, 건틀릿 충전, 사슬 끌 마릿수, 식칼 던질 개수."""
+        w = self.player.weapon
+        if w.weapon_id == 'pipe':
             for i in range(3):
                 lit = i < w.combo
-                _icon(('combo_fin' if i == 2 else 'combo_on') if lit else 'combo_off', px + 388 + i * 56, py + 28)
-        elif w.weapon_id == 'gauntlet':                  # 충전 바: 다 차면 청록
-            ratio = w.charge_ratio
-            _frame(px + 390, py + 34, 164, 26, 'px_gray', border='px_black', thickness=2)
-            _rect('px_cyan' if ratio >= 1.0 else 'px_white', px + 390, py + 34, 164 * ratio, 26)
-        elif w.weapon_id == 'chain':                     # 사슬: 끌 수 있는 적 수만큼 고리 칸 (기절이 붙으면 노랑)
-            count, _, stun = w.grip()
-            for i in range(min(count, 3)):
-                _rect('px_yellow' if stun else 'px_white', px + 392 + i * 32, py + 36, 22, 22)
-        else:                                            # 식칼: 이번에 던질 칼 수만큼 칸
-            count, _, pierce = w.volley()
-            for i in range(count):
-                _rect('px_yellow' if pierce else 'px_white', px + 392 + i * 32, py + 36, 22, 22)
-        # 다음 공격까지 재충전 바
-        ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)
-        _frame(px + 390, py + 10, 164, 10, 'px_gray', border='px_black', thickness=2)
-        _rect('px_white' if w.ready else 'px_yellow', px + 390, py + 10, 164 * ratio, 10)
-        # E 강화 상태
-        ex = px + 610
-        if g.enhanced:                                           # 강화 일격 준비 (1회성): 바는 준비가 풀리기까지 남은 시간
-            _frame(ex, py + 30, 340, 40, 'px_gray', border='px_white', thickness=3)
-            _rect('px_cyan', ex, py + 30, 340 * g.enhance_timer / config.ENHANCE_TIME, 40)
-            assets.draw_text(ex + 12, py + 50, '강화 일격 준비!', (10, 20, 40), small=True)
-        elif g.can_enhance():
-            _frame(ex, py + 30, 340, 40, 'px_cyan', border='px_white', thickness=3)
-            _icon('key_e', ex + 6, py + 30)
-            assets.draw_text(ex + 54, py + 50, f'강화 일격 준비 (-{config.ENHANCE_COST}%)', (10, 20, 40), small=True)
+                kit.icon(('ui_combo_fin' if i == 2 else 'ui_combo_on') if lit else 'ui_combo_off', x + i * 28, y)
+        elif w.weapon_id == 'gauntlet':
+            r = w.charge_ratio
+            kit.bar('cyan' if r >= 1.0 else 'white', x, y + 5, 100, 12, r)
         else:
-            _frame(ex, py + 30, 340, 40, 'px_gray', border='px_black', thickness=3)
-            assets.draw_text(ex + 12, py + 50, f'E 강화: 게이지 {g.enhance_min}%+', DIM, small=True)
+            count, _, hot = w.grip() if w.weapon_id == 'chain' else w.volley()
+            for i in range(min(count, 4)):
+                kit.icon('ui_combo_fin' if hot else 'ui_combo_on', x + i * 26, y)
+
+    def _draw_items(self):
+        """왼쪽 판 바로 아래: 가진 업그레이드 아이콘 칸 (같은 것을 여러 번 얻으면 개수)."""
+        counts = {}
+        for item_id in self.player.items:
+            counts[item_id] = counts.get(item_id, 0) + 1
+        for i, (item_id, n) in enumerate(counts.items()):
+            ix, iy = LEFT_X + i * 62, LEFT_Y - 66
+            kit.panel('plate', ix, iy, 58, 58)
+            kit.icon(f'icon_{item_id}', ix + 5, iy + 5)
+            if n > 1:
+                kit.text(ix + 46, iy + 12, f'{n}', WHITE, small=True, center=True)
 
     @staticmethod
     def _attack_text(w, g):
-        """무기 패널 아랫줄: 지금 나가는 공격."""
+        """지금 나가는 공격."""
         kind = w.current_kind()
         if w.weapon_id == 'knife':
             count, _, pierce = w.volley()
@@ -241,11 +211,11 @@ class GameUI:
             text = '관통 끌기' if count > 3 else f'{count}마리 끌기'
             return (text + ' · 기절', (255, 225, 120)) if stun else (text, DIM)
         if kind == 'charge':
-            return f'충전 {int(w.charge_ratio * 100)}% (게이지 -{int(config.GAUNTLET_DRAIN)}%/초)', (120, 220, 245)
+            return f'충전 {int(w.charge_ratio * 100)}% (-{int(config.GAUNTLET_DRAIN)}%/초)', (120, 220, 245)
         if kind == 'gauntlet_instant':
-            return f'즉시 발사 (게이지 -{config.GAUNTLET_CRIT_COST}%)', (255, 150, 120)
+            return f'즉시 발사 (-{config.GAUNTLET_CRIT_COST}%)', (255, 150, 120)
         if kind == 'gauntlet':
-            return '누르고 있다가 떼면 충격파', DIM
+            return '누르고 떼면 충격파', DIM
         names = {'pipe': ('기본 3연타', DIM), 'dash': ('대시 평타: 지나온 길 베기', (255, 225, 120)),
                  'spin': ('점프 평타: 회전 베기', (170, 225, 255)), 'plunge': ('내려찍기', (170, 225, 255))}
         return names[kind]
@@ -255,62 +225,61 @@ class GameUI:
         p = self.player
         x, y = p.mouse_screen if p.mouse_screen is not None else camera.to_screen(p.mouse_x, p.mouse_y)
         x, y = int(x), int(y)
-        _icon('reticle_ready' if p.weapon.ready else 'reticle_wait', x - 28, y - 28)
+        kit.icon('hud_reticle_ready' if p.weapon.ready else 'hud_reticle_wait', x - 28, y - 28)
 
-    # ----- 미니맵 -----
+    # ----- 미니맵 (오른쪽 위) -----
     def _draw_minimap(self):
-        """오른쪽 위 미니맵: 방문한 방과 이웃 방. 현재 방은 흰색, 클리어한 방은 청록, 고농도 방은 주황 테두리."""
+        """방문한 방과 이웃 방. 현재 방은 흰색, 클리어한 방은 청록, 방 종류는 테두리 색과 아이콘."""
         cell_w, cell_h, gap = 40, 26, 8
         cells = self.stage.minimap_cells()
         xs = [c[0][0] for c in cells]
         ys = [c[0][1] for c in cells]
-        right = config.SCREEN_W - 80
-        base_x = right - (max(xs) - min(xs) + 1) * (cell_w + gap)
-        base_y = config.SCREEN_H - 110 - (max(ys) - min(ys)) * (cell_h + gap)
-        colors = {'current': 'px_white', 'cleared': 'px_cyan', 'visited': 'px_blue', 'unknown': 'px_gray'}
-        kind_border = {'gold': 'px_yellow', 'boss': 'px_red', 'shop': 'px_blue', 'gate': 'px_orange'}
+        cols, rows = max(xs) - min(xs) + 1, max(ys) - min(ys) + 1
+        pw, ph = cols * (cell_w + gap) + 36, rows * (cell_h + gap) + 36
+        px, py = W - MARGIN - pw, H - MARGIN - ph
+        kit.panel('panel', px, py, pw, ph)
+        base_x, base_y = px + 18 + gap // 2, py + 18 + gap // 2
+        colors = {'current': (235, 245, 255), 'cleared': (63, 177, 207), 'visited': (60, 90, 150), 'unknown': (44, 54, 80)}
+        borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60)}
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
-            border = kind_border.get(kind, 'px_orange' if high else 'px_black')
-            _rect('px_black', x - 5, y - 5, cell_w + 10, cell_h + 10)
-            _rect(border, x - 4, y - 4, cell_w + 8, cell_h + 8)
-            _rect(colors[state], x, y, cell_w, cell_h)
-            mark = ('boss' if kind == 'gate' else kind) if kind in kind_border else 'haze' if high else None   # 관문은 보스 아이콘(주황 테두리)
+            border = borders.get(kind, (240, 150, 60) if high else (11, 16, 32))
+            assets.draw_rect_color(x - 3, y - 3, cell_w + 6, cell_h + 6, (11, 16, 32))
+            assets.draw_rect_color(x - 2, y - 2, cell_w + 4, cell_h + 4, border)
+            assets.draw_rect_color(x, y, cell_w, cell_h, colors[state])
+            mark = ('boss' if kind == 'gate' else kind) if kind in borders else 'haze' if high else None
             if mark:                                             # 방 종류는 색 테두리와 함께 아이콘으로도 알려 준다
-                _icon('map_' + mark, x + cell_w // 2 - 10, y + cell_h // 2 - 8)
-        legend = '지도: 별 황금방 / 렌치 정비방 / 뿔 보스·관문'
-        lw = assets.text_width(legend, True)
-        assets.draw_rect_color(right - lw - 10, base_y - 50, lw + 20, 32, (11, 16, 32), 0.55)
-        assets.draw_text(right - assets.text_width(legend, True), base_y - 34, legend, DIM, small=True)
+                kit.icon('hud_map_' + mark, x + cell_w // 2 - 10, y + cell_h // 2 - 8)
+
+    # ----- 안내 띠·보스 체력·짧은 메시지 (가운데) -----
+    def _banner(self, text, y, color, small=False):
+        bw = assets.text_width(text, small) + 110
+        kit.panel('banner', (W - bw) // 2, y, bw, 48)
+        kit.text(W // 2, y + 24, text, color, small=small, center=True)
 
     def _draw_room_notice(self):
         import play_mode  # 방 클리어 안내 시간은 play_mode가 갖고 있다
-        cx = config.SCREEN_W // 2
         if play_mode.clear_notice > 0:
-            text = '방 클리어! 열린 문으로 이동하라'
-            assets.draw_text(cx, config.SCREEN_H - 175, text, (170, 230, 250), center=True)
+            self._banner('방 클리어! 열린 문으로 이동하라', NOTICE_Y, (170, 230, 250))
         elif self.stage.room.locked:
-            assets.draw_text(cx, config.SCREEN_H - 175, f'적을 모두 처치하라 ({self.stage.enemy_count()})', (240, 140, 150),
-                             center=True)
+            self._banner(f'적을 모두 처치하라 ({self.stage.enemy_count()})', NOTICE_Y, (245, 150, 160))
         if self.stage.room.is_high_haze:
-            assets.draw_text(cx, config.SCREEN_H - 212, '고농도 방: 헤이즈가 계속 차오른다', TEAL, small=True, center=True)
+            kit.text(W // 2, NOTICE_Y - 20, '고농도 방: 헤이즈가 계속 차오른다', TEAL, small=True, center=True)
 
     def _draw_boss_bar(self):
         boss = self.stage.boss
         if boss is None or not boss.alive:
             return
-        w = 900
-        x = (config.SCREEN_W - w) // 2
-        y = config.SCREEN_H - 290   # 위쪽 게이지와 안내 문구 아래 (아래쪽은 싸움이 벌어지는 바닥이라 가린다)
-        _frame(x, y, w, 26, 'px_gray', border='px_black', thickness=5)
-        _rect('px_red', x, y, w * max(0.0, boss.hp) / boss.max_hp, 26)
-        assets.draw_text(config.SCREEN_W // 2, y + 56, getattr(boss, 'title', '보스'), (255, 150, 150), center=True)
+        bw = 760
+        x, y = (W - bw) // 2, NOTICE_Y - 84
+        kit.text(W // 2, y + 36, getattr(boss, 'title', '보스'), (255, 160, 160), center=True)
+        kit.bar('boss', x, y, bw, 16, max(0.0, boss.hp) / boss.max_hp)
 
     def _draw_message(self):
         import play_mode
         if play_mode.message_time > 0:
-            assets.draw_text(config.SCREEN_W // 2, 300, play_mode.message, (255, 240, 150), center=True)
+            self._banner(play_mode.message, NOTICE_Y - 230, GOLD)
 
     def _draw_debug(self):
         p = self.player
@@ -321,4 +290,4 @@ class GameUI:
             'F1 디버그  F3 게이지+10  F4 게이지-10  F5 방 재시작  H 피격  Esc 일시정지',
         ]
         for i, text in enumerate(lines):
-            assets.draw_text(70, config.SCREEN_H - 300 - i * 30, text, (255, 240, 120), small=True)
+            kit.text(LEFT_X, LEFT_Y - 120 - i * 30, text, (255, 240, 120), small=True)

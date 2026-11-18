@@ -1,12 +1,29 @@
-"""타이틀 화면. 아무 키나 누르면 게임을 시작한다."""
-from pico2d import SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_c, SDLK_o, clear_canvas, get_events, update_canvas
+"""타이틀(로비) 화면: 제목 일러스트, 로고, 메뉴(게임 시작 · 설정 · 크레딧 · 종료), 조작 안내.
+
+키보드(W/S·위/아래, Enter·Space)나 마우스(올리면 고르고 누르면 실행)로 메뉴를 고른다.
+단축키: O 설정, C 크레딧, Esc 종료. 부품 그림은 hud_kit(판·버튼).
+"""
+from pico2d import (SDL_KEYDOWN, SDL_MOUSEBUTTONDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_c, SDLK_o, clear_canvas, get_events,
+                    update_canvas)
 
 import assets
 import config
 import game_framework
+import hud_kit as kit
+
+W, H = config.SCREEN_W, config.SCREEN_H
+BUTTON_W, BUTTON_H, GAP = 420, 62, 16
+MENU_TOP = 470                             # 첫 버튼의 위쪽 y
+MENU = [kit.Button(key, label, (W - BUTTON_W) // 2, MENU_TOP - BUTTON_H - i * (BUTTON_H + GAP), BUTTON_W, BUTTON_H)
+        for i, (key, label) in enumerate((('start', '게임 시작'), ('options', '설정'), ('credits', '크레딧'),
+                                           ('quit', '종료')))]
+CONTROLS = 'A D 이동   Space 점프   마우스 조준·좌클릭 공격   Shift·우클릭 대시   E 강화   Q 무기 바꾸기   F 상호작용'
+selected = 0
 
 
 def enter():
+    global selected
+    selected = 0
     assets.play_music('title')
 
 
@@ -22,22 +39,38 @@ def resume():
     pass
 
 
+def run(key):
+    """메뉴 항목 실행."""
+    assets.play_sound('pickup')
+    if key == 'start':
+        import play_mode
+        game_framework.change_mode(play_mode)
+    elif key == 'options':
+        import options_mode
+        game_framework.push_mode(options_mode)
+    elif key == 'credits':
+        import credits_mode
+        game_framework.change_mode(credits_mode)
+    else:
+        game_framework.quit()
+
+
 def handle_events():
-    import play_mode
+    global selected
     for event in get_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
-        elif event.type == SDL_KEYDOWN:
-            if event.key == SDLK_ESCAPE:
-                game_framework.quit()
-            elif event.key == SDLK_o:
-                import options_mode
-                game_framework.push_mode(options_mode)
-            elif event.key == SDLK_c:
-                import credits_mode
-                game_framework.change_mode(credits_mode)
-            else:
-                game_framework.change_mode(play_mode)
+            return
+        if event.type == SDL_KEYDOWN and event.key in (SDLK_ESCAPE, SDLK_o, SDLK_c):
+            run({SDLK_ESCAPE: 'quit', SDLK_o: 'options', SDLK_c: 'credits'}[event.key])
+            return
+        before = selected
+        selected, action = kit.menu_pick(MENU, selected, event, H)
+        if selected != before and event.type != SDL_MOUSEBUTTONDOWN:
+            assets.play_sound('swing_fade')                # 고르는 소리 (작게)
+        if action == 'click':
+            run(MENU[selected].key)
+            return
 
 
 def update():
@@ -45,15 +78,14 @@ def update():
 
 
 def draw_frozen():
-    """제목 화면 (설정 화면이 아래에 깔 때도 쓴다)."""
-    assets.draw_image(assets.image('backgrounds/screen_title.png'), config.SCREEN_W // 2, 0)   # Codex T16 제목 화면 일러스트
-    assets.draw_image(assets.image('ui/logo.png'), config.SCREEN_W // 2, 600)  # 코드로 그린 로고 (tools/make_codeart.py)
-    assets.draw_text(config.SCREEN_W // 2, 545, '안개를 삼키고 탈출하라', (110, 190, 230), center=True)
-    assets.draw_rect_color(config.SCREEN_W // 2 - 620, 192, 1240, 170, (11, 16, 32), 0.55)   # 밝은 성벽 위에서도 안내가 읽히게
-    assets.draw_text(config.SCREEN_W // 2, 330, '아무 키나 누르세요', (235, 240, 250), center=True)
-    assets.draw_text(config.SCREEN_W // 2, 270, 'A D 이동  Space 점프  마우스 조준·좌클릭 공격  Shift 대시  E 강화  F 상호작용', (185, 200, 225),
-                     small=True, center=True)
-    assets.draw_text(config.SCREEN_W // 2, 214, 'O 설정(화면 흔들림·번쩍임)   C 크레딧   Esc 종료', (150, 165, 190), small=True, center=True)
+    """제목 화면 (설정 창이 아래에 깔 때도 쓴다)."""
+    assets.draw_image(assets.image('backgrounds/screen_title.png'), W // 2, 0)   # Codex T16 제목 화면 일러스트
+    assets.draw_image(assets.image('ui/logo.png'), W // 2, 640)                # 코드로 그린 로고 (tools/make_codeart.py)
+    kit.text(W // 2, 610, '안개를 삼키고 탈출하라', (150, 220, 245), center=True)
+    for i, b in enumerate(MENU):
+        b.draw(i == selected)
+    kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)
+    kit.text(W // 2, 44, CONTROLS, (175, 190, 215), small=True, center=True)
 
 
 def draw():

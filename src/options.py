@@ -1,4 +1,4 @@
-"""접근성 옵션: 화면 흔들림 세기, 번쩍임 줄이기. pico2d와 무관한 순수 로직이다.
+"""설정: 화면 흔들림 세기, 번쩍임 줄이기(접근성), 음악·효과음 크기. pico2d와 무관한 순수 로직이다.
 
 값은 이번 실행 동안 유지되고, 바꿀 때마다 사용자 홈 폴더의 작은 파일(~/.haze_options.json)에 저장해
 다음 실행에도 이어진다. 파일을 읽거나 쓸 수 없으면 조용히 기본값으로 동작한다 (게임은 멈추지 않는다).
@@ -11,6 +11,10 @@ PATH = os.path.join(os.path.expanduser('~'), '.haze_options.json')
 
 shake_level = 2           # SHAKE_LEVELS 번호 (기본: 보통)
 reduce_flash = False      # True면 화면 섬광과 큰 폭발의 하얀 중심을 약하게 한다
+VOLUME_MAX = 10
+VOLUME_DEFAULT = 8         # 이 단계가 config의 기본 음량(MUSIC_VOLUME, SFX_VOLUME)이다
+music_level = VOLUME_DEFAULT
+sfx_level = VOLUME_DEFAULT
 FLASH_SCALE = 0.25        # 번쩍임 줄이기를 켰을 때 화면 섬광 세기 배율
 _loaded = False
 
@@ -27,6 +31,29 @@ def flash_mult():
     return FLASH_SCALE if reduce_flash else 1.0
 
 
+def volume(base, level):
+    """config의 기본 음량(0~128)을 단계(0~10)에 맞춰 바꾼다. 기본 단계(8)면 그대로다."""
+    return max(0, min(128, round(base * level / VOLUME_DEFAULT)))
+
+
+def set_music(level):
+    global music_level
+    music_level = max(0, min(VOLUME_MAX, int(level)))
+    save()
+
+
+def set_sfx(level):
+    global sfx_level
+    sfx_level = max(0, min(VOLUME_MAX, int(level)))
+    save()
+
+
+def set_shake(level):
+    global shake_level
+    shake_level = max(0, min(len(SHAKE_LEVELS) - 1, int(level)))
+    save()
+
+
 def cycle_shake(step=1):
     global shake_level
     shake_level = (shake_level + step) % len(SHAKE_LEVELS)
@@ -41,13 +68,14 @@ def toggle_flash():
 
 def reset():
     """기본값으로 되돌린다 (테스트용, 파일은 건드리지 않는다)."""
-    global shake_level, reduce_flash
+    global shake_level, reduce_flash, music_level, sfx_level
     shake_level, reduce_flash = 2, False
+    music_level = sfx_level = VOLUME_DEFAULT
 
 
 def load(path=None):
     """저장된 값을 읽는다. 처음 한 번만 읽고, 이상한 값은 무시한다."""
-    global shake_level, reduce_flash, _loaded
+    global shake_level, reduce_flash, music_level, sfx_level, _loaded
     _loaded = True
     try:
         with open(path or PATH, encoding='utf-8') as f:
@@ -56,6 +84,10 @@ def load(path=None):
         if 0 <= level < len(SHAKE_LEVELS):
             shake_level = level
         reduce_flash = bool(data.get('reduce_flash', reduce_flash))
+        for key in ('music_level', 'sfx_level'):
+            v = int(data.get(key, globals()[key]))
+            if 0 <= v <= VOLUME_MAX:
+                globals()[key] = v
     except (OSError, ValueError, TypeError, AttributeError):
         pass
 
@@ -63,7 +95,8 @@ def load(path=None):
 def save(path=None):
     try:
         with open(path or PATH, 'w', encoding='utf-8') as f:
-            json.dump({'shake_level': shake_level, 'reduce_flash': reduce_flash}, f)
+            json.dump({'shake_level': shake_level, 'reduce_flash': reduce_flash,
+                       'music_level': music_level, 'sfx_level': sfx_level}, f)
     except OSError:
         pass
 

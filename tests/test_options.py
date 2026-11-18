@@ -79,8 +79,75 @@ def test_options_screen_shows_current_values():
     import options_mode
     options.reset()
     names = [n for n, _, _ in options_mode.lines()]
-    assert names == ['화면 흔들림', '번쩍임 줄이기']
-    assert options_mode.lines()[0][1] == '보통' and options_mode.lines()[1][1] == '끔'
+    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기']
+    values = [v for _, v, _ in options_mode.lines()]
+    assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT)]
+
+
+def test_volume_levels_scale_config_volume_and_clamp():
+    options.reset()
+    assert options.volume(64, options.VOLUME_DEFAULT) == 64                # 기본 단계는 config 그대로
+    assert options.volume(64, 0) == 0 and options.volume(64, 4) == 32
+    assert options.volume(120, options.VOLUME_MAX) == 128                   # 128을 넘지 않는다
+    old = options.PATH
+    options.PATH = os.path.join(tempfile.mkdtemp(), 'v.json')
+    try:
+        options.set_music(99)
+        options.set_sfx(-3)
+        assert options.music_level == options.VOLUME_MAX and options.sfx_level == 0
+        options.reset()
+        options.load()
+        assert options.music_level == options.VOLUME_MAX and options.sfx_level == 0
+    finally:
+        options.PATH = old
+        options.reset()
+
+
+def test_options_click_sets_segment_and_slider():
+    import options_mode
+    options.reset()
+    old = options.PATH
+    options.PATH = os.path.join(tempfile.mkdtemp(), 'c.json')
+    try:
+        _v, _t, x, w = options_mode._segments('shake')[0]                    # '끔' 칸을 누른다
+        assert options_mode.click(x + 5, options_mode.ROW_Y[0])
+        assert options.shake_level == 0
+        y = options_mode.ROW_Y[2]                                             # 음악 막대의 절반쯤
+        options_mode.click(options_mode.VALUE_X + options_mode.VALUE_W // 2, y)
+        assert options.music_level == options.VOLUME_MAX // 2
+    finally:
+        options.PATH = old
+        options.reset()
+
+
+def test_menus_have_buttons_that_do_not_overlap():
+    import pause_mode
+    import title_mode
+    for menu in (title_mode.MENU, pause_mode.MENU):
+        for a in menu:
+            for b in menu:
+                if a is not b:
+                    assert a.y + a.h <= b.y or b.y + b.h <= a.y, (a.label, b.label)
+    assert [b.key for b in title_mode.MENU] == ['start', 'options', 'credits', 'quit']
+
+
+def test_ui_kit_images_exist_for_every_part():
+    """HUD·메뉴가 쓰는 판·막대·칸 그림이 모두 있다 (tools/make_ui.py)."""
+    import re
+    from PIL import Image
+    import hud_kit
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'ui')
+    for kind, (size, corner, _) in hud_kit.KITS.items():
+        im = Image.open(os.path.join(base, f'ui_kit_{kind}.png'))
+        assert im.size == (size, size) and size > 2 * corner, kind
+    src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'ui.py'), encoding='utf-8').read()
+    src += open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'options_mode.py'), encoding='utf-8').read()
+    colors = set(re.findall(r"kit\.(?:bar|fill)\('(\w+)'", src)) | {'red', 'blue', 'cyan', 'orange', 'empty', 'white', 'yellow'}
+    for color in colors:
+        for h in hud_kit.FILL_HEIGHTS:
+            assert os.path.exists(os.path.join(base, f'ui_fill_{color}_{h}.png')), (color, h)
+    for name in {n for n in re.findall(r"kit\.icon\('(\w+)'", src) if not n.endswith('_')}:   # 'hud_map_' + 종류는 빼고
+        assert os.path.exists(os.path.join(base, name + '.png')), name
 
 
 if __name__ == '__main__':

@@ -89,7 +89,8 @@ def sound(name):
             wav = load_wav(os.path.join(ASSET_DIR, 'sfx', name + '.wav'))
             if wav is not None:
                 import config
-                wav.set_volume(config.SFX_VOLUME)
+                import options
+                wav.set_volume(options.volume(config.SFX_VOLUME, options.sfx_level))
             _sounds[name] = wav
         except Exception:
             _sounds[name] = None
@@ -103,6 +104,8 @@ def play_sound(name):
         return
     wav = sound(name)
     if wav is not None:
+        import options
+        wav.set_volume(options.volume(config.SFX_VOLUME, options.sfx_level))   # 설정에서 바꾼 효과음 크기
         wav.play()
 
 
@@ -124,10 +127,23 @@ def play_music(name):
         if name not in _music:
             from pico2d import load_music
             _music[name] = load_music(os.path.join(ASSET_DIR, 'music', name + '.wav'))
-        _music[name].set_volume(config.MUSIC_VOLUME)
+        import options
+        _music[name].set_volume(options.volume(config.MUSIC_VOLUME, options.music_level))
         _music[name].repeat_play()
     except Exception:
         _music[name] = None
+
+
+def apply_music_volume():
+    """설정에서 음악 크기를 바꿨을 때 지금 나오는 곡에 바로 적용한다."""
+    import config
+    import options
+    music = _music.get(current_music)
+    if music is not None and config.SOUND_ENABLED:
+        try:
+            music.set_volume(options.volume(config.MUSIC_VOLUME, options.music_level))
+        except Exception:
+            pass
 
 
 def stop_music():

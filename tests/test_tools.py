@@ -33,6 +33,14 @@ def test_balance_sim_counts_overloads():
     assert r['overloads'] >= 1, r
 
 
+def test_check_gait_tells_alternating_steps_from_a_repeated_stride():
+    import check_gait
+    walk = [os.path.join(ROOT, 'assets', 'sprites', 'unified', f'n09_walk_{i}.png') for i in range(1, 9)]
+    assert check_gait.gait_ratio(walk)[2] >= check_gait.PASS_RATIO          # 걷기: 왼발·오른발 걸음이 다르다
+    repeated = walk[:4] + walk[:4]                                          # 같은 걸음 두 번 = 발이 교차하지 않는다
+    assert check_gait.gait_ratio(repeated)[2] < 0.1
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

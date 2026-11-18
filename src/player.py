@@ -230,6 +230,7 @@ class Player(TileBody):
         self.dash_vec = (1.0, 0.0)
         self.dash_left = 0.0
         self.invuln_left = 0.0
+        self.steady_left = 0.0           # 이 시간 동안의 무적은 깜빡이지 않는다 (궁극기 시전: 몸이 보여야 한다)
 
         self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
         self.afterimage_timer = 0.0
@@ -509,6 +510,7 @@ class Player(TileBody):
         if self.attack_held:
             self.request_attack()
         self.invuln_left = max(0.0, self.invuln_left - dt)
+        self.steady_left = max(0.0, self.steady_left - dt)
         if self.gauge.zone == DEAD and self.state != 'DEAD':
             self.die()
 
@@ -696,7 +698,8 @@ class Player(TileBody):
         if self.state != 'DEAD':   # 게이지 구간·강화·기절에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
             for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned):
                 effects.draw_loop(name, self.x, self.y, self.aura_time, flip=self.draw_face() < 0)   # 몸 실루엣과 같은 쪽을 보게
-        blink = self.invuln_left > 0 and self.state not in ('DASH', 'DEAD') and int(self.invuln_left * 20) % 2 == 0
+        blink = (self.invuln_left > 0 and self.steady_left <= 0 and self.state not in ('DASH', 'DEAD')
+                 and int(self.invuln_left * 20) % 2 == 0)
         if not blink:                                   # 피격 무적 중에는 깜빡인다
             name, n = self._body_frame()
             x, tint = self.x, None

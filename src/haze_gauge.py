@@ -27,6 +27,7 @@ class HazeGauge:
         self.decay_interval = config.GAUGE_DECAY_INTERVAL
         self.enhance_cost = config.ENHANCE_COST
         self.enhance_timer = 0.0   # 강화 일격 준비가 남은 시간 (0이면 준비 안 됨)
+        self.enhance_level = 0     # 쌓인 강화 단계 (0~ENHANCE_MAX_LEVEL). E를 누를 때마다 +1, 공격 한 번에 모두 쓰인다
         self.stun_timer = 0.0      # 오버로드 기절 남은 시간
         self._timer = 0.0          # 감소/상승 주기 타이머
         self._high_haze = False
@@ -90,6 +91,8 @@ class HazeGauge:
         if self.zone == DEAD:
             return
         self.enhance_timer = max(0.0, self.enhance_timer - dt)
+        if self.enhance_timer <= 0:
+            self.enhance_level = 0                 # 준비 시간이 지나면 쌓인 단계가 모두 사라진다
         self.stun_timer = max(0.0, self.stun_timer - dt)
         if high_haze != self._high_haze:
             self._high_haze = high_haze
@@ -108,19 +111,24 @@ class HazeGauge:
 
     @property
     def enhanced(self):
-        return self.enhance_timer > 0
+        return self.enhance_level > 0 and self.enhance_timer > 0
 
     def can_enhance(self):
-        return self.zone != DEAD and not self.enhanced and self.value >= self.enhance_min
+        """한 단계 더 쌓을 수 있는가: 최대 단계 미만이고, 쓰고 나서도 ENHANCE_FLOOR 이상 남는다."""
+        return (self.zone != DEAD and self.enhance_level < config.ENHANCE_MAX_LEVEL
+                and self.value >= self.enhance_min)
 
     def consume_enhance(self):
-        """강화 일격을 썼다: 준비 상태를 끈다 (강화는 1회성)."""
+        """강화 공격을 썼다: 쌓인 단계를 모두 쓴다 (강화는 1회성)."""
         self.enhance_timer = 0.0
+        self.enhance_level = 0
 
     def use_enhance(self):
+        """E: 게이지 enhance_cost를 내고 강화 단계를 하나 쌓는다. 준비 시간은 처음부터 다시 잰다."""
         if not self.can_enhance():
             return False
         self.add(-self.enhance_cost, 'enhance')
+        self.enhance_level += 1
         self.enhance_timer = config.ENHANCE_TIME
         return True
 

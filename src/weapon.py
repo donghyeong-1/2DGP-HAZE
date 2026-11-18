@@ -12,6 +12,7 @@
 대미지는 항상 기본 x 게이지 구간 배율 x 공격력 보너스 x 공격 종류 배율이다.
 """
 import math
+import time
 
 import assets
 import config
@@ -79,6 +80,7 @@ class Pipe:
         self.combo_left = 0.0     # 이 시간이 지나면 연타가 끊긴다
         self.last_kind = None     # 마지막으로 나간 공격 종류 (pipe / dash / spin / plunge)
         self.last_enhanced = False   # 그 공격이 강화 일격이었는가
+        self.level = 0               # 지금 나가는 공격에 쓰인 강화 단계 (0 = 강화 없음, 1~2, 3은 궁극기)
 
     def update(self, dt):
         self.cooldown = max(0.0, self.cooldown - dt)
@@ -104,10 +106,54 @@ class Pipe:
         """공격을 시도한다. 공격했으면 True."""
         if not self.ready:
             return False
+        if self._try_ultimate():
+            return True
         kind = self.current_kind()
-        enhanced = self.owner.gauge.enhanced
+        enhanced = self._take_level()
         self.last_kind, self.last_enhanced = kind, enhanced
         getattr(self, '_attack_' + kind)(enhanced)
+        return True
+
+    # ----- 강화 단계 (E 중첩) -----
+    def _take_level(self):
+        """이번 공격에 쓰는 강화 단계를 정한다. 강화됐으면 True."""
+        g = self.owner.gauge
+        self.level = g.enhance_level if g.enhanced else 0
+        return self.level > 0
+
+    def _enh(self, key):
+        """지금 강화 단계(1~2)의 값: 피해 배율·범위·추가 타격·폭발 반지름 (config.ENHANCE_LEVELS)."""
+        return config.ENHANCE_LEVELS[max(1, min(self.level, 2))][key]
+
+    def _stack(self):
+        """식칼·건틀릿·사슬의 강화 피해에 곱하는 단계 배율."""
+        return config.ENHANCE_STACK_MULT.get(max(1, min(self.level, 2)), 1.0)
+
+    def ult_kind(self):
+        """궁극기 종류: 대시 중·직후 = dash, 공중 = jump, 그 밖 = basic (철파이프의 공격 종류 규칙과 같다)."""
+        p = self.owner
+        if p.dash_window > 0:
+            return 'dash'
+        if not p.on_ground and p.state in ('JUMP', 'FALL'):
+            return 'jump'
+        return 'basic'
+
+    def _try_ultimate(self):
+        """강화 3단계로 공격하면 궁극기가 나간다. 나갔으면 True."""
+        g = self.owner.gauge
+        if not (g.enhanced and g.enhance_level >= config.ENHANCE_MAX_LEVEL):
+            return False
+        p = self.owner
+        kind = self.ult_kind()
+        ax, ay = p.aim_vector()
+        self.level = config.ENHANCE_MAX_LEVEL
+        self.last_kind, self.last_enhanced = 'ult_' + kind, True
+        game_world.add_object(Ultimate(self, kind, ax, ay), game_world.LAYER_EFFECT)
+        g.consume_enhance()
+        p.start_punch('blast')                           # 시전 자세 (T23 그림이 오면 전용 자세로 바꾼다)
+        if kind == 'jump':
+            p.vy = min(p.vy, -1400.0)                    # 내리꽂힌다
+        self.cooldown = self.cooldown_max = config.ULT_COOLDOWN
         return True
 
     # ----- 공통 -----
@@ -148,7 +194,7 @@ class Pipe:
             self._blast(enemy)
         if not extra:                                    # 식칼·건틀릿은 구간 효과가 발사 수·크기로 따로 있다
             return killed
-        extra = max(config.EXTRA_HITS.get(p.gauge.zone, 0), config.ENHANCED_EXTRA_HITS if fx is config.ENHANCED_FX else 0)
+        extra = max(config.EXTRA_HITS.get(p.gauge.zone, 0), self._enh('extra') if fx is config.ENHANCED_FX else 0)
         if extra and not killed:                         # 타수 증가: 첫 타격 뒤에 작은 추가 타격이 이어진다
             game_world.add_object(ExtraHits(p, enemy, damage * config.EXTRA_HIT_RATIO, fx, extra, big), game_world.LAYER_EFFECT)
         return killed
@@ -199,8 +245,9 @@ class Pipe:
             self.cooldown = config.ENHANCE_STRIKE_COOLDOWN
             effects.spawn(fx['slash'], cx, cy, flip=flip, duration=0.24, variant=variant)
             effects.add_trauma(config.SHAKE_FINISHER)
-            damage = self._damage(config.ENHANCE_DAMAGE_MULT)
-            for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, enhanced=True, scale=self._reach())):
+            damage = self._damage(self._enh('damage'))
+            scale = self._reach() * self._enh('reach') / config.ENHANCE_REACH_MULT
+            for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, enhanced=True, scale=scale)):
                 self._hit(enemy, damage, config.PIPE_FINISHER_GAIN, fx, big=True, shake=2.0, stop=2, blast=True)
             self._finish(True)
             return
@@ -226,7 +273,7 @@ class Pipe:
         for other in list(game_world.world[game_world.LAYER_ENEMY]):
             if other.alive and other is not hit:
                 ox, oy = other.center
-                if math.hypot(ox - bx, oy - by) <= config.ENHANCE_BLAST_RADIUS and (
+                if math.hypot(ox - bx, oy - by) <= self._enh('blast') and (
                         p.room is None or not p.room.line_blocked(bx, by, ox, oy)):
                     if other.take_damage(config.ENHANCE_BLAST_DAMAGE, from_x=bx):
                         p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
@@ -258,9 +305,9 @@ class Pipe:
             return
         dx, dy = (x1 - x0) / length, (y1 - y0) / length
         fx = self._fx(enhanced)
-        half = (config.DASH_STRIKE_ENHANCED_HALF_WIDTH if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
+        half = (self._enh('half') if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
         effects.spawn_path_slash(x0, y0, x1, y1, enhanced)
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else self._special(config.DASH_STRIKE_MULT))
+        damage = self._damage(self._enh('damage') if enhanced else self._special(config.DASH_STRIKE_MULT))
         for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
             if not enemy.alive or not self._segment_hit(enemy, x0, y0, dx, dy, length, half):
                 continue
@@ -283,8 +330,8 @@ class Pipe:
         assets.play_sound(fx['sound'])
         effects.spawn(effects.special_sheet('spin', enhanced)[0], cx, cy, duration=0.26)
         p.vy = max(p.vy, config.AIR_HOP)                                  # 살짝 떠오르며 한 바퀴 돈다
-        reach = config.AIR_SPIN_REACH * (config.ENHANCE_REACH_MULT if enhanced else 1.0) * self._reach()
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else self._special(config.AIR_SPIN_MULT))
+        reach = config.AIR_SPIN_REACH * (self._enh('reach') if enhanced else 1.0) * self._reach()
+        damage = self._damage(self._enh('damage') if enhanced else self._special(config.AIR_SPIN_MULT))
         for enemy in self._targets(lambda e: self._within(e, cx, cy, reach)):
             self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
                       shake=1.8 if enhanced else 1.1, blast=enhanced)
@@ -301,8 +348,8 @@ class Pipe:
         p.start_plunge_pose()
         sheet, _ = effects.special_sheet('plunge', enhanced)
         effects.spawn(sheet, cx, cy, duration=0.26, variant=4)             # 아래 방향 변형
-        k = (1.35 if enhanced else 1.0) * self._reach()
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else self._special(config.PLUNGE_MULT))
+        k = (self._enh('plunge') if enhanced else 1.0) * self._reach()
+        damage = self._damage(self._enh('damage') if enhanced else self._special(config.PLUNGE_MULT))
         targets = self._targets(lambda e: self._segment_hit(e, cx, cy, 0.0, -1.0, config.PLUNGE_LENGTH * k,
                                                              config.PLUNGE_HALF_WIDTH * k))
         for enemy in targets:
@@ -364,15 +411,17 @@ class Knife(Pipe):
     def try_attack(self):
         if not self.ready:
             return False
+        if self._try_ultimate():
+            return True
         p = self.owner
-        enhanced = p.gauge.enhanced
+        enhanced = self._take_level()
         self.last_kind, self.last_enhanced = 'knife', enhanced
         count, spread, pierce = self.volley(enhanced)
         ax, ay = p.aim_vector()
         base = math.degrees(math.atan2(ay, ax))
         cx, cy = p.center
         fx = self._fx(enhanced)
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 if enhanced else 1.0)
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 * self._stack() if enhanced else 1.0)
         for i in range(count):
             off = 0.0 if count == 1 else -spread + 2 * spread * i / (count - 1)
             a = math.radians(base + off)
@@ -465,6 +514,8 @@ class Gauntlet(Pipe):
     def try_attack(self):
         if not self.ready or self.charging:
             return False
+        if self._try_ultimate():
+            return True
         p = self.owner
         if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 즉시, 게이지를 크게 비운다
             p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')
@@ -507,7 +558,7 @@ class Gauntlet(Pipe):
             self.cooldown = self.cooldown_max = 0.15
             effects.spawn('puff', *self.owner.center, duration=0.25)
             return
-        enhanced = self.owner.gauge.enhanced
+        enhanced = self._take_level()
         size = config.GAUNTLET_SIZE.get(self.owner.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
         self._fire(ratio, enhanced, size)
 
@@ -516,7 +567,7 @@ class Gauntlet(Pipe):
         ax, ay = p.aim_vector()
         cx, cy = p.center
         fx = self._fx(enhanced)
-        damage = self._damage(0.4 + 0.6 * ratio) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
+        damage = self._damage(0.4 + 0.6 * ratio) * (config.GAUNTLET_ENHANCED_MULT * self._stack() if enhanced else 1.0)
         game_world.add_object(Blast(self, cx + ax * 40, cy + ay * 40, ax, ay, damage, size, fx, enhanced),
                               game_world.LAYER_EFFECT)
         self.last_kind, self.last_enhanced = 'gauntlet', enhanced
@@ -598,12 +649,14 @@ class Chain(Pipe):
     def try_attack(self):
         if not self.ready:
             return False
+        if self._try_ultimate():
+            return True
         p = self.owner
-        enhanced = p.gauge.enhanced
+        enhanced = self._take_level()
         self.last_kind, self.last_enhanced = 'chain', enhanced
         count, reach, stun = self.grip(enhanced)
         ax, ay = p.aim_vector()
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 if enhanced else 1.0)
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 * self._stack() if enhanced else 1.0)
         self.hook = ChainHook(self, ax, ay, damage, count, reach, stun, self._fx(enhanced), enhanced)
         game_world.add_object(self.hook, game_world.LAYER_EFFECT)
         assets.play_sound('throw')
@@ -752,6 +805,132 @@ class ChainHook:
         assets.draw_rect_color(x - 8, y - 8, 16, 16, (12, 14, 22))                      # 갈고리 머리
         assets.draw_rect_color(x - 6, y - 6, 12, 12, (186, 196, 210))
         assets.draw_rect_color(x - 3, y - 3, 6, 6, (90, 210, 240))                      # 헤이즈 빛
+
+
+# =====================================================================================================
+# 궁극기 (E 3단계로 공격, 11/19): 무기 x 공격 종류(기본·대시·점프)마다 이름이 있다. 시전하는 순간 화면이 멈추고
+# 어두워지며 기술 이름 띠가 지나간 뒤, 범위 안의 적을 여러 번(ULT_HITS) 크게 친다. 플레이어는 그동안 무적.
+# 범위: 기본 = 앞쪽 화면 절반 / 대시 = 조준 방향 긴 직선 / 점프 = 좌우 넓게 내려찍기. 궁극기는 **벽·기둥 너머도 맞는다**
+# (게이지 75%를 쓰는 화면 기술이라 일반 공격의 시야선 규칙에서 뺐다. 보스는 피해 상한이 있다).
+# 보스에게는 한 번에 최대 체력의 ULT_BOSS_CAP까지만. 궁극기 타격은 게이지를 올리지 않는다(처치 보너스만).
+# 지금은 네 무기가 같은 범위 규칙을 쓰고 이름·색만 다르다. 무기별 모양(칼비·광선·사슬)은 다음 단계에서 나눈다.
+# 컷인 그림은 Codex T23이 오면 이름 띠 자리에 넣는다.
+# =====================================================================================================
+ULT_NAMES = {('pipe', 'basic'): '안개 대참격', ('pipe', 'dash'): '관통 질주', ('pipe', 'jump'): '낙하 붕괴',
+             ('knife', 'basic'): '칼비', ('knife', 'dash'): '칼날 회오리', ('knife', 'jump'): '부채 폭격',
+             ('gauntlet', 'basic'): '헤이즈 포격', ('gauntlet', 'dash'): '충격 돌파', ('gauntlet', 'jump'): '낙하 포격',
+             ('chain', 'basic'): '포획 폭발', ('chain', 'dash'): '사슬 질주', ('chain', 'jump'): '공중 낚아채기'}
+ULT_COLORS = {'pipe': (150, 235, 255), 'knife': (235, 240, 255), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
+
+
+class Ultimate:
+    END = 1.15                     # 궁극기 전체 길이(초, 화면 정지 뒤부터)
+
+    def __init__(self, weapon, kind, ax, ay):
+        p = weapon.owner
+        self.weapon, self.kind = weapon, kind
+        self.name = ULT_NAMES.get((weapon.weapon_id, kind), ULT_NAMES[('pipe', kind)])
+        self.color = ULT_COLORS.get(weapon.weapon_id, (150, 235, 255))
+        self.x0, self.y0 = p.center
+        self.floor_y = p.y
+        self.side = 1 if ax >= 0 else -1
+        length = math.hypot(ax, ay) or 1.0
+        self.dx, self.dy = ax / length, ay / length
+        if kind == 'dash' and abs(self.dy) < 0.35:      # 대시 궁극기는 거의 수평이면 수평으로
+            self.dx, self.dy = float(self.side), 0.0
+        self.time = 0.0
+        self.hits_done = 0
+        self.dealt = {}
+        self.targets = [e for e in list(game_world.world[game_world.LAYER_ENEMY]) if e.alive and self._in_area(e)]
+        self.born = time.monotonic()                    # 이름 띠는 실제 시간으로 움직인다 (화면 정지 중에도 들어와야 한다)
+        effects.request_hit_stop(config.ULT_FREEZE)
+        effects.add_trauma(0.9)
+        p.invuln_left = max(p.invuln_left, config.ULT_INVULN)
+        p.steady_left = max(p.steady_left, config.ULT_INVULN)   # 무적이지만 깜빡이지 않는다
+        assets.play_sound('overload_zap')
+
+    def _in_area(self, e):
+        ex, ey = e.center
+        dx, dy = ex - self.x0, ey - self.y0
+        if self.kind == 'basic':
+            return -60 <= dx * self.side <= config.ULT_FORWARD and abs(dy) <= config.ULT_HEIGHT
+        if self.kind == 'dash':
+            return Pipe._segment_hit(e, self.x0, self.y0, self.dx, self.dy, config.ULT_DASH_LENGTH, config.ULT_DASH_HALF)
+        return abs(dx) <= config.ULT_SLAM_RADIUS and abs(dy) <= config.ULT_HEIGHT
+
+    def update(self, dt):
+        self.time += dt
+        while self.hits_done < config.ULT_HITS and self.time >= 0.12 + self.hits_done * config.ULT_HIT_INTERVAL:
+            self._strike()
+        if self.time >= self.END:
+            game_world.remove_object(self)
+
+    def _strike(self):
+        w, p = self.weapon, self.weapon.owner
+        fx = config.ENHANCED_FX
+        base = w._damage(config.ULT_HIT_MULT)
+        last = self.hits_done == config.ULT_HITS - 1
+        for e in self.targets:
+            if not e.alive:
+                continue
+            damage = base
+            if not getattr(e, 'pullable', True):              # 보스: 한 번의 궁극기로 최대 체력의 ULT_BOSS_CAP까지만
+                damage = min(damage, e.max_hp * config.ULT_BOSS_CAP - self.dealt.get(id(e), 0.0))
+                if damage <= 0:
+                    continue
+            killed = e.take_damage(damage, from_x=self.x0)
+            self.dealt[id(e)] = self.dealt.get(id(e), 0.0) + damage
+            ex, ey = e.center
+            effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
+            effects.spawn_impact(ex, ey, ex - self.x0, ey - self.y0, config.IMPACT_RAYS['enhanced'], self.color, big=last)
+            effects.float_text(ex + (self.hits_done % 2) * 18 - 9, ey + e.hb_h / 2 + 70 + 24 * self.hits_done,
+                               str(int(round(damage))), self.color, big=last)
+            if killed:
+                p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+            if last:
+                effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
+        self._spawn_shape()
+        effects.add_trauma(0.35 if not last else 0.8)
+        assets.play_sound('enemy_hit' if not last else 'overload_zap')
+        self.hits_done += 1
+
+    def _spawn_shape(self):
+        """타격마다 범위를 보여 주는 큰 궤적."""
+        i = self.hits_done
+        if self.kind == 'basic':
+            x = self.x0 + self.side * (160 + 180 * i)
+            variant, flip = effects.slash_variant(self.side, 0.0)
+            effects.spawn('pipe-slash-enhanced', x, self.y0 + (i % 2) * 60 - 30, flip=flip, duration=0.24, variant=variant)
+        elif self.kind == 'dash':
+            reach = config.ULT_DASH_LENGTH * (i + 1) / config.ULT_HITS
+            off = (i % 2) * 50 - 25
+            effects.spawn_path_slash(self.x0, self.y0 + off, self.x0 + self.dx * reach, self.y0 + self.dy * reach + off, True)
+        else:
+            for s in (-1, 1):
+                effects.spawn('dust-land', self.x0 + s * (150 + 170 * i), self.floor_y, duration=0.35)
+            if i == 0:
+                effects.spawn('haze-blast', self.x0, self.floor_y + 20, duration=0.5)
+
+    def draw(self):
+        import options
+        ox, oy = assets.draw_offset
+        left, bottom = -ox, -oy                         # 화면 왼쪽 아래의 세계 좌표 (오버레이는 화면 전체)
+        t = self.time
+        dark = 0.6 if t < 0.55 else max(0.0, 0.6 * (1.0 - (t - 0.55) / 0.45))
+        if dark > 0:
+            assets.draw_rect_color(left, bottom, config.SCREEN_W, config.SCREEN_H, (6, 8, 20), dark)
+            self.weapon.owner.draw()                    # 시전자는 어둠 위로 밝게
+        rt = time.monotonic() - self.born               # 화면 정지 중에도 흐르는 실제 시간
+        if rt < config.ULT_BANNER_TIME:
+            k = min(1.0, (rt + 0.03) / 0.12)           # 띠가 옆에서 밀려 들어온다
+            band_h, y = 110, bottom + config.SCREEN_H - 340   # 위쪽 HUD 아래 (구역 이름·안내 띠와 겹치지 않게)
+            alpha = 0.85 * (1.0 if rt < config.ULT_BANNER_TIME - 0.2 else (config.ULT_BANNER_TIME - rt) / 0.2)
+            w = int(config.SCREEN_W * k)
+            assets.draw_rect_color(left, y, w, band_h, (30, 22, 60), alpha)
+            assets.draw_rect_color(left, y, w, 6, self.color, alpha * options.flash_mult())
+            assets.draw_rect_color(left, y + band_h - 6, w, 6, self.color, alpha * options.flash_mult())
+            if k >= 1.0:
+                assets.draw_text(left + config.SCREEN_W // 2, y + band_h // 2, self.name, self.color, big=True, center=True)
 
 
 WEAPONS = {'pipe': Pipe, 'knife': Knife, 'gauntlet': Gauntlet, 'chain': Chain}

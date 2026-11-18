@@ -484,11 +484,11 @@ def test_camera_centers_room_smaller_than_screen():
 def test_enhance_costs_gauge_and_arms_one_strike_only():
     """E는 게이지를 쓰고 다음 공격 한 번을 강화 일격으로 만든다. 한 번 휘두르면 준비가 끝난다 (1회성)."""
     stage, p = make_stage()
-    p.gauge.value = 60.0
-    p.gauge.zone = p.gauge._zone_of(60.0)
+    p.gauge.value = 50.0
+    p.gauge.zone = p.gauge._zone_of(50.0)
     assert p.request_enhance() and p.gauge.enhanced
-    assert p.gauge.value == 60.0 - config.ENHANCE_COST
-    assert not p.request_enhance()                              # 준비 중에는 다시 못 쓴다
+    assert p.gauge.value == 50.0 - config.ENHANCE_COST
+    assert not p.request_enhance() and p.gauge.enhance_level == 1   # 25%: 한 단계 더 쌓으려면 30% 이상이 있어야 (11/19 중첩)
     e = Enemy('slum', p.x + 100, FLOOR_Y, stage.room, p)
     e.stats = dict(e.stats, speed=0.0, sight=0)
     e.hp = e.max_hp = 1000

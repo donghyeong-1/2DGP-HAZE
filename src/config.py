@@ -100,6 +100,26 @@ CRITICAL_MARGIN = 10        # 위험은 cap-10 이상 (한계에 따라 움직�
 ENHANCE_COST = 25
 ENHANCE_FLOOR = 5           # 사용 후 최소 이만큼 남아야 한다 (사용 가능 하한 = COST + FLOOR = 30)
 ENHANCE_TIME = 12.0         # 강화 일격을 준비해 두는 최대 시간(초). 그 안에 공격하지 않으면 사라진다 (강화는 1회성)
+# E 중첩 (11/19): E를 누를 때마다 단계 +1(최대 3), 단계마다 enhance_cost. 다음 공격 한 번에 모두 쓰인다.
+# 1단계 = 강화 일격, 2단계 = 더 강한 판, 3단계 = 궁극기 (무기 x 기본·대시·점프, docs/plan_v4.md 1절)
+ENHANCE_MAX_LEVEL = 3
+ENHANCE_LEVELS = {1: dict(damage=2.5, reach=1.5, extra=3, blast=190, half=115, plunge=1.35),
+                  2: dict(damage=4.0, reach=1.9, extra=5, blast=260, half=150, plunge=1.7)}
+ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}          # 식칼·건틀릿·사슬의 강화 피해에 곱한다 (2단계)
+# 궁극기 (3단계)
+ULT_FREEZE = 0.30            # 시전 순간 화면 정지
+ULT_BANNER_TIME = 0.9        # 기술 이름 띠를 보여 주는 시간
+ULT_HITS = 5                 # 연속 타격 수
+ULT_HIT_INTERVAL = 0.09
+ULT_HIT_MULT = 1.4           # 한 번 타격 배율 (5번이면 기본 피해 x7)
+ULT_BOSS_CAP = 0.15          # 궁극기 한 번이 보스에게 줄 수 있는 피해 = 최대 체력의 15%
+ULT_FORWARD = 960            # 기본 궁극기: 앞쪽 범위(px, 화면 절반)
+ULT_DASH_LENGTH = 1100       # 대시 궁극기: 직선 길이
+ULT_DASH_HALF = 160          # 대시 궁극기: 직선 반폭
+ULT_SLAM_RADIUS = 1000       # 점프 궁극기: 좌우 범위
+ULT_HEIGHT = 540             # 궁극기가 닿는 위아래 범위
+ULT_INVULN = 1.3             # 시전하는 동안 플레이어 무적
+ULT_COOLDOWN = 0.9
 OVERLOAD_DAMAGE_RATIO = 0.20
 OVERLOAD_STUN = 1.5
 OVERLOAD_RESET = 30

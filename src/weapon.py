@@ -157,6 +157,17 @@ class Pipe:
         p = self.owner
         return self.base_damage * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mult
 
+    def _weak(self):
+        """약해진 상태(페이드)인가. 이때는 모든 공격의 범위가 줄고 대시·점프 공격의 추가 배율이 사라진다."""
+        return self.owner.gauge.zone in ('FADE', 'DEAD')
+
+    def _reach(self):
+        return config.FADE_REACH if self._weak() else 1.0
+
+    def _special(self, mult):
+        """대시·점프·내려찍기의 추가 피해 배율. 페이드에서는 기본 공격과 같은 1.0."""
+        return 1.0 if self._weak() else mult
+
     @staticmethod
     def _segment_hit(enemy, x0, y0, dx, dy, length, half_width):
         """(x0, y0)에서 단위 방향 (dx, dy)로 length만큼 뻗은 직선(반폭 half_width)이 적의 충돌 박스에 닿는가 (관통 판정)."""
@@ -189,7 +200,7 @@ class Pipe:
             effects.spawn(fx['slash'], cx, cy, flip=flip, duration=0.24, variant=variant)
             effects.add_trauma(config.SHAKE_FINISHER)
             damage = self._damage(config.ENHANCE_DAMAGE_MULT)
-            for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, enhanced=True)):
+            for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, enhanced=True, scale=self._reach())):
                 self._hit(enemy, damage, config.PIPE_FINISHER_GAIN, fx, big=True, shake=2.0, stop=2, blast=True)
             self._finish(True)
             return
@@ -202,7 +213,7 @@ class Pipe:
         damage = self._damage(config.PIPE_FINISHER_MULT if finisher else 1.0)
         gain = config.PIPE_FINISHER_GAIN if finisher else config.GAIN_HIT
         color = config.DAMAGE_COLOR_FINISHER if finisher else None
-        for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay)):
+        for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, scale=self._reach())):
             self._hit(enemy, damage, gain, fx, big=finisher, color=color,
                       shake=config.SHAKE_FINISHER / config.SHAKE_HIT if finisher else 1.0, stop=2 if finisher else 1)
 
@@ -247,9 +258,9 @@ class Pipe:
             return
         dx, dy = (x1 - x0) / length, (y1 - y0) / length
         fx = self._fx(enhanced)
-        half = config.DASH_STRIKE_ENHANCED_HALF_WIDTH if enhanced else config.DASH_STRIKE_HALF_WIDTH
+        half = (config.DASH_STRIKE_ENHANCED_HALF_WIDTH if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
         effects.spawn_path_slash(x0, y0, x1, y1, enhanced)
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else config.DASH_STRIKE_MULT)
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else self._special(config.DASH_STRIKE_MULT))
         for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
             if not enemy.alive or not self._segment_hit(enemy, x0, y0, dx, dy, length, half):
                 continue
@@ -272,8 +283,8 @@ class Pipe:
         assets.play_sound(fx['sound'])
         effects.spawn(effects.special_sheet('spin', enhanced)[0], cx, cy, duration=0.26)
         p.vy = max(p.vy, config.AIR_HOP)                                  # 살짝 떠오르며 한 바퀴 돈다
-        reach = config.AIR_SPIN_REACH * (config.ENHANCE_REACH_MULT if enhanced else 1.0)
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else config.AIR_SPIN_MULT)
+        reach = config.AIR_SPIN_REACH * (config.ENHANCE_REACH_MULT if enhanced else 1.0) * self._reach()
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else self._special(config.AIR_SPIN_MULT))
         for enemy in self._targets(lambda e: self._within(e, cx, cy, reach)):
             self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
                       shake=1.8 if enhanced else 1.1, blast=enhanced)
@@ -290,8 +301,8 @@ class Pipe:
         p.start_plunge_pose()
         sheet, _ = effects.special_sheet('plunge', enhanced)
         effects.spawn(sheet, cx, cy, duration=0.26, variant=4)             # 아래 방향 변형
-        k = 1.35 if enhanced else 1.0
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else config.PLUNGE_MULT)
+        k = (1.35 if enhanced else 1.0) * self._reach()
+        damage = self._damage(config.ENHANCE_DAMAGE_MULT if enhanced else self._special(config.PLUNGE_MULT))
         targets = self._targets(lambda e: self._segment_hit(e, cx, cy, 0.0, -1.0, config.PLUNGE_LENGTH * k,
                                                              config.PLUNGE_HALF_WIDTH * k))
         for enemy in targets:
@@ -310,12 +321,12 @@ class Pipe:
         return math.hypot(nx - cx, ny - cy) <= reach
 
     @staticmethod
-    def _in_arc(enemy, cx, cy, ax, ay, enhanced=False):
+    def _in_arc(enemy, cx, cy, ax, ay, enhanced=False, scale=1.0):
         """적 충돌 박스가 몸 중심에서 사거리 안에 있고, 중심이 조준 부채꼴 안에 있으면 맞는다."""
         left, bottom, right, top = enemy.rect()
         nearest_x = min(max(cx, left), right)
         nearest_y = min(max(cy, bottom), top)
-        reach = config.PIPE_REACH * (config.ENHANCE_REACH_MULT if enhanced else 1.0)
+        reach = config.PIPE_REACH * (config.ENHANCE_REACH_MULT if enhanced else 1.0) * scale
         if math.hypot(nearest_x - cx, nearest_y - cy) > reach:
             return False
         ex, ey = enemy.center

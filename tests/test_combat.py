@@ -1535,6 +1535,47 @@ def test_weapon_slots_swap_with_q_and_numbers():
     p.give_weapon('gauntlet')                                            # 두 번째 칸은 바뀐다 (철파이프는 그대로)
     assert p.weapons[0].weapon_id == 'pipe' and p.weapon.weapon_id == 'gauntlet' and not p.has_weapon('knife')
 
+# ----- 페이드(약해진 상태)에서는 모든 공격이 똑같이 약해진다 (대시·점프 공격만 강하게 나가던 버그) -----
+def _fade_world(gap):
+    room, p = make_world()
+    set_gauge(p, 10)                                                    # 페이드 (1~19%)
+    e = freeze(add_enemy('slum', p.x + gap, room, p))
+    e.hp = e.max_hp = 1000
+    return room, p, e
+
+
+def test_fade_shrinks_basic_attack_reach_like_its_small_slash():
+    room, p, e = _fade_world(0)
+    left, bottom, right, top = e.rect()
+    e.x = p.x + config.PIPE_REACH * 0.95 + (right - left) / 2           # 노멀이면 닿는 거리
+    p.mouse_x, p.mouse_y = e.center
+    p.request_attack()
+    assert e.hp == 1000                                                 # 페이드: 범위 x FADE_REACH 라 닿지 않는다
+    set_gauge(p, 35)
+    p.weapon.cooldown = 0
+    p.request_attack()
+    assert e.hp < 1000                                                  # 노멀은 닿는다
+
+
+def test_fade_dash_and_jump_attacks_lose_their_bonus_and_reach_too():
+    room, p, e = _fade_world(120)
+    w = p.weapon
+    cx, cy = p.center
+    w.resolve_dash_strike(False, path=(p.x - 200, cy, p.x + 300, cy))   # 대시 평타: 적을 지나는 경로
+    dash = 1000 - e.hp
+    e.hp = 1000
+    w._attack_pipe(False)                                               # 같은 페이드에서 기본 1타
+    basic = 1000 - e.hp
+    assert dash > 0 and abs(dash - basic) < 1e-6, (dash, basic)         # 추가 배율 x1.4가 없다
+    e.hp = 1000
+    e.x = p.x + config.AIR_SPIN_REACH * 0.95 + e.hb_w / 2               # 노멀 회전 베기는 닿는 거리
+    w._attack_spin(False)
+    assert e.hp == 1000                                                 # 회전 베기도 범위가 줄었다
+    set_gauge(p, 35)
+    w._attack_spin(False)
+    assert e.hp < 1000                                                  # 노멀은 그대로 닿는다
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

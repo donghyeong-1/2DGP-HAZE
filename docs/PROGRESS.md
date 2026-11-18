@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-18)
-- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(241개).
+- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(243개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -27,6 +27,7 @@
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [x] 남은 콘텐츠 모두 완료(11/18): 아크 그림(Codex T20)·스테이지 2·3·아크 보스·무기 사슬·정비방 업그레이드 7종 3단계.
 6. [x] Codex T20(아크 23장) 검토·그림 적용 완료. 대기 중인 Codex 작업 없음. (T12·T17~T20 적용 완료)
+00. [ ] **(Claude Code) v4: 사용자와 `docs/plan_v4.md`의 [확인 필요] 항목을 정한 뒤** 황금방 잠금·균열방 → E 중첩 기술 → 은신처·영구 성장 순서로 구현. Codex 그림(은신처·NPC·컷인)은 일찍 맡긴다.
 0. [ ] **(Codex → Claude Code 검토) T21 달리기 다시 그리기**: 사용자 플레이에서 "발이 서로 교차를 안 해". T19 달리기 5~8번이 1~4번과 같은 걸음이라 같은 다리·팔이 계속 앞에 나온다(`python tools/check_gait.py --name n09_run` 비율 0.39, 걷기는 1.02). Codex가 `docs/codex/tasks/T21_hero_run_alternate.md`를 하면 Claude Code가 검토(비율 0.8 이상)하고 `tools/apply_*`로 `n09_run_1~8` 교체.
 7. [x] 엔딩 크레딧 화면과 접근성 옵션 완료(11/18). 아래는 당시 계획 기록.
    - ① 크레딧: 탈출(엔딩) 화면 뒤에 이어진다. 제작자, 사용 도구, 외부 에셋 출처·라이선스(`docs/ASSETS.md` 맨 위 표), AI 생성 에셋 표기(`docs/image_prompts.md`). 지금 엔딩은 `src/ending_mode.py`.
@@ -36,6 +37,7 @@
 - 코드네임 "화이트"와 주인공 이름은 임시 값이다.
 - 게이지·전투 수치는 플레이 테스트 전 초안이다.
 - 3차(최종) 발표 일정.
+- (11/19) 영구 성장을 넣으면서 장르 표기를 '로그라이트'로 바꿀지.
 - 음악을 직접 들어 본 평가가 없다 (파형 수치만 확인).
 - 적·보스 새 기술의 난이도는 직접 플레이로 확인하지 않았다 (자동 테스트와 창 실행만).
 
@@ -162,3 +164,6 @@
 2026-11-18 [Claude Code] UI 전면 수정(v3): UI 부품 에셋(tools/make_ui.py: 9칸 판 7종·막대 무늬 9색×5높이·게이지 장식·키·조각·손잡이·대시/콤보 칸·바늘)과 그리기 모듈(src/hud_kit.py), HUD 재배치(바닥 비움: 왼쪽 위 무기·체력·대시·조각·공격 / 가운데 위 게이지·구간 표시 / 오른쪽 위 미니맵, 불투명 판·그림자 글자, 안내 띠), 타이틀 메뉴(게임 시작·설정·크레딧·종료, 키보드·마우스), 일시정지 창(메뉴+조작 안내), 설정 창(흔들림·번쩍임 칸, 음악·효과음 크기 막대, 마우스 지원, 음량 저장), 테스트 5개 추가 / src/(ui, hud_kit, title_mode, pause_mode, options_mode, options, assets), tools/make_ui.py, assets/ui/ui_*, tests/test_options.py, docs/*
 2026-11-18 [Claude Code] 달리기 발 교차 문제 진단: T19 달리기 5~8번이 1~4번과 거의 같은 그림(반 주기 차이 비율 0.39, 걷기 1.02), 걸음 교대 검사 도구 tools/check_gait.py와 테스트, Codex 작업 T21 작성(ready) / tools/check_gait.py, tests/test_tools.py, docs/codex/(TASKS.md, tasks/T21_hero_run_alternate.md), docs/(PROGRESS, DECISIONS).md
 2026-11-18 [Claude Code] 게임 창을 원하는 모니터에 띄우기: src/window_place.py(HAZE_DISPLAY=2), main.py·capture.py --display, 테스트 1개(241개) / src/(window_place, main).py, tools/capture.py, tests/test_tools.py, docs/SKILLS.md, .claude/skills/playtest-capture/SKILL.md
+
+2026-11-19 [Codex] T21 달리기 8장 팔·다리 교대 재작업, 교대 비율 0.87·픽셀 검사 통과, 기존 캔버스·기준점과 1배 비교·GIF·보고서, 검토 대기 / assets/sprites/forge/hero_run_v2/, assets/sprites/forge/n09_run_v2*, docs/codex/reports/T21.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-19 [Claude Code] 페이드에서 대시·점프 공격만 강하던 버그 수정(모든 공격 범위 x0.85·추가 배율 없음, 테스트 2개), v4 방향 결정 기록과 설계안 docs/plan_v4.md / src/(weapon, config).py, tests/test_combat.py, docs/(plan_v4, DECISIONS, 기획서, PROGRESS).md

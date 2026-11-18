@@ -211,14 +211,18 @@ class GameUI:
     def _attack_text(w, g):
         """지금 나가는 공격."""
         kind = w.current_kind()
+        prefix = {'knife_dash': '대시 ', 'knife_air': '공중 ', 'chain_dash': '대시 ', 'chain_air': '공중 '}.get(kind, '')
         if w.weapon_id == 'knife':
             count, _, pierce = w.volley()
             shape = '관통' if pierce else '부채꼴' if count >= 3 else '투척'
-            return f'{count}발 {shape}', DIM
+            return f'{prefix}{count}발 {shape}', (255, 225, 120) if prefix else DIM
         if w.weapon_id == 'chain':
             count, _, stun = w.grip()
-            text = '관통 끌기' if count > 3 else f'{count}마리 끌기'
-            return (text + ' · 기절', (255, 225, 120)) if stun else (text, DIM)
+            text = prefix + ('관통 끌기' if count > 3 else f'{count}마리 끌기')
+            return (text + ' · 기절', (255, 225, 120)) if stun else (text, (255, 225, 120) if prefix else DIM)
+        if kind in ('gauntlet_dash', 'gauntlet_air'):
+            label = '대시' if kind == 'gauntlet_dash' else '공중'
+            return f'{label} 충격파 (-{config.GAUNTLET_QUICK_COST}%)', (255, 225, 120)
         if kind == 'charge':
             return f'충전 {int(w.charge_ratio * 100)}% (-{int(config.GAUNTLET_DRAIN)}%/초)', (120, 220, 245)
         if kind == 'gauntlet_instant':

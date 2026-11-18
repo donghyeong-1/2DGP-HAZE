@@ -112,6 +112,7 @@ ULT_BANNER_TIME = 0.9        # 기술 이름 띠를 보여 주는 시간
 ULT_HITS = 5                 # 연속 타격 수
 ULT_HIT_INTERVAL = 0.09
 ULT_HIT_MULT = 1.4           # 한 번 타격 배율 (5번이면 기본 피해 x7)
+ULT_BASE_DAMAGE = 20         # 궁극기 기본 피해: 무기와 상관없이 같다 (철파이프 기본 피해와 같은 값)
 ULT_BOSS_CAP = 0.15          # 궁극기 한 번이 보스에게 줄 수 있는 피해 = 최대 체력의 15%
 ULT_FORWARD = 960            # 기본 궁극기: 앞쪽 범위(px, 화면 절반)
 ULT_DASH_LENGTH = 1100       # 대시 궁극기: 직선 길이
@@ -190,6 +191,17 @@ CHAIN_HOOK_HB = 30           # 갈고리 판정 상자 한 변(px)
 CHAIN_STUN = 1.0             # 위험 구간·E 강화: 끌려온 적 기절 시간(초)
 CHAIN_CLASH_DAMAGE = 15      # 위험 구간: 함께 끌려온 적끼리 부딪쳐 받는 피해
 CHAIN_COOLDOWN = 0.35        # 사슬이 돌아온 뒤 다음 던지기까지
+# 무기별 대시·점프 공격 (11/19): 대시 중·직후 = 대시 공격, 공중 = 점프 공격 (철파이프와 같은 규칙)
+KNIFE_DASH_EXTRA = 1         # 식칼 대시: 한 자루 더, 거의 일자로 모아 관통
+KNIFE_DASH_SPREAD = 2
+KNIFE_AIR_EXTRA = 1          # 식칼 점프: 한 자루 더, 부채꼴을 더 넓게
+KNIFE_AIR_SPREAD = 14
+GAUNTLET_QUICK_COST = 6      # 건틀릿 대시·점프: 충전 없이 바로 쏘는 작은 충격파의 게이지 값(%)
+GAUNTLET_QUICK_RATIO = 0.7   # 그 충격파의 세기 (충전 비율로 친다)
+GAUNTLET_AIR_RECOIL = 650.0  # 공중에서 아래로 쏘면 반동으로 떠오른다
+CHAIN_DASH_REACH = 1.3       # 사슬 대시: 사거리 x1.3, 한 마리 더
+CHAIN_DASH_EXTRA = 1
+CHAIN_AIR_MULT = 1.3         # 사슬 점프: 피해 x1.3
 CHAIN_ANCHOR_MULT = 1.5      # 끌려오지 않는 적(보스)에게는 갈고리가 박혀 피해 x1.5
 PIPE_REACH = 150            # 몸 중심에서 닿는 거리(px)
 PIPE_ARC_DEG = 65           # 조준 방향 기준 좌우 각도(도). 적 중심이 이 부채꼴 안이면 맞는다

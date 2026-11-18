@@ -397,13 +397,20 @@ class Knife(Pipe):
     base_damage = config.KNIFE_DAMAGE
 
     def current_kind(self):
-        return 'knife'
+        """대시 중·직후 = 대시 투척, 공중 = 공중 투척, 그 밖 = 기본 투척."""
+        kind = self.ult_kind()
+        return {'dash': 'knife_dash', 'jump': 'knife_air'}.get(kind, 'knife')
 
-    def volley(self, enhanced=None):
-        """지금 구간에서 던지는 (칼 수, 퍼지는 각도, 관통)."""
+    def volley(self, enhanced=None, kind=None):
+        """지금 구간·공격 종류에서 던지는 (칼 수, 퍼지는 각도, 관통)."""
         p = self.owner
         enhanced = p.gauge.enhanced if enhanced is None else enhanced
+        kind = kind or self.current_kind()
         count, spread, pierce = config.KNIFE_ZONE[p.gauge.zone]
+        if kind == 'knife_dash':                    # 대시: 한 자루 더, 일자로 모아 꿰뚫는다
+            count, spread, pierce = count + config.KNIFE_DASH_EXTRA, config.KNIFE_DASH_SPREAD, True
+        elif kind == 'knife_air':                   # 공중: 한 자루 더, 넓은 부채꼴
+            count, spread = count + config.KNIFE_AIR_EXTRA, spread + config.KNIFE_AIR_SPREAD
         if enhanced:
             count, spread, pierce = count + config.KNIFE_ENHANCED_EXTRA, max(spread, 10), True
         return count, spread, pierce
@@ -414,9 +421,10 @@ class Knife(Pipe):
         if self._try_ultimate():
             return True
         p = self.owner
+        kind = self.current_kind()
         enhanced = self._take_level()
-        self.last_kind, self.last_enhanced = 'knife', enhanced
-        count, spread, pierce = self.volley(enhanced)
+        self.last_kind, self.last_enhanced = kind, enhanced
+        count, spread, pierce = self.volley(enhanced, kind)
         ax, ay = p.aim_vector()
         base = math.degrees(math.atan2(ay, ax))
         cx, cy = p.center
@@ -499,6 +507,9 @@ class Gauntlet(Pipe):
     def current_kind(self):
         if self.charging:
             return 'charge'
+        kind = self.ult_kind()
+        if kind in ('dash', 'jump'):                 # 대시·점프: 충전 없이 바로 작은 충격파
+            return 'gauntlet_dash' if kind == 'dash' else 'gauntlet_air'
         g = self.owner.gauge
         return 'gauntlet_instant' if g.zone == 'CRITICAL' and not g.enhanced else 'gauntlet'
 
@@ -517,6 +528,17 @@ class Gauntlet(Pipe):
         if self._try_ultimate():
             return True
         p = self.owner
+        kind = self.current_kind()
+        if kind in ('gauntlet_dash', 'gauntlet_air'):               # 대시·점프: 게이지 조금 내고 바로 쏜다
+            p.gauge.add(-min(config.GAUNTLET_QUICK_COST, max(0.0, p.gauge.value - config.GAUNTLET_FLOOR)), 'gauntlet')
+            enhanced = self._take_level()
+            size = config.GAUNTLET_SIZE.get(p.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
+            self._fire(config.GAUNTLET_QUICK_RATIO, enhanced, size)
+            self.last_kind = kind
+            ax, ay = p.aim_vector()
+            if kind == 'gauntlet_air' and ay < -0.5:                 # 공중에서 아래로 쏘면 반동으로 떠오른다
+                p.vy = max(p.vy, config.GAUNTLET_AIR_RECOIL)
+            return True
         if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 즉시, 게이지를 크게 비운다
             p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')
             self._fire(1.0, enhanced=False, size=config.GAUNTLET_SIZE['CRITICAL'])
@@ -635,13 +657,18 @@ class Chain(Pipe):
         return self.cooldown <= 0 and self.hook is None
 
     def current_kind(self):
-        return 'chain'
+        """대시 중·직후 = 멀리 던지기, 공중 = 강하게 낚기, 그 밖 = 기본."""
+        kind = self.ult_kind()
+        return {'dash': 'chain_dash', 'jump': 'chain_air'}.get(kind, 'chain')
 
-    def grip(self, enhanced=None):
-        """지금 구간에서 (끌 수 있는 적 수, 사거리, 끌려온 적 기절·충돌)."""
+    def grip(self, enhanced=None, kind=None):
+        """지금 구간·공격 종류에서 (끌 수 있는 적 수, 사거리, 끌려온 적 기절·충돌)."""
         p = self.owner
         enhanced = p.gauge.enhanced if enhanced is None else enhanced
+        kind = kind or self.current_kind()
         count, reach_mult, stun = config.CHAIN_ZONE[p.gauge.zone]
+        if kind == 'chain_dash':                                    # 대시: 더 멀리, 한 마리 더
+            count, reach_mult = count + config.CHAIN_DASH_EXTRA, reach_mult * config.CHAIN_DASH_REACH
         if enhanced:
             count, stun = 99, True                                  # 관통: 닿는 적 모두
         return count, config.CHAIN_RANGE * reach_mult, stun
@@ -652,11 +679,14 @@ class Chain(Pipe):
         if self._try_ultimate():
             return True
         p = self.owner
+        kind = self.current_kind()
         enhanced = self._take_level()
-        self.last_kind, self.last_enhanced = 'chain', enhanced
-        count, reach, stun = self.grip(enhanced)
+        self.last_kind, self.last_enhanced = kind, enhanced
+        count, reach, stun = self.grip(enhanced, kind)
         ax, ay = p.aim_vector()
         damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 * self._stack() if enhanced else 1.0)
+        if kind == 'chain_air':                                     # 공중: 내리꽂듯 강하게
+            damage *= config.CHAIN_AIR_MULT
         self.hook = ChainHook(self, ax, ay, damage, count, reach, stun, self._fx(enhanced), enhanced)
         game_world.add_object(self.hook, game_world.LAYER_EFFECT)
         assets.play_sound('throw')
@@ -813,7 +843,8 @@ class ChainHook:
 # 범위: 기본 = 앞쪽 화면 절반 / 대시 = 조준 방향 긴 직선 / 점프 = 좌우 넓게 내려찍기. 궁극기는 **벽·기둥 너머도 맞는다**
 # (게이지 75%를 쓰는 화면 기술이라 일반 공격의 시야선 규칙에서 뺐다. 보스는 피해 상한이 있다).
 # 보스에게는 한 번에 최대 체력의 ULT_BOSS_CAP까지만. 궁극기 타격은 게이지를 올리지 않는다(처치 보너스만).
-# 지금은 네 무기가 같은 범위 규칙을 쓰고 이름·색만 다르다. 무기별 모양(칼비·광선·사슬)은 다음 단계에서 나눈다.
+# 무기마다 범위 모양이 다르다 (ULT_AREAS): 식칼 = 조준한 곳 일대 칼비, 건틀릿 = 화면을 가로지르는 광선,
+# 사슬 = 주위 적을 끌어모아 터뜨림. 철파이프는 앞쪽 화면 절반·긴 직선·좌우 내려찍기.
 # 컷인 그림은 Codex T23이 오면 이름 띠 자리에 넣는다.
 # =====================================================================================================
 ULT_NAMES = {('pipe', 'basic'): '안개 대참격', ('pipe', 'dash'): '관통 질주', ('pipe', 'jump'): '낙하 붕괴',
@@ -821,6 +852,45 @@ ULT_NAMES = {('pipe', 'basic'): '안개 대참격', ('pipe', 'dash'): '관통 �
              ('gauntlet', 'basic'): '헤이즈 포격', ('gauntlet', 'dash'): '충격 돌파', ('gauntlet', 'jump'): '낙하 포격',
              ('chain', 'basic'): '포획 폭발', ('chain', 'dash'): '사슬 질주', ('chain', 'jump'): '공중 낚아채기'}
 ULT_COLORS = {'pipe': (150, 235, 255), 'knife': (235, 240, 255), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
+# (무기, 종류) -> 범위 모양과 크기. forward(앞 거리) / line(길이, 반폭: 조준 방향) / slam(좌우) / aim(조준점 둘레 반지름) /
+# below(아래쪽 좌우) / circle(플레이어 둘레 반지름)
+ULT_AREAS = {('pipe', 'basic'): ('forward', 960), ('pipe', 'dash'): ('line', 1100, 160), ('pipe', 'jump'): ('slam', 1000),
+             ('knife', 'basic'): ('aim', 460), ('knife', 'dash'): ('line', 1100, 220), ('knife', 'jump'): ('below', 760),
+             ('gauntlet', 'basic'): ('line', 1800, 130), ('gauntlet', 'dash'): ('circle', 620),
+             ('gauntlet', 'jump'): ('below', 820),
+             ('chain', 'basic'): ('circle', 900), ('chain', 'dash'): ('line', 1100, 220), ('chain', 'jump'): ('circle', 800)}
+ULT_AIM_RANGE = 1300             # 칼비가 떨어질 조준점은 플레이어에게서 이 거리 안
+
+
+class Decor:
+    """궁극기 연출용 날아가는 그림 (판정 없음): 떨어지는 칼 같은 것."""
+
+    def __init__(self, path, x, y, vx, vy, life):
+        self.path, self.x, self.y, self.vx, self.vy, self.life = path, x, y, vx, vy, life
+
+    def update(self, dt):
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+        self.life -= dt
+        if self.life <= 0:
+            game_world.remove_object(self)
+
+    def draw(self):
+        img = assets.image(self.path)
+        assets.draw_image(img, self.x, self.y - img.h // 2)
+
+
+def draw_chain_line(x0, y0, x1, y1, glow, link=12):
+    """(x0, y0)에서 (x1, y1)까지 고리 칸을 늘어놓는다 (사슬 갈고리와 같은 모양, 회전 없음)."""
+    length = math.hypot(x1 - x0, y1 - y0)
+    for i in range(int(length // link) + 1):
+        k = i * link / max(length, 1.0)
+        x, y = int(x0 + (x1 - x0) * k), int(y0 + (y1 - y0) * k)
+        assets.draw_rect_color(x - 4, y - 4, 8, 8, (12, 14, 22))
+        if i % 2:
+            assets.draw_rect_color(x - 3, y - 1, 6, 2, glow)
+        else:
+            assets.draw_rect_color(x - 1, y - 3, 2, 6, glow)
 
 
 class Ultimate:
@@ -838,6 +908,12 @@ class Ultimate:
         self.dx, self.dy = ax / length, ay / length
         if kind == 'dash' and abs(self.dy) < 0.35:      # 대시 궁극기는 거의 수평이면 수평으로
             self.dx, self.dy = float(self.side), 0.0
+        self.area = ULT_AREAS.get((weapon.weapon_id, kind), ULT_AREAS[('pipe', kind)])
+        mx, my = p.mouse_x - self.x0, p.mouse_y - self.y0            # 칼비가 떨어질 조준점 (너무 멀면 당긴다)
+        d = math.hypot(mx, my)
+        k = min(1.0, ULT_AIM_RANGE / d) if d > 0 else 0.0
+        self.aim = (self.x0 + mx * k, self.y0 + my * k)
+        self.pulls = weapon.weapon_id == 'chain'                      # 사슬: 맞을 때마다 끌어온다
         self.time = 0.0
         self.hits_done = 0
         self.dealt = {}
@@ -852,11 +928,18 @@ class Ultimate:
     def _in_area(self, e):
         ex, ey = e.center
         dx, dy = ex - self.x0, ey - self.y0
-        if self.kind == 'basic':
-            return -60 <= dx * self.side <= config.ULT_FORWARD and abs(dy) <= config.ULT_HEIGHT
-        if self.kind == 'dash':
-            return Pipe._segment_hit(e, self.x0, self.y0, self.dx, self.dy, config.ULT_DASH_LENGTH, config.ULT_DASH_HALF)
-        return abs(dx) <= config.ULT_SLAM_RADIUS and abs(dy) <= config.ULT_HEIGHT
+        shape, size = self.area[0], self.area[1]
+        if shape == 'forward':
+            return -60 <= dx * self.side <= size and abs(dy) <= config.ULT_HEIGHT
+        if shape == 'line':
+            return Pipe._segment_hit(e, self.x0, self.y0, self.dx, self.dy, size, self.area[2])
+        if shape == 'aim':
+            return math.hypot(ex - self.aim[0], ey - self.aim[1]) <= size
+        if shape == 'below':
+            return abs(dx) <= size and -900 <= dy <= 80
+        if shape == 'circle':
+            return math.hypot(dx, dy) <= size
+        return abs(dx) <= size and abs(dy) <= config.ULT_HEIGHT       # slam
 
     def update(self, dt):
         self.time += dt
@@ -865,14 +948,29 @@ class Ultimate:
         if self.time >= self.END:
             game_world.remove_object(self)
 
+    def _pull(self, e):
+        """사슬 궁극기: 맞을 때마다 플레이어 앞으로 끌어온다 (보스는 끌려오지 않는다)."""
+        if not getattr(e, 'pullable', True):
+            return
+        if self.kind == 'dash':
+            stop = self.x0 + self.side * 120                          # 직선 위의 적을 앞으로 끌고 온다
+        else:
+            stop = self.x0 + (1 if e.x >= self.x0 else -1) * 120      # 둘레의 적을 양옆에서 끌어모은다
+        left = config.ULT_HITS - self.hits_done
+        e.pull_step((stop - e.x) / max(1, left))
+        e.hold(0.3)
+
     def _strike(self):
         w, p = self.weapon, self.weapon.owner
         fx = config.ENHANCED_FX
-        base = w._damage(config.ULT_HIT_MULT)
+        # 궁극기 피해는 무기와 상관없이 같은 기준(ULT_BASE_DAMAGE)으로: 게이지 75%를 쓰는 값이 무기마다 달라지지 않게
+        base = config.ULT_BASE_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * config.ULT_HIT_MULT
         last = self.hits_done == config.ULT_HITS - 1
         for e in self.targets:
             if not e.alive:
                 continue
+            if self.pulls:
+                self._pull(e)
             damage = base
             if not getattr(e, 'pullable', True):              # 보스: 한 번의 궁극기로 최대 체력의 ULT_BOSS_CAP까지만
                 damage = min(damage, e.max_hp * config.ULT_BOSS_CAP - self.dealt.get(id(e), 0.0))
@@ -895,8 +993,22 @@ class Ultimate:
         self.hits_done += 1
 
     def _spawn_shape(self):
-        """타격마다 범위를 보여 주는 큰 궤적."""
+        """타격마다 범위를 보여 주는 큰 궤적 (무기마다 다르다)."""
         i = self.hits_done
+        wid = self.weapon.weapon_id
+        if wid == 'knife':
+            self._knife_shape(i)
+            return
+        if wid in ('gauntlet', 'chain'):
+            shape = self.area[0]
+            if shape in ('circle', 'below') and wid == 'gauntlet':
+                r = self.area[1]
+                for s in (-1, 1):
+                    effects.spawn('haze-blast', self.x0 + s * r * (i + 1) / (config.ULT_HITS + 1), self.floor_y + 30,
+                                  duration=0.4)
+            if i == config.ULT_HITS - 1 and wid == 'chain':
+                effects.spawn('haze-blast', self.x0 + self.side * 120, self.y0 - 20, duration=0.55)
+            return                                    # 광선·사슬 줄은 draw에서 그린다
         if self.kind == 'basic':
             x = self.x0 + self.side * (160 + 180 * i)
             variant, flip = effects.slash_variant(self.side, 0.0)
@@ -911,8 +1023,50 @@ class Ultimate:
             if i == 0:
                 effects.spawn('haze-blast', self.x0, self.floor_y + 20, duration=0.5)
 
+    def _knife_shape(self, i):
+        """식칼 궁극기: 칼이 쏟아진다 (칼비 = 조준점 위에서, 회오리 = 직선을 따라, 부채 폭격 = 아래로 부채꼴)."""
+        shape = self.area[0]
+        down = 'sprites/unified/proj_knife_6.png'
+        for j in range(9 if shape == 'aim' else 5):
+            jitter = ((i * 5 + j) * 37) % 100 - 50
+            if shape == 'aim':                       # 칼이 작아서(1배 그림) 많이, 높이를 엇갈려 떨어뜨린다
+                x = self.aim[0] + (j - 4) * 100 + jitter
+                game_world.add_object(Decor(down, x, self.aim[1] + 600 + (j % 3) * 120, 0.0, -2600.0, 0.32),
+                                      game_world.LAYER_EFFECT)
+            elif shape == 'line':
+                reach = config.ULT_DASH_LENGTH * (j + 1) / 6
+                frame = int(round(math.degrees(math.atan2(self.dy, self.dx)) / 45.0)) % 8
+                game_world.add_object(Decor(f'sprites/unified/proj_knife_{frame}.png', self.x0 + self.dx * reach,
+                                            self.y0 + self.dy * reach + jitter, self.dx * 900, self.dy * 900, 0.2),
+                                      game_world.LAYER_EFFECT)
+            else:
+                vx = (j - 2) * 500
+                game_world.add_object(Decor(down, self.x0 + (j - 2) * 40, self.y0, vx, -2200.0, 0.35),
+                                      game_world.LAYER_EFFECT)
+
+    def _draw_reach(self):
+        """광선(건틀릿)과 사슬 줄(사슬): 타격이 이어지는 동안 그린다."""
+        wid = self.weapon.weapon_id
+        if not (0.08 <= self.time <= 0.12 + config.ULT_HITS * config.ULT_HIT_INTERVAL):
+            return
+        if wid == 'gauntlet' and self.area[0] == 'line':
+            length, half = self.area[1], self.area[2]
+            for i in range(0, int(length), 24):
+                x, y = int(self.x0 + self.dx * i), int(self.y0 + self.dy * i)
+                assets.draw_rect_color(x - half, y - half, half * 2, half * 2, self.color, 0.10)
+                assets.draw_rect_color(x - 14, y - 14, 28, 28, (240, 255, 255), 0.35)
+        elif wid == 'gauntlet' and self.area[0] == 'below':
+            x = int(self.x0)
+            assets.draw_rect_color(x - 70, int(self.floor_y), 140, int(self.y0 - self.floor_y) + 40, self.color, 0.45)
+        elif wid == 'chain':
+            for e in self.targets:
+                if e.alive:
+                    ex, ey = e.center
+                    draw_chain_line(self.x0, self.y0, ex, ey, self.color)
+
     def draw(self):
         import options
+        self._draw_reach()
         ox, oy = assets.draw_offset
         left, bottom = -ox, -oy                         # 화면 왼쪽 아래의 세계 좌표 (오버레이는 화면 전체)
         t = self.time

@@ -183,6 +183,59 @@ def test_every_weapon_has_named_ultimates_for_each_attack_kind():
             assert weapon.ULT_NAMES.get((wid, kind)), (wid, kind)
 
 
+# ----- 무기별 궁극기 모양 -----
+def give(p, weapon_id):
+    level = p.gauge.enhance_level
+    p.give_weapon(weapon_id)
+    assert p.gauge.enhance_level == level
+
+
+def test_knife_rain_falls_around_the_aim_point_not_around_the_player():
+    room, p, (near, far) = stacked(90, 3, [120, 1200], player_x=600.0)
+    give(p, 'knife')
+    p.mouse_x, p.mouse_y = far.center                                    # 조준한 곳 일대에 칼비
+    p.request_attack()
+    assert ultimates()[0].name == '칼비'
+    run_out_ultimate()
+    assert far.hp < far.max_hp and near.hp == near.max_hp
+
+
+def test_gauntlet_beam_crosses_the_screen_along_the_aim():
+    room, p, (far,) = stacked(90, 3, [1700], player_x=500.0)
+    give(p, 'gauntlet')
+    high = tc.freeze(add_slum(p.x + 400, room, p))
+    high.y += 420                                                        # 광선 줄에서 위로 벗어남
+    high.hp = high.max_hp = 10 ** 5
+    p.mouse_x, p.mouse_y = p.x + 1000, p.center[1]
+    p.request_attack()
+    assert ultimates()[0].name == '헤이즈 포격'
+    run_out_ultimate()
+    assert far.hp < far.max_hp and high.hp == high.max_hp
+
+
+def test_chain_capture_pulls_enemies_in_before_the_blast():
+    room, p, (e,) = stacked(90, 3, [700])
+    give(p, 'chain')
+    p.request_attack()
+    assert ultimates()[0].name == '포획 폭발'
+    run_out_ultimate()
+    assert e.hp < e.max_hp and abs(e.x - p.x) < 400                      # 끌려와서 터졌다
+
+
+def test_ultimate_damage_is_the_same_for_every_weapon():
+    """궁극기는 게이지 75%를 쓰는 값이 무기마다 같아야 한다 (식칼 기본 피해 11, 건틀릿 34와 무관)."""
+    dealt = {}
+    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+        room, p, (e,) = stacked(90, 3, [300])
+        if wid != 'pipe':
+            give(p, wid)
+        p.mouse_x, p.mouse_y = e.center
+        p.request_attack()
+        run_out_ultimate()
+        dealt[wid] = e.max_hp - e.hp
+    assert len({round(v, 6) for v in dealt.values()}) == 1 and dealt['pipe'] > 0, dealt
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

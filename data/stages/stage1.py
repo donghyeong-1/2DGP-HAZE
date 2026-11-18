@@ -35,4 +35,5 @@ STAGE1 = {
     (3, 1): {"template": "hall_01", "type": "combat"},
     (1, 2): {"template": "gold_room", "type": "gold"},
     (1, -1): {"template": "shop_room", "type": "shop"},
+    (4, 1): {"template": "rift_room", "type": "rift"},     # 홀 오른쪽: 체력을 내고 들어가는 균열방 (11/19)
 }

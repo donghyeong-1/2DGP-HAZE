@@ -31,4 +31,5 @@ STAGE2 = {
     (3, 0): {"template": "hall_01", "type": "combat", "swap": {"slum": "guard"}},
     (1, 2): {"template": "gold_room", "type": "gold"},
     (1, -1): {"template": "shop_room", "type": "shop"},
+    (4, 0): {"template": "rift_room", "type": "rift"},     # 아래 줄 홀 오른쪽: 균열방 (11/19)
 }

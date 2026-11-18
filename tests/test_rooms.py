@@ -112,9 +112,9 @@ def test_stage_links_are_symmetric_and_connected():
 
 
 # 스테이지별 기준 (기획서 2.3): 1·2는 가지가 넉넉한 탐험형, 3은 정비방 하나와 보스로 직결되는 짧은 결전 구역
-STAGE_RULES = {'stage1': dict(rooms=10, specials=('gold', 'shop'), branch_combat=3),
-               'stage2': dict(rooms=10, specials=('gold', 'shop'), branch_combat=3),
-               'stage3': dict(rooms=6, specials=('shop',), branch_combat=1)}
+STAGE_RULES = {'stage1': dict(rooms=10, specials=('gold', 'shop', 'rift'), branch_combat=3),
+               'stage2': dict(rooms=10, specials=('gold', 'shop', 'rift'), branch_combat=3),
+               'stage3': dict(rooms=6, specials=('shop', 'rift'), branch_combat=1)}
 
 
 def test_stage_has_branches_with_gold_and_shop_before_boss():

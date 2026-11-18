@@ -33,15 +33,18 @@ class Pedestal:
 
     def draw(self):
         info = self.info
-        kind = 'gone' if self.gone else self.mode                      # gold(제단) / shop(선반) / gone(품절)
+        kind = 'gone' if self.gone else 'gold' if self.mode == 'rift' else self.mode   # gold(제단) / shop(선반) / gone(품절), 균열방은 제단
         assets.draw_image(assets.image(f'ui/pedestal_{kind}.png'), self.x, self.y)
         if not self.gone:                                              # 받침 위 보관함에 아이템 아이콘 (1배)
             assets.draw_image(assets.image(f'ui/icon_{self.item_id}.png'), self.x, self.y + 66)
         if self.player is not None and not self.gone and self.near(self.player):
             assets.draw_text(self.x, self.y + 190, info['name'], info['color'], center=True)
-            assets.draw_text(self.x, self.y + 156, items.describe(self.player, self.item_id), (200, 210, 230),
-                             small=True, center=True)
-            prompt = 'F 획득' if self.mode == 'gold' else f'F 구매 ({self.price}조각)'
+            desc = items.describe(self.player, self.item_id)
+            if self.mode == 'rift' and self.item_id in items.UPGRADES:   # 두 단계를 한꺼번에: 'N단계' -> 'N~N+1단계'
+                n = items.level(self.player, self.item_id) + 1
+                desc = '두 단계 한꺼번에 · ' + desc.replace(f'{n}단계', f'{n}~{n + 1}단계', 1)
+            assets.draw_text(self.x, self.y + 156, desc, (200, 210, 230), small=True, center=True)
+            prompt = f'F 구매 ({self.price}조각)' if self.mode == 'shop' else 'F 획득'
             assets.draw_text(self.x, self.y + 128, prompt, (255, 240, 150), small=True, center=True)
         elif self.gone and self.mode == 'shop':
             assets.draw_text(self.x, self.y + 128, '품절', (130, 140, 160), small=True, center=True)

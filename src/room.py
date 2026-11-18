@@ -17,8 +17,9 @@ SPIKE = '^'
 EMPTY = '.'
 SPAWN_KINDS = {'s': 'slum', 't': 'thrower', 'h': 'hound', 'g': 'guard'}  # 방 텍스트의 적 스폰 표시
 DOOR_CHARS = 'LRUD'
-DOOR_TINT = {'gold': (255, 215, 90), 'boss': (255, 90, 100), 'shop': (120, 215, 255), 'gate': (255, 160, 70)}   # 문 너머 방 종류 표시 색
-DOOR_LABEL = {'gold': '황금방', 'boss': '보스', 'shop': '정비방', 'gate': '관문'}
+DOOR_TINT = {'gold': (255, 215, 90), 'boss': (255, 90, 100), 'shop': (120, 215, 255), 'gate': (255, 160, 70),
+             'rift': (200, 130, 255)}   # 문 너머 방 종류 표시 색
+DOOR_LABEL = {'gold': '황금방', 'boss': '보스', 'shop': '정비방', 'gate': '관문', 'rift': '균열'}
 
 
 # 타일 세트(assets/tiles/tile_set_<테마>.png)의 칸 위치 (tools/make_world.py의 build_atlas와 같다). 16열 x 9줄, 칸 60x60, 줄 0이 맨 위
@@ -54,7 +55,8 @@ class Room:
         self.name = name
         self.links = set(links or ())   # 이웃 방(또는 탈출구)이 있어서 열릴 수 있는 출입구 방향. 나머지 출입구는 벽이다
         self.locked = False             # 전투 중에는 출입구가 잠긴다
-        self.door_hints = {}            # 방향 -> 문 너머 방 종류('gold', 'boss', 'shop', 'gate'): 문 색과 이름으로 알려 준다
+        self.door_hints = {}            # 방향 -> 문 너머 방 종류('gold', 'boss', 'shop', 'gate', 'rift'): 문 색과 이름으로 알려 준다
+        self.door_texts = {}            # 방향 -> 문 이름 대신 쓸 글자 (잠긴 황금방 '남은 방 N', 균열방 '체력 -N')
         self.spawn = (self.width / 2, config.TILE)
         self.enemy_spawns = []          # (x, y, 종류 또는 None)
         self.pedestals = []             # 진열대 칸 (x, y): 발 위치
@@ -356,6 +358,8 @@ class Room:
         cells = self.exits.get(ch, [])
         if hint in DOOR_LABEL and cells and (col, row) == cells[len(cells) // 2]:
             t = config.TILE
-            dx = 70 if ch == 'L' else -70 if ch == 'R' else 0
-            dy = 0 if ch in 'LR' else (-50 if ch == 'U' else 70)
-            assets.draw_text(cx + dx, bottom + t // 2 + dy, DOOR_LABEL[hint], DOOR_TINT[hint], small=True, center=True)
+            label = self.door_texts.get(ch, DOOR_LABEL[hint])
+            half = assets.text_width(label, True) // 2 + 40          # 긴 글자(잠긴 황금방·균열 대가)도 화면 밖으로 나가지 않게
+            dx = max(70, half) if ch == 'L' else -max(70, half) if ch == 'R' else 0
+            dy = 0 if ch in 'LR' else (-200 if ch == 'U' else 70)   # 위 문 글자는 화면 위쪽 HUD·안내 띠 아래로
+            assets.draw_text(cx + dx, bottom + t // 2 + dy, label, DOOR_TINT[hint], small=True, center=True)

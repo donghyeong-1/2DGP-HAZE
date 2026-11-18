@@ -24,7 +24,7 @@ from room import Room
 
 OPPOSITE = {'L': 'R', 'R': 'L', 'U': 'D', 'D': 'U'}
 STEP = {'L': (-1, 0), 'R': (1, 0), 'U': (0, 1), 'D': (0, -1)}
-SPECIAL_TYPES = ('gold', 'shop', 'boss', 'gate')   # 문에 미리 알려 주는 방 종류
+SPECIAL_TYPES = ('gold', 'shop', 'boss', 'gate', 'rift')   # 문에 미리 알려 주는 방 종류
 END_TYPES = ('boss', 'gate')                        # 클리어하면 구역이 끝나는 방
 STAGE_ORDER = ('stage1', 'stage2', 'stage3')        # 기획서 2.3: 슬럼 -> 공장 -> 코어(탑)
 
@@ -84,6 +84,8 @@ class Stage:
         self.visited = set()
         self.cleared = set()
         self.state = {}             # 방 좌표 -> 아이템 선택·품절 같은 진행 상태
+        self.paid_rifts = set()     # 체력을 내고 들어간 균열방 (다시 들어갈 때는 내지 않는다)
+        self.block_left = 0.0       # 막힌 문 안내를 너무 자주 띄우지 않게
         self.room = None
         self.pedestals = []
         self.boss = None
@@ -131,6 +133,7 @@ class Stage:
             kind = self.type_of(self.neighbour(coord, d))
             if kind in SPECIAL_TYPES:
                 self.room.door_hints[d] = kind
+        self._update_door_texts()
         game_world.add_object(self.room, game_world.LAYER_BACKGROUND)
         self._place_player(from_dir)
         self.visited.add(coord)
@@ -141,7 +144,7 @@ class Stage:
             x, y = self.room.boss_spawn or (self.room.width * 0.7, config.TILE * 2)
             self.boss = self._make_boss(info.get('boss', 'crasher'), x, y)
             game_world.add_object(self.boss, game_world.LAYER_ENEMY)
-        elif kind in ('gold', 'shop'):
+        elif kind in ('gold', 'shop', 'rift'):
             self._spawn_pedestals(coord, kind)
         self.room.locked = self.enemy_count() > 0
 
@@ -160,7 +163,59 @@ class Stage:
         kind = info.get('type')
         if kind in ('gold', 'shop', 'boss'):
             return kind
+        if kind == 'rift':
+            return 'haze'
         return 'haze' if info.get('high_haze') else self.default_theme
+
+    # ----- 황금방 잠금·균열방 (11/19) -----
+    def gold_rooms_left(self):
+        """황금방이 열리기까지 남은 전투방 수: 이 구역의 보스·관문을 뺀 전투방 중 아직 클리어하지 않은 것."""
+        return sum(1 for c in self.layout if self.type_of(c) == 'combat' and c not in self.cleared)
+
+    def rift_cost(self):
+        """균열방에 처음 들어갈 때 내는 체력: 최대 체력의 RIFT_HP_COST% (올림)."""
+        return -(-self.player.max_hp * config.RIFT_HP_COST // 100)
+
+    def _update_door_texts(self):
+        """잠긴 황금방 문에는 남은 방 수, 아직 값을 치르지 않은 균열방 문에는 체력 대가를 적는다."""
+        texts = {}
+        left = self.gold_rooms_left()
+        for d, kind in self.room.door_hints.items():
+            target = self.neighbour(self.coord, d)
+            if kind == 'gold' and left > 0:
+                texts[d] = f'황금방 잠김 · 남은 방 {left}'
+            elif kind == 'rift' and target not in self.paid_rifts:
+                texts[d] = f'균열 · 체력 -{self.rift_cost()}'
+        self.room.door_texts = texts
+
+    def _blocked(self, target, direction):
+        """그 문으로 지금 들어갈 수 없으면 이유(글자), 들어갈 수 있으면 None. 균열방은 여기서 체력을 낸다."""
+        kind = self.type_of(target)
+        if kind == 'gold' and self.gold_rooms_left() > 0:
+            return f'황금방은 이 구역의 전투방을 모두 클리어하면 열린다 (남은 방 {self.gold_rooms_left()})'
+        if kind == 'rift' and target not in self.paid_rifts:
+            cost = self.rift_cost()
+            if self.player.hp <= cost:
+                return f'균열에 들어가려면 체력이 {cost}보다 많아야 한다'
+            self.player.hp -= cost
+            self.paid_rifts.add(target)
+            self._say(f'균열의 대가: 체력 -{cost}')
+        return None
+
+    def _push_back(self, direction):
+        """막힌 문에서 플레이어를 방 안쪽으로 조금 되돌린다."""
+        p, room, t = self.player, self.room, config.TILE
+        half = config.PLAYER_HB_W / 2
+        if direction == 'R':
+            p.x = room.width - half - t
+        elif direction == 'L':
+            p.x = half + t
+        elif direction == 'U':
+            p.y = room.height - config.PLAYER_HB_H - t * 1.5
+            p.vy = min(p.vy, 0.0)
+        else:
+            p.y, p.vy = t * 2.5, 500.0
+        p.vx = 0.0
 
     def _place_player(self, from_dir):
         p, room = self.player, self.room
@@ -207,14 +262,18 @@ class Stage:
         if 'stock' not in saved:           # 처음 들어올 때 한 번만 뽑고, 다시 와도 같은 물건이다
             rng = random.Random(f'{self.seed}:{coord}')
             count = min(len(self.room.pedestals), 3 if kind == 'gold' else 4)
-            saved['stock'] = (items.roll_gold(rng, count, self.player) if kind == 'gold'
-                              else items.roll_shop(rng, count, self.player))
+            if kind == 'rift':
+                saved['stock'] = items.roll_rift(rng, self.player)
+            elif kind == 'gold':
+                saved['stock'] = items.roll_gold(rng, count, self.player)
+            else:
+                saved['stock'] = items.roll_shop(rng, count, self.player)
             saved['gone'] = set()
         for slot, (x, y) in enumerate(self.room.pedestals):
             if slot >= len(saved['stock']):
                 break
             item_id = saved['stock'][slot]
-            price = 0 if kind == 'gold' else items.price(self.player, item_id)
+            price = items.price(self.player, item_id) if kind == 'shop' else 0
             ped = Pedestal(x, y, item_id, kind, price)
             ped.player = self.player
             ped.gone = slot in saved['gone'] or (kind == 'shop' and item_id in items.UPGRADES
@@ -250,6 +309,9 @@ class Stage:
             p.shards -= ped.price
         text = items.describe(p, ped.item_id)
         items.apply(p, ped.item_id)
+        if ped.mode == 'rift' and ped.item_id in items.UPGRADES and items.can_take(p, ped.item_id):
+            items.apply(p, ped.item_id)            # 균열방 업그레이드는 두 단계를 한꺼번에
+            text = '두 단계: ' + text
         info = items.ITEMS[ped.item_id]
         self._say(f'{info["name"]} 획득: {text}')
         upgrade_left = (ped.mode == 'shop' and ped.item_id in items.UPGRADES
@@ -267,7 +329,7 @@ class Stage:
             for other in self.pedestals:
                 if other.mode == 'shop' and other.item_id in items.UPGRADES and not items.can_take(p, other.item_id):
                     other.gone = True
-        if ped.mode == 'gold':                 # 황금방은 하나만: 나머지는 사라진다
+        if ped.mode in ('gold', 'rift'):       # 황금방·균열방은 하나만: 나머지는 사라진다
             for other in self.pedestals:
                 other.gone = True
                 saved['gone'].add(other.slot)
@@ -284,11 +346,16 @@ class Stage:
         if p.interact_pressed:
             p.interact_pressed = False
             self.interact()
+        self.block_left = max(0.0, self.block_left - 1 / 60)
         if self.room.locked and self.enemy_count() == 0:
             self.room.locked = False
+            before = self.gold_rooms_left()
             self.cleared.add(self.coord)
             if self.on_clear:
                 self.on_clear(self)
+            if before > 0 and self.gold_rooms_left() == 0 and any(self.type_of(c) == 'gold' for c in self.layout):
+                self._say('모든 전투방을 클리어했다: 황금방이 열렸다')
+            self._update_door_texts()
         if self.type_of(self.coord) in END_TYPES and self.coord in self.cleared and not self.finished:
             self.finish_timer += 1 / 60
             if self.finish_timer >= 2.5:
@@ -300,6 +367,13 @@ class Stage:
         if direction:
             target = self.neighbour(self.coord, direction)
             if target in self.layout:
+                reason = self._blocked(target, direction)
+                if reason:
+                    self._push_back(direction)
+                    if self.block_left <= 0:
+                        self._say(reason)
+                        self.block_left = 1.5
+                    return
                 self.enter_room(target, OPPOSITE[direction])
 
     def _exit_direction(self):
@@ -336,7 +410,7 @@ class Stage:
         for c in shown:
             if c == self.coord:
                 state = 'current'
-            elif c in self.cleared or (self.type_of(c) in ('gold', 'shop', 'start') and c in self.visited):
+            elif c in self.cleared or (self.type_of(c) in ('gold', 'shop', 'start', 'rift') and c in self.visited):
                 state = 'cleared'
             elif c in self.visited:
                 state = 'visited'

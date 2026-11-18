@@ -240,7 +240,8 @@ class GameUI:
         kit.panel('panel', px, py, pw, ph)
         base_x, base_y = px + 18 + gap // 2, py + 18 + gap // 2
         colors = {'current': (235, 245, 255), 'cleared': (63, 177, 207), 'visited': (60, 90, 150), 'unknown': (44, 54, 80)}
-        borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60)}
+        borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60),
+                   'rift': (200, 130, 255)}
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
@@ -248,7 +249,7 @@ class GameUI:
             assets.draw_rect_color(x - 3, y - 3, cell_w + 6, cell_h + 6, (11, 16, 32))
             assets.draw_rect_color(x - 2, y - 2, cell_w + 4, cell_h + 4, border)
             assets.draw_rect_color(x, y, cell_w, cell_h, colors[state])
-            mark = ('boss' if kind == 'gate' else kind) if kind in borders else 'haze' if high else None
+            mark = ({'gate': 'boss', 'rift': 'haze'}.get(kind, kind)) if kind in borders else 'haze' if high else None
             if mark:                                             # 방 종류는 색 테두리와 함께 아이콘으로도 알려 준다
                 kit.icon('hud_map_' + mark, x + cell_w // 2 - 10, y + cell_h // 2 - 8)
 

@@ -21,6 +21,7 @@ STAGE3 = {
     (3, 0): {"template": "arena_05", "type": "combat", "high_haze": True, "swap": {"slum": "hound", "thrower": "guard"}},
     (4, 0): {"template": "boss_arena", "type": "boss", "boss": "ark"},
     (2, -1): {"template": "shop_room", "type": "shop"},
+    (3, 1): {"template": "rift_room", "type": "rift"},     # 교차로 오른쪽: 균열방 (11/19)
     (2, 1): {"template": "crossing", "type": "combat",
              "enemies": ["guard", "guard", "hound", "hound", "thrower", "thrower"]},
     (0, 1): {"template": "well_room", "type": "combat", "high_haze": True,

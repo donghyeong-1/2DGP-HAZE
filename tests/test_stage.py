@@ -154,9 +154,102 @@ def test_minimap_shows_special_rooms_in_advance_and_visited_rooms():
 
 
 # ----- 황금방 -----
+def clear_all_combat(stage):
+    """황금방은 그 구역의 전투방을 모두 클리어해야 열린다: 테스트에서는 전부 클리어한 것으로 둔다."""
+    stage.cleared |= {c for c in stage.layout if stage.type_of(c) == 'combat'}
+
+
 def to_gold(stage, p):
+    clear_all_combat(stage)
     goto(stage, p, ['R', 'U', 'U'])         # 허브 -> 교차로 -> 황금방
     assert stage.coord == (1, 2)
+
+
+def test_gold_room_stays_shut_until_every_combat_room_is_cleared():
+    stage, p = make_stage()
+    msgs = []
+    stage.on_message = msgs.append
+    goto(stage, p, ['R', 'U'])                                      # 허브를 클리어하고 교차로에 막 들어옴
+    assert stage.coord == (1, 1)
+    combat = [c for c in stage.layout if stage.type_of(c) == 'combat']
+    assert stage.gold_rooms_left() == len(combat) - 1
+    assert stage.room.door_texts.get('U', '').endswith(f'{stage.gold_rooms_left()}')   # 문에 남은 방 수
+    clear_here(stage)
+    at_door(stage, p, 'U')
+    assert stage.coord == (1, 1) and any('황금방' in m for m in msgs)  # 들어가지 못하고 이유가 뜬다
+    stage.cleared |= set(combat) - {stage.coord}                    # 나머지를 깨고
+    stage.cleared.discard(stage.coord)
+    stage.room.locked = True
+    clear_here(stage)                                               # 마지막 방을 클리어하는 순간
+    assert stage.gold_rooms_left() == 0 and any('열렸' in m for m in msgs)
+    assert 'U' not in stage.room.door_texts                          # 문 글자가 원래대로
+    at_door(stage, p, 'U')
+    assert stage.coord == (1, 2)
+
+
+def test_gate_and_boss_rooms_do_not_count_for_the_gold_room():
+    stage, p = make_stage()
+    clear_all_combat(stage)
+    assert stage.gold_rooms_left() == 0 and (5, 0) not in stage.cleared   # 관문은 깨지 않아도 된다
+
+
+# ----- 균열방 (체력을 내고 들어간다) -----
+def to_rift_door(stage, p):
+    """스테이지 1: 허브 -> 교차로 -> 아레나 -> 홀, 홀의 오른쪽 문 너머가 균열방."""
+    goto(stage, p, ['R', 'U', 'R', 'R'])
+    assert stage.coord == (3, 1)
+    clear_here(stage)
+
+
+def test_every_stage_has_one_rift_room():
+    for name in ('stage1', 'stage2', 'stage3'):
+        stage, p = make_stage(name=name)
+        assert sum(1 for c in stage.layout if stage.type_of(c) == 'rift') == 1, name
+
+
+def test_rift_room_takes_health_once_on_entry():
+    stage, p = make_stage()
+    to_rift_door(stage, p)
+    assert stage.room.door_hints.get('R') == 'rift'
+    cost = stage.rift_cost()
+    assert cost == -(-p.max_hp * config.RIFT_HP_COST // 100)          # 최대 체력의 15% (올림)
+    hp0 = p.hp
+    at_door(stage, p, 'R')
+    assert stage.type_of(stage.coord) == 'rift' and p.hp == hp0 - cost
+    at_door(stage, p, 'L')
+    hp1 = p.hp
+    at_door(stage, p, 'R')
+    assert stage.type_of(stage.coord) == 'rift' and p.hp == hp1      # 두 번째부터는 내지 않는다
+
+
+def test_rift_room_refuses_entry_when_health_is_too_low():
+    stage, p = make_stage()
+    to_rift_door(stage, p)
+    msgs = []
+    stage.on_message = msgs.append
+    p.hp = stage.rift_cost()                                         # 내면 죽는다
+    at_door(stage, p, 'R')
+    assert stage.coord == (3, 1) and p.hp == stage.rift_cost() and any('체력' in m for m in msgs)
+
+
+def test_rift_room_offers_double_upgrade_or_fury_and_one_choice():
+    stage, p = make_stage()
+    to_rift_door(stage, p)
+    at_door(stage, p, 'R')
+    ids = [d.item_id for d in stage.pedestals]
+    assert len(ids) == 2 and 'fury' in ids
+    up = next(d for d in stage.pedestals if d.item_id != 'fury')
+    assert up.item_id in items.UPGRADES
+    p.x, p.y = up.x, up.y
+    assert stage.interact() and items.level(p, up.item_id) == 2      # 두 단계 한꺼번에
+    assert all(d.gone for d in stage.pedestals)                      # 하나만 고른다
+    stage2, q = make_stage()
+    to_rift_door(stage2, q)
+    at_door(stage2, q, 'R')
+    fury = next(d for d in stage2.pedestals if d.item_id == 'fury')
+    q.x, q.y = fury.x, fury.y
+    a0 = q.attack_bonus
+    assert stage2.interact() and abs(q.attack_bonus - a0 - config.RIFT_FURY_ATTACK) < 1e-9
 
 
 def test_gold_room_gives_one_item_free_and_removes_the_others():

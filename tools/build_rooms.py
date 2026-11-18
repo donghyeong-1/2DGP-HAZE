@@ -248,6 +248,16 @@ for c in (22, 25):
 b.stalactite(5, 3)
 R['shop_room'] = b
 
+# ============ 균열방 28x16: 왼쪽 문. 균열 앞 제단 2개 (체력을 내고 들어와 둘 중 하나) ============
+b = B(28, 16)
+b.doorL()
+b.solid(12, 12, 9, 11).solid(12, 12, 17, 19)                            # 제단 받침 (높이 1)
+for c in (10, 18):
+    b.mark(11, c, 'I')
+b.oneway(9, 4, 8).oneway(9, 20, 24)
+b.stalactite(14, 4)
+R['rift_room'] = b
+
 
 def main():
     bad = False

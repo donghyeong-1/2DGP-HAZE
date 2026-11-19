@@ -248,3 +248,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-19 [Codex] T21 N-09 달리기 교대 재작업. 걸음 A·B를 별도 2×2 시트로 만들고 밝은 소매·찢어진 무릎이 가까운 팔다리에 붙어 앞뒤를 바꾸도록 요청했다. 각 시트 2차에서는 가까운 바지·부츠의 밝은 차콜과 먼 쪽의 검은 면을 강화했다. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 assets/sprites/forge/hero_run_v2/{A,B}/actual_prompt.txt 및 take_02/actual_prompt.txt.
 
 2026-11-19 [Codex] T22 은신처 원경과 NPC 3명 마스터·대기 6장. 원경은 따뜻한 등불·청록 결정·비어 있는 중앙과 아래 1/4을 요청했고, NPC는 주인공 v3b 화풍으로 렌치·결정 의수의 정비사, 자물쇠 상자·등불의 보관인, 안경·장부의 기록관을 제작했다. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 assets/sprites/forge/hideout_v1/actual_prompt.txt 및 npc_v1/<역할>/{actual_prompt.txt,idle/actual_prompt.txt}.
+
+2026-11-19 [Codex] T23 N-09 궁극기 컷인·시전 2장. v3b 마스터를 참조해 흰 머리·청록 눈빛·해진 상의의 오른쪽 클로즈업과 기술명 여백이 있는 사선 띠, 웅크려 모으기→앞으로 내지르기를 요청했다. 시전은 머리 비율과 해방 높이를 1회 편집. Codex 내장 image_gen(모델명 미제공). 전문은 assets/sprites/forge/cutin_v1/actual_prompt.txt와 n09_ult_v1/{take_01_prompt.txt,actual_prompt.txt}.

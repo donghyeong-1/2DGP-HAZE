@@ -22,6 +22,7 @@ FRAMES = {
     'n09_swing_side': (5, 72, 149), 'n09_swing_up': (5, 82, 173), 'n09_swing_down': (5, 78, 149),
     'n09_swing_upfwd': (5, 76, 159), 'n09_swing_downfwd': (5, 75, 152),
     'n09_punch': (4, 36, 124),     # 맨손 자세 (Codex T05): 식칼 던지기·건틀릿 충전·발사 공용
+    'n09_ult': (2, 64, 130),       # 궁극기 시전 (Codex T23): 모으기 -> 해방
     # 슬럼 폐인, 고철 투척병
     'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
     'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124),

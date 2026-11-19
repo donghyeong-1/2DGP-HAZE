@@ -9,3 +9,4 @@ build/
 assets/**/source/
 assets/sprites/forge/**/source.png
 assets/sprites/forge/source.png
+assets/sprites/forge/**/*_source.png

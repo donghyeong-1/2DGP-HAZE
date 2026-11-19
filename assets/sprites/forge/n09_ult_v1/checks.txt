@@ -1,0 +1,21 @@
+cutin_hero_v1.png --height 420 (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+cutin_hero_v1.png                            (1920, 420) 1920x418        0 32
+키 418px (목표 420px) OK
+
+통과
+
+ult-1.png  (exit 1)
+파일                                           캔버스        내용 WxH     반투명 색
+ult-1.png                                    (140, 132) 71x105        0 34
+ult-2.png                                    (140, 132) 120x119        0 33
+
+실패:
+ - 프레임 키 차이 14px (걷기 상하 흔들림 포함해도 6px 이하여야 함)
+
+ult-1.png --air (exit 0)
+파일                                           캔버스        내용 WxH     반투명 색
+ult-1.png                                    (140, 132) 71x105        0 34
+ult-2.png                                    (140, 132) 120x119        0 33
+
+통과

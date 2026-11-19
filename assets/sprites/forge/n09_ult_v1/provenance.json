@@ -1,0 +1,55 @@
+{
+  "date_kst": "2026-11-19",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "source": "source.png",
+  "source_sha256": "b1b6dd6d9e0f6d693159c0db096c18c122133034e66f6a97dfc6b245cf05beb4",
+  "prompt": "actual_prompt.txt",
+  "first_source": "take_01_source.png",
+  "first_prompt": "take_01_prompt.txt",
+  "size": [
+    140,
+    132
+  ],
+  "anchor": [
+    64,
+    130
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "box": [
+        38,
+        25,
+        109,
+        130
+      ],
+      "opaque_height": 105,
+      "colors": 34,
+      "semi_transparent": 0,
+      "anchor": [
+        64,
+        130
+      ]
+    },
+    {
+      "frame": 2,
+      "box": [
+        8,
+        11,
+        128,
+        130
+      ],
+      "opaque_height": 119,
+      "colors": 33,
+      "semi_transparent": 0,
+      "anchor": [
+        64,
+        130
+      ]
+    }
+  ],
+  "shared_colors": 36
+}

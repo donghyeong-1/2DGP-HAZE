@@ -247,6 +247,7 @@ class Player(TileBody):
         self.weapons = [self.weapon, None]   # 장착 2칸: 철파이프 + 황금방에서 얻는 무기 하나 (Q·1·2로 바꾼다)
         self.slot = 0
         self.punch_left = 0.0            # 맨손 자세(던지기·건틀릿 발사) 남은 시간
+        self.ult_pose_left = 0.0         # 궁극기 시전 자세 남은 시간 (모으기 -> 해방)
         self.punch_total = 0.3
         self.punch_kind = 'throw'
         self.attack_held = False         # 좌클릭을 누르고 있으면 쿨타임마다 이어서 친다
@@ -495,6 +496,7 @@ class Player(TileBody):
         self.aura_time += dt
         self.swing_left = max(0.0, self.swing_left - dt)
         self.punch_left = max(0.0, self.punch_left - dt)
+        self.ult_pose_left = max(0.0, self.ult_pose_left - dt)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
             self.move_dist += abs(self.vx) * dt
@@ -659,6 +661,9 @@ class Player(TileBody):
             return 'n09_idle', 0
         if self.swing_left > 0 and self.swing_dir == 'plunge':
             return 'n09_plunge', 1 if self.swing_left > self.swing_total * 0.65 else 2
+        if self.ult_pose_left > 0:                           # 궁극기 시전: 모으기 -> 해방 (T23)
+            gathering = self.ult_pose_left > config.ULT_POSE_TIME - config.ULT_POSE_GATHER
+            return 'n09_ult', 1 if gathering else 2
         if getattr(self.weapon, 'charging', False):          # 건틀릿 충전: 주먹을 뒤로 당긴 채
             return 'n09_punch', 1
         if self.punch_left > 0:       # 맨손 자세: 던지기 = 당김 -> 뻗음 -> 회수, 발사 = 모음 -> 뻗음 -> 회수

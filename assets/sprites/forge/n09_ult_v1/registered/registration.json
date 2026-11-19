@@ -1,0 +1,36 @@
+{
+  "sourceRoot": [
+    550,
+    1000
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "source_root": [
+        270,
+        882
+      ],
+      "source_box": [
+        122,
+        272,
+        530,
+        883
+      ],
+      "uniform_source_scale": 1.1
+    },
+    {
+      "frame": 2,
+      "source_root": [
+        440,
+        882
+      ],
+      "source_box": [
+        113,
+        189,
+        812,
+        883
+      ],
+      "uniform_source_scale": 1.1
+    }
+  ]
+}

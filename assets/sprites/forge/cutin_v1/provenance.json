@@ -1,0 +1,25 @@
+{
+  "date_kst": "2026-11-19",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "source": "source.png",
+  "source_sha256": "2c5c9c83653d508a3a6003177e9621ed3fd12825b766b325b7ae94696122eb09",
+  "prompt": "actual_prompt.txt",
+  "size": [
+    1920,
+    420
+  ],
+  "colors": 32,
+  "transparent": 75017,
+  "semitransparent": 0,
+  "internal_holes": 0,
+  "text_safe_rectangle": [
+    1320,
+    100,
+    1840,
+    315
+  ],
+  "registration": "registration.json"
+}

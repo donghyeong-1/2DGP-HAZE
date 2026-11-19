@@ -150,7 +150,8 @@ class Pipe:
         self.last_kind, self.last_enhanced = 'ult_' + kind, True
         game_world.add_object(Ultimate(self, kind, ax, ay), game_world.LAYER_EFFECT)
         g.consume_enhance()
-        p.start_punch('blast')                           # 시전 자세 (T23 그림이 오면 전용 자세로 바꾼다)
+        p.ult_pose_left = config.ULT_POSE_TIME             # 시전 자세: 모으기 -> 해방 (Codex T23)
+        p.swing_left = p.punch_left = 0.0
         if kind == 'jump':
             p.vy = min(p.vy, -1400.0)                    # 내리꽂힌다
         self.cooldown = self.cooldown_max = config.ULT_COOLDOWN
@@ -1065,7 +1066,6 @@ class Ultimate:
                     draw_chain_line(self.x0, self.y0, ex, ey, self.color)
 
     def draw(self):
-        import options
         self._draw_reach()
         ox, oy = assets.draw_offset
         left, bottom = -ox, -oy                         # 화면 왼쪽 아래의 세계 좌표 (오버레이는 화면 전체)
@@ -1076,15 +1076,15 @@ class Ultimate:
             self.weapon.owner.draw()                    # 시전자는 어둠 위로 밝게
         rt = time.monotonic() - self.born               # 화면 정지 중에도 흐르는 실제 시간
         if rt < config.ULT_BANNER_TIME:
-            k = min(1.0, (rt + 0.03) / 0.12)           # 띠가 옆에서 밀려 들어온다
-            band_h, y = 110, bottom + config.SCREEN_H - 340   # 위쪽 HUD 아래 (구역 이름·안내 띠와 겹치지 않게)
-            alpha = 0.85 * (1.0 if rt < config.ULT_BANNER_TIME - 0.2 else (config.ULT_BANNER_TIME - rt) / 0.2)
-            w = int(config.SCREEN_W * k)
-            assets.draw_rect_color(left, y, w, band_h, (30, 22, 60), alpha)
-            assets.draw_rect_color(left, y, w, 6, self.color, alpha * options.flash_mult())
-            assets.draw_rect_color(left, y + band_h - 6, w, 6, self.color, alpha * options.flash_mult())
+            # 주인공 컷인 띠 (Codex T23, 1920x420): 왼쪽에서 밀려 들어와 머물고, 비워 둔 오른쪽 1/3에 기술 이름을 얹는다
+            img = assets.image('ui/ult_cutin.png')
+            k = min(1.0, (rt + 0.03) / 0.12)
+            y = bottom + config.SCREEN_H - 150 - img.h   # 위쪽 HUD 바로 아래
+            shown = int(img.w * k)
+            assets.draw_clip(img, img.w - shown, 0, shown, img.h, left, y)
             if k >= 1.0:
-                assets.draw_text(left + config.SCREEN_W // 2, y + band_h // 2, self.name, self.color, big=True, center=True)
+                tx = left + int(config.SCREEN_W * 0.83)
+                assets.draw_text(tx, y + img.h // 2, self.name, self.color, big=True, center=True)
 
 
 WEAPONS = {'pipe': Pipe, 'knife': Knife, 'gauntlet': Gauntlet, 'chain': Chain}

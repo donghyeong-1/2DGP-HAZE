@@ -229,3 +229,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 | 주인공 달리기 8장 (게임용) | `assets/sprites/unified/n09_run_1~8.png` | Codex T21(`forge/n09_run_v2`)에 `tools/soften_run_depth.py`로 앞뒤 팔다리 밝기 차이를 줄인 것 (2026-11-19) | 자체 제작(파생) |
 
 2026-11-19 [Codex] T22 assets/sprites/forge/hideout_v1/far_hideout_v1.png(1920×1080·32색)과 npc_v1/npc_{mechanic,keeper,archivist}_idle_{1,2}.png(대기 6장). Codex 내장 image_gen(모델명 미제공), generate2dmap·generate2dsprite 0.5.0, 프로젝트 hibit 마감 도구로 자체 제작. 원화·도구·프롬프트·측정값은 각 폴더의 provenance.json, NPC 기준점 (64,130), 캔버스 128×132. 검토 대기.
+
+2026-11-19 [Codex] T23 assets/sprites/forge/cutin_v1/cutin_hero_v1.png(1920×420·32색·이진 알파) 및 n09_ult_v1/frames/ult-{1,2}.png(140×132, 기준점 (64,130)). 프로젝트 주인공 마스터를 참조한 Codex 내장 image_gen(모델명 미제공) 생성, generate2dsprite·hibit_plate 0.5.0 및 프로젝트 hibit 도구로 마감. 출처·프롬프트·해시는 각 폴더의 provenance.json. 검토 대기.

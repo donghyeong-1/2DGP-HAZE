@@ -1,0 +1,20 @@
+{
+  "source_size": [
+    2172,
+    724
+  ],
+  "raw_shear_y_per_x": 0.065,
+  "crop": [
+    0,
+    225,
+    2172,
+    698
+  ],
+  "uniform_scale": 0.8839779005524862,
+  "native_height": 418,
+  "placement_y": 1,
+  "size": [
+    1920,
+    420
+  ]
+}

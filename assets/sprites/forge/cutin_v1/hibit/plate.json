@@ -1,0 +1,160 @@
+{
+  "schema": "generate2dmap.hibit_plate.v1",
+  "tool": {
+    "name": "hibit_plate",
+    "version": "0.5.0"
+  },
+  "hibit": "forge.hibit.v1",
+  "source": {
+    "path": "../registered.png",
+    "sha256": "a94d82166b662d288b16fe9606893b94ba0b6b10dd653db5f3125b84ec819cf7",
+    "bytes": 768014,
+    "size": [
+      1920,
+      420
+    ]
+  },
+  "size": [
+    1920,
+    420
+  ],
+  "crop": [
+    0,
+    0,
+    1920,
+    420
+  ],
+  "focus": [
+    0.5,
+    0.5
+  ],
+  "colors": 32,
+  "palette": [
+    "#0f1623",
+    "#0a1638",
+    "#0f2047",
+    "#252525",
+    "#033352",
+    "#044257",
+    "#05485e",
+    "#064e66",
+    "#0b576a",
+    "#464350",
+    "#0f6172",
+    "#35567e",
+    "#136b7a",
+    "#037a83",
+    "#62616c",
+    "#6965c9",
+    "#28919d",
+    "#7a869d",
+    "#38b2be",
+    "#909cb1",
+    "#98a3b6",
+    "#d49b66",
+    "#4ed0d6",
+    "#a8b1c1",
+    "#e0b789",
+    "#83d8d9",
+    "#5febf0",
+    "#6af5f8",
+    "#cdd1d7",
+    "#fbcf97",
+    "#fddca4",
+    "#eeeded"
+  ],
+  "paletteGiven": false,
+  "seed": 0,
+  "smooth": 0,
+  "previewScale": 1,
+  "engine": {
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "draw at whole-number zoom (480x270 x4 = 1920x1080); never filter the plate"
+  },
+  "warnings": [
+    "reduction: 1.0 (threshold 2.0)"
+  ],
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "hibit_plate v1 (forge_hibit, the hi-bit studio recipe): cover crop of the painting to the plate aspect; one palette (k-means++ on luminance-weighted RGB, or a given palette); every source pixel indexed to its nearest palette colour and every plate pixel the colour covering most of its cell (majority, never a blend); forge_hibit.clean_isolated (lone pixels take the 4-neighbour majority unless 90 apart in luminance-weighted RGB); 3x3 majority smoothing passes; opaque; nearest preview only for review",
+    "notProven": [
+      "That the painting reads as the intended scene at the plate size (look at plate-x4.png at gameplay scale).",
+      "That characters and FX read against it: finish the sprites with their own palettes and look at a mock-up.",
+      "Where the walkable ground is: the tool does not find the floor line in the art."
+    ],
+    "checks": [
+      {
+        "id": "size",
+        "status": "pass",
+        "value": [
+          1920,
+          420
+        ],
+        "threshold": [
+          1920,
+          420
+        ]
+      },
+      {
+        "id": "opaque",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "colours",
+        "status": "pass",
+        "value": 32,
+        "threshold": 32
+      },
+      {
+        "id": "lone-pixels",
+        "status": "info",
+        "value": 0.00219,
+        "threshold": null,
+        "note": "share of plate pixels with no 4-neighbour of their colour (kept features: lights, stars, eyes)"
+      },
+      {
+        "id": "reduction",
+        "status": "warn",
+        "value": 1.0,
+        "threshold": 2.0,
+        "note": "painting px per plate px; under 2x the majority has little to vote"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../registered.png",
+        "sha256": "a94d82166b662d288b16fe9606893b94ba0b6b10dd653db5f3125b84ec819cf7",
+        "bytes": 768014
+      }
+    ],
+    "outputs": [
+      {
+        "path": "plate.png",
+        "sha256": "c9953d96060f280d50785577cdb343478735e98f7f2198e61d605a83bec0305f",
+        "bytes": 68088
+      },
+      {
+        "path": "plate-x1.png",
+        "sha256": "c9953d96060f280d50785577cdb343478735e98f7f2198e61d605a83bec0305f",
+        "bytes": 68088
+      },
+      {
+        "path": "palette.json",
+        "sha256": "387768a7cea5838241a44b0b154c3124a5ccb5f54811c25b7a45cc37601be350",
+        "bytes": 1365
+      },
+      {
+        "path": "shade-maps.json",
+        "sha256": "6b6e9f6d6bc3c79b840d8f2153e9dcc6af7791c9bf0fa2b43716e160c916cb95",
+        "bytes": 1248
+      }
+    ],
+    "tool": {
+      "name": "hibit_plate",
+      "version": "0.5.0"
+    }
+  }
+}

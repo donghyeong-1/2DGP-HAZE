@@ -236,6 +236,20 @@ def test_ultimate_damage_is_the_same_for_every_weapon():
     assert len({round(v, 6) for v in dealt.values()}) == 1 and dealt['pipe'] > 0, dealt
 
 
+def test_casting_pose_gathers_then_releases_and_cutin_art_exists():
+    """T23: 시전하면 '모으기'(화면 정지 동안) -> '해방' 자세, 이름 띠 대신 주인공 컷인 그림."""
+    import sprites
+    room, p, (e,) = stacked(90, 3, [300])
+    p.request_attack()
+    assert p._body_frame() == ('n09_ult', 1)                             # 정지 중: 모으기
+    for _ in range(int(config.ULT_POSE_GATHER * 60) + 3):
+        tc.step(1)
+    assert p._body_frame() == ('n09_ult', 2)                             # 해방
+    assert sprites.count('n09_ult') == 2
+    root = os.path.join(HERE, '..', 'assets')
+    assert os.path.exists(os.path.join(root, 'ui', 'ult_cutin.png'))
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

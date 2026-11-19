@@ -76,6 +76,14 @@ def test_economy_counts_crystals_for_each_way_a_run_can_end():
     assert balance_sim.total_meta_cost() == sum(sum(u['prices']) for u in meta.UPGRADES.values()) + config.META_KEEPER_PRICE
 
 
+def test_a_run_that_dies_midway_in_stage_one_still_buys_an_upgrade():
+    """사용자 결정 11/19: 처음 하는 사람(스테이지 1 중간에 죽음)도 판마다 가장 싼 강화 하나는 살 수 있어야 한다."""
+    import meta
+    early = balance_sim.economy()[0][1]
+    cheapest = min(u['prices'][0] for u in meta.UPGRADES.values())
+    assert early >= cheapest, (early, cheapest)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

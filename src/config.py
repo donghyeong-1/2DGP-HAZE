@@ -178,7 +178,7 @@ UPGRADE_PRICE_MULT = (1.0, 1.6, 2.6)   # 정비방 값 = 1단계 값 x 이 배�
 # 업그레이드 두 단계 한꺼번에 / 균열의 분노(이번 판 공격력 +RIFT_FURY_ATTACK)
 RIFT_HP_COST = 15
 # 영구 성장 (11/19, src/meta.py): 판이 끝날 때 받는 헤이즈 결정과 정비사 강화 한 단계의 값
-META_PER_ROOM = 1
+META_PER_ROOM = 2            # 방 하나당 (11/19 사용자 결정 1 -> 2: 스테이지 1 중간에 죽어도 가장 싼 강화 하나)
 META_PER_END = 10            # 보스·관문
 META_ESCAPE = 30             # 탈출(마지막 구역 클리어)
 META_HP = 10                 # 최대 체력 +10 / 단계 (5단계)

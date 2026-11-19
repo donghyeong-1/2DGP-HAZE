@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(284개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(285개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -22,7 +22,7 @@
 
 ## 다음 할 일 (우선순위 순, 2026-11-19 정리)
 1. [ ] **(사용자) 직접 플레이 점검.** v4는 자동 테스트·캡처로만 확인했다. 볼 것: 은신처 흐름(시작 -> 출발 -> 사망 -> 결정 보상·맡기기 -> 은신처), 정비사 값과 결정 수입, E 3단계 쌓기와 궁극기 세기, 아크 난이도, 사슬 손맛, 균열방 대가(최대 체력 15%), 달리기 밝기. 수치는 `src/config.py`(META_*, RIFT_*, ULT_*, ENHANCE_*)와 `src/meta.py`(UPGRADES).
-2. [ ] **(사용자 결정) 헤이즈 결정 수입.** 지금 스테이지 1 중간에 죽으면 4개인데 가장 싼 강화가 8개다(`python tools/balance_sim.py --economy`). 방당 1 -> 2로 올리는 안이 있다(DECISIONS 11/19 "영구 성장 밸런스 점검").
+2. [x] 헤이즈 결정 방당 1 -> 2 (11/19 사용자 결정): 스테이지 1 중간 사망 8, 관문 28, 탈출 108 (`python tools/balance_sim.py --economy`).
 3. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다 (Codex는 "모델명 미제공"으로 적고 있다). 최종 제출 전 필수.
 4. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 제출 체크리스트(`docs/script_2nd.md`) 마무리.
 5. [ ] **(Claude Code)** 전용 효과음(아크 탄막·파동, 사슬 갈고리, 궁극기 시전)과 최종 보스 전용 음악(지금 크래셔와 같은 곡), 크레딧에 은신처 NPC·컷인 등 T21~T23과 v4 반영 여부 확인.
@@ -176,3 +176,4 @@
 2026-11-19 [Codex] T23 궁극기 컷인 띠·시전 2장과 1배 비교, 알파·팔레트·픽셀 검사, 높이 차이와 컷인 경고 기록, 검토 대기 / assets/sprites/forge/cutin_v1/, assets/sprites/forge/n09_ult_v1/, docs/codex/reports/T23.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-19 [Claude Code] Codex T23 검토·적용: 궁극기 컷인 띠(이름 띠 대신, 오른쪽에 기술 이름)·시전 자세 2장(정지 중 모으기 -> 해방), 테스트 1개(282개) / assets/ui/ult_cutin.png, assets/sprites/unified/n09_ult_1~2.png, src/(weapon, player, sprites, config).py, tests/test_ultimate.py, docs/*
 2026-11-19 [Claude Code] 영구 성장 밸런스 점검(balance_sim --meta max·--economy: 강화 최대면 보스·아크 승률 100%, 결정 수입은 초반이 느림), 다음 할 일 정리, 테스트 2개(284개) / src/meta.py, tools/balance_sim.py, tests/test_tools.py, docs/(PROGRESS, DECISIONS, SKILLS).md, .claude/skills/balance-sim/SKILL.md
+2026-11-19 [Claude Code] 헤이즈 결정 방당 1 -> 2(사용자 결정), 초반 수입 규칙 테스트(285개) / src/config.py, tests/test_tools.py, docs/(PROGRESS, DECISIONS, plan_v4).md

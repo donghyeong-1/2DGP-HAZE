@@ -1,0 +1,15 @@
+{
+  "size": [
+    128,
+    132
+  ],
+  "anchor": [
+    64,
+    130
+  ],
+  "translation": [
+    45,
+    17
+  ],
+  "source_finish": "npc_archivist_idle_finish/finish.json"
+}

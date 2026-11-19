@@ -3,10 +3,10 @@
 마지막 갱신: 2026-11-18 [Claude Code]
 
 ## 진행 중
-- [Codex] T22 은신처 원경·NPC 3명 / 수정 중인 파일: assets/sprites/forge/hideout_v1/, assets/sprites/forge/npc_v1/, docs/codex/reports/T22.md
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-18)
-- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(280개).
+- **플레이 가능**: 타이틀 → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(281개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -27,7 +27,7 @@
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다.
 5. [x] 남은 콘텐츠 모두 완료(11/18): 아크 그림(Codex T20)·스테이지 2·3·아크 보스·무기 사슬·정비방 업그레이드 7종 3단계.
 6. [x] Codex T20(아크 23장) 검토·그림 적용 완료. 대기 중인 Codex 작업 없음. (T12·T17~T20 적용 완료)
-00. [ ] **(Claude Code) v4** (`docs/plan_v4.md`): [x] 황금방 잠금·균열방(11/19) → [x] E 중첩(11/19: 중첩·2단계·궁극기 12종·무기별 대시/점프 공격, 컷인 그림은 T23 오면) → [x] 은신처·영구 성장·보관인(11/19 코드, **그림은 T22가 오면 적용**). 다음: Codex T22·T23 적용, 플레이 테스트로 수치 조정, 3차 발표 준비. 그림은 Codex T22(은신처·NPC)·T23(컷인) 대기. 수치는 제안값으로 진행(사용자가 바꿀 수 있게 config에).
+00. [ ] **(Claude Code) v4** (`docs/plan_v4.md`): [x] 황금방 잠금·균열방(11/19) → [x] E 중첩(11/19: 중첩·2단계·궁극기 12종·무기별 대시/점프 공격, 컷인 그림은 T23 오면) → [x] 은신처·영구 성장·보관인(11/19 코드, T22 그림 적용). 다음: Codex T23(컷인) 적용, 플레이 테스트로 수치 조정, 3차 발표 준비. 그림은 Codex T22(은신처·NPC)·T23(컷인) 대기. 수치는 제안값으로 진행(사용자가 바꿀 수 있게 config에).
 0. [x] **T21 달리기 다시 그리기 적용(11/19)**: 사용자 플레이에서 "발이 서로 교차를 안 해". T19 달리기 5~8번이 1~4번과 같은 걸음이라 같은 다리·팔이 계속 앞에 나온다(`python tools/check_gait.py --name n09_run` 비율 0.39, 걷기는 1.02). Codex가 `docs/codex/tasks/T21_hero_run_alternate.md`를 하면 Claude Code가 검토(비율 0.8 이상)하고 `tools/apply_*`로 `n09_run_1~8` 교체.
 7. [x] 엔딩 크레딧 화면과 접근성 옵션 완료(11/18). 아래는 당시 계획 기록.
    - ① 크레딧: 탈출(엔딩) 화면 뒤에 이어진다. 제작자, 사용 도구, 외부 에셋 출처·라이선스(`docs/ASSETS.md` 맨 위 표), AI 생성 에셋 표기(`docs/image_prompts.md`). 지금 엔딩은 `src/ending_mode.py`.
@@ -172,3 +172,6 @@
 2026-11-19 [Claude Code] 식칼·건틀릿·사슬의 대시·점프 공격, 무기별 궁극기 범위·연출(칼비·광선·끌어모아 폭발), 궁극기 피해 무기 공통, HUD 공격 글자, balance 기준 갱신, 테스트 10개(270개) / src/(weapon, config, ui).py, tests/(test_weapon_moves, test_ultimate).py, tools/balance_base.json, docs/*
 2026-11-19 [Claude Code] 달리기 앞뒤 팔다리 밝기 차이 줄임(사용자: 좌우 밝기 때문에 부자연스러움), 걸음 교대 검사 기준 0.55 / tools/(soften_run_depth, check_gait).py, assets/sprites/unified/n09_run_1~8.png, docs/(DECISIONS, ASSETS, PROGRESS).md
 2026-11-19 [Claude Code] 은신처(로비)·영구 성장(헤이즈 결정, 정비사 강화 4종)·보관인(물건 하나 다음 판으로)·기록관, 타이틀->은신처->스테이지 1, 사망->보상·맡기기->은신처, NPC 임시 그림, 테스트 10개(280개) / src/(meta, npc, npc_mode, stage, room, play_mode, ending_mode, player, config).py, data/(stages/hideout.py, rooms/hideout_room.txt), tools/(build_rooms, capture).py, tests/(test_meta, test_rooms).py, docs/*
+
+2026-11-19 [Codex] T22 은신처 원경·NPC 3명 마스터와 대기 6장, 1배 비교·배치·GIF, 픽셀 검사와 원경 경고 기록, 검토 대기 / assets/sprites/forge/hideout_v1/, assets/sprites/forge/npc_v1/, docs/codex/reports/T22.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-19 [Claude Code] Codex T22 검토·적용: 은신처 원경(hideout 테마, 타일 foundry·중경 없음), NPC 3명 대기 그림(플레이어 쪽을 봄), 은신처 시작 자리 버그(바닥 속에 생김) 수정과 테스트(281개) / assets/backgrounds/far_hideout.png, assets/sprites/unified/npc_*, src/(room, npc).py, data/(stages/hideout.py, rooms/hideout_room.txt), tools/build_rooms.py, tests/(test_meta, test_rooms).py, docs/*

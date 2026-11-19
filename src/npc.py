@@ -32,12 +32,13 @@ class NPC:
 
     def draw(self):
         if self._art:
-            frame = int(self.time * 2) % 2 + 1                 # 숨쉬기 2장
-            assets.draw_image(assets.image(f'sprites/unified/npc_{self.kind}_idle_{frame}.png'), self.x, self.y, 'h')
+            frame = int(self.time / 0.6) % 2 + 1               # 숨쉬기 2장 (장당 0.6초, T22)
+            face = '' if self.player is None or self.player.x >= self.x else 'h'   # 그림은 오른쪽을 본다: 플레이어 쪽을 보게
+            assets.draw_image(assets.image(f'sprites/unified/npc_{self.kind}_idle_{frame}.png'), self.x, self.y, face)
         else:
             self._draw_placeholder()
         color = COLORS[self.kind]
-        top = self.y + SHAPES[self.kind][1]
+        top = self.y + (132 if self._art else SHAPES[self.kind][1])
         assets.draw_text(self.x, top + 34, self.name, color, small=True, center=True)
         if self.player is not None and self.near(self.player):
             assets.draw_text(self.x, top + 70, f'F {ROLES[self.kind]}', (255, 240, 150), small=True, center=True)

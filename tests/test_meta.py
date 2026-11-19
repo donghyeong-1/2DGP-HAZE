@@ -131,6 +131,9 @@ def test_run_starts_in_the_hideout_and_its_door_leads_to_stage_one():
     s = stage_mod.Stage(p, name='hideout')
     s.start()
     assert s.type_of(s.coord) == 'hideout' and len(s.npcs) == 3
+    for _ in range(60):
+        game_world.update(DT)
+    assert p.on_ground and p.y == 2 * config.TILE == s.npcs[0].y                      # 바닥 위에 선다 (바닥 속에 끼지 않는다)
     assert {n.kind for n in s.npcs} == {'mechanic', 'keeper', 'archivist'}
     assert 'R' in s.room.links and not s.room.locked
     assert [c for c, *_ in s.minimap_cells()] == [(0, 0)]                               # 출발 문 너머는 지도에 없다

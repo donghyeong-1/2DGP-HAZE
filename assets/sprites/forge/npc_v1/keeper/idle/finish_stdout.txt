@@ -1,0 +1,1 @@
+저장: C:\code\2-2\2DGP-project\assets\sprites\forge\npc_v1\npc_keeper_idle_finish  /  C:\code\2-2\2DGP-project\assets\sprites\forge\npc_v1\npc_keeper_idle_finish_strip_1x.png  (프레임 2장)

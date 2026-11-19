@@ -1,0 +1,161 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-19T07:49:09.898Z",
+  "name": "npc_keeper",
+  "subject": "keeper hideout NPC",
+  "identity_recap": "thin elderly gray-bearded hooded keeper, brown long coat, large padlocked wooden trunk on back and amber lantern in hand",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      210,
+      138,
+      814,
+      926
+    ],
+    "anchor": [
+      546.0,
+      926.0
+    ],
+    "opaque_area_px": 259049,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "1e730bc2d22708902c1ef6e5f8b11c0c9a9a2550f966a8875db23e44df4b5eea",
+      "bytes": 347975,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "02185c9ea724f7199536391166625a46c1d4bec0ade359caf41c5749b0867fc0",
+      "bytes": 407109,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "4fe51e6bc70467e136895876e4dbc6e7e9436ce5b468dfb428e094f804d5c943",
+      "bytes": 1359276,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "aef7b4d8b1b51f08344c77995685c7935c4bcec7bcec3ce09bd97563a70e4137",
+      "bytes": 2598
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "59a5342d61ba8b93948829258eac554fd0f10d75404196094d6fd4eb32d86a85",
+      "bytes": 2033
+    }
+  },
+  "references": [],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      201,
+      142,
+      969,
+      1145
+    ],
+    "crop_box": [
+      195,
+      136,
+      975,
+      1151
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.7856430707876371,
+    "offset": [
+      52.39880358923233,
+      26.438683948155543
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3516,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host_image",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "4fe51e6bc70467e136895876e4dbc6e7e9436ce5b468dfb428e094f804d5c943",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.7311474096289005,
+      "distance_from_declared": 6.56
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.018276842853756813,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 421900
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

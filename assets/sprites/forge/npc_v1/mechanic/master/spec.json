@@ -1,0 +1,22 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "npc_mechanic",
+  "subject": "middle-aged stocky female mechanic",
+  "identity": "Stocky broad middle-aged woman, tan face with dark eye, black tied-back hair, rusty welding goggles on forehead, dirty olive overalls with large rust patches, black shirt and boots, steel wrench across shoulder, gray mechanical forearm with cyan crystal",
+  "pose": null,
+  "recap": "stocky middle-aged female escaped prisoner, forehead welding goggles, olive work overalls, wrench on shoulder and cyan-crystal metal forearm",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": null,
+  "style_ref": null,
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

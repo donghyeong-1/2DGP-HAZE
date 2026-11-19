@@ -262,6 +262,7 @@ R['rift_room'] = b
 b = B(34, 16)
 b.doorR()
 b.oneway(10, 4, 10).oneway(10, 22, 28).oneway(6, 13, 19)                # 낮은 발판 둘 + 가운데 높은 발판 (방 규칙: 서는 높이 3층 이상)
+b.mark(b.stand, 4, 'P')                                                 # 시작 자리 (없으면 바닥 속 기본 위치에 생긴다)
 R['hideout_room'] = b
 
 

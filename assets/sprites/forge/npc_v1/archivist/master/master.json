@@ -1,0 +1,161 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-19T07:51:43.636Z",
+  "name": "npc_archivist",
+  "subject": "archivist hideout NPC",
+  "identity_recap": "slim brown-haired young prisoner archivist, round glasses, pencil behind ear, blank steel prisoner tag, gray jacket and thick reddish-brown ledger held against chest",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      377,
+      138,
+      647,
+      926
+    ],
+    "anchor": [
+      504.5,
+      926.0
+    ],
+    "opaque_area_px": 117767,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "2d139491a48e395096c6e754f544aed46093f61f7eb2e4c18e7766a02fb38270",
+      "bytes": 190652,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "b8c0e8b39bc41dd8c73396dd653908a51e333ef0e2034165fb451a11ba429df7",
+      "bytes": 224469,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "586e5bb9bb81085a55d2a71d64d8978202dc1a6de2b885d09d9e99cc8c2efca6",
+      "bytes": 1283029,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "d05368c61e20910a547121abe514f81af5e320926f566ce901643d6a11ef26e7",
+      "bytes": 2702
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "60ff8ef5cac99864d2f1cf5c1d46feb1bed784e148d0a8963301654b372f0e2d",
+      "bytes": 2086
+    }
+  },
+  "references": [],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      459,
+      135,
+      801,
+      1136
+    ],
+    "crop_box": [
+      453,
+      129,
+      807,
+      1142
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.7872127872127872,
+    "offset": [
+      16.055944055944053,
+      31.72627372627373
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 2347,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host_image",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "586e5bb9bb81085a55d2a71d64d8978202dc1a6de2b885d09d9e99cc8c2efca6",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.8777233427195653,
+      "distance_from_declared": 6.56
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.030434102055723677,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 191660
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

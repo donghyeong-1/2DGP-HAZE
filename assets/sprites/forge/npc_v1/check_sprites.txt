@@ -1,0 +1,62 @@
+## npc_mechanic_idle_1.png --height 126
+파일                                           캔버스        내용 WxH     반투명 색
+npc_mechanic_idle_1.png                      (128, 132) 81x126        0 41
+키 126px (목표 126px) OK
+
+통과
+
+## npc_mechanic_idle_2.png --height 126
+파일                                           캔버스        내용 WxH     반투명 색
+npc_mechanic_idle_2.png                      (128, 132) 82x127        0 41
+키 127px (목표 126px) OK
+
+통과
+
+## mechanic 대기 2장
+파일                                           캔버스        내용 WxH     반투명 색
+npc_mechanic_idle_1.png                      (128, 132) 81x126        0 41
+npc_mechanic_idle_2.png                      (128, 132) 82x127        0 41
+
+통과
+
+## npc_keeper_idle_1.png --height 117
+파일                                           캔버스        내용 WxH     반투명 색
+npc_keeper_idle_1.png                        (128, 132) 90x117        0 41
+키 117px (목표 117px) OK
+
+통과
+
+## npc_keeper_idle_2.png --height 117
+파일                                           캔버스        내용 WxH     반투명 색
+npc_keeper_idle_2.png                        (128, 132) 90x118        0 41
+키 118px (목표 117px) OK
+
+통과
+
+## keeper 대기 2장
+파일                                           캔버스        내용 WxH     반투명 색
+npc_keeper_idle_1.png                        (128, 132) 90x117        0 41
+npc_keeper_idle_2.png                        (128, 132) 90x118        0 41
+
+통과
+
+## npc_archivist_idle_1.png --height 111
+파일                                           캔버스        내용 WxH     반투명 색
+npc_archivist_idle_1.png                     (128, 132) 40x111        0 34
+키 111px (목표 111px) OK
+
+통과
+
+## npc_archivist_idle_2.png --height 111
+파일                                           캔버스        내용 WxH     반투명 색
+npc_archivist_idle_2.png                     (128, 132) 40x112        0 36
+키 112px (목표 111px) OK
+
+통과
+
+## archivist 대기 2장
+파일                                           캔버스        내용 WxH     반투명 색
+npc_archivist_idle_1.png                     (128, 132) 40x111        0 34
+npc_archivist_idle_2.png                     (128, 132) 40x112        0 36
+
+통과

@@ -1,0 +1,26 @@
+{
+  "source_anchor": [
+    650,
+    1000
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "source_root": [
+        386.0,
+        895
+      ],
+      "source_top": 106,
+      "factor_to_master": 0.9949302915082383
+    },
+    {
+      "frame": 2,
+      "source_root": [
+        387.0,
+        895
+      ],
+      "source_top": 103,
+      "factor_to_master": 0.9949302915082383
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "date_kst": "2026-11-19",
+  "route": "Codex host image_gen",
+  "art_source": "host_image",
+  "model": null,
+  "estimateUsd": null,
+  "prompt": "actual_prompt.txt",
+  "source": "source.png",
+  "sha256": "a1a25006f15accd6cdb48fed69d406f722b920464517ae642132c1247dc739bb",
+  "source_size": [
+    1672,
+    941
+  ],
+  "final_size": [
+    1920,
+    1080
+  ],
+  "opaque_colors": 32,
+  "transparent_pixels": 0,
+  "lower_quarter_colors": [
+    [
+      19,
+      29,
+      40
+    ],
+    [
+      36,
+      38,
+      42
+    ]
+  ],
+  "preview_actor_floor_y": 810
+}

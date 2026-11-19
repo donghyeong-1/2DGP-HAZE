@@ -37,6 +37,9 @@ GLOW_SIZE = 120                      # 램프 빛 한 장의 크기(px)
 MID_PARALLAX = (0.35, 0.12)          # 중경이 카메라를 따라 움직이는 비율 (가로, 세로)
 LOCKED_TINT = (255, 130, 140)        # 전투 중 잠긴 쇠창살 문
 THEMES = ('cell', 'foundry', 'haze', 'gold', 'shop', 'boss')
+# 원경만 따로 있는 테마: 이름 -> 타일을 빌려 쓸 테마. 중경은 없다(원경 그림을 가리지 않게).
+#   hideout(은신처, 11/19): 원경은 Codex T22, 타일은 따뜻한 녹슨 주황(foundry)이 아지트 등불과 어울린다
+BACKDROP_THEMES = {'hideout': 'foundry'}
 
 
 def _hash(a, b=0, c=0):
@@ -51,7 +54,9 @@ class Room:
         self.cols, self.nrows = len(rows[0]), len(rows)
         self.width, self.height = self.cols * config.TILE, self.nrows * config.TILE
         self.is_high_haze = high_haze
-        self.theme = theme if theme in THEMES else 'cell'
+        self.theme = theme if theme in THEMES or theme in BACKDROP_THEMES else 'cell'
+        self.tile_theme = BACKDROP_THEMES.get(self.theme, self.theme)   # 타일·장식에 쓰는 테마
+        self.has_mid = self.theme not in BACKDROP_THEMES
         self.name = name
         self.links = set(links or ())   # 이웃 방(또는 탈출구)이 있어서 열릴 수 있는 출입구 방향. 나머지 출입구는 벽이다
         self.locked = False             # 전투 중에는 출입구가 잠긴다
@@ -267,6 +272,9 @@ class Room:
         screen_offset = assets.draw_offset
         assets.draw_offset = (0, 0)
         assets.draw_image(assets.image(f'backgrounds/far_{self.theme}.png'), config.SCREEN_W // 2, 0)
+        if not self.has_mid:
+            assets.draw_offset = screen_offset
+            return
         mid = assets.image(f'backgrounds/mid_{self.theme}.png')
         shift = int(camera.x * MID_PARALLAX[0]) % mid.w
         drop = min(mid.h - config.SCREEN_H, max(0, int(camera.y * MID_PARALLAX[1])))
@@ -277,7 +285,7 @@ class Room:
 
     def draw(self):
         self._draw_backdrop()
-        atlas = assets.image(f'tiles/tile_set_{self.theme}.png')
+        atlas = assets.image(f'tiles/tile_set_{self.tile_theme}.png')
         t = config.TILE
         # 화면에 보이는 칸만 그린다
         c0 = max(0, int(camera.x // t) - 1)

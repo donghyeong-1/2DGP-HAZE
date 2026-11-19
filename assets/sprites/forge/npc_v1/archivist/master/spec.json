@@ -1,0 +1,22 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "npc_archivist",
+  "subject": "archivist hideout NPC",
+  "identity": "Create ONE original NPC character master still for Haze, a SLIM YOUNG escaped-prisoner ARCHIVIST. RIGHT-facing SIDE PROFILE, full body, two boots level on imaginary floor, calm attentive idle. Short messy chestnut-brown hair with a distinctive YELLOW PENCIL tucked behind the visible ear, large DARK ROUND-FRAMED GLASSES and a clearly readable large dark eye through clear lenses. Tan two-tone skin, youthful soft face with clear nose and mouth, gentle thoughtful expression. Faded slate-gray short prisoner jacket over dark shirt, slim dark charcoal trousers with a few broad knee patches, simple dark lace-up boots. A small muted TEAL collar tab and cloth wrist band tie to the game palette. A flat steel PRISONER ID TAG pendant hangs from the neck on a simple dark cord, large blank brushed-metal rectangle with a couple of punched dots but NO writing, no letters or numbers. Holds a VERY THICK ledger with a dark desaturated reddish-brown cover and a broad thick stack of pale cream pages, firmly hugged to the CHEST with BOTH hands, forearms and fingers visible around it. The ledger's block is large enough to recognize at 111px character height, held with its long edge horizontal, it must read as an accounting book. Both bare hands each support one side and bottom. Small young body and large book create an easily distinguishable compact silhouette. Keep pencil, ID tag, glasses and book as big simple shapes. Use reference only for broad angular hi-bit character style, final eye readability and discrete material shades. This character has a completely different youthful face, brown hair, glasses and slim build. Flat LINELESS crisp color planes, at most three flat shades per material, two tan skin tones, light upper left, muted cyan edge lighting only on clothing, not skin. No gradients, gloss, glow, outlines, weapon, tiny engraving, readable writing, text, number, logo, border, floor line, cast shadow or other person. Opaque PURE FLAT #FF00FF backdrop. 1024x1024 square, centered full body with empty 10% margins. Top of pencil stays level with or below hair top.",
+  "pose": null,
+  "recap": "slim brown-haired young prisoner archivist, round glasses, pencil behind ear, blank steel prisoner tag, gray jacket and thick reddish-brown ledger held against chest",
+  "facing": "right",
+  "facing_parts": null,
+  "view": null,
+  "class": "hero",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": null,
+  "pronoun": "they",
+  "identity_ref": null,
+  "style_ref": null,
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": null
+}

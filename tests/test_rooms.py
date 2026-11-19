@@ -256,6 +256,15 @@ def test_every_theme_has_a_tile_set_and_background():
         atlas = Image.open(os.path.join(root, 'assets', 'tiles', f'tile_set_{name}.png'))
         assert atlas.size == (16 * 60, room_module.ATLAS_H), (name, atlas.size)       # 그림과 room.py의 칸 배치가 같은 판이어야 한다
 
+
+def test_hideout_theme_has_its_own_backdrop_and_borrows_tiles():
+    """은신처(11/19): 원경은 Codex T22 그림(far_hideout), 타일은 다른 테마 것을 빌린다, 중경은 원경을 가리지 않게 없다."""
+    import room as room_module
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+    r = Room.load('hideout_room', theme='hideout')
+    assert r.theme == 'hideout' and r.tile_theme in room_module.THEMES and not r.has_mid
+    assert os.path.exists(os.path.join(root, 'assets', 'backgrounds', 'far_hideout.png'))
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

@@ -1,0 +1,15 @@
+{
+  "size": [
+    128,
+    132
+  ],
+  "anchor": [
+    64,
+    130
+  ],
+  "translation": [
+    16,
+    11
+  ],
+  "source_finish": "npc_keeper_idle_finish/finish.json"
+}

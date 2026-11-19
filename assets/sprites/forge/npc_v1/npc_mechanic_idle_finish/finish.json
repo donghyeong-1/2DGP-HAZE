@@ -1,0 +1,321 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "npc_mechanic_idle_finish",
+  "character": "npc_mechanic_master",
+  "role": null,
+  "source": {
+    "frames": "../mechanic/idle/registered",
+    "count": 2,
+    "size": [
+      1400,
+      1200
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../mechanic/idle/registered/registration.json",
+      "sha256": "3de219fb1f85cb10ffa2406a07dfcae71b6d86713468e944fdf95d19f562b05a",
+      "bytes": 409
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 213,
+    "feetPx": 1001,
+    "heightPx": 788,
+    "areaPx": 206109,
+    "stanceX": 668.5,
+    "centroid": [
+      643.3344031556119,
+      592.8884546526352
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    668.5,
+    1001.0
+  ],
+  "scale": 0.15756035578144853,
+  "scaleSource": "scale-ref",
+  "targetHeight": 126.15756035578144,
+  "scaleRef": {
+    "path": "../npc_mechanic_master/finish.json",
+    "sha256": "1c22fceaad68dca323855e6a376c74bbc1152a4abfd76a65b839f3aec7ecf0ac",
+    "bytes": 6912,
+    "clip": "npc_mechanic_master",
+    "character": "npc_mechanic_master",
+    "scale": 0.15756035578144853,
+    "restAreaPx": 206455.0,
+    "areaRatio": 0.998324,
+    "correction": 1.000839,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    85,
+    129
+  ],
+  "anchor": [
+    48,
+    128
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      85,
+      129
+    ],
+    "sourceAnchor": [
+      48,
+      128
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 126.1576,
+    "areaPx": 5116.711,
+    "bodyHeightPx": 124.1576,
+    "outlinePx": 1,
+    "measuredHeightPx": 126,
+    "measuredAreaPx": 5734
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.15756035578144853,
+      "size": [
+        85,
+        129
+      ],
+      "anchor": [
+        48,
+        128
+      ],
+      "targetHeight": 126.15756035578144,
+      "flicker": {
+        "pairs": 1,
+        "alphaFlipsPerPair": 198.0,
+        "indexFlipsPerPair": 1389.0,
+        "noiseFlipsPerPair": 533.0,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../npc_mechanic_master/palette.json",
+    "sha256": "ee780ec5fde348be270ca1e2d4d40e217f59adf05463d07f492d32b2d6909810",
+    "bytes": 1770,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 1039,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 41,
+    "noiseFlipReduction": 0.1499,
+    "plainMajority": {
+      "pairs": 1,
+      "alphaFlipsPerPair": 228.0,
+      "indexFlipsPerPair": 1548.0,
+      "noiseFlipsPerPair": 627.0,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 20,
+    "lonePixelsFixed": 467
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/idle-1.png",
+      "sha256": "6373a63b95717026a37ef8189cd828bff9478716754e5aa5aa337b7260c00203",
+      "sourceFile": "idle-1.png",
+      "sourceSha256": "457a388fe404fe18743ca20b17df2aef0dbf08cb9b6435fdcd93a94df5d9c146",
+      "opaquePx": 5734
+    },
+    {
+      "file": "frames/idle-2.png",
+      "sha256": "c567039ae25efa238125022d527c9332a7b90fecf13b2028b9ce4a8281d3d2dc",
+      "sourceFile": "idle-2.png",
+      "sourceSha256": "994678589c0db3d7e085207eb090ce9e6c8b556ab78974eb3a8c80e446636175",
+      "opaquePx": 5817
+    }
+  ],
+  "flicker": {
+    "pairs": 1,
+    "alphaFlipsPerPair": 198.0,
+    "indexFlipsPerPair": 1389.0,
+    "noiseFlipsPerPair": 533.0,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 24,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.15756,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.158,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 1,
+          "alphaFlipsPerPair": 198.0,
+          "indexFlipsPerPair": 1389.0,
+          "noiseFlipsPerPair": 533.0,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 6.347,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 41
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 533.0,
+          "perFrameNearest": 627.0,
+          "reduction": 0.1499
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../mechanic/idle/registered/idle-1.png",
+        "sha256": "457a388fe404fe18743ca20b17df2aef0dbf08cb9b6435fdcd93a94df5d9c146"
+      },
+      {
+        "path": "../mechanic/idle/registered/idle-2.png",
+        "sha256": "994678589c0db3d7e085207eb090ce9e6c8b556ab78974eb3a8c80e446636175"
+      },
+      {
+        "path": "../mechanic/idle/registered/registration.json",
+        "sha256": "3de219fb1f85cb10ffa2406a07dfcae71b6d86713468e944fdf95d19f562b05a",
+        "bytes": 409
+      },
+      {
+        "path": "../npc_mechanic_master/finish.json",
+        "sha256": "1c22fceaad68dca323855e6a376c74bbc1152a4abfd76a65b839f3aec7ecf0ac",
+        "bytes": 6912
+      },
+      {
+        "path": "../npc_mechanic_master/palette.json",
+        "sha256": "ee780ec5fde348be270ca1e2d4d40e217f59adf05463d07f492d32b2d6909810",
+        "bytes": 1770
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/idle-1.png",
+        "sha256": "6373a63b95717026a37ef8189cd828bff9478716754e5aa5aa337b7260c00203",
+        "bytes": 5121
+      },
+      {
+        "path": "frames/idle-2.png",
+        "sha256": "c567039ae25efa238125022d527c9332a7b90fecf13b2028b9ce4a8281d3d2dc",
+        "bytes": 5108
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "8044bfd0e2db82fd600cbbe5a290f469dfb56f382357fc26fdabb1b90aac0bbc",
+        "bytes": 22175
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

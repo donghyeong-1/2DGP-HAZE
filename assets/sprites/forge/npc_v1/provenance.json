@@ -1,0 +1,135 @@
+{
+  "date_kst": "2026-11-19",
+  "route": "Codex host image_gen",
+  "art_source": "host_image",
+  "model": null,
+  "estimateUsd": null,
+  "canvas": [
+    128,
+    132
+  ],
+  "anchor": [
+    64,
+    130
+  ],
+  "gif_frame_ms": 600,
+  "npcs": {
+    "mechanic": {
+      "target_height": 126,
+      "palette_colors_used": 41,
+      "frames": [
+        {
+          "file": "npc_mechanic_idle_1.png",
+          "bbox": [
+            21,
+            4,
+            102,
+            130
+          ],
+          "height": 126,
+          "opaque_colors": 41,
+          "semi_transparent": 0,
+          "sha256": "a62ccc93e2e7c07429b68bb31621bcb2659154190452d29bfce6804c84d5bace"
+        },
+        {
+          "file": "npc_mechanic_idle_2.png",
+          "bbox": [
+            20,
+            3,
+            102,
+            130
+          ],
+          "height": 127,
+          "opaque_colors": 41,
+          "semi_transparent": 0,
+          "sha256": "2fbebfd1aa754acc7a028b088db80d17a2ed17c38059b06278cfc82e17967588"
+        }
+      ],
+      "master_source": "mechanic/source.png",
+      "master_prompt": "mechanic/actual_prompt.txt",
+      "idle_source": "mechanic/idle/source.png",
+      "idle_prompt": "mechanic/idle/actual_prompt.txt",
+      "master_sha256": "551ff95068127473d5c9b1903bdc6b0b6a6acae2920a080438f554bfc99e6b7d",
+      "idle_sha256": "f9f6dc1aed84ae745fa5c932f060a7a1bbaa1f0221b01837408b1fb438b2ec9f",
+      "finish": "npc_mechanic_idle_finish/finish.json"
+    },
+    "keeper": {
+      "target_height": 117,
+      "palette_colors_used": 41,
+      "frames": [
+        {
+          "file": "npc_keeper_idle_1.png",
+          "bbox": [
+            17,
+            13,
+            107,
+            130
+          ],
+          "height": 117,
+          "opaque_colors": 41,
+          "semi_transparent": 0,
+          "sha256": "885b0e0a016fe4a7c0f3bc96a454447c19ac6a6e1e684941d6d25607b2a549b5"
+        },
+        {
+          "file": "npc_keeper_idle_2.png",
+          "bbox": [
+            17,
+            12,
+            107,
+            130
+          ],
+          "height": 118,
+          "opaque_colors": 41,
+          "semi_transparent": 0,
+          "sha256": "3b162243b26a4f8f012290f828f0a656a0f40ffffa4b71920a8a679271b7bec9"
+        }
+      ],
+      "master_source": "keeper/source.png",
+      "master_prompt": "keeper/actual_prompt.txt",
+      "idle_source": "keeper/idle/source.png",
+      "idle_prompt": "keeper/idle/actual_prompt.txt",
+      "master_sha256": "4fe51e6bc70467e136895876e4dbc6e7e9436ce5b468dfb428e094f804d5c943",
+      "idle_sha256": "db4decc1a61f50facc40673cb35b6681d408d0226ddc8e93a2a670f20f24ddd9",
+      "finish": "npc_keeper_idle_finish/finish.json"
+    },
+    "archivist": {
+      "target_height": 111,
+      "palette_colors_used": 36,
+      "frames": [
+        {
+          "file": "npc_archivist_idle_1.png",
+          "bbox": [
+            46,
+            19,
+            86,
+            130
+          ],
+          "height": 111,
+          "opaque_colors": 34,
+          "semi_transparent": 0,
+          "sha256": "53e0094deaa4aa481a32b2bec654b0b13ff1caa9654398f28f4825a4f41485aa"
+        },
+        {
+          "file": "npc_archivist_idle_2.png",
+          "bbox": [
+            46,
+            18,
+            86,
+            130
+          ],
+          "height": 112,
+          "opaque_colors": 36,
+          "semi_transparent": 0,
+          "sha256": "00c67cf08cbbb91cadf112a43bde083feedbd8d9071ad4058e9d664b08502ea4"
+        }
+      ],
+      "master_source": "archivist/source.png",
+      "master_prompt": "archivist/actual_prompt.txt",
+      "idle_source": "archivist/idle/source.png",
+      "idle_prompt": "archivist/idle/actual_prompt.txt",
+      "master_sha256": "586e5bb9bb81085a55d2a71d64d8978202dc1a6de2b885d09d9e99cc8c2efca6",
+      "idle_sha256": "0588acb063744de7c59b6cf97f8bf9080de631d195bd185d9395b9fac5299168",
+      "finish": "npc_archivist_idle_finish/finish.json"
+    }
+  }
+}

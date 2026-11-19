@@ -1,0 +1,161 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-19T07:45:18.594Z",
+  "name": "npc_mechanic",
+  "subject": "middle-aged stocky female mechanic",
+  "identity_recap": "stocky middle-aged female escaped prisoner, forehead welding goggles, olive work overalls, wrench on shoulder and cyan-crystal metal forearm",
+  "facing": "right",
+  "view": "side view (profile to three-quarter)",
+  "finish": "hibit",
+  "class": "hero",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 788,
+    "top_margin_px": 138,
+    "lead_px": 0,
+    "preset": "hero",
+    "subject_bbox": [
+      258,
+      138,
+      765,
+      926
+    ],
+    "anchor": [
+      541.0,
+      926.0
+    ],
+    "opaque_area_px": 206455,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "d2706e2043af977c84e5e1b0118d130d706bc92fcf285d2a7861b4645efe27a4",
+      "bytes": 291723,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "7e013625ad5290fb132a433b907f7227055493aabe31874cbccc1a183d80d2cc",
+      "bytes": 340314,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "551ff95068127473d5c9b1903bdc6b0b6a6acae2920a080438f554bfc99e6b7d",
+      "bytes": 1358085,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "51c21cb5a5d4bbaf1d3bc8cf4e9b747e78e30c4b590c2f73f231846f98dd0ed4",
+      "bytes": 858
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "d5e6fbfe4c9f98d21c089a39aec2f57ce59f40aab5be071c7b8f2f46bade2591",
+      "bytes": 1985
+    }
+  },
+  "references": [],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      252,
+      104,
+      944,
+      1181
+    ],
+    "crop_box": [
+      246,
+      98,
+      950,
+      1187
+    ],
+    "crop_margin_px": 6,
+    "scale": 0.7316620241411328,
+    "offset": [
+      74.46610956360257,
+      61.907149489322194
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3449,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host_image",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "source.png",
+    "source_sha256": "551ff95068127473d5c9b1903bdc6b0b6a6acae2920a080438f554bfc99e6b7d",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        3.0,
+        250.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.7528152336764777,
+      "distance_from_declared": 6.56
+    },
+    "quality": "soft",
+    "interior_despill": true,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.0,
+      "semitransparent_fraction": 0.02126771127876915,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 387959
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 0.0,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": []
+}

@@ -144,12 +144,16 @@ def bot_step(p, bot, weapon_id, state):
         p.request_attack()
 
 
-def run_one(scenario, weapon_id, bot, seed, gauge=None):
+def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
     random.seed(seed)
     game_world.clear()
     effects.reset()
     room = arena()
     p = Player(PLAYER_X, FLOOR_Y, room)
+    if meta_levels:                                      # 은신처 정비사 영구 강화 ('max' = 모두 최대 단계)
+        import meta
+        levels = ({k: u['max'] for k, u in meta.UPGRADES.items()} if meta_levels == 'max' else meta_levels)
+        meta.apply_levels(p, levels)
     game_world.add_object(p, game_world.LAYER_PLAYER)
     for _ in range(20):
         game_world.update(DT)
@@ -189,7 +193,7 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None):
         if not enemies():
             result = 'win'
             break
-    return dict(result=result, time=round(t, 2), hp_lost=round(hp0 - max(0, p.hp), 1),
+    return dict(result=result, time=round(t, 2), max_hp=p.max_hp, hp_lost=round(hp0 - max(0, p.hp), 1),
                 gauge_end=round(p.gauge.value, 1), gauge_min=round(gmin, 1), gauge_max=round(gmax, 1),
                 overloads=events.count('overload'), zones={k: round(v / t, 3) for k, v in zone_time.items()})
 
@@ -214,6 +218,40 @@ def fmt_zones(z):
     return ' '.join(f'{k[:4]}{int(v * 100)}' for k, v in list(z.items())[:3])
 
 
+# ----- 영구 성장 경제 (은신처, 11/19) -----
+def economy():
+    """판이 어디서 끝나느냐에 따라 받는 헤이즈 결정: [(설명, 결정)]. 전투방을 모두 돌았다고 친다."""
+    import meta
+    import stage as stage_mod
+    combat = []
+    for name in stage_mod.STAGE_ORDER:
+        _, layout = stage_mod.load_layout(name)
+        combat.append(sum(1 for info in layout.values() if info.get('type', 'combat') == 'combat'))
+    rows = [('스테이지 1 중간에 사망 (전투방 절반)', meta.run_reward(combat[0] // 2, 0, False))]
+    rooms = ends = 0
+    for i, n in enumerate(combat):
+        rooms += n + 1                                   # 전투방 + 끝 방(관문·보스)도 클리어한 방
+        ends += 1
+        label = ('스테이지 1 관문까지', '스테이지 2 크래셔까지', '스테이지 3 아크까지')[i]
+        rows.append((label + ' 깨고 사망', meta.run_reward(rooms, ends, False)))
+    rows.append(('탈출 (모두 돌고 아크 처치)', meta.run_reward(rooms, ends, True)))
+    return rows
+
+
+def total_meta_cost():
+    """정비사 강화를 모두 최대로 + 보관 칸 열기에 드는 결정."""
+    import meta
+    return sum(sum(u['prices']) for u in meta.UPGRADES.values()) + config.META_KEEPER_PRICE
+
+
+def print_economy():
+    total = total_meta_cost()
+    print('판이 끝나는 곳별 헤이즈 결정 (전투방을 모두 돈다고 칠 때)')
+    for label, got in economy():
+        print(f'  {label:<28} {got:>4}   -> 모두 최대까지 약 {-(-total // max(got, 1))}판')
+    print(f'정비사 강화 전부 + 보관 칸 = {total} 결정')
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--scenario', nargs='*', default=list(SCENARIOS), choices=list(SCENARIOS))
@@ -223,7 +261,12 @@ def main():
     ap.add_argument('--gauge', type=float, help='시작 게이지(%%). 없으면 게임 시작값')
     ap.add_argument('--save', help='결과를 JSON으로 저장 (변경 전 기준)')
     ap.add_argument('--compare', help='저장한 기준 JSON과 비교해 차이를 보여 준다')
+    ap.add_argument('--meta', choices=('max',), help='은신처 영구 강화를 모두 최대로 한 플레이어로 싸운다')
+    ap.add_argument('--economy', action='store_true', help='판이 끝나는 곳별 헤이즈 결정과 강화 총비용만 보여 준다')
     a = ap.parse_args()
+    if a.economy:
+        print_economy()
+        return
 
     base = json.load(open(a.compare, encoding='utf-8')) if a.compare else {}
     out = {}
@@ -232,7 +275,7 @@ def main():
     for sc in a.scenario:
         for w in a.weapon:
             for b in a.bot:
-                s = summarize([run_one(sc, w, b, seed, a.gauge) for seed in range(a.seeds)])
+                s = summarize([run_one(sc, w, b, seed, a.gauge, a.meta) for seed in range(a.seeds)])
                 key = f'{sc}/{w}/{b}'
                 out[key] = s
                 line = (f"{sc:<10}{w:<11}{b:<8}{s['win']:>6.0%}{s['dead']:>6.0%}{str(s['ttk']):>9}{s['hp_lost']:>8}"

@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(ROOT, 'src'))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 
 import balance_sim  # noqa: E402
+import config  # noqa: E402
 
 
 def test_balance_sim_runs_every_weapon_and_reports_fields():
@@ -55,6 +56,24 @@ def test_window_display_choice_from_argument_or_environment():
         os.environ.pop('HAZE_DISPLAY', None)
         if old is not None:
             os.environ['HAZE_DISPLAY'] = old
+
+
+def test_balance_sim_meta_option_applies_permanent_upgrades():
+    """--meta max: 정비사 강화를 모두 최대로 한 플레이어로 싸운다 (영구 성장이 난이도를 얼마나 낮추는지 본다)."""
+    import meta
+    base = balance_sim.run_one('slum', 'pipe', 'stand', 0)
+    full = balance_sim.run_one('slum', 'pipe', 'stand', 0, meta_levels='max')
+    top = meta.UPGRADES['hp']['max']
+    assert base['max_hp'] == config.PLAYER_HP and full['max_hp'] == config.PLAYER_HP + top * config.META_HP
+
+
+def test_economy_counts_crystals_for_each_way_a_run_can_end():
+    rows = balance_sim.economy()
+    names = [r[0] for r in rows]
+    assert names[0].startswith('스테이지 1') and names[-1].startswith('탈출')
+    assert rows[-1][1] > rows[0][1] > 0                                     # 멀리 갈수록 많이 받는다
+    import meta
+    assert balance_sim.total_meta_cost() == sum(sum(u['prices']) for u in meta.UPGRADES.values()) + config.META_KEEPER_PRICE
 
 
 if __name__ == '__main__':

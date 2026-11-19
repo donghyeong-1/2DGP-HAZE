@@ -158,7 +158,17 @@ def set_keepsake(item_id):
 def apply_to_player(player):
     """새 판을 시작하는 플레이어에게 영구 강화와 맡긴 물건을 준다."""
     ensure_loaded()
-    lv = state['levels']
+    apply_levels(player, state['levels'])
+    keep = state['keepsake']
+    if keep:
+        items.apply(player, keep)                  # 업그레이드는 1단계(한 번 적용), 무기는 두 번째 칸에
+        state['keepsake'] = None                   # 한 번 받으면 사라진다
+        save()
+    return keep
+
+
+def apply_levels(player, lv):
+    """정비사 강화 단계(lv: key -> 단계)를 플레이어 능력치에 적용한다. 저장과 무관 (balance-sim도 쓴다)."""
     player.max_hp += lv['hp'] * config.META_HP
     player.hp = player.max_hp
     player.attack_bonus += lv['attack'] * config.META_ATTACK
@@ -166,9 +176,3 @@ def apply_to_player(player):
     g.value = float(config.GAUGE_START + lv['gauge'] * config.META_GAUGE)
     g.zone = g._zone_of(g.value)
     player.dash_recharge = config.DASH_RECHARGE - lv['dash'] * config.META_DASH
-    keep = state['keepsake']
-    if keep:
-        items.apply(player, keep)                  # 업그레이드는 1단계(한 번 적용), 무기는 두 번째 칸에
-        state['keepsake'] = None                   # 한 번 받으면 사라진다
-        save()
-    return keep

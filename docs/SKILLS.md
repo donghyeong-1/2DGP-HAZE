@@ -106,7 +106,7 @@
 | 스킬 | 도구 | 하는 일 |
 |---|---|---|
 | verify | `tools/verify.py` | 커밋 전: 전체 테스트, PROGRESS 작업 로그, "진행 중"·Codex 영역 보호, AI 원본·5MB 넘는 파일 차단 |
-| balance-sim | `tools/balance_sim.py`, 기준 `tools/balance_base.json` | 봇이 실제 게임 코드로 싸워 6 시나리오 x 3 무기 x 2 봇 x 10 시드의 승률·처치 시간·잃은 HP·게이지 흐름을 잰다(수 초). 수치 변경 전후 비교 |
+| balance-sim | `tools/balance_sim.py`, 기준 `tools/balance_base.json` | 봇이 실제 게임 코드로 싸워 7 시나리오(아크 포함) x 4 무기 x 2 봇 x 시드의 승률·처치 시간·잃은 HP·게이지 흐름을 잰다(수 초). 수치 변경 전후 비교. `--meta max`(은신처 영구 강화 최대), `--economy`(판이 끝나는 곳별 헤이즈 결정) |
 | playtest-capture | `tools/capture.py` | 실제 창으로 게임 화면 캡처. 방·적·무기·게이지 지정, 봇 조작 전투를 여러 장 찍고 모아 보기 저장. `--display 2`(또는 `HAZE_DISPLAY=2`)로 창을 두 번째 모니터에 띄운다 (게임 실행 `python src/main.py`도 `HAZE_DISPLAY`를 따른다) |
 
 시뮬레이터가 게임 코드 변경으로 깨지지 않게 `tests/test_tools.py`가 지킨다.

@@ -9,7 +9,10 @@ sys.path.insert(0, os.path.join(ROOT, 'src'))
 import config  # noqa: E402
 
 NAMES = ["warn_low", "warn_high", "jump", "double_jump", "dash", "land", "hit", "pickup", "enhance", "overload", "death",
-         "overload_zap", "stun_end", "swing", "swing_fade", "swing_awake", "swing_critical", "swing_enhanced", "enemy_hit", "enemy_die", "throw"]
+         "overload_zap", "stun_end", "swing", "swing_fade", "swing_awake", "swing_critical", "swing_enhanced", "enemy_hit", "enemy_die", "throw",
+         # 2026-11-19 전용 효과음: 사슬, 궁극기, 아크
+         "chain_throw", "chain_latch", "chain_clash", "ult_cast", "ult_hit", "ult_final",
+         "ark_bullet", "ark_teleport", "ark_roar", "ark_absorb", "ark_burst", "ark_field"]
 
 
 def test_sfx_files_are_valid_short_wavs():
@@ -32,8 +35,8 @@ def test_sound_is_silent_when_disabled():
 
 
 def test_music_files_loop_cleanly():
-    """배경음악 3곡: 20초 이상, 무음·클리핑 없음, 끝과 처음이 이어진다(반복 재생 이음매)."""
-    for name in ('title', 'explore', 'boss'):
+    """배경음악 4곡: 20초 이상, 무음·클리핑 없음, 끝과 처음이 이어진다(반복 재생 이음매)."""
+    for name in ('title', 'explore', 'boss', 'ark'):
         path = os.path.join(ROOT, 'assets', 'music', name + '.wav')
         assert os.path.exists(path), name
         with wave.open(path, 'rb') as f:
@@ -68,6 +71,77 @@ def test_music_choice_and_silence_when_disabled():
     assets.stop_music()
     assert assets.current_music is None
 
+
+
+# ----- 전용 효과음이 제자리에서 나는지 (2026-11-19) -----
+class Recorder:
+    """assets.play_sound를 잠시 바꿔 어떤 소리가 났는지 적는다."""
+    def __enter__(self):
+        import assets
+        self.names, self._old = [], assets.play_sound
+        assets.play_sound = self.names.append
+        return self
+
+    def __exit__(self, *exc):
+        import assets
+        assets.play_sound = self._old
+
+
+def test_final_boss_has_its_own_music():
+    import play_mode
+    from ark import Ark
+
+    class FakeStage:
+        name = 'stage3'
+
+    stage = FakeStage()
+    stage.boss = Ark.__new__(Ark)
+    stage.boss.alive = True
+    assert play_mode.music_for(stage) == 'ark'            # 최종 보스는 크래셔와 다른 곡
+
+
+def test_chain_throw_and_latch_have_their_own_sounds():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_chain as tch
+    room, p, (e,) = tch.setup(35, [300])
+    with Recorder() as rec:
+        tch.fire_and_wait(p)
+    assert 'chain_throw' in rec.names and 'chain_latch' in rec.names, rec.names
+
+
+def test_chain_clash_has_its_own_sound():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_chain as tch
+    room, p, foes = tch.setup(90, [250, 320])             # 위험 구간: 끌려온 적끼리 부딪친다
+    with Recorder() as rec:
+        tch.fire_and_wait(p)
+    assert 'chain_clash' in rec.names, rec.names
+
+
+def test_ultimate_cast_hits_and_finish_have_their_own_sounds():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_ultimate as tu
+    room, p, foes = tu.stacked(90, 3, [150])
+    with Recorder() as rec:
+        assert p.request_attack()
+        tu.run_out_ultimate()
+    assert rec.names.count('ult_cast') == 1, rec.names
+    assert 'ult_hit' in rec.names and rec.names.count('ult_final') == 1, rec.names
+
+
+def test_ark_patterns_have_their_own_sounds():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_ark as ta
+    room, p, a = ta.make_fight()
+    with Recorder() as rec:
+        a._fire_barrage()
+        a._teleport_beside_player()
+        a._absorb_waves()
+        a._overcharge_ring()
+        a._lay_fields()
+        a._enter_phase(2, '각성')
+    for name in ('ark_bullet', 'ark_teleport', 'ark_absorb', 'ark_burst', 'ark_field', 'ark_roar'):
+        assert name in rec.names, (name, rec.names)
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

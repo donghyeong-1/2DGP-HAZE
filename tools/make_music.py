@@ -6,7 +6,8 @@
 곡 (assets/music/<이름>.wav, 22050Hz 모노 16비트):
   title    느린 패드와 종소리. 타이틀·엔딩 (70 BPM, 8마디)
   explore  어두운 탐험·전투 (100 BPM, 16마디, D단조: Dm Dm Bb C / Dm Dm Gm A)
-  boss     몰아치는 보스전 (140 BPM, 16마디)
+  boss     몰아치는 보스전 (140 BPM, 16마디). 크래셔
+  ark      최종 보스 아크 (126 BPM, 16마디, D 프리지안: 반음 위 Eb가 불안하게 끌어당긴다)
 사용: python tools/make_music.py [곡 이름 ...]
 """
 import os
@@ -31,6 +32,7 @@ def hz(name, octave):
 CHORDS = {
     'Dm': ('D', ['D', 'F', 'A']), 'Bb': ('Bb', ['Bb', 'D', 'F']), 'C': ('C', ['C', 'E', 'G']),
     'Gm': ('G', ['G', 'Bb', 'D']), 'A': ('A', ['A', 'C#', 'E']), 'F': ('F', ['F', 'A', 'C']),
+    'Eb': ('Eb', ['Eb', 'G', 'Bb']), 'Cm': ('C', ['C', 'Eb', 'G']),
 }
 
 
@@ -199,7 +201,48 @@ def boss():
     s.save('boss', 0.74)
 
 
-SONGS = {'title': title, 'explore': explore, 'boss': boss}
+def choir(freqs, sec):
+    """느리게 부풀었다 줄어드는 합창 같은 패드 (사인 다섯 개를 어긋나게 겹친다)."""
+    t = t_axis(sec)
+    out = np.zeros(len(t))
+    for f in freqs:
+        for det in (0.992, 0.997, 1.0, 1.003, 1.008):
+            out += np.sin(2 * np.pi * f * det * t + det * 40)
+    swell = np.sin(np.pi * np.clip(t / sec, 0, 1)) ** 0.7
+    return out / (len(freqs) * 5) * swell
+
+
+def ark():
+    """최종 보스 아크: 무겁게 밟는 하프타임 킥, 반음 위로 끌어당기는 화음, 합창 패드와 종 선율."""
+    s = Song(126, 16)
+    prog = ['Dm', 'Eb', 'Dm', 'Eb', 'Bb', 'Cm', 'A', 'A'] * 2
+    bar_sec = 16 * s.step
+    riff = [0, 0, 0, 1, 0, 0, 12, 0, 0, 1, 0, 0, 10, 0, 7, 1]                 # 반음 위(1)로 비트는 리프
+    motif = [('D', 5, 0), ('Eb', 5, 4), ('D', 5, 6), ('A', 4, 8), ('Bb', 4, 12), ('A', 4, 14)]
+    for b, ch in enumerate(prog):
+        root = hz(CHORDS[ch][0], 2)
+        s.add(s.at(b, 0), choir(chord_freqs(ch, 3), bar_sec * 1.1), 0.36)
+        for st in range(16):
+            if riff[st] or st in (0, 4, 8):
+                s.add(s.at(b, st), bass(root * 2 ** (riff[st] / 12), s.step * 1.6), 0.46)
+        for st in (0, 3, 10):                                # 하프타임 킥: 무겁게 밟는다
+            s.add(s.at(b, st), kick(), 0.9)
+        s.add(s.at(b, 8), snare(), 0.46)
+        if b % 4 == 3:
+            for st in (12, 13, 14, 15):
+                s.add(s.at(b, st), snare(), 0.22 + 0.04 * (st - 12))
+        for st in range(0, 16, 2):
+            s.add(s.at(b, st), hat(st == 6 or st == 14), 0.11)
+        tones = chord_freqs(ch, 4)
+        for st in range(0, 16, 4):                           # 느린 아르페지오 (위험한 반짝임)
+            s.add(s.at(b, st + 2), pluck(tones[(st // 4 + b) % 3] * 2, s.step * 3), 0.12)
+        if b >= 8 or b % 2 == 0:                             # 두 마디에 한 번, 뒤 절반은 매 마디 종 선율
+            for name, octave, st in motif:
+                s.add(s.at(b, st), bell(hz(name, octave) * (2 if b >= 12 else 1), s.step * 4), 0.17)
+    s.save('ark', 0.74)
+
+
+SONGS = {'title': title, 'explore': explore, 'boss': boss, 'ark': ark}
 
 
 def main():

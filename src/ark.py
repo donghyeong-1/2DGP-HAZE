@@ -37,6 +37,7 @@ KEEP_FAR, KEEP_NEAR = 480, 220   # 패턴 사이 이 거리 사이를 유지한�
 class Ark(Enemy):
     title = '총감시관 아크'
     pullable = False               # 사슬에 맞아도 끌려오지 않는다
+    MUSIC = 'ark'                      # 최종 보스 전용 곡 (play_mode.music_for)
 
     def __init__(self, x, y, room, player):
         super().__init__('ark', x, y, room, player)
@@ -121,7 +122,7 @@ class Ark(Enemy):
         self.phase = phase
         self.roar_left = 1.0
         self.cooldown = max(self.cooldown, 1.0)
-        assets.play_sound('overload')
+        assets.play_sound('ark_roar')
         effects.add_trauma(0.7)
         effects.spawn('puff', self.x, self.y + 20, duration=0.45)       # 큰 폭발은 페이즈 자세를 가린다
         effects.float_text(self.x, self.y + self.hb_h + 80, word, (150, 240, 230), big=True, life=1.0)
@@ -216,7 +217,7 @@ class Ark(Enemy):
             a = base + (spread * (i / (n - 1) - 0.5) if n > 1 else 0.0)
             game_world.add_object(projectile.HazeBullet(hx, hy, math.cos(a), math.sin(a), self.room, self.player),
                                   game_world.LAYER_EFFECT)
-        assets.play_sound('throw')
+        assets.play_sound('ark_bullet')
         effects.add_trauma(0.2)
 
     def _teleport_beside_player(self):
@@ -234,7 +235,7 @@ class Ark(Enemy):
                 break
         self.face_dir = 1 if p.x > self.x else -1
         effects.spawn('puff', self.x, self.y + 40, duration=0.35)        # 나타난 자리 (큰 폭발은 플레이어와 아크를 가린다)
-        assets.play_sound('dash')
+        assets.play_sound('ark_teleport')
 
     def _slash(self):
         reach = config.ARK_SLASH_RANGE
@@ -255,7 +256,7 @@ class Ark(Enemy):
         for x, d in ((edge, 1), (self.room.width - edge, -1)):
             game_world.add_object(projectile.GaugeWave(x, self.y, d, config.ARK_WAVE_SPEED, 'absorb', self.room,
                                                        self.player, stop_x=self.x), game_world.LAYER_EFFECT)
-        assets.play_sound('enhance')
+        assets.play_sound('ark_absorb')
 
     def _overcharge_ring(self, speed_mult=1.0):
         """아크에서 바깥으로 퍼지는 파동 두 개 (좌우)."""
@@ -264,7 +265,7 @@ class Ark(Enemy):
         for d in (-1, 1):
             game_world.add_object(projectile.GaugeWave(self.x + d * 50, self.y, d, config.ARK_WAVE_SPEED * speed_mult,
                                                        'overcharge', self.room, self.player), game_world.LAYER_EFFECT)
-        assets.play_sound('overload')
+        assets.play_sound('ark_burst')
 
     def _lay_fields(self):
         """플레이어 발밑에 오염 장판 (3페이즈는 하나 더, 옆에)."""
@@ -280,7 +281,7 @@ class Ark(Enemy):
                 game_world.add_object(projectile.PollutionField(x, floor, w, t, self.room, self.player),
                                       game_world.LAYER_EFFECT)
         effects.add_trauma(0.3)
-        assets.play_sound('land')
+        assets.play_sound('ark_field')
 
     # ----- 그리기 -----
     def _body_frame(self):

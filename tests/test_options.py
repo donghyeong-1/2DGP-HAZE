@@ -75,6 +75,21 @@ def test_credits_cover_every_external_source_and_finish():
     assert credits_mode.finished()
 
 
+
+def test_credits_list_v4_art_and_match_the_sound_files():
+    """크레딧이 v4에서 더한 그림(은신처·NPC·궁극기 컷인)을 적고, 소리 수가 실제 파일 수와 같다 (2026-11-19)."""
+    import re
+    import credits_mode
+    text = ' '.join(t for _, t in credits_mode.CREDITS)
+    for must in ('은신처', 'NPC', '컷인'):
+        assert must in text, must
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
+    sfx = len([f for f in os.listdir(os.path.join(root, 'sfx')) if f.endswith('.wav')])
+    music = len([f for f in os.listdir(os.path.join(root, 'music')) if f.endswith('.wav')])
+    m = re.search(r'효과음 (\d+)종 · 배경음악 (\d+)곡', text)
+    assert m, '크레딧에 소리 수가 없다'
+    assert (int(m.group(1)), int(m.group(2))) == (sfx, music), (m.groups(), sfx, music)
+
 def test_options_screen_shows_current_values():
     import options_mode
     options.reset()

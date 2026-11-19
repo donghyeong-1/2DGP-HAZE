@@ -45,11 +45,13 @@ def enter():
 
 
 def music_for(stage):
-    """지금 방에 맞는 곡: 은신처는 차분한 곡, 살아 있는 보스가 있으면 보스 곡, 아니면 탐험 곡."""
+    """지금 방에 맞는 곡: 은신처는 차분한 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 music, 기본 'boss'), 아니면 탐험 곡."""
     if getattr(stage, 'name', '') == 'hideout':
         return 'title'
     boss = stage.boss
-    return 'boss' if boss is not None and boss.alive else 'explore'
+    if boss is not None and boss.alive:
+        return getattr(boss, 'MUSIC', 'boss')
+    return 'explore'
 
 
 def _on_npc(npc):

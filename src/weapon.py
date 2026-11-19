@@ -690,7 +690,7 @@ class Chain(Pipe):
             damage *= config.CHAIN_AIR_MULT
         self.hook = ChainHook(self, ax, ay, damage, count, reach, stun, self._fx(enhanced), enhanced)
         game_world.add_object(self.hook, game_world.LAYER_EFFECT)
-        assets.play_sound('throw')
+        assets.play_sound('chain_throw')
         p.start_punch('throw')
         self.cooldown = self.cooldown_max = config.CHAIN_COOLDOWN
         if enhanced:
@@ -743,6 +743,7 @@ class ChainHook:
             if tx - h < er and el < tx + h and ty - h < et and eb < ty + h:
                 self.hit.add(id(enemy))
                 self.hooked.append(enemy)
+                assets.play_sound('chain_latch')
                 damage = self.damage * (1.0 if enemy.pullable else config.CHAIN_ANCHOR_MULT)   # 보스에게는 박혀서 더 아프다
                 killed = self.weapon._hit(enemy, damage, config.CHAIN_GAIN, self.fx, big=self.enhanced,
                                           shake=0.7, stop=0.5, blast=self.enhanced, extra=False)
@@ -801,7 +802,7 @@ class ChainHook:
                 else:
                     e.hold(config.CHAIN_STUN)                       # 충돌 경직이 기절을 줄이지 않게 다시 건다
             effects.add_trauma(config.SHAKE_FINISHER * 0.6)
-            assets.play_sound('enemy_hit')
+            assets.play_sound('chain_clash')
         self._done()
 
     def _update_back(self, dt):
@@ -924,7 +925,7 @@ class Ultimate:
         effects.add_trauma(0.9)
         p.invuln_left = max(p.invuln_left, config.ULT_INVULN)
         p.steady_left = max(p.steady_left, config.ULT_INVULN)   # 무적이지만 깜빡이지 않는다
-        assets.play_sound('overload_zap')
+        assets.play_sound('ult_cast')                   # 모으기(화면 정지 0.3초) -> 터짐
 
     def _in_area(self, e):
         ex, ey = e.center
@@ -990,7 +991,7 @@ class Ultimate:
                 effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
         self._spawn_shape()
         effects.add_trauma(0.35 if not last else 0.8)
-        assets.play_sound('enemy_hit' if not last else 'overload_zap')
+        assets.play_sound('ult_final' if last else 'ult_hit')
         self.hits_done += 1
 
     def _spawn_shape(self):

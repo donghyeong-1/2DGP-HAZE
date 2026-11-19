@@ -2,13 +2,15 @@
 
 사용한 모든 이미지·사운드는 아래에 기록한다. (이름 / 출처 URL / 라이선스 / 사용 위치)
 
-## 지금 게임이 쓰는 에셋 (2026-11-17 기준, 이 표가 최신이다)
+## 지금 게임이 쓰는 에셋 (2026-11-19 기준, 이 표가 최신이다)
 아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트 하나뿐이다.
 
 | 구분 | 위치 | 만든 방법 | 출처·라이선스 |
 |---|---|---|---|
 | 캐릭터·적·보스와 동작 프레임 | `assets/sprites/unified/` | Codex(agent-sprite-forge `generate2dsprite`, 내장 image_gen)로 원화 → `tools/finish_character.py`로 픽셀화. 작업 기록은 `docs/codex/`, 원화는 `assets/sprites/forge/` | AI 생성물 (이미지 모델명 미제공: 제출 전 확인 필요) |
 | 사망·엔딩 화면 | `assets/backgrounds/screen_*.png` | Codex `generate2dmap` (T11) | AI 생성물 |
+| 은신처 원경, NPC 3명(정비사·보관인·기록관) 대기 2장씩 | `assets/backgrounds/far_hideout.png`, `assets/sprites/unified/npc_*` | Codex T22 (`generate2dmap`·`generate2dsprite`, 내장 image_gen) | AI 생성물 |
+| 궁극기 컷인 띠, 시전 자세 2장 | `assets/ui/ult_cutin.png`, `assets/sprites/unified/n09_ult_1~2.png` | Codex T23 (내장 image_gen, hibit 마감) | AI 생성물 |
 | 타일 세트, 원경, 중경 (6개 테마) | `assets/tiles/tile_set_*.png`, `assets/backgrounds/far_*.png`, `mid_*.png` | `tools/make_world.py` (code-drawn). 원경은 Codex 배경판(T06)에 테마 색을 다시 입힘 | 자체 제작 |
 | 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
 | UI 부품(9칸 판·막대 무늬·게이지 장식·키·칸·바늘) | `assets/ui/ui_*.png` | `tools/make_ui.py` (numpy, code-drawn, 2026-11-18 v3) | 자체 제작 |
@@ -16,8 +18,8 @@
 | 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
 | 무기 그림(식칼 8방향, 건틀릿 충격파, 무기 아이콘 4종: 철파이프·식칼·건틀릿·사슬, 사슬 줄·갈고리는 실행 중 사각형으로 그림) | `assets/sprites/unified/proj_knife_*`, `proj_blast_*`, `assets/ui/icon_w_*` | `tools/make_weapons.py` (code-drawn) | 자체 제작 |
 | 맨손 자세(던지기·건틀릿) | `assets/sprites/unified/n09_punch_1~4.png` | Codex T05 결과(`forge/n09_attack_v3`)를 그대로 복사 | AI 생성물 |
-| 효과음 21종 | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
-| 배경음악 3곡 | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
+| 효과음 33종 (11/19 사슬·궁극기·아크 전용 12종 추가) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
+| 배경음악 4곡 (title·explore·boss·ark, 11/19 최종 보스 곡 추가) | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
 | 폰트 | `assets/fonts/Galmuri11.ttf`, `Galmuri14.ttf` | 갈무리 v2.40.4 (Lee Minseo) | **SIL OFL 1.1** (`assets/fonts/OFL.txt`) |
 

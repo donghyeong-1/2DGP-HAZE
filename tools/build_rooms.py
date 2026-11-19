@@ -258,6 +258,12 @@ b.oneway(9, 4, 8).oneway(9, 20, 24)
 b.stalactite(14, 4)
 R['rift_room'] = b
 
+# ============ 은신처 34x16: 오른쪽 '출발' 문. 평평한 바닥에 NPC 셋(열 9·17·25, data/stages/hideout.py), 낮은 단 둘 ============
+b = B(34, 16)
+b.doorR()
+b.oneway(10, 4, 10).oneway(10, 22, 28).oneway(6, 13, 19)                # 낮은 발판 둘 + 가운데 높은 발판 (방 규칙: 서는 높이 3층 이상)
+R['hideout_room'] = b
+
 
 def main():
     bad = False

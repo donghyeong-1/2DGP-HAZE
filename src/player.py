@@ -201,6 +201,10 @@ class Player(TileBody):
         self.attack_bonus = 1.0        # 공격력 배율
         self.kill_bonus = 0            # 처치 시 게이지 추가 상승
         self.overload_mult = 1.0       # 오버로드 피해 배율
+        self.dash_recharge = config.DASH_RECHARGE   # 대시 한 칸 충전 시간 (은신처 정비사 강화로 줄어든다)
+        self.run_rooms = 0             # 이번 판에 클리어한 방 수 (판이 끝날 때 헤이즈 결정 보상)
+        self.run_ends = 0              # 이번 판에 깬 보스·관문 수
+        self.run_rewarded = False      # 이번 판 보상을 이미 받았는가
         self.items = []                # 가진 아이템 id 목록
         self.aura_time = 0.0           # 오라 반복 재생 시간
         self.move_dist = 0.0           # 땅 위에서 달린 거리(px). 달리기·뒷걸음 프레임이 이 거리에 비례해 넘어간다 (멈추면 0)
@@ -606,8 +610,8 @@ class Player(TileBody):
             self.dash_charge = 0.0
             return
         self.dash_charge += dt
-        if self.dash_charge >= config.DASH_RECHARGE:
-            self.dash_charge -= config.DASH_RECHARGE
+        if self.dash_charge >= self.dash_recharge:
+            self.dash_charge -= self.dash_recharge
             self.dash_slots += 1
 
     # ----- 그리기 -----

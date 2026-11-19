@@ -1,0 +1,174 @@
+"""영구 성장(로그라이트): 판이 끝나도 남는 것. pico2d와 무관한 순수 로직이다. (2026-11-19, docs/plan_v4.md 4절)
+
+- 헤이즈 결정: 판이 끝날 때(죽든 이기든) 받는 영구 재화. 판 안의 헤이즈 조각과는 따로다.
+  클리어한 방 META_PER_ROOM, 보스·관문 META_PER_END, 탈출 META_ESCAPE.
+- 정비사: 결정으로 기본 스탯을 영구 강화한다 (최대 체력, 공격력, 시작 게이지, 대시 충전). 단계마다 값이 오른다.
+- 보관인: 결정으로 보관 칸을 열면, 판이 끝날 때 들고 있던 것 하나를 맡겨 다음 판 시작 때 받는다
+  (업그레이드는 1단계로만, 무기는 그대로). 한 번 받으면 사라진다.
+저장은 사용자 홈 폴더의 ~/.haze_save.json (설정 파일과 같은 방식). 읽거나 쓸 수 없으면 기본값으로 동작한다.
+"""
+import json
+import os
+
+import config
+import items
+
+PATH = os.path.join(os.path.expanduser('~'), '.haze_save.json')
+
+# key -> 이름, 설명, 최대 단계, 단계별 값(결정)
+UPGRADES = {
+    'hp':     dict(name='단련된 몸', desc=f'최대 체력 +{config.META_HP}', max=5, prices=(8, 12, 18, 26, 36)),
+    'attack': dict(name='날 선 손', desc=f'공격력 +{int(config.META_ATTACK * 100)}%', max=5, prices=(10, 15, 22, 30, 40)),
+    'gauge':  dict(name='헤이즈 적응', desc=f'시작 게이지 +{config.META_GAUGE}%', max=3, prices=(8, 14, 22)),
+    'dash':   dict(name='발놀림', desc=f'대시 충전 -{config.META_DASH:g}초', max=3, prices=(10, 16, 24)),
+}
+ORDER = ('hp', 'attack', 'gauge', 'dash')
+
+state = {}
+
+
+def _default():
+    return {'crystals': 0, 'levels': {k: 0 for k in UPGRADES}, 'keeper': False, 'keepsake': None,
+            'runs': 0, 'escapes': 0, 'best': ''}
+
+
+def reset():
+    """기본 상태로 (테스트·새 저장)."""
+    state.clear()
+    state.update(_default())
+
+
+def load():
+    reset()
+    try:
+        with open(PATH, encoding='utf-8') as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return
+    if not isinstance(data, dict):
+        return
+    state['crystals'] = max(0, int(data.get('crystals', 0)))
+    levels = data.get('levels', {})
+    for k, info in UPGRADES.items():
+        state['levels'][k] = max(0, min(info['max'], int(levels.get(k, 0))))
+    state['keeper'] = bool(data.get('keeper', False))
+    keep = data.get('keepsake')
+    state['keepsake'] = keep if keep in items.ITEMS else None
+    state['runs'] = int(data.get('runs', 0))
+    state['escapes'] = int(data.get('escapes', 0))
+    state['best'] = str(data.get('best', ''))
+
+
+def save():
+    try:
+        with open(PATH, 'w', encoding='utf-8') as f:
+            json.dump(state, f, ensure_ascii=False)
+    except OSError:
+        pass
+
+
+def ensure_loaded():
+    if not state:
+        load()
+
+
+# ----- 재화 -----
+def run_reward(rooms, ends, escaped):
+    return rooms * config.META_PER_ROOM + ends * config.META_PER_END + (config.META_ESCAPE if escaped else 0)
+
+
+def finish_run(player, escaped):
+    """판이 끝났다: 결정을 주고 저장한다. 같은 판에서 두 번 불러도 한 번만 준다. 받은 결정 수를 돌려준다."""
+    ensure_loaded()
+    if getattr(player, 'run_rewarded', False):
+        return 0
+    player.run_rewarded = True
+    got = run_reward(player.run_rooms, player.run_ends, escaped)
+    state['crystals'] += got
+    state['runs'] += 1
+    if escaped:
+        state['escapes'] += 1
+    save()
+    return got
+
+
+# ----- 정비사 -----
+def level(key):
+    ensure_loaded()
+    return state['levels'][key]
+
+
+def price(key):
+    lv = level(key)
+    info = UPGRADES[key]
+    return info['prices'][lv] if lv < info['max'] else None
+
+
+def can_buy(key):
+    p = price(key)
+    return p is not None and state['crystals'] >= p
+
+
+def buy(key):
+    if not can_buy(key):
+        return False
+    state['crystals'] -= price(key)
+    state['levels'][key] += 1
+    save()
+    return True
+
+
+# ----- 보관인 -----
+def keeper_open():
+    ensure_loaded()
+    return state['keeper']
+
+
+def unlock_keeper():
+    ensure_loaded()
+    if state['keeper'] or state['crystals'] < config.META_KEEPER_PRICE:
+        return False
+    state['crystals'] -= config.META_KEEPER_PRICE
+    state['keeper'] = True
+    save()
+    return True
+
+
+def keepsake_options(player):
+    """맡길 수 있는 것: 들고 있던 업그레이드·아이템(겹치지 않게) + 두 번째 칸 무기."""
+    out = []
+    for item_id in player.items:
+        if item_id not in out:
+            out.append(item_id)
+    second = player.weapons[1]
+    if second is not None:
+        out.append('w_' + second.weapon_id)
+    return out
+
+
+def set_keepsake(item_id):
+    if not keeper_open() or (item_id is not None and item_id not in items.ITEMS):
+        return False
+    state['keepsake'] = item_id
+    save()
+    return True
+
+
+# ----- 새 판에 적용 -----
+def apply_to_player(player):
+    """새 판을 시작하는 플레이어에게 영구 강화와 맡긴 물건을 준다."""
+    ensure_loaded()
+    lv = state['levels']
+    player.max_hp += lv['hp'] * config.META_HP
+    player.hp = player.max_hp
+    player.attack_bonus += lv['attack'] * config.META_ATTACK
+    g = player.gauge
+    g.value = float(config.GAUGE_START + lv['gauge'] * config.META_GAUGE)
+    g.zone = g._zone_of(g.value)
+    player.dash_recharge = config.DASH_RECHARGE - lv['dash'] * config.META_DASH
+    keep = state['keepsake']
+    if keep:
+        items.apply(player, keep)                  # 업그레이드는 1단계(한 번 적용), 무기는 두 번째 칸에
+        state['keepsake'] = None                   # 한 번 받으면 사라진다
+        save()
+    return keep

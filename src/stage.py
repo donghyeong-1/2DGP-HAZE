@@ -71,11 +71,13 @@ class Stage:
     def __init__(self, player, layout=None, start=None, seed=None, name='stage1'):
         self.name = name
         self.title, self.default_theme = '', 'cell'
+        self.npc_spots = []
         if layout is None:
             module = _load_module(name)
             start, layout = module.START, getattr(module, name.upper())
             self.title = getattr(module, 'TITLE', '')
             self.default_theme = getattr(module, 'THEME', 'cell')
+            self.npc_spots = getattr(module, 'NPCS', [])
         self.layout = layout
         self.player = player
         self.start_coord = start
@@ -88,6 +90,8 @@ class Stage:
         self.block_left = 0.0       # 막힌 문 안내를 너무 자주 띄우지 않게
         self.room = None
         self.pedestals = []
+        self.npcs = []              # 은신처 NPC (정비사·보관인·기록관)
+        self.on_npc = None          # NPC 앞에서 F: f(npc) (play_mode가 창을 연다)
         self.boss = None
         self.finished = False       # 끝 방(보스·관문)을 클리어해 이 구역이 끝났는가
         self.finish_timer = 0.0
@@ -96,6 +100,8 @@ class Stage:
 
     @property
     def next_name(self):
+        if self.name == 'hideout':                 # 은신처의 출발 문 -> 스테이지 1
+            return STAGE_ORDER[0]
         i = STAGE_ORDER.index(self.name) if self.name in STAGE_ORDER else len(STAGE_ORDER)
         return STAGE_ORDER[i + 1] if i + 1 < len(STAGE_ORDER) else None
 
@@ -107,6 +113,8 @@ class Stage:
         """이 방에서 열 수 있는 출입구 방향: 이웃 방이 있고, 두 방의 템플릿 모두 그쪽에 문이 있는 곳."""
         links = set()
         here = template_exits(self.layout[coord]['template'])
+        if self.type_of(coord) == 'hideout':       # 은신처: 오른쪽 문은 이웃 방이 없어도 '출발' 문이다
+            links |= {'R'} & here
         for d, (dx, dy) in STEP.items():
             n = (coord[0] + dx, coord[1] + dy)
             if n in self.layout and d in here and OPPOSITE[d] in template_exits(self.layout[n]['template']):
@@ -127,12 +135,16 @@ class Stage:
         for layer in (game_world.LAYER_TILES, game_world.LAYER_ENEMY, game_world.LAYER_EFFECT):
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
-        self.pedestals, self.boss = [], None
+        self.pedestals, self.boss, self.npcs = [], None, []
         self.room = Room.load(info['template'], self.links_of(coord), info.get('high_haze', False), self.theme_of(info))
         for d in self.room.links:      # 문 너머 방이 특별한 방이면 문에 표시한다
+            if self.neighbour(coord, d) not in self.layout:      # 은신처 출발 문처럼 너머에 방이 없는 문
+                continue
             kind = self.type_of(self.neighbour(coord, d))
             if kind in SPECIAL_TYPES:
                 self.room.door_hints[d] = kind
+        if self.type_of(coord) == 'hideout':
+            self.room.door_hints['R'] = 'depart'
         self._update_door_texts()
         game_world.add_object(self.room, game_world.LAYER_BACKGROUND)
         self._place_player(from_dir)
@@ -146,6 +158,8 @@ class Stage:
             game_world.add_object(self.boss, game_world.LAYER_ENEMY)
         elif kind in ('gold', 'shop', 'rift'):
             self._spawn_pedestals(coord, kind)
+        elif kind == 'hideout':
+            self._spawn_npcs()
         self.room.locked = self.enemy_count() > 0
 
     def _make_boss(self, kind, x, y):
@@ -166,6 +180,14 @@ class Stage:
         if kind == 'rift':
             return 'haze'
         return 'haze' if info.get('high_haze') else self.default_theme
+
+    def _spawn_npcs(self):
+        from npc import NPC
+        for kind, col in self.npc_spots:
+            n = NPC(kind, col * config.TILE + config.TILE / 2, config.TILE * 2)
+            n.player = self.player
+            self.npcs.append(n)
+            game_world.add_object(n, game_world.LAYER_TILES)
 
     # ----- 황금방 잠금·균열방 (11/19) -----
     def gold_rooms_left(self):
@@ -292,8 +314,13 @@ class Stage:
 
     # ----- 상호작용 (진열대) -----
     def interact(self):
-        """F: 가까운 진열대의 아이템을 얻거나 산다."""
+        """F: 가까운 진열대의 아이템을 얻거나 사고, 은신처에서는 가까운 NPC와 이야기한다."""
         p = self.player
+        talk = [n for n in self.npcs if n.near(p)]
+        if talk:
+            if self.on_npc:
+                self.on_npc(min(talk, key=lambda n: abs(n.x - p.x)))
+            return True
         near = [ped for ped in self.pedestals if not ped.gone and ped.near(p)]
         if not near:
             return False
@@ -351,6 +378,10 @@ class Stage:
             self.room.locked = False
             before = self.gold_rooms_left()
             self.cleared.add(self.coord)
+            if self.player is not None:            # 판이 끝날 때 헤이즈 결정 보상에 센다
+                self.player.run_rooms += 1
+                if self.type_of(self.coord) in END_TYPES:
+                    self.player.run_ends += 1
             if self.on_clear:
                 self.on_clear(self)
             if before > 0 and self.gold_rooms_left() == 0 and any(self.type_of(c) == 'gold' for c in self.layout):
@@ -364,6 +395,9 @@ class Stage:
         if self.room.locked or p.state == 'DEAD':
             return
         direction = self._exit_direction()
+        if direction == 'R' and self.type_of(self.coord) == 'hideout':
+            self.finished = True                   # 출발 문: 스테이지 1로 (play_mode가 next_stage를 연다)
+            return
         if direction:
             target = self.neighbour(self.coord, direction)
             if target in self.layout:
@@ -405,7 +439,8 @@ class Stage:
         shown = set(self.visited)
         for c in list(self.visited):
             for d in self.links_of(c):
-                shown.add(self.neighbour(c, d))
+                if self.neighbour(c, d) in self.layout:       # 은신처 출발 문처럼 너머에 방이 없는 문은 빼고
+                    shown.add(self.neighbour(c, d))
         cells = []
         for c in shown:
             if c == self.coord:

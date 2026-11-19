@@ -27,12 +27,16 @@ def enter():
     game_world.clear()
     effects.reset()
     clear_notice = 0.0
+    import meta
+    meta.ensure_loaded()
     player = Player(0, 0, None)
+    meta.apply_to_player(player)                      # 은신처 영구 강화와 맡겨 둔 물건 (새 판 시작)
     player.gauge.listeners.append(_on_gauge_event)
     player.gauge.change_listeners.append(_on_gauge_change)
-    stage = Stage(player)
+    stage = Stage(player, name='hideout')             # 판은 은신처에서 시작한다 (출발 문 -> 스테이지 1)
     stage.on_clear = _on_room_cleared
     stage.on_message = _show_message
+    stage.on_npc = _on_npc
     stage.start()
     room = stage.room
     game_world.add_object(player, game_world.LAYER_PLAYER)
@@ -41,9 +45,24 @@ def enter():
 
 
 def music_for(stage):
-    """지금 방에 맞는 곡: 살아 있는 보스가 있으면 보스 곡, 아니면 탐험 곡."""
+    """지금 방에 맞는 곡: 은신처는 차분한 곡, 살아 있는 보스가 있으면 보스 곡, 아니면 탐험 곡."""
+    if getattr(stage, 'name', '') == 'hideout':
+        return 'title'
     boss = stage.boss
     return 'boss' if boss is not None and boss.alive else 'explore'
+
+
+def _on_npc(npc):
+    """은신처 NPC 앞에서 F: 그 NPC의 창을 연다."""
+    import npc_mode
+    npc_mode.kind = npc.kind
+    game_framework.push_mode(npc_mode)
+
+
+def draw_frozen():
+    """멈춘 게임 화면 (NPC 창이 아래에 깐다)."""
+    game_world.render(_apply_shake)
+    assets.draw_offset = (0, 0)
 
 
 def _show_message(text):
@@ -124,7 +143,8 @@ def update():
     camera.update(player, room, dt)
     if room.locked:
         clear_notice = 0.0  # 새 방에 들어오면 이전 방의 클리어 안내를 지운다
-    player.gauge.tick(dt, room.is_high_haze)
+    if stage.name != 'hideout':                    # 은신처에서는 게이지가 줄지 않는다 (안전한 곳)
+        player.gauge.tick(dt, room.is_high_haze)
     if stage.finished:
         import stage as stage_mod
         nxt = stage_mod.next_stage(stage)              # 다음 구역 (체력·게이지·아이템·무기·조각은 그대로)

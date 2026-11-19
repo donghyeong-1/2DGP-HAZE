@@ -1,0 +1,160 @@
+"""은신처·영구 성장 테스트 (창 없이). 실행: python tests/test_meta.py
+
+2026-11-19 사용자 결정(docs/plan_v4.md 4절): 하데스처럼 영구 성장. 판이 끝날 때(죽든 이기든) 헤이즈 결정을 받고,
+은신처의 정비사에게서 기본 스탯을 영구로 강화한다. 보관인에게 들고 있던 것 하나를 맡기면 다음 판 시작 때 받는다
+(업그레이드는 1단계로만, 무기는 그대로). 타이틀 -> 은신처 -> 출발 문 -> 스테이지 1, 죽으면 은신처로.
+"""
+import os
+import sys
+import tempfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, '..', 'src'))
+
+import config  # noqa: E402
+import game_world  # noqa: E402
+import items  # noqa: E402
+import meta  # noqa: E402
+from player import Player  # noqa: E402
+
+DT = 1 / 60
+
+
+def fresh(tmp=None):
+    """테스트마다 빈 저장으로 시작한다 (실제 사용자 저장 파일은 건드리지 않는다)."""
+    meta.PATH = os.path.join(tmp or tempfile.mkdtemp(), 'save.json')
+    meta.reset()
+    return meta.PATH
+
+
+def new_player():
+    game_world.clear()
+    p = Player(0, 0, None)
+    game_world.add_object(p, game_world.LAYER_PLAYER)
+    return p
+
+
+# ----- 재화 -----
+def test_run_reward_counts_rooms_bosses_and_escape():
+    fresh()
+    assert meta.run_reward(rooms=7, ends=1, escaped=False) == 7 * config.META_PER_ROOM + config.META_PER_END
+    assert meta.run_reward(rooms=20, ends=3, escaped=True) == (20 * config.META_PER_ROOM + 3 * config.META_PER_END
+                                                               + config.META_ESCAPE)
+
+
+def test_finish_run_adds_crystals_once_and_saves():
+    path = fresh()
+    p = new_player()
+    p.run_rooms, p.run_ends = 5, 1
+    got = meta.finish_run(p, escaped=False)
+    assert got == 5 * config.META_PER_ROOM + config.META_PER_END and meta.state['crystals'] == got
+    assert meta.finish_run(p, escaped=False) == 0 and meta.state['crystals'] == got   # 같은 판은 한 번만
+    meta.load()
+    assert meta.state['crystals'] == got and os.path.exists(path)                       # 파일에 남는다
+
+
+# ----- 정비사: 기본 스탯 영구 강화 -----
+def test_mechanic_upgrades_cost_crystals_and_rise_in_price():
+    fresh()
+    meta.state['crystals'] = 1000
+    prices = []
+    for lv in range(meta.UPGRADES['hp']['max']):
+        prices.append(meta.price('hp'))
+        assert meta.buy('hp') and meta.state['levels']['hp'] == lv + 1
+    assert prices == sorted(prices) and prices[-1] > prices[0]
+    assert not meta.can_buy('hp') and not meta.buy('hp')                                # 최대 단계
+    meta.state['crystals'] = 0
+    assert not meta.buy('attack')                                                       # 결정이 모자라다
+
+
+def test_upgrades_apply_to_a_new_run():
+    fresh()
+    meta.state['levels'] = {'hp': 2, 'attack': 3, 'gauge': 1, 'dash': 2}
+    p = new_player()
+    meta.apply_to_player(p)
+    assert p.max_hp == config.PLAYER_HP + 2 * config.META_HP and p.hp == p.max_hp
+    assert abs(p.attack_bonus - (1 + 3 * config.META_ATTACK)) < 1e-9
+    assert abs(p.gauge.value - (config.GAUGE_START + config.META_GAUGE)) < 1e-9
+    assert abs(p.dash_recharge - (config.DASH_RECHARGE - 2 * config.META_DASH)) < 1e-9
+
+
+# ----- 보관인: 하나를 다음 판으로 -----
+def test_keeper_slot_must_be_unlocked_first():
+    fresh()
+    p = new_player()
+    items.apply(p, 'cap')
+    assert not meta.keeper_open() and not meta.set_keepsake('cap')
+    meta.state['crystals'] = config.META_KEEPER_PRICE
+    assert meta.unlock_keeper() and meta.keeper_open() and meta.state['crystals'] == 0
+
+
+def test_keepsake_choices_are_what_the_player_held():
+    fresh()
+    p = new_player()
+    items.apply(p, 'cap')
+    items.apply(p, 'cap')
+    items.apply(p, 'dash')
+    p.give_weapon('knife')
+    opts = meta.keepsake_options(p)
+    assert set(opts) == {'cap', 'dash', 'w_knife'}                                      # 겹치지 않게, 무기 포함
+
+
+def test_kept_upgrade_returns_at_level_one_and_weapon_as_is_once():
+    fresh()
+    meta.state['keeper'] = True
+    meta.set_keepsake('cap')
+    p = new_player()
+    meta.apply_to_player(p)
+    assert items.level(p, 'cap') == 1 and meta.state['keepsake'] is None               # 1단계로, 한 번만
+    meta.set_keepsake('w_chain')
+    q = new_player()
+    meta.apply_to_player(q)
+    assert q.has_weapon('chain')
+    r = new_player()
+    meta.apply_to_player(r)
+    assert not r.has_weapon('chain')                                                    # 다음 판에는 없다
+
+
+def test_save_survives_a_broken_file():
+    path = fresh()
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('{not json')
+    meta.load()
+    assert meta.state['crystals'] == 0 and meta.state['levels']['hp'] == 0              # 기본값으로 (게임이 멈추지 않는다)
+
+
+# ----- 은신처 구역 -----
+def test_run_starts_in_the_hideout_and_its_door_leads_to_stage_one():
+    import stage as stage_mod
+    fresh()
+    p = new_player()
+    s = stage_mod.Stage(p, name='hideout')
+    s.start()
+    assert s.type_of(s.coord) == 'hideout' and len(s.npcs) == 3
+    assert {n.kind for n in s.npcs} == {'mechanic', 'keeper', 'archivist'}
+    assert 'R' in s.room.links and not s.room.locked
+    assert [c for c, *_ in s.minimap_cells()] == [(0, 0)]                               # 출발 문 너머는 지도에 없다
+    p.x, p.y = s.room.width - config.PLAYER_HB_W / 2 - 1, s.room.door_center('R')[1]
+    s.update()
+    assert s.finished and s.next_name == 'stage1'
+
+
+def test_rooms_cleared_are_counted_for_the_reward():
+    import stage as stage_mod
+    fresh()
+    p = new_player()
+    s = stage_mod.Stage(p, name='stage1')
+    s.start()
+    s.enter_room((1, 0), 'L')
+    for e in list(game_world.world[game_world.LAYER_ENEMY]):
+        e.take_damage(10 ** 6)
+    s.update()
+    assert p.run_rooms == 1 and p.run_ends == 0
+
+
+if __name__ == '__main__':
+    tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
+    for t in tests:
+        t()
+        print('통과', t.__name__)
+    print(f'{len(tests)}개 통과')

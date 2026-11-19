@@ -87,9 +87,16 @@ def main():
             game_framework.frame_time = 1 / 60
             play_mode.update()
 
-    play_mode.enter()
+    import meta
+    import stage as stage_mod
+    meta.reset()                                         # 사용자 저장(영구 강화)을 읽지 않고 기본값으로 찍는다
+    play_mode.enter()                                    # 판은 은신처에서 시작하므로 스테이지 1로 바꾼다
     p = play_mode.player
-    stage = play_mode.stage
+    stage = stage_mod.next_stage(play_mode.stage)
+    play_mode.stage, play_mode.room = stage, stage.room
+    for o in game_world.world[game_world.LAYER_UI]:
+        if hasattr(o, 'stage'):
+            o.stage = stage
     if a.cell:
         cx, cy = (int(v) for v in a.cell.split(','))
         stage.enter_room((cx, cy), 'L')

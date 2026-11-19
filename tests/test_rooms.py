@@ -38,7 +38,7 @@ def as_rows(grid):
 
 def used_templates():
     used = set()
-    for name in STAGE_ORDER:
+    for name in STAGE_ORDER + ('hideout',):                         # 은신처(로비)도 방 파일을 쓴다
         start, layout = load_layout(name)
         used |= {info['template'] for info in layout.values()}
     return used

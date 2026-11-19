@@ -175,6 +175,15 @@ UPGRADE_PRICE_MULT = (1.0, 1.6, 2.6)   # 정비방 값 = 1단계 값 x 이 배�
 # 균열방 (11/19): 처음 들어갈 때 최대 체력의 이 %를 낸다(올림, 체력이 그 이하면 못 들어감). 안에서 둘 중 하나:
 # 업그레이드 두 단계 한꺼번에 / 균열의 분노(이번 판 공격력 +RIFT_FURY_ATTACK)
 RIFT_HP_COST = 15
+# 영구 성장 (11/19, src/meta.py): 판이 끝날 때 받는 헤이즈 결정과 정비사 강화 한 단계의 값
+META_PER_ROOM = 1
+META_PER_END = 10            # 보스·관문
+META_ESCAPE = 30             # 탈출(마지막 구역 클리어)
+META_HP = 10                 # 최대 체력 +10 / 단계 (5단계)
+META_ATTACK = 0.05           # 공격력 +5% / 단계 (5단계)
+META_GAUGE = 5               # 시작 게이지 +5% / 단계 (3단계)
+META_DASH = 0.1              # 대시 충전 -0.1초 / 단계 (3단계)
+META_KEEPER_PRICE = 25       # 보관인 보관 칸 열기
 RIFT_FURY_ATTACK = 0.30
 # 헤이즈 사슬 (중거리 제어형). CHAIN_ZONE: 구간 -> (끌 수 있는 적 수, 사거리 배율, 끌려온 적 기절·충돌)
 CHAIN_DAMAGE = 20

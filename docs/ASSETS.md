@@ -226,3 +226,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 2026-11-19 [Codex] T21 assets/sprites/forge/n09_run_v2/frames/ 달리기 8장. 프로젝트 자체 N-09 마스터를 참조한 Codex 내장 image_gen(모델명 미제공) 원화, generate2dsprite 0.5.0 처리, 기존 v3b 팔레트로 hibit 마감. 실제 출처·프롬프트는 assets/sprites/forge/hero_run_v2/provenance.json. 캔버스 105×129·기준점 (55,128), 교대 비율 0.87. 검토 대기.
 | 균열의 분노 아이콘 | `assets/ui/icon_fury.png` | `tools/make_fury_icon.py`: Codex T13 공격력 아이콘(`icon_power.png`)의 색상을 보라로 돌림 (2026-11-19) | 자체 제작(파생) |
+| 주인공 달리기 8장 (게임용) | `assets/sprites/unified/n09_run_1~8.png` | Codex T21(`forge/n09_run_v2`)에 `tools/soften_run_depth.py`로 앞뒤 팔다리 밝기 차이를 줄인 것 (2026-11-19) | 자체 제작(파생) |

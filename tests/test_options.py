@@ -94,9 +94,9 @@ def test_options_screen_shows_current_values():
     import options_mode
     options.reset()
     names = [n for n, _, _ in options_mode.lines()]
-    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기']
+    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기', '해상도', '마우스 가두기']
     values = [v for _, v, _ in options_mode.lines()]
-    assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT)]
+    assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT), '1920x1080', '끔']
 
 
 def test_volume_levels_scale_config_volume_and_clamp():
@@ -164,6 +164,54 @@ def test_ui_kit_images_exist_for_every_part():
     for name in {n for n in re.findall(r"kit\.icon\('(\w+)'", src) if not n.endswith('_')}:   # 'hud_map_' + 종류는 빼고
         assert os.path.exists(os.path.join(base, name + '.png')), name
 
+
+
+# ----- 해상도·마우스 가두기 (2026-11-20 사용자 요청) -----
+def test_resolution_and_mouse_confine_save_round_trip():
+    options.reset()
+    assert options.resolution_name() == '1920x1080' and options.confine_mouse is False
+    old = options.PATH
+    options.PATH = os.path.join(tempfile.mkdtemp(), 'r.json')
+    try:
+        options.set_resolution(0)
+        options.toggle_confine()
+        options.reset()
+        options.load()
+        assert options.resolution_name() == '1280x720' and options.confine_mouse is True
+        options.set_resolution(99)                                            # 범위 밖은 끝 값으로
+        assert options.resolution_name() == options.RESOLUTIONS[-1][0]
+    finally:
+        options.PATH = old
+        options.reset()
+
+
+def test_window_size_keeps_16_9_and_fits_the_monitor():
+    """창 크기: 고른 해상도, 모니터보다 크면 들어가는 가장 큰 16:9로. 전체 화면은 모니터 크기 그대로(게임은 1920x1080 논리 화면)."""
+    import display
+    assert display.window_size('1600x900', 2560, 1440) == (1600, 900, False)
+    assert display.window_size('1920x1080', 1600, 900) == (1600, 900, False)       # 작은 노트북 화면
+    assert display.window_size('1920x1080', 1366, 768) == (1280, 720, False)
+    assert display.window_size('전체 화면', 2560, 1440) == (2560, 1440, True)
+
+
+def test_options_click_sets_resolution_and_confine():
+    import options_mode
+    options.reset()
+    old = options.PATH
+    options.PATH = os.path.join(tempfile.mkdtemp(), 'd.json')
+    try:
+        row = options_mode.ITEMS.index('resolution')
+        _v, _t, x, w = options_mode._segments('resolution')[1]
+        assert options_mode.click(x + 5, options_mode.ROW_Y[row])
+        assert options.resolution_name() == '1600x900'
+        row = options_mode.ITEMS.index('confine')
+        _v, _t, x, w = options_mode._segments('confine')[1]                   # '켬'
+        assert options_mode.click(x + 5, options_mode.ROW_Y[row])
+        assert options.confine_mouse is True
+        assert options_mode.ROW_Y[-1] > options_mode.back_button.y + options_mode.back_button.h   # 버튼과 겹치지 않는다
+    finally:
+        options.PATH = old
+        options.reset()
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

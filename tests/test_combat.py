@@ -1576,6 +1576,20 @@ def test_fade_dash_and_jump_attacks_lose_their_bonus_and_reach_too():
     assert e.hp < 1000                                                  # 노멀은 그대로 닿는다
 
 
+
+def test_fade_jump_attack_is_a_front_slash_not_a_circle():
+    """2026-11-20 사용자: 페이드에서 점프 공격이 일반 상태처럼 둘레 전체를 베었다. 기본 공격처럼 조준 앞쪽만 벤다."""
+    room, p, front = _fade_world(90)
+    behind = freeze(add_enemy('slum', p.x - 90, room, p))
+    behind.hp = behind.max_hp = 1000
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.weapon._attack_spin(False)
+    assert front.hp < 1000                                              # 앞은 맞는다
+    assert behind.hp == 1000                                            # 등 뒤는 안 맞는다 (원이 아니다)
+    set_gauge(p, 35)
+    p.weapon._attack_spin(False)
+    assert behind.hp < 1000                                             # 노멀은 그대로 한 바퀴
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

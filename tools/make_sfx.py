@@ -4,13 +4,14 @@
 사용: python tools/make_sfx.py
 """
 import wave
+import zlib
 from pathlib import Path
 
 import numpy as np
 
 OUT = Path(__file__).resolve().parent.parent / "assets" / "sfx"
 RATE = 22050
-RNG = np.random.default_rng(7)  # 잡음이 매번 같도록 고정
+RNG = np.random.default_rng(7)  # 잡음이 매번 같도록 고정 (main에서 소리마다 이름으로 다시 고정한다)
 
 
 def t_axis(sec):
@@ -200,28 +201,49 @@ def chain_clash():
     return place(s, [(0.0, thud), (0.06, thud * 0.8), (0.0, metal((620, 980, 1530), s, 9) * 0.35)])
 
 
+def sub_drop(sec, f0, f1, decay):
+    """떨어지는 낮은 사인 (몸으로 느끼는 '쿵')."""
+    t = t_axis(sec)
+    phase = np.cumsum(f1 + (f0 - f1) * np.exp(-t * 18)) / RATE
+    return np.sin(2 * np.pi * phase) * np.exp(-t * decay)
+
+
+def drive(x, k):
+    """부드럽게 찌그러뜨려 두껍고 거칠게 (tanh 포화)."""
+    return np.tanh(x * k) / np.tanh(k)
+
+
 def ult_cast():
-    """궁극기 시전: 화면이 멈춘 동안 힘을 모으며 올라가다(0.3초) 한 번에 터진다."""
+    """궁극기 시전 (2026-11-20 강하게): 0.3초 동안 빨려 들며 차오르다가, 바닥을 때리는 큰 일격.
+    차오름 = 점점 커지는 바람 + 올라가는 음 + 낮게 떨리는 울림, 일격 = 짧은 깨짐 + 떨어지는 저음 + 쇳소리 울림 + 긴 꼬리."""
     gather = 0.3
-    rise = (triangle(sweep(110, 880, gather, 1.8)) * 0.6 + square(sweep(220, 1760, gather, 1.8), 0.25) * 0.15)
-    rise *= np.linspace(0.2, 1.0, len(rise)) * (1 + 0.5 * np.sin(2 * np.pi * 24 * t_axis(gather)))
-    s = 0.45
-    burst = (lowpass(noise(s), 4) * 0.9 + triangle(sweep(160, 45, s)) * 0.8) * envelope(s, 0.002, 0.9)
-    return place(gather + s, [(0.0, rise), (gather, burst)])
+    ramp = np.linspace(0, 1, int(RATE * gather)) ** 2.2
+    rise = (lowpass(noise(gather), 3) * 0.7 + triangle(sweep(90, 720, gather, 1.6)) * 0.45
+            + np.sin(2 * np.pi * 45 * t_axis(gather)) * 0.5) * ramp
+    s = 0.62
+    crack = noise(0.03) * envelope(0.03, 0.0005, 0.9) * 1.3
+    boom = drive(sub_drop(s, 110, 30, 4.5) * 1.4 + lowpass(noise(s), 6) * 0.6 * np.exp(-t_axis(s) * 7), 2.2)
+    ring = metal((220, 347, 512, 771), s, 6) * 0.3
+    return place(gather + s, [(0.0, rise), (gather, crack), (gather, boom), (gather + 0.01, ring)])
 
 
 def ult_hit():
-    """궁극기 연타 한 번: 밝고 짧게 (빠르게 여러 번 겹쳐 난다)."""
-    s = 0.1
-    return (square(sweep(900, 300, s), 0.3) * 0.45 + noise(s) * 0.4 + triangle(sweep(140, 70, s)) * 0.4) * envelope(s, 0.002, 0.7)
+    """궁극기 연타 한 번 (강하게): 짧은 저음 펀치 + 날카로운 타격."""
+    s = 0.13
+    punch = drive(sub_drop(s, 170, 55, 22) * 1.2, 1.8)
+    return punch * 0.8 + noise(s) * 0.5 * envelope(s, 0.001, 0.35) + square(sweep(700, 260, s), 0.3) * 0.2 * envelope(s, 0.001, 0.6)
 
 
 def ult_final():
-    """궁극기 마지막 일격: 큰 폭발과 위로 흩어지는 반짝임."""
-    s = 0.8
-    boom = (lowpass(noise(s), 8) * 0.9 + triangle(sweep(120, 32, s, 0.7)) * 1.0) * envelope(s, 0.002, 0.95)
-    glint = (square(sweep(1200, 2600, 0.5), 0.2) * 0.12 + triangle(sweep(600, 1300, 0.5)) * 0.15) * envelope(0.5, 0.05, 0.9)
-    return place(s, [(0.0, boom), (0.08, glint)])
+    """궁극기 마지막 일격 (강하게): 두 번 겹친 큰 폭발 + 땅울림 꼬리 + 위로 흩어지는 반짝임."""
+    s = 0.95
+    t2 = t_axis(s)
+    boom = drive(sub_drop(s, 130, 26, 3.2) * 1.6 + lowpass(noise(s), 5) * 0.8 * np.exp(-t2 * 5), 2.6)
+    second = drive(sub_drop(0.5, 90, 30, 6) * 1.2, 2.0)
+    crack = noise(0.04) * envelope(0.04, 0.0005, 0.9) * 1.4
+    rumble = lowpass(noise(s), 40) * 1.6 * np.exp(-t2 * 2.5)
+    glint = (square(sweep(1200, 2600, 0.5), 0.2) * 0.1 + triangle(sweep(600, 1300, 0.5)) * 0.12) * envelope(0.5, 0.05, 0.9)
+    return place(s, [(0.0, crack), (0.0, boom), (0.07, second), (0.0, rumble), (0.1, glint)])
 
 
 def _pew(f):
@@ -282,7 +304,7 @@ SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
           "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw,
-          # 2026-11-19 추가 (뒤에 붙여야 앞의 소리들이 쓰는 잡음이 그대로다)
+          # 2026-11-19 추가
           "chain_throw": chain_throw, "chain_latch": chain_latch, "chain_clash": chain_clash,
           "ult_cast": ult_cast, "ult_hit": ult_hit, "ult_final": ult_final,
           "ark_bullet": ark_bullet, "ark_teleport": ark_teleport, "ark_roar": ark_roar,
@@ -302,7 +324,9 @@ def save(name, samples):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    global RNG
     for name, fn in SOUNDS.items():
+        RNG = np.random.default_rng(zlib.crc32(name.encode()))   # 소리마다 따로: 하나를 고쳐도 다른 소리가 바뀌지 않는다
         save(name, fn())
         print("saved", name)
 

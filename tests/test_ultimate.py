@@ -121,8 +121,9 @@ def test_second_stage_strike_is_stronger_than_first():
     assert hits[1] > hits[0] * 1.4, hits                                # 2단계는 1단계보다 확실히 세다
 
 
-def test_third_stage_basic_attack_is_an_ultimate_over_half_the_screen():
-    room, p, (near, far) = stacked(90, 3, [150, 800])
+def test_third_stage_basic_attack_is_a_wide_area_not_the_whole_screen():
+    """2026-11-20 사용자: 화면 전체 공격이 아니라 새 이펙트의 광역 공격. 앞쪽 약 480px까지만 맞는다."""
+    room, p, (near, mid, far) = stacked(90, 3, [150, 420, 800])
     behind = tc.freeze(add_slum(p.x - 400, room, p))      # 방 안, 플레이어 뒤
     behind.hp = behind.max_hp = 10 ** 5
     assert p.request_attack()
@@ -132,25 +133,26 @@ def test_third_stage_basic_attack_is_an_ultimate_over_half_the_screen():
     assert effects.hit_stop_left > 0                                     # 화면이 멈춘다
     g0 = p.gauge.value
     run_out_ultimate()
-    assert near.hp < near.max_hp and far.hp < far.max_hp                 # 앞쪽 화면 절반이 모두 맞는다
+    assert near.hp < near.max_hp and mid.hp < mid.max_hp                 # 앞쪽 넓은 범위는 맞는다
+    assert far.hp == far.max_hp                                         # 화면 끝까지는 닿지 않는다
     assert behind.hp == behind.max_hp                                   # 뒤는 안 맞는다
-    assert (far.max_hp - far.hp) > 5 * config.PIPE_DAMAGE               # 여러 번 크게
+    assert (mid.max_hp - mid.hp) > 5 * config.PIPE_DAMAGE               # 여러 번 크게
     assert p.gauge.value <= g0 + 0.01                                   # 궁극기 타격은 게이지를 올리지 않는다 (처치는 별개)
 
 
-def test_third_stage_dash_attack_runs_through_a_long_line():
-    room, p, (far,) = stacked(90, 3, [900])
+def test_third_stage_dash_attack_runs_through_a_line():
+    room, p, (hit, far) = stacked(90, 3, [600, 950])
     p.dash_window = 0.2                                                  # 대시 직후 = 대시 공격
     assert p.weapon.current_kind() == 'dash'
     p.request_attack()
     assert ultimates()[0].kind == 'dash'
     run_out_ultimate()
-    assert far.hp < far.max_hp
+    assert hit.hp < hit.max_hp and far.hp == far.max_hp
 
 
 def test_third_stage_jump_attack_slams_both_sides():
-    room, p, (right,) = stacked(90, 3, [700])
-    left = tc.freeze(add_slum(p.x - 700, room, p))
+    room, p, (right, far) = stacked(90, 3, [380, 750])
+    left = tc.freeze(add_slum(p.x - 380, room, p))
     left.hp = left.max_hp = 10 ** 5
     p.on_ground = False
     p.state = 'JUMP'
@@ -160,6 +162,7 @@ def test_third_stage_jump_attack_slams_both_sides():
     assert ultimates()[0].kind == 'jump'
     run_out_ultimate()
     assert right.hp < right.max_hp and left.hp < left.max_hp           # 양쪽 모두
+    assert far.hp == far.max_hp                                         # 멀리는 닿지 않는다
 
 
 def test_ultimate_damage_to_a_boss_is_capped():
@@ -191,7 +194,7 @@ def give(p, weapon_id):
 
 
 def test_knife_rain_falls_around_the_aim_point_not_around_the_player():
-    room, p, (near, far) = stacked(90, 3, [120, 1200], player_x=600.0)
+    room, p, (near, far) = stacked(90, 3, [120, 620], player_x=600.0)
     give(p, 'knife')
     p.mouse_x, p.mouse_y = far.center                                    # 조준한 곳 일대에 칼비
     p.request_attack()
@@ -200,8 +203,8 @@ def test_knife_rain_falls_around_the_aim_point_not_around_the_player():
     assert far.hp < far.max_hp and near.hp == near.max_hp
 
 
-def test_gauntlet_beam_crosses_the_screen_along_the_aim():
-    room, p, (far,) = stacked(90, 3, [1700], player_x=500.0)
+def test_gauntlet_beam_reaches_far_along_the_aim_but_not_across_the_screen():
+    room, p, (hit, far) = stacked(90, 3, [850, 1300], player_x=500.0)
     give(p, 'gauntlet')
     high = tc.freeze(add_slum(p.x + 400, room, p))
     high.y += 420                                                        # 광선 줄에서 위로 벗어남
@@ -210,16 +213,16 @@ def test_gauntlet_beam_crosses_the_screen_along_the_aim():
     p.request_attack()
     assert ultimates()[0].name == '헤이즈 포격'
     run_out_ultimate()
-    assert far.hp < far.max_hp and high.hp == high.max_hp
+    assert hit.hp < hit.max_hp and far.hp == far.max_hp and high.hp == high.max_hp
 
 
 def test_chain_capture_pulls_enemies_in_before_the_blast():
-    room, p, (e,) = stacked(90, 3, [700])
+    room, p, (e,) = stacked(90, 3, [420])
     give(p, 'chain')
     p.request_attack()
     assert ultimates()[0].name == '포획 폭발'
     run_out_ultimate()
-    assert e.hp < e.max_hp and abs(e.x - p.x) < 400                      # 끌려와서 터졌다
+    assert e.hp < e.max_hp and abs(e.x - p.x) < 300                      # 끌려와서 터졌다
 
 
 def test_ultimate_damage_is_the_same_for_every_weapon():
@@ -249,6 +252,46 @@ def test_casting_pose_gathers_then_releases_and_cutin_art_exists():
     root = os.path.join(HERE, '..', 'assets')
     assert os.path.exists(os.path.join(root, 'ui', 'ult_cutin.png'))
 
+
+
+def test_every_ultimate_shows_the_new_area_burst_and_dims_less():
+    """광역 공격 이펙트(ult-nova)가 범위 한가운데에 터진다. 화면을 덮던 어둠은 옅게."""
+    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+        room, p, (e,) = stacked(90, 3, [300])
+        if wid != 'pipe':
+            give(p, wid)
+        p.mouse_x, p.mouse_y = e.center
+        p.request_attack()
+        u = ultimates()[0]
+        run_out_ultimate()
+        names = [getattr(o, 'name', '') for o in game_world.world[game_world.LAYER_EFFECT]]
+        assert u.nova_count >= 2, (wid, u.nova_count)                  # 시작과 마지막 일격
+    assert config.ULT_DIM <= 0.35
+    root = os.path.join(HERE, '..', 'assets', 'effects')
+    assert os.path.exists(os.path.join(root, 'ult-nova.png'))
+
+
+def test_second_stage_pipe_is_a_new_motion_rising_slash_then_ground_slam():
+    """2026-11-20 사용자: 2단계 강화 공격도 1단계와 다른 동작으로. 철파이프 2단계 = 올려베기 -> (0.16초 뒤) 내려찍기 충격."""
+    room, p, (e,) = stacked(65, 1, [100])
+    p.request_attack()
+    assert p.swing_dir != 'up'                                          # 1단계는 지금까지의 큰 일격 (올려베기가 아니다)
+    room, p, (e,) = stacked(90, 2, [100])
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.request_attack()
+    assert p.swing_dir == 'up' and p.weapon.last_kind == 'pipe' and p.weapon.level == 2
+    first = e.max_hp - e.hp
+    assert first > 0                                                    # 첫 타: 올려베기
+    seen_slam = False
+    for _ in range(30):
+        effects.hit_stop_left = 0.0
+        tc.step(1)
+        if p.swing_dir == 'downfwd':
+            seen_slam = True
+    assert seen_slam                                                    # 이어서 앞 아래로 내려찍는 자세
+    assert e.max_hp - e.hp > first * 1.5                                # 둘째 타가 더 세다
+    assert 'quake-blast' in tc.spawned_names()                          # 바닥 충격
+    assert p.gauge.enhance_level == 0
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

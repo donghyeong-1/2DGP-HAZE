@@ -1,0 +1,17 @@
+{
+ "id": "fx/ult-nova",
+ "frames": 11,
+ "frameSize": [
+  230,
+  230
+ ],
+ "columns": 11,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  115,
+  115
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

@@ -106,6 +106,12 @@ ENHANCE_MAX_LEVEL = 3
 ENHANCE_LEVELS = {1: dict(damage=2.5, reach=1.5, extra=3, blast=190, half=115, plunge=1.35),
                   2: dict(damage=4.0, reach=1.9, extra=5, blast=260, half=150, plunge=1.7)}
 ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}          # 식칼·건틀릿·사슬의 강화 피해에 곱한다 (2단계)
+# 철파이프 2단계 (11/20 사용자: 1단계와 다른 동작): 올려베기(피해 x RISE) -> SLAM_DELAY초 뒤 앞 아래로 내려찍기(x SLAM, 바닥 충격)
+STAGE2_RISE_MULT = 1.5
+STAGE2_SLAM_MULT = 2.8
+STAGE2_SLAM_DELAY = 0.16
+STAGE2_SLAM_REACH = 1.25      # 내려찍기 범위: 강화 일격 범위(2단계) x 이 값, 앞쪽만
+STAGE2_RISE_HOP = 260.0       # 올려베기에 맞은 적이 살짝 떠오르는 속도 (공중 적은 그대로)
 # 궁극기 (3단계)
 ULT_FREEZE = 0.30            # 시전 순간 화면 정지
 ULT_BANNER_TIME = 0.9        # 기술 이름 띠를 보여 주는 시간
@@ -114,11 +120,13 @@ ULT_HIT_INTERVAL = 0.09
 ULT_HIT_MULT = 1.4           # 한 번 타격 배율 (5번이면 기본 피해 x7)
 ULT_BASE_DAMAGE = 20         # 궁극기 기본 피해: 무기와 상관없이 같다 (철파이프 기본 피해와 같은 값)
 ULT_BOSS_CAP = 0.15          # 궁극기 한 번이 보스에게 줄 수 있는 피해 = 최대 체력의 15%
-ULT_FORWARD = 960            # 기본 궁극기: 앞쪽 범위(px, 화면 절반)
-ULT_DASH_LENGTH = 1100       # 대시 궁극기: 직선 길이
-ULT_DASH_HALF = 160          # 대시 궁극기: 직선 반폭
-ULT_SLAM_RADIUS = 1000       # 점프 궁극기: 좌우 범위
-ULT_HEIGHT = 540             # 궁극기가 닿는 위아래 범위
+# 2026-11-20 사용자: 화면 전체가 아니라 새 이펙트(ult-nova)의 광역 공격. 범위를 약 절반으로 줄였다 (철파이프 평타 150px의 약 3배)
+ULT_FORWARD = 480            # 기본 궁극기: 앞쪽 범위(px)
+ULT_DASH_LENGTH = 700        # 대시 궁극기: 직선 길이
+ULT_DASH_HALF = 150          # 대시 궁극기: 직선 반폭
+ULT_SLAM_RADIUS = 420        # 점프 궁극기: 좌우 범위
+ULT_HEIGHT = 320             # 궁극기가 닿는 위아래 범위
+ULT_DIM = 0.3                # 시전할 때 화면을 어둡게 하는 정도 (화면 전체 기술처럼 보이지 않게 옅게, 전에는 0.6)
 ULT_INVULN = 1.3             # 시전하는 동안 플레이어 무적
 ULT_COOLDOWN = 0.9
 ULT_POSE_TIME = 0.75         # 시전 자세를 보여 주는 시간 (Codex T23): 앞쪽 ULT_POSE_GATHER는 모으기, 나머지는 해방

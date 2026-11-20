@@ -1,6 +1,7 @@
 """설정 창. 타이틀과 일시정지에서 위에 쌓아 연다(push_mode). Esc나 '돌아가기'로 닫는다.
 
-항목: 화면 흔들림(끔·약하게·보통), 번쩍임 줄이기(켬·끔), 음악 크기, 효과음 크기(0~10), 돌아가기.
+항목: 화면 흔들림(끔·약하게·보통), 번쩍임 줄이기(켬·끔), 음악 크기, 효과음 크기(0~10),
+      해상도(1280x720·1600x900·1920x1080·전체 화면), 마우스 가두기(켬·끔), 돌아가기.
 키보드: W/S·위/아래로 항목, A/D·좌/우로 값, Enter·Space로 켜고 끄기·돌아가기.
 마우스: 칸을 누르면 그 값, 막대를 누르면 그 위치의 크기, 돌아가기 버튼.
 바꾸면 바로 적용되고 저장된다(options.save). 부품 그림은 hud_kit(판·막대·버튼).
@@ -11,20 +12,26 @@ from pico2d import (SDL_KEYDOWN, SDL_MOUSEBUTTONDOWN, SDL_MOUSEMOTION, SDL_QUIT,
 
 import assets
 import config
+import display
 import game_framework
 import hud_kit as kit
 import options
 
 W, H = config.SCREEN_W, config.SCREEN_H
-PANEL_W, PANEL_H = 1000, 640
-PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 20
-ROW_Y = [PANEL_Y + PANEL_H - 190 - i * 100 for i in range(4)]     # 항목 줄의 가운데 y
+ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'back')
+ROWS = ITEMS[:-1]
+ROW_STEP = 92
+PANEL_W, PANEL_H = 1180, 250 + ROW_STEP * len(ROWS)
+PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
+ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     # 항목 줄의 가운데 y
 VALUE_X = PANEL_X + 470                                          # 값 칸이 시작하는 x
-VALUE_W = 470
-ITEMS = ('shake', 'flash', 'music', 'sfx', 'back')
-NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기'}
+VALUE_W = 660
+NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
+         'resolution': '해상도', 'confine': '마우스 가두기'}
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
-         'music': '배경음악', 'sfx': '타격·발소리·경고음'}
+         'music': '배경음악', 'sfx': '타격·발소리·경고음',
+         'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게'}
+SEGMENTED = ('shake', 'flash', 'resolution', 'confine')
 back_button = kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 40, 360, 64)
 selected = 0
 _under = None            # 아래에 깔린 모드 (멈춘 화면을 그대로 보여 준다)
@@ -60,6 +67,12 @@ def change(item, step):
         assets.apply_music_volume()
     elif item == 'sfx':
         options.set_sfx(options.sfx_level + step)
+    elif item == 'resolution':
+        options.set_resolution((options.resolution + step) % len(options.RESOLUTIONS))
+        display.apply()
+    elif item == 'confine':
+        options.toggle_confine()
+        display.apply()
     assets.play_sound('pickup')                    # 바뀐 효과음 크기를 바로 들려준다
 
 
@@ -67,6 +80,8 @@ def _segments(item):
     """칸이 나뉜 항목의 칸들: [(값, 글자, x, w)]."""
     if item == 'shake':
         labels = [(i, name) for i, (name, _) in enumerate(options.SHAKE_LEVELS)]
+    elif item == 'resolution':
+        labels = [(i, name) for i, (name, _w, _h) in enumerate(options.RESOLUTIONS)]
     else:
         labels = [(False, '끔'), (True, '켬')]
     seg_w = VALUE_W // len(labels)
@@ -79,18 +94,24 @@ def click(mx, my):
     if back_button.contains(mx, my):
         game_framework.pop_mode()
         return True
-    for i, item in enumerate(ITEMS[:4]):
+    for i, item in enumerate(ROWS):
         cy = ROW_Y[i]
         if not (cy - 30 <= my <= cy + 30 and VALUE_X - 10 <= mx <= VALUE_X + VALUE_W + 10):
             continue
         selected = i
-        if item in ('shake', 'flash'):
+        if item in SEGMENTED:
             for value, _t, x, w in _segments(item):
                 if x <= mx < x + w + 8:
                     if item == 'shake':
                         options.set_shake(value)
-                    elif value != options.reduce_flash:
+                    elif item == 'flash' and value != options.reduce_flash:
                         options.toggle_flash()
+                    elif item == 'resolution' and value != options.resolution:
+                        options.set_resolution(value)
+                        display.apply()
+                    elif item == 'confine' and value != options.confine_mouse:
+                        options.toggle_confine()
+                        display.apply()
         else:                                      # 막대: 누른 위치의 크기
             level = round((mx - VALUE_X) / VALUE_W * options.VOLUME_MAX)
             (options.set_music if item == 'music' else options.set_sfx)(level)
@@ -108,11 +129,11 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_MOUSEMOTION:
             mx, my = event.x, H - 1 - event.y
-            for i in range(4):
+            for i in range(len(ROWS)):
                 if ROW_Y[i] - 40 <= my <= ROW_Y[i] + 40 and PANEL_X <= mx <= PANEL_X + PANEL_W:
                     selected = i
             if back_button.contains(mx, my):
-                selected = 4
+                selected = len(ROWS)
         elif event.type == SDL_MOUSEBUTTONDOWN:
             click(event.x, H - 1 - event.y)
         elif event.type == SDL_KEYDOWN:
@@ -146,6 +167,8 @@ def lines():
         (NAMES['flash'], '켬' if options.reduce_flash else '끔', DESCS['flash']),
         (NAMES['music'], str(options.music_level), DESCS['music']),
         (NAMES['sfx'], str(options.sfx_level), DESCS['sfx']),
+        (NAMES['resolution'], options.resolution_name(), DESCS['resolution']),
+        (NAMES['confine'], '켬' if options.confine_mouse else '끔', DESCS['confine']),
     ]
 
 
@@ -153,15 +176,17 @@ def draw_panel():
     """설정 판 (타이틀·일시정지 위에 덮는다)."""
     kit.panel('panel', PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
     kit.text(W // 2, PANEL_Y + PANEL_H - 70, '설정', (235, 240, 250), center=True, big=True)
-    for i, item in enumerate(ITEMS[:4]):
+    current_of = {'shake': options.shake_level, 'flash': options.reduce_flash,
+                  'resolution': options.resolution, 'confine': options.confine_mouse}
+    for i, item in enumerate(ROWS):
         cy = ROW_Y[i]
         on = i == selected
         if on:
             kit.panel('plate', PANEL_X + 30, cy - 42, PANEL_W - 60, 84)
         kit.text(PANEL_X + 60, cy + 12, NAMES[item], (235, 240, 250) if on else (160, 176, 205))
         kit.text(PANEL_X + 60, cy - 20, DESCS[item], (110, 125, 150), small=True)
-        if item in ('shake', 'flash'):
-            current = options.shake_level if item == 'shake' else options.reduce_flash
+        if item in SEGMENTED:
+            current = current_of[item]
             for value, label, x, w in _segments(item):
                 hot = value == current
                 kit.panel('button_hot' if hot else 'button', x, cy - 26, w, 52)
@@ -172,7 +197,7 @@ def draw_panel():
             kx = VALUE_X + round((VALUE_W - 60) * level / options.VOLUME_MAX) - 11
             kit.icon('ui_knob', kx, cy - 17)
             kit.text(VALUE_X + VALUE_W - 20, cy, str(level), (235, 245, 255), center=True)
-    back_button.draw(selected == 4)
+    back_button.draw(selected == len(ROWS))
     kit.text(W // 2, PANEL_Y - 26, 'W S 항목   A D 값 바꾸기   마우스로 눌러도 된다   Esc 돌아가기', (110, 125, 150), small=True,
              center=True)
 

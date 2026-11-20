@@ -4,6 +4,7 @@ import os
 from pico2d import SDL_HINT_RENDER_SCALE_QUALITY, SDL_SetHint, close_canvas, open_canvas
 
 import config
+import display
 import options
 import game_framework
 import title_mode
@@ -16,6 +17,7 @@ def main():
     place_window()                 # HAZE_DISPLAY=2 이면 두 번째 모니터에 띄운다
     config.SOUND_ENABLED = True
     options.load()                 # 접근성 설정(흔들림·번쩍임)을 지난 실행에서 이어 받는다
+    display.apply()                # 해상도·마우스 가두기 (창이 놓인 모니터 기준)
     try:
         # 개발용: HAZE_MAX_SECONDS 환경 변수가 있으면 그 시간 뒤에 자동 종료한다 (실행 확인용)
         limit = float(os.environ.get('HAZE_MAX_SECONDS', '0')) or None

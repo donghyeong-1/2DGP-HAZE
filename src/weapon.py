@@ -81,9 +81,18 @@ class Pipe:
         self.last_kind = None     # 마지막으로 나간 공격 종류 (pipe / dash / spin / plunge)
         self.last_enhanced = False   # 그 공격이 강화 일격이었는가
         self.level = 0               # 지금 나가는 공격에 쓰인 강화 단계 (0 = 강화 없음, 1~2, 3은 궁극기)
+        self.followup = None         # (남은 시간, 할 일): 이어지는 둘째 타 (철파이프 2단계 내려찍기)
 
     def update(self, dt):
         self.cooldown = max(0.0, self.cooldown - dt)
+        if self.followup is not None:
+            left, action = self.followup
+            left -= dt
+            if left <= 0:
+                self.followup = None
+                action()
+            else:
+                self.followup = (left, action)
         if self.combo_left > 0:
             self.combo_left = max(0.0, self.combo_left - dt)
             if self.combo_left == 0:
@@ -240,6 +249,9 @@ class Pipe:
         effects.spawn_smear(('n09_swing_' + p.swing_dir, 2), p.x, p.y, p.face_dir, (ax, ay), enhanced)   # 휘두르는 몸의 잔상
         assets.play_sound(fx['sound'])
         variant, flip = effects.slash_variant(ax, ay)
+        if enhanced and self.level >= 2:
+            self._stage2_rise(ax, ay)
+            return
         if enhanced:
             self.combo = 0
             p.set_swing_style(3, ax)                     # 강화 일격은 3타처럼 크게 끌어 내딛는다
@@ -264,6 +276,46 @@ class Pipe:
         for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, scale=self._reach())):
             self._hit(enemy, damage, gain, fx, big=finisher, color=color,
                       shake=config.SHAKE_FINISHER / config.SHAKE_HIT if finisher else 1.0, stop=2 if finisher else 1)
+
+    # ----- 철파이프 2단계: 올려베기 -> 내려찍기 (11/20) -----
+    def _stage2_rise(self, ax, ay):
+        """첫 타: 앞을 위로 쳐올린다. 맞은 땅 위 적은 살짝 뜬다. 이어서 내려찍기를 예약한다."""
+        p = self.owner
+        cx, cy = p.center
+        fx = config.ENHANCED_FX
+        side = 1 if ax >= 0 else -1
+        self.combo = 0
+        p.start_swing(side * 0.45, 0.9)                  # 위로 (up 자세)
+        p.set_swing_style(2, side)
+        self.cooldown = config.ENHANCE_STRIKE_COOLDOWN + config.STAGE2_SLAM_DELAY
+        variant, flip = effects.slash_variant(side * 0.45, 0.9)
+        effects.spawn(fx['slash'], cx, cy + 30, flip=flip, duration=0.2, variant=variant)
+        damage = self._damage(config.STAGE2_RISE_MULT)
+        scale = self._enh('reach') / config.ENHANCE_REACH_MULT
+        for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, side, 0.35, enhanced=True, scale=scale)):
+            self._hit(enemy, damage, config.GAIN_HIT, fx, shake=1.2, extra=False)
+            if enemy.alive and getattr(enemy, 'pullable', True) and getattr(enemy, 'on_ground', False):
+                enemy.vy = max(getattr(enemy, 'vy', 0.0), config.STAGE2_RISE_HOP)
+        self.followup = (config.STAGE2_SLAM_DELAY, lambda: self._stage2_slam(side))
+        self._finish(True)                               # 강화 단계는 지금 쓴다 (둘째 타 사이에 E를 눌러도 쌓이지 않게)
+
+    def _stage2_slam(self, side):
+        """둘째 타: 앞 아래로 내려찍어 바닥 충격을 낸다."""
+        p = self.owner
+        if p.state == 'DEAD':
+            return
+        cx, cy = p.center
+        fx = config.ENHANCED_FX
+        p.start_swing(side * 0.7, -0.6)                  # 앞 아래 (downfwd 자세)
+        p.set_swing_style(3, side)
+        assets.play_sound('swing_critical')
+        effects.spawn('quake-blast', p.x + side * 150, p.y, duration=0.4)
+        effects.add_trauma(config.SHAKE_FINISHER * 1.3)
+        self.level = 2
+        damage = self._damage(config.STAGE2_SLAM_MULT)
+        scale = self._enh('reach') / config.ENHANCE_REACH_MULT * config.STAGE2_SLAM_REACH
+        for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, side, -0.3, enhanced=True, scale=scale)):
+            self._hit(enemy, damage, config.PIPE_FINISHER_GAIN, fx, big=True, shake=2.0, stop=2, blast=True)
 
     def _blast(self, hit):
         """강화된 공격에 맞은 적 주위로 안개 폭발이 퍼져 주변 적에게 피해를 준다 (벽 너머에는 닿지 않는다)."""
@@ -329,11 +381,19 @@ class Pipe:
         cx, cy = p.center
         fx = self._fx(enhanced)
         assets.play_sound(fx['sound'])
-        effects.spawn(effects.special_sheet('spin', enhanced)[0], cx, cy, duration=0.26)
         p.vy = max(p.vy, config.AIR_HOP)                                  # 살짝 떠오르며 한 바퀴 돈다
-        reach = config.AIR_SPIN_REACH * (self._enh('reach') if enhanced else 1.0) * self._reach()
         damage = self._damage(self._enh('damage') if enhanced else self._special(config.AIR_SPIN_MULT))
-        for enemy in self._targets(lambda e: self._within(e, cx, cy, reach)):
+        if self._weak() and not enhanced:
+            # 페이드: 한 바퀴 돌 힘이 없다. 기본 공격처럼 조준 앞쪽만 작게 벤다 (2026-11-20 사용자 요청)
+            ax, ay = p.aim_vector()
+            variant, flip = effects.slash_variant(ax, ay)
+            effects.spawn(effects.slash_sheet(p.gauge.zone, False), cx, cy, flip=flip, duration=0.22, variant=variant)
+            in_range = lambda e: self._in_arc(e, cx, cy, ax, ay, scale=self._reach())
+        else:
+            effects.spawn(effects.special_sheet('spin', enhanced)[0], cx, cy, duration=0.26)
+            reach = config.AIR_SPIN_REACH * (self._enh('reach') if enhanced else 1.0)
+            in_range = lambda e: self._within(e, cx, cy, reach)
+        for enemy in self._targets(in_range):
             self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
                       shake=1.8 if enhanced else 1.1, blast=enhanced)
         if enhanced:
@@ -845,7 +905,7 @@ class ChainHook:
 # 범위: 기본 = 앞쪽 화면 절반 / 대시 = 조준 방향 긴 직선 / 점프 = 좌우 넓게 내려찍기. 궁극기는 **벽·기둥 너머도 맞는다**
 # (게이지 75%를 쓰는 화면 기술이라 일반 공격의 시야선 규칙에서 뺐다. 보스는 피해 상한이 있다).
 # 보스에게는 한 번에 최대 체력의 ULT_BOSS_CAP까지만. 궁극기 타격은 게이지를 올리지 않는다(처치 보너스만).
-# 무기마다 범위 모양이 다르다 (ULT_AREAS): 식칼 = 조준한 곳 일대 칼비, 건틀릿 = 화면을 가로지르는 광선,
+# 무기마다 범위 모양이 다르다 (ULT_AREAS): 식칼 = 조준한 곳 일대 칼비, 건틀릿 = 멀리 뻗는 광선,
 # 사슬 = 주위 적을 끌어모아 터뜨림. 철파이프는 앞쪽 화면 절반·긴 직선·좌우 내려찍기.
 # 컷인 그림은 Codex T23이 오면 이름 띠 자리에 넣는다.
 # =====================================================================================================
@@ -856,12 +916,17 @@ ULT_NAMES = {('pipe', 'basic'): '안개 대참격', ('pipe', 'dash'): '관통 �
 ULT_COLORS = {'pipe': (150, 235, 255), 'knife': (235, 240, 255), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
 # (무기, 종류) -> 범위 모양과 크기. forward(앞 거리) / line(길이, 반폭: 조준 방향) / slam(좌우) / aim(조준점 둘레 반지름) /
 # below(아래쪽 좌우) / circle(플레이어 둘레 반지름)
-ULT_AREAS = {('pipe', 'basic'): ('forward', 960), ('pipe', 'dash'): ('line', 1100, 160), ('pipe', 'jump'): ('slam', 1000),
-             ('knife', 'basic'): ('aim', 460), ('knife', 'dash'): ('line', 1100, 220), ('knife', 'jump'): ('below', 760),
-             ('gauntlet', 'basic'): ('line', 1800, 130), ('gauntlet', 'dash'): ('circle', 620),
-             ('gauntlet', 'jump'): ('below', 820),
-             ('chain', 'basic'): ('circle', 900), ('chain', 'dash'): ('line', 1100, 220), ('chain', 'jump'): ('circle', 800)}
-ULT_AIM_RANGE = 1300             # 칼비가 떨어질 조준점은 플레이어에게서 이 거리 안
+# 2026-11-20: 화면 전체가 아니라 광역 공격 (크기를 약 절반으로, 건틀릿 광선만 조금 더 멀리)
+ULT_AREAS = {('pipe', 'basic'): ('forward', config.ULT_FORWARD),
+             ('pipe', 'dash'): ('line', config.ULT_DASH_LENGTH, config.ULT_DASH_HALF),
+             ('pipe', 'jump'): ('slam', config.ULT_SLAM_RADIUS),
+             ('knife', 'basic'): ('aim', 300), ('knife', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
+             ('knife', 'jump'): ('below', 420),
+             ('gauntlet', 'basic'): ('line', 900, 120), ('gauntlet', 'dash'): ('circle', 380),
+             ('gauntlet', 'jump'): ('below', 460),
+             ('chain', 'basic'): ('circle', 450), ('chain', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
+             ('chain', 'jump'): ('circle', 420)}
+ULT_AIM_RANGE = 650              # 칼비가 떨어질 조준점은 플레이어에게서 이 거리 안
 
 
 class Decor:
@@ -916,6 +981,7 @@ class Ultimate:
         k = min(1.0, ULT_AIM_RANGE / d) if d > 0 else 0.0
         self.aim = (self.x0 + mx * k, self.y0 + my * k)
         self.pulls = weapon.weapon_id == 'chain'                      # 사슬: 맞을 때마다 끌어온다
+        self.nova_count = 0                                           # 광역 폭발 이펙트를 터뜨린 횟수 (테스트)
         self.time = 0.0
         self.hits_done = 0
         self.dealt = {}
@@ -990,9 +1056,26 @@ class Ultimate:
             if last:
                 effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
         self._spawn_shape()
+        if self.hits_done == 0 or last:                                # 시작과 마지막 일격: 범위 한가운데에 광역 폭발
+            cx, cy = self.area_center()
+            effects.spawn('ult-nova', cx, cy, duration=0.55 if last else 0.4)
+            self.nova_count += 1
         effects.add_trauma(0.35 if not last else 0.8)
         assets.play_sound('ult_final' if last else 'ult_hit')
         self.hits_done += 1
+
+    def area_center(self):
+        """범위의 한가운데 (광역 폭발 이펙트를 놓는 곳)."""
+        shape, size = self.area[0], self.area[1]
+        if shape == 'forward':
+            return self.x0 + self.side * size / 2, self.y0
+        if shape == 'line':
+            return self.x0 + self.dx * size / 2, self.y0 + self.dy * size / 2
+        if shape == 'aim':
+            return self.aim
+        if shape == 'below':
+            return self.x0, self.floor_y + 60
+        return self.x0, self.y0                                        # slam, circle
 
     def _spawn_shape(self):
         """타격마다 범위를 보여 주는 큰 궤적 (무기마다 다르다)."""
@@ -1012,7 +1095,7 @@ class Ultimate:
                 effects.spawn('haze-blast', self.x0 + self.side * 120, self.y0 - 20, duration=0.55)
             return                                    # 광선·사슬 줄은 draw에서 그린다
         if self.kind == 'basic':
-            x = self.x0 + self.side * (160 + 180 * i)
+            x = self.x0 + self.side * (90 + 80 * i)
             variant, flip = effects.slash_variant(self.side, 0.0)
             effects.spawn('pipe-slash-enhanced', x, self.y0 + (i % 2) * 60 - 30, flip=flip, duration=0.24, variant=variant)
         elif self.kind == 'dash':
@@ -1021,7 +1104,7 @@ class Ultimate:
             effects.spawn_path_slash(self.x0, self.y0 + off, self.x0 + self.dx * reach, self.y0 + self.dy * reach + off, True)
         else:
             for s in (-1, 1):
-                effects.spawn('dust-land', self.x0 + s * (150 + 170 * i), self.floor_y, duration=0.35)
+                effects.spawn('dust-land', self.x0 + s * (80 + 75 * i), self.floor_y, duration=0.35)
             if i == 0:
                 effects.spawn('haze-blast', self.x0, self.floor_y + 20, duration=0.5)
 
@@ -1071,7 +1154,7 @@ class Ultimate:
         ox, oy = assets.draw_offset
         left, bottom = -ox, -oy                         # 화면 왼쪽 아래의 세계 좌표 (오버레이는 화면 전체)
         t = self.time
-        dark = 0.6 if t < 0.55 else max(0.0, 0.6 * (1.0 - (t - 0.55) / 0.45))
+        dark = config.ULT_DIM if t < 0.55 else max(0.0, config.ULT_DIM * (1.0 - (t - 0.55) / 0.45))
         if dark > 0:
             assets.draw_rect_color(left, bottom, config.SCREEN_W, config.SCREEN_H, (6, 8, 20), dark)
             self.weapon.owner.draw()                    # 시전자는 어둠 위로 밝게

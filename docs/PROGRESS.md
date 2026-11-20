@@ -1,12 +1,12 @@
 # 진행상황 (PROGRESS)
 
-마지막 갱신: 2026-11-19 [Claude Code]
+마지막 갱신: 2026-11-20 [Claude Code]
 
 ## 진행 중
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(291개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(297개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -20,13 +20,13 @@
 - 1차 발표(11/4): 끝남. 자료는 `발표.pptx`, `기획서.pptx`, 대본 `docs/script_1st.md`.
 - **2차 발표(11/18 수)**: 제출 마감은 **11/18 0시 1분**(11/17 밤). 영상 1분 30초(진행 상황 + 게임 데모), YouTube 링크와 GitHub 주소를 e-class에 제출. 자료 `docs/presentation_2nd.pptx`, 대본 `docs/script_2nd.md`, 촬영 순서 `docs/demo_2nd.md`.
 
-## 다음 할 일 (우선순위 순, 2026-11-19 정리)
-1. [ ] **(사용자) 직접 플레이 점검.** v4는 자동 테스트·캡처로만 확인했다. 볼 것: 은신처 흐름(시작 -> 출발 -> 사망 -> 결정 보상·맡기기 -> 은신처), 정비사 값과 결정 수입, E 3단계 쌓기와 궁극기 세기, 아크 난이도, 사슬 손맛, 균열방 대가(최대 체력 15%), 달리기 밝기. 수치는 `src/config.py`(META_*, RIFT_*, ULT_*, ENHANCE_*)와 `src/meta.py`(UPGRADES).
-2. [x] 헤이즈 결정 방당 1 -> 2 (11/19 사용자 결정): 스테이지 1 중간 사망 8, 관문 28, 탈출 108 (`python tools/balance_sim.py --economy`).
-3. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 확인해 `docs/ASSETS.md`에 적는다 (Codex는 "모델명 미제공"으로 적고 있다). 최종 제출 전 필수.
-4. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 제출 체크리스트(`docs/script_2nd.md`) 마무리.
-5. [x] 전용 효과음 12종(사슬·궁극기·아크)과 최종 보스 곡 `ark`, 크레딧에 은신처·NPC·컷인 반영 (11/19). **(사용자) 귀로 들어 보고 너무 크거나 거슬리는 소리를 알려 주기.**
-6. [ ] **(Claude Code, 날짜가 정해지면)** 3차 발표 자료·대본·데모 촬영 순서. 바탕은 `docs/changes_from_plan.md`(처음 기획 대비 변경 사항).
+## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
+1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
+2. [ ] **(Codex) T24 → T29** (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
+3. [ ] **(Claude Code) 퀄리티 계획 1단계 코드 일**: 1-5 피격 반응(흰 번쩍임·밀림·큰 공격 슬로), 1-6 무기별 궁극기 이펙트 12종 구별, 1-7 무기별·적별 소리와 음량 균형. 이어서 2단계(2-2 빛·안개 덧칠, 2-3 스테이지별 음악, 2-4 방·정예 적, 2-5 안내, 2-6 게임패드·키 설정).
+4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 `docs/ASSETS.md`에 (최종 제출 전 필수).
+5. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 체크리스트(`docs/script_2nd.md`).
+6. [ ] **(Claude Code, 날짜가 정해지면)** 3차 발표 자료·대본·데모 촬영. 바탕은 `docs/changes_from_plan.md`.
 
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
@@ -178,3 +178,4 @@
 2026-11-19 [Claude Code] 영구 성장 밸런스 점검(balance_sim --meta max·--economy: 강화 최대면 보스·아크 승률 100%, 결정 수입은 초반이 느림), 다음 할 일 정리, 테스트 2개(284개) / src/meta.py, tools/balance_sim.py, tests/test_tools.py, docs/(PROGRESS, DECISIONS, SKILLS).md, .claude/skills/balance-sim/SKILL.md
 2026-11-19 [Claude Code] 헤이즈 결정 방당 1 -> 2(사용자 결정), 초반 수입 규칙 테스트(285개) / src/config.py, tests/test_tools.py, docs/(PROGRESS, DECISIONS, plan_v4).md
 2026-11-19 [Claude Code] 전용 효과음 12종(사슬·궁극기·아크)·최종 보스 곡 ark·크레딧 갱신(은신처·NPC·컷인, 소리 33종·4곡), 테스트 6개(291개) / tools/(make_sfx, make_music).py, assets/sfx/*, assets/music/ark.wav, src/(weapon, ark, play_mode, credits_mode).py, tests/(test_sfx, test_options).py, docs/(PROGRESS, DECISIONS, ASSETS).md
+2026-11-20 [Claude Code] 궁극기 광역화(범위 절반·ult-nova 이펙트·무거운 소리), 철파이프 2단계 올려베기->내려찍기, 페이드 점프 공격 앞쪽만, 설정 해상도·마우스 가두기(display.py), 퀄리티 상승 계획·Codex T24~T29, 테스트 7개(297개) / src/(weapon, config, effects, options, options_mode, display, main).py, tools/(make_fx, make_sfx).py, assets/effects/ult-nova.*, assets/sfx/*, tests/(test_combat, test_ultimate, test_options).py, docs/(quality_plan, PROGRESS, DECISIONS, changes_from_plan).md, docs/codex/(TASKS.md, tasks/T24~T29)

@@ -5,6 +5,7 @@
 """
 import json
 import math
+import random
 import os
 
 import assets
@@ -149,9 +150,17 @@ class SheetEffect:
         assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '', s)
 
 
-# 직선 베기 색 (밝음 -> 어두움): 대시 평타는 금색, 강화는 보라+흰 코어
+# 직선 베기 색 (밝음 -> 어두움): 대시 평타는 금색, 강화는 단계 색(1 보라·2 금·3 진홍)+흰 코어
 PATH_COLORS = {False: [(255, 255, 255), (255, 241, 184), (255, 211, 90), (201, 138, 30)],
-               True: [(255, 255, 255), (230, 204, 255), (164, 107, 255), (90, 47, 184)]}
+               True: [(255, 255, 255), (230, 204, 255), (164, 107, 255), (90, 47, 184)],
+               2: [(255, 255, 255), (255, 236, 170), (240, 170, 50), (150, 90, 20)],
+               3: [(255, 255, 255), (255, 190, 190), (236, 58, 72), (120, 16, 36)]}
+enh_level = 1           # 지금 나가는 강화 공격의 단계 (무기가 공격할 때 정한다): 이펙트 이름·색을 고른다
+
+
+def enh_suffix():
+    """강화 이펙트 시트 이름 뒤에 붙일 단계 표시: 1단계 '', 2단계 '2', 3단계 '3'."""
+    return '' if enh_level <= 1 else str(min(3, enh_level))
 
 
 class PathSlash:
@@ -178,7 +187,7 @@ class PathSlash:
             return
         t = self.time / self.life
         base = (44 if self.enhanced else 30) * (1.0 - t) ** 0.8 + 2
-        colors = PATH_COLORS[self.enhanced]
+        colors = PATH_COLORS[(enh_level if enh_level >= 2 else True) if self.enhanced else False]
         # 바깥(어두움) -> 코어(흰색) 순서로 점점 가늘게 덧그린다
         for layer, (color, scale) in enumerate(zip(reversed(colors), (1.0, 0.72, 0.46, 0.22))):
             step = 5
@@ -270,6 +279,109 @@ class BodyGhost:
         sprites.draw(*self.frame, self.x, self.y, self.face_dir, self.color, max(0.0, self.alpha * fade))
 
 
+class SlashMark:
+    """맞은 적을 가로지르는 베기 자국 (2026-11-21, 던그리드 다단 히트처럼 맞을 때마다 확실히 보이게). 코드로 그리는 픽셀 선:
+    순간 길게 그어졌다가 가늘어지며 사라진다. 바깥은 공격 색, 가운데는 흰색. big은 더 길고 두껍다(강한 공격·궁극기)."""
+
+    def __init__(self, x, y, angle_deg, color, big=False):
+        self.x, self.y = x, y
+        self.ang = math.radians(angle_deg)
+        self.color = color
+        self.big = big
+        self.life = 0.2 if big else 0.13
+        self.length = (230 if big else 130) * random.uniform(0.85, 1.15)
+        self.width = 22 if big else 12
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        t = self.time / self.life
+        grow = min(1.0, t / 0.25)                       # 처음 1/4 동안 한쪽 끝에서 그어진다
+        thin = (1.0 - max(0.0, t - 0.25) / 0.75) ** 0.8
+        dx, dy = math.cos(self.ang), math.sin(self.ang)
+        half = self.length / 2
+        step = 4
+        n = int(self.length * grow / step)
+        for i in range(n + 1):
+            s = -half + i * step
+            taper = math.sin(math.pi * (s + half) / self.length) ** 0.5
+            for color, k in ((self.color, 1.0), ((255, 255, 255), 0.45)):
+                size = int(self.width * k * taper * thin)
+                if size < 2:
+                    continue
+                assets.draw_rect_color(int(round(self.x + dx * s - size / 2)), int(round(self.y + dy * s - size / 2)),
+                                       size, size, color)
+
+
+class ImpactRing:
+    """강한 타격이 퍼지는 고리 (사각 점을 둥글게 늘어놓는다). 반지름이 radius_max까지 커지며 점이 작아진다."""
+
+    def __init__(self, x, y, color, radius_max=150, life=0.28):
+        self.x, self.y, self.color = x, y, color
+        self.radius_max, self.life, self.time = radius_max, life, 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        t = self.time / self.life
+        r = 16 + (self.radius_max - 16) * (1 - (1 - t) ** 2)
+        size = max(2, int(10 * (1 - t)))
+        count = max(12, int(2 * math.pi * r / 14))
+        for k in range(count):
+            a = 2 * math.pi * k / count
+            color = (255, 255, 255) if k % 3 == 0 and t < 0.5 else self.color
+            assets.draw_rect_color(int(round(self.x + math.cos(a) * r - size / 2)),
+                                   int(round(self.y + math.sin(a) * r - size / 2)), size, size, color)
+
+
+class LightPillar:
+    """궁극기 마지막 일격의 빛기둥: 땅에서 하늘로 솟는 굵은 기둥(흰 가운데 + 단계 색 바깥)과 위로 튀는 불티."""
+
+    def __init__(self, x, floor_y, color, life=0.7):
+        self.x, self.floor_y, self.color = x, floor_y, color
+        self.life, self.time = life, 0.0
+        self.sparks = [(random.uniform(-90, 90), random.uniform(0, 300), random.uniform(500, 1100)) for _ in range(26)]
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        t = self.time / self.life
+        width = 170 * (math.sin(math.pi * min(1.0, t * 1.6)) if t < 0.62 else (1 - t) / 0.38 * 0.5)
+        for color, k in ((self.color, 1.0), ((255, 255, 255), 0.4)):
+            w = int(width * k)
+            if w >= 2:
+                assets.draw_rect_color(int(self.x - w / 2), int(self.floor_y), w, 1400, color)
+        for sx, sy, speed in self.sparks:                 # 위로 튀는 불티
+            y = self.floor_y + sy + speed * self.time
+            size = 6 if t < 0.5 else 4
+            assets.draw_rect_color(int(self.x + sx), int(y), size, size,
+                                   (255, 255, 255) if int(sy) % 3 == 0 else self.color)
+
+
+def spawn_slash_marks(x, y, dir_x, dir_y, color, big=False, count=1):
+    """맞은 자리에 베기 자국 count개. 공격 방향에 비스듬히(±55~80도) 긋고, 여럿이면 X자로 엇갈린다."""
+    base = math.degrees(math.atan2(dir_y, dir_x)) if (dir_x or dir_y) else 0.0
+    for k in range(count):
+        side = 1 if k % 2 == 0 else -1
+        ang = base + side * random.uniform(55, 80)
+        game_world.add_object(SlashMark(x + random.uniform(-10, 10), y + random.uniform(-12, 12), ang, color, big),
+                              game_world.LAYER_EFFECT)
+
+
+def spawn_ring(x, y, color, radius_max=150, life=0.28):
+    game_world.add_object(ImpactRing(x, y, color, radius_max, life), game_world.LAYER_EFFECT)
+
+
 def spawn_impact(x, y, dir_x, dir_y, count, color, big=False):
     """(x, y)에서 방향 (dir_x, dir_y) 쪽으로 더 길게 뻗는 충격 방사선을 낸다."""
     if count <= 0:
@@ -280,7 +392,7 @@ def spawn_impact(x, y, dir_x, dir_y, count, color, big=False):
 
 def spawn_smear(frame, x, y, face_dir, aim, enhanced=False):
     """공격 자세(frame = (그림 세트, 번호))의 잔상 두 장을 조준 반대쪽 뒤에 남긴다."""
-    color = (190, 150, 255) if enhanced else (170, 225, 255)
+    color = config.ENHANCE_LEVEL_COLOR[max(1, min(3, enh_level))] if enhanced else (170, 225, 255)
     ax, ay = aim
     for k, alpha in ((1, 0.5), (2, 0.28)):
         game_world.add_object(BodyGhost(frame, x - ax * 16 * k, y - ay * 10 * k, face_dir, color, alpha, delay=0.02 * k),
@@ -293,13 +405,13 @@ def spawn(name, x, y, flip=False, duration=0.35, variant=0):
 
 def fx_for(zone, enhanced=False):
     """공격 효과 묶음: E 강화 중이면 강화용, 아니면 게이지 구간용."""
-    return config.ENHANCED_FX if enhanced else config.ZONE_FX[zone]
+    return config.ENHANCED_FX_BY_LEVEL[max(1, min(3, enh_level))] if enhanced else config.ZONE_FX[zone]
 
 
 def slash_sheet(zone, finisher=False, enhanced=False):
     """휘두르기 시트 이름. 강화 > 3타 > 구간 순으로 정한다."""
     if enhanced:
-        return config.ENHANCED_FX['slash']
+        return config.ENHANCED_FX['slash'] + enh_suffix()
     if finisher:
         return config.FINISHER_SLASH
     return config.ZONE_FX[zone]['slash']
@@ -309,9 +421,9 @@ def special_sheet(kind, enhanced=False):
     """점프 평타·내려찍기의 효과 시트: (시트 이름, 방향 변형이 있는가). 강화되면 보라색 큰 시트로 바뀐다.
     (대시 평타는 시트가 아니라 지나온 경로를 훑는 PathSlash 직선이다.)"""
     if kind == 'spin':
-        return ('air-spin-enhanced' if enhanced else 'air-spin', False)
+        return ('air-spin-enhanced' + enh_suffix() if enhanced else 'air-spin', False)
     if kind == 'plunge':
-        return ('pipe-slash-enhanced' if enhanced else 'dash-strike', True)
+        return ('pipe-slash-enhanced' + enh_suffix() if enhanced else 'dash-strike', True)
     raise KeyError(kind)
 
 
@@ -319,13 +431,13 @@ def spawn_path_slash(x0, y0, x1, y1, enhanced=False):
     game_world.add_object(PathSlash(x0, y0, x1, y1, enhanced), game_world.LAYER_EFFECT)
 
 
-def aura_names(zone, enhanced=False, stunned=False):
+def aura_names(zone, enhanced=False, stunned=False, level=1):
     """지금 게이지 구간과 강화 상태에서 주인공 주위에 그릴 오라 시트들. 강화 준비 중에는 보라색 강화 오라가 구간 오라를
     대체한다 (두 오라는 모두 실루엣을 감싸는 큰 불꽃이라 겹치면 지저분하다)."""
     if stunned:                                            # 오버로드 기절: 전기 아크가 모든 오라를 대체한다
         return [config.AURA_STUN]
-    if enhanced:
-        return [config.AURA_ENHANCED]
+    if enhanced:                                           # 강화 단계마다 다른 색 (1 보라·2 금·3 진홍)
+        return [config.AURA_ENHANCED + ('' if level <= 1 else str(min(3, level)))]
     return [config.AURA_BY_ZONE[zone]] if zone in config.AURA_BY_ZONE else []
 
 

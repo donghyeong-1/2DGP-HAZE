@@ -105,7 +105,12 @@ ENHANCE_TIME = 12.0         # 강화 일격을 준비해 두는 최대 시간(�
 ENHANCE_MAX_LEVEL = 3
 ENHANCE_LEVELS = {1: dict(damage=2.5, reach=1.5, extra=3, blast=190, half=115, plunge=1.35),
                   2: dict(damage=4.0, reach=1.9, extra=5, blast=260, half=150, plunge=1.7)}
-ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}          # 식칼·건틀릿·사슬의 강화 피해에 곱한다 (2단계)
+ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}
+# 강화 2단계 전용 공격 (11/21): 식칼 칼날 폭풍(사방 8자루), 건틀릿 부채꼴(양옆 ±각도), 사슬 귀환 충격(주인공 둘레)
+KNIFE_RING = 8
+GAUNTLET_FAN_DEG = 22
+CHAIN_SHOCK_RADIUS = 260
+CHAIN_SHOCK_MULT = 0.8          # 식칼·건틀릿·사슬의 강화 피해에 곱한다 (2단계)
 # 철파이프 2단계 (11/20 사용자: 1단계와 다른 동작): 올려베기(피해 x RISE) -> SLAM_DELAY초 뒤 앞 아래로 내려찍기(x SLAM, 바닥 충격)
 STAGE2_RISE_MULT = 1.5
 STAGE2_SLAM_MULT = 2.8
@@ -421,7 +426,15 @@ ZONE_FX = {
 ZONE_FX['OVERLOAD'] = ZONE_FX['CRITICAL']
 ZONE_FX['DEAD'] = ZONE_FX['FADE']
 ENHANCED_FX = dict(slash='pipe-slash-enhanced', spark='hit-enhanced', spark_time=0.34, shake=1.9, stop=1.6, sound='swing_enhanced',
-                   damage_color=(230, 190, 255))
+                   damage_color=(230, 190, 255), enhanced=True)
+# 강화 단계별 색 (11/21): 1단계 보라, 2단계 금, 3단계(궁극기 준비) 진홍. 몇 번 강화했는지 색으로 읽힌다.
+# 2·3단계 이펙트 시트(<이름>2·3)는 tools/recolor_fx.py가 보라 시트를 다시 칠해 만든다.
+ENHANCE_LEVEL_COLOR = {1: (200, 160, 255), 2: (255, 206, 92), 3: (255, 96, 110)}
+ENHANCED_FX_BY_LEVEL = {
+    1: ENHANCED_FX,
+    2: dict(ENHANCED_FX, slash='pipe-slash-enhanced2', spark='hit-enhanced2', damage_color=(255, 214, 120)),
+    3: dict(ENHANCED_FX, slash='pipe-slash-enhanced3', spark='hit-enhanced3', damage_color=(255, 140, 140)),
+}
 # 충격 방사선 개수 (맞은 자리에서 퍼지는 선): 구간이 높을수록, 강화는 가장 많다. 추가 타격은 작게
 IMPACT_RAYS = {'FADE': 4, 'NORMAL': 6, 'AWAKE': 8, 'CRITICAL': 10, 'OVERLOAD': 10, 'DEAD': 0, 'enhanced': 12}
 IMPACT_RAYS_EXTRA = 3

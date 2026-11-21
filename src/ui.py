@@ -156,7 +156,8 @@ class GameUI:
                  right=True)
         if g.enhanced:                                            # 쌓인 강화 단계 (3단계는 궁극기)
             label = '궁극기 준비!' if g.enhance_level >= config.ENHANCE_MAX_LEVEL else f'강화 {g.enhance_level}단계 준비'
-            kit.text(W // 2 + 20, LABEL_Y + 20, label, (225, 190, 255), small=True, center=True)
+            kit.text(W // 2 + 20, LABEL_Y + 20, label, config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))], small=True,
+                     center=True)
 
     # ----- 왼쪽 위: 무기 칸, 체력, 대시, 조각, 공격 상태 -----
     def _draw_status(self):
@@ -191,7 +192,7 @@ class GameUI:
             self._enhance_key(ex, ay)
             for i in range(config.ENHANCE_MAX_LEVEL):
                 on = i < g.enhance_level
-                color = ((255, 200, 120) if g.enhance_level >= config.ENHANCE_MAX_LEVEL else (200, 150, 255)) if on else (50, 56, 80)
+                color = config.ENHANCE_LEVEL_COLOR[i + 1] if on else (50, 56, 80)      # 칸마다 단계 색 (보라·금·진홍)
                 assets.draw_rect_color(ex + 44 + i * 22, ay + 2, 16, 18, (11, 16, 32))
                 assets.draw_rect_color(ex + 46 + i * 22, ay + 4, 12, 14, color)
             kit.bar('violet', ex + 116, ay + 5, 108, 12, g.enhance_timer / config.ENHANCE_TIME)
@@ -207,7 +208,7 @@ class GameUI:
             import weapon as weapon_mod
             text, color = '궁극기 ' + weapon_mod.ULT_NAMES[(w.weapon_id, w.ult_kind())], (255, 200, 120)
         elif g.enhanced:
-            text, color = f'강화 {g.enhance_level}단계 ' + text.split(':')[0], (225, 190, 255)
+            text, color = f'강화 {g.enhance_level}단계 ' + text.split(':')[0], config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))]
         kit.bar('white' if w.ready else 'yellow', rx + 4, LEFT_Y + 18, 92, 8, ratio)
         kit.text(rx + 112, LEFT_Y + 22, text, color, small=True)
         self._draw_items()

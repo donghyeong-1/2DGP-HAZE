@@ -1,0 +1,17 @@
+{
+ "id": "fx/aura-enhanced2",
+ "frames": 16,
+ "frameSize": [
+  240,
+  320
+ ],
+ "columns": 8,
+ "fps": 20,
+ "loop": true,
+ "pivot": [
+  120,
+  296
+ ],
+ "scale": 1,
+ "source": "tools/recolor_fx.py (aura-enhanced 다시 칠함, 강화 2단계)"
+}

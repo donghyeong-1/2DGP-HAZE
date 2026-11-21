@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(396개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(404개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -214,3 +214,4 @@
 2026-11-21 [Claude Code] Codex T34(보스 등장 카드, 카드 동안 게임 멈춤)·T35(크레딧 장면 3장) 검토·적용, 퀄리티 계획 4단계 끝, 테스트 395개 / src/(zone_card, play_mode, credits_mode).py, assets/backgrounds/(boss_card_*, credits_*), tests/(test_zone_card, test_options).py, docs/*
 2026-11-21 [Claude Code] 전체 판 자동 점검 도구(smoke_run: 시드 4개·방 140개 오류 0, 평균 4~7ms), 시작할 때 그림·효과음 미리 읽기(첫 방 입장 끊김 45ms -> 14ms 아래)와 불러오는 중 화면, 테스트 396개 / tools/smoke_run.py, src/(assets, main).py, tests/test_build.py, docs/*
 2026-11-21 [Claude Code] 게임 실행 확인(정상 종료), 테스트를 따로 돌려도 오류 기록이 사용자 폴더에 남지 않게 / tests/(test_keybinds, test_meta, test_options).py
+2026-11-21 [Claude Code] 강화 단계별 색(보라·금·진홍)·2단계 전용 공격(칼날 폭풍·부채꼴·귀환 충격), 피해 숫자 픽셀 글꼴·쌓임(중복 숫자 고침), 베기 자국·충격 고리·적 떨림, 궁극기 빛기둥·베기 폭풍, 테스트 404개 / src/(weapon, effects, drama, config, player, atmosphere, ui, enemy).py, tools/(make_digits, recolor_fx).py, assets/ui/dmg_*, assets/effects/*-enhanced2·3, tests/test_enhance_levels.py, docs/*

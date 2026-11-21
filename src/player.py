@@ -736,7 +736,7 @@ class Player(TileBody):
             sprites.draw(name, n, gx, gy, gdir, config.AFTERIMAGE_COLOR, alpha)
         stunned = self.stunned and self.state != 'DEAD'
         if self.state != 'DEAD':   # 게이지 구간·강화·기절에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
-            for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned):
+            for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned, self.gauge.enhance_level):
                 effects.draw_loop(name, self.x, self.y, self.aura_time, flip=self.draw_face() < 0)   # 몸 실루엣과 같은 쪽을 보게
         blink = (self.invuln_left > 0 and self.steady_left <= 0 and self.state not in ('DASH', 'DEAD')
                  and int(self.invuln_left * 20) % 2 == 0)

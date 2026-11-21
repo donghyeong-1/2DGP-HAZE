@@ -593,6 +593,8 @@ class Enemy(TileBody):
     def draw(self):
         name, n = self._body_frame()
         dx, dy = self._pose_offset(name)
+        if getattr(self, 'flash', 0) > 0:                 # 맞은 순간 좌우로 떤다 (11/21 타격감: 맞은 게 확실히 보이게)
+            dx += 4 if int(self.flash * 120) % 2 else -4
         if name is None:                                  # 동작 그림이 없으면 정지 그림 한 장
             name = self.stats['sprite']
         if self.elite:                                    # 정예: 수식어 색 테두리 (그림 뒤에 색을 더해 네 방향으로)

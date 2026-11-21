@@ -18,13 +18,14 @@ import options
 EASE = 4.0                     # 목표 색으로 다가가는 빠르기(1/초)
 TINTS = {'FADE': ((70, 90, 140), 0.16), 'AWAKE': ((60, 200, 190), 0.05), 'CRITICAL': ((255, 80, 50), 0.07)}
 ENHANCED_TINT = ((170, 110, 255), 0.07)
+ENHANCED_TINTS = {1: ENHANCED_TINT, 2: ((255, 190, 70), 0.07), 3: ((255, 70, 90), 0.09)}   # 강화 단계별 (보라·금·진홍)
 CRITICAL_PULSE = 0.05          # 위험 구간 맥동 폭 (2Hz)
 
 
-def target_tint(zone, enhanced, t):
-    """구간·강화 준비·시간 -> (색, 투명도). 노멀은 색이 없다."""
+def target_tint(zone, enhanced, t, level=1):
+    """구간·강화 준비(단계)·시간 -> (색, 투명도). 노멀은 색이 없다."""
     if enhanced:
-        return ENHANCED_TINT
+        return ENHANCED_TINTS[max(1, min(3, level))]
     color, alpha = TINTS.get(zone, ((0, 0, 0), 0.0))
     if zone == 'CRITICAL' and not options.reduce_flash:
         alpha += CRITICAL_PULSE * (0.5 + 0.5 * math.sin(t * math.tau * 2))
@@ -47,9 +48,9 @@ class Atmosphere:
         self.player, self.stage = player, stage
         self.color, self.alpha, self.time = (0, 0, 0), 0.0, 0.0
 
-    def ease(self, zone, enhanced, dt):
+    def ease(self, zone, enhanced, dt, level=1):
         self.time += dt
-        color, alpha = target_tint(zone, enhanced, self.time)
+        color, alpha = target_tint(zone, enhanced, self.time, level)
         k = min(1.0, EASE * dt)
         if self.alpha <= 0.001:                          # 색이 없던 상태면 색은 바로 바꾸고 진하기만 천천히
             self.color = color
@@ -59,7 +60,7 @@ class Atmosphere:
 
     def update(self, dt):
         g = self.player.gauge
-        self.ease(g.zone, g.enhanced, dt)
+        self.ease(g.zone, g.enhanced, dt, g.enhance_level)
 
     def draw(self):
         W, H = config.SCREEN_W, config.SCREEN_H

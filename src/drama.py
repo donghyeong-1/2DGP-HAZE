@@ -92,11 +92,14 @@ def music_duck(zone):
 def reset():
     _flash[:] = [(0, 0, 0), 0.0, 0.0]
     _beat[0] = 0.0
+    _recent.clear()
+    style.clear()
 
 
 def tick(dt, player):
     """매 프레임(play_mode): 번쩍임이 줄고, 심장이 뛴다."""
     import assets
+    _clock[0] += dt
     _flash[2] = max(0.0, _flash[2] - dt)
     if player is None or player.state == 'DEAD':
         _beat[0] = 0.0
@@ -126,17 +129,28 @@ def damage_color(player):
     if g is None:
         return DAMAGE_COLORS['NORMAL']
     if getattr(g, 'enhanced', False):
-        return DAMAGE_COLORS['ENHANCED']
+        import config
+        return config.ENHANCE_LEVEL_COLOR.get(min(3, max(1, g.enhance_level)), DAMAGE_COLORS['ENHANCED'])
     return DAMAGE_COLORS.get(g.zone, DAMAGE_COLORS['NORMAL'])
 
 
-class DamageNumber:
-    """맞은 자리에 떠오르는 피해 숫자 (세계 좌표, 효과 레이어). 반투명 없이 끝에 깜빡이다 사라진다."""
+STACK_WINDOW = 0.45     # 같은 적에게 이 시간 안에 이어 맞으면 숫자가 위로 쌓인다(다단 히트)
+STACK_STEP = {False: 30, True: 40}     # 숫자 칸 높이(25·35)보다 조금 넓게 (겹치지 않게)
+_clock = [0.0]
+_recent = {}            # id(적) -> (마지막으로 맞은 시각, 쌓인 수)
+style = {}              # 지금 때리는 공격의 숫자 모양: big(큰 숫자), color(색). 무기가 take_damage 앞뒤로 정한다
 
-    def __init__(self, x, y, damage, color):
-        self.x, self.y0 = x + random.uniform(-14, 14), y
+
+class DamageNumber:
+    """맞은 자리에 튀어 오르는 피해 숫자 (세계 좌표, 효과 레이어). 전용 픽셀 글꼴(assets/ui/dmg_small·dmg_big)에
+    색을 곱해 그린다. 처음 0.07초는 조금 위에서 '톡' 튀고, 솟았다가 멈춘 뒤 끝에서 깜빡이며 사라진다.
+    큰 숫자는 처음 0.12초 좌우로 떨린다. 반투명 없이 그린다."""
+
+    def __init__(self, x, y, damage, color, big=None, stack=0):
+        self.x, self.y0 = x + random.uniform(-10, 10), y + STACK_STEP[bool(big)] * stack
         self.text, self.color = str(int(round(damage))), color
-        self.big = damage >= BIG_DAMAGE
+        self.big = damage >= BIG_DAMAGE if big is None else bool(big)
+        self.stack = stack
         self.time = 0.0
 
     def update(self, dt):
@@ -145,19 +159,57 @@ class DamageNumber:
         if self.time >= NUMBER_LIFE:
             game_world.remove_object(self)
 
+    def offset(self):
+        """(dx, dy): 튀어 오르는 움직임."""
+        t = self.time
+        pop = 10 if t < 0.07 else 0
+        rise = NUMBER_RISE * (1 - (1 - min(1.0, t / NUMBER_LIFE)) ** 3)
+        shake = int(4 * math.sin(t * 90)) if self.big and t < 0.12 else 0
+        return shake, int(rise + pop)
+
     def draw(self):
         import assets
-        t = self.time / NUMBER_LIFE
-        if t > 0.75 and int(self.time * 30) % 2:            # 끝에서 깜빡이며 사라진다
+        if self.time / NUMBER_LIFE > 0.78 and int(self.time * 30) % 2:   # 끝에서 깜빡이며 사라진다
             return
-        rise = NUMBER_RISE * (1 - (1 - t) ** 2)              # 빨리 솟았다가 멈춘다
-        assets.draw_text(int(self.x), int(self.y0 + rise), self.text, self.color, center=True, big=self.big)
+        from sdl2 import SDL_SetTextureColorMod
+        img = assets.image('ui/dmg_big.png' if self.big else 'ui/dmg_small.png')
+        cw, ch = img.w // 10, img.h
+        dx, dy = self.offset()
+        x = int(self.x) + dx - cw * len(self.text) // 2 + len(self.text)   # 글자끼리 1px 겹쳐 붙인다
+        y = int(self.y0) + dy
+        SDL_SetTextureColorMod(img.texture, *self.color)
+        try:
+            for k, ch_ in enumerate(self.text):
+                assets.draw_clip(img, int(ch_) * cw, 0, cw, ch, x + k * (cw - 2), y)
+        finally:
+            SDL_SetTextureColorMod(img.texture, 255, 255, 255)
 
 
 def damage_number(target, damage, player):
-    """적이 맞았다: 피해 숫자를 띄운다 (설정에서 끄면 띄우지 않는다)."""
+    """적이 맞았다: 피해 숫자를 띄운다 (설정에서 끄면 띄우지 않는다). 공격의 모양(style)과 같은 적에게 이어 맞은 수를 쓴다."""
     if not options.show_damage or damage <= 0:
         return
     import game_world
+    key = id(target)
+    last, count = _recent.get(key, (-9.0, -1))
+    stack = count + 1 if _clock[0] - last <= STACK_WINDOW else 0
+    _recent[key] = (_clock[0], stack)
     top = target.y + getattr(target, 'hb_h', 100) + 12
-    game_world.add_object(DamageNumber(target.x, top, damage, damage_color(player)), game_world.LAYER_EFFECT)
+    color = style.get('color') or damage_color(player)
+    game_world.add_object(DamageNumber(target.x, top, damage, color, style.get('big'), stack), game_world.LAYER_EFFECT)
+
+
+class hit_style:
+    """with drama.hit_style(big=True, color=...): 그 안의 take_damage가 띄우는 숫자 모양."""
+
+    def __init__(self, big=None, color=None):
+        self.new = {k: v for k, v in (('big', big), ('color', color)) if v is not None}
+
+    def __enter__(self):
+        self.old = dict(style)
+        style.update(self.new)
+
+    def __exit__(self, *exc):
+        style.clear()
+        style.update(self.old)
+

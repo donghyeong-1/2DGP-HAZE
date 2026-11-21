@@ -12,6 +12,7 @@
 대미지는 항상 기본 x 게이지 구간 배율 x 공격력 보너스 x 공격 종류 배율이다.
 """
 import math
+import random
 import time
 
 import assets
@@ -45,14 +46,15 @@ class ExtraHits:
         if not enemy.alive or p.state == 'DEAD':
             game_world.remove_object(self)
             return
-        killed = enemy.take_damage(self.damage, from_x=p.x)
+        import drama
+        with drama.hit_style(color=self.fx['damage_color']):
+            killed = enemy.take_damage(self.damage, from_x=p.x)
         p.gauge.add(config.EXTRA_HIT_GAIN, 'hit')
         ex, ey = enemy.center
         jx, jy = ((-1) ** self.index) * (10 + 6 * self.index), (self.index % 2) * 14 - 7      # 불꽃이 조금씩 다른 자리에 튄다
         effects.spawn(self.fx['spark'], ex + jx, ey + jy, duration=self.fx['spark_time'])
         effects.spawn_impact(ex + jx, ey + jy, ex - p.x, ey - p.center[1], config.IMPACT_RAYS_EXTRA, self.fx['damage_color'])
-        effects.float_text(ex + jx * 2, ey + enemy.hb_h / 2 + 70 + 22 * (self.index + 1), str(int(round(self.damage))),
-                           self.fx['damage_color'], big=False, life=0.5)
+        effects.spawn_slash_marks(ex + jx, ey + jy, ex - p.x, ey - p.center[1], self.fx['damage_color'])   # 다단 히트 자국
         effects.add_trauma(config.SHAKE_HIT * 0.5)
         assets.play_sound('enemy_hit')
         if killed:
@@ -129,6 +131,7 @@ class Pipe:
         """이번 공격에 쓰는 강화 단계를 정한다. 강화됐으면 True."""
         g = self.owner.gauge
         self.level = g.enhance_level if g.enhanced else 0
+        effects.enh_level = max(1, self.level)          # 이번 공격의 강화 이펙트 색 (1 보라·2 금·3 진홍)
         return self.level > 0
 
     def _enh(self, key):
@@ -157,6 +160,7 @@ class Pipe:
         kind = self.ult_kind()
         ax, ay = p.aim_vector()
         self.level = config.ENHANCE_MAX_LEVEL
+        effects.enh_level = self.level
         self.last_kind, self.last_enhanced = 'ult_' + kind, True
         game_world.add_object(Ultimate(self, kind, ax, ay), game_world.LAYER_EFFECT)
         g.consume_enhance()
@@ -170,7 +174,7 @@ class Pipe:
     # ----- 공통 -----
     def _fx(self, enhanced):
         p = self.owner
-        return config.ENHANCED_FX if enhanced else config.ZONE_FX[p.gauge.zone]
+        return config.ENHANCED_FX_BY_LEVEL[max(1, min(3, self.level))] if enhanced else config.ZONE_FX[p.gauge.zone]
 
     def _visible(self, enemy, cx, cy):
         """(cx, cy)에서 적의 몸 어느 한 곳이라도 벽에 안 막히고 보이는가."""
@@ -188,15 +192,21 @@ class Pipe:
     def _hit(self, enemy, damage, gain, fx, big=False, color=None, shake=1.0, stop=1.0, blast=False, extra=True):
         """적 하나에게 피해와 모든 맞는 반응(게이지, 불꽃, 숫자, 흔들림, 멈춤)을 준다. 죽였으면 True."""
         p = self.owner
-        killed = enemy.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG if big else 1.0)
+        import drama
+        with drama.hit_style(big=big or None, color=color or fx['damage_color']):   # 피해 숫자 모양 (픽셀 글꼴, 하나만)
+            killed = enemy.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG if big else 1.0)
         if self.IMPACT:
             assets.play_sound(self.IMPACT)
         p.gauge.add(gain, 'hit')
         ex, ey = enemy.center
         effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
-        rays = config.IMPACT_RAYS['enhanced' if fx is config.ENHANCED_FX else p.gauge.zone]
+        rays = config.IMPACT_RAYS['enhanced' if fx.get('enhanced') else p.gauge.zone]
         effects.spawn_impact(ex, ey, ex - p.x, ey - p.center[1], rays, fx['damage_color'], big=big)       # 충격 방사선
-        effects.float_text(ex, ey + enemy.hb_h / 2 + 70, str(int(round(damage))), color or fx['damage_color'], big=big)
+        if big:                                          # 강한 공격: X자 베기 자국 두 개 + 퍼지는 고리
+            effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'], big=True, count=2)
+            effects.spawn_ring(ex, ey, fx['damage_color'])
+        else:                                            # 맞을 때마다 적을 가로지르는 베기 자국 (다단 히트가 하나하나 보이게)
+            effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
         p.swing_connected = True                         # 이번 휘두르기가 맞았다: 몸은 젖힘으로 되돌아가지 않는다
         effects.add_trauma(config.SHAKE_HIT * shake * fx['shake'])
@@ -207,7 +217,7 @@ class Pipe:
             self._blast(enemy)
         if not extra:                                    # 식칼·건틀릿은 구간 효과가 발사 수·크기로 따로 있다
             return killed
-        extra = max(config.EXTRA_HITS.get(p.gauge.zone, 0), self._enh('extra') if fx is config.ENHANCED_FX else 0)
+        extra = max(config.EXTRA_HITS.get(p.gauge.zone, 0), self._enh('extra') if fx.get('enhanced') else 0)
         if extra and not killed:                         # 타수 증가: 첫 타격 뒤에 작은 추가 타격이 이어진다
             game_world.add_object(ExtraHits(p, enemy, damage * config.EXTRA_HIT_RATIO, fx, extra, big), game_world.LAYER_EFFECT)
         return killed
@@ -285,7 +295,7 @@ class Pipe:
         """첫 타: 앞을 위로 쳐올린다. 맞은 땅 위 적은 살짝 뜬다. 이어서 내려찍기를 예약한다."""
         p = self.owner
         cx, cy = p.center
-        fx = config.ENHANCED_FX
+        fx = config.ENHANCED_FX_BY_LEVEL[2]             # 2단계: 금색
         side = 1 if ax >= 0 else -1
         self.combo = 0
         p.start_swing(side * 0.45, 0.9)
@@ -322,7 +332,7 @@ class Pipe:
         if p.state == 'DEAD':
             return
         cx, cy = p.center
-        fx = config.ENHANCED_FX
+        fx = config.ENHANCED_FX_BY_LEVEL[2]             # 2단계: 금색
         assets.play_sound('swing_critical')
         effects.spawn('quake-blast', p.x + side * 150, p.y, duration=0.4)
         effects.add_trauma(config.SHAKE_FINISHER * 1.3)
@@ -512,6 +522,12 @@ class Knife(Pipe):
             a = math.radians(base + off)
             game_world.add_object(ThrownKnife(self, cx, cy + 8, math.cos(a), math.sin(a), damage, pierce, fx, enhanced),
                                   game_world.LAYER_EFFECT)
+        if enhanced and self.level >= 2:                 # 2단계: 칼날 폭풍 — 사방으로 한 바퀴 더 (8자루, 관통)
+            for i in range(config.KNIFE_RING):
+                a = math.radians(base + 22.5 + 360.0 * i / config.KNIFE_RING)
+                game_world.add_object(ThrownKnife(self, cx, cy + 8, math.cos(a), math.sin(a), damage * 0.6, True, fx, True),
+                                      game_world.LAYER_EFFECT)
+            effects.spawn('hit-enhanced2', cx, cy, duration=0.35)
         import drama
         assets.play_sound(drama.knife_sound(p.gauge.zone, enhanced))   # 구간·강화마다 다른 던지기 소리 (11/21)
         p.start_punch('throw')
@@ -672,6 +688,12 @@ class Gauntlet(Pipe):
         damage = self._damage(0.4 + 0.6 * ratio) * (config.GAUNTLET_ENHANCED_MULT * self._stack() if enhanced else 1.0)
         game_world.add_object(Blast(self, cx + ax * 40, cy + ay * 40, ax, ay, damage, size, fx, enhanced),
                               game_world.LAYER_EFFECT)
+        if enhanced and self.level >= 2:                 # 2단계: 부채꼴 세 갈래 (양옆은 조금 작고 약하게)
+            for side in (-1, 1):
+                a = math.atan2(ay, ax) + math.radians(config.GAUNTLET_FAN_DEG * side)
+                bx, by = math.cos(a), math.sin(a)
+                game_world.add_object(Blast(self, cx + bx * 40, cy + by * 40, bx, by, damage * 0.6, size * 0.75, fx, enhanced),
+                                      game_world.LAYER_EFFECT)
         self.last_kind, self.last_enhanced = 'gauntlet', enhanced
         p.start_punch('blast')
         assets.play_sound('overload_zap' if size >= 1.5 else fx['sound'])
@@ -788,6 +810,7 @@ class ChainHook:
         self.weapon, self.dx, self.dy = weapon, dx, dy
         self.damage, self.count, self.reach, self.stun = damage, count, reach, stun
         self.fx, self.enhanced = fx, enhanced
+        self.level = weapon.level if enhanced else 0     # 2단계면 돌아올 때 주인공 둘레에 충격
         self.dist = 0.0                # 손에서 갈고리 끝까지 거리 (out·back)
         self.phase = 'out'
         self.hit = set()
@@ -878,7 +901,7 @@ class ChainHook:
                 killed = e.take_damage(config.CHAIN_CLASH_DAMAGE, from_x=p.x)
                 ex, ey = e.center
                 effects.spawn(self.fx['spark'], ex, ey, duration=self.fx['spark_time'])
-                effects.float_text(ex, ey + e.hb_h / 2 + 70, str(config.CHAIN_CLASH_DAMAGE), (255, 200, 120))
+                effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], (255, 200, 120), big=True)
                 if killed:
                     p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
                 else:
@@ -896,10 +919,25 @@ class ChainHook:
 
     def _done(self):
         w = self.weapon
+        if self.level >= 2:
+            self._shock()
         if w.hook is self:
             w.hook = None
         w.cooldown = w.cooldown_max = config.CHAIN_COOLDOWN
         game_world.remove_object(self)
+
+    def _shock(self):
+        """강화 2단계: 사슬이 돌아오는 순간 주인공 둘레(CHAIN_SHOCK_RADIUS)에 충격. 갈고리에 안 걸린 적도 맞는다."""
+        w, p = self.weapon, self.weapon.owner
+        cx, cy = p.center
+        effects.spawn('quake-blast', p.x, p.y, duration=0.4)
+        effects.spawn('hit-enhanced2', cx, cy, duration=0.35)
+        effects.add_trauma(config.SHAKE_FINISHER)
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            ex, ey = e.center
+            if e.alive and math.hypot(ex - cx, ey - cy) <= config.CHAIN_SHOCK_RADIUS:
+                w._hit(e, self.damage * config.CHAIN_SHOCK_MULT, config.CHAIN_GAIN, self.fx, big=True, shake=0.5,
+                       stop=0.4, extra=False)
 
     # ----- 그리기: 손에서 갈고리까지 고리 칸을 늘어놓는다 -----
     def draw(self):
@@ -1053,7 +1091,7 @@ class Ultimate:
 
     def _strike(self):
         w, p = self.weapon, self.weapon.owner
-        fx = config.ENHANCED_FX
+        fx = config.ENHANCED_FX_BY_LEVEL[3]             # 궁극기(3단계): 진홍
         # 궁극기 피해는 무기와 상관없이 같은 기준(ULT_BASE_DAMAGE)으로: 게이지 75%를 쓰는 값이 무기마다 달라지지 않게
         base = config.ULT_BASE_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * config.ULT_HIT_MULT
         last = self.hits_done == config.ULT_HITS - 1
@@ -1067,18 +1105,28 @@ class Ultimate:
                 damage = min(damage, e.max_hp * config.ULT_BOSS_CAP - self.dealt.get(id(e), 0.0))
                 if damage <= 0:
                     continue
-            killed = e.take_damage(damage, from_x=self.x0)
+            import drama
+            with drama.hit_style(big=last, color=self.color):
+                killed = e.take_damage(damage, from_x=self.x0)
             self.dealt[id(e)] = self.dealt.get(id(e), 0.0) + damage
             ex, ey = e.center
             effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
             effects.spawn_impact(ex, ey, ex - self.x0, ey - self.y0, config.IMPACT_RAYS['enhanced'], self.color, big=last)
-            effects.float_text(ex + (self.hits_done % 2) * 18 - 9, ey + e.hb_h / 2 + 70 + 24 * self.hits_done,
-                               str(int(round(damage))), self.color, big=last)
+            effects.spawn_slash_marks(ex, ey, ex - self.x0, ey - self.y0, self.color, big=True, count=2 if last else 1)
             if killed:
                 p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
             if last:
                 effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
         self._spawn_shape()
+        cx, cy = self.area_center()                                   # 베기 폭풍: 연타마다 범위 곳곳에 큰 베기 자국 (11/21)
+        for _ in range(3):
+            mx, my = cx + random.uniform(-220, 220), cy + random.uniform(-110, 130)
+            effects.spawn_slash_marks(mx, my, random.uniform(-1, 1), random.uniform(-1, 1), self.color, big=True)
+        if last:                                                       # 마지막 일격: 빛기둥 + 큰 고리 + 화면 섬광
+            game_world.add_object(effects.LightPillar(cx, self.floor_y, self.color), game_world.LAYER_EFFECT)
+            effects.spawn_ring(cx, cy, self.color, radius_max=440, life=0.45)
+            effects.spawn_ring(cx, cy, (255, 255, 255), radius_max=300, life=0.32)
+            effects.request_flash(0.12)
         if self.hits_done == 0 or last:                                # 시작과 마지막 일격: 범위 한가운데에 광역 폭발
             cx, cy = self.area_center()
             effects.spawn(self.nova_name, cx, cy, duration=0.55 if last else 0.4)

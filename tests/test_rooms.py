@@ -11,7 +11,7 @@ import config  # noqa: E402
 import room_check  # noqa: E402
 from room import Room  # noqa: E402
 from room_check import RoomGraph, analyze  # noqa: E402
-from stage import OPPOSITE, STAGE_ORDER, STEP, Stage, load_layout, template_exits  # noqa: E402
+from stage import COMBAT_VARIANTS, OPPOSITE, STAGE_ORDER, STEP, Stage, load_layout, template_exits  # noqa: E402
 
 
 def read_room(name):
@@ -37,7 +37,7 @@ def as_rows(grid):
 
 
 def used_templates():
-    used = set()
+    used = set(COMBAT_VARIANTS)                                     # 판마다 전투 방이 될 수 있는 새 모양 (11/21)
     for name in STAGE_ORDER + ('hideout',):                         # 은신처(로비)도 방 파일을 쓴다
         start, layout = load_layout(name)
         used |= {info['template'] for info in layout.values()}

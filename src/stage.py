@@ -67,6 +67,19 @@ def next_stage(stage):
     return nxt
 
 
+# 판마다 전투 방이 될 수 있는 새 모양 (2026-11-21 계획 2-4). 칸에 필요한 문을 모두 가진 것만 고른다.
+# 앞 셋은 좌우 문만(33x18), 뒤 셋은 사방 문(48x22). 스폰은 모두 종류 없는 E 6칸 이상이다.
+COMBAT_VARIANTS = ('bridge_06', 'stairs_07', 'pillars_08', 'shaft_09', 'terrace_10', 'twin_11')
+_spawn_cache = {}
+
+
+def template_spawn_kinds(template):
+    """템플릿의 스폰 종류 목록 (위에서 아래·왼쪽에서 오른쪽, 종류 없는 E는 None)."""
+    if template not in _spawn_cache:
+        _spawn_cache[template] = [k for _x, _y, k in Room.load(template).enemy_spawns]
+    return _spawn_cache[template]
+
+
 def template_exits(template):
     """방 템플릿에 있는 출입구 방향 집합 (파일을 한 번만 읽는다)."""
     if template not in _exit_cache:
@@ -104,6 +117,32 @@ class Stage:
         self.finish_timer = 0.0
         self.on_clear = None        # 방을 클리어했을 때 부를 함수 (소리·글자용)
         self.on_message = None      # 화면에 띄울 짧은 글자: f(문구)
+        self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
+
+    def _pick_template(self, coord):
+        """전투 방은 원래 모양 또는 새 모양 중 하나 (판의 시드로 정한다). 그 밖의 방은 원래 모양."""
+        original = self.layout[coord]['template']
+        if self.type_of(coord) != 'combat':
+            return original
+        need = self.links_of(coord)
+        options = [original] + [v for v in COMBAT_VARIANTS if need <= template_exits(v)]
+        return random.Random(f'{self.seed}:{coord}:shape').choice(options)
+
+    def template_of(self, coord):
+        return self.templates.get(coord, self.layout[coord]['template'])
+
+    def original_kinds(self, info):
+        """원래 방에서 나올 적 종류 목록 (종류가 적힌 스폰은 swap을 따르고, E 칸은 enemies를 차례로)."""
+        generic = list(info.get('enemies', []))
+        swap = info.get('swap', {})
+        out = []
+        for kind in template_spawn_kinds(info['template']):
+            if kind is None:
+                if generic:
+                    out.append(generic.pop(0))
+            else:
+                out.append(swap.get(kind, kind))
+        return out
 
     @property
     def next_name(self):
@@ -143,7 +182,7 @@ class Stage:
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
         self.pedestals, self.boss, self.npcs = [], None, []
-        self.room = Room.load(info['template'], self.links_of(coord), info.get('high_haze', False), self.theme_of(info))
+        self.room = Room.load(self.template_of(coord), self.links_of(coord), info.get('high_haze', False), self.theme_of(info))
         for d in self.room.links:      # 문 너머 방이 특별한 방이면 문에 표시한다
             if self.neighbour(coord, d) not in self.layout:      # 은신처 출발 문처럼 너머에 방이 없는 문
                 continue
@@ -278,7 +317,13 @@ class Stage:
         # swap: 템플릿에 적힌 종류를 이 방에서만 바꾼다 (같은 방 모양을 다른 구역에서 다른 적으로, 예: {'slum': 'guard'})
         generic = list(info.get('enemies', []))
         swap = info.get('swap', {})
-        for x, y, kind in self.room.enemy_spawns:
+        if self.template_of(self.coord) != info['template']:      # 새 모양: 원래 방의 적 구성을 새 스폰 칸에 차례로
+            kinds = self.original_kinds(info)
+            spawns = [(x, y, kinds[i]) for i, (x, y, _k) in enumerate(self.room.enemy_spawns[:len(kinds)])]
+            generic, swap = [], {}
+        else:
+            spawns = self.room.enemy_spawns
+        for x, y, kind in spawns:
             if kind is None:
                 if not generic:
                     continue

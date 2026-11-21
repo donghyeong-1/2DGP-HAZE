@@ -40,18 +40,24 @@ def enter():
     stage.start()
     room = stage.room
     game_world.add_object(player, game_world.LAYER_PLAYER)
+    from atmosphere import Atmosphere
+    game_world.add_object(Atmosphere(player, stage), game_world.LAYER_UI)   # 구간 색·비네트·안개 (HUD보다 먼저 = 아래)
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
     assets.play_music(music_for(stage))
 
 
 def music_for(stage):
-    """지금 방에 맞는 곡: 은신처는 차분한 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 music, 기본 'boss'), 아니면 탐험 곡."""
-    if getattr(stage, 'name', '') == 'hideout':
-        return 'title'
+    """지금 방에 맞는 곡: 은신처 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 MUSIC, 기본 'boss'), 아니면 스테이지 곡."""
+    name = getattr(stage, 'name', '')
+    if name == 'hideout':
+        return 'hideout'
     boss = stage.boss
     if boss is not None and boss.alive:
         return getattr(boss, 'MUSIC', 'boss')
-    return 'explore'
+    return STAGE_MUSIC.get(name, 'explore')
+
+
+STAGE_MUSIC = {'stage1': 'explore', 'stage2': 'factory', 'stage3': 'tower'}   # 11/21 퀄리티 계획 2-3
 
 
 def _on_npc(npc):

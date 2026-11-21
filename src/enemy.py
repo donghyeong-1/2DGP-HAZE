@@ -131,7 +131,11 @@ class Enemy(TileBody):
             self.die()
             self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1)
             assets.play_sound('enemy_die')
-            effects.spawn('death-burst', *self.center, duration=0.45)   # 헤이즈 조각으로 흩어진다
+            death = f'enemy_{self.kind}_death'
+            if death in sprites.FRAMES:                   # 쓰러지는 그림이 있으면 시체가 쓰러진 뒤 흩어진다 (Codex T25)
+                game_world.add_object(Corpse(death, self.x, self.y, self.face_dir, self.vx * 0.5), game_world.LAYER_EFFECT)
+            else:
+                effects.spawn('death-burst', *self.center, duration=0.45)   # 헤이즈 조각으로 흩어진다
             game_world.remove_object(self)
             return True
         assets.play_sound('enemy_hit')
@@ -497,8 +501,9 @@ class Enemy(TileBody):
     def _body_frame(self):
         """지금 상태에 맞는 동작 프레임 (접두어, 번호). 해당 동작 그림이 없는 적이나 상태는 (None, 0) = 대기 그림 한 장."""
         frames = self.stats.get('frames', {})
-        if self.state == 'HIT' and 'hurt' in frames:
-            return frames['hurt'], 1
+        if self.state == 'HIT' and 'hurt' in frames:              # 움찔(1) -> 뒤로 더 젖혀 비틀(2) (Codex T25)
+            name = frames['hurt']
+            return name, 1 if self.hit_left > 0.09 or sprites.count(name) < 2 else 2
         if self.state == 'ATTACK' and 'attack' in frames:
             name = frames.get(self.move, frames['attack'])     # 기술 전용 그림이 있으면 그것 (간수 내려찍기·방패 돌진, 사냥개 덮치기)
             return name, min(self._attack_frame(), sprites.count(name))
@@ -579,3 +584,31 @@ class Enemy(TileBody):
         assets.draw_rect_image(assets.image('placeholder/px_black.png'), left - 3, bottom - 3, w + 6, h + 6)
         assets.draw_rect_image(assets.image('placeholder/px_gray.png'), left, bottom, w, h)
         assets.draw_rect_image(assets.image('placeholder/px_red.png'), left, bottom, w * max(0.0, self.hp) / self.max_hp, h)
+
+
+class Corpse:
+    """쓰러진 적 (판정 없음): 쓰러지는 3장 -> 잠깐 누워 있다가 헤이즈 조각으로 흩어지며 사라진다. (Codex T25, 11/21)"""
+
+    def __init__(self, name, x, y, face_dir, vx):
+        self.name, self.x, self.y, self.face_dir, self.vx = name, x, y, face_dir, vx
+        self.time = 0.0
+        self.burst = False
+
+    def frame(self):
+        a, b = config.CORPSE_FRAMES
+        return self.name, 1 if self.time < a else 2 if self.time < b else 3
+
+    def update(self, dt):
+        self.time += dt
+        self.x += self.vx * dt
+        self.vx *= max(0.0, 1.0 - 9.0 * dt)               # 밀려나던 힘이 줄어든다
+        if not self.burst and self.time >= config.CORPSE_TIME:
+            self.burst = True
+            effects.spawn('death-burst', self.x, self.y + 20, duration=0.45)
+        if self.time >= config.CORPSE_TIME + config.CORPSE_FADE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        name, n = self.frame()
+        fade = max(0.0, self.time - config.CORPSE_TIME) / config.CORPSE_FADE
+        sprites.draw(name, n, int(self.x), int(self.y), self.face_dir, alpha=max(0.0, 1.0 - fade))

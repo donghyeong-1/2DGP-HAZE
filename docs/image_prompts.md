@@ -252,3 +252,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-19 [Codex] T23 N-09 궁극기 컷인·시전 2장. v3b 마스터를 참조해 흰 머리·청록 눈빛·해진 상의의 오른쪽 클로즈업과 기술명 여백이 있는 사선 띠, 웅크려 모으기→앞으로 내지르기를 요청했다. 시전은 머리 비율과 해방 높이를 1회 편집. Codex 내장 image_gen(모델명 미제공). 전문은 assets/sprites/forge/cutin_v1/actual_prompt.txt와 n09_ult_v1/{take_01_prompt.txt,actual_prompt.txt}.
 
 2026-11-21 [Codex] T24 N-09 철파이프 2단계 강화 6장. v3b 마스터를 참조해 웅크림→수평→머리 위 올려베기, 두 손을 머리 위로 든 체공→45° 하강→깊게 내딛는 바닥 타격을 요청했다. 마지막 컷은 손 높이와 파이프 접촉을 강조해 1회 재생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/n09_stage2_v1/raw/*_prompt.txt.
+
+2026-11-21 [Codex] T25 일반 적 4종의 피격 반동 및 쓰러짐 16장. 각 종의 대기 원화와 기존 피격 ①을 참조해 앞발 들기, 무릎 꺾임, 무릎 또는 어깨가 닿고 바닥에 누움을 요청했다. 사냥개는 옆구리와 주둥이를 바닥에 댄 컷을 별도 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/enemy_death_v1/<종류>/actual_prompt.txt 및 hound/flat_prompt.txt.

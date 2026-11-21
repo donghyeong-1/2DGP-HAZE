@@ -82,6 +82,32 @@ def test_clearing_a_room_slows_time_longer_for_a_boss():
     assert effects.slow_left > normal                       # 보스를 쓰러뜨리면 더 길게
 
 
+# ----- Codex T25: 피격 2장, 쓰러지는 3장 (11/21) -----
+def test_hurt_pose_alternates_two_frames():
+    room, p, e = _foe('slum')
+    e.take_damage(1, from_x=p.x)
+    assert e._body_frame() == ('enemy_slum_hurt', 1)
+    tc.step(7)
+    assert e._body_frame() == ('enemy_slum_hurt', 2)                   # 뒤로 더 젖혀 비틀
+
+
+def test_killed_enemy_collapses_then_scatters():
+    import game_world
+    import sprites
+    for kind in ('slum', 'thrower', 'hound', 'guard'):
+        assert sprites.count(f'enemy_{kind}_death') == 3 and sprites.count(f'enemy_{kind}_hurt') == 2, kind
+    room, p, e = _foe('slum')
+    e.hp = 1
+    assert e.take_damage(5, from_x=p.x)
+    corpses = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'Corpse']
+    assert len(corpses) == 1 and corpses[0].frame() == ('enemy_slum_death', 1)
+    c = corpses[0]
+    tc.step(30)
+    assert c.frame() == ('enemy_slum_death', 3)                         # 쓰러져 누워 있다
+    tc.step(int(config.CORPSE_TIME * 60) + 10)
+    assert c not in game_world.world[game_world.LAYER_EFFECT]           # 헤이즈로 흩어져 사라진다
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

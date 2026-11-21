@@ -1,0 +1,71 @@
+{
+  "canvas": [
+    127,
+    113
+  ],
+  "anchor": [
+    68,
+    109
+  ],
+  "old_hurt_anchor": [
+    39,
+    118
+  ],
+  "source_scales": [
+    0.97,
+    0.97,
+    0.97,
+    0.97
+  ],
+  "source_root_x": [
+    315,
+    905,
+    284,
+    950
+  ],
+  "colors_union": 41,
+  "flat_height_px": 20,
+  "flat_limit_px": 39,
+  "frames": {
+    "hurt-2": {
+      "bounds": [
+        29,
+        4,
+        95,
+        109
+      ],
+      "colors": 41,
+      "y_adjustment_px": 0
+    },
+    "death-1": {
+      "bounds": [
+        32,
+        16,
+        103,
+        109
+      ],
+      "colors": 40,
+      "y_adjustment_px": 0
+    },
+    "death-2": {
+      "bounds": [
+        32,
+        50,
+        110,
+        109
+      ],
+      "colors": 39,
+      "y_adjustment_px": 0
+    },
+    "death-3": {
+      "bounds": [
+        4,
+        89,
+        123,
+        109
+      ],
+      "colors": 41,
+      "y_adjustment_px": 0
+    }
+  }
+}

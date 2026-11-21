@@ -1,0 +1,72 @@
+{
+  "task": "T25",
+  "date_kst": "2026-11-21",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "process": "generate2dsprite 0.5.0",
+  "finish": "project finish_character.py (hibit, --like)",
+  "generated": [
+    {
+      "species": "slum",
+      "reference": "assets/sprites/forge/remake_t01_t03/enemy_slum/master/master_rgba.png",
+      "source": "slum/source_sheet.png",
+      "prompt": "slum/actual_prompt.txt",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "sha256": "ff5f638c1d9d68e16081926239e859a554f6c2bc48acad547dd69d628abca9a9",
+      "selected": "accepted"
+    },
+    {
+      "species": "thrower",
+      "reference": "assets/sprites/forge/remake_t01_t03/enemy_thrower/master/master_rgba.png",
+      "source": "thrower/source_sheet.png",
+      "prompt": "thrower/actual_prompt.txt",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "sha256": "52d17753261c7ebdd75449331958abcfdd77b327e44e31509fe343df19dae11d",
+      "selected": "accepted"
+    },
+    {
+      "species": "guard",
+      "reference": "assets/sprites/forge/remake_t01_t03/enemy_guard/master/master_rgba.png",
+      "source": "guard/source_sheet.png",
+      "prompt": "guard/actual_prompt.txt",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "sha256": "0902f3d638fbdfd6f29689bad8717811fdfcffa71ce8feaa93fc126c2930f2fa",
+      "selected": "accepted"
+    },
+    {
+      "species": "hound",
+      "reference": "assets/sprites/forge/remake_t01_t03/enemy_hound_fit/master/master_rgba.png",
+      "source": "hound/source_sheet.png",
+      "prompt": "hound/actual_prompt.txt",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "sha256": "a8fbb278cada33b07cb2bdae9dd060481db74304a5dcd4e78b272017f7af474d",
+      "selected": "first-three-poses"
+    },
+    {
+      "species": "hound",
+      "reference": "assets/sprites/forge/remake_t01_t03/enemy_hound_fit/master/master_rgba.png",
+      "source": "hound/flat_source.png",
+      "prompt": "hound/flat_prompt.txt",
+      "source_size": [
+        2172,
+        724
+      ],
+      "sha256": "ae3c1753924fafb9470751c8d35f85cb78f2c089247a71bb1ced39eac2f5d465",
+      "selected": "death-3"
+    }
+  ]
+}

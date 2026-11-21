@@ -1,0 +1,346 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_thrower_death_v1",
+  "character": "enemy_thrower_remake",
+  "role": null,
+  "source": {
+    "frames": "../../frames_raw",
+    "count": 4,
+    "size": [
+      920,
+      710
+    ],
+    "pattern": "*.png",
+    "registration": null
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 302,
+    "feetPx": 660,
+    "heightPx": 358,
+    "areaPx": 48779,
+    "stanceX": 431.5,
+    "centroid": [
+      404.0842883207938,
+      486.4122163225978
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    431.5,
+    660.0
+  ],
+  "scale": 0.2574468085106383,
+  "scaleSource": "scale-ref",
+  "targetHeight": 94.1659574468085,
+  "scaleRef": {
+    "path": "../remake_t01_t03/finished/enemy_thrower_remake/finish.json",
+    "sha256": "db868a9a7d0ce7e847e02aabf285747c7f97c2cc515491c18774ffcde663f5b9",
+    "bytes": 7333,
+    "clip": "enemy_thrower_remake",
+    "character": "enemy_thrower_remake",
+    "scale": 0.2574468085106383,
+    "restAreaPx": 47293.0,
+    "areaRatio": 1.031421,
+    "correction": 0.98465,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    121,
+    107
+  ],
+  "anchor": [
+    61,
+    106
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      121,
+      107
+    ],
+    "sourceAnchor": [
+      61,
+      106
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 94.166,
+    "areaPx": 3233.016,
+    "bodyHeightPx": 92.166,
+    "outlinePx": 1,
+    "measuredHeightPx": 94,
+    "measuredAreaPx": 3772
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.2574468085106383,
+      "size": [
+        121,
+        107
+      ],
+      "anchor": [
+        61,
+        106
+      ],
+      "targetHeight": 94.1659574468085,
+      "flicker": {
+        "pairs": 3,
+        "alphaFlipsPerPair": 3604.333,
+        "indexFlipsPerPair": 827.0,
+        "noiseFlipsPerPair": 44.333,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../remake_t01_t03/finished/enemy_thrower_remake/palette.json",
+    "sha256": "61b1666e64239c419a76173f46b106b016c89b94e470332098e525fadfdc6aa2",
+    "bytes": 1901,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 1496,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 41,
+    "noiseFlipReduction": 0.0764,
+    "plainMajority": {
+      "pairs": 3,
+      "alphaFlipsPerPair": 3615.333,
+      "indexFlipsPerPair": 829.0,
+      "noiseFlipsPerPair": 48.0,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 31,
+    "lonePixelsFixed": 725
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/death-1.png",
+      "sha256": "02c68a3d2a2bbd73d101a798a7e22a5686cce6c9c04eceaf89e00f12a40dd9ca",
+      "sourceFile": "death-1.png",
+      "sourceSha256": "cf10986d85a83f089c84dd83d024ec9eb975625ae068a769d644204a7274e320",
+      "opaquePx": 3772
+    },
+    {
+      "file": "frames/death-2.png",
+      "sha256": "c1c8ce9774d3a693d101b621863089eff9eeeff8219f58333878f6d6ad57f2ca",
+      "sourceFile": "death-2.png",
+      "sourceSha256": "46a4127ab9f4a574dd8729ac4a0307518e8fda6ed9c1edc0d832cd7a55c76918",
+      "opaquePx": 3489
+    },
+    {
+      "file": "frames/death-3.png",
+      "sha256": "7c623adaeef98a854df0e21fe2583c590a4659f3259e257015cf22c63abf0dba",
+      "sourceFile": "death-3.png",
+      "sourceSha256": "579affcfb59143fb457ed869e1b47a8d3f9b81cbe1b0852a5078d0d68f219a03",
+      "opaquePx": 2105
+    },
+    {
+      "file": "frames/hurt-2.png",
+      "sha256": "fb97a6a1142e22c7a5c2738cfbc93b9ddf2d574689146f1211e6d44da45d3ebe",
+      "sourceFile": "hurt-2.png",
+      "sourceSha256": "894e469bf9935aba8a18b648e72d287258bb72c85a2d1d1525ea61f66b635b85",
+      "opaquePx": 3631
+    }
+  ],
+  "flicker": {
+    "pairs": 3,
+    "alphaFlipsPerPair": 3604.333,
+    "indexFlipsPerPair": 827.0,
+    "noiseFlipsPerPair": 44.333,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 49,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "qa": {
+    "status": "warn",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.257447,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.166,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 3,
+          "alphaFlipsPerPair": 3604.333,
+          "indexFlipsPerPair": 827.0,
+          "noiseFlipsPerPair": 44.333,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "warn",
+        "value": 3.884,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 41,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 41
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 44.333,
+          "perFrameNearest": 48.0,
+          "reduction": 0.0764
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../../frames_raw/death-1.png",
+        "sha256": "cf10986d85a83f089c84dd83d024ec9eb975625ae068a769d644204a7274e320"
+      },
+      {
+        "path": "../../frames_raw/death-2.png",
+        "sha256": "46a4127ab9f4a574dd8729ac4a0307518e8fda6ed9c1edc0d832cd7a55c76918"
+      },
+      {
+        "path": "../../frames_raw/death-3.png",
+        "sha256": "579affcfb59143fb457ed869e1b47a8d3f9b81cbe1b0852a5078d0d68f219a03"
+      },
+      {
+        "path": "../../frames_raw/hurt-2.png",
+        "sha256": "894e469bf9935aba8a18b648e72d287258bb72c85a2d1d1525ea61f66b635b85"
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_thrower_remake/finish.json",
+        "sha256": "db868a9a7d0ce7e847e02aabf285747c7f97c2cc515491c18774ffcde663f5b9",
+        "bytes": 7333
+      },
+      {
+        "path": "../remake_t01_t03/finished/enemy_thrower_remake/palette.json",
+        "sha256": "61b1666e64239c419a76173f46b106b016c89b94e470332098e525fadfdc6aa2",
+        "bytes": 1901
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/death-1.png",
+        "sha256": "02c68a3d2a2bbd73d101a798a7e22a5686cce6c9c04eceaf89e00f12a40dd9ca",
+        "bytes": 4883
+      },
+      {
+        "path": "frames/death-2.png",
+        "sha256": "c1c8ce9774d3a693d101b621863089eff9eeeff8219f58333878f6d6ad57f2ca",
+        "bytes": 4359
+      },
+      {
+        "path": "frames/death-3.png",
+        "sha256": "7c623adaeef98a854df0e21fe2583c590a4659f3259e257015cf22c63abf0dba",
+        "bytes": 2699
+      },
+      {
+        "path": "frames/hurt-2.png",
+        "sha256": "fb97a6a1142e22c7a5c2738cfbc93b9ddf2d574689146f1211e6d44da45d3ebe",
+        "bytes": 4750
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "56db6c56039a47c3bae463aca1b8e751a3565b3f8ca2b9ff02fd112dc123a4af",
+        "bytes": 41958
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

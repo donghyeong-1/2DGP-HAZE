@@ -3,10 +3,10 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T25 일반 적 4종 사망·피격 동작 / 수정 중인 파일: assets/sprites/forge/enemy_death_v1/, docs/codex/reports/T25.md
+- [Codex] T26 식칼·건틀릿·사슬 전용 공격 자세 / 수정 중인 파일: assets/sprites/forge/n09_weapon_poses_v1/, docs/codex/reports/T26.md
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(305개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(312개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -22,8 +22,8 @@
 
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
-2. [ ] **(Codex) T25 → T29** (T24 11/21 적용) (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
-3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1단계 1-5~1-7은 11/21 완료): 2-2 빛·안개 덧칠, 2-3 스테이지별 음악·환경음, 2-4 방 구성·정예 적, 2-5 처음 하는 사람 안내, 2-6 게임패드·키 설정. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
+2. [ ] **(Codex) T26 → T29** (T24·T25 11/21 적용) (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
+3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3 곡은 11/21 완료): 2-3 환경음, 2-4 방 구성·정예 적, 2-5 처음 하는 사람 안내, 2-6 게임패드·키 설정. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 `docs/ASSETS.md`에 (최종 제출 전 필수).
 5. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 체크리스트(`docs/script_2nd.md`).
 6. [ ] **(Claude Code, 날짜가 정해지면)** 3차 발표 자료·대본·데모 촬영. 바탕은 `docs/changes_from_plan.md`.
@@ -181,3 +181,5 @@
 2026-11-20 [Claude Code] 궁극기 광역화(범위 절반·ult-nova 이펙트·무거운 소리), 철파이프 2단계 올려베기->내려찍기, 페이드 점프 공격 앞쪽만, 설정 해상도·마우스 가두기(display.py), 퀄리티 상승 계획·Codex T24~T29, 테스트 7개(297개) / src/(weapon, config, effects, options, options_mode, display, main).py, tools/(make_fx, make_sfx).py, assets/effects/ult-nova.*, assets/sfx/*, tests/(test_combat, test_ultimate, test_options).py, docs/(quality_plan, PROGRESS, DECISIONS, changes_from_plan).md, docs/codex/(TASKS.md, tasks/T24~T29)
 2026-11-21 [Codex] T24 철파이프 2단계 올려베기·내려찍기 6장 제작과 1배 검증 완료(검토 대기) / assets/sprites/forge/n09_stage2_v1/, docs/codex/reports/T24.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-21 [Claude Code] Codex T24 검토·적용(2단계 올려베기·내려찍기 6장, 피해를 바닥 타격 그림에 맞춤), 피격 반응(흰 번쩍임·무게별 밀림·마지막 적 슬로 모션), 무기별 궁극기 폭발 4종, 무기별 명중음·적 예고음·음량 균형(효과음 40종), 테스트 305개 / src/(weapon, player, sprites, enemy, boss, ark, effects, assets, play_mode, config, credits_mode).py, tools/(make_fx, make_sfx).py, assets/sprites/unified/n09_s2*, assets/effects/ult-nova-*, assets/sfx/*, tests/(test_feel, test_ultimate, test_sfx).py, docs/*
+2026-11-21 [Codex] T25 일반 적 4종 사망 12장·피격 4장과 1배 비교 제작, 접지·높이·알파 검증(검토 대기) / assets/sprites/forge/enemy_death_v1/, docs/codex/reports/T25.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-21 [Claude Code] Codex T25 검토·적용(적 피격 2장·쓰러짐 3장, 시체가 쓰러졌다 흩어짐), 화면 분위기(구간 색·비네트·흐르는 안개), 스테이지별 음악 3곡(factory·tower·hideout), 테스트 312개 / src/(atmosphere, enemy, sprites, play_mode, config, credits_mode).py, tools/(make_atmosphere, make_music).py, assets/(ui/vignette, backgrounds/fog_strip, music/*, sprites/unified/enemy_*), tests/(test_atmosphere, test_feel, test_sfx, test_combat, test_sprites).py, docs/*

@@ -364,6 +364,10 @@ ENEMY_WEIGHT = {'hound': 0.7, 'slum': 1.0, 'thrower': 1.0, 'guard': 1.8}   # 클
 KNOCK_BIG = 1.8              # 큰 공격(3타·강화·궁극기 마지막 등 big=True)의 밀림 배율
 SLOW_CLEAR = (0.45, 0.35)    # 방의 마지막 적을 쓰러뜨렸을 때 슬로 모션 (실제 시간 초, 시간 배율)
 SLOW_BOSS = (1.1, 0.25)      # 보스를 쓰러뜨렸을 때
+# 쓰러짐 (Codex T25): 쓰러지는 3장 -> 누워 있다가 헤이즈 조각으로 흩어진다
+CORPSE_FRAMES = (0.09, 0.22)  # 1번 -> 2번, 2번 -> 3번이 되는 시간(초)
+CORPSE_TIME = 0.9             # 누워 있는 데까지 (그 뒤 흩어지며 사라진다)
+CORPSE_FADE = 0.35            # 흩어지며 사라지는 시간
 ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard'}
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
 # 표에 없는 소리는 1.0

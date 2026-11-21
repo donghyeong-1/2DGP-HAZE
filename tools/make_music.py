@@ -8,6 +8,9 @@
   explore  어두운 탐험·전투 (100 BPM, 16마디, D단조: Dm Dm Bb C / Dm Dm Gm A)
   boss     몰아치는 보스전 (140 BPM, 16마디). 크래셔
   ark      최종 보스 아크 (126 BPM, 16마디, D 프리지안: 반음 위 Eb가 불안하게 끌어당긴다)
+  factory  스테이지 2 공장 (112 BPM, 16마디, G단조: 쇠 두드리는 타악과 8분음표 베이스, 기계처럼 반복)
+  tower    스테이지 3 탑 (88 BPM, 16마디, C단조: 합창 패드와 종 선율, 성긴 북 = 높고 차가운 곳)
+  hideout  은신처 (80 BPM, 16마디, F장조: 따뜻한 패드와 뜯는 소리, 쉬어 가는 곳)
 사용: python tools/make_music.py [곡 이름 ...]
 """
 import os
@@ -33,6 +36,8 @@ CHORDS = {
     'Dm': ('D', ['D', 'F', 'A']), 'Bb': ('Bb', ['Bb', 'D', 'F']), 'C': ('C', ['C', 'E', 'G']),
     'Gm': ('G', ['G', 'Bb', 'D']), 'A': ('A', ['A', 'C#', 'E']), 'F': ('F', ['F', 'A', 'C']),
     'Eb': ('Eb', ['Eb', 'G', 'Bb']), 'Cm': ('C', ['C', 'Eb', 'G']),
+    'D': ('D', ['D', 'F#', 'A']), 'Ab': ('G#', ['G#', 'C', 'Eb']), 'Fm': ('F', ['F', 'G#', 'C']),
+    'G': ('G', ['G', 'B', 'D']),
 }
 
 
@@ -242,7 +247,87 @@ def ark():
     s.save('ark', 0.74)
 
 
-SONGS = {'title': title, 'explore': explore, 'boss': boss, 'ark': ark}
+def clank(seed):
+    """쇠를 두드리는 소리 (서로 맞지 않는 배음 + 짧은 잡음)."""
+    sec = 0.18
+    t = t_axis(sec)
+    rng = np.random.default_rng(seed)
+    out = sum(np.sin(2 * np.pi * f * t) * a for f, a in ((523, 0.6), (871, 0.45), (1297, 0.3), (1960, 0.2)))
+    return (out + rng.uniform(-1, 1, len(t)) * 0.4) * np.exp(-t * 24)
+
+
+def factory():
+    """스테이지 2 공장: 쇠 타악과 끊임없이 도는 8분음표 베이스 (기계)."""
+    s = Song(112, 16)
+    prog = ['Gm', 'Gm', 'Eb', 'F', 'Gm', 'Gm', 'Eb', 'D'] * 2
+    bar_sec = 16 * s.step
+    for b, ch in enumerate(prog):
+        root = hz(CHORDS[ch][0], 2)
+        s.add(s.at(b, 0), pad(chord_freqs(ch, 3), bar_sec * 1.05), 0.22)
+        for st in range(0, 16, 2):                           # 8분음표 베이스, 두 번째 박마다 옥타브 위
+            s.add(s.at(b, st), bass(root * (2 if st % 8 == 4 else 1), s.step * 1.7), 0.48)
+        for st in (0, 4, 8, 12):
+            s.add(s.at(b, st), kick(), 0.8)
+        for st in (2, 6, 10, 14):                            # 엇박의 쇳소리 (피스톤)
+            s.add(s.at(b, st), clank(b * 16 + st), 0.20)
+        s.add(s.at(b, 12), snare(), 0.32)
+        for st in range(1, 16, 2):
+            s.add(s.at(b, st), hat(), 0.08)
+        tones = chord_freqs(ch, 4)
+        for st in (0, 3, 6, 8, 11, 14):                      # 톱니처럼 맞물리는 아르페지오
+            s.add(s.at(b, st), pluck(tones[(st + b) % 3] * 2, s.step * 2), 0.11)
+        if b >= 8:                                           # 뒤 절반: 낮게 울리는 경적 같은 선율
+            s.add(s.at(b, 0), bell(tones[0], s.step * 10) * 0.8, 0.15)
+    s.save('factory', 0.72)
+
+
+def tower():
+    """스테이지 3 탑: 높고 차가운 곳. 합창 패드, 성긴 북, 메아리치는 종 선율."""
+    s = Song(88, 16)
+    prog = ['Cm', 'Ab', 'Eb', 'Bb', 'Cm', 'Ab', 'Fm', 'G'] * 2
+    bar_sec = 16 * s.step
+    melody = [('G', 5), ('Eb', 5), ('Bb', 4), ('D', 5), ('C', 5), ('Eb', 5), ('F', 5), ('D', 5)]
+    for b, ch in enumerate(prog):
+        root = hz(CHORDS[ch][0], 2)
+        s.add(s.at(b, 0), choir(chord_freqs(ch, 3), bar_sec * 1.1), 0.42)
+        s.add(s.at(b, 0), bass(root, bar_sec * 0.5), 0.36)
+        s.add(s.at(b, 8), bass(root, bar_sec * 0.4), 0.26)
+        s.add(s.at(b, 0), kick(), 0.55)
+        if b % 2 == 1:
+            s.add(s.at(b, 10), kick(), 0.4)
+        s.add(s.at(b, 8), snare(), 0.18)
+        name, octave = melody[b % 8]
+        s.add(s.at(b, 4), bell(hz(name, octave), 2.0), 0.24)
+        s.add(s.at(b, 10), bell(hz(name, octave) * 2, 1.4), 0.09)      # 메아리 (한 옥타브 위, 작게)
+        if b >= 8:
+            tones = chord_freqs(ch, 5)
+            for st in range(0, 16, 4):
+                s.add(s.at(b, st + 2), pluck(tones[(st // 4) % 3], s.step * 3), 0.08)
+    s.save('tower', 0.72)
+
+
+def hideout():
+    """은신처: 쉬어 가는 곳. 따뜻한 장조 패드와 느긋하게 뜯는 소리."""
+    s = Song(80, 16)
+    prog = ['F', 'C', 'Dm', 'Bb', 'F', 'C', 'Bb', 'C'] * 2
+    bar_sec = 16 * s.step
+    for b, ch in enumerate(prog):
+        root = hz(CHORDS[ch][0], 2)
+        s.add(s.at(b, 0), pad(chord_freqs(ch, 3), bar_sec * 1.1), 0.40)
+        s.add(s.at(b, 0), bass(root, s.step * 6), 0.34)
+        s.add(s.at(b, 10), bass(root * 1.5, s.step * 4), 0.22)
+        tones = chord_freqs(ch, 4)
+        for i, st in enumerate((0, 3, 6, 8, 11, 14)):        # 느긋하게 뜯는 아르페지오
+            s.add(s.at(b, st), pluck(tones[i % 3] * (2 if i >= 3 else 1), s.step * 4), 0.13)
+        for st in (4, 12):
+            s.add(s.at(b, st), hat(), 0.06)
+        if b >= 8 and b % 2 == 0:
+            s.add(s.at(b, 0), bell(tones[2] * 2, 2.5), 0.14)
+    s.save('hideout', 0.68)
+
+
+SONGS = {'title': title, 'explore': explore, 'boss': boss, 'ark': ark, 'factory': factory, 'tower': tower,
+         'hideout': hideout}
 
 
 def main():

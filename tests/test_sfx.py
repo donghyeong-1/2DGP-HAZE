@@ -38,8 +38,8 @@ def test_sound_is_silent_when_disabled():
 
 
 def test_music_files_loop_cleanly():
-    """배경음악 4곡: 20초 이상, 무음·클리핑 없음, 끝과 처음이 이어진다(반복 재생 이음매)."""
-    for name in ('title', 'explore', 'boss', 'ark'):
+    """배경음악 7곡: 20초 이상, 무음·클리핑 없음, 끝과 처음이 이어진다(반복 재생 이음매)."""
+    for name in ('title', 'explore', 'boss', 'ark', 'factory', 'tower', 'hideout'):
         path = os.path.join(ROOT, 'assets', 'music', name + '.wav')
         assert os.path.exists(path), name
         with wave.open(path, 'rb') as f:
@@ -184,6 +184,19 @@ def test_mix_keeps_frequent_sounds_quieter_than_big_moves():
         assert assets.sfx_gain(quiet) < 1.0, quiet          # 자주 나는 소리는 작게
     for loud in ('ult_cast', 'ult_final', 'overload', 'ark_roar'):
         assert assets.sfx_gain(loud) >= 1.0, loud           # 큰 기술은 줄이지 않는다
+
+
+def test_each_stage_and_the_hideout_have_their_own_music():
+    """2026-11-21 퀄리티 계획 2-3: 슬럼(탐험)·공장·탑·은신처가 다른 곡. 보스가 살아 있으면 보스 곡이 먼저."""
+    import play_mode
+
+    class FakeStage:
+        boss = None
+
+    for name, song in (('stage1', 'explore'), ('stage2', 'factory'), ('stage3', 'tower'), ('hideout', 'hideout')):
+        s = FakeStage()
+        s.name = name
+        assert play_mode.music_for(s) == song, (name, play_mode.music_for(s))
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

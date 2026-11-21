@@ -22,9 +22,11 @@ def test_every_frame_file_exists_and_pivot_is_inside():
         sizes = set()
         for n in range(1, count + 1):
             w, h = size_of(sprites.path(name, n))
-            sizes.add((w, h))
-            assert 0 < px < w and 0 < py <= h, (name, n, (w, h))
-        assert len(sizes) == 1, f'{name}: 프레임마다 캔버스가 다르다 {sizes}'      # 한 동작의 프레임은 캔버스가 같다
+            ax, ay = sprites.FRAME_ANCHOR.get((name, n), (px, py))       # 그림마다 기준점이 따로 있으면 그것 (T25 피격 2장째)
+            if (name, n) not in sprites.FRAME_ANCHOR:
+                sizes.add((w, h))
+            assert 0 < ax < w and 0 < ay <= h, (name, n, (w, h))
+        assert len(sizes) == 1, f'{name}: 프레임마다 캔버스가 다르다 {sizes}'      # 한 동작의 프레임은 캔버스가 같다 (기준점을 따로 둔 그림 빼고)
 
 
 def test_still_sprites_exist_for_every_enemy():

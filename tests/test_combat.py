@@ -965,6 +965,7 @@ def test_enemy_frames_follow_state():
     e.attack_time = e.stats['windup'] + e.stats['attack_time'] * 0.9
     assert e._body_frame() == ('enemy_slum_attack', 3)                    # 회복
     e.state = 'HIT'
+    e.hit_left = 0.18                                                     # 막 맞음: 움찔 (T25 이후 뒤 절반은 2장째)
     assert e._body_frame() == ('enemy_slum_hurt', 1)
     th = add_enemy('thrower', p.x + 500, room, p)
     th.state = 'ATTACK'
@@ -992,6 +993,7 @@ def test_hound_and_guard_use_move_specific_frames():
                 got, n = e._body_frame()
                 assert got == name and 1 <= n <= sprites.count(name), (kind, move, t, n)
         e.state = 'HIT'
+        e.hit_left = 0.18
         assert e._body_frame() == (f'enemy_{kind}_hurt', 1)
     h = add_enemy('hound', p.x + 300, room, p)
     h.state, h.move, h.attack_time = 'ATTACK', 'pounce', h._windup_time() + 0.1

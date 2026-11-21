@@ -26,12 +26,12 @@ FRAMES = {
     # 철파이프 2단계 강화 (Codex T24, 캔버스 171x168, 발 기준점 (70,161)): 올려베기 3장 -> 내려찍기 3장
     'n09_s2rise': (3, 70, 161), 'n09_s2slam': (3, 70, 161),
     # 슬럼 폐인, 고철 투척병
-    'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
-    'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124),
+    'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (2, 39, 118),
+    'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (2, 32, 124),
     # 사냥개, 간수 (Codex T12). 간수 걷기는 머리가 대기 그림보다 4px 앞에 있어 기준점을 3px 앞(43->46)으로 잡아 걷기 시작할 때 튀지 않게 한다
-    'enemy_hound_run': (4, 60, 83), 'enemy_hound_bite': (3, 50, 82), 'enemy_hound_pounce': (2, 69, 84), 'enemy_hound_hurt': (1, 46, 82),
+    'enemy_hound_run': (4, 60, 83), 'enemy_hound_bite': (3, 50, 82), 'enemy_hound_pounce': (2, 69, 84), 'enemy_hound_hurt': (2, 46, 82),
     'enemy_guard_walk': (4, 46, 136), 'enemy_guard_swing': (3, 57, 136), 'enemy_guard_heavy': (3, 68, 155),
-    'enemy_guard_bash': (2, 65, 118), 'enemy_guard_hurt': (1, 58, 136),
+    'enemy_guard_bash': (2, 65, 118), 'enemy_guard_hurt': (2, 58, 136),
     # 보스 크래셔
     'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3, 94, 246), 'boss_crasher_charge': (2, 100, 174),
     'boss_crasher_leap': (3, 114, 210), 'boss_crasher_hurt': (1, 96, 196),
@@ -50,6 +50,13 @@ STILL_FOOT_MARGIN = 1          # 정지 그림(번호 0)의 발 아래 투명 �
 # 프레임마다 그리는 위치를 조금 옮기는 보정 (dx: 앞쪽 +, dy: 위쪽 +), 단위 px.
 # AI가 장마다 따로 그린 그림은 몸통이 프레임마다 앞뒤로 흔들릴 수 있어, 재서 같은 자리에 맞춘다.
 # (주인공 걷기는 T17 v4b에서 머리 흔들림이 1.4px 안이라 보정이 필요 없어졌다.)
+# 일반 적 피격 2장째·쓰러짐 3장 (Codex T25): 캔버스가 피격 1장째와 달라 그림마다 기준점을 따로 둔다
+ENEMY_T25_ANCHOR = {'slum': (68, 109), 'thrower': (64, 109), 'guard': (69, 135), 'hound': (65, 87)}
+for _k, (_x, _y) in ENEMY_T25_ANCHOR.items():
+    FRAMES[f'enemy_{_k}_death'] = (3, _x, _y)
+# (이름, 번호) -> 이 그림만의 기준점 (FRAMES의 세트 기준점 대신)
+FRAME_ANCHOR = {(f'enemy_{_k}_hurt', 2): _a for _k, _a in ENEMY_T25_ANCHOR.items()}
+
 SHIFT = {
     # 맨손 자세는 프레임마다 발 위치가 다르게 그려져 있어 발을 같은 자리에 맞춘다 (발 가운데 x: 43.5, 36, 25, 36.5)
     ('n09_punch', 1): (-7, 0), ('n09_punch', 3): (11, 0),
@@ -71,6 +78,7 @@ def place(name, n, width, height, face_dir):
     if n == 0:
         return 0, STILL_FOOT_MARGIN
     _, px, py = FRAMES[name]
+    px, py = FRAME_ANCHOR.get((name, n), (px, py))
     py -= LIFT.get((name, n), 0)
     if face_dir < 0:                      # 좌우 반전하면 기준점이 반대편으로 간다
         px = width - 1 - px

@@ -1,4 +1,4 @@
-"""설정: 화면 흔들림 세기, 번쩍임 줄이기(접근성), 음악·효과음 크기, 해상도, 마우스 가두기. pico2d와 무관한 순수 로직이다.
+"""설정: 화면 흔들림 세기, 번쩍임 줄이기(접근성), 음악·효과음 크기, 해상도, 마우스 가두기, 키 설정(keybinds). pico2d와 무관한 순수 로직이다.
 (해상도·마우스 가두기를 실제 창에 적용하는 일은 display.apply가 한다.)
 
 값은 이번 실행 동안 유지되고, 바꿀 때마다 사용자 홈 폴더의 작은 파일(~/.haze_options.json)에 저장해
@@ -6,6 +6,8 @@
 """
 import json
 import os
+
+import keybinds
 
 SHAKE_LEVELS = (('끔', 0.0), ('약하게', 0.45), ('보통', 1.0))   # (이름, 흔들림 배율)
 PATH = os.path.join(os.path.expanduser('~'), '.haze_options.json')
@@ -101,6 +103,7 @@ def reset():
     shake_level, reduce_flash, show_hints = 2, False, True
     music_level = sfx_level = VOLUME_DEFAULT
     resolution, confine_mouse = RESOLUTION_DEFAULT, False
+    keybinds.reset()
 
 
 def load(path=None):
@@ -123,6 +126,7 @@ def load(path=None):
             resolution = v
         confine_mouse = bool(data.get('confine_mouse', confine_mouse))
         show_hints = bool(data.get('show_hints', show_hints))
+        keybinds.load_json(data.get('keys'))
     except (OSError, ValueError, TypeError, AttributeError):
         pass
 
@@ -132,7 +136,8 @@ def save(path=None):
         with open(path or PATH, 'w', encoding='utf-8') as f:
             json.dump({'shake_level': shake_level, 'reduce_flash': reduce_flash,
                        'music_level': music_level, 'sfx_level': sfx_level,
-                       'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints}, f)
+                       'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints,
+                       'keys': keybinds.to_json()}, f)
     except OSError:
         pass
 

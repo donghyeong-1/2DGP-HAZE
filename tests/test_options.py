@@ -94,9 +94,9 @@ def test_options_screen_shows_current_values():
     import options_mode
     options.reset()
     names = [n for n, _, _ in options_mode.lines()]
-    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기', '해상도', '마우스 가두기', '처음 안내']
+    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기', '해상도', '마우스 가두기', '처음 안내', '키 바꾸기']
     values = [v for _, v, _ in options_mode.lines()]
-    assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT), '1920x1080', '끔', '켬']
+    assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT), '1920x1080', '끔', '켬', '기본']
 
 
 def test_volume_levels_scale_config_volume_and_clamp():

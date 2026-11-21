@@ -17,7 +17,16 @@ MENU_TOP = 470                             # 첫 버튼의 위쪽 y
 MENU = [kit.Button(key, label, (W - BUTTON_W) // 2, MENU_TOP - BUTTON_H - i * (BUTTON_H + GAP), BUTTON_W, BUTTON_H)
         for i, (key, label) in enumerate((('start', '게임 시작'), ('options', '설정'), ('credits', '크레딧'),
                                            ('quit', '종료')))]
-CONTROLS = 'A D 이동   Space 점프   마우스 조준·좌클릭 공격   Shift·우클릭 대시   E 강화   Q 무기 바꾸기   F 상호작용'
+
+
+def controls_text():
+    """타이틀 아래 조작 줄. 키 이름은 키 설정을 따른다."""
+    import keybinds
+    k = lambda a: keybinds.label(a, first=True)  # noqa: E731
+    return (f'{k("left")} {k("right")} 이동   {k("jump")} 점프   마우스 조준·좌클릭 공격   {k("dash")}·우클릭 대시   '
+            f'{k("enhance")} 강화   {k("swap")} 무기 바꾸기   {k("interact")} 상호작용')
+
+
 selected = 0
 
 
@@ -85,7 +94,7 @@ def draw_frozen():
     for i, b in enumerate(MENU):
         b.draw(i == selected)
     kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)
-    kit.text(W // 2, 44, CONTROLS, (175, 190, 215), small=True, center=True)
+    kit.text(W // 2, 44, controls_text(), (175, 190, 215), small=True, center=True)
 
 
 def draw():

@@ -15,17 +15,26 @@ PANEL_W, PANEL_H = 1240, 600
 PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 MENU = [kit.Button(key, label, PANEL_X + 60, PANEL_Y + PANEL_H - 230 - i * 86, 380, 64)
         for i, (key, label) in enumerate((('resume', '계속하기'), ('options', '설정'), ('title', '타이틀로')))]
-CONTROLS = [
-    ('A  D', '좌우 이동'),
-    ('Space  W', '점프 (2단, 짧게 누르면 낮게)'),
-    ('S + Space', '얇은 발판 아래로'),
-    ('마우스', '조준'),
-    ('좌클릭', '공격 (3연타, 공중·대시 중 특수 공격)'),
-    ('Shift  우클릭', '대시 (아래로 겨누면 발판 통과)'),
-    ('E', '강화 일격 (게이지 25% 사용)'),
-    ('Q  1  2', '무기 바꾸기'),
-    ('F', '진열대 아이템 얻기·사기'),
-]
+
+
+def controls():
+    """(키, 설명) 목록. 키 이름은 키 설정(설정 > 키 바꾸기)을 따른다."""
+    import keybinds
+    k = keybinds.label
+    j = keybinds.label('jump').replace('/', '  ')
+    return [
+        (f'{k("left")}  {k("right")}', '좌우 이동'),
+        (j, '점프 (2단, 짧게 누르면 낮게)'),
+        (f'{k("down")} + {k("jump", first=True)}', '얇은 발판 아래로'),
+        ('마우스', '조준'),
+        ('좌클릭', '공격 (3연타, 공중·대시 중 특수 공격)'),
+        (f'{k("dash")}  우클릭', '대시 (아래로 겨누면 발판 통과)'),
+        (k('enhance'), '강화 일격 (게이지 25% 사용)'),
+        (f'{k("swap")}  {k("weapon1")}  {k("weapon2")}', '무기 바꾸기'),
+        (k('interact'), '진열대 아이템 얻기·사기'),
+    ]
+
+
 selected = 0
 
 
@@ -96,7 +105,7 @@ def draw():
     gx, gy = PANEL_X + 500, PANEL_Y + 40
     kit.panel('plate', gx, gy, PANEL_W - 540, PANEL_H - 80)
     kit.text(gx + 30, gy + PANEL_H - 130, '조작', (130, 235, 225))
-    for i, (key, what) in enumerate(CONTROLS):
+    for i, (key, what) in enumerate(controls()):
         y = gy + PANEL_H - 180 - i * 42
         kit.text(gx + 30, y, key, (255, 225, 140), small=True)
         kit.text(gx + 230, y, what, (200, 212, 232), small=True)

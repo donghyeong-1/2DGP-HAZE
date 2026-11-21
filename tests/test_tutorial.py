@@ -89,7 +89,8 @@ def test_hints_can_be_turned_off_in_options():
 
 
 def test_every_hint_has_a_title_and_short_lines():
-    for hid, (title, lines) in tutorial.HINTS.items():
+    for hid in tutorial.HINTS:
+        title, lines = tutorial.hint_text(hid)                    # 기본 키로 채운 글
         assert title and 1 <= len(lines) <= 3, hid
         assert all(len(line) <= 46 for line in lines), hid       # 한눈에 읽히게 짧게
 

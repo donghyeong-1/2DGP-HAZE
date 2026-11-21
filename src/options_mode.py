@@ -1,7 +1,7 @@
 """설정 창. 타이틀과 일시정지에서 위에 쌓아 연다(push_mode). Esc나 '돌아가기'로 닫는다.
 
 항목: 화면 흔들림(끔·약하게·보통), 번쩍임 줄이기(켬·끔), 음악 크기, 효과음 크기(0~10),
-      해상도(1280x720·1600x900·1920x1080·전체 화면), 마우스 가두기(켬·끔), 돌아가기.
+      해상도(1280x720·1600x900·1920x1080·전체 화면), 마우스 가두기(켬·끔), 처음 안내, 키 바꾸기(keys_mode 창), 돌아가기.
 키보드: W/S·위/아래로 항목, A/D·좌/우로 값, Enter·Space로 켜고 끄기·돌아가기.
 마우스: 칸을 누르면 그 값, 막대를 누르면 그 위치의 크기, 돌아가기 버튼.
 바꾸면 바로 적용되고 저장된다(options.save). 부품 그림은 hud_kit(판·막대·버튼).
@@ -18,20 +18,20 @@ import hud_kit as kit
 import options
 
 W, H = config.SCREEN_W, config.SCREEN_H
-ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'back')
+ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'keys', 'back')
 ROWS = ITEMS[:-1]
-ROW_STEP = 86
+ROW_STEP = 80
 PANEL_W, PANEL_H = 1180, 250 + ROW_STEP * len(ROWS)
 PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     # 항목 줄의 가운데 y
 VALUE_X = PANEL_X + 470                                          # 값 칸이 시작하는 x
 VALUE_W = 660
 NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
-         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내'}
+         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'keys': '키 바꾸기'}
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
          'music': '배경음악', 'sfx': '타격·발소리·경고음',
          'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게',
-         'hints': '처음 보는 상황에 짧은 안내판'}
+         'hints': '처음 보는 상황에 짧은 안내판', 'keys': '키보드 동작 키 (마우스는 그대로)'}
 SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints')
 back_button = kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 40, 360, 64)
 selected = 0
@@ -58,7 +58,21 @@ def resume():
 
 
 # ----- 값 바꾸기 -----
+def open_keys():
+    import keys_mode
+    game_framework.push_mode(keys_mode)
+
+
+def keys_summary():
+    import keybinds
+    return '기본' if keybinds.to_json() == keybinds.DEFAULTS else '바꿈'
+
+
 def change(item, step):
+    if item == 'keys':
+        if step > 0:
+            open_keys()
+        return
     if item == 'shake':
         options.set_shake(options.shake_level + step)
     elif item == 'flash':
@@ -102,6 +116,9 @@ def click(mx, my):
         if not (cy - 30 <= my <= cy + 30 and VALUE_X - 10 <= mx <= VALUE_X + VALUE_W + 10):
             continue
         selected = i
+        if item == 'keys':
+            open_keys()
+            return True
         if item in SEGMENTED:
             for value, _t, x, w in _segments(item):
                 if x <= mx < x + w + 8:
@@ -150,15 +167,17 @@ def handle_events():
                 selected = (selected - 1) % len(ITEMS)
             elif event.key in (SDLK_s, SDLK_DOWN):
                 selected = (selected + 1) % len(ITEMS)
-            elif event.key in (SDLK_a, SDLK_LEFT) and item != 'back':
+            elif event.key in (SDLK_a, SDLK_LEFT) and item not in ('back', 'keys'):
                 change(item, -1)
-            elif event.key in (SDLK_d, SDLK_RIGHT) and item != 'back':
+            elif event.key in (SDLK_d, SDLK_RIGHT) and item not in ('back', 'keys'):
                 change(item, 1)
             elif event.key in (SDLK_RETURN, SDLK_SPACE):
                 if item == 'back':
                     game_framework.pop_mode()
                     return
                 change(item, 1)
+                if item == 'keys':
+                    return
 
 
 def update():
@@ -175,6 +194,7 @@ def lines():
         (NAMES['resolution'], options.resolution_name(), DESCS['resolution']),
         (NAMES['confine'], '켬' if options.confine_mouse else '끔', DESCS['confine']),
         (NAMES['hints'], '켬' if options.show_hints else '끔', DESCS['hints']),
+        (NAMES['keys'], keys_summary(), DESCS['keys']),
     ]
 
 
@@ -191,7 +211,11 @@ def draw_panel():
             kit.panel('plate', PANEL_X + 30, cy - 42, PANEL_W - 60, 84)
         kit.text(PANEL_X + 60, cy + 12, NAMES[item], (235, 240, 250) if on else (160, 176, 205))
         kit.text(PANEL_X + 60, cy - 20, DESCS[item], (110, 125, 150), small=True)
-        if item in SEGMENTED:
+        if item == 'keys':
+            kit.panel('button_hot' if on else 'button', VALUE_X, cy - 26, VALUE_W - 8, 52)
+            kit.text(VALUE_X + (VALUE_W - 8) // 2, cy, f'키 바꾸기 ({keys_summary()})  >', (235, 245, 255) if on else (150, 165, 190),
+                     small=True, center=True)
+        elif item in SEGMENTED:
             current = current_of[item]
             for value, label, x, w in _segments(item):
                 hot = value == current
@@ -204,8 +228,17 @@ def draw_panel():
             kit.icon('ui_knob', kx, cy - 17)
             kit.text(VALUE_X + VALUE_W - 20, cy, str(level), (235, 245, 255), center=True)
     back_button.draw(selected == len(ROWS))
-    kit.text(W // 2, PANEL_Y - 26, 'W S 항목   A D 값 바꾸기   마우스로 눌러도 된다   Esc 돌아가기', (110, 125, 150), small=True,
+    kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)          # 아래 화면(타이틀 조작 줄)을 가린다
+    kit.text(W // 2, 44, 'W S 항목   A D 값 바꾸기   마우스로 눌러도 된다   Esc 돌아가기', (110, 125, 150), small=True,
              center=True)
+
+
+def draw_frozen():
+    """키 바꾸기 창이 아래에 깔 때: 아래 화면 + 설정 판."""
+    if _under is not None and hasattr(_under, 'draw_frozen'):
+        _under.draw_frozen()
+    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.6)
+    draw_panel()
 
 
 def draw():

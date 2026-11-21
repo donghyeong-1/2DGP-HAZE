@@ -323,36 +323,27 @@ class Player(TileBody):
 
     def handle_event(self, event):
         from pico2d import (SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,
-                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, SDLK_1, SDLK_2, SDLK_a, SDLK_d, SDLK_e, SDLK_f, SDLK_LSHIFT, SDLK_q, SDLK_s, SDLK_SPACE, SDLK_w,
-                            get_canvas_height)
-        if event.type == SDL_KEYDOWN:
-            if event.key == SDLK_a:
-                self.left = True
-            elif event.key == SDLK_d:
-                self.right = True
-            elif event.key == SDLK_s:
-                self.down = True
-            elif event.key in (SDLK_SPACE, SDLK_w):
-                self.request_jump()
-            elif event.key == SDLK_LSHIFT:
+                            SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, get_canvas_height)
+        import keybinds
+        if event.type in (SDL_KEYDOWN, SDL_KEYUP):
+            action = keybinds.action_for(event.key)          # 키 설정(설정 > 키 바꾸기)을 따른다
+            down = event.type == SDL_KEYDOWN
+            if action in ('left', 'right', 'down'):
+                setattr(self, action, down)
+            elif action == 'jump':
+                self.request_jump() if down else self.release_jump()
+            elif not down:
+                pass
+            elif action == 'dash':
                 self.request_dash()
-            elif event.key == SDLK_e:
+            elif action == 'enhance':
                 self.request_enhance()
-            elif event.key == SDLK_f:
-                self.interact_pressed = True   # 진열대 앞에서 F: stage가 처리한다
-            elif event.key == SDLK_q:
+            elif action == 'interact':
+                self.interact_pressed = True   # 진열대 앞에서 상호작용: stage가 처리한다
+            elif action == 'swap':
                 self.swap_weapon()
-            elif event.key in (SDLK_1, SDLK_2):
-                self.swap_weapon(0 if event.key == SDLK_1 else 1)
-        elif event.type == SDL_KEYUP:
-            if event.key == SDLK_a:
-                self.left = False
-            elif event.key == SDLK_d:
-                self.right = False
-            elif event.key == SDLK_s:
-                self.down = False
-            elif event.key in (SDLK_SPACE, SDLK_w):
-                self.release_jump()
+            elif action in ('weapon1', 'weapon2'):
+                self.swap_weapon(0 if action == 'weapon1' else 1)
         elif event.type == SDL_MOUSEMOTION:
             self.mouse_screen = (event.x, get_canvas_height() - 1 - event.y)
             self._sync_mouse()

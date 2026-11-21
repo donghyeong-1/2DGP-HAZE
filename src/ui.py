@@ -152,7 +152,7 @@ class GameUI:
         self._draw_weapon_meter(rx + 4, ay)
         ex = rx + 130
         if g.enhanced:                                           # 쌓인 단계 칸 + 풀리기까지 남은 시간
-            kit.icon('ui_key_e', ex, ay - 6)
+            self._enhance_key(ex, ay)
             for i in range(config.ENHANCE_MAX_LEVEL):
                 on = i < g.enhance_level
                 color = ((255, 200, 120) if g.enhance_level >= config.ENHANCE_MAX_LEVEL else (200, 150, 255)) if on else (50, 56, 80)
@@ -160,10 +160,11 @@ class GameUI:
                 assets.draw_rect_color(ex + 46 + i * 22, ay + 4, 12, 14, color)
             kit.bar('violet', ex + 116, ay + 5, 108, 12, g.enhance_timer / config.ENHANCE_TIME)
         elif g.can_enhance():
-            kit.icon('ui_key_e', ex, ay - 6)
+            self._enhance_key(ex, ay)
             kit.text(ex + 44, ay + 11, f'강화 일격 (-{config.ENHANCE_COST}%)', TEAL, small=True)
         else:
-            kit.text(ex, ay + 11, f'E 강화: 게이지 {g.enhance_min}%+', (110, 122, 148), small=True)
+            import keybinds
+            kit.text(ex, ay + 11, f'{keybinds.label("enhance", first=True)} 강화: 게이지 {g.enhance_min}%+', (110, 122, 148), small=True)
         ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)
         text, color = self._attack_text(w, g)                    # 지금 나가는 공격과 재충전 막대
         if g.enhanced and g.enhance_level >= config.ENHANCE_MAX_LEVEL:      # 다음 공격이 궁극기: 그 이름
@@ -179,6 +180,17 @@ class GameUI:
             bx, by = (W - bw) // 2, NOTICE_Y - 160
             kit.bar('yellow', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
             kit.text(W // 2, by + 34, f'기절 {p.gauge.stun_timer:.1f}s', (255, 240, 150), small=True, center=True)
+
+    def _enhance_key(self, ex, ay):
+        """강화 키 표시: 기본(E)이면 키 그림, 바꿨으면 키 이름 글자 (설정 > 키 바꾸기)."""
+        import keybinds
+        import sdl2
+        key = keybinds.keys('enhance')[0]
+        if key == sdl2.SDLK_e:
+            kit.icon('ui_key_e', ex, ay - 6)
+        else:
+            kit.panel('button', ex, ay - 6, 36, 34)
+            kit.text(ex + 18, ay + 11, keybinds.key_name(key)[:3], (235, 245, 255), small=True, center=True)
 
     def _draw_weapon_meter(self, x, y):
         """무기마다 다른 작은 표시: 철파이프 콤보 3칸, 건틀릿 충전, 사슬 끌 마릿수, 식칼 던질 개수."""

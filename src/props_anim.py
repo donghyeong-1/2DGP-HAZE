@@ -5,7 +5,9 @@
 - ceiling: 바로 위가 벽인 빈 칸 (천장에 매단다). 기준점 = 매다는 점.
 - floor:   바로 아래가 벽인 빈 칸 (바닥에 놓는다). 기준점 = 바닥에 닿는 점.
 - wall:    왼쪽이 벽인 빈 칸 (벽에서 오른쪽으로 뿜는다). 기준점 = 벽에 붙는 점.
-- back:    뒷벽에 거는 것 (톱니·환풍기). 기준점 = 가운데.
+- back:    벽에 거는 것 (톱니·환풍기·창·표지판). 천장 바로 아래에 붙이거나 왼쪽·오른쪽 벽에 붙인다.
+받침 규칙(2026-11-21 재검토): 바닥 것은 그림 밑 전체가 벽 위에, 천장 것은 그림 위 전체가 벽 아래에,
+벽 것은 위가 천장에 붙거나 옆이 그림 높이만큼 벽에 붙어야 한다(허공에 뜬 소품이 없게, _supported).
 그림 사각형이 덮는 칸은 모두 빈 칸이어야 하고, 문·스폰 근처(room.near_marker), 다른 장식, 먼저 놓은 소품과 겹치지 않는다.
 같은 방 이름이면 늘 같은 자리다(방 이름으로 정한 난수).
 """
@@ -18,7 +20,7 @@ FRAME_TIME = 0.12
 FRAMES = 4
 # 테마 -> 소품 3종. 황금방·정비방·보스방(gold, shop, boss)은 자기 소품만 쓴다.
 PROPS = {
-    'cell': ('drip', 'rag', 'bulb'),
+    'cell': ('rag', 'bulb'),       # drip은 관(천장)과 웅덩이(바닥)가 한 그림이라 방 높이에 맞출 수 없어 자동 배치에서 뺐다
     'foundry': ('steam', 'gear', 'piston'),
     'haze': ('crystal', 'searchlight', 'chain'),
     'hideout': ('brazier', 'anvil', 'fan'),
@@ -88,8 +90,41 @@ def _cells(room, left, bottom, w, h, pad=0):
     return {(c, r) for c in range(c0, c1 + 1) for r in range(r0, r1 + 1)}
 
 
+def _solid(room, col, row):
+    return room.tile_at(col, row) == '#'
+
+
+def _span_cols(left, w):
+    t = config.TILE
+    return range(int((left + MARGIN) // t), int((left + w - MARGIN) // t) + 1)
+
+
+def _span_rows(room, bottom, h):
+    return range(room.row_of(bottom + h - MARGIN), room.row_of(bottom + MARGIN) + 1)
+
+
+def _supported(room, prop, left, bottom):
+    """그림이 받침에 닿아 있는가 (받침 규칙)."""
+    w, h = SIZE[prop]
+    kind = KIND[prop]
+    t = config.TILE
+    if kind == 'floor':
+        below = room.row_of(bottom - 1)
+        return all(_solid(room, c, below) for c in _span_cols(left, w))
+    above = room.row_of(bottom + h + 1)
+    under_ceiling = all(_solid(room, c, above) for c in _span_cols(left, w))
+    if kind == 'ceiling':
+        return under_ceiling
+    rows = _span_rows(room, bottom, h)
+    on_left = all(_solid(room, int((left - 1) // t), r) for r in rows)
+    on_right = all(_solid(room, int((left + w + 1) // t), r) for r in rows)
+    if kind == 'wall':
+        return on_left
+    return under_ceiling or on_left or on_right
+
+
 def _spots(room, prop):
-    """이 소품을 기준점에 맞춰 놓을 수 있는 (left, bottom) 후보들."""
+    """이 소품을 놓을 수 있는 (left, bottom) 후보들 (받침 규칙을 지키는 것만)."""
     t = config.TILE
     kind = KIND[prop]
     ax, ay = ANCHOR[prop]
@@ -99,17 +134,23 @@ def _spots(room, prop):
         for col in range(1, room.cols - 1):
             if room.rows[row][col] != '.':
                 continue
-            if kind == 'ceiling' and room.rows[row - 1][col] == '#':
-                x, y = col * t + t // 2, room.height - row * t
-            elif kind == 'floor' and room.rows[row + 1][col] == '#':
-                x, y = col * t + t // 2, room.height - (row + 1) * t
-            elif kind == 'wall' and room.rows[row][col - 1] == '#':
-                x, y = col * t, room.height - row * t - t // 2
+            ceil_y = room.height - row * t                  # 이 칸 윗변 (위 칸이 벽이면 천장 밑면)
+            mid_y = ceil_y - t // 2
+            cands = []
+            if kind == 'ceiling' and _solid(room, col, row - 1):
+                cands.append((col * t + t // 2 - ax, ceil_y - (h - ay)))
+            elif kind == 'floor' and _solid(room, col, row + 1):
+                cands.append((col * t + t // 2 - ax, ceil_y - t - (h - ay)))
+            elif kind == 'wall' and _solid(room, col - 1, row):
+                cands.append((col * t - ax, mid_y - (h - ay)))
             elif kind == 'back':
-                x, y = col * t + t // 2, room.height - row * t - t // 2
-            else:
-                continue
-            out.append((x - ax, y - (h - ay)))
+                if _solid(room, col, row - 1):                      # 천장 바로 아래에 붙인다
+                    cands.append((col * t + t // 2 - w // 2, ceil_y - h + 3))
+                if _solid(room, col - 1, row):                      # 왼쪽 벽에 붙인다
+                    cands.append((col * t - 3, mid_y - h // 2))
+                if _solid(room, col + 1, row):                      # 오른쪽 벽에 붙인다
+                    cands.append(((col + 1) * t + 3 - w, mid_y - h // 2))
+            out += [c for c in cands if _supported(room, prop, *c)]
     return out
 
 

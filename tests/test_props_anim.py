@@ -24,7 +24,7 @@ COMBAT_ROOMS = ('arena_05', 'cover_04', 'crossing', 'hall_01', 'hub_cavern', 'pi
 def test_every_theme_has_three_props_with_four_same_size_frames():
     for theme in ('cell', 'foundry', 'haze', 'hideout'):
         names = props_anim.PROPS[theme]
-        assert len(names) == 3, theme
+        assert 2 <= len(names) <= 3, theme
         for name in names:
             sizes = {Image.open(os.path.join(ROOT, 'assets', 'props', f'{theme}_{name}_{i}.png')).size for i in (1, 2, 3, 4)}
             assert len(sizes) == 1, (theme, name, sizes)                 # 4장이 같은 캔버스 (기준점이 흔들리지 않게)
@@ -112,6 +112,49 @@ def test_static_decor_is_placed_clear_of_everything():
                     assert p.bottom % config.TILE == 0, p.name               # 바닥 소품의 밑줄이 바닥에 닿는다
     assert Room.load('gold_room', {'L'}, theme='gold').decor_props == []
     assert Room.load('hideout_room', set(), theme='hideout').decor_props == []
+
+
+# ----- 받침 규칙 (2026-11-21 지형 지물 배치 재검토): 소품은 무언가에 붙어 있어야 한다 -----
+def _cols(p):
+    t = config.TILE
+    return range(int((p.left + props_anim.MARGIN) // t), int((p.left + p.w - props_anim.MARGIN) // t) + 1)
+
+
+def _rows(room, p):
+    return range(room.row_of(p.bottom + p.h - props_anim.MARGIN), room.row_of(p.bottom + props_anim.MARGIN) + 1)
+
+
+def mounted(room, p):
+    """소품 그림이 받침에 닿아 있는가: 바닥 것은 밑 전체가 벽 위, 천장 것은 위 전체가 벽 아래,
+    벽 것(back·wall)은 위가 천장에 붙거나 옆이 벽에 붙는다."""
+    prop = p.name.split('_', 1)[1]
+    kind = props_anim.KIND[prop]
+    solid = lambda c, r: room.tile_at(c, r) == '#'          # noqa: E731
+    below = room.row_of(p.bottom - 1)
+    above = room.row_of(p.bottom + p.h + 1)
+    if kind == 'floor':
+        return all(solid(c, below) for c in _cols(p))
+    under_ceiling = all(solid(c, above) for c in _cols(p))
+    if kind == 'ceiling':
+        return under_ceiling
+    t = config.TILE
+    left_col, right_col = int((p.left - 1) // t), int((p.left + p.w + 1) // t)
+    on_left = all(solid(left_col, r) for r in _rows(room, p))
+    on_right = all(solid(right_col, r) for r in _rows(room, p))
+    return under_ceiling or on_left or on_right
+
+
+def test_every_prop_is_mounted_on_something():
+    for theme in ('cell', 'foundry', 'haze'):
+        for name in COMBAT_ROOMS + ('bridge_06', 'stairs_07', 'pillars_08', 'shaft_09', 'terrace_10', 'twin_11'):
+            room = Room.load(name, {'L', 'R', 'U', 'D'}, theme=theme)
+            for p in room.anim_props + room.decor_props:
+                assert mounted(room, p), (theme, name, p.name, p.left, p.bottom)
+
+
+def test_drip_is_not_auto_placed():
+    """물방울은 관(천장)과 웅덩이(바닥)가 한 그림이라 방 높이에 맞출 수 없다: 자동 배치에서 뺀다."""
+    assert 'drip' not in props_anim.PROPS['cell']
 
 
 if __name__ == '__main__':

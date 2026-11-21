@@ -38,6 +38,22 @@ def quit():
     running = False
 
 
+_pad_failed = False
+
+
+def _tick_gamepad(mode):
+    """게임패드(있으면): 플레이어를 움직이거나 메뉴 키를 넣는다. 패드 쪽 오류는 게임을 멈추지 않고 패드만 끈다."""
+    global _pad_failed
+    if _pad_failed:
+        return
+    try:
+        import gamepad
+        gamepad.tick(mode, frame_time)
+    except Exception as e:                       # 드라이버·SDL 버전 차이 등
+        _pad_failed = True
+        print('게임패드를 끕니다:', e)
+
+
 def run(start_mode, max_seconds=None):
     """max_seconds가 있으면 그 시간이 지난 뒤 자동으로 끝낸다 (개발용 실행 확인)."""
     global running, frame_time
@@ -52,6 +68,7 @@ def run(start_mode, max_seconds=None):
         if deadline and time.perf_counter() > deadline:
             break
         top = stack[-1]
+        _tick_gamepad(top)
         top.handle_events()
         top.update()
         top.draw()

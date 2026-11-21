@@ -1,0 +1,21 @@
+## zone_cell.png
+파일                                           캔버스        내용 WxH     반투명 색
+zone_cell.png                                (1920, 400) 1920x400        0 32
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+## zone_foundry.png
+파일                                           캔버스        내용 WxH     반투명 색
+zone_foundry.png                             (1920, 400) 1920x400        0 32
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+## zone_haze.png
+파일                                           캔버스        내용 WxH     반투명 색
+zone_haze.png                                (1920, 400) 1920x400        0 32
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+

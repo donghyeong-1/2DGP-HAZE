@@ -1,0 +1,78 @@
+{
+  "safe_strip": [
+    640,
+    0,
+    1280,
+    400
+  ],
+  "glyph_rgb": [
+    234,
+    241,
+    247
+  ],
+  "cards": {
+    "cell": {
+      "canvas": [
+        1920,
+        400
+      ],
+      "opaque_colors": 32,
+      "partial_alpha": 0,
+      "title": "슬럼",
+      "title_font_px": 42,
+      "title_bounds": [
+        921,
+        180,
+        997,
+        219
+      ],
+      "title_min_contrast": 11.85,
+      "safe_strip_min_contrast": 2.45,
+      "center_p95_luminance": 0.0122,
+      "sides_p95_luminance": 0.1248,
+      "sha256": "06cf08fe797353be9b5142785afb40e3b70dbabe7ee08a791cb192a1bfa38aad"
+    },
+    "foundry": {
+      "canvas": [
+        1920,
+        400
+      ],
+      "opaque_colors": 32,
+      "partial_alpha": 0,
+      "title": "공장",
+      "title_font_px": 42,
+      "title_bounds": [
+        920,
+        180,
+        1001,
+        219
+      ],
+      "title_min_contrast": 16.18,
+      "safe_strip_min_contrast": 10.42,
+      "center_p95_luminance": 0.0069,
+      "sides_p95_luminance": 0.074,
+      "sha256": "f0175cb633e6419594d3039415a63c28f8efffe52b3984a61384a3def6eed1c3"
+    },
+    "haze": {
+      "canvas": [
+        1920,
+        400
+      ],
+      "opaque_colors": 32,
+      "partial_alpha": 0,
+      "title": "감시자의 탑",
+      "title_font_px": 42,
+      "title_bounds": [
+        849,
+        180,
+        1073,
+        219
+      ],
+      "title_min_contrast": 13.69,
+      "safe_strip_min_contrast": 4.36,
+      "center_p95_luminance": 0.0143,
+      "sides_p95_luminance": 0.2302,
+      "sha256": "a88ea24c8b2cb6e25f96710b210c48141fa9f33de34dec310c9ae3e954463751"
+    }
+  }
+}

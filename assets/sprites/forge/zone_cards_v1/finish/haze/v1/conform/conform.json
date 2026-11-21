@@ -1,0 +1,84 @@
+{
+  "schema": "generate2dmap.conform.v1",
+  "tool": {
+    "name": "conform_background",
+    "version": "0.5.0"
+  },
+  "mode": "cover",
+  "source": {
+    "path": "../../../../source/haze_source.png",
+    "sha256": "5c78de5e4c7b35647c380652455204bd6b5e8f7ecaca3e5902087ac4834ab4a8",
+    "bytes": 1344757,
+    "size": [
+      2172,
+      724
+    ],
+    "source_mode": "RGB"
+  },
+  "output": {
+    "path": "background.png",
+    "sha256": "1f0696eeb0ece1e1850a0d5e78beeeb553307dd317788b7243fb6af376506237",
+    "bytes": 703462,
+    "size": [
+      1920,
+      400
+    ]
+  },
+  "transform": {
+    "scale": 0.8839779005524862,
+    "src_rect": [
+      0.0,
+      127.60499999999999,
+      2172.0,
+      580.105
+    ],
+    "out_size": [
+      1920,
+      400
+    ],
+    "resampler": "lanczos",
+    "focus": [
+      0.5,
+      0.47
+    ],
+    "map": "out = (src - src_rect[0:2]) * scale",
+    "inverse": "src = out / scale + src_rect[0:2]",
+    "zoom_vs_cover": 1.0,
+    "dropped_source_px": {
+      "left": 0.0,
+      "top": 127.60499999999999,
+      "right": 0.0,
+      "bottom": 143.89499999999998
+    }
+  },
+  "subjects": [],
+  "warnings": [],
+  "qa": {
+    "status": "pass",
+    "method": "conform_background: transform arithmetic (ImageOps.fit crop for cover), subject boxes mapped through it and measured against the output and its cover crops.",
+    "notProven": [
+      "The ground row is the one given; the tool does not find the painted ground in the art.",
+      "Cropping keeps the art's own perspective; a zoomed ground-fit can lose content at the edges (see dropped_source_px).",
+      "Subject and crop checks measure boxes only; look at the output at gameplay scale."
+    ],
+    "checks": [],
+    "inputs": [
+      {
+        "path": "../../../../source/haze_source.png",
+        "sha256": "5c78de5e4c7b35647c380652455204bd6b5e8f7ecaca3e5902087ac4834ab4a8",
+        "bytes": 1344757
+      }
+    ],
+    "outputs": [
+      {
+        "path": "background.png",
+        "sha256": "1f0696eeb0ece1e1850a0d5e78beeeb553307dd317788b7243fb6af376506237",
+        "bytes": 703462
+      }
+    ],
+    "tool": {
+      "name": "conform_background",
+      "version": "0.5.0"
+    }
+  }
+}

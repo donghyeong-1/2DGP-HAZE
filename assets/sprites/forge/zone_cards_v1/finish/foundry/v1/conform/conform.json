@@ -1,0 +1,84 @@
+{
+  "schema": "generate2dmap.conform.v1",
+  "tool": {
+    "name": "conform_background",
+    "version": "0.5.0"
+  },
+  "mode": "cover",
+  "source": {
+    "path": "../../../../source/foundry_source.png",
+    "sha256": "cd9016dd02674d817089510273004f877afefc834104c4ce06640c6e995269cf",
+    "bytes": 1325537,
+    "size": [
+      2172,
+      724
+    ],
+    "source_mode": "RGB"
+  },
+  "output": {
+    "path": "background.png",
+    "sha256": "27fcceaec3bb70a3710cb82b5af7975019fe5779d89dddb8ec368c1f68f36d3b",
+    "bytes": 717303,
+    "size": [
+      1920,
+      400
+    ]
+  },
+  "transform": {
+    "scale": 0.8839779005524862,
+    "src_rect": [
+      0.0,
+      236.205,
+      2172.0,
+      688.705
+    ],
+    "out_size": [
+      1920,
+      400
+    ],
+    "resampler": "lanczos",
+    "focus": [
+      0.5,
+      0.87
+    ],
+    "map": "out = (src - src_rect[0:2]) * scale",
+    "inverse": "src = out / scale + src_rect[0:2]",
+    "zoom_vs_cover": 1.0,
+    "dropped_source_px": {
+      "left": 0.0,
+      "top": 236.205,
+      "right": 0.0,
+      "bottom": 35.29499999999996
+    }
+  },
+  "subjects": [],
+  "warnings": [],
+  "qa": {
+    "status": "pass",
+    "method": "conform_background: transform arithmetic (ImageOps.fit crop for cover), subject boxes mapped through it and measured against the output and its cover crops.",
+    "notProven": [
+      "The ground row is the one given; the tool does not find the painted ground in the art.",
+      "Cropping keeps the art's own perspective; a zoomed ground-fit can lose content at the edges (see dropped_source_px).",
+      "Subject and crop checks measure boxes only; look at the output at gameplay scale."
+    ],
+    "checks": [],
+    "inputs": [
+      {
+        "path": "../../../../source/foundry_source.png",
+        "sha256": "cd9016dd02674d817089510273004f877afefc834104c4ce06640c6e995269cf",
+        "bytes": 1325537
+      }
+    ],
+    "outputs": [
+      {
+        "path": "background.png",
+        "sha256": "27fcceaec3bb70a3710cb82b5af7975019fe5779d89dddb8ec368c1f68f36d3b",
+        "bytes": 717303
+      }
+    ],
+    "tool": {
+      "name": "conform_background",
+      "version": "0.5.0"
+    }
+  }
+}

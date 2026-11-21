@@ -52,7 +52,7 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T30 | 투척병 걷기 4장 + 뒤로 물러서기 2장 | [T30_thrower_walk.md](tasks/T30_thrower_walk.md) | - | done·게임 적용 2026-11-21 (걷기 4장·뒷걸음 2장, 투척병이 거리를 유지하며 움직이게 됨) |
 | T31 | 테마별 방 장식 소품 18종 (멈춘 그림, 글자 없음) | [T31_room_decor.md](tasks/T31_room_decor.md) | - | done·게임 적용 2026-11-21 (`assets/decor/` 18종, 움직이는 소품 다음에 방마다 3개 자동 배치) |
 | T32 | 대화 초상화 8장 (주인공·NPC 3명 x 표정 2) | [T32_dialog_portraits.md](tasks/T32_dialog_portraits.md) | - | done·게임 적용 2026-11-21 (`assets/portraits/` 8장, NPC 창 양옆, 결과에 따라 표정) |
-| T33 | 구역 제목 카드 일러스트 3장 (1920x400) | [T33_zone_cards.md](tasks/T33_zone_cards.md) | - | in_progress |
+| T33 | 구역 제목 카드 일러스트 3장 (1920x400) | [T33_zone_cards.md](tasks/T33_zone_cards.md) | - | done·게임 적용 2026-11-21 (`backgrounds/zone_*`, 구역에 들어갈 때 띠가 열리고 구역 이름) |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.

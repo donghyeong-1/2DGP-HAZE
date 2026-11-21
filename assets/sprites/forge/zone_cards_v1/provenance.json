@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-21",
+  "art_source": "host_image",
+  "tool": "Codex 내장 image_gen",
+  "model": "모델명 미제공",
+  "cost_estimate_usd": null,
+  "skill": "generate2dmap 0.5.0 (MIT)",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "output_size": [
+    1920,
+    400
+  ],
+  "quiet_center_px": [
+    640,
+    0,
+    1280,
+    400
+  ],
+  "assets": {
+    "cell": {
+      "output": "zone_cell.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "takes": [
+        {
+          "path": "source/cell_v1_source.png",
+          "sha256": "c1bad1c0e063ad1db51f21e042de6f76868a3d3b74c19732adf9bbe071d93769",
+          "selected": false,
+          "references": [
+            "assets/backgrounds/far_cell.png",
+            "assets/backgrounds/screen_title.png"
+          ],
+          "prompt": "Create a single FULL-BLEED cinematic location illustration for an original side-scrolling industrial prison game called Haze. This art will be displayed as an ULTRA-WIDE, VERY SHORT 1920 by 400 (4.8:1) horizontal chapter-title strip across a 1080p game screen. Compose for that exact panoramic slit. If your output canvas must be taller, treat top and bottom as expendable bleed; CRITICAL LANDMARKS, foreground details and the skyline have to be readable inside the narrow center 4.8:1 crop. Render the entire image as one continuous authored environment. No frames, film bars, division, masthead, vignette frame, signage, lettering, numbers, logo, watermarks, people, creatures or characters. The first reference image gives this zone's existing color family and architecture. The second reference is the in-game title screen for brushless angular shape design and atmosphere only; ignore its character and composition. Reinterpret as a new narrative view of the same place. Clean lineless faceted flat painted shapes, disciplined shadows and reduced color vocabulary, 3 depth planes, thoughtful side-scrolling lighting. Shape highlights into hard broad planes, no fake dot matrix, repetitive micro-texture, dithering, photorealism, lens bloom, post-processing haze bands or clipped whites. The central vertical third (x=33%-67%) throughout the short banner is a natural quieter, darker part of the scene with very low local contrast, continuous dark scenery and ample room behind a centered white game title added later. Never draw the title, a dark rectangle or any border for it. Put the large recognizable silhouettes and brightest contrasting details into the left or right third, naturally opening toward the dark central space. The atmosphere must still feel rich, immersive, cinematic and readable.\nSLUM / exteriors after dark, very dark indigo slate and restrained dim cyan. At the far LEFT: heavy barred masonry, dripping drain pipes and damp chipped stone foreground reflecting a sliver of turquoise standing chemical haze pooled in a shallow broken pavement depression. Fine visible diagonal rain sparsely grouped against the dark wall and soft dark rain strikes in puddles. In the RIGHT third through the alley mouth (near x=78%): the clear distinctive distant silhouette of the Nebula Prison watchtower with a small guard cap and restrained cold lights, framed by distant block silhouettes. Make the street, rain, ground reflections AND tower roof fall into the narrow centered crop (small, not soaring out of frame). The central third is dark low-detail wet air and recessed alley masonry joining the sides, no foreground rays or obvious bright vanishing point. Close, claustrophobic, nocturnal."
+        },
+        {
+          "path": "source/cell_v2_source.png",
+          "sha256": "37711d5b163cdaa83dfb51615e212fe42b7ee1e572d73a90de66d5d5dad6bef0",
+          "selected": true,
+          "references": [
+            "source/cell_v1_source.png"
+          ],
+          "prompt": "Edit the attached 3:1 Haze rainy-slum panorama with ONE compositional adjustment, keeping its outstanding professional hard-edged angular shapes, palette, buildings, layout, rain and quiet dark center. The short final banner crops away the top and bottom. Move the actual storytelling landmarks into the safe middle height by lowering the distant tower roof and raising the visible wet ground plane at the same time. The watchtower roof peak including antenna should be around y=32% measured from the top (clearly below y=25%), on the same far-right side. Make that tower visibly distant and use a lower, slightly smaller silhouette. Place the distinct large FLAT turquoise puddle under the drainpipe at y=66–72% (not at the very bottom); show its reflection and two or three angular cyan water surfaces there, so the entire wet patch and tower remain visible together from y=24% to y=77%. Below it add believable darker near pavement as expendable spill. Above the landmarks keep taller dark masonry or sky as expendable spill. It is essential to see wet turquoise water as a concentrated chemical puddle at the left, rain, and the small prison tower at the far right in a fixed center crop. x=33–67% is naturally low-detail dark navy, so a later white title can be read. Everything remains full-bleed original location art. No text, letters, graphics, banners, silhouettes of people, bars, marked safe area or other framing. A single 3:1 image."
+        }
+      ],
+      "final_focus": [
+        0.5,
+        0.52
+      ]
+    },
+    "foundry": {
+      "output": "zone_foundry.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "takes": [
+        {
+          "path": "source/foundry_source.png",
+          "sha256": "cd9016dd02674d817089510273004f877afefc834104c4ce06640c6e995269cf",
+          "selected": true,
+          "references": [
+            "assets/backgrounds/far_foundry.png",
+            "assets/backgrounds/screen_title.png"
+          ],
+          "prompt": "Create a single FULL-BLEED cinematic location illustration for an original side-scrolling industrial prison game called Haze. This art will be displayed as an ULTRA-WIDE, VERY SHORT 1920 by 400 (4.8:1) horizontal chapter-title strip across a 1080p game screen. Compose for that exact panoramic slit. If your output canvas must be taller, treat top and bottom as expendable bleed; CRITICAL LANDMARKS, foreground details and the skyline have to be readable inside the narrow center 4.8:1 crop. Render the entire image as one continuous authored environment. No frames, film bars, division, masthead, vignette frame, signage, lettering, numbers, logo, watermarks, people, creatures or characters. The first reference image gives this zone's existing color family and architecture. The second reference is the in-game title screen for brushless angular shape design and atmosphere only; ignore its character and composition. Reinterpret as a new narrative view of the same place. Clean lineless faceted flat painted shapes, disciplined shadows and reduced color vocabulary, 3 depth planes, thoughtful side-scrolling lighting. Shape highlights into hard broad planes, no fake dot matrix, repetitive micro-texture, dithering, photorealism, lens bloom, post-processing haze bands or clipped whites. The central vertical third (x=33%-67%) throughout the short banner is a natural quieter, darker part of the scene with very low local contrast, continuous dark scenery and ample room behind a centered white game title added later. Never draw the title, a dark rectangle or any border for it. Put the large recognizable silhouettes and brightest contrasting details into the left or right third, naturally opening toward the dark central space. The atmosphere must still feel rich, immersive, cinematic and readable.\nFOUNDRY / interior of a huge rusty iron works. A cathedral-scale lattice of dark structural girders implied by the left and right thirds. On the LEFT near x=19% a furnace mouth throws an orange-red glow kept inside its massive dark housing, with stacked small slabs in shadow. On the RIGHT a wide diagonally receding conveyor with clear rollers, iron stock and a low valve emitting a compact pale copper-tinted steam plume from the machinery. An uninterrupted quiet dark central recess is a continuation of the building, with only a few dim low-contrast steel shapes behind the future white title. Steam should be unmistakable but never cross the central third brightly. Dominant deep brown-black and iron rust, furnace light amber-orange, not cyan. Keep the furnace aperture, conveyor and steam visible inside the short centered crop. Cinematic but no flames or sparks in the text area."
+        }
+      ],
+      "final_focus": [
+        0.5,
+        0.87
+      ]
+    },
+    "haze": {
+      "output": "zone_haze.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "takes": [
+        {
+          "path": "source/haze_source.png",
+          "sha256": "5c78de5e4c7b35647c380652455204bd6b5e8f7ecaca3e5902087ac4834ab4a8",
+          "selected": true,
+          "references": [
+            "assets/backgrounds/far_haze.png",
+            "assets/backgrounds/screen_title.png"
+          ],
+          "prompt": "Create a single FULL-BLEED cinematic location illustration for an original side-scrolling industrial prison game called Haze. This art will be displayed as an ULTRA-WIDE, VERY SHORT 1920 by 400 (4.8:1) horizontal chapter-title strip across a 1080p game screen. Compose for that exact panoramic slit. If your output canvas must be taller, treat top and bottom as expendable bleed; CRITICAL LANDMARKS, foreground details and the skyline have to be readable inside the narrow center 4.8:1 crop. Render the entire image as one continuous authored environment. No frames, film bars, division, masthead, vignette frame, signage, lettering, numbers, logo, watermarks, people, creatures or characters. The first reference image gives this zone's existing color family and architecture. The second reference is the in-game title screen for brushless angular shape design and atmosphere only; ignore its character and composition. Reinterpret as a new narrative view of the same place. Clean lineless faceted flat painted shapes, disciplined shadows and reduced color vocabulary, 3 depth planes, thoughtful side-scrolling lighting. Shape highlights into hard broad planes, no fake dot matrix, repetitive micro-texture, dithering, photorealism, lens bloom, post-processing haze bands or clipped whites. The central vertical third (x=33%-67%) throughout the short banner is a natural quieter, darker part of the scene with very low local contrast, continuous dark scenery and ample room behind a centered white game title added later. Never draw the title, a dark rectangle or any border for it. Put the large recognizable silhouettes and brightest contrasting details into the left or right third, naturally opening toward the dark central space. The atmosphere must still feel rich, immersive, cinematic and readable.\nTOWER / view toward its top from within a vertically imposing keep. Dominant dark blue-green and petroleum-black with selective cool cyan. A bold readable tiled stairway begins near the lower RIGHT and climbs diagonally toward an aperture or opening near the upper-right at x=80%, where blue-cyan light catches a broad rim and illuminates the upper steps. Large clusters of clear angular teal Haze crystals grow out of the stair edges and stone on the right; a second shorter subdued cluster and thick buttress frame the left. The light overhead and recognizable ascent should stay visible inside the central 4.8:1 crop. Opening stays away from horizontally central third. The center third is a dark continuous shaft surface crossed only by subtle low-contrast architectural ledges and deep distant fog, for a bright title. Mood of reaching a cold high summit, cool illumination strongest above the stair; no sun disk, text or anything humanoid."
+        }
+      ],
+      "final_focus": [
+        0.5,
+        0.47
+      ]
+    }
+  }
+}

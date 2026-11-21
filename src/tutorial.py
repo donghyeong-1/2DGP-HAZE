@@ -75,6 +75,9 @@ class Tutorial:
         return self.current
 
     def update_with(self, player, stage, dt):
+        import zone_card
+        if zone_card.showing:                      # 구역 제목 카드가 가운데를 덮는 동안은 기다린다
+            return
         if self.current is not None:
             self.left -= dt
             if self.left > 0:

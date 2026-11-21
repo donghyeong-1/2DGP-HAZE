@@ -47,6 +47,8 @@ def enter():
     from tutorial import Tutorial
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
     game_world.add_object(Tutorial(player, stage), game_world.LAYER_UI)     # 처음 안내판 (HUD 위에)
+    from zone_card import ZoneCard
+    game_world.add_object(ZoneCard(stage), game_world.LAYER_UI)             # 구역 제목 카드 (Codex T33, 맨 위)
     assets.play_music(music_for(stage))
 
 

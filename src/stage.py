@@ -363,8 +363,9 @@ class Stage:
 
     def start(self):
         self.enter_room(self.coord)
-        if self.title:
-            self._say(self.title)                        # 구역 이름을 띄운다
+        import zone_card
+        if self.title and zone_card.says_title(self.name):
+            self._say(self.title)                        # 구역 이름을 띄운다 (스테이지 1~3은 구역 제목 카드가 대신한다)
 
     def enemy_count(self):
         return sum(1 for e in game_world.world[game_world.LAYER_ENEMY] if e.alive)

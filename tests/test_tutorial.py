@@ -95,6 +95,24 @@ def test_every_hint_has_a_title_and_short_lines():
         assert all(len(line) <= 46 for line in lines), hid       # 한눈에 읽히게 짧게
 
 
+def test_hint_waits_while_zone_card_is_shown():
+    """구역 제목 카드(Codex T33)가 화면 가운데를 덮는 동안에는 안내판을 띄우지도, 시간을 줄이지도 않는다."""
+    import zone_card
+    fresh()
+    t = tutorial.Tutorial()
+    zone_card.showing = True
+    try:
+        assert shown(t, FakePlayer(), FakeStage('stage1'), seconds=1.0) is None
+    finally:
+        zone_card.showing = False
+    assert shown(t, FakePlayer(), FakeStage('stage1')) == 'gauge'     # 카드가 닫히면 뜬다
+    left = t.left
+    zone_card.showing = True
+    t.update_with(FakePlayer(), FakeStage('stage1'), 3.0)
+    zone_card.showing = False
+    assert t.left == left                                              # 덮여 있던 동안 줄지 않았다
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

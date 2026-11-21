@@ -14,6 +14,7 @@
 | 일반 적 4종 피격 2장째·쓰러짐 3장 | `assets/sprites/unified/enemy_<종류>_hurt_2.png`, `enemy_<종류>_death_1~3.png` | Codex T25 (내장 image_gen, `finish_character.py --like <적 마감본>`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 무기 전용 자세 10장 (식칼 3·건틀릿 4·사슬 3) | `assets/sprites/unified/n09_knife_1~3.png`, `n09_gauntlet_1~4.png`, `n09_chain_1~3.png` | Codex T26 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 투척병 걷기 4장·뒷걸음 2장 | `assets/sprites/unified/enemy_thrower_walk_1~4.png`, `enemy_thrower_back_1~2.png` | Codex T30 (내장 image_gen, 모델명 미제공, `finish_character.py --like enemy_thrower_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
+| 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | Codex T32 (내장 image_gen, 모델명 미제공) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 움직이는 배경 소품 12종 x 4장 | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
@@ -262,3 +263,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-21 [Codex] T31 assets/sprites/forge/room_decor_v1/<테마>/<소품>.png 정지 장식 18종. 프로젝트 자체 원경·중경·타일·T28 소품 참조. Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 마감기 0.5.0(MIT). 파일별 9~24색·이진 알파·1배. 사용 예정 위치는 슬럼·공장·탑 방의 바닥과 벽·천장. 출처·프롬프트 assets/sprites/forge/room_decor_v1/provenance.json. 검토 대기.
 
 2026-11-21 [Codex] T32 assets/sprites/forge/portraits_v1/<인물>_<1|2>.png 은신처 대화 UI용 초상화 8장. 프로젝트 자체 마스터와 게임 그림 참조, Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0(MIT)과 Pillow 마감, codixel(MIT) 비교판. 200×200, 인물별 공용 32색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/portraits_v1/provenance.json. 검토 대기.
+
+2026-11-21 [Codex] T33 assets/sprites/forge/zone_cards_v1/zone_<cell|foundry|haze>.png 구역 전환용 제목 카드 배경 3장. 프로젝트 자체 제목 화면·원경을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dmap 0.5.0(MIT) Hibit 마감, codixel(MIT) 비교판. 1920×400·불투명 32색·1배. 출처와 프롬프트 assets/sprites/forge/zone_cards_v1/provenance.json. 검토 대기.

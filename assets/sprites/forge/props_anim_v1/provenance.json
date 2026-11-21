@@ -1,0 +1,55 @@
+{
+  "task": "T28",
+  "date_kst": "2026-11-21",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "generate2dsprite_version": "0.5.0",
+  "sources": [
+    {
+      "theme": "cell",
+      "file": "cell/source.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "prompt": "cell/actual_prompt.txt",
+      "reference": "cell/theme_reference.png",
+      "sha256": "fcab58314f027aa66b195ac3930e9ea91d8170219afc1f65a6fea6761fd98e4f"
+    },
+    {
+      "theme": "foundry",
+      "file": "foundry/source.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "prompt": "foundry/actual_prompt.txt",
+      "reference": "foundry/theme_reference.png",
+      "sha256": "d68eeab864aae080b73a21e1748bb52a52d3938c9ef417d1ac4e9f898d7f1474"
+    },
+    {
+      "theme": "haze",
+      "file": "haze/source.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "prompt": "haze/actual_prompt.txt",
+      "reference": "haze/theme_reference.png",
+      "sha256": "cda0997cfeea13571f94269f9942ab1f468da0f19fa23425d571d4072c22cfaf"
+    },
+    {
+      "theme": "hideout",
+      "file": "hideout/source.png",
+      "size": [
+        1448,
+        1086
+      ],
+      "prompt": "hideout/actual_prompt.txt",
+      "reference": "hideout/theme_reference.png",
+      "sha256": "b142ba0bef9aed5653096d63d9f0fd6c5107783658e702b7a8f9b48ca718b5ec"
+    }
+  ]
+}

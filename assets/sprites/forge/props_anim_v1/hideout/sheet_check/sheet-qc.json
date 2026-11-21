@@ -1,0 +1,1788 @@
+{
+  "schema": "generate2dsprite.sheet_qc.v1",
+  "check": "frames",
+  "status": "fail",
+  "method": "solid alpha > 127; head ratio by multi-scale template match of the head band against the median frame; best-shift silhouette IoU; phases from ground clearance and stride width; NEAR/FAR lead from the lightness of the two feet (FAR one shade darker); torso x from the trunk columns of the torso band; seams from forge_core.transition_mae (premultiplied RGBA)",
+  "notProven": [
+    "Pose quality, anatomy, appeal and readability at game scale: look at frames-review.png and the game-size frames.",
+    "That the head band holds only the head: arms raised into it change the match.",
+    "NEAR/FAR leads in auto mode rely on the 'FAR limbs one shade darker' convention; declare the colours to be sure.",
+    "Phase labels come from feet clearance and stride width, not from the pose."
+  ],
+  "checks": [
+    {
+      "id": "identity_head_ratio",
+      "status": "fail",
+      "value": {
+        "0": 0.971,
+        "1": 0.99,
+        "2": 1.068,
+        "3": 1.01,
+        "4": 1.068,
+        "5": 1.068,
+        "6": 1.068,
+        "7": 1.068,
+        "8": 0.874,
+        "9": 0.874,
+        "10": 0.874,
+        "11": 0.874
+      },
+      "threshold": [
+        0.95,
+        1.05
+      ],
+      "frames": [
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "note": "head scale against the median frame (frame 0 template)"
+    },
+    {
+      "id": "identity_residual",
+      "status": "warn",
+      "value": {
+        "0": null,
+        "1": 0.81,
+        "2": 0.8,
+        "3": 0.62,
+        "4": 1.27,
+        "5": 1.67,
+        "6": 1.27,
+        "7": 1.05,
+        "8": 1.0,
+        "9": 1.0,
+        "10": 1.06,
+        "11": 1.0
+      },
+      "threshold": 1.5,
+      "frames": [
+        5
+      ],
+      "note": "head match residual over the median: face or costume drift"
+    },
+    {
+      "id": "near_duplicates",
+      "status": "warn",
+      "value": [
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          9,
+          11
+        ],
+        [
+          10,
+          11
+        ]
+      ],
+      "threshold": 0.95,
+      "note": "pairs with best-shift silhouette IoU at or above the threshold and similar colours"
+    },
+    {
+      "id": "phase_coverage",
+      "status": "skipped",
+      "value": null,
+      "threshold": null,
+      "note": "needs --cycle run or walk and an even frame count of at least 4"
+    },
+    {
+      "id": "leg_alternation",
+      "status": "skipped",
+      "value": null,
+      "threshold": null,
+      "note": "needs --cycle run or walk and an even frame count of at least 4"
+    },
+    {
+      "id": "torso_drift",
+      "status": "warn",
+      "value": 16.61,
+      "threshold": 2.0,
+      "method": "trunk",
+      "median_x": 181.2,
+      "note": "range of the torso x in game px; scale_frames --root-lock torso-x removes it"
+    },
+    {
+      "id": "row_baseline",
+      "status": "warn",
+      "value": 24.0,
+      "threshold": 0.5,
+      "baselines": {
+        "0": 319,
+        "1": 295,
+        "2": 301
+      },
+      "note": "ground line of each sheet row; scale_frames --row-baseline aligns them"
+    },
+    {
+      "id": "seam",
+      "status": "warn",
+      "value": 5.93,
+      "threshold": 1.5,
+      "transitions": [
+        [
+          7,
+          8
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "note": "largest frame-to-frame change over the median step; review these joins first"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "../source.png",
+      "sha256": "b142ba0bef9aed5653096d63d9f0fd6c5107783658e702b7a8f9b48ca718b5ec",
+      "bytes": 1368006
+    }
+  ],
+  "outputs": [
+    {
+      "path": "frames-review.png",
+      "sha256": "c05c033321c401e547cb4bfc576d30a04fd5881b4414eb5ab66aee5a0f56ced2",
+      "bytes": 165656
+    }
+  ],
+  "tool": {
+    "name": "sheet_qc.py",
+    "version": "0.5.0"
+  },
+  "grid": {
+    "rows": 3,
+    "cols": 4
+  },
+  "input": {
+    "sheet": {
+      "sha256": "b142ba0bef9aed5653096d63d9f0fd6c5107783658e702b7a8f9b48ca718b5ec",
+      "size": [
+        1448,
+        1086
+      ],
+      "source_mode": "RGB",
+      "bit_depth": 8,
+      "conversion": "RGB -> RGBA",
+      "keyed": {
+        "key": "magenta",
+        "quality": "soft",
+        "key_rgb": [
+          252,
+          4,
+          250
+        ],
+        "opaque_key_px": 0
+      }
+    },
+    "slicing": {
+      "method": "ownership (forge_core.ownership_slice, haze drop): solid components to the cell holding most of their pixels, soft pixels to the owner they reach through soft pixels; nominal cell origin plus one shared padding",
+      "haze": "drop",
+      "threshold": 127,
+      "min_area": 64,
+      "attach_radius": 6,
+      "cells_used": 12,
+      "unused_cells_px": 0,
+      "padding": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "canvas": [
+        362,
+        362
+      ],
+      "frame_origins_in_sheet": [
+        [
+          0,
+          0
+        ],
+        [
+          362,
+          0
+        ],
+        [
+          724,
+          0
+        ],
+        [
+          1086,
+          0
+        ],
+        [
+          0,
+          362
+        ],
+        [
+          362,
+          362
+        ],
+        [
+          724,
+          362
+        ],
+        [
+          1086,
+          362
+        ],
+        [
+          0,
+          724
+        ],
+        [
+          362,
+          724
+        ],
+        [
+          724,
+          724
+        ],
+        [
+          1086,
+          724
+        ]
+      ],
+      "dropped_px": 63,
+      "dropped_max_alpha": 255
+    }
+  },
+  "params": {
+    "cycle": "none",
+    "facing": "right",
+    "game_pixel": 1.0,
+    "frames_per_row": 4,
+    "loop": false,
+    "alpha_threshold": 127,
+    "reference_frame": 0,
+    "head_frac": 0.35,
+    "torso_band": [
+      0.4,
+      0.6
+    ],
+    "torso_colors": [],
+    "near_colors": [],
+    "far_colors": [],
+    "colour_tolerance": 30.0,
+    "leg_band": 0.3
+  },
+  "cells": [
+    {
+      "frame": 0,
+      "row": 0,
+      "bbox": [
+        73,
+        111,
+        289,
+        318
+      ],
+      "height_px": 207,
+      "width_px": 216,
+      "solid_px": 27318,
+      "ground": 318,
+      "head": {
+        "head_ratio": 0.971,
+        "scale": 1.0,
+        "residual": 0.0,
+        "residual_over_median": null,
+        "template": true,
+        "head_box": [
+          98,
+          111,
+          264,
+          183
+        ]
+      },
+      "colour_l1_to_median": 0.4458,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 1.0,
+        "stride_ratio": 1.0
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0038,
+        "separation_game_px": 96.58,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.5,
+      "torso_method": "trunk",
+      "cell": [
+        0,
+        0
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 1,
+      "row": 0,
+      "bbox": [
+        74,
+        70,
+        289,
+        318
+      ],
+      "height_px": 248,
+      "width_px": 215,
+      "solid_px": 29801,
+      "ground": 318,
+      "head": {
+        "head_ratio": 0.99,
+        "scale": 1.02,
+        "residual": 38.5,
+        "residual_over_median": 0.81,
+        "template": false,
+        "head_box": [
+          125,
+          70,
+          217,
+          157
+        ]
+      },
+      "colour_l1_to_median": 0.5355,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 1.0,
+        "stride_ratio": 0.995
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0059,
+        "separation_game_px": 91.56,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.4,
+      "torso_method": "trunk",
+      "cell": [
+        0,
+        1
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 2,
+      "row": 0,
+      "bbox": [
+        73,
+        52,
+        289,
+        318
+      ],
+      "height_px": 266,
+      "width_px": 216,
+      "solid_px": 33081,
+      "ground": 318,
+      "head": {
+        "head_ratio": 1.068,
+        "scale": 1.1,
+        "residual": 38.17,
+        "residual_over_median": 0.8,
+        "template": false,
+        "head_box": [
+          117,
+          52,
+          242,
+          145
+        ]
+      },
+      "colour_l1_to_median": 0.6561,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 1.0,
+        "stride_ratio": 0.995
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0044,
+        "separation_game_px": 90.26,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.6,
+      "torso_method": "trunk",
+      "cell": [
+        0,
+        2
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 3,
+      "row": 0,
+      "bbox": [
+        74,
+        87,
+        289,
+        319
+      ],
+      "height_px": 232,
+      "width_px": 215,
+      "solid_px": 28490,
+      "ground": 319,
+      "head": {
+        "head_ratio": 1.01,
+        "scale": 1.04,
+        "residual": 29.36,
+        "residual_over_median": 0.62,
+        "template": false,
+        "head_box": [
+          115,
+          87,
+          249,
+          168
+        ]
+      },
+      "colour_l1_to_median": 0.5184,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 1.0
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0046,
+        "separation_game_px": 93.65,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.5,
+      "torso_method": "trunk",
+      "cell": [
+        0,
+        3
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 4,
+      "row": 1,
+      "bbox": [
+        58,
+        124,
+        323,
+        295
+      ],
+      "height_px": 171,
+      "width_px": 265,
+      "solid_px": 25977,
+      "ground": 295,
+      "head": {
+        "head_ratio": 1.068,
+        "scale": 1.1,
+        "residual": 60.65,
+        "residual_over_median": 1.27,
+        "template": false,
+        "head_box": [
+          58,
+          124,
+          323,
+          184
+        ]
+      },
+      "colour_l1_to_median": 0.4543,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.909
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": 0.0008,
+        "separation_game_px": 84.53,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 167.6,
+      "torso_method": "trunk",
+      "cell": [
+        1,
+        0
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 5,
+      "row": 1,
+      "bbox": [
+        59,
+        64,
+        323,
+        295
+      ],
+      "height_px": 231,
+      "width_px": 264,
+      "solid_px": 26289,
+      "ground": 295,
+      "head": {
+        "head_ratio": 1.068,
+        "scale": 1.1,
+        "residual": 79.39,
+        "residual_over_median": 1.67,
+        "template": false,
+        "head_box": [
+          137,
+          64,
+          227,
+          145
+        ]
+      },
+      "colour_l1_to_median": 0.4689,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.909
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": 0.0002,
+        "separation_game_px": 83.05,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 177.5,
+      "torso_method": "trunk",
+      "cell": [
+        1,
+        1
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 6,
+      "row": 1,
+      "bbox": [
+        58,
+        94,
+        323,
+        295
+      ],
+      "height_px": 201,
+      "width_px": 265,
+      "solid_px": 26120,
+      "ground": 295,
+      "head": {
+        "head_ratio": 1.068,
+        "scale": 1.1,
+        "residual": 60.5,
+        "residual_over_median": 1.27,
+        "template": false,
+        "head_box": [
+          58,
+          94,
+          323,
+          164
+        ]
+      },
+      "colour_l1_to_median": 0.4616,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.909
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": 0.0022,
+        "separation_game_px": 84.25,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 173.1,
+      "torso_method": "trunk",
+      "cell": [
+        1,
+        2
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 7,
+      "row": 1,
+      "bbox": [
+        59,
+        152,
+        323,
+        295
+      ],
+      "height_px": 143,
+      "width_px": 264,
+      "solid_px": 25773,
+      "ground": 295,
+      "head": {
+        "head_ratio": 1.068,
+        "scale": 1.1,
+        "residual": 50.11,
+        "residual_over_median": 1.05,
+        "template": false,
+        "head_box": [
+          59,
+          152,
+          323,
+          202
+        ]
+      },
+      "colour_l1_to_median": 0.4594,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.909
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": 0.0,
+        "separation_game_px": 84.56,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 165.0,
+      "torso_method": "trunk",
+      "cell": [
+        1,
+        3
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 8,
+      "row": 2,
+      "bbox": [
+        58,
+        48,
+        305,
+        301
+      ],
+      "height_px": 253,
+      "width_px": 247,
+      "solid_px": 47750,
+      "ground": 301,
+      "head": {
+        "head_ratio": 0.874,
+        "scale": 0.9,
+        "residual": 47.45,
+        "residual_over_median": 1.0,
+        "template": false,
+        "head_box": [
+          65,
+          48,
+          297,
+          137
+        ]
+      },
+      "colour_l1_to_median": 0.9458,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.989
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0024,
+        "separation_game_px": 70.96,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.0,
+      "torso_method": "trunk",
+      "cell": [
+        2,
+        0
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 9,
+      "row": 2,
+      "bbox": [
+        58,
+        48,
+        305,
+        301
+      ],
+      "height_px": 253,
+      "width_px": 247,
+      "solid_px": 47685,
+      "ground": 301,
+      "head": {
+        "head_ratio": 0.874,
+        "scale": 0.9,
+        "residual": 47.66,
+        "residual_over_median": 1.0,
+        "template": false,
+        "head_box": [
+          65,
+          48,
+          297,
+          137
+        ]
+      },
+      "colour_l1_to_median": 0.9082,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.989
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0035,
+        "separation_game_px": 70.74,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.5,
+      "torso_method": "trunk",
+      "cell": [
+        2,
+        1
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 10,
+      "row": 2,
+      "bbox": [
+        58,
+        48,
+        305,
+        301
+      ],
+      "height_px": 253,
+      "width_px": 247,
+      "solid_px": 47724,
+      "ground": 301,
+      "head": {
+        "head_ratio": 0.874,
+        "scale": 0.9,
+        "residual": 50.58,
+        "residual_over_median": 1.06,
+        "template": false,
+        "head_box": [
+          65,
+          48,
+          297,
+          137
+        ]
+      },
+      "colour_l1_to_median": 0.8911,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.989
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0018,
+        "separation_game_px": 70.82,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.0,
+      "torso_method": "trunk",
+      "cell": [
+        2,
+        2
+      ],
+      "source": "source.png"
+    },
+    {
+      "frame": 11,
+      "row": 2,
+      "bbox": [
+        58,
+        48,
+        305,
+        301
+      ],
+      "height_px": 253,
+      "width_px": 247,
+      "solid_px": 47666,
+      "ground": 301,
+      "head": {
+        "head_ratio": 0.874,
+        "scale": 0.9,
+        "residual": 47.66,
+        "residual_over_median": 1.0,
+        "template": false,
+        "head_box": [
+          65,
+          48,
+          297,
+          137
+        ]
+      },
+      "colour_l1_to_median": 0.8781,
+      "phase": {
+        "label": "contact",
+        "clearance_game_px": 0.0,
+        "stride_ratio": 0.989
+      },
+      "lead": {
+        "mode": "auto-luminance",
+        "front_minus_back_L": -0.0047,
+        "separation_game_px": 70.77,
+        "lead": "unclear",
+        "reason": "the feet differ by less than one shade"
+      },
+      "torso_x": 181.5,
+      "torso_method": "trunk",
+      "cell": [
+        2,
+        3
+      ],
+      "source": "source.png"
+    }
+  ],
+  "identity": {
+    "median_scale": 1.03,
+    "median_residual": 47.66,
+    "reduction": 2,
+    "template": "frame 0",
+    "scales": [
+      0.9,
+      0.92,
+      0.94,
+      0.96,
+      0.98,
+      1.0,
+      1.02,
+      1.04,
+      1.06,
+      1.08,
+      1.1
+    ]
+  },
+  "near_duplicates": {
+    "pairs": [
+      {
+        "pair": [
+          8,
+          10
+        ],
+        "iou_best_shift": 0.9989,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0775
+      },
+      {
+        "pair": [
+          9,
+          11
+        ],
+        "iou_best_shift": 0.9988,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0417
+      },
+      {
+        "pair": [
+          9,
+          10
+        ],
+        "iou_best_shift": 0.9981,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0368
+      },
+      {
+        "pair": [
+          8,
+          9
+        ],
+        "iou_best_shift": 0.9977,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0666
+      },
+      {
+        "pair": [
+          8,
+          11
+        ],
+        "iou_best_shift": 0.9977,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0972
+      },
+      {
+        "pair": [
+          10,
+          11
+        ],
+        "iou_best_shift": 0.9977,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0571
+      },
+      {
+        "pair": [
+          4,
+          7
+        ],
+        "iou_best_shift": 0.986,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0628
+      },
+      {
+        "pair": [
+          6,
+          7
+        ],
+        "iou_best_shift": 0.9801,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0364
+      },
+      {
+        "pair": [
+          4,
+          6
+        ],
+        "iou_best_shift": 0.9785,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0669
+      },
+      {
+        "pair": [
+          5,
+          7
+        ],
+        "iou_best_shift": 0.9782,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0782
+      },
+      {
+        "pair": [
+          4,
+          5
+        ],
+        "iou_best_shift": 0.9691,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0436
+      },
+      {
+        "pair": [
+          5,
+          6
+        ],
+        "iou_best_shift": 0.9673,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0885
+      },
+      {
+        "pair": [
+          0,
+          3
+        ],
+        "iou_best_shift": 0.9374,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.1268
+      },
+      {
+        "pair": [
+          0,
+          1
+        ],
+        "iou_best_shift": 0.8915,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.1547
+      },
+      {
+        "pair": [
+          1,
+          3
+        ],
+        "iou_best_shift": 0.8698,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.0809
+      },
+      {
+        "pair": [
+          1,
+          2
+        ],
+        "iou_best_shift": 0.8623,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.1567
+      },
+      {
+        "pair": [
+          2,
+          3
+        ],
+        "iou_best_shift": 0.826,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.2296
+      },
+      {
+        "pair": [
+          0,
+          2
+        ],
+        "iou_best_shift": 0.8237,
+        "best_shift_src_px": [
+          0,
+          0
+        ],
+        "colour_l1": 0.2999
+      },
+      {
+        "pair": [
+          0,
+          4
+        ],
+        "iou_best_shift": 0.6155,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.868
+      },
+      {
+        "pair": [
+          2,
+          10
+        ],
+        "iou_best_shift": 0.614,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.1404
+      },
+      {
+        "pair": [
+          2,
+          11
+        ],
+        "iou_best_shift": 0.614,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1117
+      },
+      {
+        "pair": [
+          2,
+          8
+        ],
+        "iou_best_shift": 0.6138,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.1875
+      },
+      {
+        "pair": [
+          2,
+          9
+        ],
+        "iou_best_shift": 0.6137,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1475
+      },
+      {
+        "pair": [
+          0,
+          7
+        ],
+        "iou_best_shift": 0.6103,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.8774
+      },
+      {
+        "pair": [
+          0,
+          6
+        ],
+        "iou_best_shift": 0.6036,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.8574
+      },
+      {
+        "pair": [
+          0,
+          5
+        ],
+        "iou_best_shift": 0.6017,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.863
+      },
+      {
+        "pair": [
+          3,
+          4
+        ],
+        "iou_best_shift": 0.5947,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.8982
+      },
+      {
+        "pair": [
+          3,
+          6
+        ],
+        "iou_best_shift": 0.5902,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.888
+      },
+      {
+        "pair": [
+          3,
+          7
+        ],
+        "iou_best_shift": 0.5895,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.908
+      },
+      {
+        "pair": [
+          3,
+          5
+        ],
+        "iou_best_shift": 0.5888,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.8929
+      },
+      {
+        "pair": [
+          1,
+          4
+        ],
+        "iou_best_shift": 0.5732,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9209
+      },
+      {
+        "pair": [
+          1,
+          6
+        ],
+        "iou_best_shift": 0.5693,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9104
+      },
+      {
+        "pair": [
+          1,
+          7
+        ],
+        "iou_best_shift": 0.5679,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9307
+      },
+      {
+        "pair": [
+          1,
+          5
+        ],
+        "iou_best_shift": 0.5675,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9157
+      },
+      {
+        "pair": [
+          1,
+          11
+        ],
+        "iou_best_shift": 0.5494,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.0581
+      },
+      {
+        "pair": [
+          1,
+          10
+        ],
+        "iou_best_shift": 0.5493,
+        "best_shift_src_px": [
+          2,
+          4
+        ],
+        "colour_l1": 1.0827
+      },
+      {
+        "pair": [
+          1,
+          8
+        ],
+        "iou_best_shift": 0.5492,
+        "best_shift_src_px": [
+          2,
+          4
+        ],
+        "colour_l1": 1.1299
+      },
+      {
+        "pair": [
+          1,
+          9
+        ],
+        "iou_best_shift": 0.5491,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.0951
+      },
+      {
+        "pair": [
+          2,
+          5
+        ],
+        "iou_best_shift": 0.5441,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9688
+      },
+      {
+        "pair": [
+          2,
+          4
+        ],
+        "iou_best_shift": 0.5416,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9739
+      },
+      {
+        "pair": [
+          2,
+          7
+        ],
+        "iou_best_shift": 0.5367,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9834
+      },
+      {
+        "pair": [
+          2,
+          6
+        ],
+        "iou_best_shift": 0.5325,
+        "best_shift_src_px": [
+          4,
+          4
+        ],
+        "colour_l1": 0.9633
+      },
+      {
+        "pair": [
+          3,
+          10
+        ],
+        "iou_best_shift": 0.5224,
+        "best_shift_src_px": [
+          2,
+          4
+        ],
+        "colour_l1": 1.0685
+      },
+      {
+        "pair": [
+          3,
+          11
+        ],
+        "iou_best_shift": 0.5224,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.0396
+      },
+      {
+        "pair": [
+          3,
+          8
+        ],
+        "iou_best_shift": 0.5222,
+        "best_shift_src_px": [
+          2,
+          4
+        ],
+        "colour_l1": 1.1155
+      },
+      {
+        "pair": [
+          3,
+          9
+        ],
+        "iou_best_shift": 0.5222,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.0736
+      },
+      {
+        "pair": [
+          5,
+          10
+        ],
+        "iou_best_shift": 0.5011,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.1073
+      },
+      {
+        "pair": [
+          5,
+          11
+        ],
+        "iou_best_shift": 0.5011,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.115
+      },
+      {
+        "pair": [
+          5,
+          8
+        ],
+        "iou_best_shift": 0.5009,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.112
+      },
+      {
+        "pair": [
+          5,
+          9
+        ],
+        "iou_best_shift": 0.5008,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.1075
+      },
+      {
+        "pair": [
+          0,
+          11
+        ],
+        "iou_best_shift": 0.4996,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 0.9974
+      },
+      {
+        "pair": [
+          0,
+          10
+        ],
+        "iou_best_shift": 0.4995,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.0194
+      },
+      {
+        "pair": [
+          0,
+          8
+        ],
+        "iou_best_shift": 0.4994,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.0659
+      },
+      {
+        "pair": [
+          0,
+          9
+        ],
+        "iou_best_shift": 0.4993,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.0339
+      },
+      {
+        "pair": [
+          6,
+          11
+        ],
+        "iou_best_shift": 0.4978,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1088
+      },
+      {
+        "pair": [
+          6,
+          10
+        ],
+        "iou_best_shift": 0.4977,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1011
+      },
+      {
+        "pair": [
+          6,
+          8
+        ],
+        "iou_best_shift": 0.4975,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1055
+      },
+      {
+        "pair": [
+          6,
+          9
+        ],
+        "iou_best_shift": 0.4975,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1014
+      },
+      {
+        "pair": [
+          4,
+          10
+        ],
+        "iou_best_shift": 0.4956,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.0938
+      },
+      {
+        "pair": [
+          4,
+          11
+        ],
+        "iou_best_shift": 0.4956,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1015
+      },
+      {
+        "pair": [
+          4,
+          9
+        ],
+        "iou_best_shift": 0.4954,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.094
+      },
+      {
+        "pair": [
+          4,
+          8
+        ],
+        "iou_best_shift": 0.4953,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.0981
+      },
+      {
+        "pair": [
+          7,
+          10
+        ],
+        "iou_best_shift": 0.4914,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.1072
+      },
+      {
+        "pair": [
+          7,
+          11
+        ],
+        "iou_best_shift": 0.4913,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1148
+      },
+      {
+        "pair": [
+          7,
+          8
+        ],
+        "iou_best_shift": 0.4912,
+        "best_shift_src_px": [
+          0,
+          4
+        ],
+        "colour_l1": 1.1117
+      },
+      {
+        "pair": [
+          7,
+          9
+        ],
+        "iou_best_shift": 0.4911,
+        "best_shift_src_px": [
+          -2,
+          4
+        ],
+        "colour_l1": 1.1074
+      }
+    ],
+    "max_shift_src_px": 4
+  },
+  "half_cycle": null,
+  "alternation": {
+    "verdict": "unknown: no pair of half-cycle frames shows a clear NEAR/FAR lead",
+    "pairs": [],
+    "near_leading": 0,
+    "far_leading": 0,
+    "unclear": 12
+  },
+  "torso": {
+    "drift_game_px": 16.61
+  },
+  "row_baselines": {
+    "0": 319,
+    "1": 295,
+    "2": 301
+  },
+  "seam_ranking": [
+    {
+      "from": 7,
+      "to": 8,
+      "mae": 22.54,
+      "over_median": 5.93
+    },
+    {
+      "from": 3,
+      "to": 4,
+      "mae": 16.11,
+      "over_median": 4.24
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "mae": 7.29,
+      "over_median": 1.92
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "mae": 5.82,
+      "over_median": 1.53
+    },
+    {
+      "from": 0,
+      "to": 1,
+      "mae": 4.15,
+      "over_median": 1.09
+    },
+    {
+      "from": 9,
+      "to": 10,
+      "mae": 3.8,
+      "over_median": 1.0
+    },
+    {
+      "from": 10,
+      "to": 11,
+      "mae": 3.77,
+      "over_median": 0.99
+    },
+    {
+      "from": 8,
+      "to": 9,
+      "mae": 2.7,
+      "over_median": 0.71
+    },
+    {
+      "from": 4,
+      "to": 5,
+      "mae": 1.26,
+      "over_median": 0.33
+    },
+    {
+      "from": 5,
+      "to": 6,
+      "mae": 1.24,
+      "over_median": 0.33
+    },
+    {
+      "from": 6,
+      "to": 7,
+      "mae": 0.67,
+      "over_median": 0.18
+    }
+  ],
+  "seam": null
+}

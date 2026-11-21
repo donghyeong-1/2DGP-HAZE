@@ -258,3 +258,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-21 [Codex] T26 N-09의 식칼 준비·던지기·마무리, 건틀릿 충전·발사·회수·공중 하향 사격, 사슬 머리 뒤 준비·던지기·당기기 10장. v3b와 기존 무기 그래픽을 참조했고 식칼 준비의 칼날 분리를 1회 다시 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/n09_weapon_poses_v1/provenance.json에서 연결.
 
 2026-11-21 [Codex] T27 크래셔 걷기 4장·사망 2장. 승인 마스터와 관절 가이드로 밝은 가까운 장화와 먼 장화의 교대, 접지 후 하강을 지정하고 한 손으로 무릎 자세를 지탱한 뒤 앞으로 엎어지도록 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/crasher_walk_death_v1/provenance.json에서 연결.
+
+2026-11-21 [Codex] T28 슬럼·공장·탑·은신처의 원경과 타일을 참조해 배경 소품 12종의 반복 4컷을 3×4 시트로 생성했다. 브래킷·받침은 고정하고 낙하와 파문, 좌우 흔들림, 점멸, 상하 왕복, 회전을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트는 assets/sprites/forge/props_anim_v1/provenance.json에서 연결.
+
+2026-11-21 [Codex] T29 기존 제목 화면·컷인·N-09·아크를 참조해 청록 투명 HAZE/헤이즈 로고, 감옥 헤더와 작은 상반신 배너, 두 인물의 대치, 아래에서 보는 탑, 감옥→공장→탑 파노라마를 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/store_art_v1/provenance.json에 연결.

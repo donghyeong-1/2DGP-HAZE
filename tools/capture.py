@@ -4,6 +4,7 @@
 실행하면 잠깐 창이 뜬다. 결과는 --out 폴더에 shot_00.png ... 와 모아 보기 sheet.png(축소 없이 잘라 붙임).
 
 옵션
+  --stage 2          0 은신처, 1~3 스테이지 (기본 1)
   --cell 1,0          스테이지 1의 방 좌표 (기본: 시작 방)
   --clear             방에 원래 있던 적을 지운다
   --spawn hound:400 guard:-300   적을 플레이어 기준 x 거리에 세운다 (boss도 가능)
@@ -34,6 +35,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--out', required=True)
     ap.add_argument('--cell')
+    ap.add_argument('--stage', type=int, default=1, help='0 은신처, 1~3 스테이지 (기본 1)')
     ap.add_argument('--clear', action='store_true')
     ap.add_argument('--spawn', nargs='*', default=[])
     ap.add_argument('--weapon')
@@ -94,7 +96,9 @@ def main():
     meta.reset()                                         # 사용자 저장(영구 강화)을 읽지 않고 기본값으로 찍는다
     play_mode.enter()                                    # 판은 은신처에서 시작하므로 스테이지 1로 바꾼다
     p = play_mode.player
-    stage = stage_mod.next_stage(play_mode.stage)
+    stage = play_mode.stage
+    for _ in range(a.stage):                             # --stage: 은신처(0)에서 그 스테이지까지 넘긴다
+        stage = stage_mod.next_stage(stage)
     play_mode.stage, play_mode.room = stage, stage.room
     for o in game_world.world[game_world.LAYER_UI]:
         if hasattr(o, 'stage'):

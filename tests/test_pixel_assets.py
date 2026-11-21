@@ -27,19 +27,24 @@ def tile_files():
                   glob.glob(os.path.join(ROOT, 'assets', 'tiles', 'tile_*.png')))
 
 
+def prop_files():
+    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'props', '*.png')))   # 움직이는 배경 소품 (Codex T28)
+
+
 def ui_files():
     return sorted(glob.glob(os.path.join(ROOT, 'assets', 'ui', '*.png')))
 
 
 def test_sprites_have_binary_alpha():
     assert sprite_files(), '검사할 스프라이트가 없다'
-    for path in sprite_files() + tile_files() + effect_files() + ui_files():
+    for path in sprite_files() + tile_files() + effect_files() + ui_files() + prop_files():
         alpha = Image.open(path).convert('RGBA').getchannel('A').histogram()
         assert sum(alpha[1:255]) == 0, f'반투명 픽셀이 있다: {os.path.basename(path)}'
 
 
 def test_sprites_within_palette_limit():
-    for path in sprite_files():
+    assert prop_files(), '배경 소품이 없다'
+    for path in sprite_files() + prop_files():
         img = Image.open(path).convert('RGBA')
         colors = {p for p in img.get_flattened_data() if p[3] == 255} if hasattr(img, 'get_flattened_data') \
             else {p for p in img.getdata() if p[3] == 255}

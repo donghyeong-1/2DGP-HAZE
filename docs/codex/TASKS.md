@@ -47,12 +47,17 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T25 | 일반 적 4종 사망 동작 3장 + 피격 2장째 | [T25_enemy_death_hurt.md](tasks/T25_enemy_death_hurt.md) | - | done·게임 적용 2026-11-21 (피격 2장 번갈아, 쓰러짐 3장 -> 누워 있다가 헤이즈로 흩어짐) |
 | T26 | 식칼·건틀릿·사슬 전용 공격 자세 10장 | [T26_weapon_poses.md](tasks/T26_weapon_poses.md) | - | done·게임 적용 2026-11-21 (`n09_knife` 3·`n09_gauntlet` 4·`n09_chain` 3, 맨손 자세 대신) |
 | T27 | 보스 크래셔 걷기 4장 + 사망 2장 | [T27_crasher_walk_death.md](tasks/T27_crasher_walk_death.md) | - | done·게임 적용 2026-11-21 (걷기 4장 발 교대, 쓰러짐 2장 -> 2.5초 누워 있다가 흩어짐) |
-| T28 | 스테이지별 움직이는 배경 소품 12종 x 4장 | [T28_animated_props.md](tasks/T28_animated_props.md) | - | in_progress |
-| T29 | 상점 페이지 그림 (스팀 규격 캡슐 5종 + 로고) | [T29_store_art.md](tasks/T29_store_art.md) | - | ready |
+| T28 | 스테이지별 움직이는 배경 소품 12종 x 4장 | [T28_animated_props.md](tasks/T28_animated_props.md) | - | done·게임 적용 2026-11-21 (`assets/props/` 48장, 방 모양을 보고 자동 배치, 전투 방마다 4개, 은신처는 손으로 정한 모루·화로) |
+| T29 | 상점 페이지 그림 (스팀 규격 캡슐 5종 + 로고) | [T29_store_art.md](tasks/T29_store_art.md) | - | done·마무리 2026-11-21 (`tools/make_store_art.py`가 캡슐 4장에 로고 합성 -> `assets/store/`) |
+| T30 | 투척병 걷기 4장 + 뒤로 물러서기 2장 | [T30_thrower_walk.md](tasks/T30_thrower_walk.md) | - | ready |
+| T31 | 테마별 방 장식 소품 18종 (멈춘 그림, 글자 없음) | [T31_room_decor.md](tasks/T31_room_decor.md) | - | ready |
+| T32 | 대화 초상화 8장 (주인공·NPC 3명 x 표정 2) | [T32_dialog_portraits.md](tasks/T32_dialog_portraits.md) | - | ready |
+| T33 | 구역 제목 카드 일러스트 3장 (1920x400) | [T33_zone_cards.md](tasks/T33_zone_cards.md) | - | ready |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.
-- **추천 순서(2026-11-20): T24 → T25 → T26 → T27 → T28 → T29.** 스팀 출시 수준 퀄리티 계획(`docs/quality_plan.md`)의 그림이다. 눈에 가장 많이 띄는 동작부터. 하나 끝날 때마다 Claude Code에게 검토를 맡긴다.
+- **추천 순서(2026-11-21): T30 → T31 → T32 → T33.** 남은 '빌려 쓰는 그림'(투척병 걷기)부터, 그다음 방 볼거리(장식), 은신처 대화, 구역 전환 연출. 하나 끝날 때마다 Claude Code가 검토한다.
+- (그 전 추천 2026-11-20: T24 → T25 → T26 → T27 → T28 → T29, 모두 완료) 스팀 출시 수준 퀄리티 계획(`docs/quality_plan.md`)의 그림이다. 눈에 가장 많이 띄는 동작부터. 하나 끝날 때마다 Claude Code에게 검토를 맡긴다.
 - (11/19: 대기 중인 작업 없음.) (T22·T23 적용 완료) v4(`docs/plan_v4.md`)의 그림. 그동안 Claude Code가 황금방 잠금·균열방·E 중첩 코드를 만든다. (T21 달리기 걸음 교대 적용 완료) (T17~T20 완료) 이동 속도(초당 480px = 키의 3.9배)가 걷기가 아니라 달리기 속도라, 늘 화면에 나오는 이동 모션을 달리기로 바꾸는 T19가 휘두르기 사이 프레임(T18)보다 먼저다.
 - (그 전 추천: T12 → T17 → T18.) 사용자가 걷기·공격 모션이 부자연스럽다고 했다. 정지 그림 한 장으로 미끄러지는 사냥개·간수가 가장 눈에 띄고, 그다음 주인공 걷기, 휘두르기 순이다. 지금은 게임 코드 보정(`src/sprites.py` `SHIFT`, 공격 중 감속·내딛기)으로 메우고 있다.
 - (그 전 순서: T13 → T14 → T15 → T16, 모두 완료·적용)

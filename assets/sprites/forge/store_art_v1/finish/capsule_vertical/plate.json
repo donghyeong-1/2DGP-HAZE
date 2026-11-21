@@ -1,0 +1,169 @@
+{
+  "schema": "generate2dmap.hibit_plate.v1",
+  "tool": {
+    "name": "hibit_plate",
+    "version": "0.5.0"
+  },
+  "hibit": "forge.hibit.v1",
+  "source": {
+    "path": "../../raw/capsule_vertical.png",
+    "sha256": "2904ae0d81ca0f3ee754bc4a659e3eee2b7ec8d2a64595a2b76511f7535c0c7f",
+    "bytes": 1688298,
+    "size": [
+      1146,
+      1373
+    ]
+  },
+  "size": [
+    187,
+    224
+  ],
+  "crop": [
+    0,
+    0,
+    1146,
+    1373
+  ],
+  "focus": [
+    0.5,
+    0.5
+  ],
+  "colors": 43,
+  "palette": [
+    "#081d43",
+    "#0b2141",
+    "#11243e",
+    "#0d2749",
+    "#142b48",
+    "#102c52",
+    "#133355",
+    "#1b3453",
+    "#163a5c",
+    "#203a5b",
+    "#1b4263",
+    "#294264",
+    "#1b4b69",
+    "#294b70",
+    "#215373",
+    "#0d6078",
+    "#2e5176",
+    "#245e7d",
+    "#34577e",
+    "#3a5d85",
+    "#296986",
+    "#3e648e",
+    "#0c7f91",
+    "#2d7591",
+    "#446e98",
+    "#32849f",
+    "#50769f",
+    "#1199a9",
+    "#5682ab",
+    "#628bb1",
+    "#17b7c2",
+    "#6996bc",
+    "#c18965",
+    "#79a1c4",
+    "#19d5da",
+    "#1be8e8",
+    "#8eb5d3",
+    "#68d0dc",
+    "#27f8f7",
+    "#accde1",
+    "#59f9f9",
+    "#f8c691",
+    "#dce7ec"
+  ],
+  "paletteGiven": false,
+  "seed": 0,
+  "smooth": 0,
+  "previewScale": 1,
+  "engine": {
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "draw at whole-number zoom (480x270 x4 = 1920x1080); never filter the plate"
+  },
+  "warnings": [],
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "hibit_plate v1 (forge_hibit, the hi-bit studio recipe): cover crop of the painting to the plate aspect; one palette (k-means++ on luminance-weighted RGB, or a given palette); every source pixel indexed to its nearest palette colour and every plate pixel the colour covering most of its cell (majority, never a blend); forge_hibit.clean_isolated (lone pixels take the 4-neighbour majority unless 90 apart in luminance-weighted RGB); 3x3 majority smoothing passes; opaque; nearest preview only for review",
+    "notProven": [
+      "That the painting reads as the intended scene at the plate size (look at plate-x4.png at gameplay scale).",
+      "That characters and FX read against it: finish the sprites with their own palettes and look at a mock-up.",
+      "Where the walkable ground is: the tool does not find the floor line in the art."
+    ],
+    "checks": [
+      {
+        "id": "size",
+        "status": "pass",
+        "value": [
+          187,
+          224
+        ],
+        "threshold": [
+          187,
+          224
+        ]
+      },
+      {
+        "id": "opaque",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "colours",
+        "status": "pass",
+        "value": 43,
+        "threshold": 44
+      },
+      {
+        "id": "lone-pixels",
+        "status": "info",
+        "value": 0.01034,
+        "threshold": null,
+        "note": "share of plate pixels with no 4-neighbour of their colour (kept features: lights, stars, eyes)"
+      },
+      {
+        "id": "reduction",
+        "status": "pass",
+        "value": 6.128,
+        "threshold": 2.0,
+        "note": "painting px per plate px; under 2x the majority has little to vote"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../../raw/capsule_vertical.png",
+        "sha256": "2904ae0d81ca0f3ee754bc4a659e3eee2b7ec8d2a64595a2b76511f7535c0c7f",
+        "bytes": 1688298
+      }
+    ],
+    "outputs": [
+      {
+        "path": "plate.png",
+        "sha256": "5eafcc7bfa535988c28467e95240904afd8c7713b996da4d6a8a8dcc1fcded60",
+        "bytes": 20803
+      },
+      {
+        "path": "plate-x1.png",
+        "sha256": "5eafcc7bfa535988c28467e95240904afd8c7713b996da4d6a8a8dcc1fcded60",
+        "bytes": 20803
+      },
+      {
+        "path": "palette.json",
+        "sha256": "938ae82443336a514ee48dd9789eb43f7b0c12b04eb7b56aadb3ea86f37782cf",
+        "bytes": 1767
+      },
+      {
+        "path": "shade-maps.json",
+        "sha256": "c5920f5cdb19e50d5148f7fce4a3f523925897215d61252f4caf2fa5620a34aa",
+        "bytes": 1584
+      }
+    ],
+    "tool": {
+      "name": "hibit_plate",
+      "version": "0.5.0"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+=== logo (exit 0) ===
+파일                                           캔버스        내용 WxH     반투명 색
+logo.png                                     (1280, 720) 1172x406        0 44
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+=== capsule_header (exit 0) ===
+파일                                           캔버스        내용 WxH     반투명 색
+capsule_header.png                           (920, 430) 920x430        0 44
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+=== capsule_small (exit 0) ===
+파일                                           캔버스        내용 WxH     반투명 색
+capsule_small.png                            (462, 174) 462x174        0 38
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+=== capsule_main (exit 0) ===
+파일                                           캔버스        내용 WxH     반투명 색
+capsule_main.png                             (1232, 706) 1232x706        0 46
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+=== capsule_vertical (exit 0) ===
+파일                                           캔버스        내용 WxH     반투명 색
+capsule_vertical.png                         (748, 896) 748x896        0 43
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과
+
+=== library_hero (exit 0) ===
+파일                                           캔버스        내용 WxH     반투명 색
+library_hero.png                             (3840, 1240) 3840x1240       0 48
+목표 키를 찾지 못해 키 검사는 건너뜁니다 (--height 지정 가능)
+
+통과

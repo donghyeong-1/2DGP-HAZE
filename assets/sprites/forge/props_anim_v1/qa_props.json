@@ -1,0 +1,713 @@
+{
+  "props": [
+    {
+      "theme": "cell",
+      "prop": "bulb",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.854,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 1.0,
+      "canvas": [
+        52,
+        103
+      ],
+      "pivot": [
+        26,
+        7
+      ],
+      "colors": 24,
+      "max_luma": 142,
+      "step_changes_including_wrap": [
+        616,
+        628,
+        625,
+        626
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.35039370078740156,
+      "bounds": [
+        [
+          6,
+          6,
+          46,
+          97
+        ],
+        [
+          6,
+          6,
+          46,
+          97
+        ],
+        [
+          6,
+          6,
+          46,
+          97
+        ],
+        [
+          6,
+          6,
+          46,
+          97
+        ]
+      ]
+    },
+    {
+      "theme": "cell",
+      "prop": "drip",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 1.944,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 1.0,
+      "canvas": [
+        112,
+        158
+      ],
+      "pivot": [
+        56,
+        7
+      ],
+      "colors": 14,
+      "max_luma": 100,
+      "step_changes_including_wrap": [
+        489,
+        549,
+        819,
+        549
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.5142857142857142,
+      "bounds": [
+        [
+          6,
+          6,
+          105,
+          152
+        ],
+        [
+          6,
+          6,
+          105,
+          152
+        ],
+        [
+          7,
+          6,
+          105,
+          152
+        ],
+        [
+          7,
+          6,
+          106,
+          152
+        ]
+      ]
+    },
+    {
+      "theme": "cell",
+      "prop": "rag",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.113,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 1.01,
+      "canvas": [
+        129,
+        121
+      ],
+      "pivot": [
+        64,
+        7
+      ],
+      "colors": 13,
+      "max_luma": 90,
+      "step_changes_including_wrap": [
+        2701,
+        2667,
+        2584,
+        2682
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.4732142857142857,
+      "bounds": [
+        [
+          6,
+          6,
+          123,
+          114
+        ],
+        [
+          6,
+          6,
+          123,
+          115
+        ],
+        [
+          6,
+          6,
+          123,
+          114
+        ],
+        [
+          6,
+          6,
+          123,
+          115
+        ]
+      ]
+    },
+    {
+      "theme": "foundry",
+      "prop": "gear",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.58,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 1.02,
+      "canvas": [
+        114,
+        114
+      ],
+      "pivot": [
+        57,
+        57
+      ],
+      "colors": 6,
+      "max_luma": 75,
+      "step_changes_including_wrap": [
+        5598,
+        5574,
+        5478,
+        5672
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.3875968992248062,
+      "bounds": [
+        [
+          6,
+          6,
+          108,
+          108
+        ],
+        [
+          7,
+          7,
+          107,
+          107
+        ],
+        [
+          6,
+          6,
+          108,
+          108
+        ],
+        [
+          8,
+          8,
+          106,
+          106
+        ]
+      ]
+    },
+    {
+      "theme": "foundry",
+      "prop": "piston",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.125,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.98,
+      "canvas": [
+        82,
+        143
+      ],
+      "pivot": [
+        41,
+        8
+      ],
+      "colors": 9,
+      "max_luma": 95,
+      "step_changes_including_wrap": [
+        1406,
+        1481,
+        1456,
+        1422
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.47058823529411764,
+      "bounds": [
+        [
+          6,
+          6,
+          76,
+          137
+        ],
+        [
+          6,
+          6,
+          76,
+          137
+        ],
+        [
+          6,
+          6,
+          76,
+          137
+        ],
+        [
+          6,
+          6,
+          76,
+          137
+        ]
+      ]
+    },
+    {
+      "theme": "foundry",
+      "prop": "steam",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.061,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.65,
+      "canvas": [
+        146,
+        80
+      ],
+      "pivot": [
+        7,
+        40
+      ],
+      "colors": 19,
+      "max_luma": 100,
+      "step_changes_including_wrap": [
+        721,
+        703,
+        650,
+        455
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.4852941176470588,
+      "bounds": [
+        [
+          6,
+          6,
+          102,
+          74
+        ],
+        [
+          6,
+          6,
+          124,
+          74
+        ],
+        [
+          6,
+          6,
+          140,
+          74
+        ],
+        [
+          6,
+          6,
+          134,
+          74
+        ]
+      ]
+    },
+    {
+      "theme": "haze",
+      "prop": "chain",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.367,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.98,
+      "canvas": [
+        71,
+        142
+      ],
+      "pivot": [
+        35,
+        7
+      ],
+      "colors": 14,
+      "max_luma": 119,
+      "step_changes_including_wrap": [
+        3073,
+        3196,
+        3195,
+        3116
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.42244224422442245,
+      "bounds": [
+        [
+          6,
+          6,
+          52,
+          136
+        ],
+        [
+          18,
+          6,
+          52,
+          136
+        ],
+        [
+          18,
+          6,
+          65,
+          136
+        ],
+        [
+          18,
+          6,
+          52,
+          136
+        ]
+      ]
+    },
+    {
+      "theme": "haze",
+      "prop": "crystal",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.191,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.31,
+      "canvas": [
+        78,
+        147
+      ],
+      "pivot": [
+        39,
+        140
+      ],
+      "colors": 13,
+      "max_luma": 119,
+      "step_changes_including_wrap": [
+        816,
+        2627,
+        2627,
+        816
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.4564459930313589,
+      "bounds": [
+        [
+          6,
+          7,
+          72,
+          141
+        ],
+        [
+          6,
+          7,
+          72,
+          141
+        ],
+        [
+          6,
+          7,
+          72,
+          141
+        ],
+        [
+          6,
+          7,
+          72,
+          141
+        ]
+      ]
+    },
+    {
+      "theme": "haze",
+      "prop": "searchlight",
+      "basic_pass": false,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 1.911,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.98,
+      "canvas": [
+        130,
+        139
+      ],
+      "pivot": [
+        65,
+        7
+      ],
+      "colors": 16,
+      "max_luma": 135,
+      "step_changes_including_wrap": [
+        1307,
+        1365,
+        1349,
+        1319
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.5232067510548524,
+      "bounds": [
+        [
+          6,
+          6,
+          124,
+          130
+        ],
+        [
+          6,
+          6,
+          124,
+          133
+        ],
+        [
+          6,
+          6,
+          124,
+          130
+        ],
+        [
+          6,
+          6,
+          124,
+          133
+        ]
+      ]
+    },
+    {
+      "theme": "hideout",
+      "prop": "anvil",
+      "basic_pass": false,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.257,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.44,
+      "canvas": [
+        132,
+        117
+      ],
+      "pivot": [
+        55,
+        110
+      ],
+      "colors": 10,
+      "max_luma": 100,
+      "step_changes_including_wrap": [
+        222,
+        223,
+        146,
+        97
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.44298245614035087,
+      "bounds": [
+        [
+          6,
+          33,
+          126,
+          111
+        ],
+        [
+          6,
+          7,
+          126,
+          111
+        ],
+        [
+          6,
+          20,
+          126,
+          111
+        ],
+        [
+          6,
+          26,
+          126,
+          111
+        ]
+      ]
+    },
+    {
+      "theme": "hideout",
+      "prop": "brazier",
+      "basic_pass": false,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.534,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.47,
+      "canvas": [
+        99,
+        120
+      ],
+      "pivot": [
+        49,
+        112
+      ],
+      "colors": 11,
+      "max_luma": 142,
+      "step_changes_including_wrap": [
+        812,
+        1124,
+        1358,
+        523
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.3946360153256705,
+      "bounds": [
+        [
+          6,
+          31,
+          93,
+          114
+        ],
+        [
+          6,
+          14,
+          93,
+          114
+        ],
+        [
+          6,
+          7,
+          93,
+          114
+        ],
+        [
+          6,
+          20,
+          93,
+          114
+        ]
+      ]
+    },
+    {
+      "theme": "hideout",
+      "prop": "fan",
+      "basic_pass": true,
+      "warnings": [
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 2.635,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        }
+      ],
+      "seam_ratio": 0.97,
+      "canvas": [
+        108,
+        110
+      ],
+      "pivot": [
+        54,
+        55
+      ],
+      "colors": 11,
+      "max_luma": 132,
+      "step_changes_including_wrap": [
+        2123,
+        2175,
+        2139,
+        2077
+      ],
+      "frame_duration_ms": 120,
+      "source_to_output_scale": 0.3794466403162055,
+      "bounds": [
+        [
+          6,
+          6,
+          102,
+          104
+        ],
+        [
+          6,
+          6,
+          102,
+          104
+        ],
+        [
+          6,
+          6,
+          102,
+          104
+        ],
+        [
+          6,
+          6,
+          102,
+          104
+        ]
+      ]
+    }
+  ],
+  "colors_union": 32
+}

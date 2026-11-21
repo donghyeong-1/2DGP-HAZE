@@ -1,0 +1,169 @@
+{
+  "title_boxes": {
+    "capsule_header": [
+      52,
+      99,
+      484,
+      329
+    ],
+    "capsule_main": [
+      345,
+      23,
+      887,
+      171
+    ],
+    "capsule_small": [
+      13,
+      30,
+      267,
+      130
+    ],
+    "capsule_vertical": [
+      42,
+      85,
+      458,
+      252
+    ]
+  },
+  "library_hero_source_crop": [
+    81,
+    0,
+    2125,
+    660
+  ],
+  "library_hero_safe_area": [
+    1490,
+    430,
+    2350,
+    810
+  ],
+  "exports": {
+    "logo": {
+      "dimensions": [
+        1280,
+        720
+      ],
+      "pixel_block": 2,
+      "logical_resolution": [
+        640,
+        360
+      ],
+      "color_count": 44,
+      "opacity_values": [
+        0,
+        255
+      ],
+      "content_bounds": [
+        54,
+        156,
+        1226,
+        562
+      ]
+    },
+    "capsule_header": {
+      "dimensions": [
+        920,
+        430
+      ],
+      "pixel_block": 2,
+      "logical_resolution": [
+        460,
+        215
+      ],
+      "color_count": 44,
+      "opacity_values": [
+        255
+      ],
+      "content_bounds": [
+        0,
+        0,
+        920,
+        430
+      ]
+    },
+    "capsule_main": {
+      "dimensions": [
+        1232,
+        706
+      ],
+      "pixel_block": 2,
+      "logical_resolution": [
+        616,
+        353
+      ],
+      "color_count": 46,
+      "opacity_values": [
+        255
+      ],
+      "content_bounds": [
+        0,
+        0,
+        1232,
+        706
+      ]
+    },
+    "capsule_small": {
+      "dimensions": [
+        462,
+        174
+      ],
+      "pixel_block": 1,
+      "logical_resolution": [
+        462,
+        174
+      ],
+      "color_count": 38,
+      "opacity_values": [
+        255
+      ],
+      "content_bounds": [
+        0,
+        0,
+        462,
+        174
+      ]
+    },
+    "capsule_vertical": {
+      "dimensions": [
+        748,
+        896
+      ],
+      "pixel_block": 4,
+      "logical_resolution": [
+        187,
+        224
+      ],
+      "color_count": 43,
+      "opacity_values": [
+        255
+      ],
+      "content_bounds": [
+        0,
+        0,
+        748,
+        896
+      ]
+    },
+    "library_hero": {
+      "dimensions": [
+        3840,
+        1240
+      ],
+      "pixel_block": 4,
+      "logical_resolution": [
+        960,
+        310
+      ],
+      "color_count": 48,
+      "opacity_values": [
+        255
+      ],
+      "content_bounds": [
+        0,
+        0,
+        3840,
+        1240
+      ]
+    }
+  }
+}

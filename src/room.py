@@ -101,6 +101,7 @@ class Room:
         self.decals = {}           # (열, 줄) -> 벽에 붙는 소품 번호 (벽 타일 위에 덧그린다)
         self.decor = []            # (소품 번호, 열, 줄)
         near_marker = set()        # 문·스폰·진열대 근처는 소품을 두지 않는다
+        self.near_marker = near_marker
         for row in range(self.nrows):
             for col in range(self.cols):
                 ch = self.rows[row][col]
@@ -167,6 +168,9 @@ class Room:
                         self.decor.append((DECOR_DEBRIS, col, row))
                     elif crystal_theme and h < 25:
                         self.decor.append((DECOR_CRYSTAL_BIG if h % 2 else DECOR_CRYSTAL, col, row))
+        import props_anim
+        self.anim_props = props_anim.place(self, self.theme)       # 움직이는 배경 소품 (Codex T28)
+        self.anim_time = 0.0
 
     @classmethod
     def load(cls, name, links=None, high_haze=False, theme='cell'):
@@ -245,7 +249,7 @@ class Room:
 
     # ----- 객체 인터페이스 -----
     def update(self, dt):
-        pass
+        self.anim_time += dt
 
     def _cell(self, atlas, acol, arow, col, bottom, tint=None, flip=''):
         """타일 세트에서 한 칸을 잘라 (col, 아래 모서리 bottom)에 그린다. tint는 색 곱, flip은 'h'·'v' 뒤집기."""
@@ -301,6 +305,14 @@ class Room:
         for kind, col, row in self.decor:
             if c0 <= col <= c1 and r0 <= row <= r1:
                 self._cell(atlas, kind, ROW_PROP, col, self.height - (row + 1) * t)
+        # 1-2) 움직이는 배경 소품 (4장 반복)
+        import props_anim
+        view_l, view_b = camera.x - 200, camera.y - 200
+        for p in self.anim_props:
+            if p.left + p.w < view_l or p.left > view_l + config.SCREEN_W + 400 or p.bottom + p.h < view_b or p.bottom > view_b + config.SCREEN_H + 400:
+                continue
+            img = assets.image(f'props/{p.name}_{props_anim.frame_at(self.anim_time + p.phase)}.png')
+            assets.draw_clip(img, 0, 0, p.w, p.h, p.left, p.bottom)
         # 2) 벽·바닥·가시·문
         for row in range(r0, r1 + 1):
             line = self.rows[row]

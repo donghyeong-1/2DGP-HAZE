@@ -1,0 +1,101 @@
+{
+  "task": "T29",
+  "date_kst": "2026-11-21",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "genre": "횡스크롤 액션 로그라이트",
+  "title": "헤이즈 (HAZE)",
+  "subtitle": "안개를 삼키고 탈출하라",
+  "generated": [
+    {
+      "name": "logo",
+      "source": "raw/logo.png",
+      "source_size": [
+        1961,
+        802
+      ],
+      "prompt": "raw/logo_prompt.txt",
+      "references": [
+        "assets/ui/logo.png"
+      ],
+      "sha256": "bced22f186a0cec215852d969f57806fdb71255e7bb7dd89744bb7a59fcb9d7a"
+    },
+    {
+      "name": "capsule_header",
+      "source": "raw/capsule_header.png",
+      "source_size": [
+        1833,
+        858
+      ],
+      "prompt": "raw/capsule_header_prompt.txt",
+      "references": [
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png",
+        "assets/backgrounds/screen_title.png",
+        "assets/ui/ult_cutin.png"
+      ],
+      "sha256": "0d51680c21e7904b6f2390fe9d29c614a958b1056324e1517917fc067b1c818f"
+    },
+    {
+      "name": "capsule_main",
+      "source": "raw/capsule_main.png",
+      "source_size": [
+        1658,
+        949
+      ],
+      "prompt": "raw/capsule_main_prompt.txt",
+      "references": [
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png",
+        "assets/sprites/forge/remake_t01_t03/boss_ark/master/master_rgba.png",
+        "raw/capsule_header.png"
+      ],
+      "sha256": "f1aa59967bdcaf28590a179e9d779ffe8419984414ba7aa6feae592b5a653564"
+    },
+    {
+      "name": "capsule_small",
+      "source": "raw/capsule_small.png",
+      "source_size": [
+        2042,
+        770
+      ],
+      "prompt": "raw/capsule_small_prompt.txt",
+      "references": [
+        "raw/capsule_header.png",
+        "assets/ui/ult_cutin.png"
+      ],
+      "sha256": "70d20e71f21c524274d05e921194b59a0063ee2b173627a772a9f4d38af0ff35"
+    },
+    {
+      "name": "capsule_vertical",
+      "source": "raw/capsule_vertical.png",
+      "source_size": [
+        1146,
+        1373
+      ],
+      "prompt": "raw/capsule_vertical_prompt.txt",
+      "references": [
+        "assets/backgrounds/screen_title.png",
+        "raw/capsule_header.png",
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png"
+      ],
+      "sha256": "2904ae0d81ca0f3ee754bc4a659e3eee2b7ec8d2a64595a2b76511f7535c0c7f"
+    },
+    {
+      "name": "library_hero",
+      "source": "raw/library_hero.png",
+      "source_size": [
+        2206,
+        713
+      ],
+      "prompt": "raw/library_hero_prompt.txt",
+      "references": [
+        "assets/backgrounds/far_cell.png",
+        "assets/backgrounds/far_foundry.png",
+        "assets/backgrounds/far_haze.png",
+        "assets/backgrounds/screen_title.png"
+      ],
+      "sha256": "969136ea7fe68fe19cda7511ce39b259fafaa7e4f6f7747c3e0023ca042a660b"
+    }
+  ]
+}

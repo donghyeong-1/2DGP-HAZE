@@ -1,0 +1,137 @@
+{
+  "schema": "generate2dsprite.palette.v1",
+  "colors": [
+    {
+      "hex": "#081d43"
+    },
+    {
+      "hex": "#0b2141"
+    },
+    {
+      "hex": "#11243e"
+    },
+    {
+      "hex": "#0d2749"
+    },
+    {
+      "hex": "#142b48"
+    },
+    {
+      "hex": "#102c52"
+    },
+    {
+      "hex": "#133355"
+    },
+    {
+      "hex": "#1b3453"
+    },
+    {
+      "hex": "#163a5c"
+    },
+    {
+      "hex": "#203a5b"
+    },
+    {
+      "hex": "#1b4263"
+    },
+    {
+      "hex": "#294264"
+    },
+    {
+      "hex": "#1b4b69"
+    },
+    {
+      "hex": "#294b70"
+    },
+    {
+      "hex": "#215373"
+    },
+    {
+      "hex": "#0d6078"
+    },
+    {
+      "hex": "#2e5176"
+    },
+    {
+      "hex": "#245e7d"
+    },
+    {
+      "hex": "#34577e"
+    },
+    {
+      "hex": "#3a5d85"
+    },
+    {
+      "hex": "#296986"
+    },
+    {
+      "hex": "#3e648e"
+    },
+    {
+      "hex": "#0c7f91"
+    },
+    {
+      "hex": "#2d7591"
+    },
+    {
+      "hex": "#446e98"
+    },
+    {
+      "hex": "#32849f"
+    },
+    {
+      "hex": "#50769f"
+    },
+    {
+      "hex": "#1199a9"
+    },
+    {
+      "hex": "#5682ab"
+    },
+    {
+      "hex": "#628bb1"
+    },
+    {
+      "hex": "#17b7c2"
+    },
+    {
+      "hex": "#6996bc"
+    },
+    {
+      "hex": "#c18965"
+    },
+    {
+      "hex": "#79a1c4"
+    },
+    {
+      "hex": "#19d5da"
+    },
+    {
+      "hex": "#1be8e8"
+    },
+    {
+      "hex": "#8eb5d3"
+    },
+    {
+      "hex": "#68d0dc"
+    },
+    {
+      "hex": "#27f8f7"
+    },
+    {
+      "hex": "#accde1"
+    },
+    {
+      "hex": "#59f9f9"
+    },
+    {
+      "hex": "#f8c691"
+    },
+    {
+      "hex": "#dce7ec"
+    }
+  ],
+  "transparent_index": 255,
+  "locked": false,
+  "source": "hibit_plate: k-means++ on luminance-weighted RGB of capsule_vertical.png, 44 colours, seed 0"
+}

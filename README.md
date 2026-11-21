@@ -7,6 +7,9 @@
 pip install pico2d transitions
 python src/main.py
 ```
+실행 파일(파이썬 없는 Windows PC용): `python -m pip install pyinstaller` 뒤 `python tools/build_exe.py` -> `dist/Haze/Haze.exe`(폴더째 옮긴다), 나눠 줄 파일 `dist/Haze_win64.zip`.
+키는 설정 > 키 바꾸기에서 바꿀 수 있다. 아래는 기본 키다.
+
 | 키 | 동작 |
 |---|---|
 | A / D | 이동 |

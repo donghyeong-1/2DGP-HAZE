@@ -497,3 +497,10 @@
 - 그 칸에 필요한 문을 모두 가진 모양만 고른다(좌우 방 -> 6종 모두, 사방 방 -> 사방 셋). 시작·관문·보스·황금방·정비방·균열방은 바뀌지 않는다.
 - 적 구성은 원래 방과 같다: 원래 방의 스폰 종류(swap·enemies 적용)를 새 모양의 스폰 칸에 차례로 놓는다. 난이도는 방 모양만큼만 달라진다.
 - 스테이지마다 나올 수 있는 방 모양이 6종 늘었다(테스트: 40판에 4종 이상).
+## 2026-11-21 실행 파일 (계획 3-1)
+- `python tools/build_exe.py` -> `dist/Haze/Haze.exe` + `dist/Haze_win64.zip`(약 42MB). PyInstaller 한 폴더(onedir)·콘솔 없음(windowed), 아이콘은 주인공 대기 그림.
+- 게임이 읽는 폴더만 넣는다(`build_exe.INCLUDE`: sprites/unified, backgrounds, placeholder, props, tiles, ui, effects, sfx, music, fonts, data). forge 원화(600MB)·컨셉·발표·상점 그림은 빼고, 게임에 안 쓰는 numpy·IPython·jedi 등도 뺀다. 테스트(`tests/test_build.py`)가 코드가 읽는 폴더가 빠지지 않았는지, 60MB 아래인지 본다.
+- 실행 파일 안에서는 `assets.resource_root()`가 PyInstaller가 풀어 둔 폴더(sys._MEIPASS)를 쓴다.
+- 창 제목을 '헤이즈 (HAZE)'로 바꿨다(pico2d가 매 프레임 'Pico2D Canvas ... FPS'로 덮어쓰던 것을 끈다).
+- 개발용 `HAZE_START=play`(타이틀 건너뛰고 은신처에서 시작)를 더했다. 실행 파일을 이것과 `HAZE_MAX_SECONDS`로 켜서 타이틀·은신처가 그려지고 정상 종료(코드 0)하는 것을 이 PC에서 확인했다. 파이썬 없는 다른 PC에서는 아직 확인하지 않았다(사용자).
+- `dist/`는 저장소에 넣지 않는다(.gitignore).

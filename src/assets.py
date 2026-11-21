@@ -1,7 +1,18 @@
 """이미지·글꼴 로드와 캐시. 같은 파일은 한 번만 읽는다. pico2d는 실제로 그릴 때 불러온다."""
 import os
+import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def resource_root(frozen=None, bundle=None):
+    """에셋·데이터가 있는 폴더. 실행 파일(PyInstaller)이면 풀어 둔 폴더(sys._MEIPASS), 아니면 저장소 폴더."""
+    if frozen is None:
+        frozen = getattr(sys, 'frozen', False)
+    if frozen:
+        return bundle or getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+ROOT = resource_root()
 ASSET_DIR = os.path.join(ROOT, 'assets')
 DATA_DIR = os.path.join(ROOT, 'data')
 

@@ -330,7 +330,7 @@ class Ark(Enemy):
         pass                                                      # 보스 체력은 화면 위 큰 바(UI)
 
     # ----- 피해: 경직 없음, 쓰러지는 자세를 보여 준다 -----
-    def take_damage(self, damage, from_x=None):
+    def take_damage(self, damage, from_x=None, knock=1.0):
         if not self.alive:
             return False
         self.hp -= damage

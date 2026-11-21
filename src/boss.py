@@ -362,7 +362,7 @@ class Boss(Enemy):
         return tint
 
     # ----- 피해: 경직 없음 -----
-    def take_damage(self, damage, from_x=None):
+    def take_damage(self, damage, from_x=None, knock=1.0):
         if not self.alive:
             return False
         self.hp -= damage

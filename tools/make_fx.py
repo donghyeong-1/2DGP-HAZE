@@ -13,7 +13,8 @@
   death-burst   적이 헤이즈 조각으로 흩어지는 소멸
   dust-land     착지·대시 출발 먼지 (바닥을 따라 좌우로)
   shockwave     보스 바닥 충격파 (반복 재생, 오른쪽 방향. 왼쪽은 좌우 반전)
-  ult-nova      궁극기 광역 폭발 (2026-11-20): 흰 섬광 -> 두 겹 충격 고리 + 바깥으로 튀는 빛 가시 + 안쪽 헤이즈 소용돌이
+  ult-nova-<무기>  궁극기 광역 폭발 (11/20, 11/21 무기별): 흰 섬광 -> 충격 고리 + 빛 가시 + 안쪽 소용돌이.
+                 철파이프 청록, 식칼 은빛 긴 칼날 가시, 건틀릿 주황 굵은 고리, 사슬 보라 끊어진 고리
 
 사용: python tools/make_fx.py [시트 이름 ...]
 """
@@ -308,50 +309,66 @@ def build_shockwave():
 
 
 
-# ----- 궁극기 광역 폭발 -----
-NOVA_RING = ramp('#ffffff', '#f2e0ff', '#b98cff', '#6a3fd0')      # 바깥 충격 고리 (보라)
-NOVA_CORE = ramp('#ffffff', '#c8f7ff', '#5fd0ee', '#2f6fa8')      # 안쪽 헤이즈 (청록)
+# ----- 궁극기 광역 폭발 (무기마다 색·모양이 다르다, 11/21 퀄리티 계획 1-6) -----
+NOVA_STYLES = {
+    # 철파이프: 청록 헤이즈 소용돌이 + 흰·청록 고리, 빛 가시 16개
+    'pipe': dict(ring=ramp('#ffffff', '#d8fbff', '#62d6f0', '#2a6f9e'), core=ramp('#ffffff', '#c8f7ff', '#5fd0ee', '#2f6fa8'),
+                 spikes=16, spike_len=0.10, spike_w=1.6, rings=((0.47, 2.2, 1.0), (0.38, 4.5, 0.75)), arms=4, links=0),
+    # 식칼: 은빛 칼날이 사방으로 길고 가늘게 (가시 28개), 소용돌이 팔 6개
+    'knife': dict(ring=ramp('#ffffff', '#eef3fa', '#aab7cc', '#5d6a85'), core=ramp('#ffffff', '#e6edf7', '#9fb0c8', '#56637d'),
+                  spikes=28, spike_len=0.16, spike_w=1.0, rings=((0.47, 1.6, 1.0),), arms=6, links=0),
+    # 건틀릿: 주황 충격 + 청록 속, 굵은 고리 두 겹과 짧고 굵은 가시
+    'gauntlet': dict(ring=ramp('#fff4d6', '#ffd27a', '#ff8a3a', '#a3402a'), core=ramp('#ffffff', '#b8fff0', '#3fd6a4', '#1f8a78'),
+                     spikes=10, spike_len=0.07, spike_w=3.2, rings=((0.46, 3.6, 1.0), (0.36, 6.0, 0.85)), arms=3, links=0),
+    # 사슬: 보라 고리가 사슬 고리처럼 끊어져 이어지고(마디 18개), 가시 없음
+    'chain': dict(ring=ramp('#ffffff', '#f2e0ff', '#b98cff', '#6a3fd0'), core=ramp('#f6eaff', '#d9b8ff', '#9a62f0', '#4b2a9a'),
+                  spikes=0, spike_len=0.0, spike_w=1.0, rings=((0.47, 3.0, 1.0), (0.40, 2.0, 0.8)), arms=5, links=18),
+}
 
 
-def build_nova():
+def build_nova(style):
     """궁극기 범위를 보여 주는 큰 폭발. 230칸 x 2배 = 지름 약 460px (궁극기 범위와 비슷)."""
+    s = NOVA_STYLES[style]
     out, g = [], 230
     c = g / 2
     rng = np.random.RandomState(21)
-    spikes = [(rng.rand() * math.tau, 0.65 + 0.35 * rng.rand()) for _ in range(16)]
+    spikes = [(rng.rand() * math.tau, 0.65 + 0.35 * rng.rand()) for _ in range(s['spikes'])]
     for i in range(11):
         f = Frame(g, g)
         t = (i + 0.4) / 11
         r, th = f.polar(c, c)
         heat = np.zeros((g, g))
-        # 안쪽 헤이즈 소용돌이: 돌면서 퍼지고 가운데부터 비어 간다
+        # 안쪽 소용돌이: 돌면서 퍼지고 가운데부터 비어 간다
         swirl = smooth_noise(g, g, 7, 5 + i // 3)
-        spiral = 0.5 + 0.5 * np.sin(4 * th + r * 0.09 - t * 9)
+        spiral = 0.5 + 0.5 * np.sin(s['arms'] * th + r * 0.09 - t * 9)
         inner_r = g * 0.36 * ease_out(t / 0.6)
         core = np.clip(1 - r / np.maximum(inner_r, 1), 0, 1) * (0.55 + 0.45 * spiral + (swirl - 0.5) * 0.35)
         core *= np.clip((r - inner_r * ease_in((t - 0.3) / 0.7, 1.3)) / 6 + 0.15, 0, 1)
         core = np.clip(core - 0.8 * ease_in((t - 0.5) / 0.5, 1.4), 0, 1)
-        f.paint(core, NOVA_CORE, dither=0.3, outline=False)
-        # 두 겹 충격 고리 (앞 고리가 빠르고 얇다)
-        for speed, width, fade in ((0.47, 2.2, 1.0), (0.38, 4.5, 0.75)):
+        f.paint(core, s['core'], dither=0.3, outline=False)
+        # 충격 고리 (앞 고리가 빠르고 얇다). 사슬은 고리가 마디마디 끊어진다
+        for speed, width, fade in s['rings']:
             rr = g * speed * ease_out(t, 2.0)
             w = width * (1.4 - t)
-            heat = np.maximum(heat, np.clip(1 - np.abs(r - rr) / max(w, 0.6), 0, 1) * fade * (1 - t) ** 0.5)
-        # 바깥으로 튀는 빛 가시
+            ring = np.clip(1 - np.abs(r - rr) / max(w, 0.6), 0, 1) * fade * (1 - t) ** 0.5
+            if s['links']:
+                ring *= (np.sin(s['links'] * th + t * 3) > -0.35)
+            heat = np.maximum(heat, ring)
+        # 바깥으로 튀는 빛 가시 (식칼은 길고 가늘게, 건틀릿은 짧고 굵게)
         for ang, length in spikes:
             d0 = g * 0.12 + g * 0.3 * ease_out(t)
-            d1 = d0 + g * 0.1 * length * (1 - t)
+            d1 = d0 + g * s['spike_len'] * length * (1 - t)
             ux, uy = math.cos(ang), math.sin(ang)
             along = (f.X - c) * ux + (f.Y - c) * uy
             across = np.abs(-(f.X - c) * uy + (f.Y - c) * ux)
             line = (along >= d0) & (along <= d1)
-            heat = np.maximum(heat, np.where(line, np.clip(1 - across / (1.6 * (1 - t) + 0.5), 0, 1), 0) * (1 - t) ** 0.4)
+            width = s['spike_w'] * (1 - t) + 0.5
+            heat = np.maximum(heat, np.where(line, np.clip(1 - across / width, 0, 1), 0) * (1 - t) ** 0.4)
         if t < 0.22:                                              # 첫 순간 흰 섬광
             heat = np.maximum(heat, f.blob(c, c, g * 0.22 * (1 - t / 0.22) + 4))
-        f.paint(heat, NOVA_RING, dither=0.2)
+        f.paint(heat, s['ring'], dither=0.2)
         out.append(f.a)
     return out, (g // 2, g // 2)
-
 
 SHEETS = {
     'hit-fade': lambda: build_hit('hit-fade', DIM, 0, 48, 0),
@@ -366,7 +383,10 @@ SHEETS = {
     'quake-blast': build_quake,
     'death-burst': build_death,
     'shockwave': build_shockwave,
-    'ult-nova': build_nova,
+    'ult-nova-pipe': lambda: build_nova('pipe'),
+    'ult-nova-knife': lambda: build_nova('knife'),
+    'ult-nova-gauntlet': lambda: build_nova('gauntlet'),
+    'ult-nova-chain': lambda: build_nova('chain'),
 }
 LOOPS = {'shockwave'}
 

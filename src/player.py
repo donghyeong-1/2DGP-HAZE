@@ -659,6 +659,12 @@ class Player(TileBody):
             return 'n09_dash', int(self.aura_time / config.DASH_FRAME_TIME) % 2 + 1
         if self.stunned:
             return 'n09_idle', 0
+        if self.swing_left > 0 and self.swing_dir == 's2rise':     # 철파이프 2단계 올려베기 (T24): 3장을 고르게
+            done = 1.0 - self.swing_left / self.swing_total
+            return 'n09_s2rise', min(3, 1 + int(done * 3))
+        if self.swing_left > 0 and self.swing_dir == 's2slam':     # 내려찍기: 들고 뜸 -> 45도 -> 바닥 타격(머문다)
+            t = self.swing_total - self.swing_left
+            return 'n09_s2slam', 1 + sum(1 for edge in config.STAGE2_SLAM_FRAMES if t >= edge)
         if self.swing_left > 0 and self.swing_dir == 'plunge':
             return 'n09_plunge', 1 if self.swing_left > self.swing_total * 0.65 else 2
         if self.ult_pose_left > 0:                           # 궁극기 시전: 모으기 -> 해방 (T23)

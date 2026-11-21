@@ -43,6 +43,17 @@ def draw_image_tinted(img, x, y, flip, color, alpha):
         img.opacify(1.0)
 
 
+def draw_image_added(img, x, y, flip=''):
+    """더하기 섞기(밝게 겹치기)로 그린다: 같은 그림을 한 번 더 더해 하얗게 번쩍이게 할 때. 끝나면 원래대로."""
+    from sdl2 import SDL_BLENDMODE_ADD, SDL_BLENDMODE_BLEND, SDL_SetTextureBlendMode
+    SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_ADD)
+    try:
+        for _ in range(2):                         # 두 번 더하면 거의 흰색 (어두운 옷도 밝게 보인다)
+            draw_image(img, x, y, flip)
+    finally:
+        SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_BLEND)
+
+
 def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):
     """시트에서 (left, bottom, w, h) 칸을 잘라 화면의 왼쪽 아래 (x, y)에 그린다. 정수 좌표만 쓰고,
     scale은 정수(최근접 확대)만 허용한다. 이펙트에서만 2배를 쓴다 (docs/pixel_rules.md)."""
@@ -81,6 +92,12 @@ FONT_MULTIPLES = {'normal': 1, 'small': 1, 'big': 3}  # 종류별 추가 배수 
 _sounds = {}
 
 
+def sfx_gain(name):
+    """효과음 음량 균형 배율 (config.SFX_GAIN, 없으면 1.0)."""
+    import config
+    return config.SFX_GAIN.get(name, 1.0)
+
+
 def sound(name):
     """assets/sfx/<name>.wav 를 불러와 캐시한다. 오디오를 쓸 수 없으면 None."""
     if name not in _sounds:
@@ -90,7 +107,7 @@ def sound(name):
             if wav is not None:
                 import config
                 import options
-                wav.set_volume(options.volume(config.SFX_VOLUME, options.sfx_level))
+                wav.set_volume(options.volume(config.SFX_VOLUME * sfx_gain(name), options.sfx_level))
             _sounds[name] = wav
         except Exception:
             _sounds[name] = None
@@ -105,7 +122,7 @@ def play_sound(name):
     wav = sound(name)
     if wav is not None:
         import options
-        wav.set_volume(options.volume(config.SFX_VOLUME, options.sfx_level))   # 설정에서 바꾼 효과음 크기
+        wav.set_volume(options.volume(config.SFX_VOLUME * sfx_gain(name), options.sfx_level))   # 설정 크기 x 소리별 균형
         wav.play()
 
 

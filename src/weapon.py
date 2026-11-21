@@ -68,6 +68,7 @@ class ExtraHits:
 
 
 class Pipe:
+    IMPACT = 'impact_pipe'          # 명중할 때 적 피격음 위에 겹치는 무기 소리 (11/21 계획 1-7). 사슬은 갈고리 소리가 따로 있다
     name = '철파이프'
     weapon_id = 'pipe'
     base_damage = config.PIPE_DAMAGE
@@ -187,7 +188,9 @@ class Pipe:
     def _hit(self, enemy, damage, gain, fx, big=False, color=None, shake=1.0, stop=1.0, blast=False, extra=True):
         """적 하나에게 피해와 모든 맞는 반응(게이지, 불꽃, 숫자, 흔들림, 멈춤)을 준다. 죽였으면 True."""
         p = self.owner
-        killed = enemy.take_damage(damage, from_x=p.x)
+        killed = enemy.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG if big else 1.0)
+        if self.IMPACT:
+            assets.play_sound(self.IMPACT)
         p.gauge.add(gain, 'hit')
         ex, ey = enemy.center
         effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
@@ -285,8 +288,10 @@ class Pipe:
         fx = config.ENHANCED_FX
         side = 1 if ax >= 0 else -1
         self.combo = 0
-        p.start_swing(side * 0.45, 0.9)                  # 위로 (up 자세)
+        p.start_swing(side * 0.45, 0.9)
         p.set_swing_style(2, side)
+        p.swing_dir = 's2rise'                           # 전용 그림 (Codex T24): 웅크림 -> 앞 수평 -> 머리 위
+        p.swing_total = p.swing_left = config.STAGE2_SLAM_DELAY + 0.01   # 세 장이 내려찍기 전에 모두 보이게
         self.cooldown = config.ENHANCE_STRIKE_COOLDOWN + config.STAGE2_SLAM_DELAY
         variant, flip = effects.slash_variant(side * 0.45, 0.9)
         effects.spawn(fx['slash'], cx, cy + 30, flip=flip, duration=0.2, variant=variant)
@@ -300,14 +305,24 @@ class Pipe:
         self._finish(True)                               # 강화 단계는 지금 쓴다 (둘째 타 사이에 E를 눌러도 쌓이지 않게)
 
     def _stage2_slam(self, side):
-        """둘째 타: 앞 아래로 내려찍어 바닥 충격을 낸다."""
+        """둘째 타의 시작: 두 손으로 들고 뛰어올라 내리친다 (그림 1·2번). 피해는 파이프가 바닥에 닿는 3번에서."""
+        p = self.owner
+        if p.state == 'DEAD':
+            return
+        p.start_swing(side * 0.7, -0.6)
+        p.set_swing_style(3, side)
+        p.swing_dir = 's2slam'                           # 전용 그림 (Codex T24): 두 손 들고 뜸 -> 45도 -> 바닥 타격
+        p.swing_total = p.swing_left = config.STAGE2_SLAM_POSE
+        assets.play_sound('swing_enhanced')
+        self.followup = (config.STAGE2_SLAM_FRAMES[1], lambda: self._stage2_impact(side))
+
+    def _stage2_impact(self, side):
+        """파이프가 바닥에 닿는 순간: 바닥 충격과 큰 피해."""
         p = self.owner
         if p.state == 'DEAD':
             return
         cx, cy = p.center
         fx = config.ENHANCED_FX
-        p.start_swing(side * 0.7, -0.6)                  # 앞 아래 (downfwd 자세)
-        p.set_swing_style(3, side)
         assets.play_sound('swing_critical')
         effects.spawn('quake-blast', p.x + side * 150, p.y, duration=0.4)
         effects.add_trauma(config.SHAKE_FINISHER * 1.3)
@@ -453,6 +468,7 @@ class Pipe:
 # 칼은 실행 중 회전하지 않고 8방향 그림(proj_knife_0~7) 중 가장 가까운 것을 쓴다.
 # =====================================================================================================
 class Knife(Pipe):
+    IMPACT = 'impact_knife'
     name = '식칼'
     weapon_id = 'knife'
     base_damage = config.KNIFE_DAMAGE
@@ -555,6 +571,7 @@ class ThrownKnife:
 # E 강화: 충전 시간 절반, 충격파 크기·피해 x1.5.
 # =====================================================================================================
 class Gauntlet(Pipe):
+    IMPACT = 'impact_gauntlet'
     name = '건틀릿'
     weapon_id = 'gauntlet'
     base_damage = config.GAUNTLET_DAMAGE
@@ -705,6 +722,7 @@ class Blast:
 # 갈고리가 돌아오기 전에는 다시 던지지 못한다. 사슬 그림은 코드로 그린 고리 칸이다(회전 없음).
 # =====================================================================================================
 class Chain(Pipe):
+    IMPACT = None
     name = '사슬'
     weapon_id = 'chain'
     base_damage = config.CHAIN_DAMAGE
@@ -982,6 +1000,7 @@ class Ultimate:
         self.aim = (self.x0 + mx * k, self.y0 + my * k)
         self.pulls = weapon.weapon_id == 'chain'                      # 사슬: 맞을 때마다 끌어온다
         self.nova_count = 0                                           # 광역 폭발 이펙트를 터뜨린 횟수 (테스트)
+        self.nova_name = 'ult-nova-' + weapon.weapon_id                  # 무기마다 색·모양이 다른 폭발
         self.time = 0.0
         self.hits_done = 0
         self.dealt = {}
@@ -1058,7 +1077,7 @@ class Ultimate:
         self._spawn_shape()
         if self.hits_done == 0 or last:                                # 시작과 마지막 일격: 범위 한가운데에 광역 폭발
             cx, cy = self.area_center()
-            effects.spawn('ult-nova', cx, cy, duration=0.55 if last else 0.4)
+            effects.spawn(self.nova_name, cx, cy, duration=0.55 if last else 0.4)
             self.nova_count += 1
         effects.add_trauma(0.35 if not last else 0.8)
         assets.play_sound('ult_final' if last else 'ult_hit')

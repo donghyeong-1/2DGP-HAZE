@@ -300,6 +300,60 @@ def ark_field():
     return (lowpass(noise(s), 3) * 0.6 * bubble + triangle(sweep(180, 120, s)) * 0.3) * envelope(s, 0.03, 0.7)
 
 
+
+# ----- 2026-11-21 퀄리티 계획 1-7: 무기별 명중 (적 피격음 위에 겹친다), 적별 공격 예고 -----
+def impact_pipe():
+    """철파이프 명중: 둔탁한 쇠막대 '퍽' + 짧은 쇳소리."""
+    s = 0.16
+    thud = drive(sub_drop(s, 150, 60, 20) * 1.2, 1.6)
+    return thud * 0.8 + metal((640, 1010, 1490), s, 26) * 0.3 + lowpass(noise(s), 4) * 0.4 * envelope(s, 0.001, 0.3)
+
+
+def impact_knife():
+    """식칼 명중: 날카롭게 베는 '슥' (높은 잡음이 빠르게 지나간다)."""
+    s = 0.12
+    hiss = (noise(s) - lowpass(noise(s), 6)) * envelope(s, 0.002, 0.7)
+    return hiss * 0.9 + metal((2900, 4100), s, 40) * 0.25
+
+
+def impact_gauntlet():
+    """건틀릿 명중: 에너지가 터지는 '쿵' + 지직거림."""
+    s = 0.24
+    t = t_axis(s)
+    zap = square(sweep(520, 140, s), 0.5) * (1 + 0.6 * np.sin(2 * np.pi * 45 * t)) * 0.3
+    return drive(sub_drop(s, 120, 40, 12) * 1.3, 2.0) * 0.8 + zap * envelope(s, 0.002, 0.8) + lowpass(noise(s), 3) * 0.35 * envelope(s, 0.002, 0.5)
+
+
+def windup_slum():
+    """슬럼 폐인의 예고: 낮게 끄는 신음."""
+    s = 0.32
+    t = t_axis(s)
+    f = sweep(150, 115, s) * (1 + 0.03 * np.sin(2 * np.pi * 9 * t))
+    return (square(f, 0.4) * 0.3 + triangle(f) * 0.5 + lowpass(noise(s), 8) * 0.25) * envelope(s, 0.05, 0.5)
+
+
+def windup_thrower():
+    """고철 투척병의 예고: 고철을 쥐는 짤그락."""
+    s = 0.24
+    return place(s, [(0.0, metal((1900, 2700), 0.05, 70)), (0.07, metal((1650, 2450), 0.05, 70) * 0.8),
+                     (0.12, metal((2100, 3000), 0.06, 60) * 0.6)]) + lowpass(noise(s), 6) * 0.15 * envelope(s)
+
+
+def windup_hound():
+    """안개 사냥개의 예고: 으르렁 (빠르게 떨리는 낮은 소리)."""
+    s = 0.36
+    t = t_axis(s)
+    growl = (triangle(sweep(95, 120, s)) * 0.6 + lowpass(noise(s), 5) * 0.5) * (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 26 * t)))
+    return growl * envelope(s, 0.03, 0.4)
+
+
+def windup_guard():
+    """중장갑 간수의 예고: 갑옷이 삐걱이며 무겁게 드는 소리."""
+    s = 0.4
+    creak = square(sweep(210, 160, s), 0.15) * 0.25 * (1 + 0.5 * np.sin(2 * np.pi * 17 * t_axis(s)))
+    return (metal((310, 470, 690), s, 7) * 0.5 + creak + triangle(sweep(70, 55, s)) * 0.4) * envelope(s, 0.06, 0.5)
+
+
 SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
@@ -308,7 +362,11 @@ SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload
           "chain_throw": chain_throw, "chain_latch": chain_latch, "chain_clash": chain_clash,
           "ult_cast": ult_cast, "ult_hit": ult_hit, "ult_final": ult_final,
           "ark_bullet": ark_bullet, "ark_teleport": ark_teleport, "ark_roar": ark_roar,
-          "ark_absorb": ark_absorb, "ark_burst": ark_burst, "ark_field": ark_field}
+          "ark_absorb": ark_absorb, "ark_burst": ark_burst, "ark_field": ark_field,
+          # 2026-11-21 추가
+          "impact_pipe": impact_pipe, "impact_knife": impact_knife, "impact_gauntlet": impact_gauntlet,
+          "windup_slum": windup_slum, "windup_thrower": windup_thrower, "windup_hound": windup_hound,
+          "windup_guard": windup_guard}
 GAIN = 0.55  # 전체 음량 (클리핑 방지)
 
 

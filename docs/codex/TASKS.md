@@ -43,8 +43,8 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T21 | 주인공 달리기 8장 다시: 왼발·오른발 걸음 번갈아 (T19 달리기는 같은 걸음이 두 번) | [T21_hero_run_alternate.md](tasks/T21_hero_run_alternate.md) | T19 | done·게임 적용 2026-11-19 (걸음 교대 비율 0.39 -> 0.87, 출발 자세의 바지는 아직 어두움) |
 | T22 | 은신처(로비) 원경 + NPC 3명(정비사·보관인·기록관) 대기 2장씩 | [T22_hideout_npcs.md](tasks/T22_hideout_npcs.md) | - | done·게임 적용 2026-11-19 (원경 far_hideout, NPC 3명 대기 2장, 그림은 오른쪽을 봐서 게임이 플레이어 쪽으로 돌린다) |
 | T23 | 궁극기(E 3단계) 컷인 띠 + 시전 자세 2장 | [T23_ultimate_cutin.md](tasks/T23_ultimate_cutin.md) | - | done·게임 적용 2026-11-19 (컷인 띠 ui/ult_cutin, 시전 자세 n09_ult 2장) |
-| T24 | 철파이프 2단계 강화 동작 (올려베기 3장 + 내려찍기 3장) | [T24_pipe_stage2.md](tasks/T24_pipe_stage2.md) | - | ready |
-| T25 | 일반 적 4종 사망 동작 3장 + 피격 2장째 | [T25_enemy_death_hurt.md](tasks/T25_enemy_death_hurt.md) | - | ready |
+| T24 | 철파이프 2단계 강화 동작 (올려베기 3장 + 내려찍기 3장) | [T24_pipe_stage2.md](tasks/T24_pipe_stage2.md) | - | done·게임 적용 2026-11-21 (`n09_s2rise`·`n09_s2slam` 3장씩, 피해는 내려찍기 3번 그림에서) |
+| T25 | 일반 적 4종 사망 동작 3장 + 피격 2장째 | [T25_enemy_death_hurt.md](tasks/T25_enemy_death_hurt.md) | - | in_progress |
 | T26 | 식칼·건틀릿·사슬 전용 공격 자세 10장 | [T26_weapon_poses.md](tasks/T26_weapon_poses.md) | - | ready |
 | T27 | 보스 크래셔 걷기 4장 + 사망 2장 | [T27_crasher_walk_death.md](tasks/T27_crasher_walk_death.md) | - | ready |
 | T28 | 스테이지별 움직이는 배경 소품 12종 x 4장 | [T28_animated_props.md](tasks/T28_animated_props.md) | - | ready |

@@ -115,7 +115,7 @@ def test_second_stage_strike_is_stronger_than_first():
         room, p, (e,) = stacked(gauge, stages, [100])
         g0 = p.gauge.value
         p.request_attack()
-        tc.step(30)
+        tc.step(50)                                                     # 2단계는 내려찍기가 바닥에 닿을 때(약 0.27초 뒤) 크게 맞는다
         hits.append(e.max_hp - e.hp)
         assert p.gauge.enhance_level == 0
     assert hits[1] > hits[0] * 1.4, hits                                # 2단계는 1단계보다 확실히 세다
@@ -266,9 +266,11 @@ def test_every_ultimate_shows_the_new_area_burst_and_dims_less():
         run_out_ultimate()
         names = [getattr(o, 'name', '') for o in game_world.world[game_world.LAYER_EFFECT]]
         assert u.nova_count >= 2, (wid, u.nova_count)                  # 시작과 마지막 일격
+        assert u.nova_name == 'ult-nova-' + wid                          # 무기마다 색·모양이 다른 폭발 (11/21 계획 1-6)
     assert config.ULT_DIM <= 0.35
     root = os.path.join(HERE, '..', 'assets', 'effects')
-    assert os.path.exists(os.path.join(root, 'ult-nova.png'))
+    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+        assert os.path.exists(os.path.join(root, f'ult-nova-{wid}.png')), wid
 
 
 def test_second_stage_pipe_is_a_new_motion_rising_slash_then_ground_slam():
@@ -279,16 +281,20 @@ def test_second_stage_pipe_is_a_new_motion_rising_slash_then_ground_slam():
     room, p, (e,) = stacked(90, 2, [100])
     p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
     p.request_attack()
-    assert p.swing_dir == 'up' and p.weapon.last_kind == 'pipe' and p.weapon.level == 2
+    assert p.swing_dir == 's2rise' and p.weapon.last_kind == 'pipe' and p.weapon.level == 2
+    assert p._body_frame() == ('n09_s2rise', 1)                         # T24 전용 그림: 웅크려 낮춤
     first = e.max_hp - e.hp
     assert first > 0                                                    # 첫 타: 올려베기
     seen_slam = False
     for _ in range(30):
         effects.hit_stop_left = 0.0
         tc.step(1)
-        if p.swing_dir == 'downfwd':
+        if p.swing_dir == 's2slam':
             seen_slam = True
+            assert p._body_frame()[0] == 'n09_s2slam'
     assert seen_slam                                                    # 이어서 앞 아래로 내려찍는 자세
+    import sprites
+    assert sprites.count('n09_s2rise') == 3 and sprites.count('n09_s2slam') == 3
     assert e.max_hp - e.hp > first * 1.5                                # 둘째 타가 더 세다
     assert 'quake-blast' in tc.spawned_names()                          # 바닥 충격
     assert p.gauge.enhance_level == 0

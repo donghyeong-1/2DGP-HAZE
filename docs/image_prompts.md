@@ -250,3 +250,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-19 [Codex] T22 은신처 원경과 NPC 3명 마스터·대기 6장. 원경은 따뜻한 등불·청록 결정·비어 있는 중앙과 아래 1/4을 요청했고, NPC는 주인공 v3b 화풍으로 렌치·결정 의수의 정비사, 자물쇠 상자·등불의 보관인, 안경·장부의 기록관을 제작했다. Codex 내장 image_gen(모델명 미제공). 실제 프롬프트는 assets/sprites/forge/hideout_v1/actual_prompt.txt 및 npc_v1/<역할>/{actual_prompt.txt,idle/actual_prompt.txt}.
 
 2026-11-19 [Codex] T23 N-09 궁극기 컷인·시전 2장. v3b 마스터를 참조해 흰 머리·청록 눈빛·해진 상의의 오른쪽 클로즈업과 기술명 여백이 있는 사선 띠, 웅크려 모으기→앞으로 내지르기를 요청했다. 시전은 머리 비율과 해방 높이를 1회 편집. Codex 내장 image_gen(모델명 미제공). 전문은 assets/sprites/forge/cutin_v1/actual_prompt.txt와 n09_ult_v1/{take_01_prompt.txt,actual_prompt.txt}.
+
+2026-11-21 [Codex] T24 N-09 철파이프 2단계 강화 6장. v3b 마스터를 참조해 웅크림→수평→머리 위 올려베기, 두 손을 머리 위로 든 체공→45° 하강→깊게 내딛는 바닥 타격을 요청했다. 마지막 컷은 손 높이와 파이프 접촉을 강조해 1회 재생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/n09_stage2_v1/raw/*_prompt.txt.

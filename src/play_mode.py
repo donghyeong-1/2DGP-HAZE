@@ -78,6 +78,8 @@ def _on_room_cleared(stage_):
     clear_notice = 3.0
     assets.play_sound('pickup')
     effects.add_trauma(0.2)
+    boss = getattr(stage_, 'boss', None)
+    effects.request_slow_motion(*(config.SLOW_BOSS if boss is not None and not boss.alive else config.SLOW_CLEAR))
 
 
 # 게이지 변화 중 화면에 글자로 보여 줄 것들 (시간 경과는 너무 잦아서 뺀다)
@@ -135,6 +137,9 @@ def update():
     effects.tick_shake(dt)
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
         return
+    scale = effects.time_scale()   # 슬로 모션: 게임 시간만 느려지고, 슬로 모션 자체는 실제 시간으로 줄어든다
+    effects.tick_slow_motion(dt)
+    dt *= scale
     global clear_notice, room, message_time, stage
     clear_notice = max(0.0, clear_notice - dt)
     message_time = max(0.0, message_time - dt)

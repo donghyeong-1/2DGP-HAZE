@@ -109,7 +109,9 @@ ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}          # 식칼·건틀릿·사슬의 �
 # 철파이프 2단계 (11/20 사용자: 1단계와 다른 동작): 올려베기(피해 x RISE) -> SLAM_DELAY초 뒤 앞 아래로 내려찍기(x SLAM, 바닥 충격)
 STAGE2_RISE_MULT = 1.5
 STAGE2_SLAM_MULT = 2.8
-STAGE2_SLAM_DELAY = 0.16
+STAGE2_SLAM_DELAY = 0.16      # 올려베기 3장(웅크림 -> 앞 수평 -> 머리 위)을 이 시간에 고르게 보여 준다
+STAGE2_SLAM_FRAMES = (0.05, 0.09)   # 내려찍기 그림: 1번(두 손 들고 뜸) ~0.05초, 2번(45도) ~0.09초, 그 뒤 3번(바닥 타격)
+STAGE2_SLAM_POSE = 0.42        # 내려찍기 자세 전체 시간 (3번에서 머문다)
 STAGE2_SLAM_REACH = 1.25      # 내려찍기 범위: 강화 일격 범위(2단계) x 이 값, 앞쪽만
 STAGE2_RISE_HOP = 260.0       # 올려베기에 맞은 적이 살짝 떠오르는 속도 (공중 적은 그대로)
 # 궁극기 (3단계)
@@ -355,7 +357,20 @@ PLUNGE_AIM = -0.65              # 조준 y 성분이 이보다 작으면(아래�
 PLUNGE_COOLDOWN = 0.55
 
 ENEMY_HIT_FLASH = 0.10       # 맞았을 때 붉게 번쩍이는 시간(초)
-ENEMY_KNOCKBACK = 260.0      # 맞았을 때 밀려나는 속도(px/s)
+ENEMY_KNOCKBACK = 260.0      # 맞았을 때 밀려나는 속도(px/s). 실제로는 x 공격 크기(KNOCK_*) / 적 무게(ENEMY_WEIGHT)
+# 손맛 (11/21 퀄리티 계획 1-5): 맞은 순간 흰 번쩍임 -> 붉게, 무게·공격 크기에 따른 밀림, 방 마지막 적에서 슬로 모션
+ENEMY_WHITE_FLASH = 0.05     # 맞은 뒤 처음 이만큼은 하얗게 번쩍인다 (ENEMY_HIT_FLASH 안에서)
+ENEMY_WEIGHT = {'hound': 0.7, 'slum': 1.0, 'thrower': 1.0, 'guard': 1.8}   # 클수록 덜 밀린다
+KNOCK_BIG = 1.8              # 큰 공격(3타·강화·궁극기 마지막 등 big=True)의 밀림 배율
+SLOW_CLEAR = (0.45, 0.35)    # 방의 마지막 적을 쓰러뜨렸을 때 슬로 모션 (실제 시간 초, 시간 배율)
+SLOW_BOSS = (1.1, 0.25)      # 보스를 쓰러뜨렸을 때
+ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard'}
+# 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
+# 표에 없는 소리는 1.0
+SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
+            'enemy_hit': 0.7, 'impact_pipe': 0.75, 'impact_knife': 0.7, 'impact_gauntlet': 0.8, 'throw': 0.75,
+            'chain_throw': 0.8, 'dash': 0.8, 'ult_hit': 0.8, 'windup_slum': 0.8, 'windup_thrower': 0.75,
+            'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ult_final': 1.2, 'ark_roar': 1.1}
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)
 PROJECTILE_HB = (30, 18)
 

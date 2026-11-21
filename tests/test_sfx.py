@@ -12,7 +12,10 @@ NAMES = ["warn_low", "warn_high", "jump", "double_jump", "dash", "land", "hit", 
          "overload_zap", "stun_end", "swing", "swing_fade", "swing_awake", "swing_critical", "swing_enhanced", "enemy_hit", "enemy_die", "throw",
          # 2026-11-19 전용 효과음: 사슬, 궁극기, 아크
          "chain_throw", "chain_latch", "chain_clash", "ult_cast", "ult_hit", "ult_final",
-         "ark_bullet", "ark_teleport", "ark_roar", "ark_absorb", "ark_burst", "ark_field"]
+         "ark_bullet", "ark_teleport", "ark_roar", "ark_absorb", "ark_burst", "ark_field",
+         # 2026-11-21 퀄리티 계획 1-7: 무기별 명중, 적별 공격 예고
+         "impact_pipe", "impact_knife", "impact_gauntlet",
+         "windup_slum", "windup_thrower", "windup_hound", "windup_guard"]
 
 
 def test_sfx_files_are_valid_short_wavs():
@@ -142,6 +145,45 @@ def test_ark_patterns_have_their_own_sounds():
         a._enter_phase(2, '각성')
     for name in ('ark_bullet', 'ark_teleport', 'ark_absorb', 'ark_burst', 'ark_field', 'ark_roar'):
         assert name in rec.names, (name, rec.names)
+
+
+# ----- 무기별 명중·적별 예고·음량 균형 (2026-11-21) -----
+def test_each_weapon_adds_its_own_impact_sound():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_combat as tc
+    heard = {}
+    for wid in ('pipe', 'knife', 'gauntlet'):
+        room, p = tc.make_world()
+        if wid != 'pipe':
+            p.give_weapon(wid)
+        e = tc.freeze(tc.add_enemy('slum', p.x + 100, room, p))
+        e.hp = e.max_hp = 1000
+        with Recorder() as rec:
+            p.weapon._hit(e, 1, 0, config.ZONE_FX['NORMAL'], extra=False)
+        heard[wid] = rec.names
+    for wid, names in heard.items():
+        assert 'impact_' + wid in names, (wid, names)
+
+
+def test_enemies_warn_with_their_own_windup_sound():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_combat as tc
+    for kind in ('slum', 'thrower', 'hound', 'guard'):
+        room, p = tc.make_world()
+        e = tc.add_enemy(kind, p.x + 150, room, p)
+        with Recorder() as rec:
+            e.on_attack_start()
+        assert 'windup_' + kind in rec.names, (kind, rec.names)
+
+
+def test_mix_keeps_frequent_sounds_quieter_than_big_moves():
+    import assets
+    base = assets.sfx_gain('pickup')
+    assert base == 1.0                                      # 표에 없는 소리는 그대로
+    for quiet in ('land', 'jump', 'swing', 'enemy_hit'):
+        assert assets.sfx_gain(quiet) < 1.0, quiet          # 자주 나는 소리는 작게
+    for loud in ('ult_cast', 'ult_final', 'overload', 'ark_roar'):
+        assert assets.sfx_gain(loud) >= 1.0, loud           # 큰 기술은 줄이지 않는다
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

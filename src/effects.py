@@ -20,6 +20,30 @@ trauma = 0.0         # 화면 흔들림 세기 0~1
 _shake_time = 0.0
 
 
+slow_left = 0.0      # 슬로 모션이 남은 실제 시간(초)
+slow_scale = 1.0     # 슬로 모션 동안의 시간 배율
+
+
+def request_slow_motion(seconds, scale):
+    """잠깐 느려진다 (방의 마지막 적·보스를 쓰러뜨렸을 때). 이미 더 길거나 느린 것이 있으면 그것을 따른다."""
+    global slow_left, slow_scale
+    slow_left = max(slow_left, seconds)
+    slow_scale = min(slow_scale, scale) if slow_left > 0 else scale
+
+
+def time_scale():
+    return slow_scale if slow_left > 0 else 1.0
+
+
+def tick_slow_motion(real_dt):
+    """실제 시간으로 줄어든다 (느려진 게임 시간이 아니라)."""
+    global slow_left, slow_scale
+    if slow_left > 0:
+        slow_left = max(0.0, slow_left - real_dt)
+        if slow_left == 0:
+            slow_scale = 1.0
+
+
 def request_hit_stop(seconds):
     global hit_stop_left
     hit_stop_left = max(hit_stop_left, seconds)
@@ -35,8 +59,9 @@ def tick_hit_stop(dt):
 
 
 def reset():
-    global hit_stop_left, trauma, flash_left
+    global hit_stop_left, trauma, flash_left, slow_left, slow_scale
     hit_stop_left = 0.0
+    slow_left, slow_scale = 0.0, 1.0
     trauma = 0.0
     flash_left = 0.0
 
@@ -79,7 +104,7 @@ def sheet_info(name):
 
 
 # 번쩍임 줄이기를 켜면 처음의 하얀 섬광 부분을 건너뛰는 큰 이펙트들 (전체 길이에서 건너뛸 비율)
-FLASHY = ('haze-blast', 'ult-nova', 'quake-blast', 'overload-burst', 'death-burst', 'hit-critical', 'hit-enhanced')
+FLASHY = ('haze-blast', 'ult-nova-pipe', 'ult-nova-knife', 'ult-nova-gauntlet', 'ult-nova-chain', 'quake-blast', 'overload-burst', 'death-burst', 'hit-critical', 'hit-enhanced')
 FLASHY_SKIP = 0.25
 
 

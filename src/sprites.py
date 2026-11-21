@@ -23,6 +23,8 @@ FRAMES = {
     'n09_swing_upfwd': (5, 76, 159), 'n09_swing_downfwd': (5, 75, 152),
     'n09_punch': (4, 36, 124),     # 맨손 자세 (Codex T05): 식칼 던지기·건틀릿 충전·발사 공용
     'n09_ult': (2, 64, 130),       # 궁극기 시전 (Codex T23): 모으기 -> 해방
+    # 철파이프 2단계 강화 (Codex T24, 캔버스 171x168, 발 기준점 (70,161)): 올려베기 3장 -> 내려찍기 3장
+    'n09_s2rise': (3, 70, 161), 'n09_s2slam': (3, 70, 161),
     # 슬럼 폐인, 고철 투척병
     'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
     'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (1, 32, 124),
@@ -74,6 +76,13 @@ def place(name, n, width, height, face_dir):
         px = width - 1 - px
     sdx, sdy = SHIFT.get((name, n), (0, 0))
     return width // 2 - px + (sdx if face_dir >= 0 else -sdx), height - py - sdy
+
+
+def draw_white(name, n, x, y, face_dir=1):
+    """같은 그림을 '더하기' 섞기로 한 번 더 그려 하얗게 번쩍이게 한다 (맞은 순간)."""
+    img = assets.image(path(name, n))
+    dx, foot = place(name, n, img.w, img.h, face_dir)
+    assets.draw_image_added(img, x + dx, y - foot, 'h' if face_dir < 0 else '')
 
 
 def draw(name, n, x, y, face_dir=1, tint=None, alpha=1.0):

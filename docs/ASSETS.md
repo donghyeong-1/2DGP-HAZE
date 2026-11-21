@@ -10,15 +10,16 @@
 | 캐릭터·적·보스와 동작 프레임 | `assets/sprites/unified/` | Codex(agent-sprite-forge `generate2dsprite`, 내장 image_gen)로 원화 → `tools/finish_character.py`로 픽셀화. 작업 기록은 `docs/codex/`, 원화는 `assets/sprites/forge/` | AI 생성물 (이미지 모델명 미제공: 제출 전 확인 필요) |
 | 사망·엔딩 화면 | `assets/backgrounds/screen_*.png` | Codex `generate2dmap` (T11) | AI 생성물 |
 | 은신처 원경, NPC 3명(정비사·보관인·기록관) 대기 2장씩 | `assets/backgrounds/far_hideout.png`, `assets/sprites/unified/npc_*` | Codex T22 (`generate2dmap`·`generate2dsprite`, 내장 image_gen) | AI 생성물 |
+| 철파이프 2단계 강화 동작 6장 (올려베기·내려찍기) | `assets/sprites/unified/n09_s2rise_1~3.png`, `n09_s2slam_1~3.png` | Codex T24 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 궁극기 컷인 띠, 시전 자세 2장 | `assets/ui/ult_cutin.png`, `assets/sprites/unified/n09_ult_1~2.png` | Codex T23 (내장 image_gen, hibit 마감) | AI 생성물 |
 | 타일 세트, 원경, 중경 (6개 테마) | `assets/tiles/tile_set_*.png`, `assets/backgrounds/far_*.png`, `mid_*.png` | `tools/make_world.py` (code-drawn). 원경은 Codex 배경판(T06)에 테마 색을 다시 입힘 | 자체 제작 |
-| 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
+| 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지, 궁극기 광역 폭발 `ult-nova-<무기>` 4종), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
 | UI 부품(9칸 판·막대 무늬·게이지 장식·키·칸·바늘) | `assets/ui/ui_*.png` | `tools/make_ui.py` (numpy, code-drawn, 2026-11-18 v3) | 자체 제작 |
 | HUD 조각(조준점·미니맵 아이콘·하트), 아이템 아이콘·진열대, 로고 | `assets/ui/` | `tools/make_hud.py`, `make_icons.py`, `make_codeart.py`(codeart2d 스킬의 SVG 렌더러) | 자체 제작 |
 | 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
 | 무기 그림(식칼 8방향, 건틀릿 충격파, 무기 아이콘 4종: 철파이프·식칼·건틀릿·사슬, 사슬 줄·갈고리는 실행 중 사각형으로 그림) | `assets/sprites/unified/proj_knife_*`, `proj_blast_*`, `assets/ui/icon_w_*` | `tools/make_weapons.py` (code-drawn) | 자체 제작 |
 | 맨손 자세(던지기·건틀릿) | `assets/sprites/unified/n09_punch_1~4.png` | Codex T05 결과(`forge/n09_attack_v3`)를 그대로 복사 | AI 생성물 |
-| 효과음 33종 (11/19 사슬·궁극기·아크 전용 12종 추가) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
+| 효과음 40종 (11/19 사슬·궁극기·아크 12종, 11/21 무기별 명중 3종·적 예고 4종) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
 | 배경음악 4곡 (title·explore·boss·ark, 11/19 최종 보스 곡 추가) | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
 | 폰트 | `assets/fonts/Galmuri11.ttf`, `Galmuri14.ttf` | 갈무리 v2.40.4 (Lee Minseo) | **SIL OFL 1.1** (`assets/fonts/OFL.txt`) |
@@ -233,3 +234,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-19 [Codex] T22 assets/sprites/forge/hideout_v1/far_hideout_v1.png(1920×1080·32색)과 npc_v1/npc_{mechanic,keeper,archivist}_idle_{1,2}.png(대기 6장). Codex 내장 image_gen(모델명 미제공), generate2dmap·generate2dsprite 0.5.0, 프로젝트 hibit 마감 도구로 자체 제작. 원화·도구·프롬프트·측정값은 각 폴더의 provenance.json, NPC 기준점 (64,130), 캔버스 128×132. 검토 대기.
 
 2026-11-19 [Codex] T23 assets/sprites/forge/cutin_v1/cutin_hero_v1.png(1920×420·32색·이진 알파) 및 n09_ult_v1/frames/ult-{1,2}.png(140×132, 기준점 (64,130)). 프로젝트 주인공 마스터를 참조한 Codex 내장 image_gen(모델명 미제공) 생성, generate2dsprite·hibit_plate 0.5.0 및 프로젝트 hibit 도구로 마감. 출처·프롬프트·해시는 각 폴더의 provenance.json. 검토 대기.
+
+2026-11-21 [Codex] T24 assets/sprites/forge/n09_stage2_v1/frames/{s2rise,s2slam}-1~3.png. 프로젝트 N-09 v3b 마스터를 참조한 자체 제작 파생 에셋. Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0 및 프로젝트 hibit 마감. 171×168, 공통 기준점 (70,161), 39색·이진 알파. 원화·프롬프트는 같은 폴더 raw/에 보관. 검토 대기.

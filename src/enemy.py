@@ -116,8 +116,12 @@ class Enemy(TileBody):
         return self.stats['attack_time'] if a is None else a
 
     # ----- 피해 -----
-    def take_damage(self, damage, from_x=None):
-        """피해를 받는다. 죽었으면 True."""
+    def white_flash(self):
+        """맞은 직후 하얗게 번쩍이는 중인가 (그 뒤 붉게)."""
+        return self.flash > config.ENEMY_HIT_FLASH - config.ENEMY_WHITE_FLASH
+
+    def take_damage(self, damage, from_x=None, knock=1.0):
+        """피해를 받는다. 죽었으면 True. knock은 밀림 배율(큰 공격일수록 크다)."""
         if not self.alive:
             return False
         self.hp -= damage
@@ -136,7 +140,8 @@ class Enemy(TileBody):
         if self.stagger_guard > 0:
             return False                                  # 방금 경직에서 풀렸다: 피해만 받고 하던 일을 이어 간다 (연타로 묶어 두지 못한다)
         if from_x is not None:
-            self.vx = config.ENEMY_KNOCKBACK * (1 if self.x >= from_x else -1)
+            weight = config.ENEMY_WEIGHT.get(self.kind, 1.0)
+            self.vx = config.ENEMY_KNOCKBACK * knock / weight * (1 if self.x >= from_x else -1)
         self.hit_left = 0.18
         self.hurt()
         return False
@@ -322,6 +327,8 @@ class Enemy(TileBody):
 
     # ----- 공격 -----
     def on_attack_start(self):
+        if self.kind in config.ENEMY_WINDUP_SOUND:          # 공격 예고 소리 (11/21 계획 1-7): 소리로도 피할 때를 안다
+            assets.play_sound(config.ENEMY_WINDUP_SOUND[self.kind])
         self.attack_time = 0.0
         self.struck = False
         self.hits_done = 0
@@ -554,6 +561,8 @@ class Enemy(TileBody):
         if name is None:                                  # 동작 그림이 없으면 정지 그림 한 장
             name = self.stats['sprite']
         sprites.draw(name, n, self.x + dx, self.y + dy, self.face_dir, self._tint())
+        if self.white_flash():                            # 맞은 순간: 그림 위에 흰색을 더해 하얗게
+            sprites.draw_white(name, n, self.x + dx, self.y + dy, self.face_dir)
         if self.hp < self.max_hp:
             self._draw_hp_bar()
         if config.DEBUG:

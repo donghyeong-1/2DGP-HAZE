@@ -203,3 +203,4 @@
 2026-11-21 [Claude Code] Codex T31(방 장식 18종 자동 배치)·T32(대화 초상화, 결과에 따라 표정) 검토·적용, 테스트 370개 / src/(props_anim, room, npc_mode).py, assets/(decor, portraits), tools/build_exe.py, tests/(test_props_anim, test_meta, test_build, test_pixel_assets).py, docs/*
 2026-11-21 [Codex] T33 슬럼·공장·탑 구역 제목 카드 3장 제작, 1920×400·32색·1배 예시 제목 검증(검토 대기) / assets/sprites/forge/zone_cards_v1/, docs/codex/reports/T33.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-21 [Claude Code] Codex T33 검토·적용(구역 제목 카드, 카드 동안 처음 안내 대기), 테스트 374개 / src/(zone_card, stage, play_mode, tutorial).py, assets/backgrounds/zone_*, tests/(test_zone_card, test_tutorial).py, docs/*
+2026-11-21 [Claude Code] 전체 밸런스 시뮬레이션(게이지 30·60·85), 건틀릿 피해 34->42 / src/config.py, docs/DECISIONS.md

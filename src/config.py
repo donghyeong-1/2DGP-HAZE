@@ -166,7 +166,7 @@ KNIFE_HB = 26                # 칼 판정 상자 한 변(px)
 KNIFE_COOLDOWN = 0.36
 KNIFE_GAIN = 2               # 칼 한 자루 명중 게이지 (여러 자루가 맞으므로 일반 타격보다 작다)
 # 헤이즈 건틀릿 (소모형). 충전 시간·크기는 구간별
-GAUNTLET_DAMAGE = 34
+GAUNTLET_DAMAGE = 42          # 11/21 34 -> 42: 보스전에서 충전 동안 맞기만 하던 약세 보정 (balance-sim)
 GAUNTLET_CHARGE_TIME = {'DEAD': 1.2, 'FADE': 1.2, 'NORMAL': 1.2, 'AWAKE': 0.8, 'CRITICAL': 0.8, 'OVERLOAD': 0.8}
 PUNCH_TIME = {'throw': 0.26, 'blast': 0.32, 'blast_down': 0.32}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
 GAUNTLET_CHARGE_MOVE = 0.45  # 건틀릿을 충전하는 동안 땅 위 이동 속도 배율

@@ -14,6 +14,8 @@
 | 일반 적 4종 피격 2장째·쓰러짐 3장 | `assets/sprites/unified/enemy_<종류>_hurt_2.png`, `enemy_<종류>_death_1~3.png` | Codex T25 (내장 image_gen, `finish_character.py --like <적 마감본>`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 무기 전용 자세 10장 (식칼 3·건틀릿 4·사슬 3) | `assets/sprites/unified/n09_knife_1~3.png`, `n09_gauntlet_1~4.png`, `n09_chain_1~3.png` | Codex T26 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 투척병 걷기 4장·뒷걸음 2장 | `assets/sprites/unified/enemy_thrower_walk_1~4.png`, `enemy_thrower_back_1~2.png` | Codex T30 (내장 image_gen, 모델명 미제공, `finish_character.py --like enemy_thrower_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
+| 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
+| 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | Codex T32 (내장 image_gen, 모델명 미제공) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 움직이는 배경 소품 12종 x 4장 | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 스팀 상점 그림 (캡슐 4장·라이브러리 배경·로고) | `assets/store/` | Codex T29 (내장 image_gen, 모델명 미제공) + `tools/make_store_art.py`로 로고 합성 (2026-11-21). 게임 안에서는 쓰지 않는다 | AI 생성물 |
 | 보스 크래셔 걷기 4장·쓰러짐 2장 | `assets/sprites/unified/boss_crasher_walk_1~4.png`, `boss_crasher_death_1~2.png` | Codex T27 (내장 image_gen, `finish_character.py --like boss_crasher_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
@@ -258,3 +260,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-21 [Codex] T30 assets/sprites/forge/thrower_walk_v1/frames/ 고철 투척병 걷기 4장·물러서기 2장. 프로젝트 자체 마스터 참조, Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0과 프로젝트 기존 히비트 팔레트로 마감. 105×131, 발 기준점 (62,127), 이진 알파와 41색. 출처·원화·프롬프트 assets/sprites/forge/thrower_walk_v1/provenance.json. 검토 대기.
 
 2026-11-21 [Codex] T31 assets/sprites/forge/room_decor_v1/<테마>/<소품>.png 정지 장식 18종. 프로젝트 자체 원경·중경·타일·T28 소품 참조. Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 마감기 0.5.0(MIT). 파일별 9~24색·이진 알파·1배. 사용 예정 위치는 슬럼·공장·탑 방의 바닥과 벽·천장. 출처·프롬프트 assets/sprites/forge/room_decor_v1/provenance.json. 검토 대기.
+
+2026-11-21 [Codex] T32 assets/sprites/forge/portraits_v1/<인물>_<1|2>.png 은신처 대화 UI용 초상화 8장. 프로젝트 자체 마스터와 게임 그림 참조, Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0(MIT)과 Pillow 마감, codixel(MIT) 비교판. 200×200, 인물별 공용 32색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/portraits_v1/provenance.json. 검토 대기.

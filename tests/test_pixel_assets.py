@@ -28,7 +28,9 @@ def tile_files():
 
 
 def prop_files():
-    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'props', '*.png')))   # 움직이는 배경 소품 (Codex T28)
+    return sorted(glob.glob(os.path.join(ROOT, 'assets', 'props', '*.png')) +      # 움직이는 배경 소품 (Codex T28)
+                  glob.glob(os.path.join(ROOT, 'assets', 'decor', '*.png')) +      # 멈춘 장식 (T31)
+                  glob.glob(os.path.join(ROOT, 'assets', 'portraits', '*.png')))   # 대화 초상화 (T32)
 
 
 def ui_files():

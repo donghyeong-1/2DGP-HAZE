@@ -85,6 +85,35 @@ def test_special_rooms_and_placement_is_fixed():
     assert all(p.bottom + p.h - props_anim.ANCHOR[p.name.split('_', 1)[1]][1] == floor_y for p in hide.anim_props)
 
 
+# ----- 멈춘 장식 (Codex T31, 2026-11-21 계획 2-4): 테마마다 바닥 3종·벽 3종, 움직이는 소품 다음에 방마다 3개 -----
+def test_static_decor_files_match_table():
+    for theme in ('cell', 'foundry', 'haze'):
+        names = props_anim.DECOR[theme]
+        assert len(names) == 6, theme
+        for name in names:
+            im = Image.open(os.path.join(ROOT, 'assets', 'decor', f'{theme}_{name}.png'))
+            assert im.size == props_anim.SIZE[name], (theme, name, im.size)
+
+
+def test_static_decor_is_placed_clear_of_everything():
+    for theme in ('cell', 'foundry', 'haze'):
+        for name in COMBAT_ROOMS:
+            room = Room.load(name, {'L', 'R'}, theme=theme)
+            assert len(room.decor_props) >= 2, (theme, name, len(room.decor_props))
+            taken = set()
+            for p in room.anim_props + room.decor_props:
+                cells = _cells(room, p)
+                assert all(room.tile_at(c, r) == '.' for c, r in cells), (theme, name, p.name)
+                assert not cells & room.near_marker, (theme, name, p.name)
+                assert not cells & taken, (theme, name, p.name)              # 움직이는 소품과도 겹치지 않는다
+                taken |= cells
+            for p in room.decor_props:
+                if props_anim.KIND[p.name.split('_', 1)[1]] == 'floor':
+                    assert p.bottom % config.TILE == 0, p.name               # 바닥 소품의 밑줄이 바닥에 닿는다
+    assert Room.load('gold_room', {'L'}, theme='gold').decor_props == []
+    assert Room.load('hideout_room', set(), theme='hideout').decor_props == []
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

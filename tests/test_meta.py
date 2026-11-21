@@ -155,6 +155,36 @@ def test_rooms_cleared_are_counted_for_the_reward():
     assert p.run_rooms == 1 and p.run_ends == 0
 
 
+# ----- 대화 초상화 (Codex T32, 2026-11-21): 왼쪽에 주인공, 오른쪽에 NPC, 결과에 따라 표정이 바뀐다 -----
+def test_dialog_portraits_exist_and_change_with_result():
+    from PIL import Image
+    import npc_mode
+    for who in ('n09', 'mechanic', 'keeper', 'archivist'):
+        for n in (1, 2):
+            im = Image.open(os.path.join(HERE, '..', 'assets', 'portraits', f'{who}_{n}.png'))
+            assert im.size == (200, 200)
+    fresh()
+    meta.reset()
+    npc_mode.kind, npc_mode.selected, npc_mode.note, npc_mode.result = 'mechanic', 0, '', None
+    assert npc_mode.faces() == ('n09_1', 'mechanic_1')
+    meta.state['crystals'] = 999
+    npc_mode.act('hp')                                                     # 샀다: 정비사가 씩 웃고 주인공은 결의
+    assert npc_mode.faces() == ('n09_2', 'mechanic_2')
+    meta.state['crystals'] = 0
+    npc_mode.act('attack')                                                 # 결정이 모자라다: 평소 얼굴
+    assert npc_mode.faces() == ('n09_1', 'mechanic_1')
+    npc_mode.kind, npc_mode.result = 'keeper', None
+    npc_mode.act('unlock')                                                 # 보관인: 모자라면 걱정
+    assert npc_mode.faces()[1] == 'keeper_2'
+    npc_mode.kind, npc_mode.result = 'archivist', None
+    npc_mode.selected = len(npc_mode.rows()) - 1                           # 기록관: 지금까지의 기록을 보면 놀란다
+    assert npc_mode.faces()[1] == 'archivist_2'
+    npc_mode.selected = 0
+    assert npc_mode.faces()[1] == 'archivist_1'
+    l, r = npc_mode.portrait_spots()
+    assert l[0] + 200 <= npc_mode.PANEL_X and r[0] >= npc_mode.PANEL_X + npc_mode.PANEL_W   # 판 밖 양쪽
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

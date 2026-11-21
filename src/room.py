@@ -170,6 +170,7 @@ class Room:
                         self.decor.append((DECOR_CRYSTAL_BIG if h % 2 else DECOR_CRYSTAL, col, row))
         import props_anim
         self.anim_props = props_anim.place(self, self.theme)       # 움직이는 배경 소품 (Codex T28)
+        self.decor_props = props_anim.place_decor(self, self.theme, self.anim_props)   # 멈춘 장식 (Codex T31)
         self.anim_time = 0.0
 
     @classmethod
@@ -308,6 +309,10 @@ class Room:
         # 1-2) 움직이는 배경 소품 (4장 반복)
         import props_anim
         view_l, view_b = camera.x - 200, camera.y - 200
+        for p in self.decor_props:                                   # 멈춘 장식 먼저 (움직이는 소품보다 뒤)
+            if p.left + p.w < view_l or p.left > view_l + config.SCREEN_W + 400 or p.bottom + p.h < view_b or p.bottom > view_b + config.SCREEN_H + 400:
+                continue
+            assets.draw_clip(assets.image(f'decor/{p.name}.png'), 0, 0, p.w, p.h, p.left, p.bottom)
         for p in self.anim_props:
             if p.left + p.w < view_l or p.left > view_l + config.SCREEN_W + 400 or p.bottom + p.h < view_b or p.bottom > view_b + config.SCREEN_H + 400:
                 continue

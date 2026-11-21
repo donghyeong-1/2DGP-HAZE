@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-21",
+  "art_source": "host_image",
+  "tool": "Codex 내장 image_gen",
+  "model": "모델명 미제공",
+  "cost_estimate_usd": null,
+  "finish": "Forge soft_matte로 키잉 → Pillow NEAREST 1회 → 인물별 공용 OKLab 32색 팔레트·알파 128 이진화",
+  "orientation_fix": "기록관은 마젠타 배경을 제거한 직후 두 원화 컷을 각각 좌우 반전했다.",
+  "actors": {
+    "n09": {
+      "generation_attempts": 1,
+      "master": "assets/sprites/forge/remake_t01_t03/n09/master/master_rgba.png",
+      "game_sprite": "assets/sprites/unified/n09_idle_1.png",
+      "attached_reference": "source/n09_reference.png",
+      "source": "source/n09.png",
+      "deliverables": [
+        "n09_1.png",
+        "n09_2.png"
+      ],
+      "prompt": "Create ONE landscape 2:1 sheet for a dialogue portrait pair: two equally sized SQUARE panels in one row, no drawn separator. One waist-free chest-up bust of exactly the same person per panel. The attached card is the canonical person, costume and color reference: its large cutout is the master and small figure is the actual game sprite. Redraw that exact character at the requested camera angle; use the same head, age, hair, clothes, skin and color palette in both panels. Register crown, chin, eyes and shoulders consistently in the two panels. Head (crown to chin) fills roughly half of each square height, about 54%; show the chest ending above the bottom. Distinct clear large dark expressive eyes with a small eye light, readable eyebrows, and readable mouth, deliberately bold facial shapes. All hair tips and outer shoulders fully within each square. Keep uniform blank margin 7-9% above and below and at least 8% at both side edges. Compact shoulders or crop accessories to the chest silhouette if necessary. Use a deliberately broad angled cut across the jacket at the bottom of each bust, no glow or fade. Match the reference's graphic planar low-color color-block rendering: bold flat lineless angular color regions with 2 skin tones and 2-3 shades per material, larger readable shapes and controlled top-left lighting. No blended airbrush, gradients, cast shadows, outlines, photographic texture, reference text or captions, decorative borders, poster composition, watermark, scene, or pixel grid. Pure flat saturated #FF00FF RGB(255,0,255) background behind both separate portraits and margins. Cyan only on reference costume gear and only as appropriate, no cyan rim on hair or skin. Return a single still image.\nN-09 looks slightly toward screen-right in both cells, a shallow three-quarter view with the nose and eyes aiming right. A slim adult with exposed face, sharply layered windswept white spikes pointing back and up with light blue-gray shadow planes, a conspicuous heavy black upper lash line around a dark teal eye, dark almost-black fitted raised-collar shirt, ripped sleeves and the segmented teal arm band on the visible shoulder as in the reference. Keep the look serious, tired and youthful without changing identity. Left square: emotionally neutral, closed mouth, level brow and steady eyes. Right square: visibly clenched teeth shown as one short off-white shape, lowered strongly angled eyebrows and tense cheek, unwavering determination, with the same head tilt and shoulders."
+    },
+    "mechanic": {
+      "generation_attempts": 1,
+      "master": "assets/sprites/forge/npc_v1/mechanic/master/master_rgba.png",
+      "game_sprite": "assets/sprites/unified/npc_mechanic_idle_1.png",
+      "attached_reference": "source/mechanic_reference.png",
+      "source": "source/mechanic.png",
+      "deliverables": [
+        "mechanic_1.png",
+        "mechanic_2.png"
+      ],
+      "prompt": "Create ONE landscape 2:1 sheet for a dialogue portrait pair: two equally sized SQUARE panels in one row, no drawn separator. One waist-free chest-up bust of exactly the same person per panel. The attached card is the canonical person, costume and color reference: its large cutout is the master and small figure is the actual game sprite. Redraw that exact character at the requested camera angle; use the same head, age, hair, clothes, skin and color palette in both panels. Register crown, chin, eyes and shoulders consistently in the two panels. Head (crown to chin) fills roughly half of each square height, about 54%; show the chest ending above the bottom. Distinct clear large dark expressive eyes with a small eye light, readable eyebrows, and readable mouth, deliberately bold facial shapes. All hair tips and outer shoulders fully within each square. Keep uniform blank margin 7-9% above and below and at least 8% at both side edges. Compact shoulders or crop accessories to the chest silhouette if necessary. Use a deliberately broad angled cut across the jacket at the bottom of each bust, no glow or fade. Match the reference's graphic planar low-color color-block rendering: bold flat lineless angular color regions with 2 skin tones and 2-3 shades per material, larger readable shapes and controlled top-left lighting. No blended airbrush, gradients, cast shadows, outlines, photographic texture, reference text or captions, decorative borders, poster composition, watermark, scene, or pixel grid. Pure flat saturated #FF00FF RGB(255,0,255) background behind both separate portraits and margins. Cyan only on reference costume gear and only as appropriate, no cyan rim on hair or skin. Return a single still image.\nThe mechanic is a broad-shouldered middle-aged woman, shown facing toward SCREEN-LEFT in each cell, the mirror of the reference direction, modest three-quarter turn. Preserve her short knotted-back brown-black hair, burnt orange welding goggles with blue-green lenses on her forehead, work-worn face and one black shirt under olive bib overalls with squared metal buckles, orange work patch, metallic prosthetic with cyan crystal on the outer visible shoulder. Keep a cropped wrench head behind her shoulder as in the reference, entirely within the cell; the face and bib are primary. Left square: gruff, straight sealed mouth and one slightly downturned eyebrow. Right square: a pronounced asymmetrical, friendly toothy smirk with one raised eyebrow. Preserve her chunky build and outfit, and keep the goggles up on her forehead."
+    },
+    "keeper": {
+      "generation_attempts": 1,
+      "master": "assets/sprites/forge/npc_v1/keeper/master/master_rgba.png",
+      "game_sprite": "assets/sprites/unified/npc_keeper_idle_1.png",
+      "attached_reference": "source/keeper_reference.png",
+      "source": "source/keeper.png",
+      "deliverables": [
+        "keeper_1.png",
+        "keeper_2.png"
+      ],
+      "prompt": "Create ONE landscape 2:1 sheet for a dialogue portrait pair: two equally sized SQUARE panels in one row, no drawn separator. One waist-free chest-up bust of exactly the same person per panel. The attached card is the canonical person, costume and color reference: its large cutout is the master and small figure is the actual game sprite. Redraw that exact character at the requested camera angle; use the same head, age, hair, clothes, skin and color palette in both panels. Register crown, chin, eyes and shoulders consistently in the two panels. Head (crown to chin) fills roughly half of each square height, about 54%; show the chest ending above the bottom. Distinct clear large dark expressive eyes with a small eye light, readable eyebrows, and readable mouth, deliberately bold facial shapes. All hair tips and outer shoulders fully within each square. Keep uniform blank margin 7-9% above and below and at least 8% at both side edges. Compact shoulders or crop accessories to the chest silhouette if necessary. Use a deliberately broad angled cut across the jacket at the bottom of each bust, no glow or fade. Match the reference's graphic planar low-color color-block rendering: bold flat lineless angular color regions with 2 skin tones and 2-3 shades per material, larger readable shapes and controlled top-left lighting. No blended airbrush, gradients, cast shadows, outlines, photographic texture, reference text or captions, decorative borders, poster composition, watermark, scene, or pixel grid. Pure flat saturated #FF00FF RGB(255,0,255) background behind both separate portraits and margins. Cyan only on reference costume gear and only as appropriate, no cyan rim on hair or skin. Return a single still image.\nThe keeper is an elderly wiry man facing SCREEN-LEFT in both cells, a shallow three-quarters turn (mirror the reference direction). Preserve thin hooked nose, long face, pale silver sideburns and pointed short grey beard, olive-brown leather hood with a broad desaturated teal seam, warm skin, rough brown coat, orange-brown shoulder straps and a visible cropped corner of the wooden coffer and large padlock behind his outer shoulder. No hood shadow covers his eyes. Left square: calm eyes with a settled line of the mouth, quietly attentive. Right square: deeply worried, sharply raised inner eyebrows, rounded eyes and a tense downturned small mouth. Same hood, gaze angle, proportions and posture."
+    },
+    "archivist": {
+      "generation_attempts": 1,
+      "master": "assets/sprites/forge/npc_v1/archivist/master/master_rgba.png",
+      "game_sprite": "assets/sprites/unified/npc_archivist_idle_1.png",
+      "attached_reference": "source/archivist_reference.png",
+      "source": "source/archivist.png",
+      "deliverables": [
+        "archivist_1.png",
+        "archivist_2.png"
+      ],
+      "prompt": "Create ONE landscape 2:1 sheet for a dialogue portrait pair: two equally sized SQUARE panels in one row, no drawn separator. One waist-free chest-up bust of exactly the same person per panel. The attached card is the canonical person, costume and color reference: its large cutout is the master and small figure is the actual game sprite. Redraw that exact character at the requested camera angle; use the same head, age, hair, clothes, skin and color palette in both panels. Register crown, chin, eyes and shoulders consistently in the two panels. Head (crown to chin) fills roughly half of each square height, about 54%; show the chest ending above the bottom. Distinct clear large dark expressive eyes with a small eye light, readable eyebrows, and readable mouth, deliberately bold facial shapes. All hair tips and outer shoulders fully within each square. Keep uniform blank margin 7-9% above and below and at least 8% at both side edges. Compact shoulders or crop accessories to the chest silhouette if necessary. Use a deliberately broad angled cut across the jacket at the bottom of each bust, no glow or fade. Match the reference's graphic planar low-color color-block rendering: bold flat lineless angular color regions with 2 skin tones and 2-3 shades per material, larger readable shapes and controlled top-left lighting. No blended airbrush, gradients, cast shadows, outlines, photographic texture, reference text or captions, decorative borders, poster composition, watermark, scene, or pixel grid. Pure flat saturated #FF00FF RGB(255,0,255) background behind both separate portraits and margins. Cyan only on reference costume gear and only as appropriate, no cyan rim on hair or skin. Return a single still image.\nThe archivist is the same youthful lean adult as the attached reference, with short tousled chestnut hair, dark round single-bridge eyeglasses, a yellow pencil behind the ear, slate blue-gray collared worn shirt with small tears and a metallic square prisoner tag on a dark cord, holding a red-brown ledger with cream pages low in the chest. Face SCREEN-LEFT in both cells, a shallow three-quarter turn (mirror the reference direction). Left square: clearly contemplating, attentive eyes a little downward behind the glasses, eyebrows gently knit, closed mouth. Right square: genuinely startled with opened round eyes, a clear raised brow arc and a little open O-shaped mouth. Keep the glasses, pencil, outfit and relative head position matched."
+    }
+  }
+}

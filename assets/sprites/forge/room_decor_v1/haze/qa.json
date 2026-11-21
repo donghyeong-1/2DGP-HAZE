@@ -1,0 +1,536 @@
+[
+  {
+    "name": "broken_crystals",
+    "mount": "floor",
+    "canvas": [
+      100,
+      57
+    ],
+    "opaque_bounds": [
+      3,
+      3,
+      97,
+      57
+    ],
+    "placement": [
+      50,
+      56
+    ],
+    "colors": 13,
+    "alpha": [
+      0,
+      255
+    ],
+    "source_box": [
+      101,
+      198,
+      433,
+      386
+    ],
+    "luma": {
+      "p50": 83.5,
+      "p95": 110.3,
+      "max": 110.3
+    },
+    "finish_scale": 0.2833333333333333,
+    "finish_qa": {
+      "status": "warn",
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.283333,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 1.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.529,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 13,
+            "paletteColors": 32,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 13
+          },
+          "threshold": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "watcher_wreck",
+    "mount": "floor",
+    "canvas": [
+      133,
+      64
+    ],
+    "opaque_bounds": [
+      3,
+      3,
+      130,
+      64
+    ],
+    "placement": [
+      66,
+      63
+    ],
+    "colors": 17,
+    "alpha": [
+      0,
+      255
+    ],
+    "source_box": [
+      43,
+      183,
+      458,
+      382
+    ],
+    "luma": {
+      "p50": 57.1,
+      "p95": 110.3,
+      "max": 110.3
+    },
+    "finish_scale": 0.3089005235602094,
+    "finish_qa": {
+      "status": "warn",
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.308901,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 0.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.237,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 17,
+            "paletteColors": 32,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 17
+          },
+          "threshold": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "sealed_chest",
+    "mount": "floor",
+    "canvas": [
+      123,
+      65
+    ],
+    "opaque_bounds": [
+      3,
+      3,
+      120,
+      65
+    ],
+    "placement": [
+      61,
+      64
+    ],
+    "colors": 16,
+    "alpha": [
+      0,
+      255
+    ],
+    "source_box": [
+      53,
+      184,
+      424,
+      383
+    ],
+    "luma": {
+      "p50": 57.1,
+      "p95": 110.3,
+      "max": 110.3
+    },
+    "finish_scale": 0.3125,
+    "finish_qa": {
+      "status": "warn",
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.3125,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 0.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.2,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 16,
+            "paletteColors": 32,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 16
+          },
+          "threshold": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "teal_panel",
+    "mount": "wall",
+    "canvas": [
+      80,
+      107
+    ],
+    "opaque_bounds": [
+      3,
+      3,
+      77,
+      104
+    ],
+    "placement": [
+      40,
+      3
+    ],
+    "colors": 14,
+    "alpha": [
+      0,
+      255
+    ],
+    "source_box": [
+      158,
+      84,
+      381,
+      392
+    ],
+    "luma": {
+      "p50": 57.1,
+      "p95": 90.3,
+      "max": 110.3
+    },
+    "finish_scale": 0.32666666666666666,
+    "finish_qa": {
+      "status": "warn",
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.326667,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 1.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "warn",
+          "value": 3.061,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 14,
+            "paletteColors": 32,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 14
+          },
+          "threshold": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "broken_monitor",
+    "mount": "wall",
+    "canvas": [
+      70,
+      75
+    ],
+    "opaque_bounds": [
+      3,
+      3,
+      67,
+      72
+    ],
+    "placement": [
+      35,
+      3
+    ],
+    "colors": 16,
+    "alpha": [
+      0,
+      255
+    ],
+    "source_box": [
+      100,
+      70,
+      413,
+      404
+    ],
+    "luma": {
+      "p50": 46.7,
+      "p95": 110.3,
+      "max": 110.3
+    },
+    "finish_scale": 0.20121951219512196,
+    "finish_qa": {
+      "status": "needs-visual-review",
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.20122,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 1.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "pass",
+          "value": 4.97,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 16,
+            "paletteColors": 32,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 16
+          },
+          "threshold": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "watch_camera",
+    "mount": "wall",
+    "canvas": [
+      75,
+      64
+    ],
+    "opaque_bounds": [
+      3,
+      3,
+      72,
+      61
+    ],
+    "placement": [
+      37,
+      3
+    ],
+    "colors": 16,
+    "alpha": [
+      0,
+      255
+    ],
+    "source_box": [
+      81,
+      108,
+      398,
+      375
+    ],
+    "luma": {
+      "p50": 69.8,
+      "p95": 110.3,
+      "max": 110.3
+    },
+    "finish_scale": 0.2153846153846154,
+    "finish_qa": {
+      "status": "needs-visual-review",
+      "checks": [
+        {
+          "id": "no-upscale",
+          "status": "pass",
+          "value": 0.215385,
+          "threshold": 1.0
+        },
+        {
+          "id": "rest-height",
+          "status": "pass",
+          "value": 0.0,
+          "threshold": 1.5,
+          "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+        },
+        {
+          "id": "empty-frames",
+          "status": "pass",
+          "value": [],
+          "threshold": 0
+        },
+        {
+          "id": "flicker",
+          "status": "skipped",
+          "value": null,
+          "threshold": null
+        },
+        {
+          "id": "pixel-reduction",
+          "status": "pass",
+          "value": 4.643,
+          "threshold": 4.0,
+          "note": "source px per output px; pixel art comes from about 8-12x"
+        },
+        {
+          "id": "alpha-binary",
+          "status": "pass",
+          "value": true,
+          "threshold": true
+        },
+        {
+          "id": "palette-fit",
+          "status": "pass",
+          "value": {
+            "colorsUsed": 16,
+            "paletteColors": 32,
+            "offPaletteColors": 0,
+            "coloursPerFrameMax": 16
+          },
+          "threshold": 0
+        }
+      ]
+    }
+  }
+]

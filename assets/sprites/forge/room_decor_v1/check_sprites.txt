@@ -1,0 +1,126 @@
+## cell/broken_crates.png
+파일                                           캔버스        내용 WxH     반투명 색
+broken_crates.png                            (128, 75)  122x72         0 24
+키 72px (목표 72px) OK
+
+통과
+
+## cell/rusty_drum.png
+파일                                           캔버스        내용 WxH     반투명 색
+rusty_drum.png                               (66, 85)   60x82         0 22
+키 82px (목표 81px) OK
+
+통과
+
+## cell/rag_heap.png
+파일                                           캔버스        내용 WxH     반투명 색
+rag_heap.png                                 (129, 50)  123x47         0 22
+키 47px (목표 47px) OK
+
+통과
+
+## cell/barred_window.png
+파일                                           캔버스        내용 WxH     반투명 색
+barred_window.png                            (123, 111) 117x105        0 17
+키 105px (목표 104px) OK
+
+통과
+
+## cell/wanted_poster.png
+파일                                           캔버스        내용 WxH     반투명 색
+wanted_poster.png                            (64, 86)   58x80         0 9
+키 80px (목표 80px) OK
+
+통과
+
+## cell/sagging_wires.png
+파일                                           캔버스        내용 WxH     반투명 색
+sagging_wires.png                            (128, 89)  122x83         0 23
+키 83px (목표 83px) OK
+
+통과
+
+## foundry/scrap_cart.png
+파일                                           캔버스        내용 WxH     반투명 색
+scrap_cart.png                               (132, 85)  126x82         0 15
+키 82px (목표 81px) OK
+
+통과
+
+## foundry/stacked_moulds.png
+파일                                           캔버스        내용 WxH     반투명 색
+stacked_moulds.png                           (116, 77)  110x74         0 11
+키 74px (목표 74px) OK
+
+통과
+
+## foundry/tool_chest.png
+파일                                           캔버스        내용 WxH     반투명 색
+tool_chest.png                               (86, 59)   80x56         0 11
+키 56px (목표 56px) OK
+
+통과
+
+## foundry/warning_sign.png
+파일                                           캔버스        내용 WxH     반투명 색
+warning_sign.png                             (84, 64)   78x58         0 10
+키 58px (목표 58px) OK
+
+통과
+
+## foundry/wall_gauge.png
+파일                                           캔버스        내용 WxH     반투명 색
+wall_gauge.png                               (107, 73)  101x67         0 15
+키 67px (목표 66px) OK
+
+통과
+
+## foundry/hanging_hook.png
+파일                                           캔버스        내용 WxH     반투명 색
+hanging_hook.png                             (52, 100)  46x94         0 12
+키 94px (목표 94px) OK
+
+통과
+
+## haze/broken_crystals.png
+파일                                           캔버스        내용 WxH     반투명 색
+broken_crystals.png                          (100, 57)  94x54         0 13
+키 54px (목표 53px) OK
+
+통과
+
+## haze/watcher_wreck.png
+파일                                           캔버스        내용 WxH     반투명 색
+watcher_wreck.png                            (133, 64)  127x61         0 17
+키 61px (목표 61px) OK
+
+통과
+
+## haze/sealed_chest.png
+파일                                           캔버스        내용 WxH     반투명 색
+sealed_chest.png                             (123, 65)  117x62         0 16
+키 62px (목표 62px) OK
+
+통과
+
+## haze/teal_panel.png
+파일                                           캔버스        내용 WxH     반투명 색
+teal_panel.png                               (80, 107)  74x101        0 14
+키 101px (목표 100px) OK
+
+통과
+
+## haze/broken_monitor.png
+파일                                           캔버스        내용 WxH     반투명 색
+broken_monitor.png                           (70, 75)   64x69         0 16
+키 69px (목표 68px) OK
+
+통과
+
+## haze/watch_camera.png
+파일                                           캔버스        내용 WxH     반투명 색
+watch_camera.png                             (75, 64)   69x58         0 16
+키 58px (목표 58px) OK
+
+통과
+

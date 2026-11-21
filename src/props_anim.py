@@ -45,6 +45,31 @@ SIZE = {
 # 방 이름 -> 손으로 정한 자리 [(소품, 열)]. 자동 배치 대신 쓴다. 은신처는 원경 그림이 이미 붐벼서(환풍기도 그려져 있다)
 # 정비사(9열) 옆 모루와 NPC 사이 화로만 놓는다.
 FIXED = {'hideout_room': [('anvil', 7), ('brazier', 21), ('brazier', 29)]}
+# 멈춘 장식 (Codex T31, 2026-11-21 계획 2-4): 테마마다 바닥 3종 + 벽·천장 3종. 기준점은 바닥 것은 밑줄 가운데(그림 밑이 바닥에 닿게),
+# 벽 것은 윗변 가운데(back: 빈 칸 가운데에 건다), 천장 것은 매다는 점.
+DECOR = {
+    'cell': ('broken_crates', 'rusty_drum', 'rag_heap', 'barred_window', 'wanted_poster', 'sagging_wires'),
+    'foundry': ('scrap_cart', 'stacked_moulds', 'tool_chest', 'warning_sign', 'wall_gauge', 'hanging_hook'),
+    'haze': ('broken_crystals', 'watcher_wreck', 'sealed_chest', 'teal_panel', 'broken_monitor', 'watch_camera'),
+}
+SIZE.update({
+    'broken_crates': (128, 75), 'rusty_drum': (66, 85), 'rag_heap': (129, 50), 'barred_window': (123, 111),
+    'wanted_poster': (64, 86), 'sagging_wires': (128, 89), 'scrap_cart': (132, 85), 'stacked_moulds': (116, 77),
+    'tool_chest': (86, 59), 'warning_sign': (84, 64), 'wall_gauge': (107, 73), 'hanging_hook': (52, 100),
+    'broken_crystals': (100, 57), 'watcher_wreck': (133, 64), 'sealed_chest': (123, 65), 'teal_panel': (80, 107),
+    'broken_monitor': (70, 75), 'watch_camera': (75, 64),
+})
+for _name in ('broken_crates', 'rusty_drum', 'rag_heap', 'scrap_cart', 'stacked_moulds', 'tool_chest',
+              'broken_crystals', 'watcher_wreck', 'sealed_chest'):
+    KIND[_name] = 'floor'
+    ANCHOR[_name] = (SIZE[_name][0] // 2, SIZE[_name][1])
+for _name in ('barred_window', 'wanted_poster', 'warning_sign', 'wall_gauge', 'teal_panel', 'broken_monitor'):
+    KIND[_name] = 'back'
+    ANCHOR[_name] = (SIZE[_name][0] // 2, 3)
+for _name in ('sagging_wires', 'hanging_hook', 'watch_camera'):
+    KIND[_name] = 'ceiling'
+    ANCHOR[_name] = (SIZE[_name][0] // 2, 3)
+DECOR_TARGET = 3
 TARGET = 4            # 방마다 놓으려는 수 (자리가 모자라면 그보다 적다)
 MARGIN = 8            # 그림 가장자리 이만큼은 벽에 걸쳐도 된다 (매다는 고리·받침)
 GAP = 1               # 소품 사이에 비워 둘 칸
@@ -105,14 +130,19 @@ def place(room, theme):
                 out.append(Placed(f'{theme}_{prop}', left, bottom, *SIZE[prop], rng.random() * FRAME_TIME * FRAMES))
         return out
     blocked = set(room.near_marker) | {(col, row) for _k, col, row in room.decor}
+    return _fill(room, theme, names, TARGET, blocked, rng)
+
+
+def _fill(room, theme, names, target, blocked, rng):
+    """names를 섞어 돌며 자리를 찾아 target개까지 놓는다. blocked(칸 집합)는 놓을 때마다 늘어난다."""
     placed = []
     order = list(names)
     rng.shuffle(order)
     tries = 0
-    while len(placed) < TARGET and tries < 3:
+    while len(placed) < target and tries < 3:
         tries += 1
         for prop in order:
-            if len(placed) >= TARGET:
+            if len(placed) >= target:
                 break
             w, h = SIZE[prop]
             spots = _spots(room, prop)
@@ -125,3 +155,15 @@ def place(room, theme):
                 blocked |= _cells(room, left, bottom, w, h, pad=GAP)
                 break
     return placed
+
+
+def place_decor(room, theme, anim):
+    """멈춘 장식 (Codex T31): 움직이는 소품(anim)과 기존 장식을 피해 DECOR_TARGET개. 그림 assets/decor/<테마>_<이름>.png."""
+    names = DECOR.get(theme)
+    if not names or room.name in FIXED:
+        return []
+    rng = random.Random(f'{room.name}:{room.cols}x{room.nrows}:{theme}:decor')
+    blocked = set(room.near_marker) | {(col, row) for _k, col, row in room.decor}
+    for p in anim:
+        blocked |= _cells(room, p.left, p.bottom, p.w, p.h, pad=GAP)
+    return _fill(room, theme, names, DECOR_TARGET, blocked, rng)

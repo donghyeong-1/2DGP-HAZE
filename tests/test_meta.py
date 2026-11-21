@@ -185,6 +185,33 @@ def test_dialog_portraits_exist_and_change_with_result():
     assert l[0] + 200 <= npc_mode.PANEL_X and r[0] >= npc_mode.PANEL_X + npc_mode.PANEL_W   # 판 밖 양쪽
 
 
+# ----- 판 기록 (퀄리티 계획 4-2): 사망·탈출 화면에 걸린 시간·클리어한 방·처치 수·도달 구역·받은 결정 -----
+def test_kills_and_run_clock_are_counted():
+    from enemy import Enemy
+    from room import Room
+    fresh()
+    p = new_player()
+    assert p.run_kills == 0 and p.run_clock == 0.0
+    room = Room.load('test_01')
+    e = Enemy('slum', 300, 120, room, p)
+    game_world.add_object(e, game_world.LAYER_ENEMY)
+    e.take_damage(10 ** 6)
+    assert p.run_kills == 1                                             # 쓰러뜨린 적을 센다
+    import play_mode
+    p.tick_run_clock(2.5, 'stage1')
+    p.tick_run_clock(9.0, 'hideout')                                    # 은신처에 있던 시간은 세지 않는다
+    assert p.run_clock == 2.5
+
+
+def test_run_summary_lines():
+    import ending_mode
+    p = new_player()
+    p.run_clock, p.run_rooms, p.run_kills, p.run_ends = 754.4, 9, 31, 1
+    lines = ending_mode.run_summary(p, '제4구역: 철골 공장', reward=17)
+    assert lines == [('도달한 구역', '제4구역: 철골 공장'), ('걸린 시간', '12:34'), ('클리어한 방', '9'),
+                     ('쓰러뜨린 적', '31'), ('깬 보스·관문', '1'), ('받은 헤이즈 결정', '+17')]
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

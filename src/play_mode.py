@@ -164,6 +164,7 @@ def update():
         clear_notice = 0.0  # 새 방에 들어오면 이전 방의 클리어 안내를 지운다
     if stage.name != 'hideout':                    # 은신처에서는 게이지가 줄지 않는다 (안전한 곳)
         player.gauge.tick(dt, room.is_high_haze)
+    player.tick_run_clock(dt, stage.name)        # 판 기록의 시간 (은신처 제외)
     if stage.finished:
         import stage as stage_mod
         nxt = stage_mod.next_stage(stage)              # 다음 구역 (체력·게이지·아이템·무기·조각은 그대로)

@@ -149,6 +149,7 @@ class Enemy(TileBody):
         if self.hp <= 0:
             self.alive = False
             self.die()
+            self.player.run_kills = getattr(self.player, 'run_kills', 0) + 1     # 판 기록 (계획 4-2)
             self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1) * (config.ELITE_SHARD_MULT if self.elite else 1)
             if self.elite == 'volatile':                  # 폭발 정예: 예고 고리 뒤에 터진다
                 game_world.add_object(EliteBurst(self.x, self.y + self.hb_h / 2, self.player), game_world.LAYER_EFFECT)

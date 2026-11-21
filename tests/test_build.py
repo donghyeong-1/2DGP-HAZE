@@ -42,6 +42,17 @@ def test_included_size_is_small():
     assert total < 60 * 1024 * 1024, f'{total // 1024 // 1024}MB'               # 원화가 섞여 들어가지 않았다
 
 
+def test_title_logo_is_store_logo_at_1x():
+    """퀄리티 계획 4-1: 타이틀 로고는 상점 로고(T29, 2x2 블록)를 정확히 절반으로 줄인 1배 그림 (tools/make_store_art.py)."""
+    from PIL import Image
+    big = Image.open(os.path.join(ROOT, 'assets', 'store', 'library_logo.png')).convert('RGBA')
+    small = Image.open(os.path.join(ROOT, 'assets', 'ui', 'logo_title.png')).convert('RGBA')
+    half = big.resize((big.width // 2, big.height // 2), Image.NEAREST)
+    assert small.tobytes() == half.crop(half.getbbox()).tobytes()              # 잃는 픽셀 없이 절반
+    src = open(os.path.join(ROOT, 'src', 'title_mode.py'), encoding='utf-8').read()
+    assert "ui/logo_title.png" in src
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

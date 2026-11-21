@@ -1,7 +1,8 @@
 """스팀 상점 그림 마무리 (2026-11-21, Codex T29 그림): 캡슐 4장의 제목 자리에 로고를 합성해 assets/store/에 둔다.
 
 입력: assets/sprites/forge/store_art_v1/ (캡슐·라이브러리 배경·로고, qa_store_art.json의 제목 자리 title_boxes)
-출력: assets/store/capsule_header.png 등 (스팀 규격 크기 그대로), library_hero.png·library_logo.png는 그대로 복사.
+출력: assets/store/capsule_header.png 등 (스팀 규격 크기 그대로), library_hero.png·library_logo.png는 그대로 복사,
+      assets/ui/logo_title.png (타이틀 화면용 1배 로고).
 게임 안에서 쓰는 그림이 아니라 상점·발표 자료용이다. 캡슐마다 픽셀 블록 크기가 달라(1·2·4배),
 로고를 그 캡슐의 논리 해상도에서 줄인 뒤 블록 크기만큼 정수배로 키워 픽셀 격자를 맞춘다. 알파는 0·255.
 실행: python tools/make_store_art.py
@@ -49,6 +50,11 @@ def build():
         made.append((path, base.size))
     shutil.copyfile(os.path.join(SRC, 'library_hero.png'), os.path.join(OUT, 'library_hero.png'))
     shutil.copyfile(os.path.join(SRC, 'logo.png'), os.path.join(OUT, 'library_logo.png'))
+    # 타이틀 화면 로고 (퀄리티 계획 4-1): 2x2 블록 로고를 정확히 절반(최근접)으로 줄이면 잃는 픽셀 없는 1배 그림이 된다
+    half = logo.resize((logo.width // 2, logo.height // 2), Image.NEAREST)
+    title = os.path.join(ROOT, 'assets', 'ui', 'logo_title.png')
+    half.crop(half.getbbox()).save(title)
+    made.append((title, half.crop(half.getbbox()).size))
     return made
 
 

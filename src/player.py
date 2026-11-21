@@ -205,6 +205,8 @@ class Player(TileBody):
         self.run_rooms = 0             # 이번 판에 클리어한 방 수 (판이 끝날 때 헤이즈 결정 보상)
         self.run_ends = 0              # 이번 판에 깬 보스·관문 수
         self.run_rewarded = False      # 이번 판 보상을 이미 받았는가
+        self.run_kills = 0             # 이번 판에 쓰러뜨린 적 수 (사망·탈출 화면의 판 기록, 계획 4-2)
+        self.run_clock = 0.0           # 이번 판에 구역 안에서 보낸 시간(초, 은신처 제외)
         self.items = []                # 가진 아이템 id 목록
         self.aura_time = 0.0           # 오라 반복 재생 시간
         self.move_dist = 0.0           # 땅 위에서 달린 거리(px). 달리기·뒷걸음 프레임이 이 거리에 비례해 넘어간다 (멈추면 0)
@@ -320,6 +322,11 @@ class Player(TileBody):
         if length < 1.0:
             return (float(self.face_dir), 0.0)
         return (dx / length, dy / length)
+
+    def tick_run_clock(self, dt, stage_name):
+        """판 기록의 시간: 은신처 밖에서만 센다."""
+        if stage_name != 'hideout':
+            self.run_clock += dt
 
     def handle_event(self, event):
         from pico2d import (SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,

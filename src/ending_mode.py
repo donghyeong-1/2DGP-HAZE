@@ -1,6 +1,7 @@
 """엔딩 화면 (클리어 / 사망). 판이 끝났으니 헤이즈 결정을 받고(영구 재화), 보관인 칸이 열려 있으면
 들고 있던 것 중 하나를 골라 맡긴다(다음 판 시작 때 받는다). 그다음 키를 누르면 사망은 은신처로, 탈출은 크레딧으로.
 
+판 기록(계획 4-2): 걸린 시간·도달한 구역·클리어한 방·쓰러뜨린 적·깬 보스·관문·받은 결정을 판에 보여 준다(run_summary).
 맡기기: A·D·좌·우로 고르고 Enter·Space·F로 맡긴다. 맨 끝 '맡기지 않기'도 고를 수 있다. (2026-11-19, docs/plan_v4.md 4절)
 """
 from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_LEFT, SDLK_RETURN, SDLK_RIGHT, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_f,
@@ -9,6 +10,7 @@ from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_LEFT, SDLK_RETURN, SDLK_RIGHT, S
 import assets
 import config
 import game_framework
+import hud_kit as kit
 import items
 import meta
 
@@ -19,15 +21,27 @@ choices = []         # 맡길 수 있는 것 (아이템 id), 맨 끝 None = 맡�
 choice = 0
 choosing = False     # 지금 맡길 것을 고르는 중인가
 kept = None          # 맡긴 것 (보여 주기용)
+summary = []         # 판 기록 [(이름, 값)]
+SUM_W, SUM_ROW = 760, 54
+
+
+def run_summary(player, zone_title, reward):
+    """판 기록 줄 [(이름, 값)]. 시간은 분:초."""
+    secs = int(getattr(player, 'run_clock', 0.0))
+    return [('도달한 구역', zone_title or '-'), ('걸린 시간', f'{secs // 60}:{secs % 60:02d}'),
+            ('클리어한 방', str(player.run_rooms)), ('쓰러뜨린 적', str(getattr(player, 'run_kills', 0))),
+            ('깬 보스·관문', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')]
 
 
 def enter():
-    global _ignore_input, reward, choices, choice, choosing, kept
+    global _ignore_input, reward, choices, choice, choosing, kept, summary
     import play_mode
     _ignore_input = 0.6
     assets.play_music('title')   # 사망·탈출 화면은 차분한 곡으로 돌아간다
     p = play_mode.player
     reward = meta.finish_run(p, escaped=result == 'clear') if p is not None else 0
+    st = getattr(play_mode, 'stage', None)
+    summary = run_summary(p, getattr(st, 'title', ''), reward) if p is not None else []
     options = meta.keepsake_options(p) if p is not None and meta.keeper_open() else []
     choices = options + [None] if options else []
     choice, kept = 0, None
@@ -85,19 +99,41 @@ def _icon_of(item_id):
     return f'ui/icon_w_{info["weapon"]}.png' if 'weapon' in info else f'ui/icon_{item_id}.png'
 
 
+def _draw_summary(cx):
+    """판 기록 판: 첫 줄은 도달한 구역(넓게), 그 아래 두 칸씩, 맨 아래 보유 결정."""
+    if not summary:
+        return
+    head, rest = summary[0], summary[1:]
+    rows = 1 + (len(rest) + 1) // 2
+    h = 70 + rows * SUM_ROW
+    x, y = cx - SUM_W // 2, 790 - h
+    kit.panel('panel', x, y, SUM_W, h)
+    top = y + h - 40
+    kit.text(x + 34, top, head[0], (130, 145, 175), small=True)
+    kit.text(x + SUM_W - 34, top, head[1], (235, 242, 252), right=True)
+    half = SUM_W // 2
+    for i, (name, value) in enumerate(rest):
+        col, row = i % 2, i // 2 + 1
+        ty = top - row * SUM_ROW
+        lx = x + 34 + col * half
+        kit.text(lx, ty, name, (130, 145, 175), small=True)
+        kit.text(lx + half - 60, ty, value, (255, 225, 140) if '결정' in name else (235, 242, 252), right=True)
+    kit.text(cx, y + 24, f'보유 헤이즈 결정 {meta.state.get("crystals", 0)}', (130, 235, 225), small=True, center=True)
+
+
 def draw():
     clear_canvas()
     cx = config.SCREEN_W // 2
     nxt = '크레딧' if result == 'clear' else '은신처로'
     if result == 'clear':
         assets.draw_image(assets.image('backgrounds/screen_ending.png'), cx, 0)
-        assets.draw_text(cx, 640, '탈출 성공', (170, 230, 250), center=True, big=True)
+        assets.draw_text(cx, 880, '탈출 성공', (170, 230, 250), center=True, big=True)
+        assets.draw_text(cx, 830, '안개를 삼키고 감옥을 벗어났다', (170, 185, 210), center=True)
     else:                                                          # 사망 화면: 쓰러진 인물 위쪽에 글자를 둔다
         assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
-        assets.draw_text(cx, 660, '사망', (225, 90, 100), center=True, big=True)
-        assets.draw_text(cx, 605, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
-    assets.draw_text(cx, 545, f'헤이즈 결정 +{reward}   (보유 {meta.state.get("crystals", 0)})', (130, 235, 225),
-                     center=True)
+        assets.draw_text(cx, 880, '사망', (225, 90, 100), center=True, big=True)
+        assets.draw_text(cx, 830, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
+    _draw_summary(cx)
     if choosing:                                                   # 보관인에게 맡길 것 고르기
         assets.draw_text(cx, 480, '보관인에게 하나를 맡긴다 (다음 판 시작 때 받는다)', (200, 210, 230), center=True)
         n = len(choices)

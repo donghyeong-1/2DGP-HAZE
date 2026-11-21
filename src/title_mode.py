@@ -89,8 +89,8 @@ def update():
 def draw_frozen():
     """제목 화면 (설정 창이 아래에 깔 때도 쓴다)."""
     assets.draw_image(assets.image('backgrounds/screen_title.png'), W // 2, 0)   # Codex T16 제목 화면 일러스트
-    assets.draw_image(assets.image('ui/logo.png'), W // 2, 640)                # 코드로 그린 로고 (tools/make_codeart.py)
-    kit.text(W // 2, 610, '안개를 삼키고 탈출하라', (150, 220, 245), center=True)
+    assets.draw_image(assets.image('ui/logo_title.png'), W // 2, 588)          # 상점 로고(T29)를 1배로 (tools/make_store_art.py)
+    kit.text(W // 2, 556, '안개를 삼키고 탈출하라', (150, 220, 245), center=True)
     for i, b in enumerate(MENU):
         b.draw(i == selected)
     kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)

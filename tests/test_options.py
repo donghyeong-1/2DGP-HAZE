@@ -5,6 +5,10 @@ import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src'))
 
+import log  # noqa: E402
+
+log.PATH = os.path.join(tempfile.mkdtemp(), 'haze_log.txt')   # 깨진 저장 시험이 사용자 폴더에 기록을 남기지 않게
+
 import config  # noqa: E402
 import effects  # noqa: E402
 import options  # noqa: E402

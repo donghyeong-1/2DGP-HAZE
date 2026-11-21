@@ -13,6 +13,7 @@
 | 철파이프 2단계 강화 동작 6장 (올려베기·내려찍기) | `assets/sprites/unified/n09_s2rise_1~3.png`, `n09_s2slam_1~3.png` | Codex T24 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 일반 적 4종 피격 2장째·쓰러짐 3장 | `assets/sprites/unified/enemy_<종류>_hurt_2.png`, `enemy_<종류>_death_1~3.png` | Codex T25 (내장 image_gen, `finish_character.py --like <적 마감본>`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 무기 전용 자세 10장 (식칼 3·건틀릿 4·사슬 3) | `assets/sprites/unified/n09_knife_1~3.png`, `n09_gauntlet_1~4.png`, `n09_chain_1~3.png` | Codex T26 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
+| 보스 크래셔 걷기 4장·쓰러짐 2장 | `assets/sprites/unified/boss_crasher_walk_1~4.png`, `boss_crasher_death_1~2.png` | Codex T27 (내장 image_gen, `finish_character.py --like boss_crasher_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 궁극기 컷인 띠, 시전 자세 2장 | `assets/ui/ult_cutin.png`, `assets/sprites/unified/n09_ult_1~2.png` | Codex T23 (내장 image_gen, hibit 마감) | AI 생성물 |
 | 타일 세트, 원경, 중경 (6개 테마) | `assets/tiles/tile_set_*.png`, `assets/backgrounds/far_*.png`, `mid_*.png` | `tools/make_world.py` (code-drawn). 원경은 Codex 배경판(T06)에 테마 색을 다시 입힘 | 자체 제작 |
 | 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지, 궁극기 광역 폭발 `ult-nova-<무기>` 4종), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
@@ -243,3 +244,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-21 [Codex] T25 assets/sprites/forge/enemy_death_v1/{slum,thrower,guard,hound}/frames/ 수정용 스프라이트 16장(피격 ② 4장·사망 12장). 프로젝트 자체 마스터를 참조한 Codex 내장 image_gen(모델명 미제공)으로 제작하고 generate2dsprite 0.5.0과 기존 종별 hibit 팔레트로 마감. 원화·출처·프롬프트는 assets/sprites/forge/enemy_death_v1/provenance.json. 검토 대기.
 
 2026-11-21 [Codex] T26 assets/sprites/forge/n09_weapon_poses_v1/{knife,gauntlet,chain}/frames/ 10장. 프로젝트 N-09 v3b 마스터와 식칼 투사체·건틀릿 아이콘·사슬 아이콘을 참조한 자체 제작 파생 에셋. Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0과 프로젝트 hibit 마감. 41색·이진 알파. 원화·출처·프롬프트는 assets/sprites/forge/n09_weapon_poses_v1/provenance.json. 검토 대기.
+
+2026-11-21 [Codex] T27 assets/sprites/forge/crasher_walk_death_v1/frames/{walk-1~4,death-1~2}.png 6장. 프로젝트 자체 크래셔 마스터를 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0 및 크래셔 기존 hibit 팔레트로 마감. 이진 알파, 불투명 전체 41색. 원화·출처·프롬프트는 assets/sprites/forge/crasher_walk_death_v1/provenance.json. 검토 대기.

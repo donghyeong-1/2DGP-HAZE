@@ -37,6 +37,7 @@ FRAMES = {
     # 보스 크래셔
     'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3, 94, 246), 'boss_crasher_charge': (2, 100, 174),
     'boss_crasher_leap': (3, 114, 210), 'boss_crasher_hurt': (1, 96, 196),
+    'boss_crasher_walk': (4, 107, 197), 'boss_crasher_death': (2, 82, 148),   # Codex T27: 무거운 걸음 4장(발 교대), 무릎 -> 엎어짐
     # 최종 보스 아크 (Codex T20). 기준점은 Codex 보고서 값(허리 기준 x, 밑창 아래 줄 y). 보스 코드는 아직 없다(스테이지 3은 임시로 크래셔)
     'boss_ark_idle': (2, 57, 160), 'boss_ark_walk': (4, 67, 160), 'boss_ark_hurt': (1, 57, 156),
     'boss_ark_barrage': (2, 71, 161), 'boss_ark_slash': (3, 77, 161), 'boss_ark_absorb': (2, 79, 164),

@@ -1,0 +1,41 @@
+{
+  "task": "T27",
+  "date_kst": "2026-11-21",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "processor": "generate2dsprite 0.5.0",
+  "finish": "project finish_character.py (hibit, --like remake_t01_t03/finished/boss_crasher_remake)",
+  "generated": [
+    {
+      "action": "walk",
+      "source": "walk/source_sheet.png",
+      "prompt": "walk/actual_prompt.txt",
+      "references": [
+        "assets/sprites/forge/remake_t01_t03/boss_crasher/master/master_rgba.png",
+        "walk/gait_guide.png",
+        "reference_1x.png"
+      ],
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "dcb8dab0b0385a210453be26e06923d98d1f0bdc20989a5994d8f5ddb0a14783"
+    },
+    {
+      "action": "death",
+      "source": "death/source_sheet.png",
+      "prompt": "death/actual_prompt.txt",
+      "references": [
+        "assets/sprites/forge/remake_t01_t03/boss_crasher/master/master_rgba.png",
+        "walk/source_sheet.png"
+      ],
+      "size": [
+        1774,
+        887
+      ],
+      "sha256": "a77e05bd400aef6027b4a3b396af871dacc14e5b4872c8a495694d7b7b4b6ffb"
+    }
+  ]
+}

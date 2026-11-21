@@ -157,6 +157,41 @@ def test_chain_throw_then_pull_poses():
     chain = [s for s in seen if s[0] == 'n09_chain']
     assert chain[:2] == [('n09_chain', 1), ('n09_chain', 2)] and ('n09_chain', 3) in chain, seen   # 돌림 -> 던짐 -> 당김
 
+
+# ----- Codex T27: 크래셔 걷기 4장·쓰러짐 2장 (11/21) -----
+def _crasher():
+    from boss import Boss
+    import game_world
+    room, p = tc.make_world()
+    b = Boss(p.x + 500, tc.FLOOR_Y, room, p)
+    game_world.add_object(b, game_world.LAYER_ENEMY)
+    return room, p, b
+
+
+def test_crasher_walks_with_four_alternating_frames():
+    import sprites
+    room, p, b = _crasher()
+    assert sprites.count('boss_crasher_walk') == 4
+    b.state, b.vx, b.flash = 'CHASE', 80.0, 0.0
+    seen = set()
+    for i in range(8):
+        b.walk_phase = i * 0.5
+        name, n = b._body_frame()
+        assert name == 'boss_crasher_walk', name
+        seen.add(n)
+    assert seen == {1, 2, 3, 4}
+
+
+def test_crasher_collapses_instead_of_vanishing():
+    import game_world
+    room, p, b = _crasher()
+    b.hp = 1
+    assert b.take_damage(5, from_x=p.x)
+    corpses = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'Corpse']
+    assert len(corpses) == 1 and corpses[0].frame() == ('boss_crasher_death', 1)
+    tc.step(30)
+    assert corpses[0].frame() == ('boss_crasher_death', 2)              # 엎어짐
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

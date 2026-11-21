@@ -256,3 +256,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-21 [Codex] T25 일반 적 4종의 피격 반동 및 쓰러짐 16장. 각 종의 대기 원화와 기존 피격 ①을 참조해 앞발 들기, 무릎 꺾임, 무릎 또는 어깨가 닿고 바닥에 누움을 요청했다. 사냥개는 옆구리와 주둥이를 바닥에 댄 컷을 별도 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/enemy_death_v1/<종류>/actual_prompt.txt 및 hound/flat_prompt.txt.
 
 2026-11-21 [Codex] T26 N-09의 식칼 준비·던지기·마무리, 건틀릿 충전·발사·회수·공중 하향 사격, 사슬 머리 뒤 준비·던지기·당기기 10장. v3b와 기존 무기 그래픽을 참조했고 식칼 준비의 칼날 분리를 1회 다시 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/n09_weapon_poses_v1/provenance.json에서 연결.
+
+2026-11-21 [Codex] T27 크래셔 걷기 4장·사망 2장. 승인 마스터와 관절 가이드로 밝은 가까운 장화와 먼 장화의 교대, 접지 후 하강을 지정하고 한 손으로 무릎 자세를 지탱한 뒤 앞으로 엎어지도록 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/crasher_walk_death_v1/provenance.json에서 연결.

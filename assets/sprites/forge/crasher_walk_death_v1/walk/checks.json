@@ -1,0 +1,97 @@
+{
+  "size": [
+    196,
+    202
+  ],
+  "anchor": [
+    107,
+    197
+  ],
+  "palette_colors": 41,
+  "frames": {
+    "walk-1.png": {
+      "anchor": [
+        107,
+        197
+      ],
+      "bounds": [
+        12,
+        5,
+        187,
+        197
+      ],
+      "sole_y": 196,
+      "source_scale": 1.43,
+      "visible_height": 192,
+      "colors": 41,
+      "duration_ms": 140,
+      "belt_xy": [
+        124,
+        99
+      ]
+    },
+    "walk-2.png": {
+      "anchor": [
+        107,
+        197
+      ],
+      "bounds": [
+        14,
+        10,
+        188,
+        197
+      ],
+      "sole_y": 196,
+      "source_scale": 1.43,
+      "visible_height": 187,
+      "colors": 41,
+      "duration_ms": 140,
+      "belt_xy": [
+        124,
+        105
+      ]
+    },
+    "walk-3.png": {
+      "anchor": [
+        107,
+        197
+      ],
+      "bounds": [
+        5,
+        5,
+        191,
+        197
+      ],
+      "sole_y": 196,
+      "source_scale": 1.393,
+      "visible_height": 192,
+      "colors": 41,
+      "duration_ms": 140,
+      "belt_xy": [
+        122,
+        97
+      ]
+    },
+    "walk-4.png": {
+      "anchor": [
+        107,
+        197
+      ],
+      "bounds": [
+        14,
+        10,
+        190,
+        197
+      ],
+      "sole_y": 196,
+      "source_scale": 1.393,
+      "visible_height": 187,
+      "colors": 41,
+      "duration_ms": 140,
+      "belt_xy": [
+        124.0,
+        103.0
+      ]
+    }
+  }
+}

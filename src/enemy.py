@@ -615,28 +615,30 @@ class Enemy(TileBody):
 class Corpse:
     """쓰러진 적 (판정 없음): 쓰러지는 3장 -> 잠깐 누워 있다가 헤이즈 조각으로 흩어지며 사라진다. (Codex T25, 11/21)"""
 
-    def __init__(self, name, x, y, face_dir, vx):
+    def __init__(self, name, x, y, face_dir, vx, stay=None):
         self.name, self.x, self.y, self.face_dir, self.vx = name, x, y, face_dir, vx
+        self.stay = config.CORPSE_TIME if stay is None else stay     # 누워 있는 데까지 (보스는 길게)
         self.time = 0.0
         self.burst = False
 
     def frame(self):
         a, b = config.CORPSE_FRAMES
-        return self.name, 1 if self.time < a else 2 if self.time < b else 3
+        n = 1 if self.time < a else 2 if self.time < b else 3
+        return self.name, min(n, sprites.count(self.name))         # 두 장짜리(크래셔)는 2에서 머문다
 
     def update(self, dt):
         self.time += dt
         self.x += self.vx * dt
         self.vx *= max(0.0, 1.0 - 9.0 * dt)               # 밀려나던 힘이 줄어든다
-        if not self.burst and self.time >= config.CORPSE_TIME:
+        if not self.burst and self.time >= self.stay:
             self.burst = True
             effects.spawn('death-burst', self.x, self.y + 20, duration=0.45)
-        if self.time >= config.CORPSE_TIME + config.CORPSE_FADE:
+        if self.time >= self.stay + config.CORPSE_FADE:
             game_world.remove_object(self)
 
     def draw(self):
         name, n = self.frame()
-        fade = max(0.0, self.time - config.CORPSE_TIME) / config.CORPSE_FADE
+        fade = max(0.0, self.time - self.stay) / config.CORPSE_FADE
         sprites.draw(name, n, int(self.x), int(self.y), self.face_dir, alpha=max(0.0, 1.0 - fade))
 
 

@@ -19,6 +19,7 @@ import config
 import effects
 import game_world
 import projectile
+import sprites
 from enemy import Enemy
 
 PATTERNS = ('smash', 'combo', 'slam', 'charge', 'leap', 'rubble', 'steam')
@@ -348,8 +349,8 @@ class Boss(Enemy):
             return 'boss_crasher_leap', 2
         if self.flash > 0:                                      # 공격 중이 아닐 때 맞으면 움찔 (경직은 없다)
             return 'boss_crasher_hurt', 1
-        if self.vx != 0:                                        # 걸어온다: 숙인 자세의 두 발이 천천히 번갈아
-            return 'boss_crasher_charge', int(self.walk_phase * 0.5) % 2 + 1
+        if self.vx != 0:                                        # 걸어온다: 무거운 걸음 4장 (Codex T27, 왼발·오른발 교대)
+            return 'boss_crasher_walk', int(self.walk_phase * 2) % 4 + 1
         return 'boss_crasher_idle', int(self.anim_time / config.BOSS_IDLE_FRAME_TIME) % 2 + 1
 
     def _pose_offset(self, name):
@@ -375,6 +376,10 @@ class Boss(Enemy):
             effects.add_trauma(1.0)
             for dx, dy in ((0, 40), (-50, 100), (50, 150)):
                 effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.6)
+            if 'boss_crasher_death' in sprites.FRAMES:          # 무릎 꿇었다 엎어진다 (Codex T27), 오래 누워 있다가 흩어진다
+                from enemy import Corpse
+                game_world.add_object(Corpse('boss_crasher_death', self.x, self.y, self.face_dir, 0.0, stay=2.5),
+                                      game_world.LAYER_EFFECT)
             game_world.remove_object(self)
             return True
         assets.play_sound('enemy_hit')

@@ -1,0 +1,47 @@
+{
+  "size": [
+    236,
+    154
+  ],
+  "anchor": [
+    82,
+    148
+  ],
+  "palette_colors": 40,
+  "frames": {
+    "death-1.png": {
+      "anchor": [
+        82,
+        148
+      ],
+      "bounds": [
+        13,
+        5,
+        189,
+        148
+      ],
+      "sole_y": 147,
+      "source_scale": 1.02,
+      "visible_height": 143,
+      "colors": 40,
+      "duration_ms": 230
+    },
+    "death-2.png": {
+      "anchor": [
+        82,
+        148
+      ],
+      "bounds": [
+        5,
+        89,
+        230,
+        148
+      ],
+      "sole_y": 147,
+      "source_scale": 1.02,
+      "visible_height": 59,
+      "colors": 40,
+      "duration_ms": 500
+    }
+  }
+}

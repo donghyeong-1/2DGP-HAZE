@@ -35,6 +35,13 @@ def main():
     config.SOUND_ENABLED = True
     options.load()                 # 접근성 설정(흔들림·번쩍임)을 지난 실행에서 이어 받는다
     display.apply()                # 해상도·마우스 가두기 (창이 놓인 모니터 기준)
+    import assets
+    from pico2d import clear_canvas, update_canvas
+    clear_canvas()                 # 미리 읽는 동안 빈 창 대신 '불러오는 중'
+    assets.draw_rect_color(0, 0, config.SCREEN_W, config.SCREEN_H, (6, 9, 18))
+    assets.draw_text(config.SCREEN_W // 2, config.SCREEN_H // 2, '불러오는 중', (130, 145, 175), center=True)
+    update_canvas()
+    assets.preload()               # 그림·효과음을 미리 읽어 첫 방·첫 이펙트에서 끊기지 않게 (약 0.7초)
     try:
         # 개발용: HAZE_MAX_SECONDS 환경 변수가 있으면 그 시간 뒤에 자동 종료한다 (실행 확인용)
         limit = float(os.environ.get('HAZE_MAX_SECONDS', '0')) or None

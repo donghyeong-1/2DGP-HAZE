@@ -53,6 +53,25 @@ def test_title_logo_is_store_logo_at_1x():
     assert "ui/logo_title.png" in src
 
 
+def test_preload_loads_every_game_image_once():
+    """첫 방 입장·첫 이펙트 때 그림을 읽느라 프레임이 끊기지 않게(점검 도구: 첫 입장 약 45ms) 시작할 때 미리 읽는다."""
+    import pico2d
+    loaded = []
+    old = pico2d.load_image
+    pico2d.load_image = lambda path: loaded.append(path) or object()
+    try:
+        assets._images.clear()
+        n = assets.preload(sounds=False)
+    finally:
+        pico2d.load_image = old
+    names = set(assets._images)
+    assert n == len(loaded) > 300
+    for must in ('props/cell_bulb_1.png', 'decor/haze_teal_panel.png', 'ui/wipe_08.png', 'backgrounds/far_cell.png',
+                 'sprites/unified/n09_idle_1.png'):
+        assert must in names, must
+    assets._images.clear()
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

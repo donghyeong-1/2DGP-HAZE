@@ -6,7 +6,7 @@
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(395개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(396개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -212,3 +212,4 @@
 2026-11-21 [Codex] T35 엔딩 크레딧 장면 3장, 1920×1080·32색·1배와 하단 크레딧 가독성 확인(검토 대기) / assets/sprites/forge/credits_scenes_v1/, docs/codex/reports/T35.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-21 [Claude Code] 빠진 효과음 15종(식칼·사슬 구간별·강화, 무기별 궁극기 마무리, 구간 진입·심장·마지막 처치), 구간 번쩍임, 체력 낮음 심장·붉은 가장자리, 페이드 음악 먹먹, 피해 숫자(설정), 마지막 처치 멈춤, 비네트 위치 버그, 테스트 392개 / src/(drama, weapon, player, enemy, boss, ark, play_mode, atmosphere, assets, options, options_mode, credits_mode, config).py, tools/(make_sfx, make_atmosphere).py, assets/sfx/*, assets/ui/vignette_red.png, tests/(test_drama, test_sfx, test_options).py, docs/*
 2026-11-21 [Claude Code] Codex T34(보스 등장 카드, 카드 동안 게임 멈춤)·T35(크레딧 장면 3장) 검토·적용, 퀄리티 계획 4단계 끝, 테스트 395개 / src/(zone_card, play_mode, credits_mode).py, assets/backgrounds/(boss_card_*, credits_*), tests/(test_zone_card, test_options).py, docs/*
+2026-11-21 [Claude Code] 전체 판 자동 점검 도구(smoke_run: 시드 4개·방 140개 오류 0, 평균 4~7ms), 시작할 때 그림·효과음 미리 읽기(첫 방 입장 끊김 45ms -> 14ms 아래)와 불러오는 중 화면, 테스트 396개 / tools/smoke_run.py, src/(assets, main).py, tests/test_build.py, docs/*

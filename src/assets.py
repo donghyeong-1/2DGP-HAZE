@@ -151,6 +151,24 @@ def sound(name):
     return _sounds[name]
 
 
+PRELOAD_FOLDERS = ('sprites/unified', 'effects', 'props', 'decor', 'tiles', 'ui', 'backgrounds', 'portraits', 'placeholder')
+
+
+def preload(sounds=True):
+    """게임이 쓰는 그림(과 효과음)을 시작할 때 한 번에 읽는다 (2026-11-21). 처음 쓰는 순간 읽으면 그 프레임이
+    끊긴다(점검 도구 smoke_run: 첫 방 입장 약 45ms). 모두 읽는 데 약 0.7초. 읽은 그림 수를 돌려준다."""
+    import glob
+    count = 0
+    for folder in PRELOAD_FOLDERS:
+        for path in sorted(glob.glob(os.path.join(ASSET_DIR, folder, '*.png'))):
+            image(folder + '/' + os.path.basename(path))
+            count += 1
+    if sounds:
+        for path in sorted(glob.glob(os.path.join(ASSET_DIR, 'sfx', '*.wav'))):
+            sound(os.path.basename(path)[:-4])
+    return count
+
+
 def play_sound(name):
     """효과음 재생. 소리가 꺼져 있거나 오디오가 없으면 조용히 넘어간다."""
     import config

@@ -192,6 +192,19 @@ def test_crasher_collapses_instead_of_vanishing():
     tc.step(30)
     assert corpses[0].frame() == ('boss_crasher_death', 2)              # 엎어짐
 
+# ----- 보스 체력 막대 (퀄리티 계획 4-4): 맞은 만큼이 잠깐 밝게 남았다가 따라 줄고, 페이즈 경계에 눈금 -----
+def test_boss_bar_damage_trail_and_phase_marks():
+    import ui
+    assert ui.ghost_step(1.0, 0.7, 0.1) == 1.0                        # 맞은 직후 잠깐은 그대로 (BOSS_GHOST_HOLD)
+    g = 1.0
+    for _ in range(120):
+        g = ui.ghost_step(g, 0.7, 1 / 60, held=1.0)
+    assert abs(g - 0.7) < 1e-6                                         # 2초 안에 현재 체력까지 따라온다
+    assert ui.ghost_step(0.5, 0.8, 0.1) == 0.8                         # 체력이 오르면 바로 맞춘다
+    assert ui.boss_phase_marks('crasher') == [0.5]
+    assert ui.boss_phase_marks('ark') == sorted(config.ARK_PHASES)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

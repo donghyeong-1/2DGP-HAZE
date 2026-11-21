@@ -107,6 +107,8 @@ def main():
         cx, cy = (int(v) for v in a.cell.split(','))
         stage.enter_room((cx, cy), 'L')
     camera.snap(p, stage.room)
+    import transition
+    transition.reveal(0.0)                               # 방 입장 점묘(계획 4-3)가 캡처를 가리지 않게
     if a.clear:
         for o in list(game_world.world[game_world.LAYER_ENEMY]):
             game_world.remove_object(o)

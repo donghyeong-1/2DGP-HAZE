@@ -182,6 +182,8 @@ class Stage:
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
         self.pedestals, self.boss, self.npcs = [], None, []
+        import transition
+        transition.reveal()                              # 새 방은 검은 화면에서 점묘로 드러난다 (계획 4-3)
         self.room = Room.load(self.template_of(coord), self.links_of(coord), info.get('high_haze', False), self.theme_of(info))
         for d in self.room.links:      # 문 너머 방이 특별한 방이면 문에 표시한다
             if self.neighbour(coord, d) not in self.layout:      # 은신처 출발 문처럼 너머에 방이 없는 문

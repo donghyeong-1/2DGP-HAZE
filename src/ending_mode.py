@@ -37,6 +37,8 @@ def enter():
     global _ignore_input, reward, choices, choice, choosing, kept, summary
     import play_mode
     _ignore_input = 0.6
+    import transition
+    transition.reveal(0.6)                         # 쓰러진 뒤·탈출 뒤 천천히 드러난다
     assets.play_music('title')   # 사망·탈출 화면은 차분한 곡으로 돌아간다
     p = play_mode.player
     reward = meta.finish_run(p, escaped=result == 'clear') if p is not None else 0
@@ -157,4 +159,6 @@ def draw():
         if kept:
             assets.draw_text(cx, 470, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
         assets.draw_text(cx, 400, f'아무 키나 누르면 {nxt}', (150, 160, 185), center=True)
+    import transition
+    transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
     update_canvas()

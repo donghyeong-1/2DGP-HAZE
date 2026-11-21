@@ -3,6 +3,7 @@
   assets/ui/vignette.png          1920x1080 가장자리 어둡게. 짙은 남색 한 색, 알파는 켜짐·꺼짐(픽셀 규칙)이고
                                   가장자리로 갈수록 점묘(베이어 4x4, 2px 칸)가 촘촘해진다. 게임이 opacify로 옅게 그린다.
   assets/backgrounds/fog_strip.png 960x300 가로로 이어지는 안개 띠 (흐린 청록 두 톤, 점묘). 게임이 두 겹으로 흘려 그린다.
+  assets/ui/wipe_01~15.png        128x128 화면 전환 타일 (계획 4-3, 베이어 4x4를 8px 칸으로, 번호/16 만큼 켜짐).
 사용: python tools/make_atmosphere.py
 """
 import os
@@ -65,7 +66,19 @@ def fog_strip():
     return Image.fromarray(a, 'RGBA')
 
 
+def wipe(level, size=128, cell=8):
+    """화면 전환 타일: 베이어 4x4 문턱값을 cell px 칸으로, level/16 만큼의 칸을 켠다 (타일이 이어 붙는다)."""
+    ys, xs = np.mgrid[0:size, 0:size]
+    th = BAYER[(ys // cell) % 4, (xs // cell) % 4]
+    on = th < level / 16.0
+    a = np.zeros((size, size, 4), np.uint8)
+    a[on] = (*INK, 255)
+    return Image.fromarray(a, 'RGBA')
+
+
 def main():
+    for lv in range(1, 16):
+        wipe(lv).save(os.path.join(ROOT, 'assets', 'ui', f'wipe_{lv:02d}.png'))
     vignette().save(os.path.join(ROOT, 'assets', 'ui', 'vignette.png'))
     fog_strip().save(os.path.join(ROOT, 'assets', 'backgrounds', 'fog_strip.png'))
     print('saved vignette.png, fog_strip.png')

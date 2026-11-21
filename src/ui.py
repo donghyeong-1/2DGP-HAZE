@@ -39,13 +39,49 @@ LABEL_Y = BAR_Y - 54                     # 구간 표시 판 (게이지 바로 �
 NOTICE_Y = LABEL_Y - 70                  # 안내 띠 (구간 표시 판 아래, 화면 가운데)
 
 
+# ----- 보스 체력 막대 (퀄리티 계획 4-4) -----
+BOSS_GHOST_HOLD = 0.35      # 맞은 뒤 이만큼은 깎인 부분이 밝게 남는다(초)
+BOSS_GHOST_SPEED = 0.5      # 그다음 초당 이만큼(체력 비율) 따라 준다
+BOSS_EPITHET = {'crasher': '용광로의 파수꾼', 'ark': '헤이즈 탑의 총감시관'}
+
+
+def ghost_step(ghost, ratio, dt, held=0.0):
+    """깎인 체력 자국(ghost)이 지금 체력(ratio)을 따라간다. held = 마지막으로 맞은 뒤 지난 시간."""
+    if ratio >= ghost:
+        return ratio
+    if held < BOSS_GHOST_HOLD:
+        return ghost
+    return max(ratio, ghost - BOSS_GHOST_SPEED * dt)
+
+
+def boss_phase_marks(kind):
+    """페이즈가 바뀌는 체력 비율 (막대 위 눈금)."""
+    return sorted(config.ARK_PHASES) if kind == 'ark' else [0.5]
+
+
 class GameUI:
     def __init__(self, player, stage=None):
         self.player = player
         self.stage = stage
+        self.boss_ref = None
+        self.boss_ghost = 1.0
+        self.boss_last = 1.0
+        self.boss_held = 0.0
 
     def update(self, dt):
-        pass
+        boss = self.stage.boss if self.stage is not None else None
+        if boss is None:
+            self.boss_ref = None
+            return
+        ratio = max(0.0, boss.hp) / boss.max_hp
+        if boss is not self.boss_ref:                       # 새 보스: 자국 없이 시작
+            self.boss_ref, self.boss_ghost, self.boss_last, self.boss_held = boss, ratio, ratio, 1.0
+        if ratio < self.boss_last:
+            self.boss_held = 0.0
+        else:
+            self.boss_held += dt
+        self.boss_last = ratio
+        self.boss_ghost = ghost_step(self.boss_ghost, ratio, dt, self.boss_held)
 
     def draw(self):
         self._draw_screen_fx()          # 화면 전체 효과(오버로드 섬광, 기절 비네트)는 HUD 아래에 깐다
@@ -297,10 +333,21 @@ class GameUI:
         boss = self.stage.boss
         if boss is None or not boss.alive:
             return
-        bw = 760
-        x, y = (W - bw) // 2, NOTICE_Y - 84
-        kit.text(W // 2, y + 36, getattr(boss, 'title', '보스'), (255, 160, 160), center=True)
-        kit.bar('boss', x, y, bw, 16, max(0.0, boss.hp) / boss.max_hp)
+        bw, bh = 820, 20
+        x, y = (W - bw) // 2, NOTICE_Y - 96
+        kind = getattr(boss, 'kind', 'crasher')
+        kit.panel('panel', x - 26, y - 18, bw + 52, 92)                 # HUD와 같은 판
+        kit.text(x, y + 48, getattr(boss, 'title', '보스'), (255, 170, 160))
+        kit.text(x + 210, y + 46, BOSS_EPITHET.get(kind, ''), (150, 130, 140), small=True)
+        phase = getattr(boss, 'phase', 1)
+        if phase > 1:
+            kit.text(x + bw, y + 46, f'{phase}페이즈', (255, 120, 110), small=True, right=True)
+        ratio = max(0.0, boss.hp) / boss.max_hp
+        kit.bar('boss', x, y, bw, bh, ratio)
+        ghost = self.boss_ghost if self.boss_ref is boss else ratio
+        kit.fill('orange', x + int(bw * ratio), y, int(bw * (ghost - ratio)), bh)  # 방금 깎인 만큼 (따라 줄어든다)
+        for m in boss_phase_marks(kind):                                   # 페이즈 경계 눈금
+            assets.draw_rect_color(x + int(bw * m) - 1, y - 4, 2, bh + 8, (235, 240, 250))
 
     def _draw_message(self):
         import play_mode

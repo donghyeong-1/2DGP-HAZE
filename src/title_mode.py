@@ -33,6 +33,8 @@ selected = 0
 def enter():
     global selected
     selected = 0
+    import transition
+    transition.reveal()
     assets.play_music('title')
 
 
@@ -100,4 +102,6 @@ def draw_frozen():
 def draw():
     clear_canvas()
     draw_frozen()
+    import transition
+    transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
     update_canvas()

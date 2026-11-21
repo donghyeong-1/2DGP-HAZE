@@ -64,6 +64,8 @@ def finished():
 def enter():
     global scroll, _fast, _ignore_input
     scroll, _fast, _ignore_input = 0.0, False, 0.5
+    import transition
+    transition.reveal()
     assets.play_music('title')
 
 
@@ -120,4 +122,6 @@ def draw():
         y -= step
     assets.draw_rect_color(0, 0, W, 70, (6, 9, 18), 1.0)                     # 안내 줄 뒤는 막아 올라오는 글자와 겹치지 않게
     assets.draw_text(W // 2, 34, '키를 누르고 있으면 빨리 감기   Esc 타이틀로', (110, 125, 150), small=True, center=True)
+    import transition
+    transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
     update_canvas()

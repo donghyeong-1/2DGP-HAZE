@@ -189,6 +189,8 @@ def draw():
     clear_canvas()
     game_world.render(_apply_shake)
     assets.draw_offset = (0, 0)
+    import transition
+    transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
     update_canvas()
 
 

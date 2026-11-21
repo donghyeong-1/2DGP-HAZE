@@ -44,7 +44,9 @@ def enter():
     from ambience import Ambience
     game_world.add_object(Atmosphere(player, stage), game_world.LAYER_UI)   # 구간 색·비네트·안개 (HUD보다 먼저 = 아래)
     game_world.add_object(Ambience(stage), game_world.LAYER_UI)             # 구역 환경음 (그림 없음)
+    from tutorial import Tutorial
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
+    game_world.add_object(Tutorial(player, stage), game_world.LAYER_UI)     # 처음 안내판 (HUD 위에)
     assets.play_music(music_for(stage))
 
 

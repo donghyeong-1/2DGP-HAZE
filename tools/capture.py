@@ -89,6 +89,8 @@ def main():
 
     import meta
     import stage as stage_mod
+    import tempfile
+    meta.PATH = os.path.join(tempfile.mkdtemp(), 'save.json')   # 사용자 저장을 덮어쓰지 않는다 (처음 안내가 '본 것'을 저장한다)
     meta.reset()                                         # 사용자 저장(영구 강화)을 읽지 않고 기본값으로 찍는다
     play_mode.enter()                                    # 판은 은신처에서 시작하므로 스테이지 1로 바꾼다
     p = play_mode.player

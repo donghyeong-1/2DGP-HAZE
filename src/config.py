@@ -380,6 +380,7 @@ SLOW_BOSS = (1.1, 0.25)      # 보스를 쓰러뜨렸을 때
 CORPSE_FRAMES = (0.09, 0.22)  # 1번 -> 2번, 2번 -> 3번이 되는 시간(초)
 CORPSE_TIME = 0.9             # 누워 있는 데까지 (그 뒤 흩어지며 사라진다)
 CORPSE_FADE = 0.35            # 흩어지며 사라지는 시간
+HINT_TIME = 6.0               # 처음 안내판을 보여 주는 시간(초) (11/21 계획 2-5, src/tutorial.py)
 AMB_GAP = (3.0, 8.0)          # 환경음 사이 간격(초, 무작위) (11/21 계획 2-3, src/ambience.py)
 ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard'}
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.

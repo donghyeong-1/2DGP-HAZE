@@ -3,10 +3,10 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T27 보스 크래셔 걷기·사망 / 수정 중인 파일: assets/sprites/forge/crasher_walk_death_v1/, docs/codex/reports/T27.md
+- [Codex] T28 스테이지별 움직이는 배경 소품 / 수정 중인 파일: assets/sprites/forge/props_anim_v1/, docs/codex/reports/T28.md
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(322개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(327개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -23,7 +23,7 @@
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
 2. [ ] **(Codex) T27 → T29** (T24~T26 11/21 적용) (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
-3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예는 11/21 완료): 2-4 방 구성 늘리기, 2-5 처음 하는 사람 안내, 2-6 게임패드·키 설정. 그다음 3단계(실행 파일, 저장 손상 대비). Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
+3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예, 2-5 안내는 11/21 완료): 2-6 게임패드(메뉴 포함)·키 설정, 2-4 방 구성 늘리기. 그다음 3단계(실행 파일, 저장 손상 대비). Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 `docs/ASSETS.md`에 (최종 제출 전 필수).
 5. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 체크리스트(`docs/script_2nd.md`).
 6. [ ] **(Claude Code, 날짜가 정해지면)** 3차 발표 자료·대본·데모 촬영. 바탕은 `docs/changes_from_plan.md`.
@@ -185,3 +185,5 @@
 2026-11-21 [Claude Code] Codex T25 검토·적용(적 피격 2장·쓰러짐 3장, 시체가 쓰러졌다 흩어짐), 화면 분위기(구간 색·비네트·흐르는 안개), 스테이지별 음악 3곡(factory·tower·hideout), 테스트 312개 / src/(atmosphere, enemy, sprites, play_mode, config, credits_mode).py, tools/(make_atmosphere, make_music).py, assets/(ui/vignette, backgrounds/fog_strip, music/*, sprites/unified/enemy_*), tests/(test_atmosphere, test_feel, test_sfx, test_combat, test_sprites).py, docs/*
 2026-11-21 [Codex] T26 식칼 3장·건틀릿 4장·사슬 3장, 기존 맨손과 1배 비교 및 기준점 검증(검토 대기) / assets/sprites/forge/n09_weapon_poses_v1/, docs/codex/reports/T26.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-21 [Claude Code] Codex T26 검토·적용(식칼·건틀릿·사슬 전용 자세), 정예 적 3종(질주·강철·폭발, 색 테두리·이름), 구역 환경음 4종, 테스트 322개 / src/(player, enemy, stage, sprites, assets, ambience, play_mode, weapon, config, credits_mode).py, tools/make_sfx.py, assets/sprites/unified/n09_(knife, gauntlet, chain)_*, assets/sfx/amb_*, tests/(test_elite, test_feel, test_sfx, test_combat).py, docs/*
+2026-11-21 [Codex] T27 크래셔 걷기 4장·사망 2장 제작, 1배에서 발 교대와 59px 엎어짐 확인(검토 대기) / assets/sprites/forge/crasher_walk_death_v1/, docs/codex/reports/T27.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-21 [Claude Code] 처음 하는 사람 안내판(조작·게이지·구간·E 강화·무기, 저장에 한 번만, 설정에서 끔), 캡처 도구 저장 분리, 테스트 327개 / src/(tutorial, options, options_mode, meta, play_mode, config).py, tools/capture.py, tests/(test_tutorial, test_options).py, docs/*

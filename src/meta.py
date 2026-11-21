@@ -29,7 +29,7 @@ state = {}
 
 def _default():
     return {'crystals': 0, 'levels': {k: 0 for k in UPGRADES}, 'keeper': False, 'keepsake': None,
-            'runs': 0, 'escapes': 0, 'best': ''}
+            'runs': 0, 'escapes': 0, 'best': '', 'hints': []}
 
 
 def reset():
@@ -57,6 +57,8 @@ def load():
     state['runs'] = int(data.get('runs', 0))
     state['escapes'] = int(data.get('escapes', 0))
     state['best'] = str(data.get('best', ''))
+    hints = data.get('hints', [])
+    state['hints'] = [str(h) for h in hints] if isinstance(hints, list) else []   # 이미 본 처음 안내
 
 
 def save():

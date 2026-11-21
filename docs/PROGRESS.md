@@ -3,10 +3,10 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T34 보스 등장 카드 / 수정 중인 파일: assets/sprites/forge/boss_cards_v1/, docs/codex/reports/T34.md
+- [Codex] T35 엔딩 크레딧 장면 / 수정 중인 파일: assets/sprites/forge/credits_scenes_v1/, docs/codex/reports/T35.md
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(383개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(392개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -208,3 +208,5 @@
 2026-11-21 [Claude Code] 화면 전환 점묘(방·타이틀·사망·탈출·크레딧), 보스 체력 막대(판·별칭·페이즈 눈금·깎인 자국), 테스트 381개 / src/(transition, stage, play_mode, title_mode, ending_mode, credits_mode, ui).py, tools/(make_atmosphere, capture).py, assets/ui/wipe_*, tests/(test_transition, test_feel).py, docs/*
 2026-11-21 [Claude Code] 건틀릿 충전 시간 1.2·0.8 -> 0.9·0.65초(밸런스 비교 근거), 테스트 381개 / src/config.py, tests/test_combat.py, docs/DECISIONS.md
 2026-11-21 [Claude Code] 지형 지물 배치 재검토(방 15종 x 3테마 전체 렌더), 소품 받침 규칙(허공에 뜬 소품 없앰, 물방울 자동 배치 제외), 테스트 383개 / src/props_anim.py, tests/test_props_anim.py, docs/*
+2026-11-21 [Codex] T34 크래셔·아크 등장 카드 2장, 1920×400·32색·1배와 왼쪽 이름·별칭 가독성 확인(검토 대기) / assets/sprites/forge/boss_cards_v1/, docs/codex/reports/T34.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-21 [Claude Code] 빠진 효과음 15종(식칼·사슬 구간별·강화, 무기별 궁극기 마무리, 구간 진입·심장·마지막 처치), 구간 번쩍임, 체력 낮음 심장·붉은 가장자리, 페이드 음악 먹먹, 피해 숫자(설정), 마지막 처치 멈춤, 비네트 위치 버그, 테스트 392개 / src/(drama, weapon, player, enemy, boss, ark, play_mode, atmosphere, assets, options, options_mode, credits_mode, config).py, tools/(make_sfx, make_atmosphere).py, assets/sfx/*, assets/ui/vignette_red.png, tests/(test_drama, test_sfx, test_options).py, docs/*

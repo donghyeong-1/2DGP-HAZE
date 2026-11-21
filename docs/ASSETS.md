@@ -28,7 +28,7 @@
 | 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
 | 무기 그림(식칼 8방향, 건틀릿 충격파, 무기 아이콘 4종: 철파이프·식칼·건틀릿·사슬, 사슬 줄·갈고리는 실행 중 사각형으로 그림) | `assets/sprites/unified/proj_knife_*`, `proj_blast_*`, `assets/ui/icon_w_*` | `tools/make_weapons.py` (code-drawn) | 자체 제작 |
 | 맨손 자세(던지기·건틀릿) | `assets/sprites/unified/n09_punch_1~4.png` | Codex T05 결과(`forge/n09_attack_v3`)를 그대로 복사 | AI 생성물 |
-| 효과음 44종 (11/19 사슬·궁극기·아크 12종, 11/21 무기별 명중 3종·적 예고 4종·환경음 4종) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
+| 효과음 59종 (11/19 사슬·궁극기·아크 12종, 11/21 무기별 명중 3종·적 예고 4종·환경음 4종, 11/21 식칼·사슬 구간별 9종·무기별 궁극기 마무리 4종·구간 진입·심장·마지막 처치) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
 | 배경음악 7곡 (title·explore·boss·ark, 11/21 factory·tower·hideout 추가) | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
 | 화면 분위기(가장자리 어둡게·흐르는 안개) | `assets/ui/vignette.png`, `assets/backgrounds/fog_strip.png` | `tools/make_atmosphere.py` (numpy 점묘, code-drawn, 2026-11-21) | 자체 제작 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
@@ -265,3 +265,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-21 [Codex] T32 assets/sprites/forge/portraits_v1/<인물>_<1|2>.png 은신처 대화 UI용 초상화 8장. 프로젝트 자체 마스터와 게임 그림 참조, Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0(MIT)과 Pillow 마감, codixel(MIT) 비교판. 200×200, 인물별 공용 32색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/portraits_v1/provenance.json. 검토 대기.
 
 2026-11-21 [Codex] T33 assets/sprites/forge/zone_cards_v1/zone_<cell|foundry|haze>.png 구역 전환용 제목 카드 배경 3장. 프로젝트 자체 제목 화면·원경을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dmap 0.5.0(MIT) Hibit 마감, codixel(MIT) 비교판. 1920×400·불투명 32색·1배. 출처와 프롬프트 assets/sprites/forge/zone_cards_v1/provenance.json. 검토 대기.
+
+2026-11-21 [Codex] T34 assets/sprites/forge/boss_cards_v1/boss_card_<crasher|ark>.png 보스방 입장용 카드 2장. 프로젝트 자체 캐릭터·원경·상점 그림 참조, Codex 내장 image_gen(모델명 미제공), generate2dmap 0.5.0(MIT) Hibit 마감, codixel(MIT) 비교판. 1920×400·불투명 32색·1배. 출처와 프롬프트 assets/sprites/forge/boss_cards_v1/provenance.json. 검토 대기.

@@ -6,6 +6,7 @@
 - 비네트: 페이드일수록, 헤이즈가 짙은 방일수록 진하다.
 - 안개: 두 겹이 카메라와 시간에 따라 다른 빠르기로 흐른다(시차). 짙은 방은 진하게, 은신처는 없다.
 번쩍임 줄이기(접근성)를 켜면 위험 구간의 맥동을 멈춘다.
+- (11/21) 구간이 바뀌는 순간 그 구간 색으로 화면이 잠깐 번쩍이고, 체력이 낮으면 가장자리가 붉게 심장 박자로 맥동한다(drama).
 """
 import math
 
@@ -76,7 +77,18 @@ class Atmosphere:
             img.opacify(1.0)
         vig = assets.image('ui/vignette.png')
         vig.opacify(vignette_strength(self.player.gauge.zone, high) * 0.7)
-        assets.draw_image(vig, W // 2, H // 2)
+        assets.draw_image(vig, W // 2, 0)                  # draw_image의 y는 아래 가장자리 (11/21 고침: 예전엔 위 절반만 덮였다)
         vig.opacify(1.0)
+        import drama
+        p = self.player
+        red = drama.low_hp_pulse(p.hp / max(1, p.max_hp), self.time) if p.state != 'DEAD' else 0.0
+        if red > 0:                                       # 체력이 낮다: 붉은 가장자리가 심장 박자로
+            img = assets.image('ui/vignette_red.png')
+            img.opacify(red)
+            assets.draw_image(img, W // 2, 0)
+            img.opacify(1.0)
+        color, k = drama.zone_flash()
+        if k > 0:                                         # 구간이 바뀌는 순간 그 구간 색으로 번쩍
+            assets.draw_rect_color(0, 0, W, H, color, k)
         if self.alpha > 0.004:
             assets.draw_rect_color(0, 0, W, H, tuple(int(c) for c in self.color), self.alpha)

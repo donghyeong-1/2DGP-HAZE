@@ -479,7 +479,10 @@ class Player(TileBody):
             self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult))
             if self.hp <= 0 and self.state != 'DEAD':
                 self.die()
-        elif name in ('zone:AWAKE', 'zone:CRITICAL'):
+        if name.startswith('zone:'):
+            import drama
+            drama.on_zone(name[5:])                                     # 구간 색으로 화면이 잠깐 번쩍 (각성은 zone_awake 소리)
+        if name in ('zone:AWAKE', 'zone:CRITICAL'):
             effects.spawn('surge', self.x, self.y, duration=0.45)      # 높은 구간에 들어서는 순간 발밑에서 기운이 솟는다
             effects.add_trauma(0.15)
             if name == 'zone:CRITICAL':

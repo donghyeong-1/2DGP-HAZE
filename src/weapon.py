@@ -512,7 +512,8 @@ class Knife(Pipe):
             a = math.radians(base + off)
             game_world.add_object(ThrownKnife(self, cx, cy + 8, math.cos(a), math.sin(a), damage, pierce, fx, enhanced),
                                   game_world.LAYER_EFFECT)
-        assets.play_sound('throw')
+        import drama
+        assets.play_sound(drama.knife_sound(p.gauge.zone, enhanced))   # 구간·강화마다 다른 던지기 소리 (11/21)
         p.start_punch('throw')
         self.cooldown = self.cooldown_max = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.KNIFE_COOLDOWN
         if enhanced:
@@ -769,7 +770,8 @@ class Chain(Pipe):
             damage *= config.CHAIN_AIR_MULT
         self.hook = ChainHook(self, ax, ay, damage, count, reach, stun, self._fx(enhanced), enhanced)
         game_world.add_object(self.hook, game_world.LAYER_EFFECT)
-        assets.play_sound('chain_throw')
+        import drama
+        assets.play_sound(drama.chain_sound(p.gauge.zone, enhanced))   # 구간·강화마다 다른 사슬 소리 (11/21)
         p.start_punch('throw')
         self.cooldown = self.cooldown_max = config.CHAIN_COOLDOWN
         if enhanced:
@@ -822,7 +824,8 @@ class ChainHook:
             if tx - h < er and el < tx + h and ty - h < et and eb < ty + h:
                 self.hit.add(id(enemy))
                 self.hooked.append(enemy)
-                assets.play_sound('chain_latch')
+                import drama
+                assets.play_sound(drama.latch_sound(self.weapon.owner.gauge.zone, self.enhanced))   # 위험·강화는 묵직하게
                 damage = self.damage * (1.0 if enemy.pullable else config.CHAIN_ANCHOR_MULT)   # 보스에게는 박혀서 더 아프다
                 killed = self.weapon._hit(enemy, damage, config.CHAIN_GAIN, self.fx, big=self.enhanced,
                                           shake=0.7, stop=0.5, blast=self.enhanced, extra=False)
@@ -1081,7 +1084,7 @@ class Ultimate:
             effects.spawn(self.nova_name, cx, cy, duration=0.55 if last else 0.4)
             self.nova_count += 1
         effects.add_trauma(0.35 if not last else 0.8)
-        assets.play_sound('ult_final' if last else 'ult_hit')
+        assets.play_sound(f'ult_final_{self.weapon.weapon_id}' if last else 'ult_hit')   # 마무리는 무기마다 다른 소리
         self.hits_done += 1
 
     def area_center(self):

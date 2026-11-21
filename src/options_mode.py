@@ -18,21 +18,21 @@ import hud_kit as kit
 import options
 
 W, H = config.SCREEN_W, config.SCREEN_H
-ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'keys', 'back')
+ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'damage', 'keys', 'back')
 ROWS = ITEMS[:-1]
-ROW_STEP = 80
+ROW_STEP = 74
 PANEL_W, PANEL_H = 1180, 250 + ROW_STEP * len(ROWS)
 PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     # 항목 줄의 가운데 y
 VALUE_X = PANEL_X + 470                                          # 값 칸이 시작하는 x
 VALUE_W = 660
 NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
-         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'keys': '키 바꾸기'}
+         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'keys': '키 바꾸기'}
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
          'music': '배경음악', 'sfx': '타격·발소리·경고음',
          'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게',
-         'hints': '처음 보는 상황에 짧은 안내판', 'keys': '키보드 동작 키 (마우스는 그대로)'}
-SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints')
+         'hints': '처음 보는 상황에 짧은 안내판', 'damage': '적이 맞은 자리에 피해를 띄운다', 'keys': '키보드 동작 키 (마우스는 그대로)'}
+SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints', 'damage')
 back_button = kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 40, 360, 64)
 selected = 0
 _under = None            # 아래에 깔린 모드 (멈춘 화면을 그대로 보여 준다)
@@ -90,6 +90,8 @@ def change(item, step):
         display.apply()
     elif item == 'hints':
         options.toggle_hints()
+    elif item == 'damage':
+        options.toggle_damage()
     assets.play_sound('pickup')                    # 바뀐 효과음 크기를 바로 들려준다
 
 
@@ -134,6 +136,8 @@ def click(mx, my):
                         display.apply()
                     elif item == 'hints' and value != options.show_hints:
                         options.toggle_hints()
+                    elif item == 'damage' and value != options.show_damage:
+                        options.toggle_damage()
         else:                                      # 막대: 누른 위치의 크기
             level = round((mx - VALUE_X) / VALUE_W * options.VOLUME_MAX)
             (options.set_music if item == 'music' else options.set_sfx)(level)
@@ -194,6 +198,7 @@ def lines():
         (NAMES['resolution'], options.resolution_name(), DESCS['resolution']),
         (NAMES['confine'], '켬' if options.confine_mouse else '끔', DESCS['confine']),
         (NAMES['hints'], '켬' if options.show_hints else '끔', DESCS['hints']),
+        (NAMES['damage'], '켬' if options.show_damage else '끔', DESCS['damage']),
         (NAMES['keys'], keys_summary(), DESCS['keys']),
     ]
 
@@ -203,7 +208,8 @@ def draw_panel():
     kit.panel('panel', PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
     kit.text(W // 2, PANEL_Y + PANEL_H - 70, '설정', (235, 240, 250), center=True, big=True)
     current_of = {'shake': options.shake_level, 'flash': options.reduce_flash,
-                  'resolution': options.resolution, 'confine': options.confine_mouse, 'hints': options.show_hints}
+                  'resolution': options.resolution, 'confine': options.confine_mouse, 'hints': options.show_hints,
+                  'damage': options.show_damage}
     for i, item in enumerate(ROWS):
         cy = ROW_Y[i]
         on = i == selected

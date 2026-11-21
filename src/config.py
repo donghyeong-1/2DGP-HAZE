@@ -390,7 +390,10 @@ ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound
 SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
             'enemy_hit': 0.7, 'impact_pipe': 0.75, 'impact_knife': 0.7, 'impact_gauntlet': 0.8, 'throw': 0.75,
             'chain_throw': 0.8, 'dash': 0.8, 'ult_hit': 0.8, 'windup_slum': 0.8, 'windup_thrower': 0.75,
-            'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ult_final': 1.2, 'ark_roar': 1.1,
+            'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ark_roar': 1.1,
+            'ult_final_pipe': 1.2, 'ult_final_knife': 1.2, 'ult_final_gauntlet': 1.2, 'ult_final_chain': 1.2,
+            'throw_fade': 0.7, 'throw_awake': 0.8, 'chain_throw_fade': 0.75, 'chain_throw_awake': 0.8, 'heartbeat': 0.75,
+            'zone_awake': 0.85, 'kill_last': 1.1,
             'amb_drip': 0.45, 'amb_steam': 0.35, 'amb_wind': 0.45, 'amb_forge': 0.4}   # 환경음은 작게
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)
 PROJECTILE_HB = (30, 18)

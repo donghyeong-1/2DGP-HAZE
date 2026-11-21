@@ -11,13 +11,18 @@ import config  # noqa: E402
 NAMES = ["warn_low", "warn_high", "jump", "double_jump", "dash", "land", "hit", "pickup", "enhance", "overload", "death",
          "overload_zap", "stun_end", "swing", "swing_fade", "swing_awake", "swing_critical", "swing_enhanced", "enemy_hit", "enemy_die", "throw",
          # 2026-11-19 전용 효과음: 사슬, 궁극기, 아크
-         "chain_throw", "chain_latch", "chain_clash", "ult_cast", "ult_hit", "ult_final",
+         "chain_throw", "chain_latch", "chain_clash", "ult_cast", "ult_hit",
          "ark_bullet", "ark_teleport", "ark_roar", "ark_absorb", "ark_burst", "ark_field",
          # 2026-11-21 퀄리티 계획 1-7: 무기별 명중, 적별 공격 예고
          "impact_pipe", "impact_knife", "impact_gauntlet",
          "windup_slum", "windup_thrower", "windup_hound", "windup_guard",
          # 2026-11-21 계획 2-3 환경음 (구역마다 가끔)
-         "amb_drip", "amb_steam", "amb_wind", "amb_forge"]
+         "amb_drip", "amb_steam", "amb_wind", "amb_forge",
+         # 2026-11-21 빠진 소리 채우기: 식칼·사슬 구간별·강화, 무기별 궁극기 마무리, 구간 진입·심장·마지막 처치
+         "throw_fade", "throw_awake", "throw_critical", "throw_enhanced",
+         "chain_throw_fade", "chain_throw_awake", "chain_throw_critical", "chain_throw_enhanced", "chain_latch_heavy",
+         "ult_final_pipe", "ult_final_knife", "ult_final_gauntlet", "ult_final_chain",
+         "zone_awake", "heartbeat", "kill_last"]
 
 
 def test_sfx_files_are_valid_short_wavs():
@@ -131,7 +136,7 @@ def test_ultimate_cast_hits_and_finish_have_their_own_sounds():
         assert p.request_attack()
         tu.run_out_ultimate()
     assert rec.names.count('ult_cast') == 1, rec.names
-    assert 'ult_hit' in rec.names and rec.names.count('ult_final') == 1, rec.names
+    assert 'ult_hit' in rec.names and rec.names.count('ult_final_pipe') == 1, rec.names   # 마무리는 무기마다 (11/21)
 
 
 def test_ark_patterns_have_their_own_sounds():
@@ -184,7 +189,7 @@ def test_mix_keeps_frequent_sounds_quieter_than_big_moves():
     assert base == 1.0                                      # 표에 없는 소리는 그대로
     for quiet in ('land', 'jump', 'swing', 'enemy_hit'):
         assert assets.sfx_gain(quiet) < 1.0, quiet          # 자주 나는 소리는 작게
-    for loud in ('ult_cast', 'ult_final', 'overload', 'ark_roar'):
+    for loud in ('ult_cast', 'ult_final_pipe', 'overload', 'ark_roar'):
         assert assets.sfx_gain(loud) >= 1.0, loud           # 큰 기술은 줄이지 않는다
 
 

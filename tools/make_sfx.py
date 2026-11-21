@@ -177,7 +177,8 @@ def place(total, parts):
     for start, x in parts:
         i = int(RATE * start)
         n = min(len(x), len(out) - i)
-        out[i:i + n] += x[:n]
+        if n > 0:                                    # 총 길이 밖에서 시작하는 조각은 버린다
+            out[i:i + n] += x[:n]
     return out
 
 
@@ -387,20 +388,141 @@ def amb_forge():
     return roar + place(s, [(0.02, crack(1.0)), (0.19, crack(0.6)), (0.24, crack(0.8)), (0.41, crack(0.45))])
 
 
+# ----- 2026-11-21 빠진 소리 채우기: 식칼·사슬 구간별, 무기별 궁극기 마무리, 구간 진입, 심장, 마지막 처치 -----
+def throw_fade():
+    """페이드 식칼: 힘 빠진 낮은 휙."""
+    s = 0.13
+    return (lowpass(noise(s), 14) * 0.45 + square(sweep(140, 260, s), 0.4) * 0.2) * envelope(s, 0.012, 0.8) * 0.75
+
+
+def throw_awake():
+    """각성 식칼: 날카롭게 높아지는 두 겹 휙."""
+    s = 0.12
+    one = (lowpass(noise(s), 4) * 0.5 + square(sweep(300, 760, s), 0.35) * 0.35) * envelope(s, 0.008, 0.7)
+    return place(0.16, [(0.0, one), (0.035, one * 0.6)])
+
+
+def throw_critical():
+    """위험 식칼: 거칠게 찢는 휙 + 쇳소리."""
+    s = 0.15
+    return ((lowpass(noise(s), 3) * 0.7 + square(sweep(260, 900, s), 0.25) * 0.3) * envelope(s, 0.006, 0.8)
+            + metal((2900, 4100), s, 35) * 0.25)
+
+
+def throw_enhanced():
+    """강화 식칼: 여러 자루가 한꺼번에 풀리는 반짝임."""
+    s = 0.24
+    one = (square(sweep(500, 1400, 0.1), 0.25) * 0.3 + lowpass(noise(0.1), 5) * 0.4) * envelope(0.1, 0.004, 0.7)
+    return place(s, [(0.0, one), (0.04, one * 0.8), (0.08, one * 0.6), (0.0, triangle(sweep(400, 1200, s)) * 0.25 * envelope(s, 0.01, 0.9))])
+
+
+def _chain(pitch, wind, count=11):
+    s = 0.22
+    clicks = place(s, [(0.018 * i, metal((2400 * pitch + 160 * (i % 3), 3700 * pitch), 0.03, 140) * (1 - i / 14)) for i in range(count)])
+    return clicks * 0.7 + lowpass(noise(s), 6) * wind * envelope(s, 0.01, 0.9)
+
+
+def chain_throw_fade():
+    return _chain(0.7, 0.25, 7) * 0.8          # 느리고 가볍게 몇 고리만
+
+
+def chain_throw_awake():
+    return _chain(1.2, 0.5)
+
+
+def chain_throw_critical():
+    s = 0.24
+    return place(s, [(0.0, _chain(1.0, 0.7, 13)), (0.0, drive(sub_drop(s, 120, 60, 12), 1.5) * 0.4)])   # 묵직한 휘두름이 깔린다
+
+
+def chain_throw_enhanced():
+    s = 0.3
+    return place(s, [(0.0, _chain(1.35, 0.5, 14)), (0.0, triangle(sweep(500, 1500, s)) * 0.25 * envelope(s, 0.01, 0.9))])
+
+
+def chain_latch_heavy():
+    """위험·강화 갈고리: 깊게 박히는 쇠 울림 + 저음."""
+    s = 0.3
+    return metal((780, 1240, 1870, 2650), s, 14) * 0.7 + drive(sub_drop(s, 140, 45, 10), 1.8) * 0.6 + noise(s) * 0.4 * envelope(s, 0.002, 0.1)
+
+
+def _ult_final_base():
+    return ult_final()
+
+
+def ult_final_pipe():
+    """철파이프 궁극기 마무리: 큰 폭발 + 낮은 쇠 울림 (내리친 쇳덩이)."""
+    s = 0.98
+    return place(s, [(0.0, _ult_final_base()), (0.0, metal((180, 284, 415), 0.9, 4) * 0.45)])
+
+
+def ult_final_knife():
+    """식칼 궁극기 마무리: 폭발 + 수많은 칼날이 흩어지는 높은 쇳소리."""
+    s = 0.98
+    blades = place(0.6, [(0.03 * i, metal((3100 + 220 * (i % 4), 4500), 0.05, 90) * (1 - i / 22)) for i in range(18)])
+    return place(s, [(0.0, _ult_final_base() * 0.85), (0.05, blades * 0.5)])
+
+
+def ult_final_gauntlet():
+    """건틀릿 궁극기 마무리: 폭발 + 두 번 치는 압력파(낮고 두껍다)."""
+    s = 0.98
+    wave_ = drive(sub_drop(0.5, 95, 24, 4.5) * 1.5, 2.4)
+    return place(s, [(0.0, _ult_final_base() * 0.8), (0.0, wave_), (0.18, wave_ * 0.7)])
+
+
+def ult_final_chain():
+    """사슬 궁극기 마무리: 폭발 + 사슬이 한꺼번에 조여드는 철컥임."""
+    s = 0.98
+    rattle = place(0.5, [(0.022 * i, metal((1900 + 140 * (i % 3), 2900), 0.03, 120)) for i in range(16)])
+    return place(s, [(0.0, _ult_final_base() * 0.85), (0.02, rattle * 0.45), (0.35, chain_latch_heavy() * 0.6)])
+
+
+def zone_awake():
+    """각성 구간에 들어섬: 올라가는 세 음(장조) + 바람."""
+    s = 0.55
+    notes = [(0.0, 392), (0.09, 494), (0.18, 587)]
+    parts = [(st, (triangle(np.full(int(RATE * 0.3), f)) * 0.4 + square(np.full(int(RATE * 0.3), f * 2), 0.25) * 0.1)
+              * envelope(0.3, 0.004, 0.8)) for st, f in notes]
+    return place(s, parts + [(0.0, lowpass(noise(s), 6) * 0.25 * envelope(s, 0.1, 0.9))])
+
+
+def heartbeat():
+    """심장 소리: 낮은 '쿵-쿵' 두 번."""
+    s = 0.42
+    thump = lambda k: drive(sub_drop(0.16, 85, 45, 22) * k, 1.4)   # noqa: E731
+    return place(s, [(0.0, thump(1.0)), (0.17, thump(0.7))])
+
+
+def kill_last():
+    """방의 마지막 적: 깊은 일격 + 맑게 울리는 종소리."""
+    s = 0.9
+    hit_ = drive(sub_drop(0.35, 150, 40, 9) * 1.3, 2.0) + noise(0.35) * 0.4 * envelope(0.35, 0.001, 0.2)
+    bell = metal((880, 1318, 1760, 2637), s, 3.5) * 0.35
+    return place(s, [(0.0, hit_), (0.05, bell)])
+
+
 SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
           "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw,
           # 2026-11-19 추가
           "chain_throw": chain_throw, "chain_latch": chain_latch, "chain_clash": chain_clash,
-          "ult_cast": ult_cast, "ult_hit": ult_hit, "ult_final": ult_final,
+          "ult_cast": ult_cast, "ult_hit": ult_hit,
           "ark_bullet": ark_bullet, "ark_teleport": ark_teleport, "ark_roar": ark_roar,
           "ark_absorb": ark_absorb, "ark_burst": ark_burst, "ark_field": ark_field,
           # 2026-11-21 추가
           "impact_pipe": impact_pipe, "impact_knife": impact_knife, "impact_gauntlet": impact_gauntlet,
           "windup_slum": windup_slum, "windup_thrower": windup_thrower, "windup_hound": windup_hound,
           "windup_guard": windup_guard,
-          "amb_drip": amb_drip, "amb_steam": amb_steam, "amb_wind": amb_wind, "amb_forge": amb_forge}
+          "amb_drip": amb_drip, "amb_steam": amb_steam, "amb_wind": amb_wind, "amb_forge": amb_forge,
+          # 2026-11-21 빠진 소리 채우기 (무기·구간·강화·궁극기·체력)
+          "throw_fade": throw_fade, "throw_awake": throw_awake, "throw_critical": throw_critical, "throw_enhanced": throw_enhanced,
+          "chain_throw_fade": chain_throw_fade, "chain_throw_awake": chain_throw_awake,
+          "chain_throw_critical": chain_throw_critical, "chain_throw_enhanced": chain_throw_enhanced,
+          "chain_latch_heavy": chain_latch_heavy,
+          "ult_final_pipe": ult_final_pipe, "ult_final_knife": ult_final_knife, "ult_final_gauntlet": ult_final_gauntlet,
+          "ult_final_chain": ult_final_chain,
+          "zone_awake": zone_awake, "heartbeat": heartbeat, "kill_last": kill_last}
 GAIN = 0.55  # 전체 음량 (클리핑 방지)
 
 

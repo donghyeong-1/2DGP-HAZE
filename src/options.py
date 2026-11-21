@@ -24,6 +24,7 @@ RESOLUTIONS = (('1280x720', 1280, 720), ('1600x900', 1600, 900), ('1920x1080', 1
 RESOLUTION_DEFAULT = 2
 resolution = RESOLUTION_DEFAULT
 show_hints = True         # 처음 하는 사람 안내판 (11/21 계획 2-5)
+show_damage = True        # 피해 숫자 (11/21 타격감)
 confine_mouse = False     # True면 마우스가 게임 창 밖으로 나가지 않는다 (조준하다 다른 모니터를 누르는 일 방지)
 _loaded = False
 
@@ -53,6 +54,12 @@ def set_resolution(level):
 def toggle_hints():
     global show_hints
     show_hints = not show_hints
+    save()
+
+
+def toggle_damage():
+    global show_damage
+    show_damage = not show_damage
     save()
 
 
@@ -99,8 +106,8 @@ def toggle_flash():
 
 def reset():
     """기본값으로 되돌린다 (테스트용, 파일은 건드리지 않는다)."""
-    global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints
-    shake_level, reduce_flash, show_hints = 2, False, True
+    global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, show_damage
+    shake_level, reduce_flash, show_hints, show_damage = 2, False, True, True
     music_level = sfx_level = VOLUME_DEFAULT
     resolution, confine_mouse = RESOLUTION_DEFAULT, False
     keybinds.reset()
@@ -108,7 +115,7 @@ def reset():
 
 def load(path=None):
     """저장된 값을 읽는다. 처음 한 번만 읽고, 이상한 값은 무시한다."""
-    global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, _loaded
+    global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, show_damage, _loaded
     _loaded = True
     data = safe_io.read_json(path or PATH)            # 깨졌으면 .bak, 그것도 없으면 None (기본값)
     if not isinstance(data, dict):
@@ -127,6 +134,7 @@ def load(path=None):
             resolution = v
         confine_mouse = bool(data.get('confine_mouse', confine_mouse))
         show_hints = bool(data.get('show_hints', show_hints))
+        show_damage = bool(data.get('show_damage', show_damage))
         keybinds.load_json(data.get('keys'))
     except (OSError, ValueError, TypeError, AttributeError):
         pass
@@ -135,7 +143,8 @@ def load(path=None):
 def save(path=None):
     return safe_io.write_json(path or PATH, {
         'shake_level': shake_level, 'reduce_flash': reduce_flash, 'music_level': music_level, 'sfx_level': sfx_level,
-        'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints, 'keys': keybinds.to_json()})
+        'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints, 'show_damage': show_damage,
+        'keys': keybinds.to_json()})
 
 
 def ensure_loaded():

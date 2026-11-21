@@ -182,10 +182,21 @@ def play_music(name):
             from pico2d import load_music
             _music[name] = load_music(os.path.join(ASSET_DIR, 'music', name + '.wav'))
         import options
-        _music[name].set_volume(options.volume(config.MUSIC_VOLUME, options.music_level))
+        _music[name].set_volume(int(options.volume(config.MUSIC_VOLUME, options.music_level) * music_duck))
         _music[name].repeat_play()
     except Exception:
         _music[name] = None
+
+
+music_duck = 1.0      # 음악 크기 배율 (페이드 구간에서 먹먹하게, drama.music_duck)
+
+
+def set_music_duck(k):
+    """음악 크기 배율을 바꾼다 (바뀔 때만 적용)."""
+    global music_duck
+    if abs(k - music_duck) > 1e-6:
+        music_duck = k
+        apply_music_volume()
 
 
 def apply_music_volume():
@@ -195,7 +206,7 @@ def apply_music_volume():
     music = _music.get(current_music)
     if music is not None and config.SOUND_ENABLED:
         try:
-            music.set_volume(options.volume(config.MUSIC_VOLUME, options.music_level))
+            music.set_volume(int(options.volume(config.MUSIC_VOLUME, options.music_level) * music_duck))
         except Exception:
             pass
 

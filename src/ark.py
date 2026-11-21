@@ -335,6 +335,8 @@ class Ark(Enemy):
             return False
         self.hp -= damage
         self.flash = config.ENEMY_HIT_FLASH
+        import drama
+        drama.damage_number(self, damage, self.player)    # 피해 숫자 (11/21 타격감)
         if self.hp <= 0:
             self.alive = False
             self.die()

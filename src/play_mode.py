@@ -26,6 +26,8 @@ def enter():
     hide_cursor()  # 화면의 조준점(십자)을 대신 쓴다
     game_world.clear()
     effects.reset()
+    import drama
+    drama.reset()
     clear_notice = 0.0
     import meta
     meta.ensure_loaded()
@@ -88,7 +90,9 @@ def _show_message(text):
 def _on_room_cleared(stage_):
     global clear_notice
     clear_notice = 3.0
-    assets.play_sound('pickup')
+    import drama
+    assets.play_sound('kill_last')                     # 방의 마지막 적: 깊은 일격 + 종소리 (11/21)
+    effects.request_hit_stop(drama.LAST_KILL_STOP)     # 그 순간 잠깐 멈춘다
     effects.add_trauma(0.2)
     boss = getattr(stage_, 'boss', None)
     effects.request_slow_motion(*(config.SLOW_BOSS if boss is not None and not boss.alive else config.SLOW_CLEAR))
@@ -110,6 +114,7 @@ def _on_gauge_event(name, gauge):
 
 
 def exit():
+    assets.set_music_duck(1.0)                     # 다른 화면으로 가면 음악 크기를 되돌린다
     game_world.clear()
     show_cursor()
 
@@ -165,6 +170,9 @@ def update():
     if stage.name != 'hideout':                    # 은신처에서는 게이지가 줄지 않는다 (안전한 곳)
         player.gauge.tick(dt, room.is_high_haze)
     player.tick_run_clock(dt, stage.name)        # 판 기록의 시간 (은신처 제외)
+    import drama
+    drama.tick(dt, player)                       # 구간 번쩍임이 줄고, 체력이 낮거나 위험 구간이면 심장이 뛴다
+    assets.set_music_duck(drama.music_duck(player.gauge.zone))   # 페이드 구간은 음악이 먹먹하게
     if stage.finished:
         import stage as stage_mod
         nxt = stage_mod.next_stage(stage)              # 다음 구역 (체력·게이지·아이템·무기·조각은 그대로)

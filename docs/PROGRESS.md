@@ -3,10 +3,10 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T32 대화 초상화 / 수정 중인 파일: assets/sprites/forge/portraits_v1/, docs/codex/reports/T32.md
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(359개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(367개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -23,7 +23,7 @@
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
 2. [ ] **(Codex) T31 → T32 → T33** (방 장식, 대화 초상화, 구역 제목 카드. T24~T30 11/21 적용) (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
-3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예, 2-5 안내, 2-6 게임패드·키 바꾸기, 2-4 방 모양은 11/21 완료, **사용자: 패드가 있으면 실제로 확인**): 2단계 코드 일 끝. 3-1 실행 파일은 11/21 완료(`python tools/build_exe.py`, **사용자: 파이썬 없는 PC에서 zip을 풀어 켜 보기**). 다음은 3-2 저장 손상 대비·오류 기록. Codex T30~T33이 오면 검토·적용이 먼저. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
+3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예, 2-5 안내, 2-6 게임패드·키 바꾸기, 2-4 방 모양은 11/21 완료, **사용자: 패드가 있으면 실제로 확인**): 2단계 코드 일 끝. 3-1 실행 파일은 11/21 완료(`python tools/build_exe.py`, **사용자: 파이썬 없는 PC에서 zip을 풀어 켜 보기**). 3-2 저장 손상 대비·오류 기록도 11/21 완료(깨진 저장은 .bak에서 되살림, 오류는 ~/.haze_log.txt). 다음은 3-4 트레일러 장면·대본과 3차 발표 자료, 3-5 전체 플레이 점검(사용자). Codex T30~T33이 오면 검토·적용이 먼저. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 `docs/ASSETS.md`에 (최종 제출 전 필수).
 5. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 체크리스트(`docs/script_2nd.md`).
 6. [ ] **(Claude Code, 날짜가 정해지면)** 3차 발표 자료·대본·데모 촬영. 바탕은 `docs/changes_from_plan.md`.
@@ -198,3 +198,5 @@
 2026-11-21 [Claude Code] 실행 파일 만들기(PyInstaller 한 폴더, 필요한 에셋만, 42MB zip, 아이콘·창 제목), 실행 파일 안 에셋 경로, HAZE_START=play, 테스트 356개 / src/(assets, main).py, tools/build_exe.py, tests/test_build.py, .gitignore, README.md, docs/*
 2026-11-21 [Codex] T31 슬럼·공장·탑 정지 방 장식 18종 제작, 1배 합성·픽셀 규격 확인(검토 대기) / assets/sprites/forge/room_decor_v1/, docs/codex/reports/T31.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-21 [Claude Code] Codex T30 검토·적용(투척병 걷기·뒷걸음), 투척병 거리 유지 이동(다가오기·서서 던지기·뒷걸음), 테스트 359개 / src/(enemy, sprites, config).py, assets/sprites/unified/enemy_thrower_(walk, back)_*, tests/test_combat.py, docs/*
+2026-11-21 [Codex] T32 대화 초상화 8장 제작, 200×200·이진 알파·32색·1배 표정 비교 검증(검토 대기) / assets/sprites/forge/portraits_v1/, docs/codex/reports/T32.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-21 [Claude Code] 저장 손상 대비(임시 파일 후 바꿔 끼우기, .bak 되살리기, .broken 보관, 이상한 값은 그 값만 기본값), 오류 기록·오류 안내 창, 테스트 367개 / src/(safe_io, log, meta, options, main).py, tests/(test_safety, run_all).py, docs/*

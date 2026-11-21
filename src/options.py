@@ -2,12 +2,12 @@
 (해상도·마우스 가두기를 실제 창에 적용하는 일은 display.apply가 한다.)
 
 값은 이번 실행 동안 유지되고, 바꿀 때마다 사용자 홈 폴더의 작은 파일(~/.haze_options.json)에 저장해
-다음 실행에도 이어진다. 파일을 읽거나 쓸 수 없으면 조용히 기본값으로 동작한다 (게임은 멈추지 않는다).
+다음 실행에도 이어진다. 읽기·쓰기는 safe_io(깨지면 .bak에서 되살림). 읽을 수 없으면 기본값으로 동작한다 (게임은 멈추지 않는다).
 """
-import json
 import os
 
 import keybinds
+import safe_io
 
 SHAKE_LEVELS = (('끔', 0.0), ('약하게', 0.45), ('보통', 1.0))   # (이름, 흔들림 배율)
 PATH = os.path.join(os.path.expanduser('~'), '.haze_options.json')
@@ -110,9 +110,10 @@ def load(path=None):
     """저장된 값을 읽는다. 처음 한 번만 읽고, 이상한 값은 무시한다."""
     global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, _loaded
     _loaded = True
+    data = safe_io.read_json(path or PATH)            # 깨졌으면 .bak, 그것도 없으면 None (기본값)
+    if not isinstance(data, dict):
+        return
     try:
-        with open(path or PATH, encoding='utf-8') as f:
-            data = json.load(f)
         level = int(data.get('shake_level', shake_level))
         if 0 <= level < len(SHAKE_LEVELS):
             shake_level = level
@@ -132,14 +133,9 @@ def load(path=None):
 
 
 def save(path=None):
-    try:
-        with open(path or PATH, 'w', encoding='utf-8') as f:
-            json.dump({'shake_level': shake_level, 'reduce_flash': reduce_flash,
-                       'music_level': music_level, 'sfx_level': sfx_level,
-                       'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints,
-                       'keys': keybinds.to_json()}, f)
-    except OSError:
-        pass
+    return safe_io.write_json(path or PATH, {
+        'shake_level': shake_level, 'reduce_flash': reduce_flash, 'music_level': music_level, 'sfx_level': sfx_level,
+        'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints, 'keys': keybinds.to_json()})
 
 
 def ensure_loaded():

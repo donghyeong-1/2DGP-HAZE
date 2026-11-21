@@ -3,12 +3,14 @@ import glob
 import os
 import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 failed = []
+ENV = dict(os.environ, HAZE_LOG_PATH=os.path.join(tempfile.mkdtemp(), 'haze_log.txt'))   # 오류 기록을 사용자 폴더에 남기지 않는다
 for path in sorted(glob.glob(os.path.join(HERE, 'test_*.py'))):
     name = os.path.basename(path)
-    result = subprocess.run([sys.executable, path], capture_output=True, text=True, encoding='utf-8', errors='replace')
+    result = subprocess.run([sys.executable, path], capture_output=True, text=True, encoding='utf-8', errors='replace', env=ENV)
     last = (result.stdout.strip().splitlines() or [''])[-1]
     print(f'{"통과" if result.returncode == 0 else "실패"}  {name}  {last}')
     if result.returncode != 0:

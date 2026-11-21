@@ -1,5 +1,9 @@
-"""헤이즈 (Haze) 실행 파일. 실행: python src/main.py"""
+"""헤이즈 (Haze) 실행 파일. 실행: python src/main.py
+
+게임 도중 예외가 나면 기록 파일(log.PATH)에 추적 내용을 남기고 안내 창을 띄운 뒤 끝낸다(run_safely, 계획 3-2).
+"""
 import os
+import sys
 
 from pico2d import SDL_HINT_RENDER_SCALE_QUALITY, SDL_SetHint, close_canvas, open_canvas
 
@@ -7,6 +11,7 @@ import config
 import display
 import options
 import game_framework
+import log
 import title_mode
 from window_place import place_window
 
@@ -43,5 +48,27 @@ def main():
         close_canvas()
 
 
+def _message_box(text):
+    """오류 안내 창 (콘솔이 없는 실행 파일에서도 보인다). 창을 못 띄워도 조용히 넘어간다."""
+    try:
+        from sdl2 import SDL_MESSAGEBOX_ERROR, SDL_ShowSimpleMessageBox
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, WINDOW_TITLE.encode('utf-8'), text.encode('utf-8'), None)
+    except Exception:            # noqa: BLE001
+        pass
+
+
+def run_safely(fn, report=_message_box):
+    """fn을 실행한다. 예외가 나면 기록하고 안내한 뒤 1을 돌려준다(정상이면 0)."""
+    try:
+        fn()
+        return 0
+    except Exception as e:       # noqa: BLE001 (어떤 오류든 기록을 남기고 끝낸다)
+        log.error('게임 도중 오류가 나서 끝냈다', e)
+        report('오류가 나서 게임을 끝냈습니다.\n'
+               '저장은 마지막으로 저장된 곳까지 남아 있습니다.\n\n'
+               f'오류 기록: {log.PATH}')
+        return 1
+
+
 if __name__ == '__main__':
-    main()
+    sys.exit(run_safely(main))

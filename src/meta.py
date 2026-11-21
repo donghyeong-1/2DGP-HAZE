@@ -5,13 +5,14 @@
 - 정비사: 결정으로 기본 스탯을 영구 강화한다 (최대 체력, 공격력, 시작 게이지, 대시 충전). 단계마다 값이 오른다.
 - 보관인: 결정으로 보관 칸을 열면, 판이 끝날 때 들고 있던 것 하나를 맡겨 다음 판 시작 때 받는다
   (업그레이드는 1단계로만, 무기는 그대로). 한 번 받으면 사라진다.
-저장은 사용자 홈 폴더의 ~/.haze_save.json (설정 파일과 같은 방식). 읽거나 쓸 수 없으면 기본값으로 동작한다.
+저장은 사용자 홈 폴더의 ~/.haze_save.json (설정 파일과 같은 방식). 읽기·쓰기는 safe_io(임시 파일 후 바꿔 끼우기,
+깨지면 .bak에서 되살리고 깨진 파일은 .broken으로 남김). 값의 종류가 이상하면 그 값만 기본값이다.
 """
-import json
 import os
 
 import config
 import items
+import safe_io
 
 PATH = os.path.join(os.path.expanduser('~'), '.haze_save.json')
 
@@ -38,35 +39,37 @@ def reset():
     state.update(_default())
 
 
+def _int(value, default=0):
+    """정수로 읽는다. 이상한 값(글자, None, 목록)은 기본값."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def load():
     reset()
-    try:
-        with open(PATH, encoding='utf-8') as f:
-            data = json.load(f)
-    except (OSError, ValueError):
-        return
+    data = safe_io.read_json(PATH)
     if not isinstance(data, dict):
         return
-    state['crystals'] = max(0, int(data.get('crystals', 0)))
+    state['crystals'] = max(0, _int(data.get('crystals', 0)))
     levels = data.get('levels', {})
+    if not isinstance(levels, dict):
+        levels = {}
     for k, info in UPGRADES.items():
-        state['levels'][k] = max(0, min(info['max'], int(levels.get(k, 0))))
+        state['levels'][k] = max(0, min(info['max'], _int(levels.get(k, 0))))
     state['keeper'] = bool(data.get('keeper', False))
     keep = data.get('keepsake')
-    state['keepsake'] = keep if keep in items.ITEMS else None
-    state['runs'] = int(data.get('runs', 0))
-    state['escapes'] = int(data.get('escapes', 0))
-    state['best'] = str(data.get('best', ''))
+    state['keepsake'] = keep if isinstance(keep, str) and keep in items.ITEMS else None
+    state['runs'] = max(0, _int(data.get('runs', 0)))
+    state['escapes'] = max(0, _int(data.get('escapes', 0)))
+    state['best'] = str(data.get('best', '') or '')
     hints = data.get('hints', [])
     state['hints'] = [str(h) for h in hints] if isinstance(hints, list) else []   # 이미 본 처음 안내
 
 
 def save():
-    try:
-        with open(PATH, 'w', encoding='utf-8') as f:
-            json.dump(state, f, ensure_ascii=False)
-    except OSError:
-        pass
+    return safe_io.write_json(PATH, state)
 
 
 def ensure_loaded():

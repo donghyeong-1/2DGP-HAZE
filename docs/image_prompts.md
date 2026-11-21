@@ -254,3 +254,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-21 [Codex] T24 N-09 철파이프 2단계 강화 6장. v3b 마스터를 참조해 웅크림→수평→머리 위 올려베기, 두 손을 머리 위로 든 체공→45° 하강→깊게 내딛는 바닥 타격을 요청했다. 마지막 컷은 손 높이와 파이프 접촉을 강조해 1회 재생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/n09_stage2_v1/raw/*_prompt.txt.
 
 2026-11-21 [Codex] T25 일반 적 4종의 피격 반동 및 쓰러짐 16장. 각 종의 대기 원화와 기존 피격 ①을 참조해 앞발 들기, 무릎 꺾임, 무릎 또는 어깨가 닿고 바닥에 누움을 요청했다. 사냥개는 옆구리와 주둥이를 바닥에 댄 컷을 별도 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/enemy_death_v1/<종류>/actual_prompt.txt 및 hound/flat_prompt.txt.
+
+2026-11-21 [Codex] T26 N-09의 식칼 준비·던지기·마무리, 건틀릿 충전·발사·회수·공중 하향 사격, 사슬 머리 뒤 준비·던지기·당기기 10장. v3b와 기존 무기 그래픽을 참조했고 식칼 준비의 칼날 분리를 1회 다시 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/n09_weapon_poses_v1/provenance.json에서 연결.

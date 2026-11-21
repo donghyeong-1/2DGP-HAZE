@@ -1,0 +1,67 @@
+{
+  "canvas": [
+    141,
+    133
+  ],
+  "anchor": [
+    59,
+    128
+  ],
+  "palette_colors": 41,
+  "frames": {
+    "chain-1.png": {
+      "anchor": [
+        59,
+        128
+      ],
+      "bounds": [
+        5,
+        6,
+        103,
+        128
+      ],
+      "bottom_y": 127,
+      "air_px": 0,
+      "source_hip_x": 352,
+      "source_scale": 1.16,
+      "colors": 40,
+      "preview_duration_ms": 120
+    },
+    "chain-2.png": {
+      "anchor": [
+        59,
+        128
+      ],
+      "bounds": [
+        17,
+        9,
+        136,
+        128
+      ],
+      "bottom_y": 127,
+      "air_px": 0,
+      "source_hip_x": 1013,
+      "source_scale": 1.16,
+      "colors": 39,
+      "preview_duration_ms": 60
+    },
+    "chain-3.png": {
+      "anchor": [
+        59,
+        128
+      ],
+      "bounds": [
+        25,
+        16,
+        120,
+        128
+      ],
+      "bottom_y": 127,
+      "air_px": 0,
+      "source_hip_x": 1724,
+      "source_scale": 1.16,
+      "colors": 40,
+      "preview_duration_ms": 130
+    }
+  }
+}

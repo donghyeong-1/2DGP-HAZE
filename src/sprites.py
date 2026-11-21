@@ -21,7 +21,9 @@ FRAMES = {
     # 휘두르기 5장(Codex T18): 1 젖힘, 2 휘두르는 중(새), 3 최대 신장(타격), 4 마무리, 5 회수(새). 1·3·4는 T15 그림 그대로
     'n09_swing_side': (5, 72, 149), 'n09_swing_up': (5, 82, 173), 'n09_swing_down': (5, 78, 149),
     'n09_swing_upfwd': (5, 76, 159), 'n09_swing_downfwd': (5, 75, 152),
-    'n09_punch': (4, 36, 124),     # 맨손 자세 (Codex T05): 식칼 던지기·건틀릿 충전·발사 공용
+    'n09_punch': (4, 36, 124),     # 맨손 자세 (Codex T05): 무기 전용 자세가 없을 때만 (T26 이후 거의 안 씀)
+    # 무기 전용 자세 (Codex T26): 식칼 당김 -> 뿌림 -> 흘림, 건틀릿 충전 -> 발사 -> 회수 -> 공중 하향, 사슬 돌림 -> 던짐 -> 당김
+    'n09_knife': (3, 39, 121), 'n09_gauntlet': (4, 44, 117), 'n09_chain': (3, 59, 128),
     'n09_ult': (2, 64, 130),       # 궁극기 시전 (Codex T23): 모으기 -> 해방
     # 철파이프 2단계 강화 (Codex T24, 캔버스 171x168, 발 기준점 (70,161)): 올려베기 3장 -> 내려찍기 3장
     'n09_s2rise': (3, 70, 161), 'n09_s2slam': (3, 70, 161),
@@ -84,6 +86,15 @@ def place(name, n, width, height, face_dir):
         px = width - 1 - px
     sdx, sdy = SHIFT.get((name, n), (0, 0))
     return width // 2 - px + (sdx if face_dir >= 0 else -sdx), height - py - sdy
+
+
+def draw_glow(name, n, x, y, face_dir, color):
+    """그림의 흰 실루엣을 색으로 물들여 상하좌우 3px씩 비켜 네 번 그린다 = 색 테두리 (정예 표시). 본 그림은 그 위에."""
+    img = assets.silhouette(path(name, n))
+    dx, foot = place(name, n, img.w, img.h, face_dir)
+    flip = 'h' if face_dir < 0 else ''
+    for ox, oy in ((3, 0), (-3, 0), (0, 3), (0, -3)):
+        assets.draw_image_tinted(img, x + dx + ox, y - foot + oy, flip, color, 0.85)
 
 
 def draw_white(name, n, x, y, face_dir=1):

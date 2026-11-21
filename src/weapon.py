@@ -616,6 +616,7 @@ class Gauntlet(Pipe):
             ax, ay = p.aim_vector()
             if kind == 'gauntlet_air' and ay < -0.5:                 # 공중에서 아래로 쏘면 반동으로 떠오른다
                 p.vy = max(p.vy, config.GAUNTLET_AIR_RECOIL)
+                p.start_punch('blast_down')                          # 팔을 아래로 뻗은 공중 자세 (T26)
             return True
         if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 즉시, 게이지를 크게 비운다
             p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')

@@ -12,6 +12,7 @@
 | 은신처 원경, NPC 3명(정비사·보관인·기록관) 대기 2장씩 | `assets/backgrounds/far_hideout.png`, `assets/sprites/unified/npc_*` | Codex T22 (`generate2dmap`·`generate2dsprite`, 내장 image_gen) | AI 생성물 |
 | 철파이프 2단계 강화 동작 6장 (올려베기·내려찍기) | `assets/sprites/unified/n09_s2rise_1~3.png`, `n09_s2slam_1~3.png` | Codex T24 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 일반 적 4종 피격 2장째·쓰러짐 3장 | `assets/sprites/unified/enemy_<종류>_hurt_2.png`, `enemy_<종류>_death_1~3.png` | Codex T25 (내장 image_gen, `finish_character.py --like <적 마감본>`) 그대로 복사 (2026-11-21) | AI 생성물 |
+| 무기 전용 자세 10장 (식칼 3·건틀릿 4·사슬 3) | `assets/sprites/unified/n09_knife_1~3.png`, `n09_gauntlet_1~4.png`, `n09_chain_1~3.png` | Codex T26 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 궁극기 컷인 띠, 시전 자세 2장 | `assets/ui/ult_cutin.png`, `assets/sprites/unified/n09_ult_1~2.png` | Codex T23 (내장 image_gen, hibit 마감) | AI 생성물 |
 | 타일 세트, 원경, 중경 (6개 테마) | `assets/tiles/tile_set_*.png`, `assets/backgrounds/far_*.png`, `mid_*.png` | `tools/make_world.py` (code-drawn). 원경은 Codex 배경판(T06)에 테마 색을 다시 입힘 | 자체 제작 |
 | 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지, 궁극기 광역 폭발 `ult-nova-<무기>` 4종), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
@@ -20,7 +21,7 @@
 | 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
 | 무기 그림(식칼 8방향, 건틀릿 충격파, 무기 아이콘 4종: 철파이프·식칼·건틀릿·사슬, 사슬 줄·갈고리는 실행 중 사각형으로 그림) | `assets/sprites/unified/proj_knife_*`, `proj_blast_*`, `assets/ui/icon_w_*` | `tools/make_weapons.py` (code-drawn) | 자체 제작 |
 | 맨손 자세(던지기·건틀릿) | `assets/sprites/unified/n09_punch_1~4.png` | Codex T05 결과(`forge/n09_attack_v3`)를 그대로 복사 | AI 생성물 |
-| 효과음 40종 (11/19 사슬·궁극기·아크 12종, 11/21 무기별 명중 3종·적 예고 4종) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
+| 효과음 44종 (11/19 사슬·궁극기·아크 12종, 11/21 무기별 명중 3종·적 예고 4종·환경음 4종) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
 | 배경음악 7곡 (title·explore·boss·ark, 11/21 factory·tower·hideout 추가) | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
 | 화면 분위기(가장자리 어둡게·흐르는 안개) | `assets/ui/vignette.png`, `assets/backgrounds/fog_strip.png` | `tools/make_atmosphere.py` (numpy 점묘, code-drawn, 2026-11-21) | 자체 제작 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
@@ -240,3 +241,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-21 [Codex] T24 assets/sprites/forge/n09_stage2_v1/frames/{s2rise,s2slam}-1~3.png. 프로젝트 N-09 v3b 마스터를 참조한 자체 제작 파생 에셋. Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0 및 프로젝트 hibit 마감. 171×168, 공통 기준점 (70,161), 39색·이진 알파. 원화·프롬프트는 같은 폴더 raw/에 보관. 검토 대기.
 
 2026-11-21 [Codex] T25 assets/sprites/forge/enemy_death_v1/{slum,thrower,guard,hound}/frames/ 수정용 스프라이트 16장(피격 ② 4장·사망 12장). 프로젝트 자체 마스터를 참조한 Codex 내장 image_gen(모델명 미제공)으로 제작하고 generate2dsprite 0.5.0과 기존 종별 hibit 팔레트로 마감. 원화·출처·프롬프트는 assets/sprites/forge/enemy_death_v1/provenance.json. 검토 대기.
+
+2026-11-21 [Codex] T26 assets/sprites/forge/n09_weapon_poses_v1/{knife,gauntlet,chain}/frames/ 10장. 프로젝트 N-09 v3b 마스터와 식칼 투사체·건틀릿 아이콘·사슬 아이콘을 참조한 자체 제작 파생 에셋. Codex 내장 image_gen(모델명 미제공), generate2dsprite 0.5.0과 프로젝트 hibit 마감. 41색·이진 알파. 원화·출처·프롬프트는 assets/sprites/forge/n09_weapon_poses_v1/provenance.json. 검토 대기.

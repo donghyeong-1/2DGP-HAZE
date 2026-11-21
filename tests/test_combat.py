@@ -1458,7 +1458,7 @@ def test_gauntlet_charges_by_burning_gauge_and_fires_on_release():
     run_frames(int(config.GAUNTLET_CHARGE_TIME['NORMAL'] * 60) + 5)
     assert p.weapon.charge_ratio == 1.0
     assert p.gauge.value < 40 - config.GAUNTLET_DRAIN * 1.0              # 충전하는 동안 게이지가 탔다
-    assert p._body_frame() == ('n09_punch', 1)                           # 주먹을 당긴 자세
+    assert p._body_frame() == ('n09_gauntlet', 1)                        # 건틀릿 팔을 허리 뒤로 당긴 충전 자세 (T26)
     p.attack_held = False
     run_frames(1)
     assert not p.weapon.charging and any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])

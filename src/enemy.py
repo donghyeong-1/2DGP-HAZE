@@ -60,6 +60,8 @@ class Enemy(TileBody):
         self.face_dir = -1
         self.alive = True
         self.flash = 0.0           # 맞은 뒤 붉게 번쩍이는 남은 시간
+        self.elite = None          # 정예 수식어 (swift / tough / volatile) 또는 None
+        self.weight_mult = 1.0     # 정예 강철: 덜 밀린다
         self.attack_time = 0.0     # ATTACK 상태에 들어온 뒤 지난 시간
         self.struck = False        # 이번 공격의 (첫) 타격을 이미 냈는가
         self.hits_done = 0         # 이번 공격에서 낸 타격 수 (두 번 치기·연달아 던지기)
@@ -116,6 +118,24 @@ class Enemy(TileBody):
         return self.stats['attack_time'] if a is None else a
 
     # ----- 피해 -----
+    # ----- 정예 (11/21 퀄리티 계획 2-4) -----
+    def make_elite(self, mod):
+        """수식어를 붙인다: 질주(빠르고 예고가 짧다), 강철(단단하고 덜 밀린다), 폭발(쓰러지면 터진다)."""
+        info = config.ELITE_MODS[mod]
+        self.elite = mod
+        stats = dict(self.stats)
+        stats['speed'] = stats['speed'] * info.get('speed', 1.0)
+        stats['windup'] = stats['windup'] * info.get('windup', 1.0)
+        self.stats = stats
+        self.hp = self.max_hp = self.max_hp * info.get('hp', 1.0)
+        self.weight_mult = info.get('weight', 1.0)
+
+    def elite_label(self):
+        return config.ELITE_MODS[self.elite]['name'] if self.elite else ''
+
+    def elite_color(self):
+        return config.ELITE_MODS[self.elite]['color'] if self.elite else None
+
     def white_flash(self):
         """맞은 직후 하얗게 번쩍이는 중인가 (그 뒤 붉게)."""
         return self.flash > config.ENEMY_HIT_FLASH - config.ENEMY_WHITE_FLASH
@@ -129,7 +149,9 @@ class Enemy(TileBody):
         if self.hp <= 0:
             self.alive = False
             self.die()
-            self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1)
+            self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1) * (config.ELITE_SHARD_MULT if self.elite else 1)
+            if self.elite == 'volatile':                  # 폭발 정예: 예고 고리 뒤에 터진다
+                game_world.add_object(EliteBurst(self.x, self.y + self.hb_h / 2, self.player), game_world.LAYER_EFFECT)
             assets.play_sound('enemy_die')
             death = f'enemy_{self.kind}_death'
             if death in sprites.FRAMES:                   # 쓰러지는 그림이 있으면 시체가 쓰러진 뒤 흩어진다 (Codex T25)
@@ -144,7 +166,7 @@ class Enemy(TileBody):
         if self.stagger_guard > 0:
             return False                                  # 방금 경직에서 풀렸다: 피해만 받고 하던 일을 이어 간다 (연타로 묶어 두지 못한다)
         if from_x is not None:
-            weight = config.ENEMY_WEIGHT.get(self.kind, 1.0)
+            weight = config.ENEMY_WEIGHT.get(self.kind, 1.0) * self.weight_mult
             self.vx = config.ENEMY_KNOCKBACK * knock / weight * (1 if self.x >= from_x else -1)
         self.hit_left = 0.18
         self.hurt()
@@ -565,11 +587,15 @@ class Enemy(TileBody):
         dx, dy = self._pose_offset(name)
         if name is None:                                  # 동작 그림이 없으면 정지 그림 한 장
             name = self.stats['sprite']
+        if self.elite:                                    # 정예: 수식어 색 테두리 (그림 뒤에 색을 더해 네 방향으로)
+            sprites.draw_glow(name, n, self.x + dx, self.y + dy, self.face_dir, self.elite_color())
         sprites.draw(name, n, self.x + dx, self.y + dy, self.face_dir, self._tint())
         if self.white_flash():                            # 맞은 순간: 그림 위에 흰색을 더해 하얗게
             sprites.draw_white(name, n, self.x + dx, self.y + dy, self.face_dir)
         if self.hp < self.max_hp:
             self._draw_hp_bar()
+        if self.elite:                                    # 정예 이름은 늘 (체력 바 위)
+            assets.draw_text(self.x, self.y + self.hb_h + 46, self.elite_label(), self.elite_color(), center=True, small=True)
         if config.DEBUG:
             from pico2d import draw_rectangle
             left, bottom, right, top = self.rect()
@@ -612,3 +638,38 @@ class Corpse:
         name, n = self.frame()
         fade = max(0.0, self.time - config.CORPSE_TIME) / config.CORPSE_FADE
         sprites.draw(name, n, int(self.x), int(self.y), self.face_dir, alpha=max(0.0, 1.0 - fade))
+
+
+class EliteBurst:
+    """폭발 정예가 남긴 헤이즈 덩어리: 예고 고리가 ELITE_BURST_DELAY 동안 조여 든 뒤 터진다.
+    반지름 안의 플레이어는 피해와 함께 게이지가 오른다(헤이즈가 스며든다). 벽 너머는 닿지 않는다."""
+
+    def __init__(self, x, y, player):
+        self.x, self.y, self.player = x, y, player
+        self.time = 0.0
+        assets.play_sound('warn_high')
+
+    def update(self, dt):
+        self.time += dt
+        if self.time < config.ELITE_BURST_DELAY:
+            return
+        effects.spawn('haze-blast', self.x, self.y, duration=0.45)
+        effects.add_trauma(0.45)
+        assets.play_sound('overload')
+        p = self.player
+        px, py = p.center
+        room = getattr(p, 'room', None)
+        if math.hypot(px - self.x, py - self.y) <= config.ELITE_BURST_RADIUS and (
+                room is None or not room.line_blocked(self.x, self.y, px, py)):
+            p.take_hit(config.ELITE_BURST_DAMAGE, gauge_delta=projectile._gauge_delta(config.ELITE_BURST_NET))
+        game_world.remove_object(self)
+
+    def draw(self):
+        k = self.time / config.ELITE_BURST_DELAY
+        r = int(config.ELITE_BURST_RADIUS * (1.0 - 0.75 * k))         # 반지름에서 안으로 조여 든다
+        color = config.ELITE_MODS['volatile']['color']
+        for i in range(16):                                            # 점 16개로 그린 고리 (정수 좌표의 작은 사각형)
+            a = i / 16 * math.tau + k * 2
+            x, y = int(self.x + math.cos(a) * r), int(self.y + math.sin(a) * r)
+            assets.draw_rect_color(x - 4, y - 4, 8, 8, color, 0.5 + 0.5 * k)
+        assets.draw_rect_color(int(self.x) - 10, int(self.y) - 10, 20, 20, (255, 230, 180), 0.4 + 0.6 * k)

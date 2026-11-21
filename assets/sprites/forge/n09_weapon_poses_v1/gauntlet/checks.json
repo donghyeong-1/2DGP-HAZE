@@ -1,0 +1,85 @@
+{
+  "canvas": [
+    94,
+    122
+  ],
+  "anchor": [
+    44,
+    117
+  ],
+  "palette_colors": 39,
+  "frames": {
+    "gauntlet-1.png": {
+      "anchor": [
+        44,
+        117
+      ],
+      "bounds": [
+        10,
+        16,
+        81,
+        117
+      ],
+      "bottom_y": 116,
+      "air_px": 0,
+      "source_hip_x": 291,
+      "source_scale": 1.28,
+      "colors": 37,
+      "preview_duration_ms": 140
+    },
+    "gauntlet-2.png": {
+      "anchor": [
+        44,
+        117
+      ],
+      "bounds": [
+        5,
+        15,
+        87,
+        117
+      ],
+      "bottom_y": 116,
+      "air_px": 0,
+      "source_hip_x": 916,
+      "source_scale": 1.28,
+      "colors": 35,
+      "preview_duration_ms": 70
+    },
+    "gauntlet-3.png": {
+      "anchor": [
+        44,
+        117
+      ],
+      "bounds": [
+        22,
+        8,
+        77,
+        117
+      ],
+      "bottom_y": 116,
+      "air_px": 0,
+      "source_hip_x": 284,
+      "source_scale": 1.28,
+      "colors": 36,
+      "preview_duration_ms": 110
+    },
+    "gauntlet-4.png": {
+      "anchor": [
+        44,
+        117
+      ],
+      "bounds": [
+        17,
+        5,
+        89,
+        100
+      ],
+      "bottom_y": 99,
+      "air_px": 17,
+      "source_hip_x": 877,
+      "source_scale": 1.28,
+      "colors": 36,
+      "preview_duration_ms": 130
+    }
+  }
+}

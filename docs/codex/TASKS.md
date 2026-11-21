@@ -45,8 +45,8 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T23 | 궁극기(E 3단계) 컷인 띠 + 시전 자세 2장 | [T23_ultimate_cutin.md](tasks/T23_ultimate_cutin.md) | - | done·게임 적용 2026-11-19 (컷인 띠 ui/ult_cutin, 시전 자세 n09_ult 2장) |
 | T24 | 철파이프 2단계 강화 동작 (올려베기 3장 + 내려찍기 3장) | [T24_pipe_stage2.md](tasks/T24_pipe_stage2.md) | - | done·게임 적용 2026-11-21 (`n09_s2rise`·`n09_s2slam` 3장씩, 피해는 내려찍기 3번 그림에서) |
 | T25 | 일반 적 4종 사망 동작 3장 + 피격 2장째 | [T25_enemy_death_hurt.md](tasks/T25_enemy_death_hurt.md) | - | done·게임 적용 2026-11-21 (피격 2장 번갈아, 쓰러짐 3장 -> 누워 있다가 헤이즈로 흩어짐) |
-| T26 | 식칼·건틀릿·사슬 전용 공격 자세 10장 | [T26_weapon_poses.md](tasks/T26_weapon_poses.md) | - | in_progress |
-| T27 | 보스 크래셔 걷기 4장 + 사망 2장 | [T27_crasher_walk_death.md](tasks/T27_crasher_walk_death.md) | - | ready |
+| T26 | 식칼·건틀릿·사슬 전용 공격 자세 10장 | [T26_weapon_poses.md](tasks/T26_weapon_poses.md) | - | done·게임 적용 2026-11-21 (`n09_knife` 3·`n09_gauntlet` 4·`n09_chain` 3, 맨손 자세 대신) |
+| T27 | 보스 크래셔 걷기 4장 + 사망 2장 | [T27_crasher_walk_death.md](tasks/T27_crasher_walk_death.md) | - | in_progress |
 | T28 | 스테이지별 움직이는 배경 소품 12종 x 4장 | [T28_animated_props.md](tasks/T28_animated_props.md) | - | ready |
 | T29 | 상점 페이지 그림 (스팀 규격 캡슐 5종 + 로고) | [T29_store_art.md](tasks/T29_store_art.md) | - | ready |
 

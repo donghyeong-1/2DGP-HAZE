@@ -108,6 +108,55 @@ def test_killed_enemy_collapses_then_scatters():
     assert c not in game_world.world[game_world.LAYER_EFFECT]           # 헤이즈로 흩어져 사라진다
 
 
+
+# ----- Codex T26: 무기별 전용 자세 (11/21) -----
+def _poses(p, frames):
+    seen = []
+    for _ in range(frames):
+        name = p._body_frame()
+        if not seen or seen[-1] != name:
+            seen.append(name)
+        tc.step(1)
+    return seen
+
+
+def test_knife_throw_uses_its_own_three_poses():
+    room, p = tc.make_world()
+    p.give_weapon('knife')
+    assert p.request_attack()
+    seen = _poses(p, 30)
+    assert [s for s in seen if s[0] == 'n09_knife'] == [('n09_knife', 1), ('n09_knife', 2), ('n09_knife', 3)], seen
+
+
+def test_gauntlet_fire_and_air_down_poses():
+    room, p = tc.make_world()
+    p.give_weapon('gauntlet')
+    tc.set_gauge(p, 60)
+    p.attack_held = True
+    assert p.request_attack() and p.weapon.charging
+    tc.step(5)
+    assert p._body_frame() == ('n09_gauntlet', 1)                         # 충전
+    tc.step(int(config.GAUNTLET_CHARGE_TIME['AWAKE'] * 60) + 5)
+    p.attack_held = False
+    tc.step(1)
+    assert p._body_frame() == ('n09_gauntlet', 2)                         # 발사
+    seen = _poses(p, 30)
+    assert ('n09_gauntlet', 3) in seen                                    # 회수
+    p.start_punch('blast_down')
+    assert p._body_frame() == ('n09_gauntlet', 4)                         # 공중에서 아래로 쏘는 자세
+
+
+def test_chain_throw_then_pull_poses():
+    room, p = tc.make_world()
+    p.give_weapon('chain')
+    e = tc.freeze(tc.add_enemy('slum', p.x + 300, room, p))
+    e.hp = e.max_hp = 1000
+    p.mouse_x, p.mouse_y = e.center
+    assert p.request_attack()
+    seen = _poses(p, 60)
+    chain = [s for s in seen if s[0] == 'n09_chain']
+    assert chain[:2] == [('n09_chain', 1), ('n09_chain', 2)] and ('n09_chain', 3) in chain, seen   # 돌림 -> 던짐 -> 당김
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

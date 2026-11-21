@@ -18,6 +18,27 @@ def image(relative_path):
     return _images[relative_path]
 
 
+_silhouettes = {}
+
+
+def silhouette(relative_path):
+    """그림의 모양만 흰색으로 채운 판 (색 테두리용). 처음 한 번 Pillow로 만들어 임시 폴더에 두고 불러온다.
+    알파는 원본 그대로(켜짐·꺼짐)라 픽셀 규칙을 지킨다."""
+    if relative_path not in _silhouettes:
+        import tempfile
+        from PIL import Image
+        from pico2d import load_image
+        folder = os.path.join(tempfile.gettempdir(), 'haze_silhouettes')
+        os.makedirs(folder, exist_ok=True)
+        out = os.path.join(folder, relative_path.replace('/', '_'))
+        src = Image.open(os.path.join(ASSET_DIR, relative_path)).convert('RGBA')
+        white = Image.new('RGBA', src.size, (255, 255, 255, 255))
+        white.putalpha(src.getchannel('A'))
+        white.save(out)
+        _silhouettes[relative_path] = load_image(out)
+    return _silhouettes[relative_path]
+
+
 def draw_image(img, x, y, flip=''):
     """이미지를 원본 크기(1배)로 정수 좌표에 그린다. x는 가운데, y는 아래 가장자리.
 
@@ -43,15 +64,20 @@ def draw_image_tinted(img, x, y, flip, color, alpha):
         img.opacify(1.0)
 
 
-def draw_image_added(img, x, y, flip=''):
-    """더하기 섞기(밝게 겹치기)로 그린다: 같은 그림을 한 번 더 더해 하얗게 번쩍이게 할 때. 끝나면 원래대로."""
-    from sdl2 import SDL_BLENDMODE_ADD, SDL_BLENDMODE_BLEND, SDL_SetTextureBlendMode
+def draw_image_added(img, x, y, flip='', color=None, times=2):
+    """더하기 섞기(밝게 겹치기)로 그린다: 같은 그림을 더해 하얗게 번쩍이게(기본 두 번) 하거나, color를 곱해 색 테두리를
+    만들 때. 끝나면 원래대로."""
+    from sdl2 import SDL_BLENDMODE_ADD, SDL_BLENDMODE_BLEND, SDL_SetTextureBlendMode, SDL_SetTextureColorMod
     SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_ADD)
+    if color is not None:
+        SDL_SetTextureColorMod(img.texture, *color)
     try:
-        for _ in range(2):                         # 두 번 더하면 거의 흰색 (어두운 옷도 밝게 보인다)
+        for _ in range(times):                     # 두 번 더하면 거의 흰색 (어두운 옷도 밝게 보인다)
             draw_image(img, x, y, flip)
     finally:
         SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_BLEND)
+        if color is not None:
+            SDL_SetTextureColorMod(img.texture, 255, 255, 255)
 
 
 def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):

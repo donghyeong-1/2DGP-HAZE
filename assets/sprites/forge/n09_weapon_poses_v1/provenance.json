@@ -1,0 +1,72 @@
+{
+  "task": "T26",
+  "date_kst": "2026-11-21",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "process": "generate2dsprite 0.5.0",
+  "finish": "project finish_character.py (hibit, --like n09_v3b)",
+  "generated": [
+    {
+      "weapon": "knife",
+      "reference": [
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png",
+        "assets/sprites/unified/proj_knife_0.png"
+      ],
+      "source": "knife/source_sheet.png",
+      "prompt": "knife/actual_prompt.txt",
+      "source_size": [
+        2172,
+        724
+      ],
+      "sha256": "2c465a998f6c15f5832777ac312438fc5333814989edf381f35d1e5762eebdac",
+      "selected_frames": "knife-2, knife-3"
+    },
+    {
+      "weapon": "knife",
+      "reference": [
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png",
+        "assets/sprites/unified/proj_knife_0.png"
+      ],
+      "source": "knife/ready_source.png",
+      "prompt": "knife/ready_prompt.txt",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "sha256": "06c266240715389d88b269b3899ed24ca6d02930f03830a3e628877857ca863b",
+      "selected_frames": "knife-1"
+    },
+    {
+      "weapon": "gauntlet",
+      "reference": [
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png",
+        "assets/ui/icon_w_gauntlet.png"
+      ],
+      "source": "gauntlet/source_sheet.png",
+      "prompt": "gauntlet/actual_prompt.txt",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "sha256": "26416ca6fc473b8f2800d63bd202303cf0b186da09fb065e5ce03e4b30302b57",
+      "selected_frames": "all"
+    },
+    {
+      "weapon": "chain",
+      "reference": [
+        "assets/sprites/forge/hero_v3b/master/master_rgba.png",
+        "assets/ui/icon_w_chain.png"
+      ],
+      "source": "chain/source_sheet.png",
+      "prompt": "chain/actual_prompt.txt",
+      "source_size": [
+        2172,
+        724
+      ],
+      "sha256": "190caf5ea4ba6661b6d946c782f18022ccf72898095a9185f78367a53a4db8b8",
+      "selected_frames": "all"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "canvas": [
+    109,
+    126
+  ],
+  "anchor": [
+    39,
+    121
+  ],
+  "palette_colors": 40,
+  "frames": {
+    "knife-1.png": {
+      "anchor": [
+        39,
+        121
+      ],
+      "bounds": [
+        6,
+        5,
+        90,
+        121
+      ],
+      "bottom_y": 120,
+      "air_px": 0,
+      "source_hip_x": 545,
+      "source_scale": 0.705,
+      "colors": 34,
+      "preview_duration_ms": 110
+    },
+    "knife-2.png": {
+      "anchor": [
+        39,
+        121
+      ],
+      "bounds": [
+        5,
+        6,
+        103,
+        121
+      ],
+      "bottom_y": 120,
+      "air_px": 0,
+      "source_hip_x": 995,
+      "source_scale": 1.16,
+      "colors": 38,
+      "preview_duration_ms": 50
+    },
+    "knife-3.png": {
+      "anchor": [
+        39,
+        121
+      ],
+      "bounds": [
+        5,
+        19,
+        90,
+        121
+      ],
+      "bottom_y": 120,
+      "air_px": 0,
+      "source_hip_x": 1720,
+      "source_scale": 1.16,
+      "colors": 38,
+      "preview_duration_ms": 110
+    }
+  }
+}

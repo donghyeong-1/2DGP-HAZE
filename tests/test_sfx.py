@@ -15,7 +15,9 @@ NAMES = ["warn_low", "warn_high", "jump", "double_jump", "dash", "land", "hit", 
          "ark_bullet", "ark_teleport", "ark_roar", "ark_absorb", "ark_burst", "ark_field",
          # 2026-11-21 퀄리티 계획 1-7: 무기별 명중, 적별 공격 예고
          "impact_pipe", "impact_knife", "impact_gauntlet",
-         "windup_slum", "windup_thrower", "windup_hound", "windup_guard"]
+         "windup_slum", "windup_thrower", "windup_hound", "windup_guard",
+         # 2026-11-21 계획 2-3 환경음 (구역마다 가끔)
+         "amb_drip", "amb_steam", "amb_wind", "amb_forge"]
 
 
 def test_sfx_files_are_valid_short_wavs():
@@ -197,6 +199,22 @@ def test_each_stage_and_the_hideout_have_their_own_music():
         s = FakeStage()
         s.name = name
         assert play_mode.music_for(s) == song, (name, play_mode.music_for(s))
+
+
+def test_ambience_plays_the_stage_sound_now_and_then():
+    """환경음: 구역마다 다른 짧은 소리가 몇 초마다 (슬럼 물방울, 공장 증기, 탑 바람, 은신처 화로)."""
+    import ambience
+    for name, sound in (('stage1', 'amb_drip'), ('stage2', 'amb_steam'), ('stage3', 'amb_wind'), ('hideout', 'amb_forge')):
+        class FakeStage:
+            pass
+        s = FakeStage()
+        s.name = name
+        a = ambience.Ambience(s, seed=3)
+        with Recorder() as rec:
+            for _ in range(60 * 20):                       # 20초
+                a.update(1 / 60)
+        assert rec.names and set(rec.names) == {sound}, (name, rec.names)
+        assert 20 / 8 <= len(rec.names) <= 20 / 3 + 1, (name, len(rec.names))
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

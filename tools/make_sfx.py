@@ -354,6 +354,39 @@ def windup_guard():
     return (metal((310, 470, 690), s, 7) * 0.5 + creak + triangle(sweep(70, 55, s)) * 0.4) * envelope(s, 0.06, 0.5)
 
 
+
+# ----- 2026-11-21 계획 2-3 환경음 (가끔 흩뿌리는 짧은 소리, 작게) -----
+def amb_drip():
+    """슬럼: 천장에서 떨어진 물방울이 웅덩이에 '똑' (올라가는 짧은 사인 + 메아리)."""
+    s = 0.5
+    t = t_axis(0.09)
+    plip = np.sin(2 * np.pi * np.cumsum(sweep(900, 1700, 0.09)) / RATE) * np.exp(-t * 40)
+    return place(s, [(0.0, plip), (0.17, plip * 0.35), (0.33, plip * 0.12)])
+
+
+def amb_steam():
+    """공장: 배관에서 새는 증기 '쉬익' (높은 잡음이 부풀었다 줄어듦) + 낮은 쇳소리."""
+    s = 0.8
+    hiss = (noise(s) - lowpass(noise(s), 4)) * np.sin(np.pi * np.clip(t_axis(s) / s, 0, 1)) ** 1.5
+    return hiss * 0.8 + metal((180, 290), s, 5) * 0.25
+
+
+def amb_wind():
+    """탑: 높은 곳을 지나는 낮은 바람 (먹먹한 잡음이 천천히 부풀었다 줄어듦)."""
+    s = 0.95
+    t = t_axis(s)
+    gust = lowpass(noise(s), 30) * np.sin(np.pi * t / s) ** 2 * (1 + 0.3 * np.sin(2 * np.pi * 3 * t))
+    return gust + triangle(sweep(110, 95, s)) * 0.12 * np.sin(np.pi * t / s)
+
+
+def amb_forge():
+    """은신처: 화로에서 장작·불똥이 '탁, 타닥' (짧은 딸깍 몇 번 + 낮은 불 울림)."""
+    s = 0.6
+    crack = lambda k: (noise(0.02) * envelope(0.02, 0.0005, 0.9)) * k
+    roar = lowpass(noise(s), 25) * 0.35 * np.sin(np.pi * t_axis(s) / s)
+    return roar + place(s, [(0.02, crack(1.0)), (0.19, crack(0.6)), (0.24, crack(0.8)), (0.41, crack(0.45))])
+
+
 SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
@@ -366,7 +399,8 @@ SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload
           # 2026-11-21 추가
           "impact_pipe": impact_pipe, "impact_knife": impact_knife, "impact_gauntlet": impact_gauntlet,
           "windup_slum": windup_slum, "windup_thrower": windup_thrower, "windup_hound": windup_hound,
-          "windup_guard": windup_guard}
+          "windup_guard": windup_guard,
+          "amb_drip": amb_drip, "amb_steam": amb_steam, "amb_wind": amb_wind, "amb_forge": amb_forge}
 GAIN = 0.55  # 전체 음량 (클리핑 방지)
 
 

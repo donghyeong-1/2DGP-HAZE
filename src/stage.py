@@ -39,6 +39,13 @@ def _load_module(name):
     return module
 
 
+def roll_elite(rng, stage_name):
+    """적 하나가 정예인가: 수식어 이름 또는 None (구역마다 확률이 다르다, config.ELITE_CHANCE)."""
+    if rng.random() >= config.ELITE_CHANCE.get(stage_name, 0.0):
+        return None
+    return rng.choice(sorted(config.ELITE_MODS))
+
+
 def load_layout(name='stage1'):
     """data/stages/<name>.py 에서 (START, 스테이지 딕셔너리)를 읽는다."""
     module = _load_module(name)
@@ -266,6 +273,7 @@ class Stage:
         camera.snap(p, room)                     # 카메라는 날아오지 않고 바로 맞춘다
 
     def _spawn_enemies(self, info):
+        rng = random.Random(f'{self.seed}:{self.coord}:elite')                 # 같은 판·같은 방이면 늘 같은 정예
         # 칸에 종류가 적힌 스폰(s, t)은 그대로, 종류 없는 E 칸은 스테이지 데이터의 enemies를 순서대로 쓴다
         # swap: 템플릿에 적힌 종류를 이 방에서만 바꾼다 (같은 방 모양을 다른 구역에서 다른 적으로, 예: {'slum': 'guard'})
         generic = list(info.get('enemies', []))
@@ -277,7 +285,11 @@ class Stage:
                 kind = generic.pop(0)
             else:
                 kind = swap.get(kind, kind)
-            game_world.add_object(Enemy(kind, x, y, self.room, self.player), game_world.LAYER_ENEMY)
+            enemy = Enemy(kind, x, y, self.room, self.player)
+            mod = roll_elite(rng, self.name)
+            if mod:
+                enemy.make_elite(mod)
+            game_world.add_object(enemy, game_world.LAYER_ENEMY)
 
     def _spawn_pedestals(self, coord, kind):
         saved = self.state.setdefault(coord, {})

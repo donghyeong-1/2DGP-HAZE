@@ -168,7 +168,7 @@ KNIFE_GAIN = 2               # 칼 한 자루 명중 게이지 (여러 자루가
 # 헤이즈 건틀릿 (소모형). 충전 시간·크기는 구간별
 GAUNTLET_DAMAGE = 34
 GAUNTLET_CHARGE_TIME = {'DEAD': 1.2, 'FADE': 1.2, 'NORMAL': 1.2, 'AWAKE': 0.8, 'CRITICAL': 0.8, 'OVERLOAD': 0.8}
-PUNCH_TIME = {'throw': 0.26, 'blast': 0.32}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
+PUNCH_TIME = {'throw': 0.26, 'blast': 0.32, 'blast_down': 0.32}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
 GAUNTLET_CHARGE_MOVE = 0.45  # 건틀릿을 충전하는 동안 땅 위 이동 속도 배율
 GAUNTLET_SIZE = {'AWAKE': 1.3, 'CRITICAL': 1.6}
 GAUNTLET_CRIT_COST = 15      # 위험 구간 즉시 발사가 비우는 게이지(%)
@@ -329,6 +329,18 @@ ARK_FIELD_TIME = (5.0, 6.0, 7.0)   # 장판이 남는 시간(초)
 ARK_PHASES = (0.66, 0.33)     # 체력 비율이 이 아래로 내려가면 2페이즈, 3페이즈
 ARK_DEATH_FALL = 0.6          # 쓰러질 때 무릎 꿇은 자세(사망 1)를 보여 주는 시간(초), 그 뒤 엎어짐(사망 2)
 SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'crasher': 10, 'ark': 20}
+# 정예 적 (11/21 퀄리티 계획 2-4): 일반 적에 수식어. 색 테두리와 이름으로 표시, 조각 2배
+ELITE_MODS = {
+    'swift': dict(name='질주', color=(90, 235, 220), speed=1.35, windup=0.8),
+    'tough': dict(name='강철', color=(150, 180, 230), hp=2.2, weight=1.6),
+    'volatile': dict(name='폭발', color=(255, 150, 60)),
+}
+ELITE_CHANCE = {'stage1': 0.10, 'stage2': 0.18, 'stage3': 0.25}   # 적 하나가 정예일 확률 (은신처·그 밖은 0)
+ELITE_SHARD_MULT = 2
+ELITE_BURST_DELAY = 0.6        # 폭발 정예가 쓰러진 뒤 터지기까지 (예고 고리가 조여 든다)
+ELITE_BURST_RADIUS = 170
+ELITE_BURST_DAMAGE = 14
+ELITE_BURST_NET = 8            # 폭발에 맞으면 게이지 최종 +8% (헤이즈가 스며든다)
 
 # E 강화 일격 (1회성): 게이지 ENHANCE_COST를 쓰면 **다음 공격 한 번**이 강화 일격이 된다. 쓰고 나면 사라진다.
 # 강화 일격은 대미지가 크고 사거리·부채꼴이 넓으며, 맞은 적마다 안개 폭발이 일어나 주변 적에게 피해를 준다.
@@ -368,13 +380,15 @@ SLOW_BOSS = (1.1, 0.25)      # 보스를 쓰러뜨렸을 때
 CORPSE_FRAMES = (0.09, 0.22)  # 1번 -> 2번, 2번 -> 3번이 되는 시간(초)
 CORPSE_TIME = 0.9             # 누워 있는 데까지 (그 뒤 흩어지며 사라진다)
 CORPSE_FADE = 0.35            # 흩어지며 사라지는 시간
+AMB_GAP = (3.0, 8.0)          # 환경음 사이 간격(초, 무작위) (11/21 계획 2-3, src/ambience.py)
 ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard'}
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
 # 표에 없는 소리는 1.0
 SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
             'enemy_hit': 0.7, 'impact_pipe': 0.75, 'impact_knife': 0.7, 'impact_gauntlet': 0.8, 'throw': 0.75,
             'chain_throw': 0.8, 'dash': 0.8, 'ult_hit': 0.8, 'windup_slum': 0.8, 'windup_thrower': 0.75,
-            'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ult_final': 1.2, 'ark_roar': 1.1}
+            'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ult_final': 1.2, 'ark_roar': 1.1,
+            'amb_drip': 0.45, 'amb_steam': 0.35, 'amb_wind': 0.45, 'amb_forge': 0.4}   # 환경음은 작게
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)
 PROJECTILE_HB = (30, 18)
 

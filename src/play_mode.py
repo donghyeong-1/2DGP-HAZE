@@ -41,7 +41,9 @@ def enter():
     room = stage.room
     game_world.add_object(player, game_world.LAYER_PLAYER)
     from atmosphere import Atmosphere
+    from ambience import Ambience
     game_world.add_object(Atmosphere(player, stage), game_world.LAYER_UI)   # 구간 색·비네트·안개 (HUD보다 먼저 = 아래)
+    game_world.add_object(Ambience(stage), game_world.LAYER_UI)             # 구역 환경음 (그림 없음)
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
     assets.play_music(music_for(stage))
 

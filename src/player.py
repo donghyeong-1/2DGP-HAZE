@@ -648,6 +648,27 @@ class Player(TileBody):
         self.swing_total = config.PLUNGE_POSE_TIME
         self.swing_left = config.PLUNGE_POSE_TIME
 
+    def _weapon_pose(self):
+        """식칼·건틀릿·사슬의 전용 자세 (Codex T26). 해당 없으면 None.
+        식칼: 당김 -> 뿌림 -> 흘림. 건틀릿: 충전 중 1, 발사 2 -> 회수 3, 공중에서 아래로 쏘면 4.
+        사슬: 돌림 -> 던짐, 갈고리가 적을 끌어오는 동안은 두 손으로 당김(3)."""
+        wid = getattr(self.weapon, 'weapon_id', '')
+        if wid == 'gauntlet' and getattr(self.weapon, 'charging', False):
+            return 'n09_gauntlet', 1
+        hook = getattr(self.weapon, 'hook', None)
+        if wid == 'chain' and hook is not None and hook.phase == 'pull':
+            return 'n09_chain', 3
+        if self.punch_left <= 0 or wid not in ('knife', 'gauntlet', 'chain'):
+            return None
+        done = 1.0 - self.punch_left / self.punch_total
+        if wid == 'gauntlet':
+            if self.punch_kind == 'blast_down':
+                return 'n09_gauntlet', 4
+            return 'n09_gauntlet', 2 if done < 0.45 else 3
+        if wid == 'knife':
+            return 'n09_knife', 1 if done < 0.2 else 2 if done < 0.6 else 3
+        return 'n09_chain', 1 if done < 0.25 else 2 if done < 0.75 else 3
+
     def _body_frame(self):
         """지금 상태에 맞는 몸 이미지 이름: 달리기 걷기 4장, 서 있기 숨쉬기 4장, 공중 점프 4장, 피격 2장. 없으면 대기 한 장."""
         if self.state == 'HIT':
@@ -670,6 +691,9 @@ class Player(TileBody):
         if self.ult_pose_left > 0:                           # 궁극기 시전: 모으기 -> 해방 (T23)
             gathering = self.ult_pose_left > config.ULT_POSE_TIME - config.ULT_POSE_GATHER
             return 'n09_ult', 1 if gathering else 2
+        pose = self._weapon_pose()
+        if pose is not None:                                 # 무기 전용 자세 (Codex T26)
+            return pose
         if getattr(self.weapon, 'charging', False):          # 건틀릿 충전: 주먹을 뒤로 당긴 채
             return 'n09_punch', 1
         if self.punch_left > 0:       # 맨손 자세: 던지기 = 당김 -> 뻗음 -> 회수, 발사 = 모음 -> 뻗음 -> 회수

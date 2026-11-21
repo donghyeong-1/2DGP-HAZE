@@ -1,0 +1,160 @@
+{
+  "schema": "generate2dmap.hibit_plate.v1",
+  "tool": {
+    "name": "hibit_plate",
+    "version": "0.5.0"
+  },
+  "hibit": "forge.hibit.v1",
+  "source": {
+    "path": "../conform/background.png",
+    "sha256": "6b354696aaf4f33febda0b49518f8bd5e782db7267e6eae2045f8f362b77f369",
+    "bytes": 2037877,
+    "size": [
+      1920,
+      1080
+    ]
+  },
+  "size": [
+    1920,
+    1080
+  ],
+  "crop": [
+    0,
+    0,
+    1920,
+    1080
+  ],
+  "focus": [
+    0.5,
+    0.5
+  ],
+  "colors": 32,
+  "palette": [
+    "#121b28",
+    "#192231",
+    "#21232b",
+    "#242a36",
+    "#342a29",
+    "#2a2f3c",
+    "#442c20",
+    "#37353e",
+    "#43332f",
+    "#323947",
+    "#54362a",
+    "#3e3f49",
+    "#4b3c39",
+    "#693a29",
+    "#5b423a",
+    "#6c4637",
+    "#7d462d",
+    "#595450",
+    "#735644",
+    "#8f5131",
+    "#816447",
+    "#577560",
+    "#a35a31",
+    "#269a9b",
+    "#bb6835",
+    "#a97349",
+    "#d27232",
+    "#c58b5e",
+    "#46c9c3",
+    "#df9556",
+    "#faa748",
+    "#fce686"
+  ],
+  "paletteGiven": false,
+  "seed": 0,
+  "smooth": 0,
+  "previewScale": 1,
+  "engine": {
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "draw at whole-number zoom (480x270 x4 = 1920x1080); never filter the plate"
+  },
+  "warnings": [
+    "reduction: 1.0 (threshold 2.0)"
+  ],
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "hibit_plate v1 (forge_hibit, the hi-bit studio recipe): cover crop of the painting to the plate aspect; one palette (k-means++ on luminance-weighted RGB, or a given palette); every source pixel indexed to its nearest palette colour and every plate pixel the colour covering most of its cell (majority, never a blend); forge_hibit.clean_isolated (lone pixels take the 4-neighbour majority unless 90 apart in luminance-weighted RGB); 3x3 majority smoothing passes; opaque; nearest preview only for review",
+    "notProven": [
+      "That the painting reads as the intended scene at the plate size (look at plate-x4.png at gameplay scale).",
+      "That characters and FX read against it: finish the sprites with their own palettes and look at a mock-up.",
+      "Where the walkable ground is: the tool does not find the floor line in the art."
+    ],
+    "checks": [
+      {
+        "id": "size",
+        "status": "pass",
+        "value": [
+          1920,
+          1080
+        ],
+        "threshold": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "id": "opaque",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "colours",
+        "status": "pass",
+        "value": 32,
+        "threshold": 32
+      },
+      {
+        "id": "lone-pixels",
+        "status": "info",
+        "value": 0.0022,
+        "threshold": null,
+        "note": "share of plate pixels with no 4-neighbour of their colour (kept features: lights, stars, eyes)"
+      },
+      {
+        "id": "reduction",
+        "status": "warn",
+        "value": 1.0,
+        "threshold": 2.0,
+        "note": "painting px per plate px; under 2x the majority has little to vote"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../conform/background.png",
+        "sha256": "6b354696aaf4f33febda0b49518f8bd5e782db7267e6eae2045f8f362b77f369",
+        "bytes": 2037877
+      }
+    ],
+    "outputs": [
+      {
+        "path": "plate.png",
+        "sha256": "a649bbe6170d2f01309bd7b8aaf76528bc8f7ec880707472fa8928097191de2d",
+        "bytes": 293698
+      },
+      {
+        "path": "plate-x1.png",
+        "sha256": "a649bbe6170d2f01309bd7b8aaf76528bc8f7ec880707472fa8928097191de2d",
+        "bytes": 293698
+      },
+      {
+        "path": "palette.json",
+        "sha256": "93b2b94e5997d0b7d2cbf0d64f40a16cb3b6e8abd046cbf440bebd0f09f6f386",
+        "bytes": 1365
+      },
+      {
+        "path": "shade-maps.json",
+        "sha256": "4a43957453127d3da2002171ac6d0a7b840dae884406986ebcf2d3a04cb4a335",
+        "bytes": 1246
+      }
+    ],
+    "tool": {
+      "name": "hibit_plate",
+      "version": "0.5.0"
+    }
+  }
+}

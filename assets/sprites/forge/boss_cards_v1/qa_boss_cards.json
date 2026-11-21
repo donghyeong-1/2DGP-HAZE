@@ -1,0 +1,106 @@
+{
+  "left_title_area": [
+    0,
+    0,
+    1280,
+    400
+  ],
+  "cards": {
+    "crasher": {
+      "canvas": [
+        1920,
+        400
+      ],
+      "colors": 32,
+      "alpha": [
+        255
+      ],
+      "sha256": "a55ec37479a7f522484f22b74e1e279b5ace99fdb7ecd06af6016ba24b1701af",
+      "title_lines": [
+        {
+          "text": "제4구역장",
+          "font_px": 28,
+          "rgb": [
+            130,
+            235,
+            225
+          ],
+          "box": [
+            170,
+            154,
+            299,
+            181
+          ],
+          "minimum_contrast": 12.78
+        },
+        {
+          "text": "크래셔",
+          "font_px": 42,
+          "rgb": [
+            240,
+            244,
+            252
+          ],
+          "box": [
+            171,
+            194,
+            289,
+            233
+          ],
+          "minimum_contrast": 15.34
+        }
+      ],
+      "left_luma_p95": 0.0084,
+      "left_luma_max": 0.0202,
+      "right_luma_p95": 0.3038
+    },
+    "ark": {
+      "canvas": [
+        1920,
+        400
+      ],
+      "colors": 32,
+      "alpha": [
+        255
+      ],
+      "sha256": "8fc62e27c46e06dcfe889c835bdeb72279dbd482a63d4d8ba9568feb6906f2c3",
+      "title_lines": [
+        {
+          "text": "총감시관",
+          "font_px": 28,
+          "rgb": [
+            130,
+            235,
+            225
+          ],
+          "box": [
+            170,
+            154,
+            280,
+            180
+          ],
+          "minimum_contrast": 10.84
+        },
+        {
+          "text": "아크",
+          "font_px": 42,
+          "rgb": [
+            240,
+            244,
+            252
+          ],
+          "box": [
+            171,
+            194,
+            249,
+            233
+          ],
+          "minimum_contrast": 16.45
+        }
+      ],
+      "left_luma_p95": 0.0188,
+      "left_luma_max": 0.1323,
+      "right_luma_p95": 0.3198
+    }
+  }
+}

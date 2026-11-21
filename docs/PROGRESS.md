@@ -3,10 +3,10 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T35 엔딩 크레딧 장면 / 수정 중인 파일: assets/sprites/forge/credits_scenes_v1/, docs/codex/reports/T35.md
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(392개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(395개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -22,7 +22,7 @@
 
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
-2. [x] **(Codex) T24~T33 모두 적용** (11/21). 다음 그림 작업은 필요할 때 Claude Code가 `docs/codex/`에 만든다. (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
+2. [x] **(Codex) T24~T35 모두 적용** (11/21). 다음 그림 작업은 필요할 때 Claude Code가 `docs/codex/`에 만든다. (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
 3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예, 2-5 안내, 2-6 게임패드·키 바꾸기, 2-4 방 모양은 11/21 완료, **사용자: 패드가 있으면 실제로 확인**): 2단계 코드 일 끝. 3-1 실행 파일은 11/21 완료(`python tools/build_exe.py`, **사용자: 파이썬 없는 PC에서 zip을 풀어 켜 보기**). 3-2 저장 손상 대비·오류 기록도 11/21 완료(깨진 저장은 .bak에서 되살림, 오류는 ~/.haze_log.txt). 다음은 3-4 트레일러 장면·대본과 3차 발표 자료, 3-5 전체 플레이 점검(사용자). Codex T30~T33이 오면 검토·적용이 먼저. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
 4. [ ] **(사용자)** 이미지 생성 모델명·이용 조건을 `docs/ASSETS.md`에 (최종 제출 전 필수).
 5. [ ] **(사용자 결정)** 3차(최종) 발표 날짜·형식, 주인공 이름(지금 "화이트"는 임시), 2차 발표 체크리스트(`docs/script_2nd.md`).
@@ -209,4 +209,6 @@
 2026-11-21 [Claude Code] 건틀릿 충전 시간 1.2·0.8 -> 0.9·0.65초(밸런스 비교 근거), 테스트 381개 / src/config.py, tests/test_combat.py, docs/DECISIONS.md
 2026-11-21 [Claude Code] 지형 지물 배치 재검토(방 15종 x 3테마 전체 렌더), 소품 받침 규칙(허공에 뜬 소품 없앰, 물방울 자동 배치 제외), 테스트 383개 / src/props_anim.py, tests/test_props_anim.py, docs/*
 2026-11-21 [Codex] T34 크래셔·아크 등장 카드 2장, 1920×400·32색·1배와 왼쪽 이름·별칭 가독성 확인(검토 대기) / assets/sprites/forge/boss_cards_v1/, docs/codex/reports/T34.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-21 [Codex] T35 엔딩 크레딧 장면 3장, 1920×1080·32색·1배와 하단 크레딧 가독성 확인(검토 대기) / assets/sprites/forge/credits_scenes_v1/, docs/codex/reports/T35.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-21 [Claude Code] 빠진 효과음 15종(식칼·사슬 구간별·강화, 무기별 궁극기 마무리, 구간 진입·심장·마지막 처치), 구간 번쩍임, 체력 낮음 심장·붉은 가장자리, 페이드 음악 먹먹, 피해 숫자(설정), 마지막 처치 멈춤, 비네트 위치 버그, 테스트 392개 / src/(drama, weapon, player, enemy, boss, ark, play_mode, atmosphere, assets, options, options_mode, credits_mode, config).py, tools/(make_sfx, make_atmosphere).py, assets/sfx/*, assets/ui/vignette_red.png, tests/(test_drama, test_sfx, test_options).py, docs/*
+2026-11-21 [Claude Code] Codex T34(보스 등장 카드, 카드 동안 게임 멈춤)·T35(크레딧 장면 3장) 검토·적용, 퀄리티 계획 4단계 끝, 테스트 395개 / src/(zone_card, play_mode, credits_mode).py, assets/backgrounds/(boss_card_*, credits_*), tests/(test_zone_card, test_options).py, docs/*

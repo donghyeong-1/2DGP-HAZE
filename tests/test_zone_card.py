@@ -67,6 +67,40 @@ def test_card_replaces_old_title_message():
     game_world.clear()
 
 
+# ----- 보스 등장 카드 (Codex T34): 보스방에 들어서면 보스 그림 띠가 열리고, 그동안 게임이 멈춘다 -----
+class FakeBoss:
+    def __init__(self, kind, title):
+        self.kind, self.title, self.alive = kind, title, True
+
+
+def test_boss_card_opens_and_freezes_game_until_it_closes():
+    for kind in ('crasher', 'ark'):
+        im = Image.open(os.path.join(HERE, '..', 'assets', 'backgrounds', f'boss_card_{kind}.png'))
+        assert im.size == (1920, 400)
+    st = FakeStage('stage2', '제4구역: 철골 공장')
+    st.boss = None
+    card = zone_card.ZoneCard(st)
+    card.update(0.1)
+    assert not card.visible()
+    st.boss = FakeBoss('crasher', '크래셔')                            # 보스방에 들어섰다
+    card.update(0.0)
+    assert card.visible() and card.theme == 'boss_crasher' and card.title == '크래셔'
+    assert card.label == '용광로의 파수꾼'
+    assert zone_card.freezing                                         # 카드가 열려 있는 동안 게임이 멈춘다
+    card.update(zone_card.OPEN + zone_card.HOLD + 0.01)
+    assert card.visible() and not zone_card.freezing                  # 닫히기 시작하면 싸움이 시작된다
+    card.update(zone_card.CLOSE + 0.1)
+    assert not card.visible()
+    card.update(1.0)
+    assert not card.visible()                                         # 같은 보스에게 다시 뜨지 않는다
+
+
+def test_play_mode_skips_world_update_while_frozen():
+    import play_mode
+    src = open(os.path.join(HERE, '..', 'src', 'play_mode.py'), encoding='utf-8').read()
+    assert 'zone_card.freezing' in src
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

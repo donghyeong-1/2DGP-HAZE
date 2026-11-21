@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-21",
+  "art_source": "host_image",
+  "tool": "Codex 내장 image_gen",
+  "model": "모델명 미제공",
+  "cost_estimate_usd": null,
+  "skill": "generate2dmap 0.5.0 (MIT)",
+  "final_size": [
+    1920,
+    400
+  ],
+  "title_area": [
+    0,
+    0,
+    1280,
+    400
+  ],
+  "cards": {
+    "crasher": {
+      "output": "boss_card_crasher.png",
+      "canonical_sources": [
+        "assets/sprites/forge/remake_t01_t03/boss_crasher/master/master_rgba.png",
+        "assets/sprites/unified/boss_crasher_idle_1.png"
+      ],
+      "source_size": [
+        2172,
+        724
+      ],
+      "takes": [
+        {
+          "path": "source/crasher_source.png",
+          "sha256": "aabefb103830128c63e1c0e23187c3422d18fe17d3123d3f8c3c8ce2ba349515",
+          "selected": false,
+          "references": [
+            "source/crasher_reference.png",
+            "assets/backgrounds/far_foundry.png"
+          ],
+          "prompt": "Create ONE full-bleed panoramic game boss-introduction environment illustration for HAZE, an original industrial prison action game. Final runtime crop is 1920x400, 4.8:1. If your canvas is a 3:1 image, the middle 62% of its HEIGHT is the actual visible banner; put all critical parts between y=22% and y=76%, with expendable scenery above and below. Compose within that cropped strip from the start. RIGHT THIRD ONLY: one huge distinct hostile character in a stern left-facing half-body upper-torso profile, eyes visibly aimed SCREEN LEFT toward the empty naming area, torso and head roughly centered at x=84%. The upper body can go down through the frame edge like a cut-in, but its full head including all hair or cap must remain wholly within the crop; keep the lower chest and important accessories visible. Left 67 percent of the entire canvas is naturally very dark, nearly flat ambient scenery with faint large architectural contours. No character, bright sparks, effect trails, spotlights, machinery with strong contrast or fine clutter there. The darkness is part of the scene, smoothly joined to the right, with no hard panel boundary. The first attached card is the EXACT canonical character face/gear/colors, plus game sprite, and right-facing reference must be reposed into LEFT-facing art. Other reference images are background palette and attack/illustration expression guidance. Art direction: graphic angular planar lineless digital painting, solid limited color blocks, purposeful cool or warm hard-edged lighting, controlled clean silhouettes, natural shapes, no artificial pixel grid, no blurred airbrush or photographic effects, dark industrial architecture behind, make it look like a dangerous in-game encounter. No other person. No letters, names, numbers, icons, logos, signs, watermarks, border, bars, graphic strip overlay or divider. Show a single still, uninterrupted artwork.\nCRASHER is a hulking adult muscular bald industrial brute with a heavy flat jaw and angry brow, a red scar visibly cutting across his dark eye and cheek like in the master, bare muscular warm-beige chest held by thick charcoal mechanical HARNESS straps, exposed brown-rust/graphite metal segmented shoulders and forearms with rivets, and distinctive attached compressor pack and glowing narrow CYAN slits. Keep his face fully visible, unmasked and visibly separate from machinery. Pose the upper body in a hunched, heavy, threatening stance. Include the shoulder pack and at least one great forearm on the far right. Neither those masses nor his broad torso may overwhelm the naming region; no fist in front of the face. Environment: foundry room from attached brown and amber ironworks background, with a clearly visible furnace aperture or spilling molten-orange lighting and a few small warm sparks BEHIND the boss in the far-right third; the boss front stays in muted charcoal and warm beige with cyan accents. The face has no cyan skin rim. Head center at y=41%, pneumatic pack top below y=23%, collar and chest harness clearly visible before y=74%."
+        },
+        {
+          "path": "source/crasher2_source.png",
+          "sha256": "ede806c786d13c799a46618a321ce398f93d77a1e877e785f6b2ca47abc24f87",
+          "selected": true,
+          "references": [
+            "source/crasher_source.png"
+          ],
+          "prompt": "Edit the attached game-art panorama and keep the exact left-facing scarred bald Crasher's recognizable face, warm bare chest and black harness, his rusty riveted gear, cyan compressor vents and the original scene's excellent dark brown factory palette. Maintain flat faceted painting and the same 3:1 canvas. Correct the composition and atmosphere only: move the entire Crasher shoulder/chest silhouette and its compressor about 5% of the canvas width to the right without shrinking the face or losing his face, scar and pack. Confine his readable body to the far right third (begin no farther left than x=67% when measured in middle y=17%-79%); some far right machinery may naturally crop off the edge. Preserve the large bare chest, the two harness straps and at least one forearm. His left-glancing face should be at x=73%-77%, turned exactly as now. Place 8–14 clearly visible small angular glowing ORANGE metal sparks drifting behind him and upward from the bright furnace aperture in the far-right area around x=88%-99%, y=28%-57%, with no sparks over the face or across the text-safe left. Keep the leftmost orange lantern very subdued; the left two-thirds remain a very dim quiet foundry interior with no characters, lettering, inscriptions, logos, signs, titles or marks. No extra human or weapons. Keep the complete head and compressor inside the central 62% of image height for a 1920x400 banner crop. One finished scene."
+        }
+      ],
+      "final_focus": [
+        0.5,
+        0.48
+      ]
+    },
+    "ark": {
+      "output": "boss_card_ark.png",
+      "canonical_sources": [
+        "assets/sprites/forge/remake_t01_t03/boss_ark/master/master_rgba.png",
+        "assets/sprites/unified/boss_ark_idle_1.png"
+      ],
+      "source_size": [
+        2172,
+        724
+      ],
+      "takes": [
+        {
+          "path": "source/ark_source.png",
+          "sha256": "f1cacec24dba7ef6ab15c49ff3212e0e15e4f7d22ec4270e40f4271f798727f5",
+          "selected": false,
+          "references": [
+            "source/ark_reference.png",
+            "assets/backgrounds/far_haze.png",
+            "assets/backgrounds/far_boss.png",
+            "assets/store/capsule_main.png"
+          ],
+          "prompt": "Create ONE full-bleed panoramic game boss-introduction environment illustration for HAZE, an original industrial prison action game. Final runtime crop is 1920x400, 4.8:1. If your canvas is a 3:1 image, the middle 62% of its HEIGHT is the actual visible banner; put all critical parts between y=22% and y=76%, with expendable scenery above and below. Compose within that cropped strip from the start. RIGHT THIRD ONLY: one huge distinct hostile character in a stern left-facing half-body upper-torso profile, eyes visibly aimed SCREEN LEFT toward the empty naming area, torso and head roughly centered at x=84%. The upper body can go down through the frame edge like a cut-in, but its full head including all hair or cap must remain wholly within the crop; keep the lower chest and important accessories visible. Left 67 percent of the entire canvas is naturally very dark, nearly flat ambient scenery with faint large architectural contours. No character, bright sparks, effect trails, spotlights, machinery with strong contrast or fine clutter there. The darkness is part of the scene, smoothly joined to the right, with no hard panel boundary. The first attached card is the EXACT canonical character face/gear/colors, plus game sprite, and right-facing reference must be reposed into LEFT-facing art. Other reference images are background palette and attack/illustration expression guidance. Art direction: graphic angular planar lineless digital painting, solid limited color blocks, purposeful cool or warm hard-edged lighting, controlled clean silhouettes, natural shapes, no artificial pixel grid, no blurred airbrush or photographic effects, dark industrial architecture behind, make it look like a dangerous in-game encounter. No other person. No letters, names, numbers, icons, logos, signs, watermarks, border, bars, graphic strip overlay or divider. Show a single still, uninterrupted artwork.\nARK the final Warden is the exact adult from the first and fourth refs. The silhouetted hat, face, collar, angular epaulettes, long coat and chest jewel are essential. Wearing a broad angular black peaked military cap (visor projecting left), small angular gray cap insignia and cyan gem set into the insignia, dark swept-back hair, stern angular unmasked pale ochre face with dark brows and clear cold eye. Same black high-collared military greatcoat edged in angular slate silver, gray piping/shoulder straps; preserve the large tall faceted cyan rhombus on the chest as part of his canonical coat. No weapon and no mask. Show black coat continuing visibly under the chest jewel; looming, looking down toward screen left with a slightly lowered chin. Real head position at x=83%, hat's entire outline below y=23%, eyes near y=42%, bright chest diamond centered near y=62% so hat and jewel both fit. Hard dark shadow planes on the fabric and subtle cyan edging only on costume and props, never the face or hair. Environment behind him: ominous dark petrol blue tower boss chamber. Cyan Haze swirls as two readable interlocking sharply faceted air streams rising behind the shoulders and outlining him, brightest accents strictly in the far-right third, not in the name area. Do not copy the store logo or its redhuman opponent. Only Ark."
+        },
+        {
+          "path": "source/ark2_source.png",
+          "sha256": "0a0d51fafc4963b03eef21ff864262d2694149f3c6f8590d4564d0d932e2433c",
+          "selected": true,
+          "references": [
+            "source/ark_source.png",
+            "source/ark_layout_guide.png",
+            "source/ark_reference.png"
+          ],
+          "prompt": "Recompose the first attached panorama of Ark for a center 4.8:1 crop. The second image is a placement plan only. DO NOT draw any colors, labels, lines, frame or marks from that diagram. Preserve EXACTLY the first image's dark military Warden, swept black hair, complete and distinctive wide peaked hat with small cyan insignia, stern left-facing eyes and chin, grey-edged high collar and dark long coat, and his CLEAR full diamond-shaped cyan CHEST crystal. Keep his profile looking and slightly angling downward to screen left. Keep the colors dark charcoal slate, warm muted skin and cold cyan, and the Haze eddies behind him. The only requested change is framing and relative composition. Use a single architecture-filled 3:1 picture, with the top and bottom 20% as expendable bleed. Pull back on Ark about 22-25%, and lower his hat. Put the complete silhouette of his hat below y=24%, his eyes at y=43%, and the entire clear bright diamond on his chest between y=62 and 74%, with some of his black coat below y=74%. Angled coat and crystal stay the same design. The character silhouette's left edge and his strongest cyan vapor stay to the right of x=67% including his shoulders, and the floor-to-ceiling left 2/3 is calm low-detail nearly black teal architecture. Show readable curving flat faceted teal eddies only BEHIND him in the far-right part of the banner, no overlaid aura on face or hair. No text, labels, numbers, crop markings, graphic bars, weapon, or other person. The 4.8:1 crop at grid center must show both the cap and the chest crystal completely, in the same frame."
+        }
+      ],
+      "final_focus": [
+        0.5,
+        0.515
+      ]
+    }
+  }
+}

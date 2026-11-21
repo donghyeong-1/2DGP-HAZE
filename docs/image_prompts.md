@@ -270,3 +270,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-21 [Codex] T32 N-09·정비사·보관인·기록관의 마스터와 게임 스프라이트를 참조해 마젠타 상반신 두 컷으로 무표정·결의, 무뚝뚝·웃음, 차분·걱정, 생각·놀람을 만들었다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/portraits_v1/provenance.json.
 
 2026-11-21 [Codex] T33 제목 화면과 각 원경을 참조해 비 내리는 감옥 골목과 청록 웅덩이, 용광로·컨베이어·증기, 결정이 자란 탑 계단을 가로 띠로 만들었다. 중앙은 어둡게 남기고 슬럼은 탑과 웅덩이가 함께 보이도록 구도를 보정했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/zone_cards_v1/provenance.json.
+
+2026-11-21 [Codex] T34 크래셔·아크의 마스터와 인게임 그림, 공장·탑·보스방 원경, 아크 상점 그림을 참조했다. 왼쪽을 보는 오른쪽 상반신, 용광로 불똥과 청록 소용돌이, 어두운 왼쪽을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/boss_cards_v1/provenance.json.
+
+2026-11-21 [Codex] T35 탈출·제목 화면, 은신처 원경, N-09와 NPC 마스터를 참조했다. 새벽 언덕, 화로 곁의 세 NPC와 빈자리, 헤이즈가 걷힌 도시를 만들고 도시에서 성벽을 줄여 주거지를 드러냈다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/credits_scenes_v1/provenance.json.

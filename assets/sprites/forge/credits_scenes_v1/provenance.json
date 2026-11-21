@@ -1,0 +1,105 @@
+{
+  "date": "2026-11-21",
+  "art_source": "host_image",
+  "tool": "Codex 내장 image_gen",
+  "model": "모델명 미제공",
+  "cost_estimate_usd": null,
+  "skill": "generate2dmap 0.5.0 (MIT)",
+  "viewport_and_output": [
+    1920,
+    1080
+  ],
+  "logical_pixel": [
+    1,
+    1
+  ],
+  "lower_center": [
+    480,
+    720,
+    1440,
+    1080
+  ],
+  "npc_reference_sources": [
+    "assets/sprites/forge/npc_v1/mechanic/master/master_rgba.png",
+    "assets/sprites/forge/npc_v1/keeper/master/master_rgba.png",
+    "assets/sprites/forge/npc_v1/archivist/master/master_rgba.png"
+  ],
+  "scenes": [
+    {
+      "scene": 1,
+      "output": "credits_1.png",
+      "takes": [
+        {
+          "path": "source/1_source.png",
+          "source_size": [
+            1672,
+            941
+          ],
+          "sha256": "35b2d1fadd65d60ada36372ddc6cbc02af725b3df6fc3ebd01aad78510b41d76",
+          "selected": true,
+          "references": [
+            "assets/backgrounds/screen_ending.png",
+            "assets/backgrounds/screen_title.png",
+            "assets/sprites/forge/remake_t01_t03/n09/master/master_rgba.png"
+          ],
+          "prompt": "Create ONE full-bleed 16:9 cinematic still illustrated credits background for the original game HAZE. The first environment reference(s) convey the established angular industrial prison architecture, hard planar flat color shapes and moody deep blue shadows. Use the supplied character designs exactly wherever characters appear. Fully painted flat lineless graphic colors; deliberate angular silhouette and shadow clusters, clear scene depth and hard-edged planes, rich sparse details, no fine noise, no fake pixel grid, no texture overlay, no photorealism, no soft focus. Light and the story landmarks go predominantly in the upper half and along the outer thirds. IMPORTANT credits area reserved for scrolling text added later: in the lower third (y=67% to 100%) keep the center horizontal span x=25% to 75% consistently very dark, plain, low contrast, unoccupied by characters or bright highlights; use the authentic dark shaded ground or floor naturally continuous with the scene. No graphic plate, bar, fade overlay, vignette mask, frame, text, letter, number, signage, logotype, watermark, or subtitles anywhere. A single uninterrupted 16:9 image, no panels. Compose so no face, character or landmark is cropped.\nSCENE 1: Outside Nebula Prison just after escape, dawn. Camera is on rocky dark blue hills above the valley. N-09 alone at the far left, x=18%, on a rocky overlook, a clearly visible full body about 20 percent of picture height, boots at y=63–66%. He is mostly seen from behind, turning his head and shoulder toward SCREEN RIGHT to look back over the valley at the receding prison tower, NOT facing camera. He is the same adult with large windswept white spiked hair, intact arms, torn fitted black charcoal high collar shirt with subtle cyan armband and waist ribbon, black trousers and dark boots seen in the ending and reference. Empty hands at rest. At x=76% in the upper-middle distance, show the same angular tapering prison tower and fortress retaining walls from the title reference, smaller across the valley, silhouetted against a narrow warm peach-and-golden dawn break, hinting at a separate distant industrial city on the horizon. Dark indigo foreground rock and gentle valley slopes below. Mood exhausted and reflective. The middle lower third is one naturally shadowed dark hillside, almost featureless in its middle; no gleaming ridges, silhouette, or sunrise bands below y=67%. No other people."
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "output": "credits_2.png",
+      "takes": [
+        {
+          "path": "source/2_source.png",
+          "source_size": [
+            1672,
+            941
+          ],
+          "sha256": "58b7ffe5b2490b09c3fc16bf3e2ca48693bb21195e5f5f1146a3202cdb658b2e",
+          "selected": true,
+          "references": [
+            "assets/backgrounds/far_hideout.png",
+            "source/npc_reference.png",
+            "assets/backgrounds/screen_ending.png"
+          ],
+          "prompt": "Create ONE full-bleed 16:9 cinematic still illustrated credits background for the original game HAZE. The first environment reference(s) convey the established angular industrial prison architecture, hard planar flat color shapes and moody deep blue shadows. Use the supplied character designs exactly wherever characters appear. Fully painted flat lineless graphic colors; deliberate angular silhouette and shadow clusters, clear scene depth and hard-edged planes, rich sparse details, no fine noise, no fake pixel grid, no texture overlay, no photorealism, no soft focus. Light and the story landmarks go predominantly in the upper half and along the outer thirds. IMPORTANT credits area reserved for scrolling text added later: in the lower third (y=67% to 100%) keep the center horizontal span x=25% to 75% consistently very dark, plain, low contrast, unoccupied by characters or bright highlights; use the authentic dark shaded ground or floor naturally continuous with the scene. No graphic plate, bar, fade overlay, vignette mask, frame, text, letter, number, signage, logotype, watermark, or subtitles anywhere. A single uninterrupted 16:9 image, no panels. Compose so no face, character or landmark is cropped.\nSCENE 2: A quiet moment in the same secluded underground safehouse. Use the first reference for the arrangement of ochre industrial pipes, rough slate walls, cyan crystal recesses, old brown sofa, lockers and tools. Keep warm orange light from one low cast-iron brazier and a few subdued amber work lamps. The hearth gathering and strongest light occupy the left-to-middle UPPER portion, showing exactly THREE visible people seated near the brazier. Match the three discrete original designs from the labelled identity card: the short-haired mature female mechanic with orange goggles on her forehead, olive patched work overalls and cyan mechanical forearm; the grey pointed-bearded elderly keeper in a brown hood with a teal edge and closed padlocked chest beside his seat; the young brown-haired archivist with round spectacles, pencil behind the ear and a shut reddish ledger on lap. Distinct adult faces and silhouettes, peacefully resting with shoulders at about y=34–47%. Put one plainly recognizable, visibly UNoccupied low wooden stool with an uninterrupted seat near the trio and fire, at about x=65%, y=57%, a visual suggestion of absence. Nobody sits on this stool and no fourth person appears. Keep faces, the open empty seat and the small brazier wholly ABOVE y=68%. Place the center lower third on the shaded slate floor with no bright ember or fire spill below y=67%, allowing a clear scroll of white credits. Think warm refuge and missing companion. No recognizable writing on any map or book."
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "output": "credits_3.png",
+      "takes": [
+        {
+          "path": "source/3_source.png",
+          "source_size": [
+            1672,
+            941
+          ],
+          "sha256": "5df5bd7a1aa0fa4623780517767fcc9c098fd1edddc7b7fdefa704c4b07960df",
+          "selected": false,
+          "references": [
+            "assets/backgrounds/screen_ending.png",
+            "assets/backgrounds/screen_title.png",
+            "assets/sprites/forge/remake_t01_t03/n09/master/master_rgba.png"
+          ],
+          "prompt": "Create ONE full-bleed 16:9 cinematic still illustrated credits background for the original game HAZE. The first environment reference(s) convey the established angular industrial prison architecture, hard planar flat color shapes and moody deep blue shadows. Use the supplied character designs exactly wherever characters appear. Fully painted flat lineless graphic colors; deliberate angular silhouette and shadow clusters, clear scene depth and hard-edged planes, rich sparse details, no fine noise, no fake pixel grid, no texture overlay, no photorealism, no soft focus. Light and the story landmarks go predominantly in the upper half and along the outer thirds. IMPORTANT credits area reserved for scrolling text added later: in the lower third (y=67% to 100%) keep the center horizontal span x=25% to 75% consistently very dark, plain, low contrast, unoccupied by characters or bright highlights; use the authentic dark shaded ground or floor naturally continuous with the scene. No graphic plate, bar, fade overlay, vignette mask, frame, text, letter, number, signage, logotype, watermark, or subtitles anywhere. A single uninterrupted 16:9 image, no panels. Compose so no face, character or landmark is cropped.\nSCENE 3: At clear early morning following the dawn scene. A much wider distant panoramic view of the same city's angular slate industrial rooftops, aqueduct silhouettes and stone towers under CLEAN blue open sky and a few white-cream cloud planes. The teal Haze has visibly lifted and the air is transparent. Warm sun on upper roofs makes this brighter and calmer than the dawn shot. A quiet dark-shaded foreground ridge stretches uninterrupted across the entire lower third. The clearly visible stone road runs into the upper-left distance from the LEFT outer third, at x=20–23%, rising obliquely toward mid-height and the city. On that road at x=20%, around y=58%, show the SAME tiny lone N-09 from behind walking away toward the city, approximately 5–7% of total image height, a readable silhouette with windswept white hair and black torn clothes, a muted turquoise accent on the arm. The tiny figure and road must both remain out of the lower center. Do not center the highest tower, sun, horizon road or protagonist. Natural colors of pale blue, warm stone gray and dark slate foreground, little or no saturated cyan outside the character. Peaceful perspective and hopeful broad clear sky. No other characters."
+        },
+        {
+          "path": "source/3v2_source.png",
+          "source_size": [
+            1672,
+            941
+          ],
+          "sha256": "62d1c1bed5b0c46aee30e75fd9711cf98bd4ce7984ed314085196059654a8256",
+          "selected": true,
+          "references": [
+            "source/3_source.png"
+          ],
+          "prompt": "Edit the attached final-credits scene for the original HAZE game. Preserve its beautiful bright clear morning, artistic hard-edged planes, cool charcoal stone and warm sun, the far-left road and same lone back-facing N-09 with windswept white hair, black outfit and cyan waist accent, and its quiet shadowed lower third. Clarify that his journey has moved on from the prison to an expansive LIVED-IN CITY: in the middle and far background behind the existing travel route, reveal three broad terraced neighborhoods of small angular warm-gray residential rooftops and packed blocks climbing the valley on both sides of the center. Show recognizable distinct steep roofs, a few stepped stone houses and slim distant industrial chimneys, relatively subtle so scale stays believable. We see the CITY across the width under abundant clean blue sky. Bring only the residential silhouette and scenery forward without changing the art style. Retain one recognizable aqueduct and the tall distant old spire as distant landmarks; only one short wall portion or low bridge should remain, rather than huge foreground prison ramparts dominating the right. Make N-09 slightly smaller on the left road as if farther along it, about 8–10% of screen height and still visibly the same character. Keep the rock or shaded foreground plain, almost black from x=25 to 75% and y=67% to bottom. All bright sky, city, figures and landmarks above that area. Clean air with no glowing haze in the valley. No people other than N-09, no writing, no title, no stylized frame, no markings or graphics. Render one 16:9 full-bleed still."
+        }
+      ]
+    }
+  ]
+}

@@ -154,6 +154,12 @@ def update():
     effects.tick_shake(dt)
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
         return
+    import zone_card
+    if zone_card.freezing:         # 보스 등장 카드가 열려 있는 동안은 카드만 움직이고 싸움은 멈춘다 (Codex T34)
+        for obj in game_world.world[game_world.LAYER_UI]:
+            if isinstance(obj, zone_card.ZoneCard):
+                obj.update(dt)
+        return
     scale = effects.time_scale()   # 슬로 모션: 게임 시간만 느려지고, 슬로 모션 자체는 실제 시간으로 줄어든다
     effects.tick_slow_motion(dt)
     dt *= scale

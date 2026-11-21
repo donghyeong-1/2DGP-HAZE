@@ -61,8 +61,20 @@ def finished():
     return scroll >= total_height() + config.SCREEN_H * 0.5 + 180
 
 
+SCENES = ('credits_1', 'credits_2', 'credits_3')     # Codex T35: 탈출 뒤 장면 (언덕 -> 은신처 -> 도시)
+_scene = SCENES[0]
+
+
+def scene_for(scroll_px):
+    """크레딧이 흐른 정도에 따라 보여 줄 장면 (전체 길이를 셋으로 나눈다)."""
+    total = total_height() + config.SCREEN_H * 0.5 + 180
+    i = min(len(SCENES) - 1, int(len(SCENES) * max(0.0, scroll_px) / total))
+    return SCENES[i]
+
+
 def enter():
-    global scroll, _fast, _ignore_input
+    global scroll, _fast, _ignore_input, _scene
+    _scene = SCENES[0]
     scroll, _fast, _ignore_input = 0.0, False, 0.5
     import transition
     transition.reveal()
@@ -105,6 +117,12 @@ def update():
     dt = game_framework.frame_time
     _ignore_input = max(0.0, _ignore_input - dt)
     scroll += SPEED * (FAST if _fast else 1.0) * dt
+    global _scene
+    nxt = scene_for(scroll)
+    if nxt != _scene:                              # 장면이 바뀔 때 점묘로 넘긴다
+        import transition
+        _scene = nxt
+        transition.reveal()
     if finished():
         _to_title()
 
@@ -112,8 +130,8 @@ def update():
 def draw():
     clear_canvas()
     W, H = config.SCREEN_W, config.SCREEN_H
-    assets.draw_image(assets.image('backgrounds/screen_ending.png'), W // 2, 0)
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.72)          # 그림 위에서도 글자가 읽히게 어둡게 덮는다
+    assets.draw_image(assets.image(f'backgrounds/{_scene}.png'), W // 2, 0)   # 탈출 뒤 장면 (Codex T35)
+    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.5)           # 그림 위에서도 글자가 읽히게 어둡게 덮는다
     y = int(scroll) - 40                                          # 첫 줄은 화면 아래에서 시작한다
     for kind, text in CREDITS:
         step, color, big, small = STYLE[kind]

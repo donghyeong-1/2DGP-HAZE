@@ -213,6 +213,19 @@ def test_options_click_sets_resolution_and_confine():
         options.PATH = old
         options.reset()
 
+def test_credits_scenes_change_as_credits_scroll():
+    """Codex T35: 크레딧이 흐르는 동안 탈출 뒤 장면 3장이 차례로 바뀐다."""
+    import credits_mode
+    from PIL import Image
+    total = credits_mode.total_height() + config.SCREEN_H * 0.5 + 180
+    names = [credits_mode.scene_for(total * k) for k in (0.0, 0.2, 0.45, 0.7, 0.99)]
+    assert names[0] == 'credits_1' and names[-1] == 'credits_3' and 'credits_2' in names
+    assert names == sorted(names)                                     # 앞으로만 넘어간다
+    for n in ('credits_1', 'credits_2', 'credits_3'):
+        assert Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'backgrounds',
+                                       n + '.png')).size == (1920, 1080)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

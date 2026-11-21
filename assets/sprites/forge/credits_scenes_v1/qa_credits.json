@@ -1,0 +1,190 @@
+{
+  "lower_center_box": [
+    480,
+    720,
+    1440,
+    1080
+  ],
+  "scenes": [
+    {
+      "scene": 1,
+      "size": [
+        1920,
+        1080
+      ],
+      "colors": 32,
+      "alpha": [
+        255
+      ],
+      "sha256": "cf0cf2c30af92db66a00dfa4227a6b3dc1939da62968305159a45d9ebd82b1f3",
+      "lower_center": {
+        "p50": 0.0082,
+        "p95": 0.0082,
+        "max": 0.0132
+      },
+      "upper_center": {
+        "p50": 0.0416,
+        "p95": 0.3141,
+        "max": 0.5944
+      },
+      "sample_text": [
+        {
+          "text": "헤이즈 (HAZE)",
+          "px": 42,
+          "box_in_lower_third": [
+            818,
+            72,
+            1102,
+            111
+          ],
+          "min_contrast": 15.78,
+          "min_contrast_with_existing_shade": 16.99
+        },
+        {
+          "text": "기획 · 개발",
+          "px": 28,
+          "box_in_lower_third": [
+            890,
+            142,
+            1032,
+            168
+          ],
+          "min_contrast": 12.81,
+          "min_contrast_with_existing_shade": 13.8
+        },
+        {
+          "text": "2026년 2학기 2D 게임 프로그래밍 개인 프로젝트",
+          "px": 22,
+          "box_in_lower_third": [
+            704,
+            196,
+            1213,
+            217
+          ],
+          "min_contrast": 5.65,
+          "min_contrast_with_existing_shade": 6.08
+        }
+      ]
+    },
+    {
+      "scene": 2,
+      "size": [
+        1920,
+        1080
+      ],
+      "colors": 32,
+      "alpha": [
+        255
+      ],
+      "sha256": "a649bbe6170d2f01309bd7b8aaf76528bc8f7ec880707472fa8928097191de2d",
+      "lower_center": {
+        "p50": 0.0107,
+        "p95": 0.0371,
+        "max": 0.2597
+      },
+      "upper_center": {
+        "p50": 0.0371,
+        "p95": 0.2597,
+        "max": 0.7901
+      },
+      "sample_text": [
+        {
+          "text": "헤이즈 (HAZE)",
+          "px": 42,
+          "box_in_lower_third": [
+            818,
+            72,
+            1102,
+            111
+          ],
+          "min_contrast": 13.98,
+          "min_contrast_with_existing_shade": 16.64
+        },
+        {
+          "text": "기획 · 개발",
+          "px": 28,
+          "box_in_lower_third": [
+            890,
+            142,
+            1032,
+            168
+          ],
+          "min_contrast": 12.3,
+          "min_contrast_with_existing_shade": 13.72
+        },
+        {
+          "text": "2026년 2학기 2D 게임 프로그래밍 개인 프로젝트",
+          "px": 22,
+          "box_in_lower_third": [
+            704,
+            196,
+            1213,
+            217
+          ],
+          "min_contrast": 5.42,
+          "min_contrast_with_existing_shade": 6.05
+        }
+      ]
+    },
+    {
+      "scene": 3,
+      "size": [
+        1920,
+        1080
+      ],
+      "colors": 32,
+      "alpha": [
+        255
+      ],
+      "sha256": "4e4407c251148a8ffe5ad1f7efe07346ad5bf528917e146dd62f7a9e2557d8de",
+      "lower_center": {
+        "p50": 0.0102,
+        "p95": 0.0102,
+        "max": 0.0224
+      },
+      "upper_center": {
+        "p50": 0.3785,
+        "p95": 0.6803,
+        "max": 0.874
+      },
+      "sample_text": [
+        {
+          "text": "헤이즈 (HAZE)",
+          "px": 42,
+          "box_in_lower_third": [
+            818,
+            72,
+            1102,
+            111
+          ],
+          "min_contrast": 15.26,
+          "min_contrast_with_existing_shade": 16.89
+        },
+        {
+          "text": "기획 · 개발",
+          "px": 28,
+          "box_in_lower_third": [
+            890,
+            142,
+            1032,
+            168
+          ],
+          "min_contrast": 12.39,
+          "min_contrast_with_existing_shade": 13.71
+        },
+        {
+          "text": "2026년 2학기 2D 게임 프로그래밍 개인 프로젝트",
+          "px": 22,
+          "box_in_lower_third": [
+            704,
+            196,
+            1213,
+            217
+          ],
+          "min_contrast": 5.46,
+          "min_contrast_with_existing_shade": 6.05
+        }
+      ]
+    }
+  ]
+}

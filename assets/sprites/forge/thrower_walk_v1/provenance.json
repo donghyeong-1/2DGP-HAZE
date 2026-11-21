@@ -1,0 +1,54 @@
+{
+  "task": "T30",
+  "date_kst": "2026-11-21",
+  "art_source": "host_image",
+  "route": "Codex image_gen",
+  "model": null,
+  "estimateUsd": null,
+  "processor": "generate2dsprite 0.5.0",
+  "generated": [
+    {
+      "source": "walk/source_sheet.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "prompt": "walk/actual_prompt.txt",
+      "references": [
+        "assets/sprites/forge/remake_t01_t03/enemy_thrower/master/master_rgba.png",
+        "assets/sprites/forge/crasher_walk_death_v1/walk/gait_guide.png",
+        "reference_1x.png"
+      ],
+      "selected_frames": "walk-1, walk-2",
+      "sha256": "546f765bd91194686ede232828f87d45ad02bf0cebd391dad6225cb65ccdf7ca"
+    },
+    {
+      "source": "back/source_sheet.png",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "prompt": "back/actual_prompt.txt",
+      "references": [
+        "assets/sprites/forge/remake_t01_t03/enemy_thrower/master/master_rgba.png",
+        "walk/source_sheet.png"
+      ],
+      "selected_frames": "back-1, back-2",
+      "sha256": "aa4c71117c6c9a9400420fb2a180c0afea92167c7787f00e4ab8bd8961535c3d"
+    },
+    {
+      "source": "walk/alternate_source.png",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "prompt": "walk/alternate_prompt.txt",
+      "references": [
+        "walk/source_sheet.png",
+        "assets/sprites/forge/remake_t01_t03/enemy_thrower/master/master_rgba.png"
+      ],
+      "selected_frames": "walk-3, walk-4",
+      "sha256": "0f91fd26038a85bc059f4ac51f5cde78e8bb8febf92f20f80dc92aff8c2fde80"
+    }
+  ]
+}

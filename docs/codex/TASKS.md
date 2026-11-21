@@ -49,9 +49,9 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T27 | 보스 크래셔 걷기 4장 + 사망 2장 | [T27_crasher_walk_death.md](tasks/T27_crasher_walk_death.md) | - | done·게임 적용 2026-11-21 (걷기 4장 발 교대, 쓰러짐 2장 -> 2.5초 누워 있다가 흩어짐) |
 | T28 | 스테이지별 움직이는 배경 소품 12종 x 4장 | [T28_animated_props.md](tasks/T28_animated_props.md) | - | done·게임 적용 2026-11-21 (`assets/props/` 48장, 방 모양을 보고 자동 배치, 전투 방마다 4개, 은신처는 손으로 정한 모루·화로) |
 | T29 | 상점 페이지 그림 (스팀 규격 캡슐 5종 + 로고) | [T29_store_art.md](tasks/T29_store_art.md) | - | done·마무리 2026-11-21 (`tools/make_store_art.py`가 캡슐 4장에 로고 합성 -> `assets/store/`) |
-| T30 | 투척병 걷기 4장 + 뒤로 물러서기 2장 | [T30_thrower_walk.md](tasks/T30_thrower_walk.md) | - | ready |
-| T31 | 테마별 방 장식 소품 18종 (멈춘 그림, 글자 없음) | [T31_room_decor.md](tasks/T31_room_decor.md) | - | ready |
-| T32 | 대화 초상화 8장 (주인공·NPC 3명 x 표정 2) | [T32_dialog_portraits.md](tasks/T32_dialog_portraits.md) | - | ready |
+| T30 | 투척병 걷기 4장 + 뒤로 물러서기 2장 | [T30_thrower_walk.md](tasks/T30_thrower_walk.md) | - | done·게임 적용 2026-11-21 (걷기 4장·뒷걸음 2장, 투척병이 거리를 유지하며 움직이게 됨) |
+| T31 | 테마별 방 장식 소품 18종 (멈춘 그림, 글자 없음) | [T31_room_decor.md](tasks/T31_room_decor.md) | - | review |
+| T32 | 대화 초상화 8장 (주인공·NPC 3명 x 표정 2) | [T32_dialog_portraits.md](tasks/T32_dialog_portraits.md) | - | in_progress |
 | T33 | 구역 제목 카드 일러스트 3장 (1920x400) | [T33_zone_cards.md](tasks/T33_zone_cards.md) | - | ready |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)

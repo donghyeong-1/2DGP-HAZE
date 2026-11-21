@@ -30,6 +30,8 @@ FRAMES = {
     # 슬럼 폐인, 고철 투척병
     'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (2, 39, 118),
     'enemy_thrower_throw': (3, 41, 124), 'enemy_thrower_hurt': (2, 32, 124),
+    # Codex T30 (캔버스 105x131, 발 기준점 (62,127)): 걷기 4장(가까운 발 -> 먼 발), 플레이어를 본 채 뒷걸음 2장
+    'enemy_thrower_walk': (4, 62, 127), 'enemy_thrower_back': (2, 62, 127),
     # 사냥개, 간수 (Codex T12). 간수 걷기는 머리가 대기 그림보다 4px 앞에 있어 기준점을 3px 앞(43->46)으로 잡아 걷기 시작할 때 튀지 않게 한다
     'enemy_hound_run': (4, 60, 83), 'enemy_hound_bite': (3, 50, 82), 'enemy_hound_pounce': (2, 69, 84), 'enemy_hound_hurt': (2, 46, 82),
     'enemy_guard_walk': (4, 46, 136), 'enemy_guard_swing': (3, 57, 136), 'enemy_guard_heavy': (3, 68, 155),

@@ -262,3 +262,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-21 [Codex] T28 슬럼·공장·탑·은신처의 원경과 타일을 참조해 배경 소품 12종의 반복 4컷을 3×4 시트로 생성했다. 브래킷·받침은 고정하고 낙하와 파문, 좌우 흔들림, 점멸, 상하 왕복, 회전을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트는 assets/sprites/forge/props_anim_v1/provenance.json에서 연결.
 
 2026-11-21 [Codex] T29 기존 제목 화면·컷인·N-09·아크를 참조해 청록 투명 HAZE/헤이즈 로고, 감옥 헤더와 작은 상반신 배너, 두 인물의 대치, 아래에서 보는 탑, 감옥→공장→탑 파노라마를 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/store_art_v1/provenance.json에 연결.
+
+2026-11-21 [Codex] T30 투척병 승인 마스터와 걷기 가이드를 참조해 방패와 고철을 든 전진 4컷, 오른쪽을 보며 뒷발을 뻗고 앞발을 당기는 물러서기 2컷을 요청했다. 걷기 후반 두 컷은 장화와 무릎의 차이를 키워 재생성했다. Codex 내장 image_gen(모델명 미제공), 프롬프트 전문은 assets/sprites/forge/thrower_walk_v1/provenance.json에서 연결.
+
+2026-11-21 [Codex] T31 슬럼·공장·탑의 실제 원경·중경·타일과 T28 소품을 참조해 바닥 3종·벽 3종의 마젠타 시트를 테마별 한 장씩 생성했다. 왼쪽 위의 약한 빛, 글자 없는 얼굴 실루엣·톱니·마름모, 분리된 색면을 지정했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/room_decor_v1/provenance.json.

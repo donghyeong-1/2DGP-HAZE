@@ -268,13 +268,16 @@ class Enemy(TileBody):
                 self.vy, self.vx = 560.0, -self.face_dir * 330.0
                 self.hop_cooldown = 1.6
                 effects.spawn('puff', self.x, self.y + 10, duration=0.3)
-            elif self.on_ground:
-                self.vx = 0.0
+            elif self.on_ground:                          # 뛰기를 못 하면 플레이어를 본 채 뒷걸음 (낭떠러지면 멈춘다)
+                back = s.get('back_speed', 0.0) * self._speed()
+                self.vx = -self.face_dir * back if back > 0 and self._floor_behind() else 0.0
             return
-        if self._speed() <= 0:                            # 고정형(투척병)은 제자리에서 기다린다
+        if self._speed() <= 0:                            # 고정형은 제자리에서 기다린다
             self.vx = 0.0 if self.on_ground else self.vx
             return
         in_range = d <= s['attack_range'] and abs(dy) < s['reach_dy']
+        if s.get('approach'):                             # 투척병: 알맞은 거리(keep_away~approach)까지만 다가온다
+            in_range = d <= s['approach'] and abs(dy) < s['reach_dy']
         if in_range:                                      # 사거리 안이면 멈춰서 공격 차례를 기다린다
             self.vx = 0.0
             return
@@ -530,6 +533,8 @@ class Enemy(TileBody):
             name = frames.get(self.move, frames['attack'])     # 기술 전용 그림이 있으면 그것 (간수 내려찍기·방패 돌진, 사냥개 덮치기)
             return name, min(self._attack_frame(), sprites.count(name))
         moving = self.state in ('CHASE', 'IDLE') and self.on_ground and self.vx != 0
+        if moving and 'back' in frames and self.vx * self.face_dir < 0:    # 본 쪽과 반대로 움직이면 뒷걸음 그림 (투척병)
+            return frames['back'], int(self.walk_phase) % sprites.count(frames['back']) + 1
         if moving and 'walk' in frames:
             count = sprites.count(frames['walk'])
             return frames['walk'], int(self.walk_phase) % count + 1

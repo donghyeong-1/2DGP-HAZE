@@ -1,0 +1,122 @@
+{
+  "canvas": [
+    105,
+    131
+  ],
+  "anchor": [
+    62,
+    127
+  ],
+  "color_count": 41,
+  "duration_ms": 120,
+  "frames": {
+    "walk-1.png": {
+      "anchor": [
+        62,
+        127
+      ],
+      "bounds": [
+        31,
+        5,
+        96,
+        127
+      ],
+      "goggle_xy": [
+        73,
+        21
+      ],
+      "height": 122,
+      "colors": 41
+    },
+    "walk-2.png": {
+      "anchor": [
+        62,
+        127
+      ],
+      "bounds": [
+        35,
+        6,
+        88,
+        127
+      ],
+      "goggle_xy": [
+        76,
+        23
+      ],
+      "height": 121,
+      "colors": 41
+    },
+    "walk-3.png": {
+      "anchor": [
+        62,
+        127
+      ],
+      "bounds": [
+        25,
+        4,
+        101,
+        127
+      ],
+      "goggle_xy": [
+        74,
+        20
+      ],
+      "height": 123,
+      "colors": 39
+    },
+    "walk-4.png": {
+      "anchor": [
+        62,
+        127
+      ],
+      "bounds": [
+        32,
+        5,
+        89,
+        127
+      ],
+      "goggle_xy": [
+        76.0,
+        21.0
+      ],
+      "height": 122,
+      "colors": 36
+    },
+    "back-1.png": {
+      "anchor": [
+        62,
+        127
+      ],
+      "bounds": [
+        4,
+        13,
+        99,
+        127
+      ],
+      "goggle_xy": [
+        91,
+        32
+      ],
+      "height": 114,
+      "colors": 39
+    },
+    "back-2.png": {
+      "anchor": [
+        62,
+        127
+      ],
+      "bounds": [
+        38,
+        13,
+        99,
+        127
+      ],
+      "goggle_xy": [
+        91,
+        32
+      ],
+      "height": 114,
+      "colors": 39
+    }
+  }
+}

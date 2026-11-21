@@ -1,0 +1,132 @@
+{
+  "schema": "generate2dsprite.palette.v1",
+  "colors": [
+    {
+      "hex": "#181b22"
+    },
+    {
+      "hex": "#1f2325"
+    },
+    {
+      "hex": "#252826"
+    },
+    {
+      "hex": "#222837"
+    },
+    {
+      "hex": "#292c2a"
+    },
+    {
+      "hex": "#2e302e"
+    },
+    {
+      "hex": "#2e2f40"
+    },
+    {
+      "hex": "#223837"
+    },
+    {
+      "hex": "#363636"
+    },
+    {
+      "hex": "#3e342c"
+    },
+    {
+      "hex": "#3d3c3d"
+    },
+    {
+      "hex": "#324446"
+    },
+    {
+      "hex": "#45434b"
+    },
+    {
+      "hex": "#49474f"
+    },
+    {
+      "hex": "#2e5e62"
+    },
+    {
+      "hex": "#565552"
+    },
+    {
+      "hex": "#5e5444"
+    },
+    {
+      "hex": "#63605e"
+    },
+    {
+      "hex": "#815d44"
+    },
+    {
+      "hex": "#3d7c83"
+    },
+    {
+      "hex": "#71706f"
+    },
+    {
+      "hex": "#9e633a"
+    },
+    {
+      "hex": "#aa6a3d"
+    },
+    {
+      "hex": "#37939b"
+    },
+    {
+      "hex": "#9a7253"
+    },
+    {
+      "hex": "#838283"
+    },
+    {
+      "hex": "#8d846a"
+    },
+    {
+      "hex": "#37a4ae"
+    },
+    {
+      "hex": "#be7c4a"
+    },
+    {
+      "hex": "#5aa0a5"
+    },
+    {
+      "hex": "#b18968"
+    },
+    {
+      "hex": "#49b1bc"
+    },
+    {
+      "hex": "#959496"
+    },
+    {
+      "hex": "#d28c56"
+    },
+    {
+      "hex": "#df985e"
+    },
+    {
+      "hex": "#a9aaab"
+    },
+    {
+      "hex": "#e6a468"
+    },
+    {
+      "hex": "#f2b475"
+    },
+    {
+      "hex": "#f7bf80"
+    },
+    {
+      "hex": "#fcd198"
+    },
+    {
+      "hex": "#0b1020",
+      "name": "outline"
+    }
+  ],
+  "transparent_index": 255,
+  "locked": false,
+  "source": "finish_frames hibit: 40 body colour(s) (k-means++ on luminance-weighted RGB of 47293 opaque source pixel(s), seed 0); outline #0b1020 #0b1020"
+}

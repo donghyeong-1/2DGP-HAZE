@@ -247,6 +247,7 @@ SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
 # leap: 위층의 플레이어를 쫓아 뛰어오르는 속도(0이면 못 뛴다)
 # moves: (기술, 가중치) 목록. 첫 기술이 기본기(첫 공격). 기술 정의는 src/enemy.py MOVES
 # speed_jitter: 적마다 이동 속도가 이 범위에서 조금씩 다르다, stagger: 가끔 비틀거리며 멈춤, retreat: 공격 뒤 물러나는 시간(초)
+# approach: 이보다 멀면 다가오고 가까우면 멈춰 선다(투척병), back_speed: 뒷걸음 속도 배율
 # patrol: 플레이어를 보기 전 제자리 좌우로 순찰하는 거리(px), keep_away: 이보다 가까우면 뒤로 뛴다, super_armor: 공격 중 경직 없음
 ENEMY_STATS = {
     'slum': dict(hp=90, hb=(42, 102), speed=210.0, sight=700, sight_dy=480, attack_range=95, reach_dy=200, damage=12,
@@ -254,10 +255,11 @@ ENEMY_STATS = {
                  leap=1250.0, moves=[('swing', 3), ('combo', 2), ('lunge', 2)], lunge_speed=560.0,
                  speed_jitter=(0.85, 1.15), stagger=True, retreat=0.25, patrol=110,
                  frames=dict(walk='enemy_slum_walk', attack='enemy_slum_attack', hurt='enemy_slum_hurt')),
-    'thrower': dict(hp=45, hb=(48, 108), speed=0.0, sight=900, sight_dy=130, attack_range=820, reach_dy=130, damage=10,
+    'thrower': dict(hp=45, hb=(48, 108), speed=110.0, sight=900, sight_dy=130, attack_range=820, reach_dy=130, damage=10,
                     windup=0.55, attack_time=0.1, cooldown=2.2, gain_on_hit=0, sprite='enemy_thrower_idle',
                     projectile_speed=620.0, leap=0.0, moves=[('throw', 3), ('volley', 1), ('lob', 2)], keep_away=300,
-                    frames=dict(attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
+                    approach=600, back_speed=0.8, walk_px=34.0,      # 11/21 T30: 600px보다 멀면 걸어서 다가오고, 300px 안이면 물러난다
+                    frames=dict(walk='enemy_thrower_walk', back='enemy_thrower_back', attack='enemy_thrower_throw', hurt='enemy_thrower_hurt')),
     # 사냥개: 빠르고 약하다. 멀리서 달려와 물고, 위층도 뛰어오른다. walk_px: 달리기 프레임 한 장이 지나가는 거리(보폭이 커서 길게)
     'hound': dict(hp=50, hb=(84, 70), speed=400.0, sight=900, sight_dy=480, attack_range=110, reach_dy=120, damage=9,
                   windup=0.28, attack_time=0.12, cooldown=0.9, gain_on_hit=0, sprite='enemy_hound_idle', leap=1300.0,

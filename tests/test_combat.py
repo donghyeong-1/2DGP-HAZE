@@ -1592,6 +1592,43 @@ def test_fade_jump_attack_is_a_front_slash_not_a_circle():
     p.weapon._attack_spin(False)
     assert behind.hp < 1000                                             # 노멀은 그대로 한 바퀴
 
+# ----- 투척병 거리 유지 (2026-11-21 Codex T30 그림: 걷기 4장·물러서기 2장) -----
+# 멀면(THROWER_APPROACH 넘게) 걸어서 다가오고, 가까우면(keep_away 안) 뛰어 물러나거나 뛰기를 못 하면 플레이어를 본 채 뒷걸음.
+def test_thrower_walks_closer_when_player_is_far():
+    room, p = make_world(player_x=200.0)
+    t = add_enemy('thrower', 200.0 + 1100, room, p)
+    p.hp = p.max_hp = 10 ** 6
+    t.see()
+    t.cooldown = 5.0                                                        # 던지기 전에 걷는 것만 본다
+    x0 = t.x
+    step(30)
+    assert t.x < x0 - 30 and t.face_dir == -1                               # 플레이어 쪽으로 걸었다
+    assert t._body_frame()[0] == 'enemy_thrower_walk'
+
+
+def test_thrower_stands_in_the_middle_band():
+    room, p = make_world(player_x=300.0)
+    t = add_enemy('thrower', 300.0 + 450, room, p)
+    t.see()
+    t.cooldown = 5.0
+    x0 = t.x
+    step(30)
+    assert abs(t.x - x0) < 2                                                # 알맞은 거리: 서서 던질 차례를 기다린다
+
+
+def test_thrower_backsteps_facing_player_when_it_cannot_hop():
+    room, p = make_world(player_x=300.0)
+    t = add_enemy('thrower', 300.0 + 200, room, p)
+    p.hp = p.max_hp = 10 ** 6
+    t.see()
+    t.cooldown = 5.0
+    t.hop_cooldown = 5.0                                                    # 뛰어 물러나기는 아직 못 한다
+    x0 = t.x
+    step(20)
+    assert t.x > x0 + 15 and t.face_dir == -1                               # 플레이어를 본 채 뒤로
+    assert t._body_frame()[0] == 'enemy_thrower_back'
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

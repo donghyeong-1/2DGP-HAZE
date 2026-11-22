@@ -113,7 +113,7 @@ def _draw_summary(cx):
     rows = len(wide) + (len(rest) + 1) // 2
     h = 70 + rows * SUM_ROW
     x, y = cx - SUM_W // 2, 790 - h
-    kit.panel('panel', x, y, SUM_W, h)
+    kit.card(x, y, SUM_W, h)                       # 메뉴 v2 카드 (11/22)
     top = y + h - 40
     for i, (name, value) in enumerate(wide):
         ty = top - i * SUM_ROW
@@ -150,8 +150,8 @@ def draw():
         for i, item_id in enumerate(choices):
             x = x0 + i * gap
             hot = i == choice
-            assets.draw_rect_color(x - 34, 372, 68, 68, (11, 16, 32))
-            assets.draw_rect_color(x - 32, 374, 64, 64, (90, 70, 150) if hot else (34, 40, 60))
+            assets.draw_rect_color(x - 36, 370, 72, 72, kit.ACCENT if hot else kit.EDGE)
+            assets.draw_rect_color(x - 33, 373, 66, 66, kit.ROW_HOT if hot else kit.ROW_BG)
             if item_id is None:
                 assets.draw_text(x, 406, '없음', (200, 210, 230), small=True, center=True)
             else:
@@ -160,11 +160,11 @@ def draw():
         name = '맡기지 않기' if sel is None else items.ITEMS[sel]['name'] + (
             ' (1단계로)' if sel in items.UPGRADES else '')
         assets.draw_text(cx, 330, name, (255, 225, 140), center=True)
-        assets.draw_text(cx, 270, 'A D 고르기   Enter 맡기기', (150, 160, 185), small=True, center=True)
+        kit.footer([('A D', '고르기'), ('Enter', '맡기기')], y=256)
     else:
         if kept:
             assets.draw_text(cx, 470, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
-        assets.draw_text(cx, 400, f'아무 키나 누르면 {nxt}', (150, 160, 185), center=True)
+        kit.footer([('아무 키', nxt)], y=380)
     import transition
     transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
     update_canvas()

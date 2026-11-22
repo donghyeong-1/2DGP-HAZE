@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T41 헤이즈 쥐 떼 / 수정 중인 파일: assets/sprites/forge/rat_v1/, docs/codex/reports/T41.md
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -232,3 +232,9 @@
 2026-11-22 [Codex] T39 탑 결정 기사 마스터 1장과 동작 14장 제작, 걷기 발 교대·순간이동 파편·베기 예고 1배 확인(검토 대기) / assets/sprites/forge/knight_v1/, docs/codex/reports/T39.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Codex] T40 탑 헤이즈 망령 마스터 1장과 동작 10장 제작, 두 눈·꼬리 움직임·흡수 예고 1배 확인(검토 대기) / assets/sprites/forge/wraith_v1/, docs/codex/reports/T40.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] HUD v4 전면 수정(네 귀퉁이 배치, 체력 깎인 자국, 오른쪽 아래 무기·강화 행동 칸, 미니맵 아래 칩, 얇은 보스 막대, 가운데 큰 띠 제거)·튜토리얼 카드를 왼쪽 위로 / src/(ui, tutorial), docs/(DECISIONS, PROGRESS)
+2026-11-22 [Codex] T41 슬럼 헤이즈 쥐 마스터 1장과 동작 9장 제작, 접지·물기 예고·1배 GIF 확인(검토 대기) / assets/sprites/forge/rat_v1/, docs/codex/reports/T41.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Codex] T42 슬럼 누더기 무당 마스터 1장과 동작 11장 제작, 뒷걸음 접지·결정 발광·1배 GIF 확인(검토 대기) / assets/sprites/forge/shaman_v1/, docs/codex/reports/T42.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Codex] T44 헤이즈 변이 문양 4장·카드 테두리 3장·방 보상 6장 제작, 1배 가독성·9분할 검증(검토 대기) / assets/sprites/forge/mutation_ui_v1/, docs/codex/reports/T44.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Codex] T45 헤이즈 심장 본체 6장 제작, 껍질 고정·약점 좌표·1배 보스방 합성 검증(검토 대기) / assets/sprites/forge/heart_core_v1/, docs/codex/reports/T45.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Codex] T48 슬럼·공장·탑 전경 실루엣 3장 제작, 가로 반복과 투명 전투 영역 1배 검증(검토 대기) / assets/sprites/forge/foreground_v1/, docs/codex/reports/T48.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Claude Code] 메뉴 v2: 공통 메뉴 부품(덮개·제목·줄 카드·알약·카드·키 안내)으로 타이틀 버튼·일시정지(조작·이번 판 카드)·설정·키 바꾸기·NPC·사망 화면 수정 / src/(hud_kit, ui, pause_mode, options_mode, keys_mode, npc_mode, ending_mode, title_mode), docs/*

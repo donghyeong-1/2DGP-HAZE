@@ -153,37 +153,34 @@ def update():
 
 
 def draw_panel():
-    kit.panel('panel', PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
-    kit.text(W // 2, PANEL_Y + PANEL_H - 70, '키 바꾸기', (235, 240, 250), center=True, big=True)
-    kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', (110, 125, 150), small=True, center=True)
-    kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', (110, 125, 150), small=True, center=True)
+    """키 바꾸기 화면 (11/22 메뉴 v2): 줄마다 카드, 기본·보조 칸은 키 글자 알약."""
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '키 바꾸기', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꾸지 않는다)')
+    kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', kit.FAINT, small=True, center=True)
+    kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', kit.FAINT, small=True, center=True)
     for i, action in enumerate(keybinds.IDS):
         cy = ROW_Y[i]
         on = i == row
-        if on:
-            kit.panel('plate', PANEL_X + 30, cy - 30, PANEL_W - 60, 60)
-        kit.text(PANEL_X + 60, cy, keybinds.NAMES[action], (235, 240, 250) if on else (160, 176, 205))
+        kit.row(PANEL_X, cy - 27, PANEL_W, 54, on)
+        kit.text(PANEL_X + 34, cy, keybinds.NAMES[action], (240, 248, 255) if on else (190, 202, 225))
         for s in (0, 1):
             wait = listening == (action, s)
             hot = wait or (on and col == s)
-            kit.panel('button_hot' if hot else 'button', SLOT_X[s], cy - 24, SLOT_W, 48)
             label = '키를 누르세요' if wait else keybinds.key_name(keybinds.keys(action)[s])
-            color = (255, 225, 140) if wait else (235, 245, 255) if hot else (150, 165, 190)
-            kit.text(SLOT_X[s] + SLOT_W // 2, cy, label, color, small=True, center=True)
-    kit.text(W // 2, PANEL_Y + 150, message or '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꾸지 않는다)',
-             (130, 235, 225) if message else (110, 125, 150), small=True, center=True)
+            kit.pill(SLOT_X[s], cy - 21, SLOT_W, 42, label, hot)
+    if message:
+        kit.text(W // 2, PANEL_Y + 150, message, kit.ACCENT, small=True, center=True)
     for i, b in enumerate(buttons):
         b.draw(row == BUTTON_ROW and col == i)
-    hint = ('아무 키나 누르면 그 칸에 들어간다   Backspace 보조 칸 비우기   Esc 취소' if listening else
-            'W S 줄   A D 칸   Enter 바꾸기   다른 동작이 쓰던 키면 서로 맞바뀐다   Esc 돌아가기')
-    kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)          # 아래 화면(타이틀 조작 줄)을 가린다
-    kit.text(W // 2, 44, hint, (110, 125, 150), small=True, center=True)
+    if listening:
+        kit.footer([('아무 키', '그 칸에 넣기'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')])
+    else:
+        kit.footer([('W S', '줄'), ('A D', '칸'), ('Enter', '바꾸기'), ('Esc', '돌아가기')])
 
 
 def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.6)
+    kit.backdrop(1.0)                # 설정 화면 위에 겹치므로 완전히 가린다
     draw_panel()
     update_canvas()

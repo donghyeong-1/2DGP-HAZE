@@ -95,7 +95,8 @@ def draw_frozen():
     kit.text(W // 2, 556, '안개를 삼키고 탈출하라', (150, 220, 245), center=True)
     for i, b in enumerate(MENU):
         b.draw(i == selected)
-    kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)
+    assets.draw_rect_color(0, 20, W, 48, (5, 8, 15), 0.78)            # 조작 줄 (메뉴 v2: 판 없이 어두운 띠)
+    assets.draw_rect_color(0, 66, W, 2, kit.EDGE)
     kit.text(W // 2, 44, controls_text(), (175, 190, 215), small=True, center=True)
 
 

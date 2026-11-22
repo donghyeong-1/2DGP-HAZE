@@ -148,24 +148,24 @@ def update():
 
 
 def draw():
+    """NPC 창 (11/22 메뉴 v2): 덮개 + 큰 이름 제목 + 줄 카드, 양옆 대화 초상화, 결정 수는 오른쪽 위."""
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.62)
-    kit.panel('panel', PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
+    kit.backdrop(0.9)
     color = npc_mod.COLORS[kind]
-    kit.text(PANEL_X + 50, PANEL_Y + PANEL_H - 70, f'{npc_mod.NAMES[kind]} · {npc_mod.ROLES[kind]}', color, big=True)
-    kit.text(PANEL_X + PANEL_W - 50, PANEL_Y + PANEL_H - 66, f'헤이즈 결정 {meta.state["crystals"]}', (130, 235, 225),
-             right=True)
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 50, npc_mod.NAMES[kind], npc_mod.ROLES[kind], color=color)
+    crystals = f'헤이즈 결정 {meta.state["crystals"]}'
+    kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 50, crystals, (130, 235, 225), right=True)
     buttons = _buttons()
     for i, (title, value, desc, key) in enumerate(rows()):
         b = buttons[i]
         hot = i == selected
-        kit.panel('plate' if hot else 'button', b.x, b.y, b.w, b.h)
-        kit.text(b.x + 30, b.y + b.h - 30, title, (235, 240, 250) if hot or key else (175, 188, 210),
+        kit.row(b.x, b.y, b.w, b.h, hot)
+        kit.text(b.x + 34, b.y + b.h - 30, title, (240, 248, 255) if hot or key else (190, 202, 225),
                  small=key is None and kind == 'archivist')
         if desc:
-            kit.text(b.x + 30, b.y + 22, desc, (125, 140, 165), small=True)
+            kit.text(b.x + 34, b.y + 22, desc, (140, 155, 182) if hot else kit.FAINT, small=True)
         if value:
             ok = key is None or key == 'unlock' and meta.state['crystals'] >= config.META_KEEPER_PRICE or (
                 key in meta.UPGRADES and meta.can_buy(key))
@@ -175,5 +175,5 @@ def draw():
         assets.draw_image(assets.image(f'portraits/{name}.png'), x + PORTRAIT // 2, y)
     if note:
         kit.text(W // 2, PANEL_Y + 120, note, (255, 240, 150), center=True)
-    kit.text(W // 2, PANEL_Y - 26, 'W S 고르기   Enter 결정   Esc·F 닫기', (110, 125, 150), small=True, center=True)
+    kit.footer([('W S', '고르기'), ('Enter', '결정'), ('Esc', '닫기')])
     update_canvas()

@@ -21,11 +21,11 @@ W, H = config.SCREEN_W, config.SCREEN_H
 ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'damage', 'keys', 'back')
 ROWS = ITEMS[:-1]
 ROW_STEP = 74
-PANEL_W, PANEL_H = 1180, 250 + ROW_STEP * len(ROWS)
+PANEL_W, PANEL_H = 1440, 250 + ROW_STEP * len(ROWS)
 PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     # 항목 줄의 가운데 y
-VALUE_X = PANEL_X + 470                                          # 값 칸이 시작하는 x
-VALUE_W = 660
+VALUE_X = PANEL_X + 600                                          # 값 칸이 시작하는 x
+VALUE_W = 800
 NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
          'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'keys': '키 바꾸기'}
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
@@ -204,46 +204,38 @@ def lines():
 
 
 def draw_panel():
-    """설정 판 (타이틀·일시정지 위에 덮는다)."""
-    kit.panel('panel', PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
-    kit.text(W // 2, PANEL_Y + PANEL_H - 70, '설정', (235, 240, 250), center=True, big=True)
+    """설정 화면 (11/22 메뉴 v2: 큰 판 없이 화면 전체 덮개 + 줄마다 카드 + 값은 알약 칸)."""
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '설정', '바꾼 값은 바로 저장된다')
     current_of = {'shake': options.shake_level, 'flash': options.reduce_flash,
                   'resolution': options.resolution, 'confine': options.confine_mouse, 'hints': options.show_hints,
                   'damage': options.show_damage}
     for i, item in enumerate(ROWS):
         cy = ROW_Y[i]
         on = i == selected
-        if on:
-            kit.panel('plate', PANEL_X + 30, cy - 42, PANEL_W - 60, 84)
-        kit.text(PANEL_X + 60, cy + 12, NAMES[item], (235, 240, 250) if on else (160, 176, 205))
-        kit.text(PANEL_X + 60, cy - 20, DESCS[item], (110, 125, 150), small=True)
+        kit.row(PANEL_X, cy - 34, PANEL_W, 68, on)
+        kit.text(PANEL_X + 34, cy + 11, NAMES[item], (240, 248, 255) if on else (190, 202, 225))
+        kit.text(PANEL_X + 34, cy - 17, DESCS[item], (140, 155, 182) if on else kit.FAINT, small=True)
         if item == 'keys':
-            kit.panel('button_hot' if on else 'button', VALUE_X, cy - 26, VALUE_W - 8, 52)
-            kit.text(VALUE_X + (VALUE_W - 8) // 2, cy, f'키 바꾸기 ({keys_summary()})  >', (235, 245, 255) if on else (150, 165, 190),
-                     small=True, center=True)
+            kit.pill(VALUE_X, cy - 24, VALUE_W - 8, 48, f'키 바꾸기 ({keys_summary()})  >', False, focus=on)
         elif item in SEGMENTED:
             current = current_of[item]
             for value, label, x, w in _segments(item):
-                hot = value == current
-                kit.panel('button_hot' if hot else 'button', x, cy - 26, w, 52)
-                kit.text(x + w // 2, cy, label, (235, 245, 255) if hot else (120, 135, 160), small=True, center=True)
+                kit.pill(x, cy - 22, w, 44, label, value == current, focus=on)
         else:
             level = options.music_level if item == 'music' else options.sfx_level
-            kit.bar('cyan', VALUE_X, cy - 6, VALUE_W - 60, 12, level / options.VOLUME_MAX)
-            kx = VALUE_X + round((VALUE_W - 60) * level / options.VOLUME_MAX) - 11
+            kit.bar('cyan', VALUE_X, cy - 6, VALUE_W - 70, 12, level / options.VOLUME_MAX)
+            kx = VALUE_X + round((VALUE_W - 70) * level / options.VOLUME_MAX) - 11
             kit.icon('ui_knob', kx, cy - 17)
-            kit.text(VALUE_X + VALUE_W - 20, cy, str(level), (235, 245, 255), center=True)
+            kit.text(VALUE_X + VALUE_W - 24, cy, str(level), (235, 245, 255), center=True)
     back_button.draw(selected == len(ROWS))
-    kit.panel('plate', (W - 1500) // 2, 22, 1500, 44)          # 아래 화면(타이틀 조작 줄)을 가린다
-    kit.text(W // 2, 44, 'W S 항목   A D 값 바꾸기   마우스로 눌러도 된다   Esc 돌아가기', (110, 125, 150), small=True,
-             center=True)
+    kit.footer([('W S', '항목'), ('A D', '값 바꾸기'), ('Enter', '결정'), ('Esc', '돌아가기')])
 
 
 def draw_frozen():
     """키 바꾸기 창이 아래에 깔 때: 아래 화면 + 설정 판."""
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.6)
+    kit.backdrop(0.92)
     draw_panel()
 
 
@@ -251,6 +243,6 @@ def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()                       # 멈춘 화면 위에 덮는다
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.6)
+    kit.backdrop(0.92)
     draw_panel()
     update_canvas()

@@ -11,10 +11,11 @@ import game_world
 import hud_kit as kit
 
 W, H = config.SCREEN_W, config.SCREEN_H
-PANEL_W, PANEL_H = 1240, 600
-PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
-MENU = [kit.Button(key, label, PANEL_X + 60, PANEL_Y + PANEL_H - 230 - i * 86, 380, 64)
+LEFT_X = 150                       # 메뉴 줄 왼쪽 (11/22 메뉴 v2: 큰 판 없이 화면 전체를 덮는다)
+MENU = [kit.Button(key, label, LEFT_X, H - 380 - i * 84, 420, 66)
         for i, (key, label) in enumerate((('resume', '계속하기'), ('options', '설정'), ('title', '타이틀로')))]
+CARD_H = 140 + 50 * 9             # 오른쪽 카드 두 장: 조작 / 이번 판 (조작 9줄 높이)
+CARD_Y = H - 314 - CARD_H + 66
 
 
 def controls():
@@ -93,21 +94,67 @@ def draw_frozen():
     assets.draw_offset = (0, 0)
 
 
+def _key_tokens(keys):
+    """'A  D', 'S + Space' -> 키 글자 판으로 그릴 조각들 ('+'는 글자 그대로)."""
+    return [k for k in keys.replace('/', ' ').split() if k]
+
+
+def _draw_controls(x, y, w, h):
+    kit.card(x, y, w, h, '조작')
+    for i, (keys, what) in enumerate(controls()):
+        ry = y + h - 110 - i * 50
+        kx = x + 28
+        for tok in _key_tokens(keys):
+            if tok == '+':
+                kit.text(kx + 2, ry + 15, '+', kit.FAINT, small=True)
+                kx += 22
+                continue
+            kx += kit.keycap(kx, ry, tok) + 6
+        kit.text(x + 250, ry + 15, what, (205, 215, 235), small=True)
+
+
+def _draw_build(x, y, w, h):
+    """이번 판: 변이(계열 색)와 업그레이드."""
+    import play_mode
+    import items
+    import mutations as mu
+    p = play_mode.player
+    kit.card(x, y, w, h, '이번 판')
+    ty = y + h - 110
+    muts = list(getattr(p, 'mutations', [])) if p is not None else []
+    if not muts and not (p is not None and p.items):
+        kit.text(x + 28, ty + 15, '아직 얻은 것이 없다', kit.FAINT, small=True)
+        return
+    for mid in muts:
+        m = mu.MUTATIONS[mid]
+        color = mu.FAMILIES[m['family']]['color']
+        assets.draw_rect_color(x + 28, ty + 4, 14, 22, color)
+        kit.text(x + 54, ty + 15, m['name'], (235, 242, 252), small=True)
+        kit.text(x + w - 28, ty + 15, mu.FAMILIES[m['family']]['name'], color, small=True, right=True)
+        ty -= 40
+    if muts:
+        ty -= 10
+    counts = {}
+    for item_id in (p.items if p is not None else []):
+        counts[item_id] = counts.get(item_id, 0) + 1
+    for item_id, n in counts.items():
+        if ty < y + 20:
+            break
+        kit.icon(f'icon_{item_id}', x + 24, ty - 12)
+        kit.text(x + 84, ty + 15, items.ITEMS[item_id]['name'] + (f' x{n}' if n > 1 else ''), (205, 215, 235), small=True)
+        ty -= 58
+
+
 def draw():
     clear_canvas()
     draw_frozen()
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.62)
-    kit.panel('panel', PANEL_X, PANEL_Y, PANEL_W, PANEL_H)
-    kit.text(PANEL_X + 250, PANEL_Y + PANEL_H - 80, '일시정지', (235, 240, 250), center=True, big=True)
+    kit.backdrop(0.9)
+    import play_mode
+    st = getattr(play_mode, 'stage', None)
+    kit.heading(LEFT_X, H - 150, '일시정지', getattr(st, 'title', '') or None)
     for i, b in enumerate(MENU):
-        b.draw(i == selected)
-    # 조작 안내 (오른쪽)
-    gx, gy = PANEL_X + 500, PANEL_Y + 40
-    kit.panel('plate', gx, gy, PANEL_W - 540, PANEL_H - 80)
-    kit.text(gx + 30, gy + PANEL_H - 130, '조작', (130, 235, 225))
-    for i, (key, what) in enumerate(controls()):
-        y = gy + PANEL_H - 180 - i * 42
-        kit.text(gx + 30, y, key, (255, 225, 140), small=True)
-        kit.text(gx + 230, y, what, (200, 212, 232), small=True)
-    kit.text(PANEL_X + 250, PANEL_Y + 40, 'Esc 계속  O 설정  Q 타이틀', (110, 125, 150), small=True, center=True)
+        b.draw(i == selected, left=True)
+    _draw_controls(660, CARD_Y, 700, CARD_H)
+    _draw_build(1390, CARD_Y, 400, CARD_H)
+    kit.footer([('Esc', '계속'), ('O', '설정'), ('Q', '타이틀로'), ('W S', '고르기'), ('Enter', '결정')])
     update_canvas()

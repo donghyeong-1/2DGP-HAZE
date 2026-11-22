@@ -85,14 +85,15 @@ class Button:
     def contains(self, mx, my):
         return self.x <= mx < self.x + self.w and self.y <= my < self.y + self.h
 
-    def draw(self, hot, label=None):
-        panel('button_hot' if hot else 'button', self.x, self.y, self.w, self.h)
-        color = (235, 245, 255) if hot else (160, 176, 205)
-        text(self.x + self.w // 2, self.y + self.h // 2, label or self.label, color, center=True)
-        if hot:                                            # 고른 버튼 앞의 화살표
-            ax, ay = self.x - 26, self.y + self.h // 2
-            for i in range(8):
-                assets.draw_rect_color(ax + i, ay - 8 + i, 2, 16 - 2 * i, (130, 235, 225))
+    def draw(self, hot, label=None, left=False):
+        """메뉴 줄 모양(11/22 메뉴 v2): 고르면 밝은 속 + 왼쪽 강조 띠 + 화살표, 아니면 어두운 속 + 얇은 테두리."""
+        row(self.x, self.y, self.w, self.h, hot)
+        color = (240, 248, 255) if hot else (150, 165, 192)
+        s = label or self.label
+        if left:
+            text(self.x + 34, self.y + self.h // 2, s, color)
+        else:
+            text(self.x + self.w // 2, self.y + self.h // 2, s, color, center=True)
 
 
 def menu_pick(buttons, selected, event, height):
@@ -123,3 +124,84 @@ def menu_pick(buttons, selected, event, height):
             assets.play_sound('ui_select')
             return selected, 'click'
     return selected, None
+
+
+# ----- 메뉴 공통 모양 (2026-11-22 메뉴 v2: 일시정지·설정·키·NPC·사망 화면이 같이 쓴다) -----
+ACCENT = (130, 235, 225)
+EDGE = (46, 56, 82)
+ROW_BG = (16, 22, 38)
+ROW_HOT = (30, 46, 72)
+FAINT = (120, 134, 160)
+
+
+def backdrop(alpha=0.8):
+    """멈춘 화면 위를 어둡게 덮는다. 위아래 가장자리는 더 진하게(글자가 놓이는 곳)."""
+    import config
+    w, h = config.SCREEN_W, config.SCREEN_H
+    assets.draw_rect_color(0, 0, w, h, (5, 8, 15), alpha)
+    for i in range(4):                                     # 위·아래 띠 (계단식으로 옅어진다)
+        a = 0.5 * (1 - i / 4)
+        assets.draw_rect_color(0, h - 60 - i * 30, w, 30, (5, 8, 15), a)
+        assets.draw_rect_color(0, 30 + i * 30, w, 30, (5, 8, 15), a)
+    assets.draw_rect_color(0, 0, w, 30, (5, 8, 15), 0.6)
+    assets.draw_rect_color(0, h - 30, w, 30, (5, 8, 15), 0.6)
+
+
+def heading(x, y, title, sub=None, color=(240, 246, 255)):
+    """큰 제목(왼쪽 정렬, 글자 가운데 y) + 아래 강조선 + 작은 부제."""
+    text(x, y, title, color, big=True)
+    assets.draw_rect_color(int(x), int(y) - 40, 120, 4, ACCENT)
+    assets.draw_rect_color(int(x) + 124, int(y) - 40, 40, 4, EDGE)
+    if sub:
+        text(x + 180, y - 38, sub, FAINT, small=True)
+
+
+def row(x, y, w, h, hot):
+    """메뉴 줄 바탕 (불투명). 고른 줄은 밝은 속·테두리·왼쪽 강조 띠·화살표."""
+    x, y, w, h = int(x), int(y), int(w), int(h)
+    assets.draw_rect_color(x, y, w, h, ACCENT if hot else EDGE)
+    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, ROW_HOT if hot else ROW_BG)
+    if hot:
+        assets.draw_rect_color(x + 2, y + 2, 8, h - 4, ACCENT)
+        ax, ay = x - 22, y + h // 2
+        for i in range(8):
+            assets.draw_rect_color(ax + i, ay - 8 + i, 2, 16 - 2 * i, ACCENT)
+
+
+def keycap(x, y, label, hot=True):
+    """키 글자 판 (왼쪽 아래 x, y, 높이 30). 폭은 글자에 맞춘다. 돌려주는 값은 폭."""
+    w = max(34, assets.text_width(label, True) + 16)
+    assets.draw_rect_color(int(x), int(y), w, 30, EDGE)
+    assets.draw_rect_color(int(x) + 2, int(y) + 4, w - 4, 24, (26, 34, 54) if hot else (18, 22, 34))
+    text(int(x) + w // 2, int(y) + 16, label, (235, 245, 255) if hot else FAINT, small=True, center=True)
+    return w
+
+
+def footer(pairs, y=34):
+    """화면 아래 가운데 키 안내: [(키, 설명)] -> 키 글자 판 + 설명, 사이 간격."""
+    import config
+    widths = [max(34, assets.text_width(k, True) + 16) + 10 + assets.text_width(d, True) for k, d in pairs]
+    total = sum(widths) + 44 * (len(pairs) - 1)
+    x = (config.SCREEN_W - total) // 2
+    for (k, d), w in zip(pairs, widths):
+        kw = keycap(x, y, k)
+        text(x + kw + 10, y + 15, d, (175, 188, 212), small=True)
+        x += w + 44
+
+
+def pill(x, y, w, h, label, on, focus=False):
+    """값 고르기 칸: 고른 값은 청록으로 채우고 어두운 글자, 아니면 테두리만."""
+    x, y, w, h = int(x), int(y), int(w), int(h)
+    assets.draw_rect_color(x, y, w, h, ACCENT if on else (EDGE if not focus else (70, 86, 120)))
+    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (110, 215, 205) if on else ROW_BG)
+    text(x + w // 2, y + h // 2, label, (10, 22, 30) if on else (150, 165, 192), small=True, center=True)
+
+
+def card(x, y, w, h, title=None):
+    """정보 카드 (불투명): 테두리 + 속, 제목이 있으면 왼쪽 위에 청록 글자와 짧은 선."""
+    x, y, w, h = int(x), int(y), int(w), int(h)
+    assets.draw_rect_color(x, y, w, h, EDGE)
+    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (12, 17, 30))
+    if title:
+        text(x + 28, y + h - 34, title, ACCENT)
+        assets.draw_rect_color(x + 28, y + h - 60, 60, 3, ACCENT)

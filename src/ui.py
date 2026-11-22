@@ -86,13 +86,7 @@ def _strip(x, y, w, h, color=INK):
     assets.draw_rect_color(int(x) - 2, int(y) - 2, int(w) + 4, int(h) + 4, color)
 
 
-def keycap(x, y, label, hot=True):
-    """키 글자 판 (왼쪽 아래 x, y). 폭은 글자에 맞춘다. 돌려주는 값은 폭."""
-    w = max(34, assets.text_width(label, True) + 16)
-    assets.draw_rect_color(int(x), int(y), w, 30, (46, 56, 82))
-    assets.draw_rect_color(int(x) + 2, int(y) + 4, w - 4, 24, (24, 32, 52) if hot else (18, 22, 34))
-    kit.text(int(x) + w // 2, int(y) + 16, label, (235, 245, 255) if hot else FAINT, small=True, center=True)
-    return w
+keycap = kit.keycap
 
 
 class GameUI:

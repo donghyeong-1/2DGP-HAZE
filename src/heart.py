@@ -23,6 +23,8 @@ import sprites
 from enemy import Enemy
 
 H = config.HEART
+HEART_SETS = ('heart_core', 'heart_core_hurt', 'heart_core_dying',
+              'heart_hand_idle', 'heart_hand_fist', 'heart_hand_palm', 'heart_hand_stun')
 T = config.TILE
 SHELL = (46, 40, 58)
 SHELL_HI = (88, 78, 104)
@@ -80,6 +82,7 @@ class HeartCore(_Part):
         self.home_y = self.floor_y + H['core_height']
         self.y = self.home_y + 700                  # 방 위에서 내려온다
         self.intro_left = H['intro']
+        self.warmed = False                         # 테두리 판을 미리 만들었는가 (draw)
         self.phase = 1
         self.open_left = 0.0
         self.opened = False                         # 이번 기절로 이미 열렸는가
@@ -277,12 +280,15 @@ class HeartCore(_Part):
         return 'heart_core', 1 + int(self.time * 1.5) % 2
 
     def draw(self):
+        if not self.warmed:                         # 처음 그릴 때(등장 카드로 게임이 멈춘 동안) 본체·손 테두리 판 14장을 한꺼번에 만든다
+            self.warmed = True
+            sprites.warm_outlines(HEART_SETS)
         x, y = int(self.x), int(self.y)
         alpha = 1.0 if self.alive else max(0.0, 1.0 - self.dead_time / 3.0)
         if alpha <= 0:
             return
         name, n = self._core_frame()
-        sprites.draw(name, n, x, y, 1, alpha=alpha, outline=False)
+        sprites.draw(name, n, x, y, 1, alpha=alpha)
         if self.flash > 0 and not self.is_open and self.alive:       # 닫힌 채 맞으면 하얗게 번쩍
             sprites.draw_white(name, n, x, y)
         if self.is_open:
@@ -464,7 +470,7 @@ class HeartHand(_Part):
         x, y = int(self.x), int(self.y)
         h = int(self.hb_h)
         name, n = self._frame()
-        sprites.draw(name, n, x, y, self.side, outline=False)
+        sprites.draw(name, n, x, y, self.side)
         if self.flash > 0:
             sprites.draw_white(name, n, x, y, self.side)
         if self.stunned and int(self.timer * 6) % 2 == 0:                                 # 기절: 불똥

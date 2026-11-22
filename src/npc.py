@@ -7,6 +7,7 @@ import os
 
 import assets
 import config
+import sprites
 
 INTERACT_RANGE = 120
 NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관'}
@@ -34,7 +35,11 @@ class NPC:
         if self._art:
             frame = int(self.time / 0.6) % 2 + 1               # 숨쉬기 2장 (장당 0.6초, T22)
             face = '' if self.player is None or self.player.x >= self.x else 'h'   # 그림은 오른쪽을 본다: 플레이어 쪽을 보게
-            assets.draw_image(assets.image(f'sprites/unified/npc_{self.kind}_idle_{frame}.png'), self.x, self.y, face)
+            rel = f'sprites/unified/npc_{self.kind}_idle_{frame}.png'
+            r = sprites.OUTLINE_WIDTH + sprites.RIM_WIDTH                  # 테두리 판은 사방 r px 여백이 붙어 있다
+            assets.draw_image(assets.outline_image(rel, sprites.OUTLINE_WIDTH, sprites.OUTLINE_COLOR, sprites.RIM_WIDTH,
+                                                   sprites.RIM_COLOR), self.x, self.y - r, face)
+            assets.draw_image(assets.image(rel), self.x, self.y, face)
         else:
             self._draw_placeholder()
         color = COLORS[self.kind]

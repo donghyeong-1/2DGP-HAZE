@@ -254,3 +254,4 @@
 2026-11-22 [Codex] T46 헤이즈 심장 기계 오른손 8장 제작, 1배에서 주먹·손바닥 예고와 결정 밝기 검증(검토 대기) / assets/sprites/forge/heart_hands_v1/, docs/codex/reports/T46.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Codex] T47 헤이즈 심장 결전 방 원경·등장 카드 제작, 본체 1배 합성 및 제목 대비 확인(검토 대기) / assets/sprites/forge/heart_arena_v1/, docs/codex/reports/T47.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] Codex T46·T47 적용: 헤이즈 심장 손을 코드 사각형에서 그림 8장으로(대기·들어 올린 주먹·내려친 주먹·광선 예고·발사·기절 2, 바닥 컷은 그림 아래 끝이 바닥에), 심장이 내려오면 원경이 결전 방으로 1.5초 겹쳐 바뀜(Room.set_far), 등장 카드 연결, 테스트 2개 / src/(heart, room, sprites, config).py, tests/test_heart.py, assets/sprites/unified/heart_hand_*, assets/backgrounds/(far_heart, boss_card_heart).png, docs/*
+2026-11-22 [Claude Code] 캐릭터 테두리를 NPC 3명(정비사·보관인·기록관)과 헤이즈 심장 본체·손에도 적용(심장은 처음 그릴 때 테두리 판 14장을 미리 만듦, sprites.warm_outlines) / src/(npc, heart, sprites).py, docs/DECISIONS.md

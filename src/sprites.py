@@ -143,6 +143,13 @@ RIM_WIDTH = 1                    # 그 바깥 밝은 선 (어두운 방에서 �
 RIM_COLOR = (110, 140, 185)
 
 
+def warm_outlines(names):
+    """세트들의 모든 그림의 테두리 판을 미리 만든다 (큰 보스가 처음 그려질 때 멈칫하지 않게)."""
+    for name in names:
+        for n in range(1, count(name) + 1):
+            assets.outline_image(path(name, n), OUTLINE_WIDTH, OUTLINE_COLOR, RIM_WIDTH, RIM_COLOR)
+
+
 def draw_outline(name, n, x, y, face_dir, alpha=1.0):
     """그림 모양을 OUTLINE_WIDTH px 부풀린 검은 판을 본 그림 아래에 깐다 (판은 사방 여백이 붙어 있어 y를 그만큼 내린다)."""
     img = assets.outline_image(path(name, n), OUTLINE_WIDTH, OUTLINE_COLOR, RIM_WIDTH, RIM_COLOR)

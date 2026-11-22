@@ -250,3 +250,4 @@
 2026-11-22 [Claude Code] 캐릭터 테두리 바깥에 밝은 1px 선 추가(어두운 방에서 검은 선이 묻힘) / src/assets.py, src/sprites.py
 2026-11-22 [Claude Code] 안개를 배경 뒤로 옮김(캐릭터를 가리지 않게) / src/atmosphere.py, src/room.py
 2026-11-22 [Claude Code] 안개·빛·날씨·비네트를 배경 위·타일 아래로, 전경 실루엣을 캐릭터 뒤로(캐릭터·몹·보스가 가장 위) / src/atmosphere.py, src/room.py, src/play_mode.py
+2026-11-22 [Claude Code] Codex 작업 상태 정리: 게임에 적용한 T38~T42·T44·T45를 done으로, T45 뒤 작업 T46·T47을 ready로 (적용 때 상태를 안 바꿔 막혀 있었음) / docs/codex/TASKS.md

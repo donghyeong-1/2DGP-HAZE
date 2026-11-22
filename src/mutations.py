@@ -12,13 +12,13 @@ import effects
 import game_world
 
 FAMILIES = {
-    'bloom': {'name': '각성', 'zone': 'AWAKE', 'color': (110, 235, 215), 'icon': 'ui/icon_absorb.png',
+    'bloom': {'name': '각성', 'zone': 'AWAKE', 'color': (110, 235, 215), 'icon': 'ui/mut_bloom.png',
               'set': '각성 구간에서 이동 속도 +12%'},
-    'ember': {'name': '위험', 'zone': 'CRITICAL', 'color': (255, 120, 80), 'icon': 'ui/icon_fury.png',
+    'ember': {'name': '위험', 'zone': 'CRITICAL', 'color': (255, 120, 80), 'icon': 'ui/mut_ember.png',
               'set': '위험 구간 게이지 상승 -25%'},
-    'hollow': {'name': '페이드', 'zone': 'FADE', 'color': (130, 150, 230), 'icon': 'ui/icon_steady.png',
+    'hollow': {'name': '페이드', 'zone': 'FADE', 'color': (130, 150, 230), 'icon': 'ui/mut_hollow.png',
                'set': '페이드 구간 이동 감속 없음'},
-    'tide': {'name': '강화', 'zone': None, 'color': (215, 150, 255), 'icon': 'ui/icon_enhance.png',
+    'tide': {'name': '강화', 'zone': None, 'color': (215, 150, 255), 'icon': 'ui/mut_tide.png',
              'set': 'E 강화 준비 시간 +50%'},
 }
 
@@ -55,10 +55,10 @@ MUTATIONS = {
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.
 REWARDS = {
-    'mutation': ('변이', 'ui/icon_absorb.png', (150, 240, 225)),
-    'shards': ('조각', 'ui/icon_shard.png', (130, 235, 225)),
-    'heal': ('회복', 'ui/icon_heal.png', (255, 150, 150)),
-    'crystal': ('결정', 'ui/icon_cap.png', (190, 200, 255)),
+    'mutation': ('변이', 'ui/reward_mutation.png', (150, 240, 225)),
+    'shards': ('조각', 'ui/reward_shards.png', (130, 235, 225)),
+    'heal': ('회복', 'ui/reward_heal.png', (255, 150, 150)),
+    'crystal': ('결정', 'ui/reward_crystal.png', (190, 200, 255)),
 }
 REWARD_WEIGHTS = {'mutation': 4, 'shards': 3, 'heal': 2, 'crystal': 1}
 REWARD_SHARDS = (6, 10)   # 조각 보상 범위

@@ -118,6 +118,7 @@ def draw_glow(name, n, x, y, face_dir, color, width=3, alpha=0.85):
     img = assets.silhouette(path(name, n))
     dx, foot = place(name, n, img.w, img.h, face_dir)
     flip = 'h' if face_dir < 0 else ''
+    width += OUTLINE_WIDTH + RIM_WIDTH         # 검은·밝은 테두리 바깥에 색이 보이게
     for ox, oy in ((width, 0), (-width, 0), (0, width), (0, -width)):
         assets.draw_image_tinted(img, x + dx + ox, y - foot + oy, flip, color, alpha)
 
@@ -129,11 +130,28 @@ def draw_white(name, n, x, y, face_dir=1):
     assets.draw_image_added(img, x + dx, y - foot, 'h' if face_dir < 0 else '')
 
 
-def draw(name, n, x, y, face_dir=1, tint=None, alpha=1.0):
-    """세트 name의 n번 그림을 발 위치 (x, y)에 그린다. tint(색 곱)와 alpha는 잔상·번쩍임용."""
+OUTLINE_COLOR = (6, 8, 14)       # 캐릭터 검은 테두리 (던그리드식, 순수 검정보다 살짝 푸른 검정)
+OUTLINE_WIDTH = 2                # 검은 테두리 두께 (px)
+RIM_WIDTH = 1                    # 그 바깥 밝은 선 (어두운 방에서 윤곽이 보이게)
+RIM_COLOR = (110, 140, 185)
+
+
+def draw_outline(name, n, x, y, face_dir, alpha=1.0):
+    """그림 모양을 OUTLINE_WIDTH px 부풀린 검은 판을 본 그림 아래에 깐다 (판은 사방 여백이 붙어 있어 y를 그만큼 내린다)."""
+    img = assets.outline_image(path(name, n), OUTLINE_WIDTH, OUTLINE_COLOR, RIM_WIDTH, RIM_COLOR)
+    orig = assets.image(path(name, n))
+    dx, foot = place(name, n, orig.w, orig.h, face_dir)
+    assets.draw_image_tinted(img, x + dx, y - foot - OUTLINE_WIDTH - RIM_WIDTH, 'h' if face_dir < 0 else '', (255, 255, 255), alpha)
+
+
+def draw(name, n, x, y, face_dir=1, tint=None, alpha=1.0, outline=True):
+    """세트 name의 n번 그림을 발 위치 (x, y)에 그린다. tint(색 곱)와 alpha는 잔상·번쩍임용.
+    outline: 검은 1px 테두리를 먼저 깐다 (잔상은 끈다)."""
     img = assets.image(path(name, n))
     dx, foot = place(name, n, img.w, img.h, face_dir)
     flip = 'h' if face_dir < 0 else ''
+    if outline:
+        draw_outline(name, n, x, y, face_dir, alpha)
     if tint is None and alpha >= 1.0:
         assets.draw_image(img, x + dx, y - foot, flip)
     else:

@@ -324,6 +324,9 @@ class Room:
 
     def draw(self):
         self._draw_backdrop()
+        import atmosphere
+        if atmosphere.active is not None:
+            atmosphere.active.draw_back()                      # 안개·빛·날씨·비네트는 배경에만: 타일·캐릭터 아래
         atlas = assets.image(f'tiles/tile_set_{self.tile_theme}.png')
         t = config.TILE
         # 화면에 보이는 칸만 그린다

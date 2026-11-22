@@ -154,7 +154,7 @@ def update():
 
 def draw_panel():
     """키 바꾸기 화면 (11/22 메뉴 v2): 줄마다 카드, 기본·보조 칸은 키 글자 알약."""
-    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '키 바꾸기', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)')
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 22, '키 바꾸기', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)')
     kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', kit.FAINT, small=True, center=True)
     kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', kit.FAINT, small=True, center=True)
     for i, action in enumerate(keybinds.IDS):

@@ -276,7 +276,7 @@ class BodyGhost:
         if self.time < self.delay:
             return
         fade = 1.0 - (self.time - self.delay) / self.life
-        sprites.draw(*self.frame, self.x, self.y, self.face_dir, self.color, max(0.0, self.alpha * fade))
+        sprites.draw(*self.frame, self.x, self.y, self.face_dir, self.color, max(0.0, self.alpha * fade), outline=False)
 
 
 class SlashMark:

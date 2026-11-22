@@ -227,8 +227,8 @@ def draw():
 
 def _apply_shake(layer):
     """세계 레이어에는 카메라 이동과 화면 흔들림을 걸고 UI는 제자리에 둔다. 둘 다 정수 픽셀이다."""
-    if layer == game_world.LAYER_UI and room is not None:
-        room.draw_foreground()                     # 전경 실루엣: 세계 맨 위, UI 아래 (T48)
+    if layer == game_world.LAYER_ENEMY and room is not None:
+        room.draw_foreground()                     # 전경 실루엣: 타일 위, 적·보스·주인공 아래 (캐릭터가 가장 위, 11/22)
     if layer < game_world.LAYER_UI:
         sx, sy = effects.shake_offset()
         cx, cy = camera.offset()

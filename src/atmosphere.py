@@ -4,7 +4,7 @@
 - 게이지 구간이 화면 색으로도 읽힌다: 페이드 차갑고 어둡게, 각성 옅은 청록, 위험 붉게 맥동, 강화 준비 보라.
   목표 색으로 부드럽게 바뀐다(한 프레임에 확 바뀌지 않는다).
 - 비네트: 페이드일수록, 헤이즈가 짙은 방일수록 진하다.
-- 안개: 두 겹이 카메라와 시간에 따라 다른 빠르기로 흐른다(시차). 짙은 방은 진하게, 은신처는 없다.
+- 안개·빛 번짐·날씨·비네트: 배경 바로 위(캐릭터 아래)에 그린다 (draw_back). 안개는 두 겹이 카메라와 시간에 따라 다른 빠르기로 흐른다(시차). 짙은 방은 진하게, 은신처는 없다.
 번쩍임 줄이기(접근성)를 켜면 위험 구간의 맥동을 멈춘다.
 - (11/21) 구간이 바뀌는 순간 그 구간 색으로 화면이 잠깐 번쩍이고, 체력이 낮으면 가장자리가 붉게 심장 박자로 맥동한다(drama).
 """
@@ -16,6 +16,7 @@ import camera
 import config
 import options
 
+active = None                  # 지금 판의 Atmosphere (배경 분위기용)
 EASE = 4.0                     # 목표 색으로 다가가는 빠르기(1/초)
 TINTS = {'FADE': ((70, 90, 140), 0.16), 'AWAKE': ((60, 200, 190), 0.05), 'CRITICAL': ((255, 80, 50), 0.07)}
 ENHANCED_TINT = ((170, 110, 255), 0.07)
@@ -120,6 +121,8 @@ class Atmosphere:
         self.player, self.stage = player, stage
         self.color, self.alpha, self.time = (0, 0, 0), 0.0, 0.0
         self.weather = Weather()
+        global active
+        active = self                                    # room.draw가 배경 분위기를 그리려고 찾는다
 
     def ease(self, zone, enhanced, dt, level=1):
         self.time += dt
@@ -151,10 +154,14 @@ class Atmosphere:
                 assets.draw_image_added(img, int(sx), int(sy - img.h // 2), color=color, times=1)
         img.opacify(1.0)
 
-    def draw(self):
-        W, H = config.SCREEN_W, config.SCREEN_H
+    def draw_back(self):
+        """배경에만 얹는 분위기: 안개, 빛 번짐, 날씨, 비네트. 배경 바로 위, 타일·캐릭터 아래에 그린다
+        (room.draw가 배경 직후 부른다. 캐릭터·적·보스를 가리지 않는다). 화면 좌표로 그린다."""
+        W = config.SCREEN_W
         room = self.stage.room
         high = bool(getattr(room, 'is_high_haze', False))
+        screen_offset = assets.draw_offset
+        assets.draw_offset = (0, 0)
         fog = fog_strength(getattr(self.stage, 'name', ''), high)
         if fog > 0:
             img = assets.image('backgrounds/fog_strip.png')
@@ -169,8 +176,13 @@ class Atmosphere:
         self.weather.draw()
         vig = assets.image('ui/vignette.png')
         vig.opacify(vignette_strength(self.player.gauge.zone, high) * 0.7)
-        assets.draw_image(vig, W // 2, 0)                  # draw_image의 y는 아래 가장자리 (11/21 고침: 예전엔 위 절반만 덮였다)
+        assets.draw_image(vig, W // 2, 0)                  # draw_image의 y는 아래 가장자리
         vig.opacify(1.0)
+        assets.draw_offset = screen_offset
+
+    def draw(self):
+        """위에 얹는 것: 상태 표시(체력 낮음 붉은 가장자리, 구간 번쩍임, 구간 색)만. 나머지는 draw_back."""
+        W, H = config.SCREEN_W, config.SCREEN_H
         import drama
         p = self.player
         red = drama.low_hp_pulse(p.hp / max(1, p.max_hp), self.time) if p.state != 'DEAD' else 0.0

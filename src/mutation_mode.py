@@ -115,6 +115,35 @@ def update():
     age += game_framework.frame_time if getattr(game_framework, 'frame_time', 0) else 1 / 60
 
 
+CORNER = 120               # 카드 테두리 그림(300x420)의 모서리 크기. 가운데 9칸 자르기 (Codex T44)
+
+
+def _completes_synergy(m):
+    """이 카드를 고르면 같은 계열이 2개가 되는가 (테두리를 희귀로 바꾼다)."""
+    return player is not None and mu.family_count(player, m['family']) + 1 >= 2
+
+
+def draw_frame(x, y, w, h, rarity='common'):
+    """카드 테두리를 9칸 자르기로 (x, y) 왼쪽 아래에 w x h로 그린다: 모서리는 그대로, 변은 1배로 이어 붙인다."""
+    img = assets.image(f'ui/card_frame_{rarity}.png')
+    c, mid_w, mid_h = CORNER, img.w - 2 * CORNER, img.h - 2 * CORNER
+    sw, sh = img.w, img.h
+    for bx, by, dx, dy in ((0, 0, 0, 0), (sw - c, 0, w - c, 0), (0, sh - c, 0, h - c), (sw - c, sh - c, w - c, h - c)):
+        assets.draw_clip(img, bx, by, c, c, x + dx, y + dy)
+    off = c
+    while off < w - c:                                    # 위·아래 변
+        step = min(mid_w, w - c - off)
+        assets.draw_clip(img, c, 0, step, c, x + off, y)
+        assets.draw_clip(img, c, sh - c, step, c, x + off, y + h - c)
+        off += step
+    off = c
+    while off < h - c:                                    # 왼쪽·오른쪽 변
+        step = min(mid_h, h - c - off)
+        assets.draw_clip(img, 0, c, c, step, x, y + off)
+        assets.draw_clip(img, sw - c, c, c, step, x + w - c, y + off)
+        off += step
+
+
 def _draw_card(i, mid):
     m = mu.MUTATIONS[mid]
     fam = mu.FAMILIES[m['family']]
@@ -125,7 +154,8 @@ def _draw_card(i, mid):
     color = fam['color']
     if hot:                                               # 고른 카드: 계열 색 테두리
         assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    kit.panel('panel', x, y, CARD_W, CARD_H)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))      # 카드 속
+    draw_frame(x, y, CARD_W, CARD_H, 'rare' if _completes_synergy(m) else 'common')
     img = assets.image(fam['icon'])
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 200, m['name'], (240, 244, 252), center=True, big=True)
@@ -134,10 +164,10 @@ def _draw_card(i, mid):
         kit.text(x + CARD_W // 2, y + CARD_H - 310 - j * 34, line, (205, 215, 235), center=True, small=True)
     have = mu.family_count(player, m['family']) if player is not None else 0
     pips = min(2, have + 1)                               # 이걸 고르면 몇 개가 되는가
-    kit.text(x + CARD_W // 2, y + 104, f'{fam["name"]} {pips}/2', color if pips >= 2 else kit.FAINT, small=True, center=True)
+    kit.text(x + CARD_W // 2, y + 118, f'{fam["name"]} {pips}/2', color if pips >= 2 else kit.FAINT, small=True, center=True)
     note = ('계열 효과 켜짐: ' if pips >= 2 else '같은 계열 2개면: ') + fam['set']
     for j, line in enumerate(_wrap(note, 16)):
-        kit.text(x + CARD_W // 2, y + 66 - j * 26, line, (255, 225, 140) if pips >= 2 else (130, 145, 170), center=True,
+        kit.text(x + CARD_W // 2, y + 84 - j * 26, line, (255, 225, 140) if pips >= 2 else (130, 145, 170), center=True,
                  small=True)
 
 

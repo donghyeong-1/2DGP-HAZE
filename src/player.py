@@ -814,7 +814,7 @@ class Player(TileBody):
         for gx, gy, gdir, left, (name, n) in self.afterimages:  # 오래된 것부터 그려 새 잔상이 위에 온다
             age = 1.0 - left / config.AFTERIMAGE_LIFE
             alpha = steps[min(int(age * len(steps)), len(steps) - 1)]
-            sprites.draw(name, n, gx, gy, gdir, config.AFTERIMAGE_COLOR, alpha)
+            sprites.draw(name, n, gx, gy, gdir, config.AFTERIMAGE_COLOR, alpha, outline=False)
         stunned = self.stunned and self.state != 'DEAD'
         if self.state != 'DEAD':   # 게이지 구간·강화·기절에 따른 몸 주위 오라 (캐릭터 뒤에 깔린다)
             for name in effects.aura_names(self.gauge.zone, self.gauge.enhanced, stunned, self.gauge.enhance_level):

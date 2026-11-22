@@ -50,6 +50,48 @@ def silhouette(relative_path):
     return _silhouettes[relative_path]
 
 
+_outlines = {}
+
+
+def outline_image(relative_path, radius, color=(6, 8, 14), rim=0, rim_color=(110, 140, 185)):
+    """그림의 모양을 radius px만큼 부풀려 한 색으로 채운 판 (검은 테두리용). rim px만큼은 그 바깥에 rim_color 선을 더 두른다
+    (어두운 방에서 검은 선이 묻히지 않게). 사방 (radius+rim) px 여백이 붙은 (w+2R)x(h+2R) 판이다 (R=radius+rim).
+    원본 위치에 맞추려면 x는 그대로, y는 R만큼 내려 그리면 된다 (너비 차가 짝수라 가운데가 같다). 알파는 켜짐·꺼짐뿐이라 픽셀 규칙을 지킨다."""
+    key = (relative_path, radius, color, rim, rim_color)
+    if key not in _outlines:
+        import tempfile
+        import numpy as np
+        from PIL import Image
+        from pico2d import load_image
+        folder = os.path.join(tempfile.gettempdir(), 'haze_outlines')
+        os.makedirs(folder, exist_ok=True)
+        tag = f'{radius}_{"-".join(map(str, color))}_{rim}_{"-".join(map(str, rim_color))}_'
+        out = os.path.join(folder, tag + relative_path.replace('/', '_'))
+        src = Image.open(os.path.join(ASSET_DIR, relative_path)).convert('RGBA')
+        w, h = src.size
+        big = radius + rim
+        alpha = src.getchannel('A').point(lambda v: 255 if v > 0 else 0)
+        padded = Image.new('L', (w + 2 * big, h + 2 * big), 0)
+        padded.paste(alpha, (big, big))
+        a = np.array(padded) > 0
+
+        def grow(r):                                   # 둥근 모양(원 안의 칸)으로 부풀린다. PIL에는 이동 합성이 없어 numpy를 쓴다
+            g = np.zeros_like(a)
+            for oy in range(-r, r + 1):
+                for ox in range(-r, r + 1):
+                    if ox * ox + oy * oy <= r * r + 1:
+                        g |= np.roll(np.roll(a, oy, axis=0), ox, axis=1)
+            return g
+        inner = grow(radius)
+        outer = grow(big) if rim else inner
+        px = np.zeros((*a.shape, 4), np.uint8)
+        px[outer] = (*rim_color, 255)
+        px[inner] = (*color, 255)
+        Image.fromarray(px, 'RGBA').save(out)
+        _outlines[key] = load_image(out)
+    return _outlines[key]
+
+
 def draw_image(img, x, y, flip=''):
     """이미지를 원본 크기(1배)로 정수 좌표에 그린다. x는 가운데, y는 아래 가장자리.
 

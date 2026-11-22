@@ -241,5 +241,12 @@
 2026-11-22 [Claude Code] 화면 문구 말투를 '~하세요/~합니다'로, 표어·타이틀 조작 줄 제거, 메뉴 v3(글자만 메뉴 + 헤이즈 조각 표시, 구분선 목록, 설정 값 칸 가독성), HUD 칩·변이 카드 장식 줄임 / src/(hud_kit, ui, tutorial, title_mode, credits_mode, ending_mode, items, main, mutations, mutation_mode, npc_mode, options_mode, pause_mode, stage, keys_mode), tests/(test_keybinds, test_stage), docs/*
 2026-11-22 [Claude Code] design-critique·ux-copy 점검 반영: 일시정지 '판 포기' 두 번 누르기 확인, 사망 화면·빈 상태·설정 문구와 '스탯→능력' 용어 정리, 타이틀 버전 글자 대비 / src/pause_mode.py, ending_mode.py, options_mode.py, npc.py, mutation_mode.py, title_mode.py
 2026-11-22 [Claude Code] 2차 점검: 변이 카드 제목 간격과 '같은 계열 2개면' 문구, 키 바꾸기의 '사기' 표현 / src/mutation_mode.py, src/keybinds.py
+2026-11-22 [Claude Code] 캐릭터 검은 테두리 2px(적 색 테두리는 그 바깥), 배경 그림 속 캐릭터만 픽셀화(tools/pixelize_chars.py, 원본은 assets/concept/bg_ai_original/) / src/sprites.py, assets.py, effects.py, player.py, tools/pixelize_chars.py, assets/backgrounds/{screen_title,screen_death,screen_ending,credits_1,boss_card_crasher,boss_card_ark}.png
+2026-11-22 [Claude Code] Codex T38~T45·T48 검토(규격·1배 비교 모두 합격), T44 적용: 변이 문양 4·카드 테두리(9칸 자르기, 일반/희귀)·방 보상 아이콘 6장 / src/mutation_mode.py, mutations.py, assets/ui/mut_*·card_frame_*·reward_*
 2026-11-22 [Claude Code] Codex T45 적용: 헤이즈 심장 본체를 그림으로(닫힘 2장 맥동·열림·피격·쓰러짐 2장, 충돌·약점·페이즈 그대로, 손은 임시 그림 유지), capture.py --spawn heart:0 / src/(heart, sprites), tools/capture.py, assets/sprites/unified/heart_core*
+2026-11-22 [Claude Code] T48 전경 실루엣 적용(세 구역, 시차 1.35, UI 바로 아래 레이어, 끄기 옵션 없음) / src/room.py, src/play_mode.py, assets/backgrounds/fg_*.png, docs/ASSETS.md, docs/codex/TASKS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] Codex T38~T42 새 적 5종 적용: 슬럼 헤이즈 쥐 떼(3마리 무리, 한 대에 죽음)·누더기 무당(적에게 보호막 40, 앞줄부터), 탑 감시 눈(벽 포탑, 예고 조준선 -> 레이저가 바닥을 훑음)·결정 기사(멀면 순간이동해 옆에서 벰, 사라진 동안 무적)·헤이즈 망령(벽 통과, 게이지 -8 더 뺏음). 구역 배치는 stage1·stage3 데이터. 테스트 22개 추가, balance_sim 시나리오 5개 추가 / src/(enemy_kinds, enemy, config, sprites, stage, killers), data/stages/stage1·3.py, tests/test_new_enemies.py, tools/balance_sim.py, assets/sprites/unified/enemy_(eye|knight|wraith|rat|shaman)_*
+2026-11-22 [Claude Code] 픽셀화 도구를 보간 없이 원본 색만 쓰게 고침(격자 위치 맞춤, 칸마다 원본 색 선택, 원본 팔레트로 다시 입힘), 배경 6장 다시 생성 / tools/pixelize_chars.py, assets/backgrounds
+2026-11-22 [Claude Code] 캐릭터 테두리 바깥에 밝은 1px 선 추가(어두운 방에서 검은 선이 묻힘) / src/assets.py, src/sprites.py
+2026-11-22 [Claude Code] 안개를 배경 뒤로 옮김(캐릭터를 가리지 않게) / src/atmosphere.py, src/room.py
+2026-11-22 [Claude Code] 안개·빛·날씨·비네트를 배경 위·타일 아래로, 전경 실루엣을 캐릭터 뒤로(캐릭터·몹·보스가 가장 위) / src/atmosphere.py, src/room.py, src/play_mode.py

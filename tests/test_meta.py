@@ -134,11 +134,11 @@ def test_run_starts_in_the_hideout_and_its_door_leads_to_stage_one():
     p = new_player()
     s = stage_mod.Stage(p, name='hideout')
     s.start()
-    assert s.type_of(s.coord) == 'hideout' and len(s.npcs) == 3
+    assert s.type_of(s.coord) == 'hideout' and len(s.npcs) == 4   # 정비사·보관인·기록관 + 무기 걸이
     for _ in range(60):
         game_world.update(DT)
     assert p.on_ground and p.y == 2 * config.TILE == s.npcs[0].y                      # 바닥 위에 선다 (바닥 속에 끼지 않는다)
-    assert {n.kind for n in s.npcs} == {'mechanic', 'keeper', 'archivist'}
+    assert {n.kind for n in s.npcs} == {'mechanic', 'keeper', 'archivist', 'armory'}
     assert 'R' in s.room.links and not s.room.locked
     assert [c for c, *_ in s.minimap_cells()] == [(0, 0)]                               # 출발 문 너머는 지도에 없다
     p.x, p.y = s.room.width - config.PLAYER_HB_W / 2 - 1, s.room.door_center('R')[1]
@@ -249,6 +249,62 @@ def test_projectiles_and_elites_are_named():
     e = Enemy('hound', 0, 120, Room.load('test_01'), None)
     e.make_elite('swift')
     assert killers.describe(e) == e.elite_label() + ' 사냥개'
+
+
+# ----- 시작 무기 (2026-11-23 사용자: 은신처에서 원하는 무기로 시작) -----
+def test_start_weapon_is_saved_and_given_at_run_start():
+    path = fresh()
+    assert meta.state['start_weapon'] is None                       # 기본: 철파이프만
+    p = new_player()
+    meta.apply_to_player(p)
+    assert p.weapons[1] is None and p.weapon.weapon_id == 'pipe'
+    assert meta.set_start_weapon('chain')
+    meta.load()                                                     # 저장된다
+    assert meta.state['start_weapon'] == 'chain'
+    p = new_player()
+    meta.apply_to_player(p)
+    assert p.weapons[1].weapon_id == 'chain' and p.weapon is p.weapons[1]   # 두 번째 칸에 넣고 든다
+    assert p.weapons[0].weapon_id == 'pipe'                         # 철파이프는 늘 첫 칸
+    assert not meta.set_start_weapon('pipe') and not meta.set_start_weapon('laser')
+    assert meta.set_start_weapon(None) and meta.state['start_weapon'] is None
+    with open(path, 'w', encoding='utf-8') as f:                    # 이상한 값은 기본값
+        f.write('{"start_weapon": 3}')
+    meta.load()
+    assert meta.state['start_weapon'] is None
+
+
+def test_kept_weapon_wins_over_start_weapon():
+    fresh()
+    meta.state['keeper'] = True
+    meta.set_start_weapon('knife')
+    meta.set_keepsake('w_gauntlet')
+    p = new_player()
+    meta.apply_to_player(p)
+    assert p.weapons[1].weapon_id == 'gauntlet'                     # 맡겨 둔 무기가 이긴다 (한 번뿐)
+
+
+def test_weapon_rack_window_changes_the_weapon_now():
+    import npc_mode
+    fresh()
+    p = new_player()
+    npc_mode.kind, npc_mode.player, npc_mode.selected, npc_mode.note = 'armory', p, 0, ''
+    keys = [r[3] for r in npc_mode.rows()]
+    assert keys == ['w_none', 'w_knife', 'w_gauntlet', 'w_chain']
+    npc_mode.act('w_knife')
+    assert p.weapons[1].weapon_id == 'knife' and p.weapon is p.weapons[1]   # 은신처에서 바로 바뀐다
+    assert meta.state['start_weapon'] == 'knife'
+    npc_mode.act('w_none')
+    assert p.weapons[1] is None and p.weapon.weapon_id == 'pipe'
+    assert meta.state['start_weapon'] is None
+
+
+def test_hideout_has_a_weapon_rack():
+    import stage as stage_mod
+    fresh()
+    p = new_player()
+    st = stage_mod.Stage(p, name='hideout')
+    st.start()
+    assert 'armory' in [n.kind for n in st.npcs]
 
 
 if __name__ == '__main__':

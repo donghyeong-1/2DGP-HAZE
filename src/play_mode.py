@@ -74,6 +74,7 @@ def _on_npc(npc):
     """은신처 NPC 앞에서 F: 그 NPC의 창을 연다."""
     import npc_mode
     npc_mode.kind = npc.kind
+    npc_mode.player = player
     game_framework.push_mode(npc_mode)
 
 

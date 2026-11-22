@@ -1,4 +1,4 @@
-"""은신처 NPC: 정비사(영구 강화), 보관인(물건 하나 맡기기), 기록관(대화·기록). 가까이 가서 F를 누르면 창이 열린다.
+"""은신처 NPC: 정비사(영구 강화), 보관인(물건 하나 맡기기), 기록관(대화·기록), 무기 걸이(시작 무기, 11/23). 가까이 가서 F를 누르면 창이 열린다.
 
 그림: assets/sprites/unified/npc_<종류>_idle_1~2.png 가 있으면 그것(Codex T22), 없으면 코드로 그린 임시 모습
 (실루엣 크기·색으로 셋을 구별: 큰 몸 / 짐을 진 노인 / 책을 안은 젊은이).
@@ -10,11 +10,12 @@ import config
 import sprites
 
 INTERACT_RANGE = 120
-NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관'}
-ROLES = {'mechanic': '기본 능력 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록'}
-COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255)}
+NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관', 'armory': '무기 걸이'}
+ROLES = {'mechanic': '기본 능력 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록',
+         'armory': '시작 무기 고르기'}
+COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255), 'armory': (230, 210, 150)}
 # 임시 모습: (몸 폭, 키, 소품 색)
-SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120))}
+SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None)}
 
 
 class NPC:
@@ -49,6 +50,9 @@ class NPC:
             assets.draw_text(self.x, top + 70, f'F {ROLES[self.kind]}', (255, 240, 150), small=True, center=True)
 
     def _draw_placeholder(self):
+        if self.kind == 'armory':
+            self._draw_rack()
+            return
         """그림이 오기 전 임시 모습: 외곽선 있는 몸통·머리와 하는 일을 보여 주는 소품 하나 (왼쪽을 본다)."""
         w, h, prop = SHAPES[self.kind]
         x, y = int(self.x), int(self.y)
@@ -67,3 +71,23 @@ class NPC:
         else:                                                    # 품에 안은 장부
             assets.draw_rect_color(x - w // 2 - 6, y + 40, 26, 30, prop)
         assets.draw_rect_color(x - w // 2, y + 2, w, 6, COLORS[self.kind])   # 하는 일 색 띠
+
+    def _draw_rack(self):
+        """무기 걸이 (코드로 그림, 2026-11-23): 나무 틀에 무기 셋이 걸려 있고, 고른 무기 아래에 불이 켜진다."""
+        import meta
+        x, y = int(self.x), int(self.y)
+        wood, dark = (96, 66, 44), (11, 16, 32)
+        assets.draw_rect_color(x - 92, y, 10, 112, dark)                     # 기둥 두 개 (외곽선 포함)
+        assets.draw_rect_color(x + 82, y, 10, 112, dark)
+        assets.draw_rect_color(x - 90, y + 2, 6, 108, wood)
+        assets.draw_rect_color(x + 84, y + 2, 6, 108, wood)
+        assets.draw_rect_color(x - 96, y + 104, 192, 12, dark)              # 위 가로대
+        assets.draw_rect_color(x - 94, y + 106, 188, 8, wood)
+        assets.draw_rect_color(x - 92, y + 18, 184, 6, dark)                # 아래 받침
+        now = meta.state.get('start_weapon') if meta.state else None
+        for i, wid in enumerate(meta.START_WEAPONS):
+            cx = x - 52 + i * 52
+            img = assets.image(f'ui/icon_w_{wid}.png')
+            assets.draw_image(img, cx, y + 34)
+            if wid == now:
+                assets.draw_rect_color(cx - 18, y + 26, 36, 4, COLORS['armory'])

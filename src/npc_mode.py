@@ -3,6 +3,7 @@
 - 정비사: 기본 스탯 영구 강화 4종 (줄을 고르고 Enter, 헤이즈 결정을 낸다)
 - 보관인: 보관 칸 열기 / 지금 맡긴 물건 (맡길 물건은 판이 끝날 때 사망·탈출 화면에서 고른다)
 - 기록관: 짧은 이야기와 지금까지의 기록
+- 무기 걸이(2026-11-23): 판을 시작할 두 번째 칸 무기. 고르면 지금 든 무기도 바로 바뀌고 다음 판에도 그대로다.
 판 양옆에 대화 초상화(Codex T32): 왼쪽 주인공, 오른쪽 NPC. 결과에 따라 표정이 바뀐다(faces).
 키보드 W/S·위/아래로 줄, Enter·Space로 고르기. 마우스로 올리고 눌러도 된다. 그림 부품은 hud_kit(설정 창과 같은 판·버튼).
 """
@@ -22,6 +23,7 @@ PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 20
 ROW_H = 92
 
 kind = 'mechanic'        # 들어가기 전에 play_mode가 정한다
+player = None            # 무기 걸이가 바로 무기를 바꿀 플레이어 (play_mode가 정한다)
 selected = 0
 note = ''                # 마지막으로 한 일 (산 것, 결정이 모자람 등)
 result = None            # 마지막으로 한 일의 결과: 'ok', 'fail', None (초상화 표정)
@@ -73,6 +75,13 @@ def rows():
         name = items.ITEMS[keep]['name'] if keep else '없음'
         return [('맡긴 물건', name, '다음 판 시작 때 받습니다 (업그레이드는 1단계로, 무기는 그대로)', None),
                 ('맡기는 법', '', '판이 끝나면 사망·탈출 화면에서 맡길 물건을 고릅니다', None)]
+    if kind == 'armory':
+        now = meta.state['start_weapon']
+        out = [('철파이프만', '고름' if now is None else '', '두 번째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none')]
+        for wid in meta.START_WEAPONS:
+            info = items.ITEMS['w_' + wid]
+            out.append((info['name'], '고름' if now == wid else '', info['desc'], 'w_' + wid))
+        return out
     s = meta.state
     return [(line, '', '', None) for line in STORY['archivist']] + [
         ('지금까지', f'{s["runs"]}판 · 탈출 {s["escapes"]}번', f'헤이즈 결정 {s["crystals"]}', None)]
@@ -82,6 +91,14 @@ def act(key):
     """줄을 골랐다. 한 일을 note에 적는다."""
     global note, result
     if key is None:
+        return
+    if kind == 'armory' and key.startswith('w_'):
+        wid = None if key == 'w_none' else key[2:]
+        meta.set_start_weapon(wid)
+        if player is not None:
+            meta.equip_start_weapon(player, wid)
+        name = '철파이프만' if wid is None else items.ITEMS[key]['name']
+        note, result = f'{name}{_ro(name)} 시작합니다', 'ok'
         return
     if key == 'unlock':
         ok = meta.unlock_keeper()
@@ -98,6 +115,12 @@ def act(key):
     assets.play_sound('pickup')
 
 
+def _ro(word):
+    """조사 '로/으로': 받침이 없거나 ㄹ 받침이면 '로'."""
+    code = ord(word[-1]) - 0xAC00
+    return '로' if not 0 <= code < 11172 or code % 28 in (0, 8) else '으로'
+
+
 def faces():
     """(주인공 초상화, NPC 초상화) 이름. 샀으면 주인공은 결의·정비사는 씩 웃음, 모자라면 보관인은 걱정,
     기록관은 '지금까지' 기록 줄을 고르면 놀란다."""
@@ -106,6 +129,8 @@ def faces():
         mood = 2 if result == 'ok' else 1
     elif kind == 'keeper':
         mood = 2 if result == 'fail' else 1
+    elif kind == 'armory':
+        return hero, None                          # 무기 걸이는 사람이 아니다: 초상화 없음
     else:
         mood = 2 if selected == len(rows()) - 1 else 1
     return hero, f'{kind}_{mood}'
@@ -166,12 +191,17 @@ def draw():
                  small=key is None and kind == 'archivist')
         if desc:
             kit.text(b.x + 34, b.y + 22, desc, (140, 155, 182) if hot else kit.FAINT, small=True)
+        if kind == 'armory':                                       # 무기 그림 (1배)
+            img = assets.image(f'ui/icon_{"w_pipe" if key == "w_none" else key}.png')
+            assets.draw_image(img, b.x + b.w - 200, b.y + (b.h - img.h) // 2)
         if value:
-            ok = key is None or key == 'unlock' and meta.state['crystals'] >= config.META_KEEPER_PRICE or (
+            ok = key is None or kind == 'armory' or key == 'unlock' and meta.state['crystals'] >= config.META_KEEPER_PRICE or (
                 key in meta.UPGRADES and meta.can_buy(key))
             kit.text(b.x + b.w - 30, b.y + b.h // 2, value, (255, 225, 140) if ok else (130, 140, 160), right=True)
     buttons[-1].draw(selected == len(buttons) - 1)
     for (x, y), name in zip(portrait_spots(), faces()):          # 대화 초상화 (1배)
+        if name is None:
+            continue
         assets.draw_image(assets.image(f'portraits/{name}.png'), x + PORTRAIT // 2, y)
     if note:
         kit.text(W // 2, PANEL_Y + 120, note, (255, 240, 150), center=True)

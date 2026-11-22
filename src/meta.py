@@ -5,6 +5,8 @@
 - 정비사: 결정으로 기본 스탯을 영구 강화한다 (최대 체력, 공격력, 시작 게이지, 대시 충전). 단계마다 값이 오른다.
 - 보관인: 결정으로 보관 칸을 열면, 판이 끝날 때 들고 있던 것 하나를 맡겨 다음 판 시작 때 받는다
   (업그레이드는 1단계로만, 무기는 그대로). 한 번 받으면 사라진다.
+- 무기 걸이(2026-11-23): 판을 시작할 두 번째 칸 무기를 고른다 (식칼·건틀릿·사슬 중 하나 또는 없음). 고른 것은 저장되어
+  다음 판에도 그대로다. 맡겨 둔 무기가 있으면 그 판은 맡긴 무기가 이긴다.
 저장은 사용자 홈 폴더의 ~/.haze_save.json (설정 파일과 같은 방식). 읽기·쓰기는 safe_io(임시 파일 후 바꿔 끼우기,
 깨지면 .bak에서 되살리고 깨진 파일은 .broken으로 남김). 값의 종류가 이상하면 그 값만 기본값이다.
 """
@@ -24,12 +26,13 @@ UPGRADES = {
     'dash':   dict(name='발놀림', desc=f'대시 충전 -{config.META_DASH:g}초', max=3, prices=(10, 16, 24)),
 }
 ORDER = ('hp', 'attack', 'gauge', 'dash')
+START_WEAPONS = ('knife', 'gauntlet', 'chain')   # 무기 걸이에서 고를 수 있는 두 번째 칸 무기 (철파이프는 늘 첫 칸)
 
 state = {}
 
 
 def _default():
-    return {'crystals': 0, 'levels': {k: 0 for k in UPGRADES}, 'keeper': False, 'keepsake': None,
+    return {'crystals': 0, 'levels': {k: 0 for k in UPGRADES}, 'keeper': False, 'keepsake': None, 'start_weapon': None,
             'runs': 0, 'escapes': 0, 'best': '', 'hints': []}
 
 
@@ -61,6 +64,8 @@ def load():
     state['keeper'] = bool(data.get('keeper', False))
     keep = data.get('keepsake')
     state['keepsake'] = keep if isinstance(keep, str) and keep in items.ITEMS else None
+    start = data.get('start_weapon')
+    state['start_weapon'] = start if isinstance(start, str) and start in START_WEAPONS else None
     state['runs'] = max(0, _int(data.get('runs', 0)))
     state['escapes'] = max(0, _int(data.get('escapes', 0)))
     state['best'] = str(data.get('best', '') or '')
@@ -159,11 +164,36 @@ def set_keepsake(item_id):
     return True
 
 
+# ----- 무기 걸이 -----
+def set_start_weapon(weapon_id):
+    """판을 시작할 두 번째 칸 무기 (None = 철파이프만). 저장한다."""
+    ensure_loaded()
+    if weapon_id is not None and weapon_id not in START_WEAPONS:
+        return False
+    state['start_weapon'] = weapon_id
+    save()
+    return True
+
+
+def equip_start_weapon(player, weapon_id):
+    """플레이어의 두 번째 칸을 이 무기로 (None이면 비우고 철파이프를 든다)."""
+    if weapon_id is None:
+        if player.slot == 1:
+            player.swap_weapon(0)
+        player.weapons[1] = None
+    elif not player.has_weapon(weapon_id):
+        player.give_weapon(weapon_id)
+    else:
+        player.swap_weapon(1)                      # 이미 두 번째 칸에 있다: 그것을 든다
+
+
 # ----- 새 판에 적용 -----
 def apply_to_player(player):
     """새 판을 시작하는 플레이어에게 영구 강화와 맡긴 물건을 준다."""
     ensure_loaded()
     apply_levels(player, state['levels'])
+    if state['start_weapon']:
+        player.give_weapon(state['start_weapon'])  # 무기 걸이에서 고른 무기 (맡겨 둔 무기가 있으면 아래에서 바뀐다)
     keep = state['keepsake']
     if keep:
         items.apply(player, keep)                  # 업그레이드는 1단계(한 번 적용), 무기는 두 번째 칸에

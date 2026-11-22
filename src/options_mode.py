@@ -216,7 +216,7 @@ def draw_panel():
         kit.text(PANEL_X + 34, cy + 11, NAMES[item], (240, 248, 255) if on else (190, 202, 225))
         kit.text(PANEL_X + 34, cy - 17, DESCS[item], (140, 155, 182) if on else kit.FAINT, small=True)
         if item == 'keys':
-            kit.pill(VALUE_X, cy - 24, VALUE_W - 8, 48, f'키 바꾸기 ({keys_summary()})  >', False, focus=on)
+            kit.pill(VALUE_X, cy - 24, VALUE_W - 8, 48, f'열기 ({keys_summary()})  >', False, focus=on)
         elif item in SEGMENTED:
             current = current_of[item]
             for value, label, x, w in _segments(item):

@@ -13,7 +13,7 @@ import hud_kit as kit
 W, H = config.SCREEN_W, config.SCREEN_H
 LEFT_X = 150                       # 메뉴 줄 왼쪽 (11/22 메뉴 v2: 큰 판 없이 화면 전체를 덮는다)
 MENU = [kit.Button(key, label, LEFT_X, H - 380 - i * 84, 420, 66)
-        for i, (key, label) in enumerate((('resume', '계속하기'), ('options', '설정'), ('title', '타이틀로')))]
+        for i, (key, label) in enumerate((('resume', '계속하기'), ('options', '설정'), ('title', '판 포기하고 타이틀로')))]
 CARD_H = 140 + 50 * 9             # 오른쪽 카드 두 장: 조작 / 이번 판 (조작 9줄 높이)
 CARD_Y = H - 314 - CARD_H + 66
 
@@ -32,16 +32,19 @@ def controls():
         (f'{k("dash")}  우클릭', '대시 (아래로 겨누면 발판 통과)'),
         (k('enhance'), '강화 일격 (게이지 25% 사용)'),
         (f'{k("swap")}  {k("weapon1")}  {k("weapon2")}', '무기 바꾸기'),
-        (k('interact'), '진열대 아이템 얻기·사기'),
+        (k('interact'), '진열대 아이템 줍기·구매'),
     ]
 
 
 selected = 0
+GIVE_UP_LABEL = MENU[2].label
+GIVE_UP_ASK = '정말 포기하려면 한 번 더'      # 판 도중 실수로 타이틀로 나가지 않게 두 번 누르게 한다
 
 
 def enter():
     global selected
     selected = 0
+    MENU[2].label = GIVE_UP_LABEL
 
 
 def exit():
@@ -58,6 +61,11 @@ def resume():
 
 def run(key):
     import title_mode
+    if key == 'title' and MENU[2].label == GIVE_UP_LABEL:
+        MENU[2].label = GIVE_UP_ASK                # 첫 입력은 묻기만 한다
+        return
+    if key != 'title':
+        MENU[2].label = GIVE_UP_LABEL
     if key == 'resume':
         game_framework.pop_mode()
     elif key == 'options':
@@ -123,7 +131,8 @@ def _draw_build(x, y, w, h):
     ty = y + h - 110
     muts = list(getattr(p, 'mutations', [])) if p is not None else []
     if not muts and not (p is not None and p.items):
-        kit.text(x + 28, ty + 15, '아직 얻은 것이 없습니다', kit.FAINT, small=True)
+        kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', kit.FAINT, small=True)
+        kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', kit.FAINT, small=True)
         return
     for mid in muts:
         m = mu.MUTATIONS[mid]
@@ -156,5 +165,5 @@ def draw():
         b.draw(i == selected, left=True)
     _draw_controls(660, CARD_Y, 700, CARD_H)
     _draw_build(1390, CARD_Y, 400, CARD_H)
-    kit.footer([('Esc', '계속'), ('O', '설정'), ('Q', '타이틀로'), ('W S', '고르기'), ('Enter', '결정')])
+    kit.footer([('Esc', '계속'), ('O', '설정'), ('Q', '판 포기'), ('W S', '고르기'), ('Enter', '결정')])
     update_canvas()

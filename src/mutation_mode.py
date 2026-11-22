@@ -135,7 +135,7 @@ def _draw_card(i, mid):
     have = mu.family_count(player, m['family']) if player is not None else 0
     pips = min(2, have + 1)                               # 이걸 고르면 몇 개가 되는가
     kit.text(x + CARD_W // 2, y + 104, f'{fam["name"]} {pips}/2', color if pips >= 2 else kit.FAINT, small=True, center=True)
-    note = ('시너지 켜짐: ' if pips >= 2 else '2개면 시너지: ') + fam['set']
+    note = ('계열 효과 켜짐: ' if pips >= 2 else '같은 계열 2개면: ') + fam['set']
     for j, line in enumerate(_wrap(note, 16)):
         kit.text(x + CARD_W // 2, y + 66 - j * 26, line, (255, 225, 140) if pips >= 2 else (130, 145, 170), center=True,
                  small=True)
@@ -160,8 +160,8 @@ def draw():
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
     assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.66)
-    kit.text(W // 2, CARD_Y + CARD_H + 80, '헤이즈 변이', (244, 236, 214), center=True, big=True)
-    kit.text(W // 2, CARD_Y + CARD_H + 36, '하나를 고르세요 · 이번 판 동안 유지됩니다', (150, 165, 190), center=True, small=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 110, '헤이즈 변이', (244, 236, 214), center=True, big=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 66, '하나를 고르세요. 이번 판이 끝날 때까지 유지됩니다', (150, 165, 190), center=True, small=True)
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
     kit.footer([('A D', '고르기'), ('Enter', '결정')], y=CARD_Y - 80)

@@ -17,7 +17,7 @@ ACTIONS = (
     ('jump', '점프', (sdl2.SDLK_SPACE, sdl2.SDLK_w)),
     ('dash', '대시', (sdl2.SDLK_LSHIFT, None)),
     ('enhance', '강화 일격', (sdl2.SDLK_e, None)),
-    ('interact', '상호작용 (사기·말 걸기)', (sdl2.SDLK_f, None)),
+    ('interact', '상호작용 (구매·말 걸기)', (sdl2.SDLK_f, None)),
     ('swap', '무기 바꾸기', (sdl2.SDLK_q, None)),
     ('weapon1', '무기 1번', (sdl2.SDLK_1, None)),
     ('weapon2', '무기 2번', (sdl2.SDLK_2, None)),

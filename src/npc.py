@@ -10,7 +10,7 @@ import config
 
 INTERACT_RANGE = 120
 NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관'}
-ROLES = {'mechanic': '기본 스탯 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록'}
+ROLES = {'mechanic': '기본 능력 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록'}
 COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255)}
 # 임시 모습: (몸 폭, 키, 소품 색)
 SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120))}

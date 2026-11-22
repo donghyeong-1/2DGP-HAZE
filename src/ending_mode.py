@@ -140,7 +140,7 @@ def draw():
     else:                                                          # 사망 화면: 쓰러진 인물 위쪽에 글자를 둔다
         assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
         assets.draw_text(cx, 880, '사망', (225, 90, 100), center=True, big=True)
-        assets.draw_text(cx, 830, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
+        assets.draw_text(cx, 830, '이번 판은 여기까지입니다. 영구 강화는 그대로 남습니다', (170, 185, 210), center=True)
     _draw_summary(cx)
     if choosing:                                                   # 보관인에게 맡길 것 고르기
         assets.draw_text(cx, 480, '보관인에게 맡길 물건을 고르세요 (다음 판 시작 때 돌려받습니다)', (200, 210, 230), center=True)

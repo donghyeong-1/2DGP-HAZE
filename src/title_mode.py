@@ -95,7 +95,7 @@ def draw_frozen():
     assets.draw_image(assets.image('ui/logo_title.png'), W // 2, 588)          # 상점 로고(T29)를 1배로 (tools/make_store_art.py)
     for i, b in enumerate(MENU):
         b.draw(i == selected)
-    kit.text(W - 28, 30, VERSION, (96, 110, 138), small=True, right=True)   # 조작은 일시정지·설정에서 (제목 화면은 비워 둔다)
+    kit.text(W - 28, 30, VERSION, (140, 155, 185), small=True, right=True)   # 조작은 일시정지·설정에서 (제목 화면은 비워 둔다)
 
 
 def draw():

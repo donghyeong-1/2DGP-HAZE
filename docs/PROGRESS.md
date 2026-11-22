@@ -239,3 +239,5 @@
 2026-11-22 [Codex] T48 슬럼·공장·탑 전경 실루엣 3장 제작, 가로 반복과 투명 전투 영역 1배 검증(검토 대기) / assets/sprites/forge/foreground_v1/, docs/codex/reports/T48.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] 메뉴 v2: 공통 메뉴 부품(덮개·제목·줄 카드·알약·카드·키 안내)으로 타이틀 버튼·일시정지(조작·이번 판 카드)·설정·키 바꾸기·NPC·사망 화면 수정 / src/(hud_kit, ui, pause_mode, options_mode, keys_mode, npc_mode, ending_mode, title_mode), docs/*
 2026-11-22 [Claude Code] 화면 문구 말투를 '~하세요/~합니다'로, 표어·타이틀 조작 줄 제거, 메뉴 v3(글자만 메뉴 + 헤이즈 조각 표시, 구분선 목록, 설정 값 칸 가독성), HUD 칩·변이 카드 장식 줄임 / src/(hud_kit, ui, tutorial, title_mode, credits_mode, ending_mode, items, main, mutations, mutation_mode, npc_mode, options_mode, pause_mode, stage, keys_mode), tests/(test_keybinds, test_stage), docs/*
+2026-11-22 [Claude Code] design-critique·ux-copy 점검 반영: 일시정지 '판 포기' 두 번 누르기 확인, 사망 화면·빈 상태·설정 문구와 '스탯→능력' 용어 정리, 타이틀 버전 글자 대비 / src/pause_mode.py, ending_mode.py, options_mode.py, npc.py, mutation_mode.py, title_mode.py
+2026-11-22 [Claude Code] 2차 점검: 변이 카드 제목 간격과 '같은 계열 2개면' 문구, 키 바꾸기의 '사기' 표현 / src/mutation_mode.py, src/keybinds.py

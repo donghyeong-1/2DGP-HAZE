@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-22",
+  "art_source": "host_image",
+  "tool": "Codex 내장 image_gen",
+  "model": "모델명 미제공",
+  "cost_estimate_usd": null,
+  "skill": "generate2dsprite 0.5.0 (MIT)",
+  "idle_target_height": 75,
+  "game_canvas": [
+    160,
+    122
+  ],
+  "pivot_top_left": [
+    76,
+    104
+  ],
+  "last_opaque_ground_row": 103,
+  "style_references": [
+    "assets/sprites/unified/enemy_guard_idle.png",
+    "assets/sprites/unified/boss_crasher_idle_1.png",
+    "assets/decor/foundry_scrap_cart.png",
+    "assets/backgrounds/far_foundry.png",
+    "assets/tiles/tile_set_foundry.png"
+  ],
+  "finish_adjustments": [
+    "피격 두 컷의 뒤 바퀴 축을 공통 기준으로 맞춤",
+    "arm-3 경고등 밝은 색을 마스터 팔레트의 중간색으로 치환"
+  ],
+  "sources": {
+    "master": {
+      "path": "source/master_source.png",
+      "sha256": "d78b1eac9615ef569b47b0a9135dc2150647707cfb5d9b7df5b28050c0499023",
+      "resolution": [
+        1254,
+        1254
+      ],
+      "generated_attempts": 1,
+      "prompt": "Create exactly ONE square image (1024x1024).\n\nStyle: clean flat cel-shaded 2D game art for a moody side-scrolling industrial prison game, painted for pixel conversion: lineless shapes with NO outline and no line art, every material in at most 3 flat tones (highlight, base, shadow), cool purple-leaning shadows and warm highlights, large crisp angular light and shadow shapes, a bold readable silhouette, no gradients, no airbrush, no texture noise, no dithering, no pixel grid. No text, no letters, no numbers, no logo, no watermark, no signature, no UI, no border, no frame, no grid.\n\nReference image: the attached image is an approved in-game sprite from the same game (in-game steel and rust palette at 1x, retain the new design, ignore the reference characters and labels): match its flat cel-shaded style, outline weight, shading, figure size and position on the canvas; do NOT copy that character's face, hair, outfit, equipment or colours.\n\nSubject: a complete fictional four-wheeled foundry scrap cart for a side-scrolling action game, orthographic side/profile with very slight depth so both near wheels and glimpses of both far wheels are visible; no overhead view, clearly FACING RIGHT: its the bent bumper and the front end of the machine turn toward the RIGHT edge of the image; forward is RIGHT and its back is toward the LEFT edge. A compact squat four-wheeled foundry scrap cart, invented 2D action game enemy. Main silhouette 110:75 width to height, strictly facing screen RIGHT. One low asymmetrical burnt-rust-orange mine trolley with charcoal rails, two large dark near-side wheels and two offset darker far-side wheels on the same pair of axles, no fifth wheel. A crushed steel bumper visibly sticks out on the right/front, broad bent industrial plate with no pointed spikes. In its bed are three chunky angular graphite and rust slabs, one tilted. One clearly visible strapped fictional translucent turquoise Haze reservoir with a rigid dark cage band and three clean turquoise tones toward the front, and a squat red warning lamp on top near the right, dark red rim and small bright coral-red lens with a tiny pale highlight so the red palette ramp survives the pixel finish. No literal explosive apparatus, wires, fuses, motor detail, faces, guns, organic characters, numerals, or text. Level stationary idle on aligned wheels, a stubby right-facing front bumper, full silhouette inside the frame.\n\nSize and position: one single figure, the top of the figure (including hair, headgear, raised weapons and effects) about 35 percent below the top edge of the canvas and its lowest point about 15 percent above the bottom edge (the figure about 50 percent of the canvas height), the body a little left of centre so there is extra empty room on the RIGHT side for forward motion, generous empty magenta margin on every side, nothing touching or crossing the edges. The whole figure is drawn with solid, fully opaque pixels: no transparency, no semi-transparent glow, no soft aura, nothing blended with the background.\n\nBackground is pure flat opaque magenta, no ground or cast shadow. Center the full machine with 12-15% padding; no background objects. Use broad matte angular lineless color planes like the supplied game's rusty steel, and a compact readable shape for 75px artwork. The front bumper, red warning beacon and broad cyan reservoir set this design apart from the reference decorative cart.\n\nBackground: solid flat pure magenta #FF00FF everywhere outside the character, no shadow, no ground, no glow on the background.",
+      "references": [
+        "source/foundry_reference.png"
+      ]
+    },
+    "roll": {
+      "path": "source/roll_source.png",
+      "sha256": "3a509055b689e900edb917650c427a4c0cc181df2b68a28263f931020a86e946",
+      "resolution": [
+        1254,
+        1254
+      ],
+      "generated_attempts": 1,
+      "prompt": "Use the attached approved original character master as EXACT identity, no redesign. The same right-heading compact industrial HAZE scrap cart, rust-brown bed, three chunky scrap slabs, one turquoise fictional Haze reservoir in dark bands, red beacon on top, a bent steel front bumper at the RIGHT, two dark large near wheels plus two partly visible dark wheels behind them on the same two axles. Orthographic side-profile with a few pixels of shallow depth like master, view and scale consistent. Left-to-right sheet order, centered within every equal cell, roughly 10% or more empty padding on each side per cell, no cell outlines. Pure full-bleed flat saturated magenta RGB 255 0 255 background; no scenery, floor line, floor shadow, words, numbers, captions, trails, glow haze, debris beyond the supplied pose, or extra graphics. Matte flat lineless angular color fields, fixed color design and shadows across poses, same scale as every other drawing. Only draw the fictional game vehicle.\nMake ONE square 2 by 2 grid, four frames of a loop. All four wheel bottoms share the same relative y and the chassis stays on the same horizontal line, pointing right. In all cells reuse EXACTLY the same reservoir, unchanging red idle lamp, front bumper and same horizontal positions of all wheel hubs. IMPORTANT the near wheels' uneven highlights/hexagonal hubs visibly rotate as it rolls: TOP LEFT one worn spoke or hub notch angled forward high; TOP RIGHT both near hubs turn approximately 25° clockwise; BOTTOM LEFT another 25°; BOTTOM RIGHT another 25° (same recognizable spokes, not merely alternate lighter circles). Bright and dark internal wedge patterns travel clockwise, preserving the same rim and wheel sizes. The rear loose angular scrap bobs a tiny bit, broad beat sequence down-up-high-up, with visible change on the upper loose slabs and not the chassis. No moving vehicle relative to the cell, no speed lines, exactly four poses in reading order.",
+      "references": [
+        "master/master.png"
+      ]
+    },
+    "arm": {
+      "path": "source/arm_source.png",
+      "sha256": "55dedcbe310325b3b7e873ce0e857072a2f1ed1ecd00e122a1cd0445cf51eeb8",
+      "resolution": [
+        2172,
+        724
+      ],
+      "generated_attempts": 1,
+      "prompt": "Use the attached approved original character master as EXACT identity, no redesign. The same right-heading compact industrial HAZE scrap cart, rust-brown bed, three chunky scrap slabs, one turquoise fictional Haze reservoir in dark bands, red beacon on top, a bent steel front bumper at the RIGHT, two dark large near wheels plus two partly visible dark wheels behind them on the same two axles. Orthographic side-profile with a few pixels of shallow depth like master, view and scale consistent. Left-to-right sheet order, centered within every equal cell, roughly 10% or more empty padding on each side per cell, no cell outlines. Pure full-bleed flat saturated magenta RGB 255 0 255 background; no scenery, floor line, floor shadow, words, numbers, captions, trails, glow haze, debris beyond the supplied pose, or extra graphics. Matte flat lineless angular color fields, fixed color design and shadows across poses, same scale as every other drawing. Only draw the fictional game vehicle.\nMake ONE wide 3:1 image with one row and EXACTLY THREE equally spaced cells. Three successive charging/tension poses, right-facing cart on identical exact wheel-ground line, same crank hubs, same bed and dented bumper. Only the reservoir and lamp change. First: modest slight expansion of the turquoise Haze chamber above its fixed lower anchoring rims and a very dark brick red lamp. Second: obvious swelling of the same glowing cyan reservoir and very bright saturated scarlet/coral warning lamp, hard pale red lens small center, with no rim of glow outside its metal housing. Third: reservoir swollen further, now clearly taller and wider than first while still strapped and attached, with a paler large turquoise inner polygon and red beacon visibly darkening to mid red between flashes. Show clear progressive swelling from 1 to 3 and explicit dark-red to bright-red to mid-red flashing with no emitted marks. Do not add explosions, blasts, sparks, fire, projectiles or fuse, no extra containers, no labels or signs. Include top clearance for the tallest chamber.",
+      "references": [
+        "master/master.png"
+      ]
+    },
+    "hurt": {
+      "path": "source/hurt_source.png",
+      "sha256": "84abb83e3a9755e733c4f9b4586b1189b9a2778aae9aa6896aa453d05a364a43",
+      "resolution": [
+        1774,
+        887
+      ],
+      "generated_attempts": 1,
+      "prompt": "Use the attached approved original character master as EXACT identity, no redesign. The same right-heading compact industrial HAZE scrap cart, rust-brown bed, three chunky scrap slabs, one turquoise fictional Haze reservoir in dark bands, red beacon on top, a bent steel front bumper at the RIGHT, two dark large near wheels plus two partly visible dark wheels behind them on the same two axles. Orthographic side-profile with a few pixels of shallow depth like master, view and scale consistent. Left-to-right sheet order, centered within every equal cell, roughly 10% or more empty padding on each side per cell, no cell outlines. Pure full-bleed flat saturated magenta RGB 255 0 255 background; no scenery, floor line, floor shadow, words, numbers, captions, trails, glow haze, debris beyond the supplied pose, or extra graphics. Matte flat lineless angular color fields, fixed color design and shadows across poses, same scale as every other drawing. Only draw the fictional game vehicle.\nMake ONE wide 2:1 one-row two-cell animation drawing. Only the right-front wheels lift. The trolley recoils from a hit and tips back around the REAR wheel axle on the left. LEFT CELL: the recognizable right dented front bumper rises strongly with the WHOLE cart pitched nose/bumper UP about 18 degrees toward the right. Two wheels on the forward axle visibly clear the implied flat ground plane well above the grounded rear pair. RIGHT CELL: based on the same resting rear wheel contact, the cart settles partly, front bumper still tilted UP toward the right about 8 degrees, front wheels still suspended, less than first. Whole cart stays same anatomy, perspective, armor, red beacon, rusty load and reservoir, device faces right. Leave ample padding at top. No impact icon, stars, debris, flame or symbols. No floor or cast shadow. Rear axle x position in each cell is the same.",
+      "references": [
+        "master/master.png"
+      ]
+    },
+    "wreck": {
+      "path": "source/wreck_source.png",
+      "sha256": "4489de40b7dad62fe2f6ba66c7cd6aeda26524f53ae8623a502419070e9ded4d",
+      "resolution": [
+        1774,
+        887
+      ],
+      "generated_attempts": 1,
+      "prompt": "Use the attached approved original character master as EXACT identity, no redesign. The same right-heading compact industrial HAZE scrap cart, rust-brown bed, three chunky scrap slabs, one turquoise fictional Haze reservoir in dark bands, red beacon on top, a bent steel front bumper at the RIGHT, two dark large near wheels plus two partly visible dark wheels behind them on the same two axles. Orthographic side-profile with a few pixels of shallow depth like master, view and scale consistent. Left-to-right sheet order, centered within every equal cell, roughly 10% or more empty padding on each side per cell, no cell outlines. Pure full-bleed flat saturated magenta RGB 255 0 255 background; no scenery, floor line, floor shadow, words, numbers, captions, trails, glow haze, debris beyond the supplied pose, or extra graphics. Matte flat lineless angular color fields, fixed color design and shadows across poses, same scale as every other drawing. Only draw the fictional game vehicle.\nMake ONE wide 2:1 one-row two-cell sheet of the SAME right-facing mine cart as a pair of low aftermath poses. No airborne effect. LEFT drawing: immediately after destruction, recognizable low toppled burnt charcoal-rust bed, two or three coarsely bent plates, detached thick round wheel laid near it, dented bumper piece to the right, visible half faded cyan reservoir fragment. Imply former four-wheel silhouette without the full living cart, visibly broken with only tiny dim warm embers in a crack, no full reservoir and no lit beacon. RIGHT drawing: the same collapsed pile settled lower and extinguished, detached wheel tilted down and same bent bumper section and darkest pieces. Wreck heights about 45-55% of living cart while the width is mostly maintained. Cluster the significant pieces low on one implied line, with limited separation. No visible floor, smoke, particles, blast, flames, icons, new unrelated objects or writing.",
+      "references": [
+        "master/master.png"
+      ]
+    }
+  }
+}

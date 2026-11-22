@@ -356,6 +356,32 @@ def windup_guard():
 
 
 
+
+# ----- 2026-11-22 v5 공장 새 적 -----
+def windup_drone():
+    """용접 드론의 예고: 로터가 높아지며 토치에 불이 붙기 직전 '위잉-딸깍'."""
+    s = 0.5
+    t = t_axis(s)
+    whine = square(sweep(420, 900, s), 0.3) * 0.25 * (1 + 0.4 * np.sin(2 * np.pi * 38 * t))
+    click = metal((2400, 3300), 0.04, 90)
+    return place(s, [(0.0, whine * envelope(s, 0.05, 0.2)), (0.44, click * 0.8)])
+
+
+def drone_torch():
+    """용접 드론의 불꽃: 거친 가스 분사 '치이익'."""
+    s = 0.55
+    hiss = lowpass(noise(s), 2) * 0.7 + noise(s) * 0.25
+    roar = lowpass(noise(s), 14) * 0.5
+    return (hiss + roar) * envelope(s, 0.02, 0.35)
+
+
+def windup_cart():
+    """자폭 수레의 예고: 빨라지는 경고음 '삑 삑삑삑'."""
+    s = 0.8
+    beep = lambda d: square(np.full(int(RATE * d), 1250.0), 0.5) * 0.4 * envelope(d, 0.002, 0.4)   # noqa: E731
+    return place(s, [(0.0, beep(0.09)), (0.3, beep(0.07)), (0.48, beep(0.06)), (0.6, beep(0.05)), (0.7, beep(0.05))])
+
+
 # ----- 2026-11-21 계획 2-3 환경음 (가끔 흩뿌리는 짧은 소리, 작게) -----
 def amb_drip():
     """슬럼: 천장에서 떨어진 물방울이 웅덩이에 '똑' (올라가는 짧은 사인 + 메아리)."""
@@ -544,7 +570,9 @@ SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload
           "ult_final_pipe": ult_final_pipe, "ult_final_knife": ult_final_knife, "ult_final_gauntlet": ult_final_gauntlet,
           "ult_final_chain": ult_final_chain,
           "zone_awake": zone_awake, "heartbeat": heartbeat, "kill_last": kill_last,
-          "ui_move": ui_move, "ui_select": ui_select, "ui_back": ui_back}
+          "ui_move": ui_move, "ui_select": ui_select, "ui_back": ui_back,
+          # 2026-11-22 v5 공장 새 적
+          "windup_drone": windup_drone, "drone_torch": drone_torch, "windup_cart": windup_cart}
 # 자주 나는 소리의 2·3버전: 같은 합성에 다른 잡음, 음 높이를 조금 바꾼다 (src/config.SFX_VARIANTS와 같은 목록)
 VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')
 PITCH = {2: 0.94, 3: 1.07}

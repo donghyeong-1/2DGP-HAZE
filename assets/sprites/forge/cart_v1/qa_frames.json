@@ -1,0 +1,222 @@
+{
+  "canvas": [
+    160,
+    122
+  ],
+  "pivot": [
+    76,
+    104
+  ],
+  "palette_colors": 41,
+  "frames": {
+    "roll-1": {
+      "bounds": [
+        19,
+        25,
+        132,
+        104
+      ],
+      "colors": 41,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 90,
+      "offset": [
+        18,
+        24
+      ]
+    },
+    "roll-2": {
+      "bounds": [
+        19,
+        25,
+        132,
+        104
+      ],
+      "colors": 41,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 90,
+      "offset": [
+        18,
+        24
+      ]
+    },
+    "roll-3": {
+      "bounds": [
+        19,
+        25,
+        132,
+        104
+      ],
+      "colors": 41,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 90,
+      "offset": [
+        18,
+        24
+      ]
+    },
+    "roll-4": {
+      "bounds": [
+        19,
+        25,
+        132,
+        104
+      ],
+      "colors": 41,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 90,
+      "offset": [
+        18,
+        24
+      ]
+    },
+    "arm-1": {
+      "bounds": [
+        19,
+        31,
+        132,
+        104
+      ],
+      "colors": 39,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 160,
+      "offset": [
+        18,
+        25
+      ]
+    },
+    "arm-2": {
+      "bounds": [
+        19,
+        28,
+        132,
+        104
+      ],
+      "colors": 39,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 150,
+      "offset": [
+        18,
+        25
+      ]
+    },
+    "arm-3": {
+      "bounds": [
+        19,
+        26,
+        132,
+        104
+      ],
+      "colors": 39,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 220,
+      "offset": [
+        18,
+        25
+      ]
+    },
+    "hurt-1": {
+      "bounds": [
+        17,
+        13,
+        128,
+        104
+      ],
+      "colors": 41,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 100,
+      "offset": [
+        16,
+        12
+      ]
+    },
+    "hurt-2": {
+      "bounds": [
+        19,
+        20,
+        133,
+        104
+      ],
+      "colors": 41,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 140,
+      "offset": [
+        16,
+        12
+      ]
+    },
+    "wreck-1": {
+      "bounds": [
+        20,
+        41,
+        133,
+        104
+      ],
+      "colors": 37,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 180,
+      "offset": [
+        19,
+        40
+      ]
+    },
+    "wreck-2": {
+      "bounds": [
+        20,
+        63,
+        132,
+        104
+      ],
+      "colors": 29,
+      "alpha": [
+        0,
+        255
+      ],
+      "bottom_opaque": 103,
+      "duration_ms": 480,
+      "offset": [
+        19,
+        40
+      ]
+    }
+  }
+}

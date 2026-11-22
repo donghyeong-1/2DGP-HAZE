@@ -1,0 +1,355 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_drone_fly",
+  "character": "enemy_drone",
+  "role": null,
+  "source": {
+    "frames": "../registered/fly",
+    "count": 4,
+    "size": [
+      1420,
+      1256
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../registered/fly/registration.json",
+      "sha256": "05e7ba48d1eed170c3e3636e8d08899aac016f123645125617ca83d461546fec",
+      "bytes": 1607
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 236,
+    "feetPx": 966,
+    "heightPx": 730,
+    "areaPx": 347175,
+    "stanceX": 890.5,
+    "centroid": [
+      673.2635025563477,
+      617.2948268164471
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    890.5,
+    966.0
+  ],
+  "scale": 0.12071330589849108,
+  "scaleSource": "scale-ref",
+  "targetHeight": 90.12071330589849,
+  "scaleRef": {
+    "path": "../enemy_drone/finish.json",
+    "sha256": "5c8f5ca007b9c33d45d1d9fa16f1332009ffefac3072998cfb745c057cbe64e4",
+    "bytes": 6889,
+    "clip": "enemy_drone",
+    "character": "enemy_drone",
+    "scale": 0.12071330589849108,
+    "restAreaPx": 349223.0,
+    "areaRatio": 0.994136,
+    "correction": 1.002945,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    112,
+    94
+  ],
+  "anchor": [
+    81,
+    93
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      112,
+      94
+    ],
+    "sourceAnchor": [
+      81,
+      93
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 90.1207,
+    "areaPx": 5058.931,
+    "bodyHeightPx": 88.1207,
+    "outlinePx": 1,
+    "measuredHeightPx": 90,
+    "measuredAreaPx": 5653
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.12071330589849108,
+      "size": [
+        112,
+        94
+      ],
+      "anchor": [
+        81,
+        93
+      ],
+      "targetHeight": 90.12071330589849,
+      "flicker": {
+        "pairs": 3,
+        "alphaFlipsPerPair": 606.667,
+        "indexFlipsPerPair": 1627.667,
+        "noiseFlipsPerPair": 234.333,
+        "edgeFlipsPerPair": 0.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../enemy_drone/palette.json",
+    "sha256": "27036f85de0e34efa00e6cd0cbe34c82ff8643daadd3123a432ec8cf9c3790aa",
+    "bytes": 1770,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 1917,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 38,
+    "noiseFlipReduction": 0.4027,
+    "plainMajority": {
+      "pairs": 3,
+      "alphaFlipsPerPair": 638.333,
+      "indexFlipsPerPair": 1885.0,
+      "noiseFlipsPerPair": 392.333,
+      "edgeFlipsPerPair": 0.0
+    },
+    "heldIndexPx": 696,
+    "lonePixelsFixed": 730
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/fly-1.png",
+      "sha256": "6bd3f7eddc4abda1861fe2f1dc32d426e3a730afeb5589026a48a3a4d01c4b09",
+      "sourceFile": "fly-1.png",
+      "sourceSha256": "9f506f45e79dbdb2af5a708e3eeb750be97cb48c179d26dacd5c70a9202f455b",
+      "opaquePx": 5653
+    },
+    {
+      "file": "frames/fly-2.png",
+      "sha256": "a63bb505f61e3ceb7d68aacb194fe5ab2be40d02ce336a550d4bee51a1a5a2a5",
+      "sourceFile": "fly-2.png",
+      "sourceSha256": "53f38e25e63e195831208cf513f98aa6a01e1aed1ae49c599b85f960b13c91e4",
+      "opaquePx": 5529
+    },
+    {
+      "file": "frames/fly-3.png",
+      "sha256": "192d1efcf26e105b1ea39b659b08878d15c6f8bb84ca1b5a7b9acfc4679150ff",
+      "sourceFile": "fly-3.png",
+      "sourceSha256": "95bf7a656ebbccc64f6795329ea503258d774dbbf7464a6a66005b6806d2f4fa",
+      "opaquePx": 5186
+    },
+    {
+      "file": "frames/fly-4.png",
+      "sha256": "b5c480084e7bed539c413172ef84a34cb9455a77c4434d0df99b165e8ac97fe1",
+      "sourceFile": "fly-4.png",
+      "sourceSha256": "8473b14363f78ae203fde922d27a0809dfc894f8ba6377444b7bd134f73027c5",
+      "opaquePx": 5594
+    }
+  ],
+  "flicker": {
+    "pairs": 3,
+    "alphaFlipsPerPair": 606.667,
+    "indexFlipsPerPair": 1627.667,
+    "noiseFlipsPerPair": 234.333,
+    "edgeFlipsPerPair": 0.0
+  },
+  "specksRemoved": 11,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.120713,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.121,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 3,
+          "alphaFlipsPerPair": 606.667,
+          "indexFlipsPerPair": 1627.667,
+          "noiseFlipsPerPair": 234.333,
+          "edgeFlipsPerPair": 0.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 8.284,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 39,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 38
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 234.333,
+          "perFrameNearest": 392.333,
+          "reduction": 0.4027
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../registered/fly/fly-1.png",
+        "sha256": "9f506f45e79dbdb2af5a708e3eeb750be97cb48c179d26dacd5c70a9202f455b"
+      },
+      {
+        "path": "../registered/fly/fly-2.png",
+        "sha256": "53f38e25e63e195831208cf513f98aa6a01e1aed1ae49c599b85f960b13c91e4"
+      },
+      {
+        "path": "../registered/fly/fly-3.png",
+        "sha256": "95bf7a656ebbccc64f6795329ea503258d774dbbf7464a6a66005b6806d2f4fa"
+      },
+      {
+        "path": "../registered/fly/fly-4.png",
+        "sha256": "8473b14363f78ae203fde922d27a0809dfc894f8ba6377444b7bd134f73027c5"
+      },
+      {
+        "path": "../registered/fly/registration.json",
+        "sha256": "05e7ba48d1eed170c3e3636e8d08899aac016f123645125617ca83d461546fec",
+        "bytes": 1607
+      },
+      {
+        "path": "../enemy_drone/finish.json",
+        "sha256": "5c8f5ca007b9c33d45d1d9fa16f1332009ffefac3072998cfb745c057cbe64e4",
+        "bytes": 6889
+      },
+      {
+        "path": "../enemy_drone/palette.json",
+        "sha256": "27036f85de0e34efa00e6cd0cbe34c82ff8643daadd3123a432ec8cf9c3790aa",
+        "bytes": 1770
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/fly-1.png",
+        "sha256": "6bd3f7eddc4abda1861fe2f1dc32d426e3a730afeb5589026a48a3a4d01c4b09",
+        "bytes": 4789
+      },
+      {
+        "path": "frames/fly-2.png",
+        "sha256": "a63bb505f61e3ceb7d68aacb194fe5ab2be40d02ce336a550d4bee51a1a5a2a5",
+        "bytes": 4871
+      },
+      {
+        "path": "frames/fly-3.png",
+        "sha256": "192d1efcf26e105b1ea39b659b08878d15c6f8bb84ca1b5a7b9acfc4679150ff",
+        "bytes": 4575
+      },
+      {
+        "path": "frames/fly-4.png",
+        "sha256": "b5c480084e7bed539c413172ef84a34cb9455a77c4434d0df99b165e8ac97fe1",
+        "bytes": 4787
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "0ff1f80be2b75ba0b5c1ee1f14e247c8a03aad637bf6e2e281cda60a5551ac9d",
+        "bytes": 36364
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

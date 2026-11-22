@@ -1,0 +1,84 @@
+{
+  "raw_pivot": [
+    630,
+    957
+  ],
+  "frames": {
+    "roll-1": {
+      "input_bounds": [
+        26,
+        95,
+        600,
+        493
+      ],
+      "source_pivot": [
+        313.0,
+        493
+      ],
+      "registered_bounds": [
+        166,
+        313,
+        1095,
+        957
+      ],
+      "scale": 1.6202090592334495
+    },
+    "roll-2": {
+      "input_bounds": [
+        26,
+        95,
+        600,
+        493
+      ],
+      "source_pivot": [
+        313.0,
+        493
+      ],
+      "registered_bounds": [
+        166,
+        313,
+        1096,
+        957
+      ],
+      "scale": 1.6202090592334495
+    },
+    "roll-3": {
+      "input_bounds": [
+        26,
+        95,
+        600,
+        493
+      ],
+      "source_pivot": [
+        313.0,
+        493
+      ],
+      "registered_bounds": [
+        166,
+        312,
+        1095,
+        957
+      ],
+      "scale": 1.6202090592334495
+    },
+    "roll-4": {
+      "input_bounds": [
+        26,
+        95,
+        600,
+        493
+      ],
+      "source_pivot": [
+        313.0,
+        493
+      ],
+      "registered_bounds": [
+        166,
+        312,
+        1095,
+        957
+      ],
+      "scale": 1.6202090592334495
+    }
+  }
+}

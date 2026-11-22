@@ -10,6 +10,7 @@
                     (1,-1) 정비방
 
 swap: 템플릿에 적힌 적 종류(s 슬럼, t 투척병)를 이 방에서만 바꾼다.
+공장에만 나오는 새 적(11/22 v5): 용접 드론(날아다니며 아래로 불꽃), 자폭 수레(굴러와 터짐, 받아치면 되돌아감).
 """
 START = (0, 0)
 TITLE = '제4구역: 철골 공장'
@@ -18,17 +19,17 @@ THEME = 'foundry'
 STAGE2 = {
     (0, 0): {"template": "start_hall", "type": "start"},
     (1, 0): {"template": "crossing", "type": "combat",
-             "enemies": ["hound", "guard", "thrower", "hound", "slum", "guard"]},
+             "enemies": ["hound", "drone", "thrower", "cart", "slum", "guard"]},
     (1, 1): {"template": "hub_cavern", "type": "combat",
-             "enemies": ["thrower", "guard", "hound", "hound", "guard", "thrower"]},
+             "enemies": ["thrower", "guard", "drone", "hound", "cart", "drone"]},
     (0, 1): {"template": "well_room", "type": "combat", "high_haze": True,
-             "enemies": ["hound", "hound", "thrower", "guard", "slum", "thrower"]},
+             "enemies": ["hound", "cart", "thrower", "guard", "drone", "thrower"]},
     (2, 1): {"template": "pit_02", "type": "combat", "swap": {"slum": "hound"}},
     (3, 1): {"template": "tower_03", "type": "combat", "high_haze": True, "swap": {"slum": "guard"}},
-    (4, 1): {"template": "cover_04", "type": "combat", "swap": {"slum": "guard"}},
+    (4, 1): {"template": "cover_04", "type": "combat", "swap": {"slum": "guard", "thrower": "drone"}},
     (5, 1): {"template": "boss_arena", "type": "boss", "boss": "crasher"},
     (2, 0): {"template": "arena_05", "type": "combat", "high_haze": True, "swap": {"slum": "hound"}},
-    (3, 0): {"template": "hall_01", "type": "combat", "swap": {"slum": "guard"}},
+    (3, 0): {"template": "hall_01", "type": "combat", "swap": {"slum": "cart"}},
     (1, 2): {"template": "gold_room", "type": "gold"},
     (1, -1): {"template": "shop_room", "type": "shop"},
     (4, 0): {"template": "rift_room", "type": "rift"},     # 아래 줄 홀 오른쪽: 균열방 (11/19)

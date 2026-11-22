@@ -279,6 +279,16 @@ ENEMY_STATS = {
                   patrol=80, walk_px=40.0,
                   frames=dict(walk='enemy_guard_walk', attack='enemy_guard_swing', heavy='enemy_guard_heavy',
                               bash='enemy_guard_bash', hurt='enemy_guard_hurt')),
+    # 공장 새 적 (11/22 v5, src/enemy_kinds.py, Codex T36·T37)
+    # 용접 드론: 날아서 플레이어 머리 위 hover px에 머물다 아래로 불꽃(폭 flame_w). attack_range는 가로로 이만큼 가까우면 뿜는다
+    'drone': dict(hp=45, hb=(80, 64), speed=240.0, sight=950, sight_dy=700, attack_range=60, reach_dy=700, damage=14,
+                  windup=0.75, attack_time=0.55, cooldown=1.7, gain_on_hit=0, sprite='enemy_drone_idle', leap=0.0,
+                  moves=[('torch', 1)], hover=250, flame_w=56),
+    # 자폭 수레: 굴러와 예고 뒤 터진다(반경 blast_r, 플레이어 피해 damage). 맞으면 되밀려 굴러가 적·벽에 닿으면 터진다(적 피해 blast_enemy)
+    'cart': dict(hp=70, hb=(100, 70), speed=290.0, sight=950, sight_dy=220, attack_range=120, reach_dy=160, damage=22,
+                 windup=0.8, attack_time=0.05, cooldown=1.0, gain_on_hit=6, sprite='enemy_cart_idle', leap=0.0,
+                 moves=[('arm', 1)], walk_px=26.0, blast_r=170, blast_enemy=60, return_speed=820.0,
+                 frames=dict(walk='enemy_cart_roll', attack='enemy_cart_arm', hurt='enemy_cart_hurt')),
 }
 # 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
 ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
@@ -336,7 +346,7 @@ ARK_FIELD_W = (300, 340, 400)  # 페이즈별 장판 폭(px)
 ARK_FIELD_TIME = (5.0, 6.0, 7.0)   # 장판이 남는 시간(초)
 ARK_PHASES = (0.66, 0.33)     # 체력 비율이 이 아래로 내려가면 2페이즈, 3페이즈
 ARK_DEATH_FALL = 0.6          # 쓰러질 때 무릎 꿇은 자세(사망 1)를 보여 주는 시간(초), 그 뒤 엎어짐(사망 2)
-SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'crasher': 10, 'ark': 20}
+SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'drone': 2, 'cart': 2, 'crasher': 10, 'ark': 20}
 # 정예 적 (11/21 퀄리티 계획 2-4): 일반 적에 수식어. 색 테두리와 이름으로 표시, 조각 2배
 ELITE_MODS = {
     'swift': dict(name='질주', color=(90, 235, 220), speed=1.35, windup=0.8),
@@ -380,7 +390,7 @@ ENEMY_HIT_FLASH = 0.10       # 맞았을 때 붉게 번쩍이는 시간(초)
 ENEMY_KNOCKBACK = 260.0      # 맞았을 때 밀려나는 속도(px/s). 실제로는 x 공격 크기(KNOCK_*) / 적 무게(ENEMY_WEIGHT)
 # 손맛 (11/21 퀄리티 계획 1-5): 맞은 순간 흰 번쩍임 -> 붉게, 무게·공격 크기에 따른 밀림, 방 마지막 적에서 슬로 모션
 ENEMY_WHITE_FLASH = 0.05     # 맞은 뒤 처음 이만큼은 하얗게 번쩍인다 (ENEMY_HIT_FLASH 안에서)
-ENEMY_WEIGHT = {'hound': 0.7, 'slum': 1.0, 'thrower': 1.0, 'guard': 1.8}   # 클수록 덜 밀린다
+ENEMY_WEIGHT = {'hound': 0.7, 'slum': 1.0, 'thrower': 1.0, 'guard': 1.8, 'drone': 0.8, 'cart': 1.2}   # 클수록 덜 밀린다
 KNOCK_BIG = 1.8              # 큰 공격(3타·강화·궁극기 마지막 등 big=True)의 밀림 배율
 SLOW_CLEAR = (0.45, 0.35)    # 방의 마지막 적을 쓰러뜨렸을 때 슬로 모션 (실제 시간 초, 시간 배율)
 SLOW_BOSS = (1.1, 0.25)      # 보스를 쓰러뜨렸을 때
@@ -390,7 +400,8 @@ CORPSE_TIME = 0.9             # 누워 있는 데까지 (그 뒤 흩어지며 �
 CORPSE_FADE = 0.35            # 흩어지며 사라지는 시간
 HINT_TIME = 6.0               # 처음 안내판을 보여 주는 시간(초) (11/21 계획 2-5, src/tutorial.py)
 AMB_GAP = (3.0, 8.0)          # 환경음 사이 간격(초, 무작위) (11/21 계획 2-3, src/ambience.py)
-ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard'}
+ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard',
+                      'drone': 'windup_drone', 'cart': 'windup_cart'}
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
 # 표에 없는 소리는 1.0
 SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
@@ -404,7 +415,7 @@ SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swin
 # 적 테두리·강한 공격 예고 (11/22 v5): 모든 적에 얇은 옅은 테두리(정예는 자기 색), 강한 기술은 예고 동안 머리 위 '!',
 # 돌진 기술은 바닥에 가는 방향 표시
 ENEMY_OUTLINE = (150, 165, 200)
-STRONG_MOVES = ('heavy', 'bash', 'lunge', 'pounce', 'combo', 'volley')
+STRONG_MOVES = ('heavy', 'bash', 'lunge', 'pounce', 'combo', 'volley', 'torch', 'arm')
 RUSH_MOVES = {'lunge': 300, 'pounce': 340, 'bash': 380}     # 기술 -> 바닥 표시 길이(px)
 # 자주 나는 소리: 3버전(<이름>, _v2, _v3)을 돌려 쓴다 (2026-11-22, tools/make_sfx.py가 음 높이·잡음을 조금 바꿔 만든다)
 SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')

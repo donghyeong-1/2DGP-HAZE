@@ -124,8 +124,8 @@ def main():
             from boss import Boss
             e = Boss(x, p.y, stage.room, p)
         else:
-            from enemy import Enemy
-            e = Enemy(kind, x, p.y, stage.room, p)
+            import enemy_kinds
+            e = enemy_kinds.make(kind, x, p.y, stage.room, p)       # 드론·수레는 자기 클래스
         game_world.add_object(e, game_world.LAYER_ENEMY)
         if not (0 < x < stage.room.width):
             print(f'경고: {spec}는 방 밖(x={x:.0f}, 방 폭 {stage.room.width})')

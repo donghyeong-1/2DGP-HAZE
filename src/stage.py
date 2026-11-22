@@ -375,7 +375,8 @@ class Stage:
                 kind = generic.pop(0)
             else:
                 kind = swap.get(kind, kind)
-            enemy = Enemy(kind, x, y, self.room, self.player)
+            import enemy_kinds
+            enemy = enemy_kinds.make(kind, x, y, self.room, self.player)     # 드론·수레는 자기 클래스 (11/22)
             mod = roll_elite(rng, self.name)
             if mod:
                 enemy.make_elite(mod)

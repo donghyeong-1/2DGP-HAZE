@@ -1,0 +1,92 @@
+{
+  "date": "2026-11-22",
+  "art_source": "host_image",
+  "tool": "Codex 내장 image_gen",
+  "model": "모델명 미제공",
+  "cost_estimate_usd": null,
+  "skill": "generate2dsprite 0.5.0 (MIT)",
+  "idle_target_height": 90,
+  "game_canvas": [
+    160,
+    136
+  ],
+  "pivot_top_left": [
+    73,
+    65
+  ],
+  "style_references": [
+    "assets/sprites/unified/enemy_guard_idle.png",
+    "assets/sprites/unified/enemy_thrower_idle.png",
+    "assets/sprites/unified/boss_crasher_idle_1.png",
+    "assets/sprites/unified/n09_idle_1.png",
+    "assets/backgrounds/far_foundry.png",
+    "assets/tiles/tile_set_foundry.png"
+  ],
+  "sources": {
+    "master": {
+      "path": "source/master_source.png",
+      "sha256": "7e8693774a9e13c04476ffec6828c3788ae549af0aa25fd5a713b1eaad8c5da8",
+      "resolution": [
+        1254,
+        1254
+      ],
+      "generated_attempts": 1,
+      "prompt": "Create exactly ONE square image (1024x1024).\n\nStyle: clean flat cel-shaded 2D game art for a moody side-scrolling industrial prison action game, painted for pixel conversion: lineless shapes with NO outline and no line art, every material in at most 3 flat tones (highlight, base, shadow), cool purple-leaning shadows and warm highlights, large crisp angular light and shadow shapes, a bold readable silhouette, no gradients, no airbrush, no texture noise, no dithering, no pixel grid. No text, no letters, no numbers, no logo, no watermark, no signature, no UI, no border, no frame, no grid.\n\nReference image: the attached image is an approved in-game sprite from the same game (an in-game factory lineup; copy only materials and grouped shading; ignore figures, composition, labels, and pixel grid): match its flat cel-shaded style, outline weight, shading, figure size and position on the canvas; do NOT copy that character's face, hair, outfit, equipment or colours.\n\nSubject: a complete industrial welding drone for a side-scrolling game, right-facing orthographic side profile with shallow depth so both top rotors can be seen, clearly FACING RIGHT: its front lens and idle torch turn toward the RIGHT edge of the image; forward is RIGHT and its back is toward the LEFT edge. A small squat industrial welding drone, a machine with no humanoid anatomy. One compact asymmetrical rounded angular rusted burnt-orange sheet-steel body, 110:90 width-to-height including equipment, a single large round cyan Haze lens on a knuckled front-right plate clearly looking screen right, two top-mounted distinct dark propeller rotors on short spaced mounts (both visible; far one slightly high and dark), and exactly one jointed thick steel welding torch arm below, bent forward-right at idle with a stubby copper nozzle. Graphite lower plating, three large cooling marks or rust patches only, steel-gray rotors; bold silhouette and minimal chunky details. No legs, no wheels, no humanoid face, no gun, no through-body rotor, no decals, no lettering.\n\nSize and position: one single figure, the top of the figure (including hair, headgear, raised weapons and effects) about 35 percent below the top edge of the canvas and its lowest point about 15 percent above the bottom edge (the figure about 50 percent of the canvas height), the body a little left of centre so there is extra empty room on the RIGHT side for forward motion, generous empty magenta margin on every side, nothing touching or crossing the edges. The whole figure is drawn with solid, fully opaque pixels: no transparency, no semi-transparent glow, no soft aura, nothing blended with the background.\n\nKeep the entire machine centered with margins of 12% or more on all sides, two plainly separate rotors wide apart, not overlapping the eye. The single torch is a short mechanical arm, no fire or effects. Flat angular polygons and hard planes; no fake pixel grid, rough texture, reflections, gradients, shadow on the floor, or drawings outside the object.\n\nBackground: solid flat pure magenta #FF00FF everywhere outside the character, no shadow, no ground, no glow on the background.",
+      "references": [
+        "source/foundry_reference.png"
+      ]
+    },
+    "fly": {
+      "path": "source/fly_source.png",
+      "sha256": "56556c1c1a93da0a8c7da030a6dea7211bf1a11e9aa9ba9bea1d7e3369285471",
+      "resolution": [
+        1254,
+        1254
+      ],
+      "generated_attempts": 1,
+      "prompt": "The same welding drone in the attached approved master, image identity is absolute: one burnt-orange rusted shell, same large circular cyan lens at the right end, same gray mounting rings, the two distinct dark-gray twin rotors atop separate mounts, and the one copper-tipped jointed arm below. It ALWAYS faces SCREEN-RIGHT in the exact same orthographic side/very shallow three-quarter view. Flat hard faceted colors, match original silhouette and scale, preserve distinctive vents and rust patches, do not change lens design, proportions or perspective. Pure flat saturated #FF00FF magenta canvas with generous empty margins around every image. No cell outlines, checker, captions, text, numbers, shadows on the background, arrows, flames, beams, or transparent blur. Evenly spaced cells, each subject fully isolated strictly inside its cell with 9–13% margin. Read row-major left to right, top to bottom. The orange torso is a rigid solid object; where it moves its exact shape remains fixed.\nOutput ONE SQUARE 2-column by 2-row grid of EXACTLY four full-body animation poses at equal scale and with matching cell-relative origins. Idle torch stays in the identical relaxed forward bend of the master, cyan lens stays at identical brightness. Only the two visible rotors' blades change their apparent angle/shape as they spin, mounted at the exact same posts, plus a very subtle vertical hover bob much smaller than the blade motion. The vertical hub height and housing stay identical. TOP LEFT: exact master wide visible horizontal blade spans. TOP RIGHT: blades turned to a medium diagonal projection and slimmer. BOTTOM LEFT: both blades almost end-on and short narrow but still visible over both mounts. BOTTOM RIGHT: blades medium projection on the opposite angle with their visible light/dark faces reversed. Use chunky blade shapes so those alternating four positions are readable after reduction; do not replace the props with or add motion lines. Exactly four frames.",
+      "references": [
+        "master/master.png"
+      ]
+    },
+    "attack": {
+      "path": "source/attack_source.png",
+      "sha256": "02abb98bfdf6c93e58cdf261000efa21587818fa609e2ad12c248923f8932f4f",
+      "resolution": [
+        1536,
+        1024
+      ],
+      "generated_attempts": 1,
+      "prompt": "The same welding drone in the attached approved master, image identity is absolute: one burnt-orange rusted shell, same large circular cyan lens at the right end, same gray mounting rings, the two distinct dark-gray twin rotors atop separate mounts, and the one copper-tipped jointed arm below. It ALWAYS faces SCREEN-RIGHT in the exact same orthographic side/very shallow three-quarter view. Flat hard faceted colors, match original silhouette and scale, preserve distinctive vents and rust patches, do not change lens design, proportions or perspective. Pure flat saturated #FF00FF magenta canvas with generous empty margins around every image. No cell outlines, checker, captions, text, numbers, shadows on the background, arrows, flames, beams, or transparent blur. Evenly spaced cells, each subject fully isolated strictly inside its cell with 9–13% margin. Read row-major left to right, top to bottom. The orange torso is a rigid solid object; where it moves its exact shape remains fixed.\nOutput ONE LANDSCAPE 3-column by 2-row grid of six drawings (only the first five are used). Same fixed body at the same positions and scale, rotor shape constant across the sheet, and same lens size. ONLY the single welded jointed torch arm beneath the shell pivots. TOP LEFT (aim 1): arm moves in under the chassis, tip angled about 45° down and right, opening visibly points down-right; original lens starts to brighten. TOP MIDDLE (aim 2): arm is tucked and nozzle now points STRAIGHT DOWN, ninety degrees toward the bottom edge; a clearly pale cyan center in the lens. TOP RIGHT (fire 1): nozzle and lens are charged, same straight-down arm, tiny amber hot rim on nozzle opening only. BOTTOM LEFT (fire 2): same downward pose with slightly retracted arm recoil; hot nozzle opening reaches rich pale amber only INSIDE the metal outlet; lens remains bright. BOTTOM MIDDLE (fire 3): still straight down to finish the shot, arm lower again, copper outlet fading from pale amber. BOTTOM RIGHT: unused neutral duplicate. IMPORTANT only the metal nozzle itself is lit. NO sparks, flame, smoke, puff, pellet, beam, detached effect, light beyond the metal opening, muzzle flash or projectile. A visibly vertical dark elbow and down-pointing copper cylinder in all poses except first.",
+      "references": [
+        "master/master.png"
+      ]
+    },
+    "hurt": {
+      "path": "source/hurt_source.png",
+      "sha256": "fdd7008866239e3ffb3d6803cc6b2c5fe1f62f5398e1df02d39abec0a032187e",
+      "resolution": [
+        1774,
+        887
+      ],
+      "generated_attempts": 1,
+      "prompt": "The same welding drone in the attached approved master, image identity is absolute: one burnt-orange rusted shell, same large circular cyan lens at the right end, same gray mounting rings, the two distinct dark-gray twin rotors atop separate mounts, and the one copper-tipped jointed arm below. It ALWAYS faces SCREEN-RIGHT in the exact same orthographic side/very shallow three-quarter view. Flat hard faceted colors, match original silhouette and scale, preserve distinctive vents and rust patches, do not change lens design, proportions or perspective. Pure flat saturated #FF00FF magenta canvas with generous empty margins around every image. No cell outlines, checker, captions, text, numbers, shadows on the background, arrows, flames, beams, or transparent blur. Evenly spaced cells, each subject fully isolated strictly inside its cell with 9–13% margin. Read row-major left to right, top to bottom. The orange torso is a rigid solid object; where it moves its exact shape remains fixed.\nOutput ONE WIDE 2-column by 1-row strip with exactly two complete poses. Frame 1 at LEFT: hit reaction, the machine strongly and visibly tilts around its own center, right front lens goes UP around 12 degrees, single arm tucks inward defensively with nozzle visible, same machine shape and no damage change. Frame 2 at RIGHT: recovering counter-tilt, its right end dips below normal, about 8 degrees from horizontal in opposite direction from frame 1, propellers still visible, arm partly relaxing. Match size and shared body center. Use pose change only, no impact, sparks, flashes, action lines or piece loss. True orthographic side, right-facing lens, exactly two.",
+      "references": [
+        "master/master.png"
+      ]
+    },
+    "death": {
+      "path": "source/death_source.png",
+      "sha256": "9ed04b0a03afb03a5ec9aa3e4c02f5362222e80ce8d7e1feb71ee987d7ee46a1",
+      "resolution": [
+        1774,
+        887
+      ],
+      "generated_attempts": 1,
+      "prompt": "The same welding drone in the attached approved master, image identity is absolute: one burnt-orange rusted shell, same large circular cyan lens at the right end, same gray mounting rings, the two distinct dark-gray twin rotors atop separate mounts, and the one copper-tipped jointed arm below. It ALWAYS faces SCREEN-RIGHT in the exact same orthographic side/very shallow three-quarter view. Flat hard faceted colors, match original silhouette and scale, preserve distinctive vents and rust patches, do not change lens design, proportions or perspective. Pure flat saturated #FF00FF magenta canvas with generous empty margins around every image. No cell outlines, checker, captions, text, numbers, shadows on the background, arrows, flames, beams, or transparent blur. Evenly spaced cells, each subject fully isolated strictly inside its cell with 9–13% margin. Read row-major left to right, top to bottom. The orange torso is a rigid solid object; where it moves its exact shape remains fixed.\nOutput ONE WIDE two-column one-row grid with only two separate poses of the destroyed version of this exact drone. LEFT: the entire copper-orange rusted machine is visibly tipping NOSE DOWN toward the right about 25 degrees like it is falling. The cyan lens is cracked and dim but frame stays in recognizable silhouette. Both rotor mounts still attached, one bent. Only three or four SMALL amber sparks just off the broken rotor's joint, within about a tiny hull seam's distance, clearly separate small glowing polygons, no flame tongues, smoke, plume or trailing effects. Keep figure centered, magenta around all sides. RIGHT: a very low compact pile of broken pieces from that same drone on an implied flat horizontal floor, NO floor painted. The burnt orange split shell lies on its side with a recognizable broken dim cyan lens and a recognizable detached dark rotor, short copper nozzle among the wreck, each separated by a couple of pixels but visually clustered low. Wreck height only about 40% of the intact drone, width roughly the same, visible broken dark gaps and irregular silhouette. Keep scraps closely clustered in its cell. No sparks or continuing motion in the right pose. No letters, no blood or organic parts.",
+      "references": [
+        "master/master.png"
+      ]
+    }
+  }
+}

@@ -274,3 +274,9 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-21 [Codex] T34 크래셔·아크의 마스터와 인게임 그림, 공장·탑·보스방 원경, 아크 상점 그림을 참조했다. 왼쪽을 보는 오른쪽 상반신, 용광로 불똥과 청록 소용돌이, 어두운 왼쪽을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/boss_cards_v1/provenance.json.
 
 2026-11-21 [Codex] T35 탈출·제목 화면, 은신처 원경, N-09와 NPC 마스터를 참조했다. 새벽 언덕, 화로 곁의 세 NPC와 빈자리, 헤이즈가 걷힌 도시를 만들고 도시에서 성벽을 줄여 주거지를 드러냈다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/credits_scenes_v1/provenance.json.
+
+2026-11-22 [Codex] T36 공장 원경·타일과 기존 적을 참조해 주황 철판, 두 로터, 청록 렌즈, 아래 토치를 가진 용접 드론을 만들었다. 마스터를 고정해 로터 회전·아래쪽 공격 예고와 분사·엇갈린 피격 각도·사망 2컷을 만들었다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/drone_v1/provenance.json.
+
+2026-11-22 [Codex] T37 공장 타일·원경·장식 수레·간수·크래셔를 참조해 고철, 바퀴 넷, 찌그러진 범퍼, 청록 통, 빨간 경고등을 가진 수레를 만들었다. 굴러감·통 팽창과 경고등 점멸·앞바퀴 들림·그을린 잔해를 각각 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/cart_v1/provenance.json.
+
+2026-11-22 [Codex] T43 공장·헤이즈 원경과 타일, 기존 소품을 참조해 수평 발판이 있는 고철 기둥의 낙하·박힘·붕괴, 증기 밸브의 열림·피격·닫힘, 배기구의 꺼짐·빨간 예고·황주황 분출 직전, 결정 기둥의 솟음·직립·파괴를 각각 마젠타 3칸 시트로 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/boss_terrain_v1/provenance.json.

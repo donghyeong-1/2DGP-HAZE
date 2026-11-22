@@ -1,0 +1,32 @@
+{
+  "wheel_patch": [
+    26,
+    84,
+    112,
+    104
+  ],
+  "wheel_rgb_or_alpha_delta_gt_7_including_wrap": [
+    266,
+    162,
+    166,
+    267
+  ],
+  "arm": [
+    {
+      "lamp_luma_mean": 57.9,
+      "cyan_tank_pixels": 176
+    },
+    {
+      "lamp_luma_mean": 74.6,
+      "cyan_tank_pixels": 246
+    },
+    {
+      "lamp_luma_mean": 64.7,
+      "cyan_tank_pixels": 271
+    }
+  ],
+  "hurt_front_wheel_height_above_back": [
+    13,
+    7
+  ]
+}

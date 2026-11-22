@@ -1,0 +1,338 @@
+{
+  "schema": "video2dsprite.finish.v1",
+  "tool": {
+    "name": "finish_frames",
+    "version": "0.5.0"
+  },
+  "mode": "hibit",
+  "clip": "enemy_cart_arm",
+  "character": "enemy_cart",
+  "role": null,
+  "source": {
+    "frames": "../registered/arm",
+    "count": 3,
+    "size": [
+      1320,
+      1120
+    ],
+    "pattern": "*.png",
+    "registration": {
+      "path": "../registered/arm/registration.json",
+      "sha256": "842bfc55247b5175ea3ddfc66a99da73c5cb5b7eb517341af9558c370075ab33",
+      "bytes": 989
+    }
+  },
+  "rest": {
+    "frame": 0,
+    "topPx": 360,
+    "feetPx": 956,
+    "heightPx": 596,
+    "areaPx": 380201,
+    "stanceX": 522.0,
+    "centroid": [
+      621.2666839382326,
+      675.0286782517668
+    ],
+    "minRun": 6
+  },
+  "anchorMode": "feet",
+  "anchorSource": [
+    522.0,
+    956.0
+  ],
+  "scale": 0.11889250814332247,
+  "scaleSource": "scale-ref",
+  "targetHeight": 72.8599348534202,
+  "scaleRef": {
+    "path": "../enemy_cart/finish.json",
+    "sha256": "d664508498792063273ba10f426b4043c168d9716f34c4f5eb0c4009251bbe30",
+    "bytes": 6886,
+    "clip": "enemy_cart",
+    "character": "enemy_cart",
+    "scale": 0.11889250814332247,
+    "restAreaPx": 386705.0,
+    "areaRatio": 0.983181,
+    "correction": 1.008517,
+    "applied": 1.0,
+    "clamped": false,
+    "areaNorm": false
+  },
+  "size": [
+    115,
+    80
+  ],
+  "anchor": [
+    45,
+    79
+  ],
+  "canvas": null,
+  "engine": {
+    "sourceSize": [
+      115,
+      80
+    ],
+    "sourceAnchor": [
+      45,
+      79
+    ],
+    "sampling": "nearest",
+    "pixelArt": true,
+    "note": "engine_export.py package --clean-dir <out>/frames --source-size W,H --source-anchor X,Y (no --registration; add --pixel-art --sampling nearest for pixel and hibit)"
+  },
+  "resampler": "box",
+  "restOutput": {
+    "heightPx": 72.8599,
+    "areaPx": 5374.304,
+    "bodyHeightPx": 70.8599,
+    "outlinePx": 1,
+    "measuredHeightPx": 73,
+    "measuredAreaPx": 5747
+  },
+  "displaySizes": [
+    {
+      "label": "1x",
+      "dir": "frames",
+      "scale": 0.11889250814332247,
+      "size": [
+        115,
+        80
+      ],
+      "anchor": [
+        45,
+        79
+      ],
+      "targetHeight": 72.8599348534202,
+      "flicker": {
+        "pairs": 2,
+        "alphaFlipsPerPair": 87.5,
+        "indexFlipsPerPair": 850.0,
+        "noiseFlipsPerPair": 433.0,
+        "edgeFlipsPerPair": 1.0
+      },
+      "alphaBinary": true
+    }
+  ],
+  "palette": {
+    "path": "../enemy_cart/palette.json",
+    "sha256": "08ef9ead04447c843dd695f144f19b66a7537a675d10af5188d364a5728fcf8d",
+    "bytes": 1770,
+    "colors": 41,
+    "built": false,
+    "reserved": 0,
+    "transparentIndex": 255,
+    "outlineIndex": 40,
+    "outlineColor": "#0b1020",
+    "derivedFrom": null
+  },
+  "pixel": null,
+  "hibit": {
+    "schema": "forge.hibit.v1",
+    "alphaThreshold": 0.5,
+    "dither": false,
+    "loopPolicy": "oneshot",
+    "margin": 0.0004,
+    "supersample": 8,
+    "coverage": 0.3,
+    "holdShare": 0.8,
+    "coverageHold": 0.12,
+    "keepContrast": 90.0,
+    "rgbWeights": [
+      0.547723,
+      0.768115,
+      0.331662
+    ],
+    "despeckle": true,
+    "outline": "#0b1020",
+    "outlineColor": "#0b1020",
+    "outlinePx": 918,
+    "bodyColors": 40,
+    "coloursPerFrameMax": 40,
+    "noiseFlipReduction": 0.3323,
+    "plainMajority": {
+      "pairs": 2,
+      "alphaFlipsPerPair": 98.5,
+      "indexFlipsPerPair": 1099.0,
+      "noiseFlipsPerPair": 648.5,
+      "edgeFlipsPerPair": 3.5
+    },
+    "heldIndexPx": 268,
+    "lonePixelsFixed": 433
+  },
+  "colourLock": null,
+  "indexedSheet": null,
+  "loopPolicy": "oneshot",
+  "frames": [
+    {
+      "file": "frames/arm-1.png",
+      "sha256": "479543164ed4b9ea015bcf74b950ce2010c560e2bc10528c8ca0dd07a04b7f67",
+      "sourceFile": "arm-1.png",
+      "sourceSha256": "19b21a0a7f95c56dee2dc4e6e06fa55c56e29935a3b8ac3e7f2ab69e598d3596",
+      "opaquePx": 5747
+    },
+    {
+      "file": "frames/arm-2.png",
+      "sha256": "c3540c40dcf2f847b58b34636a60601c50d8a8ae1024779b2ad575226e4c21f9",
+      "sourceFile": "arm-2.png",
+      "sourceSha256": "78a0c11e0bc5fb38ac133583439f2f439e33e8760b6d40e96e5ff61de39f7330",
+      "opaquePx": 5844
+    },
+    {
+      "file": "frames/arm-3.png",
+      "sha256": "4cd9372c1c388a23a52da7a6bf25352523a81d587fe31117854233086af01184",
+      "sourceFile": "arm-3.png",
+      "sourceSha256": "dc95da8e00270375557d50093ed1635a2b15c1e7204811724a2843462b12e591",
+      "opaquePx": 5915
+    }
+  ],
+  "flicker": {
+    "pairs": 2,
+    "alphaFlipsPerPair": 87.5,
+    "indexFlipsPerPair": 850.0,
+    "noiseFlipsPerPair": 433.0,
+    "edgeFlipsPerPair": 1.0
+  },
+  "specksRemoved": 4,
+  "alphaBinary": true,
+  "review": {
+    "path": "review-contact.png",
+    "frames": [
+      0,
+      1,
+      2
+    ]
+  },
+  "qa": {
+    "status": "needs-visual-review",
+    "method": "finish_frames hibit v1 (the hi-bit studio recipe, forge_hibit): the hd registration; one palette per character (given, or k-means++ on luminance-weighted RGB of up to 200000 opaque source pixels, 16 colours by default); every sub-pixel of an 8x8 supersampled box downscale takes its nearest palette colour and every output pixel the colour covering most of its cell (a majority vote, never a blend; under 45% coverage transparent; the previous frame's colour kept while it holds 80% of the winner, an opaque cell kept down to 33%); forge_palette.quantize_sequence and cleanup_alpha; forge_hibit.clean_isolated (a lone pixel takes its 4-neighbours' majority unless 90 apart in luminance-weighted RGB, so eyes and glints stay; 1 px islands dropped), 2 passes; a 1 px outline outside the 4-connected silhouette in a colour taken from the image (auto: the dominant saturated hue, OKLab L 0.22), a given #RRGGBB, the palette's dark shade (selective) or its darkest colour (dark); the target height includes the outline; no lift, no dither, binary alpha; flicker counted against the smooth box frames, held vs the same majority without hysteresis",
+    "notProven": [
+      "identity, pose and readability at the finished size (look at review-contact.png and the frames)",
+      "that the target height suits the game camera and the rest of the cast (run lineup)",
+      "loop seams and timing (gait_loop, retime); finished frames keep the source names",
+      "hysteresis follows file order: the seam pair of a loop window chosen later is not held",
+      "the palette's fit to the character's other clips (finish them with --palette and this clip's palette.json)",
+      "that the outline colour reads against the game's backgrounds (auto takes it from the sprite)"
+    ],
+    "checks": [
+      {
+        "id": "no-upscale",
+        "status": "pass",
+        "value": 0.118893,
+        "threshold": 1.0
+      },
+      {
+        "id": "rest-height",
+        "status": "pass",
+        "value": 0.14,
+        "threshold": 1.5,
+        "note": "|measured - nominal| rest-pose body height at 1x (outline included), output px"
+      },
+      {
+        "id": "empty-frames",
+        "status": "pass",
+        "value": [],
+        "threshold": 0
+      },
+      {
+        "id": "flicker",
+        "status": "skipped",
+        "value": {
+          "pairs": 2,
+          "alphaFlipsPerPair": 87.5,
+          "indexFlipsPerPair": 850.0,
+          "noiseFlipsPerPair": 433.0,
+          "edgeFlipsPerPair": 1.0
+        },
+        "threshold": null
+      },
+      {
+        "id": "pixel-reduction",
+        "status": "pass",
+        "value": 8.411,
+        "threshold": 4.0,
+        "note": "source px per output px; pixel art comes from about 8-12x"
+      },
+      {
+        "id": "alpha-binary",
+        "status": "pass",
+        "value": true,
+        "threshold": true
+      },
+      {
+        "id": "palette-fit",
+        "status": "pass",
+        "value": {
+          "colorsUsed": 40,
+          "paletteColors": 41,
+          "offPaletteColors": 0,
+          "coloursPerFrameMax": 40
+        },
+        "threshold": 0
+      },
+      {
+        "id": "hysteresis",
+        "status": "pass",
+        "value": {
+          "noiseFlipsPerPair": 433.0,
+          "perFrameNearest": 648.5,
+          "reduction": 0.3323
+        },
+        "threshold": "<= per-frame nearest"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../registered/arm/arm-1.png",
+        "sha256": "19b21a0a7f95c56dee2dc4e6e06fa55c56e29935a3b8ac3e7f2ab69e598d3596"
+      },
+      {
+        "path": "../registered/arm/arm-2.png",
+        "sha256": "78a0c11e0bc5fb38ac133583439f2f439e33e8760b6d40e96e5ff61de39f7330"
+      },
+      {
+        "path": "../registered/arm/arm-3.png",
+        "sha256": "dc95da8e00270375557d50093ed1635a2b15c1e7204811724a2843462b12e591"
+      },
+      {
+        "path": "../registered/arm/registration.json",
+        "sha256": "842bfc55247b5175ea3ddfc66a99da73c5cb5b7eb517341af9558c370075ab33",
+        "bytes": 989
+      },
+      {
+        "path": "../enemy_cart/finish.json",
+        "sha256": "d664508498792063273ba10f426b4043c168d9716f34c4f5eb0c4009251bbe30",
+        "bytes": 6886
+      },
+      {
+        "path": "../enemy_cart/palette.json",
+        "sha256": "08ef9ead04447c843dd695f144f19b66a7537a675d10af5188d364a5728fcf8d",
+        "bytes": 1770
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/arm-1.png",
+        "sha256": "479543164ed4b9ea015bcf74b950ce2010c560e2bc10528c8ca0dd07a04b7f67",
+        "bytes": 3831
+      },
+      {
+        "path": "frames/arm-2.png",
+        "sha256": "c3540c40dcf2f847b58b34636a60601c50d8a8ae1024779b2ad575226e4c21f9",
+        "bytes": 3811
+      },
+      {
+        "path": "frames/arm-3.png",
+        "sha256": "4cd9372c1c388a23a52da7a6bf25352523a81d587fe31117854233086af01184",
+        "bytes": 3930
+      },
+      {
+        "path": "review-contact.png",
+        "sha256": "8156734684edb818365ed2160c0f8c40baea517082e7b8c06c01b97df3181d0f",
+        "bytes": 20437
+      }
+    ],
+    "tool": {
+      "name": "finish_frames",
+      "version": "0.5.0"
+    }
+  }
+}

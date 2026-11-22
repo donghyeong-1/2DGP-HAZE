@@ -1,0 +1,25 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_drone",
+  "subject": "a complete industrial welding drone for a side-scrolling game",
+  "identity": "A small squat industrial welding drone, a machine with no humanoid anatomy. One compact asymmetrical rounded angular rusted burnt-orange sheet-steel body, 110:90 width-to-height including equipment, a single large round cyan Haze lens on a knuckled front-right plate clearly looking screen right, two top-mounted distinct dark propeller rotors on short spaced mounts (both visible; far one slightly high and dark), and exactly one jointed thick steel welding torch arm below, bent forward-right at idle with a stubby copper nozzle. Graphite lower plating, three large cooling marks or rust patches only, steel-gray rotors; bold silhouette and minimal chunky details. No legs, no wheels, no humanoid face, no gun, no through-body rotor, no decals, no lettering.",
+  "pose": null,
+  "recap": "complete industrial welding drone for a side-scrolling game (A small squat industrial welding drone, a machine with no humanoid anatomy. One compact asymmetrical rounded angular rusted burnt-orange sheet-steel body, 110:90 width-to-height including equipment, a single large round cyan Haze lens on a knuckled front-right plate clearly looking screen right, two top-mounted distinct dark propeller rotors on short spaced mounts (both visible; far one slightly high and dark), and exactly one jointed thick steel welding torch arm below, bent forward-right at idle with a stubby copper nozzle. Graphite lower plating, three large cooling marks or rust patches only, steel-gray rotors; bold silhouette and minimal chunky details. No legs, no wheels, no humanoid face, no gun, no through-body rotor, no decals, no lettering)",
+  "facing": "right",
+  "facing_parts": "front lens and idle torch",
+  "view": "right-facing orthographic side profile with shallow depth so both top rotors can be seen",
+  "class": "mob",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": "a moody side-scrolling industrial prison action game",
+  "pronoun": "it",
+  "identity_ref": null,
+  "style_ref": {
+    "path": "../source/foundry_reference.png",
+    "sha256": "f306f59e54b2e3444fd2fec185db27ee51f14246f64480da2f94d7c53d5f1c16"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": "Keep the entire machine centered with margins of 12% or more on all sides, two plainly separate rotors wide apart, not overlapping the eye. The single torch is a short mechanical arm, no fire or effects. Flat angular polygons and hard planes; no fake pixel grid, rough texture, reflections, gradients, shadow on the floor, or drawings outside the object."
+}

@@ -55,9 +55,9 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T33 | 구역 제목 카드 일러스트 3장 (1920x400) | [T33_zone_cards.md](tasks/T33_zone_cards.md) | - | done·게임 적용 2026-11-21 (`backgrounds/zone_*`, 구역에 들어갈 때 띠가 열리고 구역 이름) |
 | T34 | 보스 등장 카드 2장 (크래셔·아크, 1920x400) | [T34_boss_cards.md](tasks/T34_boss_cards.md) | - | done·게임 적용 2026-11-21 (`backgrounds/boss_card_*`, 보스방에 들어서면 띠가 열리고 그동안 게임이 멈춘다) |
 | T35 | 엔딩 크레딧 장면 3장 (1920x1080) | [T35_credits_scenes.md](tasks/T35_credits_scenes.md) | - | done·게임 적용 2026-11-21 (`backgrounds/credits_1~3`, 크레딧이 흐르는 동안 차례로) |
-| T36 | 용접 드론 (공장, 비행) 13장 | [T36_enemy_drone.md](tasks/T36_enemy_drone.md) | - | ready |
-| T37 | 자폭 수레 (공장) 11장 | [T37_enemy_cart.md](tasks/T37_enemy_cart.md) | - | ready |
-| T43 | 보스방 지형 소품 (고철 기둥·밸브·배기구·결정 기둥) 12장 | [T43_boss_terrain.md](tasks/T43_boss_terrain.md) | - | ready |
+| T36 | 용접 드론 (공장, 비행) 13장 | [T36_enemy_drone.md](tasks/T36_enemy_drone.md) | - | done |
+| T37 | 자폭 수레 (공장) 11장 | [T37_enemy_cart.md](tasks/T37_enemy_cart.md) | - | done |
+| T43 | 보스방 지형 소품 (고철 기둥·밸브·배기구·결정 기둥) 12장 | [T43_boss_terrain.md](tasks/T43_boss_terrain.md) | - | review |
 | T38 | 감시 눈 (탑, 벽 포탑) 10장 | [T38_enemy_eye.md](tasks/T38_enemy_eye.md) | - | ready |
 | T39 | 결정 기사 (탑, 순간이동) 14장 | [T39_enemy_knight.md](tasks/T39_enemy_knight.md) | - | ready |
 | T40 | 헤이즈 망령 (탑, 벽 통과) 10장 | [T40_enemy_wraith.md](tasks/T40_enemy_wraith.md) | - | ready |

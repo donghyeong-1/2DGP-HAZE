@@ -36,6 +36,12 @@ FRAMES = {
     'enemy_hound_run': (4, 60, 83), 'enemy_hound_bite': (3, 50, 82), 'enemy_hound_pounce': (2, 69, 84), 'enemy_hound_hurt': (2, 46, 82),
     'enemy_guard_walk': (4, 46, 136), 'enemy_guard_swing': (3, 57, 136), 'enemy_guard_heavy': (3, 68, 155),
     'enemy_guard_bash': (2, 65, 118), 'enemy_guard_hurt': (2, 58, 136),
+    # 공장 새 적 (Codex T36·T37, 11/22). 드론 캔버스 160x136, 몸통 중심 (73,65): 히트박스 가운데(발 위 32)에 맞춰 기준점 y=97.
+    # 잔해 2장째는 바닥에 누운 그림(맨 아래 불투명 줄 112)이라 기준점을 따로 (FRAME_ANCHOR). 수레 캔버스 160x122, 바닥 (76,104)
+    'enemy_drone_fly': (4, 73, 97), 'enemy_drone_aim': (2, 73, 97), 'enemy_drone_fire': (3, 73, 97),
+    'enemy_drone_hurt': (2, 73, 97), 'enemy_drone_wreck': (2, 73, 97),
+    'enemy_cart_roll': (4, 76, 104), 'enemy_cart_arm': (3, 76, 104), 'enemy_cart_hurt': (2, 76, 104),
+    'enemy_cart_wreck': (2, 76, 104),
     # 보스 크래셔
     'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3, 94, 246), 'boss_crasher_charge': (2, 100, 174),
     'boss_crasher_leap': (3, 114, 210), 'boss_crasher_hurt': (1, 96, 196),
@@ -61,6 +67,7 @@ for _k, (_x, _y) in ENEMY_T25_ANCHOR.items():
     FRAMES[f'enemy_{_k}_death'] = (3, _x, _y)
 # (이름, 번호) -> 이 그림만의 기준점 (FRAMES의 세트 기준점 대신)
 FRAME_ANCHOR = {(f'enemy_{_k}_hurt', 2): _a for _k, _a in ENEMY_T25_ANCHOR.items()}
+FRAME_ANCHOR[('enemy_drone_wreck', 2)] = (73, 113)
 
 SHIFT = {
     # 맨손 자세는 프레임마다 발 위치가 다르게 그려져 있어 발을 같은 자리에 맞춘다 (발 가운데 x: 43.5, 36, 25, 36.5)

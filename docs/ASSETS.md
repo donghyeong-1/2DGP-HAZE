@@ -273,3 +273,11 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-21 [Codex] T34 assets/sprites/forge/boss_cards_v1/boss_card_<crasher|ark>.png 보스방 입장용 카드 2장. 프로젝트 자체 캐릭터·원경·상점 그림 참조, Codex 내장 image_gen(모델명 미제공), generate2dmap 0.5.0(MIT) Hibit 마감, codixel(MIT) 비교판. 1920×400·불투명 32색·1배. 출처와 프롬프트 assets/sprites/forge/boss_cards_v1/provenance.json. 검토 대기.
 
 2026-11-21 [Codex] T35 assets/sprites/forge/credits_scenes_v1/credits_<1|2|3>.png 엔딩 크레딧 배경 3장. 프로젝트 자체 탈출·제목·은신처 그림과 캐릭터 마스터 참조, Codex 내장 image_gen(모델명 미제공), generate2dmap 0.5.0(MIT) Hibit 마감, codixel(MIT) 비교판. 1920×1080·불투명 32색·1배. 출처와 프롬프트 assets/sprites/forge/credits_scenes_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T36 assets/sprites/forge/drone_v1/ 공장 비행 적 용접 드론 마스터 1장과 동작 13 PNG. 프로젝트 자체 원경·타일·적 그림을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT) 마감, codixel(MIT) 비교판. 마스터 키 90px, 동작 160×136·공통 41색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/drone_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T37 assets/sprites/forge/cart_v1/ 공장 적 자폭 수레 마스터 1장과 동작 11 PNG. 프로젝트 자체 원경·타일·장식 수레·적을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 마스터 키 75px, 동작 160×122·공통 41색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/cart_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T43 assets/sprites/forge/boss_terrain_v1/ 고철 기둥·증기 밸브·용광로 배기구·결정 기둥 각 3장. 프로젝트 자체 원경·타일·소품을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 소품별 공용 32색 이하·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/boss_terrain_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Claude Code] Codex T36·T37 적용: `assets/sprites/unified/enemy_drone_*`(비행 4·예고 2·분사 3·피격 2·잔해 2·정지 1), `enemy_cart_*`(굴러감 4·예고 3·피격 2·잔해 2·정지 1)로 복사(1배 그대로). 효과음 `windup_drone`·`drone_torch`·`windup_cart`는 `tools/make_sfx.py`로 직접 합성(numpy).

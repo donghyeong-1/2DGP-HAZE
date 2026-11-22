@@ -1,0 +1,54 @@
+{
+  "shared_body_pivot": [
+    628.5,
+    610.5
+  ],
+  "frames": {
+    "death-1": {
+      "raw_box": [
+        122,
+        99,
+        836,
+        828
+      ],
+      "placed_box": [
+        334,
+        295,
+        1014,
+        989
+      ],
+      "scale": 0.953125,
+      "body_anchor": [
+        628.5,
+        610.5
+      ],
+      "source_registration": [
+        431.0,
+        430.5
+      ]
+    },
+    "death-2": {
+      "raw_box": [
+        46,
+        517,
+        825,
+        812
+      ],
+      "placed_box": [
+        257,
+        719,
+        1000,
+        1000
+      ],
+      "scale": 0.953125,
+      "body_anchor": [
+        628.5,
+        1000.0
+      ],
+      "source_registration": [
+        435.5,
+        812.0
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "generate2dsprite.master_spec.v1",
+  "name": "enemy_cart",
+  "subject": "a complete fictional four-wheeled foundry scrap cart for a side-scrolling action game",
+  "identity": "A compact squat four-wheeled foundry scrap cart, invented 2D action game enemy. Main silhouette 110:75 width to height, strictly facing screen RIGHT. One low asymmetrical burnt-rust-orange mine trolley with charcoal rails, two large dark near-side wheels and two offset darker far-side wheels on the same pair of axles, no fifth wheel. A crushed steel bumper visibly sticks out on the right/front, broad bent industrial plate with no pointed spikes. In its bed are three chunky angular graphite and rust slabs, one tilted. One clearly visible strapped fictional translucent turquoise Haze reservoir with a rigid dark cage band and three clean turquoise tones toward the front, and a squat red warning lamp on top near the right, dark red rim and small bright coral-red lens with a tiny pale highlight so the red palette ramp survives the pixel finish. No literal explosive apparatus, wires, fuses, motor detail, faces, guns, organic characters, numerals, or text.",
+  "pose": "level stationary idle on aligned wheels, a stubby right-facing front bumper, full silhouette inside the frame",
+  "recap": "complete fictional four-wheeled foundry scrap cart for a side-scrolling action game (A compact squat four-wheeled foundry scrap cart, invented 2D action game enemy. Main silhouette 110:75 width to height, strictly facing screen RIGHT. One low asymmetrical burnt-rust-orange mine trolley with charcoal rails, two large dark near-side wheels and two offset darker far-side wheels on the same pair of axles, no fifth wheel. A crushed steel bumper visibly sticks out on the right/front, broad bent industrial plate with no pointed spikes. In its bed are three chunky angular graphite and rust slabs, one tilted. One clearly visible strapped fictional translucent turquoise Haze reservoir with a rigid dark cage band and three clean turquoise tones toward the front, and a squat red warning lamp on top near the right, dark red rim and small bright coral-red lens with a tiny pale highlight so the red palette ramp survives the pixel finish. No literal explosive apparatus, wires, fuses, motor detail, faces, guns, organic characters, numerals, or text)",
+  "facing": "right",
+  "facing_parts": "the bent bumper and the front end of the machine",
+  "view": "orthographic side/profile with very slight depth so both near wheels and glimpses of both far wheels are visible; no overhead view",
+  "class": "mob",
+  "finish": "hibit",
+  "key": "#FF00FF",
+  "genre": "a moody side-scrolling industrial prison game",
+  "pronoun": "it",
+  "identity_ref": null,
+  "style_ref": {
+    "path": "../source/foundry_reference.png",
+    "sha256": "f9b090823fa64310009b05c6280748f22bc0914f1ab7bafaa4390f9757adeb75"
+  },
+  "allowed_text": null,
+  "extra_bans": [],
+  "opaque_parts": null,
+  "extra": "Background is pure flat opaque magenta, no ground or cast shadow. Center the full machine with 12-15% padding; no background objects. Use broad matte angular lineless color planes like the supplied game's rusty steel, and a compact readable shape for 75px artwork. The front bumper, red warning beacon and broad cyan reservoir set this design apart from the reference decorative cart."
+}

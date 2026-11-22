@@ -1,0 +1,170 @@
+{
+  "schema": "generate2dsprite.master.v1",
+  "tool": {
+    "name": "master_still",
+    "version": "0.5.0"
+  },
+  "created": "2026-11-22T03:31:05.979Z",
+  "name": "enemy_drone",
+  "subject": "a complete industrial welding drone for a side-scrolling game",
+  "identity_recap": "complete industrial welding drone for a side-scrolling game (A small squat industrial welding drone, a machine with no humanoid anatomy. One compact asymmetrical rounded angular rusted burnt-orange sheet-steel body, 110:90 width-to-height including equipment, a single large round cyan Haze lens on a knuckled front-right plate clearly looking screen right, two top-mounted distinct dark propeller rotors on short spaced mounts (both visible; far one slightly high and dark), and exactly one jointed thick steel welding torch arm below, bent forward-right at idle with a stubby copper nozzle. Graphite lower plating, three large cooling marks or rust patches only, steel-gray rotors; bold silhouette and minimal chunky details. No legs, no wheels, no humanoid face, no gun, no through-body rotor, no decals, no lettering)",
+  "facing": "right",
+  "view": "right-facing orthographic side profile with shallow depth so both top rotors can be seen",
+  "finish": "hibit",
+  "class": "mob",
+  "framing": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "subject_height_px": 730,
+    "top_margin_px": 145,
+    "lead_px": 0,
+    "preset": "custom",
+    "subject_bbox": [
+      59,
+      145,
+      965,
+      875
+    ],
+    "anchor": [
+      711.5,
+      875.0
+    ],
+    "opaque_area_px": 349223,
+    "width_limited": false
+  },
+  "key": "#FF00FF",
+  "files": {
+    "master": {
+      "path": "master.png",
+      "sha256": "6ece8f9379c63dd5790afa385c5c453f77bf78da2e2bc80da14f3c70676531c6",
+      "bytes": 400535,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "cutout": {
+      "path": "master_rgba.png",
+      "sha256": "0f94c193eda3a85b9c2f4513122bdba59c10aeea4da7b1b06562ea27a7fa5717",
+      "bytes": 470095,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "source": {
+      "path": "source.png",
+      "sha256": "7e8693774a9e13c04476ffec6828c3788ae549af0aa25fd5a713b1eaad8c5da8",
+      "bytes": 1318409,
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    "spec": {
+      "path": "spec.json",
+      "sha256": "d9345b9aece1b66bcb5653a425a70cc571f1e19880f89c7b1adf3359eeb310cf",
+      "bytes": 2709
+    },
+    "prompt": {
+      "path": "prompt.txt",
+      "sha256": "3b14a2460c9340aebaa53398a88ec8c9477b4e76327ab06ba030da8342eaf215",
+      "bytes": 3143
+    }
+  },
+  "references": [
+    {
+      "role": "style",
+      "path": "../source/foundry_reference.png",
+      "sha256": "f306f59e54b2e3444fd2fec185db27ee51f14246f64480da2f94d7c53d5f1c16",
+      "bytes": 91384
+    }
+  ],
+  "transform": {
+    "mapping": "master = scale * source + offset (continuous pixel coordinates: pixel i spans [i, i + 1))",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_subject_bbox": [
+      97,
+      273,
+      981,
+      986
+    ],
+    "crop_box": [
+      91,
+      267,
+      987,
+      992
+    ],
+    "crop_margin_px": 6,
+    "scale": 1.023842917251052,
+    "offset": [
+      -39.85133239831703,
+      -134.50911640953717
+    ],
+    "canvas": [
+      1024,
+      1024
+    ],
+    "resampler": "lanczos",
+    "premultiplied": true,
+    "alpha_floor_px": 3121,
+    "subject_parts": 1,
+    "ignored_parts": 0,
+    "ignored_px": 0,
+    "source_touches": [],
+    "key_rgb": [
+      255,
+      0,
+      255
+    ]
+  },
+  "route": "host-image_gen",
+  "provenance": {
+    "command": "external",
+    "run": null,
+    "take": null,
+    "source_name": "master_source.png",
+    "source_sha256": "7e8693774a9e13c04476ffec6828c3788ae549af0aa25fd5a713b1eaad8c5da8",
+    "media": null,
+    "media_cli_source": null,
+    "edit": null
+  },
+  "matte": {
+    "requested": "soft",
+    "key_estimate": {
+      "key": [
+        252.0,
+        4.0,
+        251.0
+      ],
+      "source": "border_median",
+      "valid": true,
+      "ring_share": 1.0,
+      "coverage": 0.7866915185600655,
+      "distance_from_declared": 6.4
+    },
+    "quality": "soft",
+    "interior_despill": false,
+    "qa": {
+      "opaque_key_px": 0,
+      "outer_ring_spill_fraction": 0.48433389141353744,
+      "semitransparent_fraction": 0.017826409140890186,
+      "enclosed_key_pockets": 0,
+      "key_hued_px": 0,
+      "visible_px": 334672
+    },
+    "key_choice": {
+      "status": "ok",
+      "overlap_share": 5.1e-05,
+      "rule": "reject a key when more than 0.5% of subject pixels have key dominance >= 40; first acceptable candidate wins"
+    }
+  },
+  "warnings": [
+    "the subject is upscaled x1.02 (713 px source height): detail will be soft; ask the route for a larger figure"
+  ]
+}

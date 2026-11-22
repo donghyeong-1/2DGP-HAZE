@@ -246,6 +246,49 @@ def test_releasing_jump_early_makes_a_lower_jump():
     assert p.vy <= 0 and p.state == 'IDLE'
 
 
+# ----- 입력 미리 받기 (2026-11-22 v5 빠른 개선 2): 쓸 수 있게 되기 직전에 누른 공격·대시도 나간다 -----
+def test_attack_pressed_during_cooldown_fires_when_ready():
+    p = make_player()
+    step(p, 30)
+    assert p.request_attack()
+    p.weapon.cooldown = 0.06                                   # 아직 못 친다
+    assert not p.request_attack()                              # 지금은 안 나가지만 기억한다
+    fired = False
+    for _ in range(int(config.INPUT_BUFFER * 60)):
+        before = p.weapon.cooldown
+        step(p, 1)
+        if p.weapon.cooldown > before:                          # 쿨다운이 다시 찼다 = 공격이 나갔다
+            fired = True
+            break
+    assert fired
+
+
+def test_dash_pressed_near_end_of_dash_chains():
+    p = make_player()
+    step(p, 30)
+    p.dash_slots = 2
+    p.request_dash()
+    assert p.state == 'DASH'
+    step(p, int((config.DASH_TIME - 0.05) * 60))               # 대시가 거의 끝날 때 다시 누른다
+    p.request_dash()
+    slots = p.dash_slots
+    step(p, int(config.INPUT_BUFFER * 60))
+    assert p.dash_slots < slots                                # 대시가 끝나자마자 이어서 나갔다
+
+
+def test_buffer_expires():
+    p = make_player()
+    step(p, 30)
+    p.request_attack()
+    p.weapon.cooldown = 1.0
+    p.request_attack()
+    step(p, int((config.INPUT_BUFFER + 0.1) * 60))
+    p.weapon.cooldown = 0.0
+    before = p.weapon.cooldown
+    step(p, 2)
+    assert p.weapon.cooldown == before                         # 오래전 누른 것은 잊는다 (멋대로 나가지 않게)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

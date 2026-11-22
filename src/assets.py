@@ -169,15 +169,29 @@ def preload(sounds=True):
     return count
 
 
+_variant_turn = {}
+
+
+def variant_of(name):
+    """자주 나는 소리는 3버전을 차례로 돌린다 (같은 소리가 기관총처럼 반복되지 않게). 그 밖의 소리는 그대로."""
+    import config
+    if name not in config.SFX_VARIANTS:
+        return name
+    k = _variant_turn.get(name, 0)
+    _variant_turn[name] = (k + 1) % 3
+    return name if k == 0 else f'{name}_v{k + 1}'
+
+
 def play_sound(name):
     """효과음 재생. 소리가 꺼져 있거나 오디오가 없으면 조용히 넘어간다."""
     import config
     if not config.SOUND_ENABLED:
         return
+    base, name = name, variant_of(name)
     wav = sound(name)
     if wav is not None:
         import options
-        wav.set_volume(options.volume(config.SFX_VOLUME * sfx_gain(name), options.sfx_level))   # 설정 크기 x 소리별 균형
+        wav.set_volume(options.volume(config.SFX_VOLUME * sfx_gain(base), options.sfx_level))   # 설정 크기 x 소리별 균형
         wav.play()
 
 

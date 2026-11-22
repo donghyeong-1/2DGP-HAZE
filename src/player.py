@@ -205,6 +205,10 @@ class Player(TileBody):
         self.run_rooms = 0             # 이번 판에 클리어한 방 수 (판이 끝날 때 헤이즈 결정 보상)
         self.run_ends = 0              # 이번 판에 깬 보스·관문 수
         self.run_rewarded = False      # 이번 판 보상을 이미 받았는가
+        self.death_cause = ''          # 쓰러진 원인 (사망 화면, killers)
+        self.last_hit_by = ''
+        self.attack_buffer_left = 0.0  # 미리 누른 공격·대시를 기억하는 남은 시간 (config.INPUT_BUFFER)
+        self.dash_buffer_left = 0.0
         self.run_kills = 0             # 이번 판에 쓰러뜨린 적 수 (사망·탈출 화면의 판 기록, 계획 4-2)
         self.run_clock = 0.0           # 이번 판에 구역 안에서 보낸 시간(초, 은신처 제외)
         self.items = []                # 가진 아이템 id 목록
@@ -390,6 +394,15 @@ class Player(TileBody):
         return True
 
     def request_attack(self):
+        """공격. 지금 못 치면(재충전·경직) INPUT_BUFFER초 동안 기억했다가 칠 수 있게 되는 순간 친다."""
+        if self._try_attack():
+            self.attack_buffer_left = 0.0
+            return True
+        if self.state != 'DEAD':
+            self.attack_buffer_left = config.INPUT_BUFFER
+        return False
+
+    def _try_attack(self):
         if self.state in ('HIT', 'DEAD') or self.stunned:   # 대시 중에는 대시 평타를 칠 수 있다
             return False
         return self.weapon.try_attack()
@@ -448,18 +461,29 @@ class Player(TileBody):
         self.jump()
 
     def request_dash(self):
-        if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned or self.dash_slots <= 0:
-            return
-        self.dash()
+        """대시. 지금 못 하면(대시 중·경직·칸 없음) INPUT_BUFFER초 동안 기억했다가 할 수 있게 되는 순간 한다."""
+        if self._try_dash():
+            self.dash_buffer_left = 0.0
+        elif self.state != 'DEAD':
+            self.dash_buffer_left = config.INPUT_BUFFER
 
-    def take_hit(self, damage=0, gauge_delta=0):
+    def _try_dash(self):
+        if self.state in ('DASH', 'HIT', 'DEAD') or self.stunned or self.dash_slots <= 0:
+            return False
+        self.dash()
+        return True
+
+    def take_hit(self, damage=0, gauge_delta=0, source=None):
         """피격. 대시 무적과 피격 직후 무적 중에는 무시한다. 맞으면 게이지가 줄고(LOSS_DAMAGED),
         적 종류별 추가 변화(gauge_delta, 예: 간수 +15)도 받는다."""
         if self.invuln_left > 0 or self.state == 'DEAD':
             return
         self.hp = max(0, self.hp - damage)
+        import killers
+        self.last_hit_by = killers.describe(source)          # 사망 화면의 '쓰러진 원인' (11/22)
         self.gauge.add(config.LOSS_DAMAGED + gauge_delta, 'damaged')
         if self.hp <= 0:
+            self.death_cause = self.last_hit_by
             self.die()
         elif self.state != 'DEAD':
             assets.play_sound('hit')
@@ -478,6 +502,8 @@ class Player(TileBody):
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
             self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult))
             if self.hp <= 0 and self.state != 'DEAD':
+                import killers
+                self.death_cause = killers.OVERLOAD
                 self.die()
         if name.startswith('zone:'):
             import drama
@@ -516,9 +542,15 @@ class Player(TileBody):
         self.jump_buffer_left = max(0.0, self.jump_buffer_left - dt)
         if self.attack_held:
             self.request_attack()
+        elif self.attack_buffer_left > 0:                   # 미리 누른 공격 (11/22)
+            self.attack_buffer_left = 0.0 if self._try_attack() else self.attack_buffer_left - dt
+        if self.dash_buffer_left > 0:                       # 미리 누른 대시
+            self.dash_buffer_left = 0.0 if self._try_dash() else self.dash_buffer_left - dt
         self.invuln_left = max(0.0, self.invuln_left - dt)
         self.steady_left = max(0.0, self.steady_left - dt)
         if self.gauge.zone == DEAD and self.state != 'DEAD':
+            import killers
+            self.death_cause = killers.GAUGE_EMPTY               # 게이지가 바닥나 쓰러짐
             self.die()
 
         state = self.states[self.state]
@@ -590,7 +622,7 @@ class Player(TileBody):
         for rect in self.room.spike_rects():
             if me[0] < rect[2] and rect[0] < me[2] and me[1] < rect[3] and rect[1] < me[3]:
                 before = self.hp
-                self.take_hit(config.SPIKE_DAMAGE)
+                self.take_hit(config.SPIKE_DAMAGE, source='spike')
                 if self.hp < before and self.state != 'DEAD':
                     self.vy = config.SPIKE_BOUNCE   # 가시에 찔려 튕겨 오른다
                     self.on_ground = False

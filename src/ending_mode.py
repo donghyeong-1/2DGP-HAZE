@@ -30,7 +30,8 @@ def run_summary(player, zone_title, reward):
     secs = int(getattr(player, 'run_clock', 0.0))
     return [('도달한 구역', zone_title or '-'), ('걸린 시간', f'{secs // 60}:{secs % 60:02d}'),
             ('클리어한 방', str(player.run_rooms)), ('쓰러뜨린 적', str(getattr(player, 'run_kills', 0))),
-            ('깬 보스·관문', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')]
+            ('깬 보스·관문', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')] + (
+        [('쓰러진 원인', player.death_cause)] if getattr(player, 'death_cause', '') else [])
 
 
 def enter():
@@ -101,21 +102,27 @@ def _icon_of(item_id):
     return f'ui/icon_w_{info["weapon"]}.png' if 'weapon' in info else f'ui/icon_{item_id}.png'
 
 
+FULL_ROWS = ('도달한 구역', '쓰러진 원인')      # 글이 길어 한 줄을 다 쓰는 항목
+
+
 def _draw_summary(cx):
-    """판 기록 판: 첫 줄은 도달한 구역(넓게), 그 아래 두 칸씩, 맨 아래 보유 결정."""
+    """판 기록 판: 도달한 구역·쓰러진 원인은 한 줄씩(넓게), 나머지는 두 칸씩, 맨 아래 보유 결정."""
     if not summary:
         return
-    head, rest = summary[0], summary[1:]
-    rows = 1 + (len(rest) + 1) // 2
+    wide = [e for e in summary if e[0] in FULL_ROWS]
+    rest = [e for e in summary if e[0] not in FULL_ROWS]
+    rows = len(wide) + (len(rest) + 1) // 2
     h = 70 + rows * SUM_ROW
     x, y = cx - SUM_W // 2, 790 - h
     kit.panel('panel', x, y, SUM_W, h)
     top = y + h - 40
-    kit.text(x + 34, top, head[0], (130, 145, 175), small=True)
-    kit.text(x + SUM_W - 34, top, head[1], (235, 242, 252), right=True)
+    for i, (name, value) in enumerate(wide):
+        ty = top - i * SUM_ROW
+        kit.text(x + 34, ty, name, (130, 145, 175), small=True)
+        kit.text(x + SUM_W - 34, ty, value, (255, 150, 140) if name == '쓰러진 원인' else (235, 242, 252), right=True)
     half = SUM_W // 2
     for i, (name, value) in enumerate(rest):
-        col, row = i % 2, i // 2 + 1
+        col, row = i % 2, i // 2 + len(wide)
         ty = top - row * SUM_ROW
         lx = x + 34 + col * half
         kit.text(lx, ty, name, (130, 145, 175), small=True)

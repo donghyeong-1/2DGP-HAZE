@@ -18,6 +18,7 @@ MAX_JUMPS = 2              # 2단 점프
 DROP_TIME = 0.2            # S+Space 로 얇은 바닥을 무시하는 시간(초)
 COYOTE_TIME = 0.10         # 낭떠러지를 걸어 떨어진 뒤에도 땅 위 점프로 쳐 주는 시간(초)
 JUMP_CUT = 0.5             # 점프 키를 일찍 떼면 남은 상승 속도에 곱한다 (짧게 누르면 낮게 뛴다. platformer 지침의 release cut)
+INPUT_BUFFER = 0.12        # 공격·대시를 쓸 수 있게 되기 직전에 누른 것을 기억하는 시간(초) (11/22)
 JUMP_BUFFER = 0.12         # 착지 직전에 누른 점프를 기억했다가 착지하면 뛰는 시간(초)
 
 # 대시
@@ -400,6 +401,8 @@ SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swin
             'throw_fade': 0.7, 'throw_awake': 0.8, 'chain_throw_fade': 0.75, 'chain_throw_awake': 0.8, 'heartbeat': 0.75,
             'zone_awake': 0.85, 'kill_last': 1.1,
             'amb_drip': 0.45, 'amb_steam': 0.35, 'amb_wind': 0.45, 'amb_forge': 0.4}   # 환경음은 작게
+# 자주 나는 소리: 3버전(<이름>, _v2, _v3)을 돌려 쓴다 (2026-11-22, tools/make_sfx.py가 음 높이·잡음을 조금 바꿔 만든다)
+SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)
 PROJECTILE_HB = (30, 18)
 

@@ -216,6 +216,41 @@ def test_run_summary_lines():
                      ('쓰러뜨린 적', '31'), ('깬 보스·관문', '1'), ('받은 헤이즈 결정', '+17')]
 
 
+# ----- 사망 원인 (2026-11-22 v5 빠른 개선 3): 무엇에 죽었는지 사망 화면에 -----
+def test_death_cause_names_the_killer():
+    import ending_mode
+    import killers
+    from enemy import Enemy
+    from room import Room
+    room = Room.load('test_01')
+    p = new_player()
+    e = Enemy('guard', 300, 120, room, p)
+    p.hp = 5
+    p.take_hit(99, source=e)
+    assert p.state == 'DEAD' and p.death_cause == '간수'
+    assert killers.describe('spike') == '가시'
+    game_world.clear()
+    p = Player(300, 120, room)
+    game_world.add_object(p, game_world.LAYER_PLAYER)
+    p.gauge.value = 0.4
+    p.gauge.add(-5, 'decay')
+    p.update(1 / 60)
+    assert p.death_cause == killers.GAUGE_EMPTY                       # 게이지가 바닥나 쓰러짐
+    lines = ending_mode.run_summary(p, '제9구역', reward=0)
+    assert ('쓰러진 원인', killers.GAUGE_EMPTY) in lines
+
+
+def test_projectiles_and_elites_are_named():
+    import killers
+    import projectile
+    assert killers.describe(projectile.Scrap.__new__(projectile.Scrap)) == '투척병의 고철'
+    from enemy import Enemy
+    from room import Room
+    e = Enemy('hound', 0, 120, Room.load('test_01'), None)
+    e.make_elite('swift')
+    assert killers.describe(e) == e.elite_label() + ' 사냥개'
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

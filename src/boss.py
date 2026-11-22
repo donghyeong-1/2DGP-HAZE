@@ -298,7 +298,7 @@ class Boss(Enemy):
         px, py = self.player.center
         cx, cy = self.center
         if self._player_alive() and abs(px - cx) <= config.BOSS_LAND_RADIUS and abs(py - cy) <= config.BOSS_LAND_RADIUS:
-            self.player.take_hit(config.BOSS_LAND_DAMAGE, gauge_delta=s['wave_gauge'])    # 바로 밑에 있으면 직격
+            self.player.take_hit(config.BOSS_LAND_DAMAGE, gauge_delta=s['wave_gauge'], source=self)    # 바로 밑에 있으면 직격
         self.cooldown = s['cooldown'] * 1.3 * (0.7 if self.phase == 2 else 1.0)
         self.land_left = config.BOSS_LAND_POSE_TIME
         self.last_pattern = 'leap'
@@ -309,7 +309,7 @@ class Boss(Enemy):
         self.vx = self.face_dir * s['charge_speed']
         if not self.charge_hit and projectile.overlap(self.rect(), self.player.rect()) and self._player_alive():
             self.charge_hit = True
-            self.player.take_hit(s['charge_damage'])
+            self.player.take_hit(s['charge_damage'], source=self)
         if self.blocked_time_charge():
             self.attack_time = max(self.attack_time, self._windup() + self._active())   # 벽에 부딪히면 이번 돌진 끝
             effects.add_trauma(0.4)

@@ -500,7 +500,7 @@ class Enemy(TileBody):
         effects.spawn('hit-normal', (reach_x0 + reach_x1) / 2, self.y + self.hb_h * 0.55,
                       flip=self.face_dir < 0, duration=0.2)
         if self._player_alive() and projectile.overlap(box, self.player.rect()):
-            self.player.take_hit(s['damage'], gauge_delta=s['gain_on_hit'])
+            self.player.take_hit(s['damage'], gauge_delta=s['gain_on_hit'], source=self)
 
     def _contact(self, damage):
         """몸통 박치기: 이번 기술에서 한 번만 맞힌다."""
@@ -508,7 +508,7 @@ class Enemy(TileBody):
             return
         if projectile.overlap(self.rect(), self.player.rect()):
             self.contact_hit = True
-            self.player.take_hit(damage, gauge_delta=self.stats['gain_on_hit'])
+            self.player.take_hit(damage, gauge_delta=self.stats['gain_on_hit'], source=self)
 
     def _strike(self):
         """기본 타격 (보스의 휘두르기도 이것을 쓴다)."""
@@ -673,7 +673,7 @@ class EliteBurst:
         room = getattr(p, 'room', None)
         if math.hypot(px - self.x, py - self.y) <= config.ELITE_BURST_RADIUS and (
                 room is None or not room.line_blocked(self.x, self.y, px, py)):
-            p.take_hit(config.ELITE_BURST_DAMAGE, gauge_delta=projectile._gauge_delta(config.ELITE_BURST_NET))
+            p.take_hit(config.ELITE_BURST_DAMAGE, gauge_delta=projectile._gauge_delta(config.ELITE_BURST_NET), source=self)
         game_world.remove_object(self)
 
     def draw(self):

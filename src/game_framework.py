@@ -26,8 +26,10 @@ def push_mode(mode):
 
 
 def pop_mode():
-    """맨 위 모드를 끝내고 아래 모드를 이어서(resume) 실행한다."""
+    """맨 위 모드를 끝내고 아래 모드를 이어서(resume) 실행한다. 메뉴를 닫는 소리(ui_back)를 낸다."""
     if stack:
+        import assets
+        assets.play_sound('ui_back')
         stack.pop().exit()
     if stack:
         stack[-1].resume()

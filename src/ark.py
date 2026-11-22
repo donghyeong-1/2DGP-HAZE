@@ -247,7 +247,7 @@ class Ark(Enemy):
         effects.add_trauma(0.35)
         assets.play_sound('swing')
         if self._player_alive() and projectile.overlap(box, self.player.rect()):
-            self.player.take_hit(self.stats['damage'], gauge_delta=projectile._gauge_delta(config.ARK_SLASH_NET))
+            self.player.take_hit(self.stats['damage'], gauge_delta=projectile._gauge_delta(config.ARK_SLASH_NET), source=self)
 
     def _absorb_waves(self):
         """방 양끝에서 아크 쪽으로 조여 드는 파동 두 개."""

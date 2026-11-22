@@ -141,7 +141,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and config.DEBUG and event.key == SDLK_F4:
             player.gauge.add(-10, 'debug')
         elif event.type == SDL_KEYDOWN and config.DEBUG and event.key == SDLK_h:
-            player.take_hit(10)
+            player.take_hit(10, source='debug')
         elif event.type == SDL_KEYDOWN and config.DEBUG and event.key == SDLK_F5:
             stage.cleared.discard(stage.coord)  # 현재 방을 처음 상태로 다시 시작한다
             stage.enter_room(stage.coord)

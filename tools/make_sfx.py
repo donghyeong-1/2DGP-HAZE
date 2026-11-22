@@ -501,6 +501,27 @@ def kill_last():
     return place(s, [(0.0, hit_), (0.05, bell)])
 
 
+# ----- 2026-11-22 메뉴 전용 소리 -----
+def ui_move():
+    """메뉴 이동: 짧고 가벼운 똑."""
+    s = 0.06
+    return square(np.full(int(RATE * s), 880.0), 0.25) * 0.4 * envelope(s, 0.002, 0.7)
+
+
+def ui_select():
+    """메뉴 선택: 위로 올라가는 두 음."""
+    s = 0.16
+    one = lambda f: triangle(np.full(int(RATE * 0.08), f)) * 0.5 * envelope(0.08, 0.002, 0.6)   # noqa: E731
+    return place(s, [(0.0, one(660)), (0.06, one(990))])
+
+
+def ui_back():
+    """메뉴 뒤로: 내려가는 두 음."""
+    s = 0.16
+    one = lambda f: triangle(np.full(int(RATE * 0.08), f)) * 0.45 * envelope(0.08, 0.002, 0.6)   # noqa: E731
+    return place(s, [(0.0, one(780)), (0.06, one(520))])
+
+
 SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
@@ -522,7 +543,17 @@ SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload
           "chain_latch_heavy": chain_latch_heavy,
           "ult_final_pipe": ult_final_pipe, "ult_final_knife": ult_final_knife, "ult_final_gauntlet": ult_final_gauntlet,
           "ult_final_chain": ult_final_chain,
-          "zone_awake": zone_awake, "heartbeat": heartbeat, "kill_last": kill_last}
+          "zone_awake": zone_awake, "heartbeat": heartbeat, "kill_last": kill_last,
+          "ui_move": ui_move, "ui_select": ui_select, "ui_back": ui_back}
+# 자주 나는 소리의 2·3버전: 같은 합성에 다른 잡음, 음 높이를 조금 바꾼다 (src/config.SFX_VARIANTS와 같은 목록)
+VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')
+PITCH = {2: 0.94, 3: 1.07}
+
+
+def pitch_shift(x, k):
+    """k배 빠르게(높게) 다시 읽는다 (길이도 1/k)."""
+    n = max(2, int(len(x) / k))
+    return np.interp(np.linspace(0, len(x) - 1, n), np.arange(len(x)), x)
 GAIN = 0.55  # 전체 음량 (클리핑 방지)
 
 
@@ -543,6 +574,11 @@ def main():
         RNG = np.random.default_rng(zlib.crc32(name.encode()))   # 소리마다 따로: 하나를 고쳐도 다른 소리가 바뀌지 않는다
         save(name, fn())
         print("saved", name)
+    for name in VARIANTS:
+        for v, k in PITCH.items():
+            RNG = np.random.default_rng(zlib.crc32(f'{name}_v{v}'.encode()))
+            save(f'{name}_v{v}', pitch_shift(SOUNDS[name](), k))
+            print("saved", f'{name}_v{v}')
 
 
 if __name__ == "__main__":

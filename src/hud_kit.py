@@ -100,19 +100,26 @@ def menu_pick(buttons, selected, event, height):
     W·S·위·아래로 고르고 Enter·Space면 'click'. (새로 고른 번호, 'click' 또는 None)."""
     from pico2d import (SDL_KEYDOWN, SDL_MOUSEBUTTONDOWN, SDL_MOUSEMOTION, SDLK_DOWN, SDLK_RETURN, SDLK_SPACE, SDLK_UP,
                         SDLK_s, SDLK_w)
+    import assets
     if event.type in (SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN):
         mx, my = event.x, height - 1 - event.y
         for i, b in enumerate(buttons):
             if b.contains(mx, my):
                 if event.type == SDL_MOUSEBUTTONDOWN:
+                    assets.play_sound('ui_select')
                     return i, 'click'
+                if i != selected:
+                    assets.play_sound('ui_move')            # 메뉴 전용 소리 (11/22)
                 return i, None
         return selected, None
     if event.type == SDL_KEYDOWN:
         if event.key in (SDLK_w, SDLK_UP):
+            assets.play_sound('ui_move')
             return (selected - 1) % len(buttons), None
         if event.key in (SDLK_s, SDLK_DOWN):
+            assets.play_sound('ui_move')
             return (selected + 1) % len(buttons), None
         if event.key in (SDLK_RETURN, SDLK_SPACE):
+            assets.play_sound('ui_select')
             return selected, 'click'
     return selected, None

@@ -22,7 +22,9 @@ NAMES = ["warn_low", "warn_high", "jump", "double_jump", "dash", "land", "hit", 
          "throw_fade", "throw_awake", "throw_critical", "throw_enhanced",
          "chain_throw_fade", "chain_throw_awake", "chain_throw_critical", "chain_throw_enhanced", "chain_latch_heavy",
          "ult_final_pipe", "ult_final_knife", "ult_final_gauntlet", "ult_final_chain",
-         "zone_awake", "heartbeat", "kill_last"]
+         "zone_awake", "heartbeat", "kill_last",
+         # 2026-11-22 메뉴 전용 소리
+         "ui_move", "ui_select", "ui_back"]
 
 
 def test_sfx_files_are_valid_short_wavs():
@@ -220,6 +222,36 @@ def test_ambience_plays_the_stage_sound_now_and_then():
                 a.update(1 / 60)
         assert rec.names and set(rec.names) == {sound}, (name, rec.names)
         assert 20 / 8 <= len(rec.names) <= 20 / 3 + 1, (name, len(rec.names))
+
+# ----- 같은 소리 반복 줄이기·메뉴 전용 소리 (2026-11-22 v5 빠른 개선 1) -----
+def test_frequent_sounds_rotate_three_versions():
+    """자주 나는 소리는 음 높이·잡음이 조금씩 다른 3버전을 돌려 쓴다 (같은 소리가 기관총처럼 반복되지 않게)."""
+    import assets
+    for name in config.SFX_VARIANTS:
+        for suffix in ('', '_v2', '_v3'):
+            assert os.path.exists(os.path.join(ROOT, 'assets', 'sfx', name + suffix + '.wav')), name + suffix
+        picked = [assets.variant_of(name) for _ in range(6)]
+        assert set(picked) == {name, name + '_v2', name + '_v3'}, picked
+        assert all(a != b for a, b in zip(picked, picked[1:]))          # 같은 버전이 연달아 나오지 않는다
+    assert assets.variant_of('ult_cast') == 'ult_cast'                  # 큰 소리는 한 버전
+
+
+def test_menus_have_their_own_sounds():
+    import hud_kit
+    from pico2d import SDL_KEYDOWN, SDLK_DOWN, SDLK_RETURN
+
+    class Ev:
+        def __init__(self, key):
+            self.type, self.key = SDL_KEYDOWN, key
+
+    buttons = [hud_kit.Button('a', 'A', 0, 0), hud_kit.Button('b', 'B', 0, 100)]
+    with Recorder() as rec:
+        hud_kit.menu_pick(buttons, 0, Ev(SDLK_DOWN), 1080)
+        hud_kit.menu_pick(buttons, 1, Ev(SDLK_RETURN), 1080)
+    assert rec.names == ['ui_move', 'ui_select']
+    for name in ('ui_move', 'ui_select', 'ui_back'):
+        assert os.path.exists(os.path.join(ROOT, 'assets', 'sfx', name + '.wav')), name
+
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

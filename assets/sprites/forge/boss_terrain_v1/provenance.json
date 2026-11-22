@@ -1,0 +1,94 @@
+{
+  "task": "T43",
+  "date": "2026-11-22",
+  "image_generation": {
+    "tool": "Codex 내장 image_gen",
+    "route": "host_image",
+    "model": "모델명 미제공",
+    "cost": "미제공"
+  },
+  "postprocessing": [
+    {
+      "tool": "generate2dsprite / Agent Sprite Forge Hibit",
+      "version": "0.5.0",
+      "license": "MIT"
+    },
+    {
+      "tool": "codixel",
+      "license": "MIT",
+      "role": "1배 비교판"
+    }
+  ],
+  "references": {
+    "foundry": {
+      "file": "source/foundry_reference.png",
+      "assets": [
+        "assets/backgrounds/far_foundry.png",
+        "assets/tiles/tile_set_foundry.png",
+        "assets/props/foundry_gear_1.png",
+        "assets/decor/foundry_scrap_cart.png"
+      ]
+    },
+    "haze": {
+      "file": "source/haze_reference.png",
+      "assets": [
+        "assets/backgrounds/far_haze.png",
+        "assets/backgrounds/far_boss.png",
+        "assets/tiles/tile_set_haze.png",
+        "assets/decor/haze_broken_crystals.png"
+      ]
+    }
+  },
+  "order": [
+    "scrap",
+    "valve",
+    "vent",
+    "crystal"
+  ],
+  "sheets": {
+    "scrap": {
+      "file": "source/scrap_source.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "49bc827ff942991be7b6852535338fa9ed2e458f9c284a4c1a3d129daa80ce2e",
+      "image_attempts": 1,
+      "reference": "foundry",
+      "prompt": "Design a single source sheet for an ORIGINAL side-scrolling industrial prison game prop, with EXACTLY THREE equally sized cells in a single horizontal row, ordered left to right as instructed. No dividers or visible layout marks. Use flat opaque saturated MAGENTA #FF00FF across blank background, including all gaps and holes. In each cell, centered subject kept wholly in bounds with large blank padding on every side. Use an orthographic side-scroller elevation view, visually simple large matte, lineless angular color planes, hard edges, 2-3 tones per material, key lighting from upper left. Preserve identical dimensions and viewing angle for persistent geometry, draw the three stages as the SAME object. Art for crisp low-color rendering, avoid noisy small dabs, soft gradients, transparent edges, floor, shadows on ground, blur, motion streaks, lettering, numerals, icons, signatures, figures and watermarks. The supplied card is a game material and hue reference only; do not copy another object or the text from it.\nThis sheet is for one TALL rectangular industrial SCRAP PILLAR prop, final 120px wide by 240px tall, tall slender aspect approximately 1:2 for first two states. A vertical rough industrial supporting beam of three angular masses of rust-orange sheet metal locked by broad graphite steel braces, chunky dark bands and minimal large bolts, darker side facets, zinc worn edges. It is a gameplay PLATFORM with one broad level metal cap. Its outermost top edge MUST be one long ruler-straight perfectly HORIZONTAL pixel-aligned top with flat corners, no lip bump, jagged top, leaning or slope, even if a front beveled stripe shows BELOW the edge. Choose composition making the cap as wide as the column, roughly 95% of visible width. LEFT falling: same flat cap and vertical silhouette, angular sharpish broken steel at the lower base showing it has not yet settled, small highlights in metal only, vertical. MIDDLE firmly planted: the flat continuous light-edged rectangular cap is obvious as a place to stand, straight robust sides and a wide stable flat foot. Show the full exact cap and pillar. RIGHT crumbling: same opened sheared steel braces giving way, a broken cap now broken into a couple of angled segments and falling close, cracks and fragments, footprint stays centered at the same y, visible height around 68% of planted version. Keep debris tightly clustered. Individual props only, no effect outside. Canvas wide landscape around 3:2 so the tall forms fill each cell vertically."
+    },
+    "valve": {
+      "file": "source/valve_source.png",
+      "size": [
+        2172,
+        724
+      ],
+      "sha256": "1955001b5734959098aace542b371c43f71899be63aacd7ca2512e65f0b7bce3",
+      "image_attempts": 1,
+      "reference": "foundry",
+      "prompt": "Design a single source sheet for an ORIGINAL side-scrolling industrial prison game prop, with EXACTLY THREE equally sized cells in a single horizontal row, ordered left to right as instructed. No dividers or visible layout marks. Use flat opaque saturated MAGENTA #FF00FF across blank background, including all gaps and holes. In each cell, centered subject kept wholly in bounds with large blank padding on every side. Use an orthographic side-scroller elevation view, visually simple large matte, lineless angular color planes, hard edges, 2-3 tones per material, key lighting from upper left. Preserve identical dimensions and viewing angle for persistent geometry, draw the three stages as the SAME object. Art for crisp low-color rendering, avoid noisy small dabs, soft gradients, transparent edges, floor, shadows on ground, blur, motion streaks, lettering, numerals, icons, signatures, figures and watermarks. The supplied card is a game material and hue reference only; do not copy another object or the text from it.\nThis sheet is for the same wall-mounted steam valve throughout, in a set of three states at final screen canvas 90x110 each. A rusted cast iron straight vertical pipe, two matching circular couplings, one compact scarlet-rust handwheel with three chunky spokes in front, flat circular dark slate mounting plate, and a right-side top elbow leak outlet. Total assembly aspect no wider than 0.77:1 including a small steam zone. Give a big visible valve wheel. LEFT OPEN with wheel spokes at vertical and two diagonals and a very readable short thin tuft of solid pale bluish-gray steam exiting the right-side upper elbow. MIDDLE STRUCK with same fixed plumbing, wheel turned about 25 degrees and chunky pale impact bevel/faint tiny amber glint at the wheel rim, steam only a shorter pale puff near outlet. RIGHT CLOSED with same pipe and stem, wheel spokes turned again into a distinctive sideways Y, bright rusty red ring muted and no steam at all. Pale steam is bounded, 2-3 flat tones, no glow or alpha effects. Main pipe base and top coupling are at the same x/y inside all cells. Lettering, tool, arm, or person forbidden. Wide horizontal 3:1 source composition."
+    },
+    "vent": {
+      "file": "source/vent_source.png",
+      "size": [
+        2172,
+        724
+      ],
+      "sha256": "edd5c3c50f037a9a2b6e4ca90b8f764c2e7a8dbe038cf45fc30134b44194a7b4",
+      "image_attempts": 1,
+      "reference": "foundry",
+      "prompt": "Design a single source sheet for an ORIGINAL side-scrolling industrial prison game prop, with EXACTLY THREE equally sized cells in a single horizontal row, ordered left to right as instructed. No dividers or visible layout marks. Use flat opaque saturated MAGENTA #FF00FF across blank background, including all gaps and holes. In each cell, centered subject kept wholly in bounds with large blank padding on every side. Use an orthographic side-scroller elevation view, visually simple large matte, lineless angular color planes, hard edges, 2-3 tones per material, key lighting from upper left. Preserve identical dimensions and viewing angle for persistent geometry, draw the three stages as the SAME object. Art for crisp low-color rendering, avoid noisy small dabs, soft gradients, transparent edges, floor, shadows on ground, blur, motion streaks, lettering, numerals, icons, signatures, figures and watermarks. The supplied card is a game material and hue reference only; do not copy another object or the text from it.\nThree states of an identical wide flat furnace floor-vent. Make a 3:1 horizontal source sheet (three equal cells), each matching shape and equal placement. One short heavy horizontal grounded front-elevation cast iron grille of wide 3:1 silhouette, good for a 180x60 canvas. Shallow straight broad rectangular foundry metal frame with a thin beveled shelf, a long row of 5–7 readable horizontal dark openings divided by thick bars, sturdy dark bottom edge, small rusty bolts. LEFT INACTIVE with completely dark cool charcoal openings, no light; MIDDLE WARNING with the openings lit deep saturated scarlet RED from inside, clearly red even at small size, retain dark frame, no exterior glow; RIGHT IMMINENT with the same openings lit hot yellow-orange to pale amber on the inside, rim can take a small amber bounce light, bright by comparison, never change the frame footprint. No visible flame above the vent, no heat rays, smoke, sparks, arrows, symbols, or props nearby. Openings and metal stay inside the silhouette. Preserve perfectly horizontal edges, rectangular bodies all at same baseline."
+    },
+    "crystal": {
+      "file": "source/crystal_source.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "cd81ad57bb9364415210317cac7881d86a99791c3288da682edf8c442220d976",
+      "image_attempts": 1,
+      "reference": "haze",
+      "prompt": "Design a single source sheet for an ORIGINAL side-scrolling industrial prison game prop, with EXACTLY THREE equally sized cells in a single horizontal row, ordered left to right as instructed. No dividers or visible layout marks. Use flat opaque saturated MAGENTA #FF00FF across blank background, including all gaps and holes. In each cell, centered subject kept wholly in bounds with large blank padding on every side. Use an orthographic side-scroller elevation view, visually simple large matte, lineless angular color planes, hard edges, 2-3 tones per material, key lighting from upper left. Preserve identical dimensions and viewing angle for persistent geometry, draw the three stages as the SAME object. Art for crisp low-color rendering, avoid noisy small dabs, soft gradients, transparent edges, floor, shadows on ground, blur, motion streaks, lettering, numerals, icons, signatures, figures and watermarks. The supplied card is a game material and hue reference only; do not copy another object or the text from it.\nThis sheet is an ORIGINAL arcane mineral wall hazard, a tall thick teal Haze CRYSTAL PILLAR, geometric faceted mineral with blocky pillar silhouette, broad vertical sides, no organic creature, clear 3 bands of blue-green/dark blue/deep cyan flat facets and a few pale mint facet highlights. Plan the MIDDLE standing form with a narrow 1:3 width-to-height vertical wall-like full core, filled center, substantial blue-grey and turquoise material like a solid tall barrier, not a thin glass shard or leaves. A small cluster of dark mineral shards roots it to a flat base; use thick facets from ground to tip. LEFT rising: same crystal partway out of the ground, broad base and a narrower emerging body with about 60% visible height of the full pillar; underside meeting the same horizontal base. MIDDLE erected: one full tall broad crystal pillar with dense vertical facets, stable wide flat base and three irregular polygon faces, towering much higher than left pose. RIGHT breaking: recognizable cyan facets with a big dark fracture splitting the center, top fractured at about 70% height, large chunks falling only within the cell and shorter on the same base, readable solid pieces. The 3 props share the same floor line and geometric style. No glow cloud or graded transparent glass, no beams. Use a wide landscape canvas around 3:2 so the central tall form fits comfortably vertically."
+    }
+  }
+}

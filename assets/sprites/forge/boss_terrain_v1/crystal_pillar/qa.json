@@ -1,0 +1,93 @@
+{
+  "size": [
+    100,
+    260
+  ],
+  "bottom_edge": 260,
+  "pivot": [
+    50,
+    260
+  ],
+  "horizontal_source_normalization": 0.67407,
+  "palette_colors": 31,
+  "states": [
+    {
+      "file": "1.png",
+      "state": "Rising",
+      "bounds": [
+        19,
+        152,
+        80,
+        260
+      ],
+      "palette_colors": 28,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        19,
+        152
+      ],
+      "source_subject_size": [
+        362,
+        434
+      ],
+      "requested_height": 107,
+      "finish_metadata": "processing/crystal/v1/1/finish/finish.json",
+      "luma_p95": 226.6
+    },
+    {
+      "file": "2.png",
+      "state": "Standing",
+      "bounds": [
+        20,
+        80,
+        79,
+        260
+      ],
+      "palette_colors": 28,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        20,
+        80
+      ],
+      "source_subject_size": [
+        348,
+        728
+      ],
+      "requested_height": 180,
+      "finish_metadata": "processing/crystal/v1/2/finish/finish.json",
+      "luma_p95": 186.7
+    },
+    {
+      "file": "3.png",
+      "state": "Breaking",
+      "bounds": [
+        20,
+        99,
+        80,
+        260
+      ],
+      "palette_colors": 31,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        20,
+        99
+      ],
+      "source_subject_size": [
+        354,
+        648
+      ],
+      "requested_height": 160,
+      "finish_metadata": "processing/crystal/v1/3/finish/finish.json",
+      "luma_p95": 186.7
+    }
+  ]
+}

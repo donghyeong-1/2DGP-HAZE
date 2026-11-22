@@ -1,0 +1,97 @@
+{
+  "size": [
+    120,
+    240
+  ],
+  "bottom_edge": 240,
+  "pivot": [
+    60,
+    240
+  ],
+  "horizontal_source_normalization": 1.37384,
+  "palette_colors": 32,
+  "states": [
+    {
+      "file": "1.png",
+      "state": "Falling",
+      "bounds": [
+        1,
+        0,
+        118,
+        240
+      ],
+      "palette_colors": 32,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        1,
+        0
+      ],
+      "source_subject_size": [
+        243,
+        686
+      ],
+      "requested_height": 239,
+      "finish_metadata": "processing/scrap/v1/1/finish/finish.json",
+      "luma_p95": 124.6
+    },
+    {
+      "file": "2.png",
+      "state": "Planted",
+      "bounds": [
+        1,
+        0,
+        119,
+        240
+      ],
+      "palette_colors": 32,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        1,
+        1
+      ],
+      "source_subject_size": [
+        242,
+        685
+      ],
+      "requested_height": 239,
+      "finish_metadata": "processing/scrap/v1/2/finish/finish.json",
+      "luma_p95": 124.6,
+      "top_cap_span": [
+        2,
+        116
+      ]
+    },
+    {
+      "file": "3.png",
+      "state": "Crumbling",
+      "bounds": [
+        1,
+        74,
+        119,
+        240
+      ],
+      "palette_colors": 32,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        1,
+        74
+      ],
+      "source_subject_size": [
+        262,
+        510
+      ],
+      "requested_height": 166,
+      "finish_metadata": "processing/scrap/v1/3/finish/finish.json",
+      "luma_p95": 139.1
+    }
+  ]
+}

@@ -151,7 +151,7 @@ def sound(name):
     return _sounds[name]
 
 
-PRELOAD_FOLDERS = ('sprites/unified', 'effects', 'props', 'decor', 'tiles', 'ui', 'backgrounds', 'portraits', 'placeholder')
+PRELOAD_FOLDERS = ('sprites/unified', 'effects', 'props', 'props/boss', 'decor', 'tiles', 'ui', 'backgrounds', 'portraits', 'placeholder')
 
 
 def preload(sounds=True):

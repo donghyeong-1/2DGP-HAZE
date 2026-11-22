@@ -1,0 +1,93 @@
+{
+  "size": [
+    180,
+    60
+  ],
+  "bottom_edge": 60,
+  "pivot": [
+    90,
+    60
+  ],
+  "horizontal_source_normalization": 1.0,
+  "palette_colors": 28,
+  "states": [
+    {
+      "file": "1.png",
+      "state": "Off",
+      "bounds": [
+        5,
+        14,
+        175,
+        60
+      ],
+      "palette_colors": 19,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        5,
+        14
+      ],
+      "source_subject_size": [
+        604,
+        158
+      ],
+      "requested_height": 46,
+      "finish_metadata": "processing/vent/v1/1/finish/finish.json",
+      "luma_p95": 99.8
+    },
+    {
+      "file": "2.png",
+      "state": "Warning",
+      "bounds": [
+        5,
+        14,
+        175,
+        60
+      ],
+      "palette_colors": 23,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        5,
+        14
+      ],
+      "source_subject_size": [
+        604,
+        158
+      ],
+      "requested_height": 46,
+      "finish_metadata": "processing/vent/v1/2/finish/finish.json",
+      "luma_p95": 99.8
+    },
+    {
+      "file": "3.png",
+      "state": "Imminent",
+      "bounds": [
+        5,
+        14,
+        175,
+        60
+      ],
+      "palette_colors": 23,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        5,
+        14
+      ],
+      "source_subject_size": [
+        604,
+        158
+      ],
+      "requested_height": 46,
+      "finish_metadata": "processing/vent/v1/3/finish/finish.json",
+      "luma_p95": 189.8
+    }
+  ]
+}

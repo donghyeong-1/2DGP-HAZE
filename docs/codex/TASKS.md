@@ -57,8 +57,8 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T35 | 엔딩 크레딧 장면 3장 (1920x1080) | [T35_credits_scenes.md](tasks/T35_credits_scenes.md) | - | done·게임 적용 2026-11-21 (`backgrounds/credits_1~3`, 크레딧이 흐르는 동안 차례로) |
 | T36 | 용접 드론 (공장, 비행) 13장 | [T36_enemy_drone.md](tasks/T36_enemy_drone.md) | - | done |
 | T37 | 자폭 수레 (공장) 11장 | [T37_enemy_cart.md](tasks/T37_enemy_cart.md) | - | done |
-| T43 | 보스방 지형 소품 (고철 기둥·밸브·배기구·결정 기둥) 12장 | [T43_boss_terrain.md](tasks/T43_boss_terrain.md) | - | review |
-| T38 | 감시 눈 (탑, 벽 포탑) 10장 | [T38_enemy_eye.md](tasks/T38_enemy_eye.md) | - | ready |
+| T43 | 보스방 지형 소품 (고철 기둥·밸브·배기구·결정 기둥) 12장 | [T43_boss_terrain.md](tasks/T43_boss_terrain.md) | - | done |
+| T38 | 감시 눈 (탑, 벽 포탑) 10장 | [T38_enemy_eye.md](tasks/T38_enemy_eye.md) | - | in_progress |
 | T39 | 결정 기사 (탑, 순간이동) 14장 | [T39_enemy_knight.md](tasks/T39_enemy_knight.md) | - | ready |
 | T40 | 헤이즈 망령 (탑, 벽 통과) 10장 | [T40_enemy_wraith.md](tasks/T40_enemy_wraith.md) | - | ready |
 | T41 | 헤이즈 쥐 떼 (슬럼) 9장 | [T41_enemy_rat.md](tasks/T41_enemy_rat.md) | - | ready |

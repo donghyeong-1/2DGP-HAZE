@@ -229,6 +229,8 @@ class SteamVent:
         if self.wait > 0:
             return
         x, y = int(self.x), int(self.floor_y)
+        n = 3 if self.erupting or self.warn < self.WARN / 3 else 2                     # 용광로 배기구 (Codex T43): 빨간 예고 -> 분출
+        assets.draw_image(assets.image(f'props/boss/furnace_vent_{n}.png'), x, y)
         if not self.erupting:                                # 솟을 자리 표시: 점점 빨리 깜빡인다 (고철의 노란 표시와 구분되는 청록)
             rate = 8 if self.warn > self.WARN / 2 else 16
             assets.draw_rect_color(x - self.W // 2, y, self.W, 40, (90, 230, 230), 0.35)     # 솟을 자리의 옅은 김

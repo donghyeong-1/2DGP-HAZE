@@ -281,3 +281,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-22 [Codex] T43 assets/sprites/forge/boss_terrain_v1/ 고철 기둥·증기 밸브·용광로 배기구·결정 기둥 각 3장. 프로젝트 자체 원경·타일·소품을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 소품별 공용 32색 이하·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/boss_terrain_v1/provenance.json. 검토 대기.
 
 2026-11-22 [Claude Code] Codex T36·T37 적용: `assets/sprites/unified/enemy_drone_*`(비행 4·예고 2·분사 3·피격 2·잔해 2·정지 1), `enemy_cart_*`(굴러감 4·예고 3·피격 2·잔해 2·정지 1)로 복사(1배 그대로). 효과음 `windup_drone`·`drone_torch`·`windup_cart`는 `tools/make_sfx.py`로 직접 합성(numpy).
+
+2026-11-22 [Claude Code] Codex T43 적용: `assets/props/boss/`(고철 기둥·증기 밸브·용광로 배기구·결정 기둥 각 3장, 1배 그대로)로 복사. 보스방 지형의 코드 임시 그림을 바꿨다.

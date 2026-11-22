@@ -1,0 +1,93 @@
+{
+  "size": [
+    90,
+    110
+  ],
+  "bottom_edge": 110,
+  "pivot": [
+    37,
+    110
+  ],
+  "horizontal_source_normalization": 1.0,
+  "palette_colors": 31,
+  "states": [
+    {
+      "file": "1.png",
+      "state": "Open",
+      "bounds": [
+        9,
+        3,
+        90,
+        110
+      ],
+      "palette_colors": 29,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        9,
+        3
+      ],
+      "source_subject_size": [
+        418,
+        563
+      ],
+      "requested_height": 107,
+      "finish_metadata": "processing/valve/v1/1/finish/finish.json",
+      "luma_p95": 172.7
+    },
+    {
+      "file": "2.png",
+      "state": "Struck",
+      "bounds": [
+        9,
+        3,
+        77,
+        110
+      ],
+      "palette_colors": 30,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        9,
+        3
+      ],
+      "source_subject_size": [
+        350,
+        563
+      ],
+      "requested_height": 107,
+      "finish_metadata": "processing/valve/v1/2/finish/finish.json",
+      "luma_p95": 100.5
+    },
+    {
+      "file": "3.png",
+      "state": "Closed",
+      "bounds": [
+        9,
+        3,
+        66,
+        110
+      ],
+      "palette_colors": 27,
+      "alpha": [
+        0,
+        255
+      ],
+      "place_offset": [
+        9,
+        3
+      ],
+      "source_subject_size": [
+        292,
+        563
+      ],
+      "requested_height": 107,
+      "finish_metadata": "processing/valve/v1/3/finish/finish.json",
+      "luma_p95": 100.5
+    }
+  ]
+}

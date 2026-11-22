@@ -6,8 +6,13 @@
   멈추고, 안 누르면 PUMP_TIME 뒤 저절로 멈춘다.
 - HazeBands (아크 2·3페이즈 '농도 띠'): 짙은 띠(게이지 상승)와 맑은 띠(하강)가 방을 가로질러 천천히 움직인다.
 - CrystalWall (아크 3페이즈 '결정 벽'): 솟아올라 길을 막는다(임시 벽). 대시로 부딪치면 깨지며 헤이즈를 흡수(게이지 상승).
-그림은 Codex T43이 오기 전까지 코드로 그린다(사각 블록, 정수 좌표, 반투명 없는 색 + 띠만 옅은 색 덮기).
+그림은 Codex T43(assets/props/boss/, 11/22 적용): 고철 기둥 120x240(낙하·박힘·붕괴), 밸브 90x110(열림·피격·닫힘,
+기준점 x=37), 결정 기둥 100x260(솟음·직립·파괴), 용광로 배기구 180x60(크래셔 증기 분출 자리). 농도 띠만 코드로 그린다.
 """
+
+
+def _img(name, n):
+    return assets.image(f'props/boss/{name}_{n}.png')
 import assets
 import config
 import effects
@@ -103,13 +108,8 @@ class ScrapPillar(_Solid):
             bottom = int(self.floor_y + (1 - k) * 700)
         else:
             bottom = int(self.floor_y)
-        h = PILLAR_ROWS * T
-        if self.state == 'crumble':
-            h = int(h * (1 - self.time / PILLAR_CRUMBLE))
-        assets.draw_rect_color(x0, bottom, 2 * T, h, (70, 46, 34))                   # 녹슨 고철 덩어리 (T43 전 임시 그림)
-        for i in range(0, h, 30):
-            assets.draw_rect_color(x0 + 4, bottom + i + 4, 2 * T - 8, 10, (120, 78, 50))
-        assets.draw_rect_color(x0, bottom + h - 8, 2 * T, 8, (160, 110, 70))          # 올라설 윗면
+        n = {'fall': 1, 'stand': 2, 'crumble': 3}[self.state]
+        assets.draw_image(_img('scrap_pillar', n), int(self.x), bottom)              # 두 칸 x 네 칸 (Codex T43)
 
 
 class Valve:
@@ -144,12 +144,8 @@ class Valve:
 
     def draw(self):
         x, y = int(self.x), int(self.y_floor)
-        assets.draw_rect_color(x - 12, y, 24, 120, (60, 50, 44))                     # 관 (T43 전 임시 그림)
-        spin = int(self.time * 8) % 2
-        assets.draw_rect_color(x - 30, y + 90 + spin * 2, 60, 10, (200, 80, 60))       # 바퀴
-        assets.draw_rect_color(x - 5, y + 70, 10, 50, (200, 80, 60))
-        if int(self.time * 6) % 2 == 0:                                                # 새는 증기
-            assets.draw_rect_color(x + 16, y + 110, 14, 14, (200, 230, 235))
+        n = 1 if int(self.time * 5) % 4 else 2                                          # 증기가 새다 가끔 덜컹 (Codex T43)
+        assets.draw_image(_img('steam_valve', n), x + 8, y)                            # 기준점 x=37 (캔버스 가운데 45)
         if self.near():
             assets.draw_text(x, y + 160, 'F 밸브 잠그기', (255, 230, 140), center=True, small=True)
 
@@ -211,11 +207,25 @@ class CrystalWall(_Solid):
                 self._release()
                 effects.spawn('hit-enhanced', self.x, self.floor_y + 90, duration=0.35)
                 assets.play_sound('chain_clash')
+                game_world.add_object(_Shatter(self.x, self.floor_y), game_world.LAYER_EFFECT)
                 game_world.remove_object(self)
 
     def draw(self):
-        h = CRYSTAL_ROWS * T if self.state == 'stand' else int(CRYSTAL_ROWS * T * min(1.0, self.time / CRYSTAL_RISE))
-        x0, y0 = int(self.x - T / 2), int(self.floor_y)
-        assets.draw_rect_color(x0 + 6, y0, T - 12, h, (40, 150, 150))                  # 결정 기둥 (T43 전 임시 그림)
-        assets.draw_rect_color(x0 + 16, y0, T - 32, h, (110, 235, 220))
-        assets.draw_rect_color(x0 + 26, y0 + 10, 8, max(0, h - 20), (230, 255, 250))
+        n = 2 if self.state == 'stand' else 1                                          # 솟음 -> 직립 (Codex T43)
+        assets.draw_image(_img('crystal_pillar', n), int(self.x), int(self.floor_y))
+
+
+class _Shatter:
+    """깨진 결정 기둥 (판정 없음): 파괴 그림을 잠깐 보여 준다."""
+    TIME = 0.3
+
+    def __init__(self, x, floor_y):
+        self.x, self.floor_y, self.time = x, floor_y, 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.TIME:
+            game_world.remove_object(self)
+
+    def draw(self):
+        assets.draw_image(_img('crystal_pillar', 3), int(self.x), int(self.floor_y))

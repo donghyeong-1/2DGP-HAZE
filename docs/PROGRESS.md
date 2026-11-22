@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Codex] T38 감시 눈 / 수정 중인 파일: assets/sprites/forge/eye_v1/, docs/codex/reports/T38.md
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -226,3 +226,4 @@
 2026-11-22 [Claude Code] v5 2주 차 헤이즈 변이 3택·방 보상: 변이 12종(4계열·시너지 4), 카드 창, 전투방 보상(변이·조각·회복·결정)과 문 옆 미리보기, 테스트 19개 추가 / src/(mutations, mutation_mode, haze_gauge, player, weapon, stage, room, play_mode, meta), tests/test_mutations.py, docs/(DECISIONS, changes_from_plan, PROGRESS)
 2026-11-22 [Codex] T43 보스방 지형 소품 12장 제작, 발판 수평면·배기구 경고·결정 벽 크기 1배 확인(검토 대기) / assets/sprites/forge/boss_terrain_v1/, docs/codex/reports/T43.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] Codex T36·T37 검토·적용: 공장 새 적 용접 드론(비행·아래 불꽃)·자폭 수레(굴러와 폭발·받아치기), 효과음 3종, 스테이지 2 배치, 테스트 11개 추가 / src/(enemy_kinds, config, sprites, stage, killers, credits_mode), data/stages/stage2.py, tools/(make_sfx, capture), assets/(sprites/unified, sfx), tests/test_factory_enemies.py, docs/*
+2026-11-22 [Claude Code] Codex T43 검토·적용: 보스방 지형(고철 기둥·밸브·결정 기둥·크래셔 증기 분출 자리의 배기구)을 Codex 그림으로 / src/(boss_terrain, projectile, assets), assets/props/boss/, docs/*

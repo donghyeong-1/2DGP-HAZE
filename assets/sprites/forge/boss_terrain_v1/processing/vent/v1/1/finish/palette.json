@@ -1,0 +1,105 @@
+{
+  "schema": "generate2dsprite.palette.v1",
+  "colors": [
+    {
+      "hex": "#372f29"
+    },
+    {
+      "hex": "#801d1c"
+    },
+    {
+      "hex": "#cc2b21"
+    },
+    {
+      "hex": "#f47c32"
+    },
+    {
+      "hex": "#ffd076"
+    },
+    {
+      "hex": "#1e140f"
+    },
+    {
+      "hex": "#241609"
+    },
+    {
+      "hex": "#231711"
+    },
+    {
+      "hex": "#2e1e17"
+    },
+    {
+      "hex": "#33231a"
+    },
+    {
+      "hex": "#493021"
+    },
+    {
+      "hex": "#4e3424"
+    },
+    {
+      "hex": "#523626"
+    },
+    {
+      "hex": "#770d06"
+    },
+    {
+      "hex": "#593b28"
+    },
+    {
+      "hex": "#8f0301"
+    },
+    {
+      "hex": "#634431"
+    },
+    {
+      "hex": "#6f4d37"
+    },
+    {
+      "hex": "#854726"
+    },
+    {
+      "hex": "#ae0f05"
+    },
+    {
+      "hex": "#8b5434"
+    },
+    {
+      "hex": "#865d43"
+    },
+    {
+      "hex": "#a94e15"
+    },
+    {
+      "hex": "#9a6543"
+    },
+    {
+      "hex": "#df0301"
+    },
+    {
+      "hex": "#c06333"
+    },
+    {
+      "hex": "#bd7541"
+    },
+    {
+      "hex": "#e96405"
+    },
+    {
+      "hex": "#d78447"
+    },
+    {
+      "hex": "#d7945f"
+    },
+    {
+      "hex": "#fcbb22"
+    },
+    {
+      "hex": "#0b1020",
+      "name": "outline"
+    }
+  ],
+  "transparent_index": 255,
+  "locked": false,
+  "source": "forge_palette.build_palette: OKLab k-means++, k=31, seed 0; finish_frames hibit: 31 body colour(s) (the given palette's colours); outline #0b1020 #0b1020"
+}

@@ -1,0 +1,419 @@
+{
+  "props": {
+    "scrap_pillar": {
+      "frames": [
+        {
+          "file": "1.png",
+          "canvas": [
+            120,
+            240
+          ],
+          "bounds": [
+            1,
+            0,
+            118,
+            240
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 32
+        },
+        {
+          "file": "2.png",
+          "canvas": [
+            120,
+            240
+          ],
+          "bounds": [
+            1,
+            0,
+            119,
+            240
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 32
+        },
+        {
+          "file": "3.png",
+          "canvas": [
+            120,
+            240
+          ],
+          "bounds": [
+            1,
+            74,
+            119,
+            240
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 32
+        }
+      ],
+      "combined_colors": 32,
+      "continuous_cap_top_row": [
+        2,
+        116
+      ]
+    },
+    "steam_valve": {
+      "frames": [
+        {
+          "file": "1.png",
+          "canvas": [
+            90,
+            110
+          ],
+          "bounds": [
+            9,
+            3,
+            90,
+            110
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 29
+        },
+        {
+          "file": "2.png",
+          "canvas": [
+            90,
+            110
+          ],
+          "bounds": [
+            9,
+            3,
+            77,
+            110
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 30
+        },
+        {
+          "file": "3.png",
+          "canvas": [
+            90,
+            110
+          ],
+          "bounds": [
+            9,
+            3,
+            66,
+            110
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 27
+        }
+      ],
+      "combined_colors": 31,
+      "open_right_edge": [
+        {
+          "count": 5,
+          "rgba": [
+            11,
+            16,
+            32,
+            255
+          ]
+        }
+      ]
+    },
+    "furnace_vent": {
+      "frames": [
+        {
+          "file": "1.png",
+          "canvas": [
+            180,
+            60
+          ],
+          "bounds": [
+            5,
+            14,
+            175,
+            60
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 19
+        },
+        {
+          "file": "2.png",
+          "canvas": [
+            180,
+            60
+          ],
+          "bounds": [
+            5,
+            14,
+            175,
+            60
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 23
+        },
+        {
+          "file": "3.png",
+          "canvas": [
+            180,
+            60
+          ],
+          "bounds": [
+            5,
+            14,
+            175,
+            60
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 23
+        }
+      ],
+      "combined_colors": 28,
+      "slot_sample": {
+        "xy": [
+          24,
+          35
+        ],
+        "states": [
+          {
+            "rgb": [
+              35,
+              23,
+              17
+            ],
+            "luma": 25.1
+          },
+          {
+            "rgb": [
+              223,
+              3,
+              1
+            ],
+            "luma": 49.6
+          },
+          {
+            "rgb": [
+              252,
+              187,
+              34
+            ],
+            "luma": 189.8
+          }
+        ]
+      }
+    },
+    "crystal_pillar": {
+      "frames": [
+        {
+          "file": "1.png",
+          "canvas": [
+            100,
+            260
+          ],
+          "bounds": [
+            19,
+            152,
+            80,
+            260
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 28
+        },
+        {
+          "file": "2.png",
+          "canvas": [
+            100,
+            260
+          ],
+          "bounds": [
+            20,
+            80,
+            79,
+            260
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 28
+        },
+        {
+          "file": "3.png",
+          "canvas": [
+            100,
+            260
+          ],
+          "bounds": [
+            20,
+            99,
+            80,
+            260
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "colors": 31
+        }
+      ],
+      "combined_colors": 31
+    }
+  },
+  "skill_qa": [
+    {
+      "metadata": "processing/crystal/v1/1/finish/finish.json",
+      "status": "needs-visual-review"
+    },
+    {
+      "metadata": "processing/crystal/v1/2/finish/finish.json",
+      "status": "needs-visual-review"
+    },
+    {
+      "metadata": "processing/crystal/v1/3/finish/finish.json",
+      "status": "needs-visual-review"
+    },
+    {
+      "metadata": "processing/scrap/v1/1/finish/finish.json",
+      "status": "warn"
+    },
+    {
+      "metadata": "processing/scrap/v1/2/finish/finish.json",
+      "status": "warn"
+    },
+    {
+      "metadata": "processing/scrap/v1/3/finish/finish.json",
+      "status": "warn"
+    },
+    {
+      "metadata": "processing/valve/v1/1/finish/finish.json",
+      "status": "needs-visual-review"
+    },
+    {
+      "metadata": "processing/valve/v1/2/finish/finish.json",
+      "status": "needs-visual-review"
+    },
+    {
+      "metadata": "processing/valve/v1/3/finish/finish.json",
+      "status": "needs-visual-review"
+    },
+    {
+      "metadata": "processing/vent/v1/1/finish/finish.json",
+      "status": "warn"
+    },
+    {
+      "metadata": "processing/vent/v1/2/finish/finish.json",
+      "status": "warn"
+    },
+    {
+      "metadata": "processing/vent/v1/3/finish/finish.json",
+      "status": "warn"
+    },
+    {
+      "metadata": "source/crystal_processed/pipeline-meta.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/crystal_spill/sheet-qc.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/scrap_processed/pipeline-meta.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/scrap_spill/sheet-qc.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/valve_processed/pipeline-meta.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/valve_spill/sheet-qc.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/vent_processed/pipeline-meta.json",
+      "status": "pass"
+    },
+    {
+      "metadata": "source/vent_spill/sheet-qc.json",
+      "status": "pass"
+    }
+  ],
+  "warnings": [
+    {
+      "metadata": "processing/scrap/v1/1/finish/finish.json",
+      "id": "pixel-reduction",
+      "status": "warn",
+      "value": 2.895,
+      "threshold": 4.0,
+      "note": "source px per output px; pixel art comes from about 8-12x"
+    },
+    {
+      "metadata": "processing/scrap/v1/2/finish/finish.json",
+      "id": "pixel-reduction",
+      "status": "warn",
+      "value": 2.89,
+      "threshold": 4.0,
+      "note": "source px per output px; pixel art comes from about 8-12x"
+    },
+    {
+      "metadata": "processing/scrap/v1/3/finish/finish.json",
+      "id": "pixel-reduction",
+      "status": "warn",
+      "value": 3.104,
+      "threshold": 4.0,
+      "note": "source px per output px; pixel art comes from about 8-12x"
+    },
+    {
+      "metadata": "processing/vent/v1/1/finish/finish.json",
+      "id": "pixel-reduction",
+      "status": "warn",
+      "value": 3.591,
+      "threshold": 4.0,
+      "note": "source px per output px; pixel art comes from about 8-12x"
+    },
+    {
+      "metadata": "processing/vent/v1/2/finish/finish.json",
+      "id": "pixel-reduction",
+      "status": "warn",
+      "value": 3.591,
+      "threshold": 4.0,
+      "note": "source px per output px; pixel art comes from about 8-12x"
+    },
+    {
+      "metadata": "processing/vent/v1/3/finish/finish.json",
+      "id": "pixel-reduction",
+      "status": "warn",
+      "value": 3.591,
+      "threshold": 4.0,
+      "note": "source px per output px; pixel art comes from about 8-12x"
+    }
+  ]
+}

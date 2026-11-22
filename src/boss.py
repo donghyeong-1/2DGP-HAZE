@@ -71,6 +71,12 @@ class Boss(Enemy):
             return 'leap'
         table = NEAR if d < self.stats['attack_range'] else MID if d <= 520 else FAR
         options = {k: w for k, w in table.items() if k != self.last_pattern} or dict(table)
+        if self.phase == 2 and d > self.stats['attack_range']:     # 2페이즈: 방을 쓴다 (고철 기둥·배기 펌프, 11/22)
+            import boss_terrain
+            extra = {'pillars': 2}
+            if not any(isinstance(o, boss_terrain.Valve) for o in game_world.world[game_world.LAYER_EFFECT]):
+                extra['pump'] = 1
+            options.update({k: w for k, w in extra.items() if k != self.last_pattern})
         if self.count == 0:                              # 첫 패턴은 늘 충격파: 보스가 무엇을 하는지 먼저 보여 준다
             return 'slam' if d >= self.stats['attack_range'] else 'smash'
         total = sum(options.values())
@@ -83,14 +89,15 @@ class Boss(Enemy):
 
     def _windup(self):
         s = self.stats
-        mult = {'smash': 1.0, 'combo': 1.1, 'slam': 1.8, 'charge': 1.6, 'leap': 1.5, 'rubble': 1.4, 'steam': 1.3}[self.pattern]
+        mult = {'smash': 1.0, 'combo': 1.1, 'slam': 1.8, 'charge': 1.6, 'leap': 1.5, 'rubble': 1.4, 'steam': 1.3,
+                'pillars': 1.3, 'pump': 1.2}[self.pattern]
         return s['windup'] * mult * (0.85 if self.phase == 2 else 1.0)
 
     def _active(self):
         s = self.stats
         return {'smash': s['attack_time'], 'combo': COMBO_GAP * (COMBO_HITS - 1) + 0.25,
                 'slam': 0.35 + (QUAKE_DELAY if self.phase == 2 else 0.0), 'charge': s['charge_time'],
-                'leap': 0.0, 'rubble': 0.55, 'steam': 0.55}[self.pattern]
+                'leap': 0.0, 'rubble': 0.55, 'steam': 0.55, 'pillars': 0.5, 'pump': 0.5}[self.pattern]
 
     # 일반 적의 예고·깜빡임 계산이 보스 패턴 시간을 쓰게 한다
     def _windup_time(self):
@@ -197,11 +204,36 @@ class Boss(Enemy):
             self._stomp_rubble()
         elif self.pattern == 'steam':
             self._vent_steam()
+        elif self.pattern == 'pillars':
+            self._drop_pillars()
+        elif self.pattern == 'pump':
+            self._start_pump()
         else:
             self.charging, self.charge_hit = True, False
             if self.charges_left == 0:
                 self.charges_left = 2 if self.phase == 2 else 1
             assets.play_sound('dash')
+
+    def _drop_pillars(self):
+        """2페이즈 고철 기둥: 플레이어 자리와 양옆에 기둥이 떨어진다. 박힌 기둥은 올라설 발판이 되고 잠시 뒤 무너진다."""
+        import boss_terrain
+        assets.play_sound('overload')
+        effects.add_trauma(0.4)
+        px = self.player.x
+        for ox in (0, -300, 300):
+            x = px + ox
+            if 2 * config.TILE <= x <= self.room.width - 2 * config.TILE and abs(x - self.x) > 160:
+                game_world.add_object(boss_terrain.ScrapPillar(x, self.room, self.player), game_world.LAYER_EFFECT)
+
+    def _start_pump(self):
+        """2페이즈 배기 펌프: 방이 짙어져 게이지가 오른다. 플레이어에게서 먼 쪽 벽의 밸브를 F로 잠그면 멈춘다
+        (방을 가로질러 가야 한다)."""
+        import boss_terrain
+        far_left = self.player.x > self.room.width / 2
+        x = 2.5 * config.TILE if far_left else self.room.width - 2.5 * config.TILE
+        game_world.add_object(boss_terrain.Valve(self.room, self.player, x), game_world.LAYER_EFFECT)
+        effects.float_text(self.x, self.y + self.hb_h + 80, '배기 가동', (150, 230, 255), big=True, life=1.0)
+        assets.play_sound('enhance')
 
     def _shockwaves(self, speed_mult=1.0):
         s = self.stats

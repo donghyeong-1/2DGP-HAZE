@@ -58,6 +58,7 @@ class Room:
         self.tile_theme = BACKDROP_THEMES.get(self.theme, self.theme)   # 타일·장식에 쓰는 테마
         self.has_mid = self.theme not in BACKDROP_THEMES
         self.name = name
+        self.extra_solids = {}      # (열, 줄) -> 임시 벽 조각 (보스가 세운 고철 기둥·결정 벽, boss_terrain)
         self.links = set(links or ())   # 이웃 방(또는 탈출구)이 있어서 열릴 수 있는 출입구 방향. 나머지 출입구는 벽이다
         self.locked = False             # 전투 중에는 출입구가 잠긴다
         self.door_hints = {}            # 방향 -> 문 너머 방 종류('gold', 'boss', 'shop', 'gate', 'rift'): 문 색과 이름으로 알려 준다
@@ -223,6 +224,8 @@ class Room:
             return SOLID
         if row >= self.nrows:
             return EMPTY if self._hole_below(col) else SOLID
+        if (col, row) in self.extra_solids:
+            return SOLID
         ch = self.rows[row][col]
         if ch in DOOR_CHARS and not self.door_open(ch):
             return SOLID  # 잠겼거나 이어진 방이 없는 출입구는 벽

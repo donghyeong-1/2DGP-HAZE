@@ -22,13 +22,14 @@ import game_world
 import projectile
 from enemy import Enemy
 
-WINDUP = {'barrage': 0.6, 'absorb': 0.9, 'overcharge': 0.9, 'field': 0.7}   # 베기는 사라짐 + 나타남 시간
-ACTIVE = {'barrage': 0.35, 'slash': 0.35, 'absorb': 0.5, 'overcharge': 0.5, 'field': 0.4}
+WINDUP = {'barrage': 0.6, 'absorb': 0.9, 'overcharge': 0.9, 'field': 0.7, 'bands': 0.8, 'crystals': 0.7}   # 베기는 사라짐 + 나타남 시간
+ACTIVE = {'barrage': 0.35, 'slash': 0.35, 'absorb': 0.5, 'overcharge': 0.5, 'field': 0.4, 'bands': 0.4, 'crystals': 0.4}
 OVERCHARGE_SECOND = 0.4       # 3페이즈 과충전 두 번째 겹이 나가는 시각(첫 겹 뒤 초)
 # 페이즈별 패턴 가중치. 'wave'는 흡수·과충전 중 이번 차례인 쪽으로 바뀐다
 TABLES = {1: {'barrage': 3, 'slash': 2, 'field': 2},
-          2: {'barrage': 2, 'slash': 2, 'field': 1, 'wave': 3},
-          3: {'barrage': 2, 'slash': 2, 'field': 1, 'wave': 3}}
+          2: {'barrage': 2, 'slash': 2, 'field': 1, 'wave': 3, 'bands': 2},
+          3: {'barrage': 2, 'slash': 2, 'field': 1, 'wave': 3, 'bands': 2, 'crystals': 2}}
+# 2·3페이즈 방 쓰기 (11/22 v5): bands = 짙은·맑은 농도 띠가 방을 가로지름, crystals = 플레이어 양옆에 결정 벽
 GLOW = {'barrage': (90, 240, 230), 'slash': (220, 240, 255), 'absorb': (150, 100, 235),
         'overcharge': (255, 240, 150), 'field': (110, 235, 150)}   # 예고 중 손에 맺히는 빛 (패턴마다 색이 다르다)
 KEEP_FAR, KEEP_NEAR = 480, 220   # 패턴 사이 이 거리 사이를 유지한다(px)
@@ -204,8 +205,31 @@ class Ark(Enemy):
         elif self.pattern == 'overcharge':
             self.hits_done = 1
             self._overcharge_ring()
+        elif self.pattern == 'bands':
+            self._lay_bands()
+        elif self.pattern == 'crystals':
+            self._raise_crystals()
         else:
             self._lay_fields()
+
+    def _lay_bands(self):
+        """농도 띠: 짙은 띠(게이지 상승)와 맑은 띠(하강)가 방을 천천히 가로지른다. 서 있는 자리로 게이지를 지킨다."""
+        import boss_terrain
+        for o in list(game_world.world[game_world.LAYER_EFFECT]):
+            if isinstance(o, boss_terrain.HazeBands):
+                game_world.remove_object(o)
+        game_world.add_object(boss_terrain.HazeBands(self.room, self.player), game_world.LAYER_EFFECT)
+        effects.float_text(self.x, self.y + self.hb_h + 80, '농도 조작', (150, 240, 230), big=True, life=1.0)
+        assets.play_sound('ark_field')
+
+    def _raise_crystals(self):
+        """결정 벽: 플레이어 양옆에 벽이 솟아 길을 막는다. 대시로 부딪쳐 깨면 헤이즈를 흡수한다."""
+        import boss_terrain
+        for ox in (-3 * config.TILE, 3 * config.TILE):
+            x = self.player.x + ox
+            if 2 * config.TILE <= x <= self.room.width - 2 * config.TILE:
+                game_world.add_object(boss_terrain.CrystalWall(x, self.room, self.player), game_world.LAYER_EFFECT)
+        assets.play_sound('ark_absorb')
 
     def _fire_barrage(self):
         hx, hy = self._hand()

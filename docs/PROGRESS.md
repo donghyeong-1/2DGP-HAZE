@@ -6,7 +6,7 @@
 - [Codex] T36 용접 드론 / 수정 중인 파일: assets/sprites/forge/drone_v1/, docs/codex/reports/T36.md
 
 ## 지금 상태 (2026-11-19)
-- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(416개).
+- **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
 - **전투**: 마우스 조준 철파이프 3연타, 대시 평타, 점프 평타·내려찍기, E 강화 일격(1회성), 게이지 구간별 타수 증가, 오버로드 기절.
 - **무기(11/18)**: 철파이프 + 황금방에서 얻는 두 번째 무기(투척용 식칼 묶음 / 헤이즈 건틀릿 / 헤이즈 사슬), Q·1·2로 교체. 무기 4종 완성.
 - **적**: 슬럼 폐인, 고철 투척병, 사냥개(빠르고 약함), 간수(느리고 단단함), 보스 크래셔(스테이지 2), 최종 보스 아크(스테이지 3).
@@ -220,3 +220,4 @@
 2026-11-22 [Claude Code] Codex v5 작업 T36~T48 작성(새 적 7종, 보스방 지형 소품, 변이·보상 아이콘, 헤이즈 심장 본체·손·결전 방, 전경 실루엣) / docs/codex/(TASKS.md, tasks/T36~T48), docs/plan_v5.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] v5 1주 차 빠른 개선 1~3: 자주 나는 효과음 3버전·메뉴 소리, 공격·대시 입력 미리 받기, 사망 원인 표시, 테스트 411개 / src/(assets, config, hud_kit, game_framework, player, killers, ending_mode, enemy, boss, ark, projectile, play_mode, credits_mode).py, tools/make_sfx.py, assets/sfx/*, tests/(test_sfx, test_player, test_meta, test_options).py, docs/*
 2026-11-22 [Claude Code] v5 빠른 개선 4~6: 구역 날씨 입자·빛 번짐, 적 얇은 테두리·강한 공격 예고(!·돌진 점선), 아이템 이름·효과 띠, 테스트 416개 / src/(atmosphere, room, enemy, sprites, config, assets, items, stage, ui, play_mode, ending_mode).py, tools/make_atmosphere.py, assets/ui/glow.png, tests/(test_atmosphere, test_combat, test_stage, test_build).py, docs/*
+2026-11-22 [Claude Code] v5 1주 차 보스 페이즈 패턴: 크래셔 고철 기둥(올라설 임시 지형)·배기 펌프(밸브 F), 아크 농도 띠·결정 벽(대시로 깨서 흡수), 방 임시 벽 칸, 테스트 423개 / src/(boss_terrain, room, boss, ark).py, tests/test_arena.py, docs/*

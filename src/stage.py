@@ -62,7 +62,7 @@ def next_stage(stage):
         for obj in list(game_world.world[layer]):
             game_world.remove_object(obj)
     nxt = Stage(stage.player, seed=stage.seed + 1, name=stage.next_name)
-    nxt.on_clear, nxt.on_message = stage.on_clear, stage.on_message
+    nxt.on_clear, nxt.on_message, nxt.on_pickup = stage.on_clear, stage.on_message, stage.on_pickup
     nxt.start()
     return nxt
 
@@ -117,6 +117,7 @@ class Stage:
         self.finish_timer = 0.0
         self.on_clear = None        # 방을 클리어했을 때 부를 함수 (소리·글자용)
         self.on_message = None      # 화면에 띄울 짧은 글자: f(문구)
+        self.on_pickup = None       # 아이템을 얻었을 때: f(아이템 id, 효과 글) (play_mode가 화면 아래 띠로 보여 준다)
         self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
 
     def _pick_template(self, coord):
@@ -400,7 +401,10 @@ class Stage:
             items.apply(p, ped.item_id)            # 균열방 업그레이드는 두 단계를 한꺼번에
             text = '두 단계: ' + text
         info = items.ITEMS[ped.item_id]
-        self._say(f'{info["name"]} 획득: {text}')
+        if self.on_pickup:                                # 화면 아래 이름·효과 띠 (11/22)
+            self.on_pickup(ped.item_id, text)
+        else:
+            self._say(f'{info["name"]} 획득: {text}')
         upgrade_left = (ped.mode == 'shop' and ped.item_id in items.UPGRADES
                         and items.level(p, ped.item_id) < items.MAX_LEVEL)
         if upgrade_left:                       # 정비방 업그레이드: 품절 대신 다음 단계가 올라온다 (값이 오른다)

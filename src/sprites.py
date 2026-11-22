@@ -91,13 +91,14 @@ def place(name, n, width, height, face_dir):
     return width // 2 - px + (sdx if face_dir >= 0 else -sdx), height - py - sdy
 
 
-def draw_glow(name, n, x, y, face_dir, color):
-    """그림의 흰 실루엣을 색으로 물들여 상하좌우 3px씩 비켜 네 번 그린다 = 색 테두리 (정예 표시). 본 그림은 그 위에."""
+def draw_glow(name, n, x, y, face_dir, color, width=3, alpha=0.85):
+    """그림의 흰 실루엣을 색으로 물들여 상하좌우 width px씩 비켜 네 번 그린다 = 색 테두리 (정예 3px, 모든 적 얇게 2px).
+    본 그림은 그 위에."""
     img = assets.silhouette(path(name, n))
     dx, foot = place(name, n, img.w, img.h, face_dir)
     flip = 'h' if face_dir < 0 else ''
-    for ox, oy in ((3, 0), (-3, 0), (0, 3), (0, -3)):
-        assets.draw_image_tinted(img, x + dx + ox, y - foot + oy, flip, color, 0.85)
+    for ox, oy in ((width, 0), (-width, 0), (0, width), (0, -width)):
+        assets.draw_image_tinted(img, x + dx + ox, y - foot + oy, flip, color, alpha)
 
 
 def draw_white(name, n, x, y, face_dir=1):

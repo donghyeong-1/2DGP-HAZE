@@ -133,6 +133,16 @@ class Enemy(TileBody):
     def elite_label(self):
         return config.ELITE_MODS[self.elite]['name'] if self.elite else ''
 
+    def outline_color(self):
+        """테두리 색: 정예는 수식어 색, 그 밖은 옅은 남회색 (어두운 배경에서도 실루엣이 보이게, 11/22)."""
+        return self.elite_color() or config.ENEMY_OUTLINE
+
+    def telegraph(self):
+        """강한 기술의 예고 중이면 그 기술 이름, 아니면 None (머리 위 '!'와 돌진 바닥 표시를 그린다)."""
+        if self.state == 'ATTACK' and self.move in config.STRONG_MOVES and self.attack_time < self._windup_time():
+            return self.move
+        return None
+
     def elite_color(self):
         return config.ELITE_MODS[self.elite]['color'] if self.elite else None
 
@@ -543,6 +553,26 @@ class Enemy(TileBody):
             return frames['walk'], int(self.walk_phase) % count + 1
         return None, 0
 
+    def _draw_telegraph(self):
+        """강한 기술 예고: 머리 위에 깜빡이는 '!', 돌진 기술은 바닥에 가는 방향으로 점선."""
+        move = self.telegraph()
+        if move is None:
+            return
+        blink = int(self.attack_time * 12) % 2 == 0
+        top = self.y + self.hb_h + 34
+        color = (255, 90, 70) if blink else (255, 220, 120)
+        assets.draw_rect_color(int(self.x - 5), int(top + 14), 10, 30, (20, 10, 16))     # '!' (테두리 + 몸)
+        assets.draw_rect_color(int(self.x - 3), int(top + 16), 6, 26, color)
+        assets.draw_rect_color(int(self.x - 5), int(top - 2), 10, 10, (20, 10, 16))
+        assets.draw_rect_color(int(self.x - 3), int(top), 6, 6, color)
+        length = config.RUSH_MOVES.get(move)
+        if length:
+            k = min(1.0, self.attack_time / max(0.05, self._windup_time()))   # 예고가 끝날수록 길어진다
+            x0 = self.x + self.face_dir * self.hb_w / 2
+            for i in range(0, int(length * k), 22):
+                assets.draw_rect_color(int(x0 + self.face_dir * i - (14 if self.face_dir < 0 else 0)), int(self.y + 2), 14, 6,
+                                       (255, 90, 70))
+
     def _attack_frame(self):
         """공격 동작의 프레임 번호. 1 예고(당김), 2 타격, 3 회수. 두 장짜리(덮치기·돌진)는 1 웅크림, 2 뛰어듦."""
         t = self.attack_time
@@ -599,6 +629,9 @@ class Enemy(TileBody):
             name = self.stats['sprite']
         if self.elite:                                    # 정예: 수식어 색 테두리 (그림 뒤에 색을 더해 네 방향으로)
             sprites.draw_glow(name, n, self.x + dx, self.y + dy, self.face_dir, self.elite_color())
+        else:                                             # 모든 적: 얇은 옅은 테두리 (11/22)
+            sprites.draw_glow(name, n, self.x + dx, self.y + dy, self.face_dir, config.ENEMY_OUTLINE, width=2, alpha=0.55)
+        self._draw_telegraph()
         sprites.draw(name, n, self.x + dx, self.y + dy, self.face_dir, self._tint())
         if self.white_flash():                            # 맞은 순간: 그림 위에 흰색을 더해 하얗게
             sprites.draw_white(name, n, self.x + dx, self.y + dy, self.face_dir)

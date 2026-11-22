@@ -624,6 +624,25 @@ def test_next_stage_keeps_player_progress():
     assert stage_mod.next_stage(last) is None                               # 마지막 구역 다음은 탈출(엔딩)
 
 
+# ----- 아이템 얻을 때 이름·효과 띠 (2026-11-22 v5 빠른 개선 6) -----
+def test_pickup_shows_banner_with_icon_name_and_effect():
+    import ui
+    stage, p = make_stage()
+    to_gold(stage, p)
+    ped = next(d for d in stage.pedestals if d.item_id not in items.WEAPON_ITEMS)
+    p.x, p.y = ped.x, ped.y
+    got = []
+    stage.on_pickup = lambda item_id, text: got.append((item_id, text))
+    assert stage.interact()
+    assert got and got[0][0] == ped.item_id and got[0][1]
+    hud = ui.GameUI(p, stage)
+    hud.show_pickup(ped.item_id, got[0][1])
+    name, text, icon = hud.pickup[:3]
+    assert name == items.ITEMS[ped.item_id]['name'] and icon == items.icon_path(ped.item_id)
+    hud.update(ui.PICKUP_TIME + 0.1)
+    assert hud.pickup is None                                            # 잠깐만 보인다
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

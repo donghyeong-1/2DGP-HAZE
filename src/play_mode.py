@@ -38,6 +38,7 @@ def enter():
     stage = Stage(player, name='hideout')             # 판은 은신처에서 시작한다 (출발 문 -> 스테이지 1)
     stage.on_clear = _on_room_cleared
     stage.on_message = _show_message
+    stage.on_pickup = _on_pickup
     stage.on_npc = _on_npc
     stage.start()
     room = stage.room
@@ -85,6 +86,14 @@ def _show_message(text):
     global message, message_time
     message, message_time = text, 2.5
     assets.play_sound('pickup')
+
+
+def _on_pickup(item_id, text):
+    """아이템을 얻었다: 화면 아래 이름·효과 띠."""
+    assets.play_sound('pickup')
+    for obj in game_world.world[game_world.LAYER_UI]:
+        if hasattr(obj, 'show_pickup'):
+            obj.show_pickup(item_id, text)
 
 
 def _on_room_cleared(stage_):

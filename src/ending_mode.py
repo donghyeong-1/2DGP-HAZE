@@ -98,8 +98,7 @@ def update():
 
 
 def _icon_of(item_id):
-    info = items.ITEMS[item_id]
-    return f'ui/icon_w_{info["weapon"]}.png' if 'weapon' in info else f'ui/icon_{item_id}.png'
+    return items.icon_path(item_id)
 
 
 FULL_ROWS = ('도달한 구역', '쓰러진 원인')      # 글이 길어 한 줄을 다 쓰는 항목

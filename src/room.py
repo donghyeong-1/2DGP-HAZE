@@ -248,6 +248,20 @@ class Room:
     def tile_at_world(self, x, y):
         return self.tile_at(self.col_of(x), self.row_of(y))
 
+    def lights(self):
+        """빛이 나는 소품의 [(x, y, 반지름, 색)] (세계 좌표). 화면 분위기(atmosphere)가 빛 번짐을 더해 그린다."""
+        import atmosphere
+        import props_anim
+        out = []
+        for p in self.anim_props + self.decor_props:
+            key = p.name.split('_', 1)[1]
+            if key not in atmosphere.LIGHT_COLORS:
+                continue
+            kind = props_anim.KIND.get(key, 'floor')
+            y = p.bottom + 24 if kind == 'ceiling' else p.bottom + p.h * 0.6
+            out.append((p.left + p.w / 2, y, atmosphere.LIGHT_RADIUS.get(key, 110), atmosphere.LIGHT_COLORS[key]))
+        return out
+
     # ----- 객체 인터페이스 -----
     def update(self, dt):
         self.anim_time += dt

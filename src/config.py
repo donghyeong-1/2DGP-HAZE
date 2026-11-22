@@ -401,6 +401,11 @@ SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swin
             'throw_fade': 0.7, 'throw_awake': 0.8, 'chain_throw_fade': 0.75, 'chain_throw_awake': 0.8, 'heartbeat': 0.75,
             'zone_awake': 0.85, 'kill_last': 1.1,
             'amb_drip': 0.45, 'amb_steam': 0.35, 'amb_wind': 0.45, 'amb_forge': 0.4}   # 환경음은 작게
+# 적 테두리·강한 공격 예고 (11/22 v5): 모든 적에 얇은 옅은 테두리(정예는 자기 색), 강한 기술은 예고 동안 머리 위 '!',
+# 돌진 기술은 바닥에 가는 방향 표시
+ENEMY_OUTLINE = (150, 165, 200)
+STRONG_MOVES = ('heavy', 'bash', 'lunge', 'pounce', 'combo', 'volley')
+RUSH_MOVES = {'lunge': 300, 'pounce': 340, 'bash': 380}     # 기술 -> 바닥 표시 길이(px)
 # 자주 나는 소리: 3버전(<이름>, _v2, _v3)을 돌려 쓴다 (2026-11-22, tools/make_sfx.py가 음 높이·잡음을 조금 바꿔 만든다)
 SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)

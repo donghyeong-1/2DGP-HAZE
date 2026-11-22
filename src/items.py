@@ -88,6 +88,12 @@ def can_take(player, item_id):
     return level(player, item_id) < MAX_LEVEL
 
 
+def icon_path(item_id):
+    """아이템 아이콘 그림 경로 (assets/ 기준). 무기는 무기 아이콘."""
+    info = ITEMS[item_id]
+    return f'ui/icon_w_{info["weapon"]}.png' if 'weapon' in info else f'ui/icon_{item_id}.png'
+
+
 def apply(player, item_id):
     """아이템 효과를 플레이어에게 적용한다. 업그레이드는 한 단계 오르고 그 단계의 값(기획서 표)이 된다."""
     g = player.gauge

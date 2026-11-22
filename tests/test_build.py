@@ -65,7 +65,7 @@ def test_preload_loads_every_game_image_once():
     finally:
         pico2d.load_image = old
     names = set(assets._images)
-    assert n == len(loaded) > 300
+    assert len(loaded) >= n > 300                                         # 그림 n장 + 적 테두리 판
     for must in ('props/cell_bulb_1.png', 'decor/haze_teal_panel.png', 'ui/wipe_08.png', 'backgrounds/far_cell.png',
                  'sprites/unified/n09_idle_1.png'):
         assert must in names, must

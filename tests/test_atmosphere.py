@@ -65,6 +65,33 @@ def test_overlay_images_exist_and_fit_the_screen():
     assert set(fa) <= {0, 255} and sum(1 for a in fa if a) / len(fa) < 0.5     # 점묘로 성기게 (게임이 옅게 그린다)
 
 
+# ----- 구역 날씨·빛 번짐 (2026-11-22 v5 빠른 개선 4) -----
+def test_weather_follows_room_theme_and_moves():
+    w = atmosphere.Weather(seed=3)
+    assert atmosphere.weather_kind('cell') == 'rain' and atmosphere.weather_kind('foundry') == 'ember'
+    assert atmosphere.weather_kind('haze') == 'mote' and atmosphere.weather_kind('hideout') == 'dust'
+    assert atmosphere.weather_kind('gold') is None
+    w.set_kind('rain')
+    ys = [pt[1] for pt in w.points]
+    w.update(0.1)
+    assert all(b < a or b > a + 500 for a, b in zip(ys, [pt[1] for pt in w.points]))   # 비는 내린다 (아래로 나가면 위로 돌아옴)
+    w.set_kind('ember')
+    ys = [pt[1] for pt in w.points]
+    w.update(0.1)
+    assert sum(b > a for a, b in zip(ys, [pt[1] for pt in w.points])) > len(ys) // 2      # 불티는 오른다
+    assert 40 <= len(w.points) <= 120
+
+
+def test_light_sources_in_rooms_get_glow():
+    from room import Room
+    room = Room.load('hall_01', {'L', 'R'}, theme='cell')
+    lights = room.lights()
+    names = {p.name for p in room.anim_props + room.decor_props}
+    if any('bulb' in n for n in names):
+        assert any(color == atmosphere.LIGHT_COLORS['bulb'] for _x, _y, _r, color in lights)
+    assert all(r > 0 for _x, _y, r, _c in lights)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

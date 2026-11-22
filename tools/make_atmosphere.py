@@ -3,6 +3,7 @@
   assets/ui/vignette.png          1920x1080 가장자리 어둡게. 짙은 남색 한 색, 알파는 켜짐·꺼짐(픽셀 규칙)이고
                                   가장자리로 갈수록 점묘(베이어 4x4, 2px 칸)가 촘촘해진다. 게임이 opacify로 옅게 그린다.
   assets/backgrounds/fog_strip.png 960x300 가로로 이어지는 안개 띠 (흐린 청록 두 톤, 점묘). 게임이 두 겹으로 흘려 그린다.
+  assets/ui/glow.png              192x192 빛 번짐 점묘 (등불·화로·결정 둘레, 11/22).
   assets/ui/vignette_red.png      1920x1080 붉은 가장자리 (체력이 낮을 때 심장 박자로 맥동, 11/21).
   assets/ui/wipe_01~15.png        128x128 화면 전환 타일 (계획 4-3, 베이어 4x4를 8px 칸으로, 번호/16 만큼 켜짐).
 사용: python tools/make_atmosphere.py
@@ -67,6 +68,18 @@ def fog_strip():
     return Image.fromarray(a, 'RGBA')
 
 
+def glow(radius=96):
+    """빛 번짐: 가운데가 촘촘하고 바깥으로 성겨지는 흰 점묘 원 (게임이 색을 곱하고 더하기로 그린다)."""
+    size = radius * 2
+    ys, xs = np.mgrid[0:size, 0:size].astype(float)
+    r = np.sqrt((xs + 0.5 - radius) ** 2 + (ys + 0.5 - radius) ** 2) / radius
+    density = np.clip(1 - r, 0, 1) ** 1.6
+    on = dither(density, size, size)
+    a = np.zeros((size, size, 4), np.uint8)
+    a[on] = (255, 255, 255, 255)
+    return Image.fromarray(a, 'RGBA')
+
+
 def wipe(level, size=128, cell=8):
     """화면 전환 타일: 베이어 4x4 문턱값을 cell px 칸으로, level/16 만큼의 칸을 켠다 (타일이 이어 붙는다)."""
     ys, xs = np.mgrid[0:size, 0:size]
@@ -78,6 +91,7 @@ def wipe(level, size=128, cell=8):
 
 
 def main():
+    glow().save(os.path.join(ROOT, 'assets', 'ui', 'glow.png'))
     for lv in range(1, 16):
         wipe(lv).save(os.path.join(ROOT, 'assets', 'ui', f'wipe_{lv:02d}.png'))
     vignette().save(os.path.join(ROOT, 'assets', 'ui', 'vignette.png'))

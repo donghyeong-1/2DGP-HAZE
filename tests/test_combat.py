@@ -1629,6 +1629,30 @@ def test_thrower_backsteps_facing_player_when_it_cannot_hop():
     assert t._body_frame()[0] == 'enemy_thrower_back'
 
 
+# ----- 적 테두리·강한 공격 예고 (2026-11-22 v5 빠른 개선 5) -----
+def test_strong_moves_are_telegraphed_during_windup_only():
+    room, p = make_world()
+    g = add_enemy('guard', p.x + 100, room, p)
+    g.move = 'heavy'
+    g.state = 'ATTACK'
+    g.attack_time = 0.0
+    assert g.telegraph() == 'heavy'                                     # 예고 중: 머리 위 '!' + (돌진이면) 바닥 표시
+    g.attack_time = g._windup_time() + 0.01
+    assert g.telegraph() is None                                        # 치는 순간부터는 없다
+    g.move, g.attack_time = 'swing', 0.0
+    assert g.telegraph() is None                                        # 약한 기본기는 예고 표시 없이 (깜빡임만)
+    for kind, move in (('slum', 'lunge'), ('hound', 'pounce'), ('guard', 'bash')):
+        assert move in config.STRONG_MOVES and move in config.RUSH_MOVES, move
+
+
+def test_every_enemy_gets_a_thin_outline():
+    room, p = make_world()
+    e = add_enemy('slum', p.x + 300, room, p)
+    assert e.outline_color() == config.ENEMY_OUTLINE                    # 평소: 옅은 테두리 (어두운 배경에서도 보이게)
+    e.make_elite('tough')
+    assert e.outline_color() == e.elite_color()                         # 정예는 자기 색 테두리
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

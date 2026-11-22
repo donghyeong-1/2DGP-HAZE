@@ -163,6 +163,10 @@ def preload(sounds=True):
         for path in sorted(glob.glob(os.path.join(ASSET_DIR, folder, '*.png'))):
             image(folder + '/' + os.path.basename(path))
             count += 1
+    for path in sorted(glob.glob(os.path.join(ASSET_DIR, 'sprites', 'unified', '*.png'))):
+        name = os.path.basename(path)
+        if name.startswith(('enemy_', 'boss_')):           # 적 테두리(얇은 테두리·정예) 판도 미리 만든다 (싸우는 중 끊기지 않게)
+            silhouette('sprites/unified/' + name)
     if sounds:
         for path in sorted(glob.glob(os.path.join(ASSET_DIR, 'sfx', '*.wav'))):
             sound(os.path.basename(path)[:-4])

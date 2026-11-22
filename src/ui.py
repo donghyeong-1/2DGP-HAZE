@@ -45,6 +45,10 @@ BOSS_GHOST_SPEED = 0.5      # 그다음 초당 이만큼(체력 비율) 따라 �
 BOSS_EPITHET = {'crasher': '용광로의 파수꾼', 'ark': '헤이즈 탑의 총감시관'}
 
 
+PICKUP_TIME = 2.8          # 아이템 띠를 보여 주는 시간(초)
+PICKUP_W, PICKUP_H, PICKUP_Y = 760, 96, 120
+
+
 def ghost_step(ghost, ratio, dt, held=0.0):
     """깎인 체력 자국(ghost)이 지금 체력(ratio)을 따라간다. held = 마지막으로 맞은 뒤 지난 시간."""
     if ratio >= ghost:
@@ -63,12 +67,20 @@ class GameUI:
     def __init__(self, player, stage=None):
         self.player = player
         self.stage = stage
+        self.pickup = None          # (이름, 효과 글, 아이콘, 남은 시간): 아이템을 얻었을 때 화면 아래 띠
         self.boss_ref = None
         self.boss_ghost = 1.0
         self.boss_last = 1.0
         self.boss_held = 0.0
 
+    def show_pickup(self, item_id, text):
+        import items
+        self.pickup = (items.ITEMS[item_id]['name'], text, items.icon_path(item_id), PICKUP_TIME)
+
     def update(self, dt):
+        if self.pickup is not None:
+            name, text, icon, left = self.pickup
+            self.pickup = (name, text, icon, left - dt) if left - dt > 0 else None
         boss = self.stage.boss if self.stage is not None else None
         if boss is None:
             self.boss_ref = None
@@ -92,6 +104,7 @@ class GameUI:
             self._draw_room_notice()
             self._draw_boss_bar()
             self._draw_message()
+        self._draw_pickup()
         self._draw_reticle()
         if config.DEBUG:
             self._draw_debug()
@@ -349,6 +362,21 @@ class GameUI:
         kit.fill('orange', x + int(bw * ratio), y, int(bw * (ghost - ratio)), bh)  # 방금 깎인 만큼 (따라 줄어든다)
         for m in boss_phase_marks(kind):                                   # 페이즈 경계 눈금
             assets.draw_rect_color(x + int(bw * m) - 1, y - 4, 2, bh + 8, (235, 240, 250))
+
+    def _draw_pickup(self):
+        """아이템을 얻으면 화면 아래 가운데에 아이콘·이름·효과 띠 (아래에서 올라왔다가 내려간다)."""
+        if self.pickup is None:
+            return
+        name, text, icon, left = self.pickup
+        age = PICKUP_TIME - left
+        k = min(1.0, age / 0.15, left / 0.2)                   # 올라오고 내려가는 정도
+        y = int(PICKUP_Y - (1 - k) * (PICKUP_H + PICKUP_Y))
+        x = (W - PICKUP_W) // 2
+        kit.panel('panel', x, y, PICKUP_W, PICKUP_H)
+        img = assets.image(icon)
+        assets.draw_image(img, x + 60, y + (PICKUP_H - img.h) // 2)
+        kit.text(x + 120, y + PICKUP_H - 34, name, GOLD)
+        kit.text(x + 120, y + 26, text, (205, 215, 235), small=True)
 
     def _draw_message(self):
         import play_mode

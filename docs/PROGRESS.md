@@ -21,6 +21,7 @@
 - **2차 발표(11/18 수)**: 제출 마감은 **11/18 0시 1분**(11/17 밤). 영상 1분 30초(진행 상황 + 게임 데모), YouTube 링크와 GitHub 주소를 e-class에 제출. 자료 `docs/presentation_2nd.pptx`, 대본 `docs/script_2nd.md`, 촬영 순서 `docs/demo_2nd.md`.
 
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
+0. [ ] **(사용자 결정) v5 재미 요소 계획 `docs/plan_v5.md`** (11/22): 구역별 새 적, 보스 페이즈 패턴·거대 보스 '헤이즈 심장', 방 보상·변이 3택, 빨리 효과 나는 6가지. 순서를 정하면 진행.
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
 2. [x] **(Codex) T24~T35 모두 적용** (11/21). 다음 그림 작업은 필요할 때 Claude Code가 `docs/codex/`에 만든다. (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
 3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예, 2-5 안내, 2-6 게임패드·키 바꾸기, 2-4 방 모양은 11/21 완료, **사용자: 패드가 있으면 실제로 확인**): 2단계 코드 일 끝. 3-1 실행 파일은 11/21 완료(`python tools/build_exe.py`, **사용자: 파이썬 없는 PC에서 zip을 풀어 켜 보기**). 3-2 저장 손상 대비·오류 기록도 11/21 완료(깨진 저장은 .bak에서 되살림, 오류는 ~/.haze_log.txt). 다음은 3-4 트레일러 장면·대본과 3차 발표 자료, 3-5 전체 플레이 점검(사용자). Codex T30~T33이 오면 검토·적용이 먼저. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
@@ -215,3 +216,4 @@
 2026-11-21 [Claude Code] 전체 판 자동 점검 도구(smoke_run: 시드 4개·방 140개 오류 0, 평균 4~7ms), 시작할 때 그림·효과음 미리 읽기(첫 방 입장 끊김 45ms -> 14ms 아래)와 불러오는 중 화면, 테스트 396개 / tools/smoke_run.py, src/(assets, main).py, tests/test_build.py, docs/*
 2026-11-21 [Claude Code] 게임 실행 확인(정상 종료), 테스트를 따로 돌려도 오류 기록이 사용자 폴더에 남지 않게 / tests/(test_keybinds, test_meta, test_options).py
 2026-11-21 [Claude Code] 강화 단계별 색(보라·금·진홍)·2단계 전용 공격(칼날 폭풍·부채꼴·귀환 충격), 피해 숫자 픽셀 글꼴·쌓임(중복 숫자 고침), 베기 자국·충격 고리·적 떨림, 궁극기 빛기둥·베기 폭풍, 테스트 404개 / src/(weapon, effects, drama, config, player, atmosphere, ui, enemy).py, tools/(make_digits, recolor_fx).py, assets/ui/dmg_*, assets/effects/*-enhanced2·3, tests/test_enhance_levels.py, docs/*
+2026-11-22 [Claude Code] v5 재미 요소 계획 작성(하데스·스컬·던그리드·산나비 참고: 구역별 새 적 7종 안, 보스 지형·헤이즈 농도 패턴, 거대 보스 헤이즈 심장, 빌드 선택, UI·UX·소리·에셋 빠른 개선) / docs/plan_v5.md, docs/PROGRESS.md

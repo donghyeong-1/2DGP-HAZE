@@ -8,7 +8,7 @@
 - 패턴(심장이 고른다): 손 내려치기 slam / 손바닥 광선 훑기 laser / 결정 비 rain / 농도 파동 pulse.
 - 페이즈(체력 비율 phases): 2페이즈 가운데 양옆에 발판이 솟는다(임시 벽, room.extra_solids 값 'heart'),
   3페이즈 바닥이 헤이즈로 잠기고(고농도 방) 심장이 내려온다.
-그림은 Codex T45·T46이 오기 전까지 코드로 그린 임시 그림(정수 좌표 사각형).
+본체 그림은 Codex T45(900x560, sprites.FRAMES). 손은 T46이 오기 전까지 코드로 그린 임시 그림(정수 좌표 사각형).
 """
 import math
 import random
@@ -19,6 +19,7 @@ import effects
 import game_world
 import projectile
 import room as room_module
+import sprites
 from enemy import Enemy
 
 H = config.HEART
@@ -264,37 +265,24 @@ class HeartCore(_Part):
         for dx, dy in ((0, 100), (-120, 180), (120, 220), (0, 300)):
             effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.7)
 
-    # ----- 그리기 (T45 전 임시 그림) -----
+    # ----- 그리기 (Codex T45 그림. 손은 아직 T46 전 임시 그림) -----
+    def _core_frame(self):
+        """(세트 이름, 번호): 쓰러짐 2장 -> 열림 중 피격 -> 열림 -> 닫힘 두 장 느린 맥동."""
+        if not self.alive:
+            return 'heart_core_dying', 1 if self.dead_time < 1.2 else 2
+        if self.is_open:
+            return ('heart_core_hurt', 1) if self.flash > 0 else ('heart_core', 3)
+        return 'heart_core', 1 + int(self.time * 1.5) % 2
+
     def draw(self):
         x, y = int(self.x), int(self.y)
-        w, h = self.hb_w, self.hb_h
         alpha = 1.0 if self.alive else max(0.0, 1.0 - self.dead_time / 3.0)
         if alpha <= 0:
             return
-        top = int(self.room.height)
-        for ox in (-120, -40, 40, 120):                              # 천장에 매달린 관
-            assets.draw_rect_color(x + ox - 10, y + h - 20, 20, max(0, top - (y + h - 20)), (36, 32, 46), alpha)
-        beat = 1.0 + 0.08 * max(0.0, math.sin(self.time * 6.0)) ** 8   # 심장 박동
-        gap = int(70 * min(1.0, (H['open_time'] - self.open_left) / 0.4)) if self.is_open else 0
-        cw, ch = int(170 * beat) // 2 * 2, int(200 * beat) // 2 * 2
-        hot = CORE_HOT if self.is_open else CORE
-        cx, cy = x, y + h // 2
-        assets.draw_rect_color(cx - cw // 2 - 10, cy - ch // 2 - 10, cw + 20, ch + 20, CORE, 0.35 * alpha)   # 번지는 빛
-        for i in range(0, ch // 2, 10):                              # 마름모꼴 심장
-            half = int(cw / 2 * (1 - i / (ch / 2)))
-            assets.draw_rect_color(cx - half, cy + i, half * 2, 10, hot, alpha)
-            assets.draw_rect_color(cx - half, cy - i - 10, half * 2, 10, hot, alpha)
-        for side in (-1, 1):                                         # 껍데기 두 쪽 (열리면 양옆으로 벌어진다)
-            sx = x - w // 2 - gap if side < 0 else x + gap
-            for i, inset in enumerate((0, 20, 40)):
-                assets.draw_rect_color(sx + (inset if side > 0 else 0), y + inset, w // 2 - inset, h - 2 * inset,
-                                       SHELL if i % 2 == 0 else SHELL_HI, alpha)
-            hole = 46 if not self.is_open else 0                    # 닫혀 있을 때 틈으로 보이는 빛
-            assets.draw_rect_color(x - 6 if side < 0 else x, cy - hole, 6, hole * 2, CORE, alpha)
-            for ry in range(y + 30, y + h - 20, 60):                 # 리벳
-                assets.draw_rect_color(sx + (12 if side < 0 else w // 2 - 20), ry, 8, 8, SHELL_HI, alpha)
-        if self.flash > 0:
-            assets.draw_rect_color(x - w // 2, y, w, h, (255, 255, 255), 0.35)
+        name, n = self._core_frame()
+        sprites.draw(name, n, x, y, 1, alpha=alpha, outline=False)
+        if self.flash > 0 and not self.is_open and self.alive:       # 닫힌 채 맞으면 하얗게 번쩍
+            sprites.draw_white(name, n, x, y)
         if self.is_open:
             assets.draw_text(x, y - 40, '약점', (255, 230, 140), center=True, small=True)
         for cells in self.platforms:                                 # 2페이즈 발판

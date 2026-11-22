@@ -52,6 +52,8 @@ FRAMES = {
     'boss_ark_overcharge': (2, 74, 164), 'boss_ark_field': (2, 67, 156),
     'boss_ark_vanish': (1, 40, 160), 'boss_ark_appear': (1, 60, 142),
     'boss_ark_phase': (1, 64, 177), 'boss_ark_death': (2, 76, 110),
+    # 최종 보스 헤이즈 심장 본체 (Codex T45, 캔버스 900x560). 기준점 y=462는 열린 핵 중심(행 312)이 히트박스 가운데(발 위 150)에 오게 한 값
+    'heart_core': (3, 450, 462), 'heart_core_hurt': (1, 450, 462), 'heart_core_dying': (2, 450, 462),
 }
 # 그림 안에서 발이 캔버스 바닥보다 떠 있게 그려진 프레임의 뜬 높이(px).
 # 몸이 이미 공중에 있으므로 그림에서 또 띄우지 않도록 그만큼 기준점을 올려 잡는다.

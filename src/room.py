@@ -34,6 +34,8 @@ DECAL_WINDOW, DECAL_VENT, DECAL_OUTLET, DECAL_STENCIL, DECAL_CRACK, DECAL_STAIN 
  DECOR_CRATE, DECOR_BARREL, DECOR_CRYSTAL, DECOR_CRYSTAL_BIG, DECOR_DEBRIS, DECOR_VENT) = range(14)
 DOOR_V, DOOR_V_BARS, DOOR_V_GLOW, DOOR_H, DOOR_H_BARS, DOOR_H_GLOW = 0, 3, 6, 7, 10, 13
 GLOW_SIZE = 120                      # 램프 빛 한 장의 크기(px)
+FG_PARALLAX = 1.35                    # 전경 실루엣이 카메라를 따라 움직이는 비율 (1보다 커서 플레이어보다 앞에 있는 느낌)
+FG_THEMES = ('cell', 'foundry', 'haze')   # 전경 그림이 있는 구역 (T48)
 MID_PARALLAX = (0.35, 0.12)          # 중경이 카메라를 따라 움직이는 비율 (가로, 세로)
 LOCKED_TINT = (255, 130, 140)        # 전투 중 잠긴 쇠창살 문
 THEMES = ('cell', 'foundry', 'haze', 'gold', 'shop', 'boss')
@@ -304,6 +306,20 @@ class Room:
         for left in (-shift, mid.w - shift):
             if left < config.SCREEN_W:
                 assets.draw_clip(mid, 0, 0, mid.w, mid.h, left, -drop)
+        assets.draw_offset = screen_offset
+
+    def draw_foreground(self):
+        """플레이어보다 앞에 겹치는 어두운 전경 실루엣 (T48). 화면에 붙어 가로로만 크게 밀리며 이어 붙는다.
+        그림은 전투 높이(위 216~아래 60px 밖)만 채워져 있어 캐릭터·적이 가려지지 않는다."""
+        if self.theme not in FG_THEMES:
+            return
+        fg = assets.image(f'backgrounds/fg_{self.theme}.png')
+        screen_offset = assets.draw_offset
+        assets.draw_offset = (0, 0)
+        shift = int(camera.x * FG_PARALLAX) % fg.w
+        for left in (-shift, fg.w - shift):
+            if left < config.SCREEN_W:
+                assets.draw_clip(fg, 0, 0, fg.w, fg.h, left, 0)
         assets.draw_offset = screen_offset
 
     def draw(self):

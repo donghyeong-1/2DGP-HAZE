@@ -7,7 +7,7 @@
   --stage 2          0 은신처, 1~3 스테이지 (기본 1)
   --cell 1,0          스테이지 1의 방 좌표 (기본: 시작 방)
   --clear             방에 원래 있던 적을 지운다
-  --spawn hound:400 guard:-300   적을 플레이어 기준 x 거리에 세운다 (boss도 가능)
+  --spawn hound:400 guard:-300   적을 플레이어 기준 x 거리에 세운다 (boss, heart:0도 가능)
   --weapon knife      두 번째 칸 무기를 주고 든다 (knife, gauntlet, chain)
   --gauge 65          게이지(%) 설정
   --bot stand|dodge   tools/balance_sim.py의 봇이 플레이어를 조작해 싸운다 (없으면 가만히 서 있다)
@@ -120,6 +120,10 @@ def main():
     for spec in a.spawn:
         kind, dx = spec.split(':')
         x = p.x + float(dx)
+        if kind == 'heart':                              # 최종 보스 헤이즈 심장 (손 둘 포함, 스스로 world에 넣는다)
+            import heart
+            heart.spawn(stage.room, p)
+            continue
         if kind == 'boss':
             from boss import Boss
             e = Boss(x, p.y, stage.room, p)

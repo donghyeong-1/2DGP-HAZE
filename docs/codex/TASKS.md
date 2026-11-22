@@ -58,16 +58,16 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T36 | 용접 드론 (공장, 비행) 13장 | [T36_enemy_drone.md](tasks/T36_enemy_drone.md) | - | done |
 | T37 | 자폭 수레 (공장) 11장 | [T37_enemy_cart.md](tasks/T37_enemy_cart.md) | - | done |
 | T43 | 보스방 지형 소품 (고철 기둥·밸브·배기구·결정 기둥) 12장 | [T43_boss_terrain.md](tasks/T43_boss_terrain.md) | - | done |
-| T38 | 감시 눈 (탑, 벽 포탑) 10장 | [T38_enemy_eye.md](tasks/T38_enemy_eye.md) | - | in_progress |
-| T39 | 결정 기사 (탑, 순간이동) 14장 | [T39_enemy_knight.md](tasks/T39_enemy_knight.md) | - | ready |
-| T40 | 헤이즈 망령 (탑, 벽 통과) 10장 | [T40_enemy_wraith.md](tasks/T40_enemy_wraith.md) | - | ready |
-| T41 | 헤이즈 쥐 떼 (슬럼) 9장 | [T41_enemy_rat.md](tasks/T41_enemy_rat.md) | - | ready |
-| T42 | 누더기 무당 (슬럼, 보호막) 11장 | [T42_enemy_shaman.md](tasks/T42_enemy_shaman.md) | - | ready |
-| T44 | 헤이즈 변이 문양·카드 테두리·방 보상 아이콘 | [T44_mutation_icons.md](tasks/T44_mutation_icons.md) | - | ready |
-| T45 | 거대 보스 헤이즈 심장 본체 6장 | [T45_heart_core.md](tasks/T45_heart_core.md) | - | ready |
+| T38 | 감시 눈 (탑, 벽 포탑) 10장 | [T38_enemy_eye.md](tasks/T38_enemy_eye.md) | - | review |
+| T39 | 결정 기사 (탑, 순간이동) 14장 | [T39_enemy_knight.md](tasks/T39_enemy_knight.md) | - | review |
+| T40 | 헤이즈 망령 (탑, 벽 통과) 10장 | [T40_enemy_wraith.md](tasks/T40_enemy_wraith.md) | - | review |
+| T41 | 헤이즈 쥐 떼 (슬럼) 9장 | [T41_enemy_rat.md](tasks/T41_enemy_rat.md) | - | review |
+| T42 | 누더기 무당 (슬럼, 보호막) 11장 | [T42_enemy_shaman.md](tasks/T42_enemy_shaman.md) | - | review |
+| T44 | 헤이즈 변이 문양·카드 테두리·방 보상 아이콘 | [T44_mutation_icons.md](tasks/T44_mutation_icons.md) | - | review |
+| T45 | 거대 보스 헤이즈 심장 본체 6장 | [T45_heart_core.md](tasks/T45_heart_core.md) | - | review |
 | T46 | 헤이즈 심장 기계 손 8장 | [T46_heart_hands.md](tasks/T46_heart_hands.md) | T45 | blocked |
 | T47 | 헤이즈 심장 결전 방 배경 + 등장 카드 | [T47_heart_arena.md](tasks/T47_heart_arena.md) | T45 | blocked |
-| T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | ready |
+| T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | done |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.

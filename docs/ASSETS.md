@@ -283,3 +283,23 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-22 [Claude Code] Codex T36·T37 적용: `assets/sprites/unified/enemy_drone_*`(비행 4·예고 2·분사 3·피격 2·잔해 2·정지 1), `enemy_cart_*`(굴러감 4·예고 3·피격 2·잔해 2·정지 1)로 복사(1배 그대로). 효과음 `windup_drone`·`drone_torch`·`windup_cart`는 `tools/make_sfx.py`로 직접 합성(numpy).
 
 2026-11-22 [Claude Code] Codex T43 적용: `assets/props/boss/`(고철 기둥·증기 밸브·용광로 배기구·결정 기둥 각 3장, 1배 그대로)로 복사. 보스방 지형의 코드 임시 그림을 바꿨다.
+
+2026-11-22 [Codex] T38 assets/sprites/forge/eye_v1/ 탑 벽 포탑 감시 눈 마스터 1장과 동작 10 PNG. 프로젝트 자체 아크·탑 원경·타일·감시 카메라·청록 패널을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 마스터 키 96px, 동작 150×140·공용 46색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/eye_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T39 assets/sprites/forge/knight_v1/ 탑 결정 기사 마스터 1장과 동작 14 PNG. 프로젝트 자체 간수·아크·탑 원경·타일을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 마스터 키 132px, 동작 250×176·공용 41색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/knight_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T40 assets/sprites/forge/wraith_v1/ 탑 헤이즈 망령 마스터 1장과 동작 10 PNG. 프로젝트 자체 각성 오라·아크·탑 원경·타일을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 마스터 키 110px, 동작 192×156·공용 41색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/wraith_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T41 assets/sprites/forge/rat_v1/ 슬럼 헤이즈 쥐 마스터 1장과 동작 9 PNG. 프로젝트 자체 사냥개·폐인·슬럼 원경·타일을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 마스터 키 40px, 동작 124×68·공용 41색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/rat_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T42 assets/sprites/forge/shaman_v1/ 슬럼 누더기 무당 마스터 1장과 동작 11 PNG. 프로젝트 자체 폐인·투척병·보관인·슬럼 원경·타일을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 마스터 키 120px, 동작 192×188·공용 44색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/shaman_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T44 assets/sprites/forge/mutation_ui_v1/ 문양 64×64 4장, 카드 테두리 300×420 3장, 보상 48×48 6장. 프로젝트 자체 UI 아이콘을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dsprite 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 종류별 공용 32색 이하·이진 알파·1배, 테두리 120px 모서리 9분할. 출처와 프롬프트 assets/sprites/forge/mutation_ui_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T45 assets/sprites/forge/heart_core_v1/ 거대 보스 헤이즈 심장 본체 6장. 프로젝트 자체 아크 마스터·게임 스프라이트·보스 카드·탑과 보스방 원경을 참조한 Codex 내장 image_gen(모델명 미제공), generate2dmap 및 Agent Sprite Forge Hibit 0.5.0(MIT), codixel(MIT) 비교판. 900×560·공용 41색·이진 알파·2px 블록·1배. 출처와 프롬프트 assets/sprites/forge/heart_core_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T48 assets/sprites/forge/foreground_v1/ 슬럼·공장·탑의 카메라 전경 후보 `fg_cell.png`·`fg_foundry.png`·`fg_haze.png`. 자체 중경을 참조한 Codex 내장 image_gen(모델명 미제공) 신규 생성, generate2dmap Agent Sprite Forge 0.5.0(MIT) 키잉, codixel 픽셀 코어(MIT) 반복 미리보기. 1920×1080·공용 남색 2색·이진 알파·1배. 출처와 프롬프트 assets/sprites/forge/foreground_v1/provenance.json. 검토 대기.
+
+- 2026-11-22: `screen_title`·`screen_death`·`screen_ending`·`credits_1`·`boss_card_crasher`·`boss_card_ark`의 캐릭터 영역만 `tools/pixelize_chars.py`로 픽셀화(자체 가공, 원본 AI 그림은 `assets/concept/bg_ai_original/`). 캐릭터 검은 테두리는 실행 중 `assets.outline_image`로 만든다.
+- 2026-11-22: Codex T44(내장 image_gen, 모델명 미제공) 결과를 `assets/ui/mut_*.png`(변이 문양 4), `card_frame_*.png`(카드 테두리 3), `reward_*.png`(방 보상 아이콘 6)으로 그대로 복사. AI 생성물.
+2026-11-22 [Claude Code] T48 적용: `assets/backgrounds/fg_cell.png`·`fg_foundry.png`·`fg_haze.png` (Codex T48 foreground_v1 복사, 출처·라이선스는 위 T48 항목과 같음). `Room.draw_foreground`로 UI 아래에 시차 1.35배로 이어 붙여 그린다. 설정 옵션은 만들지 않았다(전투 높이가 비어 있어 가려지지 않음).

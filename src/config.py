@@ -26,6 +26,10 @@ DASH_SPEED = 2400.0        # px/s (거리 약 360px)
 DASH_TIME = 0.15           # 초
 DASH_DOWN_AIM = 0.5        # 땅 위에서 조준이 이 값보다 아래(y 성분)면 아래 대시: 얇은 발판은 뚫고, 단단한 바닥은 수평 대시
 DASH_INVULN = 0.25         # 초 (무적 시간)
+# 저스트 대시 (11/22 v5): 대시를 시작하고 JUST_WINDOW 안에 공격이 몸에 닿으면 슬로 모션 + 게이지 + 대시 한 칸 돌려받기
+JUST_WINDOW = 0.2
+JUST_GAIN = 5
+JUST_SLOW = (0.35, 0.3)    # (실제 시간 초, 시간 배율)
 DASH_SLOTS_BASE = 2
 DASH_SLOTS_MAX = 5
 DASH_RECHARGE = 1.5        # 슬롯 한 칸 충전 시간(초)
@@ -346,6 +350,25 @@ ARK_FIELD_W = (300, 340, 400)  # 페이즈별 장판 폭(px)
 ARK_FIELD_TIME = (5.0, 6.0, 7.0)   # 장판이 남는 시간(초)
 ARK_PHASES = (0.66, 0.33)     # 체력 비율이 이 아래로 내려가면 2페이즈, 3페이즈
 ARK_DEATH_FALL = 0.6          # 쓰러질 때 무릎 꿇은 자세(사망 1)를 보여 주는 시간(초), 그 뒤 엎어짐(사망 2)
+# 최종 거대 보스 헤이즈 심장 (11/22 v5 계획 2-2, src/heart.py). 높이는 바닥 윗면에서 잰 px
+HEART = dict(
+    hp=1000, hand_hp=170, closed_mult=0.25, open_mult=1.5, open_time=5.0, hand_stun=6.0, phases=(0.66, 0.33),
+    intro=2.5, core_height=520, low_height=330, open_height=150, platform_height=360, descend_speed=160.0,
+    hand_dx=330, hand_dy=110, hand_speed=1100.0,
+    slam_aim=0.9, slam_from=380, slam_speed=2000.0, slam_rest=1.2, slam_damage=22, slam_wave=12, wave_speed=620.0,
+    laser_height=300, laser_warn=0.9, laser_speed=640.0, laser_w=44, laser_damage=16,
+    rain_count=7, rain_damage=12,
+    pulse_rate=12.0, pulse_period=3.0, pulse_time=6.0,
+    cooldown={1: 2.0, 2: 1.6, 3: 1.2},
+    patterns={1: {'slam': 3, 'laser': 2, 'rain': 2, 'pulse': 1},
+              2: {'slam': 3, 'laser': 2, 'rain': 2, 'pulse': 2},
+              3: {'slam': 3, 'laser': 3, 'rain': 2, 'pulse': 2}},
+    shards=30)
+_PART = dict(speed=0.0, sight=0, sight_dy=0, attack_range=0, reach_dy=0, damage=0, windup=1.0, attack_time=0.1,
+             cooldown=1.0, gain_on_hit=0, sprite='boss_ark_idle', leap=0.0,
+             code_drawn=True)   # 그림 파일 없이 코드로 그린다 (Codex T45·T46 전)
+ENEMY_STATS['heart'] = dict(_PART, hp=HEART['hp'], hb=(360, 300))
+ENEMY_STATS['heart_hand'] = dict(_PART, hp=HEART['hand_hp'], hb=(150, 110))
 SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'drone': 2, 'cart': 2, 'crasher': 10, 'ark': 20}
 # 정예 적 (11/21 퀄리티 계획 2-4): 일반 적에 수식어. 색 테두리와 이름으로 표시, 조각 2배
 ELITE_MODS = {

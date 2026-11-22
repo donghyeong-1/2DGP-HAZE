@@ -34,7 +34,7 @@ class Scrap:
             return
         p = self.player
         # 대시 무적 중에는 그대로 통과한다 (맞지 않고 사라지지도 않는다)
-        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+        if p.hit_test(self.rect(), self):
             p.take_hit(self.damage, source=self)
             game_world.remove_object(self)
 
@@ -68,7 +68,7 @@ class Shockwave:
             game_world.remove_object(self)
             return
         p = self.player
-        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+        if p.hit_test(self.rect(), self):
             p.take_hit(self.damage, gauge_delta=self.gauge_delta, source=self)
             game_world.remove_object(self)
 
@@ -106,7 +106,7 @@ class Lob:
             game_world.remove_object(self)
             return
         p = self.player
-        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+        if p.hit_test(self.rect(), self):
             p.take_hit(self.damage, source=self)
             game_world.remove_object(self)
 
@@ -156,7 +156,7 @@ class Debris:
             self.falling = True
         self.y -= self.FALL_SPEED * dt
         p = self.player
-        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+        if p.hit_test(self.rect(), self):
             p.take_hit(self.damage, gauge_delta=self.gauge_delta, source=self)
             self._land()
             return
@@ -219,7 +219,7 @@ class SteamVent:
             assets.play_sound('enhance')
         self.left -= dt
         p = self.player
-        if (not self.used and p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect())):
+        if (not self.used and p.hit_test(self.rect(), self)):
             self.used = True
             p.gauge.add(self.gauge_delta, 'steam')
         if self.left <= 0:
@@ -275,7 +275,7 @@ class HazeBullet:
             game_world.remove_object(self)
             return
         p = self.player
-        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+        if p.hit_test(self.rect(), self):
             p.take_hit(config.ARK_BULLET_DAMAGE, gauge_delta=_gauge_delta(config.ARK_BULLET_NET), source=self)
             game_world.remove_object(self)
 
@@ -317,7 +317,7 @@ class GaugeWave:
             game_world.remove_object(self)
             return
         p = self.player
-        if p.state != 'DEAD' and p.invuln_left <= 0 and overlap(self.rect(), p.rect()):
+        if p.hit_test(self.rect(), self):
             net = config.ARK_ABSORB_NET if self.kind == 'absorb' else config.ARK_OVERCHARGE_NET
             p.take_hit(config.ARK_WAVE_DAMAGE, gauge_delta=_gauge_delta(net), source=self)
             game_world.remove_object(self)

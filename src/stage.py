@@ -481,6 +481,7 @@ class Stage:
             p.interact_pressed = False
             self.interact()
         self.block_left = max(0.0, self.block_left - 1 / 60)
+        self._summon_heart()
         if self.room.locked and self.enemy_count() == 0:
             self.room.locked = False
             before = self.gold_rooms_left()
@@ -518,6 +519,15 @@ class Stage:
                         self.block_left = 1.5
                     return
                 self.enter_room(target, OPPOSITE[direction])
+
+    def _summon_heart(self):
+        """탑 꼭대기(final: heart): 아크가 쓰러지면 같은 방에 헤이즈 심장이 내려온다 (방은 잠긴 채, 11/22 v5)."""
+        b = self.boss
+        if (b is None or b.alive or getattr(b, 'kind', '') != 'ark'
+                or self.layout[self.coord].get('final') != 'heart' or self.coord in self.cleared):
+            return
+        import heart
+        self.boss = heart.spawn(self.room, self.player)
 
     def _exit_direction(self):
         """플레이어가 지금 열린 출입구를 지나고 있다면 그 방향."""

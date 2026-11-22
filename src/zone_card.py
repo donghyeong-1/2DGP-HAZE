@@ -7,6 +7,7 @@ UI 레이어 객체다. play_mode가 구역이 바뀌면 stage를 바꿔 넣고,
 보스 등장 카드(Codex T34, assets/backgrounds/boss_card_<보스>.png): 보스방에 들어서면(stage.boss가 새로 생기면)
 보스 그림 띠가 열리고 왼쪽에 별칭·이름. 띠가 열려 있는 동안(닫히기 전까지) 게임이 멈춘다(freezing, play_mode가 본다).
 """
+import os
 import assets
 import config
 import hud_kit as kit
@@ -62,8 +63,11 @@ class ZoneCard:
             import ui
             self.boss_seen = boss
             kind = getattr(boss, 'kind', 'crasher')
+            image = f'backgrounds/boss_card_{kind}.png'
+            if not os.path.exists(os.path.join(_assets.ASSET_DIR, image)):   # 등장 카드 그림이 아직 없다 (헤이즈 심장: T47)
+                return                                                        # 카드 없이 보스 자신의 등장 연출만
             self.t, self.theme, self.boss = 0.0, f'boss_{kind}', True
-            self.image = f'backgrounds/boss_card_{kind}.png'
+            self.image = image
             self.title, self.label = getattr(boss, 'title', ''), ui.BOSS_EPITHET.get(kind, '')
             _assets.play_sound('ult_cast')         # 모였다가 터지는 큰 소리로 등장
             return

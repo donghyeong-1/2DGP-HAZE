@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T38 감시 눈 / 수정 중인 파일: assets/sprites/forge/eye_v1/, docs/codex/reports/T38.md
+- [Codex] T39 결정 기사 / 수정 중인 파일: assets/sprites/forge/knight_v1/, docs/codex/reports/T39.md
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -21,7 +21,7 @@
 - **2차 발표(11/18 수)**: 제출 마감은 **11/18 0시 1분**(11/17 밤). 영상 1분 30초(진행 상황 + 게임 데모), YouTube 링크와 GitHub 주소를 e-class에 제출. 자료 `docs/presentation_2nd.pptx`, 대본 `docs/script_2nd.md`, 촬영 순서 `docs/demo_2nd.md`.
 
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
-0. [ ] **(Claude Code) v5 계획 `docs/plan_v5.md`** (11/22): 1주 차(빠른 개선 6·보스 페이즈 패턴) 완료, 2주 차 변이 3택·방 보상 완료. 공장 새 적(드론·수레) 완료. 남은 것: 다른 구역 새 적(Codex T38~T42가 오면), 3주 차 헤이즈 심장·저스트 대시. **사용자: 변이 카드·문 보상 직접 플레이 확인**.
+0. [ ] **(Claude Code) v5 계획 `docs/plan_v5.md`** (11/22): 1주 차(빠른 개선 6·보스 페이즈 패턴) 완료, 2주 차 변이 3택·방 보상 완료. 공장 새 적(드론·수레) 완료. 남은 것: 다른 구역 새 적(Codex T38~T42가 오면), 3주 차 헤이즈 심장·저스트 대시 완료(그림은 Codex T45~T47이 오면 바꾼다). **사용자: 변이 카드·문 보상, 드론·수레, 저스트 대시, 헤이즈 심장전 직접 플레이 확인** (실행 파일 dist/Haze_win64.zip 11/22 다시 만듦).
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
 2. [ ] **(Codex) v5 그림 T36~T48** (11/22 작성, 순서는 `docs/codex/TASKS.md`). T24~T35는 11/21 모두 적용. 다음 그림 작업은 필요할 때 Claude Code가 `docs/codex/`에 만든다. (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
 3. [ ] **(Claude Code) 퀄리티 계획 2단계 코드 일** (1-5~1-7, 2-2, 2-3, 2-4 정예, 2-5 안내, 2-6 게임패드·키 바꾸기, 2-4 방 모양은 11/21 완료, **사용자: 패드가 있으면 실제로 확인**): 2단계 코드 일 끝. 3-1 실행 파일은 11/21 완료(`python tools/build_exe.py`, **사용자: 파이썬 없는 PC에서 zip을 풀어 켜 보기**). 3-2 저장 손상 대비·오류 기록도 11/21 완료(깨진 저장은 .bak에서 되살림, 오류는 ~/.haze_log.txt). 다음은 3-4 트레일러 장면·대본과 3차 발표 자료, 3-5 전체 플레이 점검(사용자). Codex T30~T33이 오면 검토·적용이 먼저. Codex 그림(T25~T27)이 오면 검토·적용이 먼저.
@@ -227,3 +227,5 @@
 2026-11-22 [Codex] T43 보스방 지형 소품 12장 제작, 발판 수평면·배기구 경고·결정 벽 크기 1배 확인(검토 대기) / assets/sprites/forge/boss_terrain_v1/, docs/codex/reports/T43.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] Codex T36·T37 검토·적용: 공장 새 적 용접 드론(비행·아래 불꽃)·자폭 수레(굴러와 폭발·받아치기), 효과음 3종, 스테이지 2 배치, 테스트 11개 추가 / src/(enemy_kinds, config, sprites, stage, killers, credits_mode), data/stages/stage2.py, tools/(make_sfx, capture), assets/(sprites/unified, sfx), tests/test_factory_enemies.py, docs/*
 2026-11-22 [Claude Code] Codex T43 검토·적용: 보스방 지형(고철 기둥·밸브·결정 기둥·크래셔 증기 분출 자리의 배기구)을 Codex 그림으로 / src/(boss_terrain, projectile, assets), assets/props/boss/, docs/*
+2026-11-22 [Codex] T38 탑 감시 눈 마스터 1장·동작 10장 제작, 고정판 위치·예고 밝기·1배 GIF 검증(검토 대기) / assets/sprites/forge/eye_v1/, docs/codex/reports/T38.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Claude Code] v5 3주 차: 저스트 대시(슬로 모션·게이지·대시 회복), 최종 거대 보스 헤이즈 심장(아크 뒤 등장, 본체+손 둘, 내려치기·광선·결정 비·농도 파동, 페이즈별 방 변화, 임시 코드 그림), 실행 파일 다시 만듦, 테스트 16개 추가 / src/(heart, player, projectile, stage, config, ui, killers, zone_card), data/stages/stage3.py, tests/(test_heart, test_just_dash, test_sprites), docs/*

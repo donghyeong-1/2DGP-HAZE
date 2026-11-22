@@ -19,7 +19,7 @@ STAGE3 = {
     (2, 0): {"template": "hub_cavern", "type": "combat",
              "enemies": ["guard", "hound", "thrower", "guard", "hound", "thrower"]},
     (3, 0): {"template": "arena_05", "type": "combat", "high_haze": True, "swap": {"slum": "hound", "thrower": "guard"}},
-    (4, 0): {"template": "boss_arena", "type": "boss", "boss": "ark"},
+    (4, 0): {"template": "boss_arena", "type": "boss", "boss": "ark", "final": "heart"},   # 아크 뒤에 헤이즈 심장 (11/22 v5)
     (2, -1): {"template": "shop_room", "type": "shop"},
     (3, 1): {"template": "rift_room", "type": "rift"},     # 교차로 오른쪽: 균열방 (11/19)
     (2, 1): {"template": "crossing", "type": "combat",

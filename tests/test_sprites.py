@@ -31,6 +31,8 @@ def test_every_frame_file_exists_and_pivot_is_inside():
 
 def test_still_sprites_exist_for_every_enemy():
     for kind, stats in config.ENEMY_STATS.items():
+        if stats.get('code_drawn'):                                               # 헤이즈 심장 부위: 코드로 그린다
+            continue
         w, h = size_of(sprites.path(stats['sprite'], 0))
         assert h >= stats['hb'][1], (kind, h)                                     # 그림이 충돌 박스보다 작지 않다
     for name in ('n09_idle', 'enemy_guard_idle', 'enemy_hound_idle', 'boss_ark_idle'):

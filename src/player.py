@@ -123,6 +123,8 @@ class Dash(_State):
         assets.play_sound('dash')
         p.dash_left = config.DASH_TIME
         p.invuln_left = config.DASH_INVULN
+        p.dash_age = 0.0                 # 저스트 대시 판정 (대시를 시작하고 지난 시간)
+        p.just_used = False
         ax, ay = p.aim_vector()
         if p.on_ground and ay < -config.DASH_DOWN_AIM and p.room is not None:
             below = p.room.tile_at_world(p.x, p.y - EPS)
@@ -211,6 +213,9 @@ class Player(TileBody):
         self.last_hit_by = ''
         self.attack_buffer_left = 0.0  # 미리 누른 공격·대시를 기억하는 남은 시간 (config.INPUT_BUFFER)
         self.dash_buffer_left = 0.0
+        self.dash_age = 99.0           # 대시를 시작하고 지난 시간 (저스트 대시)
+        self.just_used = False         # 이번 대시에서 저스트 대시를 이미 했는가
+        self.just_dashes = 0           # 이번 판의 저스트 대시 수
         self.run_kills = 0             # 이번 판에 쓰러뜨린 적 수 (사망·탈출 화면의 판 기록, 계획 4-2)
         self.run_clock = 0.0           # 이번 판에 구역 안에서 보낸 시간(초, 은신처 제외)
         self.items = []                # 가진 아이템 id 목록
@@ -486,7 +491,10 @@ class Player(TileBody):
     def take_hit(self, damage=0, gauge_delta=0, source=None):
         """피격. 대시 무적과 피격 직후 무적 중에는 무시한다. 맞으면 게이지가 줄고(LOSS_DAMAGED),
         적 종류별 추가 변화(gauge_delta, 예: 간수 +15)도 받는다."""
-        if self.invuln_left > 0 or self.state == 'DEAD':
+        if self.state == 'DEAD':
+            return
+        if self.invuln_left > 0:
+            self.try_just_dash()
             return
         import mutations
         damage = round(damage * mutations.taken_mult(self))     # 변이 '그을린 피부'
@@ -503,6 +511,31 @@ class Player(TileBody):
             self.hit()
         effects.add_trauma(config.SHAKE_DAMAGED)
         effects.request_hit_stop(config.HIT_STOP_DAMAGED)
+
+    def hit_test(self, box, source=None):
+        """공격 판정 box가 몸에 닿아 맞는가. 무적이면 맞지 않지만, 막 대시한 참이면 저스트 대시가 된다."""
+        if self.state == 'DEAD' or not _overlap(box, self.rect()):
+            return False
+        if self.invuln_left > 0:
+            self.try_just_dash()
+            return False
+        return True
+
+    def try_just_dash(self):
+        """대시를 시작하고 JUST_WINDOW 안에 공격이 닿았다: 슬로 모션, 게이지, 대시 한 칸 (대시 한 번에 한 번)."""
+        if self.just_used or self.dash_age > config.JUST_WINDOW:
+            return False
+        self.just_used = True
+        self.just_dashes += 1
+        self.gauge.add(config.JUST_GAIN, 'just')
+        self.dash_slots = min(self.dash_max, self.dash_slots + 1)
+        effects.request_slow_motion(*config.JUST_SLOW)
+        effects.request_flash(0.12)
+        cx, cy = self.center
+        effects.spawn('surge', self.x, self.y, duration=0.4)
+        effects.float_text(cx, cy + 90, '저스트!', (150, 245, 255), big=True, life=0.8)
+        assets.play_sound('zone_awake')
+        return True
 
     def _on_gauge_event(self, name, gauge):
         if name == 'overload':
@@ -533,6 +566,7 @@ class Player(TileBody):
 
     # ----- 갱신 -----
     def update(self, dt):
+        self.dash_age += dt
         self._recharge_dash(dt)
         self._sync_mouse()
         self.aura_time += dt
@@ -805,3 +839,7 @@ class Player(TileBody):
         draw_rectangle(self.x - hw, self.y, self.x + hw, self.y + config.PLAYER_HB_H)
         draw_rectangle(self.mouse_x - 4, self.mouse_y - 4, self.mouse_x + 4, self.mouse_y + 4)
         assets.draw_text(self.x, self.y + config.PLAYER_HB_H + 27, f'{self.state} j{self.jump_count}', (255, 240, 120), small=True, center=True)
+
+
+def _overlap(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]

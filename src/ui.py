@@ -42,7 +42,7 @@ NOTICE_Y = LABEL_Y - 70                  # 안내 띠 (구간 표시 판 아래,
 # ----- 보스 체력 막대 (퀄리티 계획 4-4) -----
 BOSS_GHOST_HOLD = 0.35      # 맞은 뒤 이만큼은 깎인 부분이 밝게 남는다(초)
 BOSS_GHOST_SPEED = 0.5      # 그다음 초당 이만큼(체력 비율) 따라 준다
-BOSS_EPITHET = {'crasher': '용광로의 파수꾼', 'ark': '헤이즈 탑의 총감시관'}
+BOSS_EPITHET = {'crasher': '용광로의 파수꾼', 'ark': '헤이즈 탑의 총감시관', 'heart': '탑의 진짜 주인'}
 
 
 PICKUP_TIME = 2.8          # 아이템 띠를 보여 주는 시간(초)
@@ -60,6 +60,8 @@ def ghost_step(ghost, ratio, dt, held=0.0):
 
 def boss_phase_marks(kind):
     """페이즈가 바뀌는 체력 비율 (막대 위 눈금)."""
+    if kind == 'heart':
+        return sorted(config.HEART['phases'])
     return sorted(config.ARK_PHASES) if kind == 'ark' else [0.5]
 
 

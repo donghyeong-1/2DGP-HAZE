@@ -39,6 +39,7 @@ def enter():
     stage.on_clear = _on_room_cleared
     stage.on_message = _show_message
     stage.on_pickup = _on_pickup
+    stage.on_mutation = _on_mutation
     stage.on_npc = _on_npc
     stage.start()
     room = stage.room
@@ -86,6 +87,13 @@ def _show_message(text):
     global message, message_time
     message, message_time = text, 2.5
     assets.play_sound('pickup')
+
+
+def _on_mutation(choices):
+    """변이 보상 방을 깼다: 셋 중 하나를 고르는 카드 창을 위에 쌓는다."""
+    import mutation_mode
+    mutation_mode.setup(player, choices)
+    game_framework.push_mode(mutation_mode)
 
 
 def _on_pickup(item_id, text):

@@ -88,7 +88,7 @@ def finish_run(player, escaped):
     if getattr(player, 'run_rewarded', False):
         return 0
     player.run_rewarded = True
-    got = run_reward(player.run_rooms, player.run_ends, escaped)
+    got = run_reward(player.run_rooms, player.run_ends, escaped) + getattr(player, 'bonus_crystals', 0)
     state['crystals'] += got
     state['runs'] += 1
     if escaped:

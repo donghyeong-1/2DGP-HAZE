@@ -58,7 +58,7 @@ class ExtraHits:
         effects.add_trauma(config.SHAKE_HIT * 0.5)
         assets.play_sound('enemy_hit')
         if killed:
-            p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+            p.gauge.add(p.kill_gain(), 'kill')
             effects.add_trauma(config.SHAKE_KILL)
         self.index += 1
         self.left -= 1
@@ -211,8 +211,12 @@ class Pipe:
         p.swing_connected = True                         # 이번 휘두르기가 맞았다: 몸은 젖힘으로 되돌아가지 않는다
         effects.add_trauma(config.SHAKE_HIT * shake * fx['shake'])
         if killed:
-            p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+            p.gauge.add(p.kill_gain(bool(fx.get('enhanced'))), 'kill')
             effects.add_trauma(config.SHAKE_KILL)
+        import mutations
+        mutations.on_hit(p)                              # 변이 '굶주림'
+        if fx.get('enhanced'):
+            mutations.on_enhanced_hit(p, enemy, damage)  # 변이 '파문'
         if blast:
             self._blast(enemy)
         if not extra:                                    # 식칼·건틀릿은 구간 효과가 발사 수·크기로 따로 있다
@@ -224,7 +228,8 @@ class Pipe:
 
     def _damage(self, mult):
         p = self.owner
-        return self.base_damage * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mult
+        import mutations
+        return self.base_damage * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mult * mutations.damage_mult(p)
 
     def _weak(self):
         """약해진 상태(페이드)인가. 이때는 모든 공격의 범위가 줄고 대시·점프 공격의 추가 배율이 사라진다."""
@@ -354,7 +359,7 @@ class Pipe:
                 if math.hypot(ox - bx, oy - by) <= self._enh('blast') and (
                         p.room is None or not p.room.line_blocked(bx, by, ox, oy)):
                     if other.take_damage(config.ENHANCE_BLAST_DAMAGE, from_x=bx):
-                        p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+                        p.gauge.add(p.kill_gain(), 'kill')
 
     # ----- 대시 평타: 지나온 경로를 한 줄로 베는 직선 베기 (관통) -----
     def _attack_dash(self, enhanced):
@@ -903,7 +908,7 @@ class ChainHook:
                 effects.spawn(self.fx['spark'], ex, ey, duration=self.fx['spark_time'])
                 effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], (255, 200, 120), big=True)
                 if killed:
-                    p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+                    p.gauge.add(p.kill_gain(), 'kill')
                 else:
                     e.hold(config.CHAIN_STUN)                       # 충돌 경직이 기절을 줄이지 않게 다시 건다
             effects.add_trauma(config.SHAKE_FINISHER * 0.6)
@@ -1114,7 +1119,7 @@ class Ultimate:
             effects.spawn_impact(ex, ey, ex - self.x0, ey - self.y0, config.IMPACT_RAYS['enhanced'], self.color, big=last)
             effects.spawn_slash_marks(ex, ey, ex - self.x0, ey - self.y0, self.color, big=True, count=2 if last else 1)
             if killed:
-                p.gauge.add(config.GAIN_KILL + p.kill_bonus, 'kill')
+                p.gauge.add(p.kill_gain(), 'kill')
             if last:
                 effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
         self._spawn_shape()

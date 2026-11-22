@@ -63,6 +63,7 @@ class Room:
         self.locked = False             # 전투 중에는 출입구가 잠긴다
         self.door_hints = {}            # 방향 -> 문 너머 방 종류('gold', 'boss', 'shop', 'gate', 'rift'): 문 색과 이름으로 알려 준다
         self.door_texts = {}            # 방향 -> 문 이름 대신 쓸 글자 (잠긴 황금방 '남은 방 N', 균열방 '체력 -N')
+        self.door_rewards = {}          # 방향 -> 문 너머 전투방을 깨면 받을 보상 ('mutation', 'shards', ..., mutations.REWARDS)
         self.spawn = (self.width / 2, config.TILE)
         self.enemy_spawns = []          # (x, y, 종류 또는 None)
         self.pedestals = []             # 진열대 칸 (x, y): 발 위치
@@ -405,3 +406,21 @@ class Room:
             dx = max(70, half) if ch == 'L' else -max(70, half) if ch == 'R' else 0
             dy = 0 if ch in 'LR' else (-200 if ch == 'U' else 70)   # 위 문 글자는 화면 위쪽 HUD·안내 띠 아래로
             assets.draw_text(cx + dx, bottom + t // 2 + dy, label, DOOR_TINT[hint], small=True, center=True)
+        reward = self.door_rewards.get(ch)
+        if reward and cells and (col, row) == cells[len(cells) // 2]:
+            self._draw_reward(ch, reward, cx, bottom)
+
+    def _draw_reward(self, ch, reward, cx, bottom):
+        """문 너머 방의 보상: 문 안쪽 옆 작은 판에 아이콘 + 이름 (하데스의 문 위 보상처럼 길을 고르게, 11/22)."""
+        import hud_kit as kit
+        import mutations
+        name, icon, color = mutations.REWARDS[reward]
+        img = assets.image(icon)
+        w, h = 120, img.h + 44
+        t = config.TILE
+        dx = 110 if ch == 'L' else -110 if ch == 'R' else 0
+        dy = 40 if ch in 'LR' else (-260 if ch == 'U' else 120)
+        x, y = int(cx + dx - w // 2), int(bottom + t // 2 + dy)
+        kit.panel('plate', x, y, w, h)
+        assets.draw_image(img, x + w // 2, y + 32)
+        kit.text(x + w // 2, y + 18, name, color, small=True, center=True)

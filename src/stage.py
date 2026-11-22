@@ -15,6 +15,7 @@ import random
 import assets
 import camera
 import config
+import effects
 import game_world
 import items
 from boss import Boss
@@ -63,6 +64,7 @@ def next_stage(stage):
             game_world.remove_object(obj)
     nxt = Stage(stage.player, seed=stage.seed + 1, name=stage.next_name)
     nxt.on_clear, nxt.on_message, nxt.on_pickup = stage.on_clear, stage.on_message, stage.on_pickup
+    nxt.on_mutation = stage.on_mutation
     nxt.start()
     return nxt
 
@@ -118,7 +120,44 @@ class Stage:
         self.on_clear = None        # 방을 클리어했을 때 부를 함수 (소리·글자용)
         self.on_message = None      # 화면에 띄울 짧은 글자: f(문구)
         self.on_pickup = None       # 아이템을 얻었을 때: f(아이템 id, 효과 글) (play_mode가 화면 아래 띠로 보여 준다)
+        self.on_mutation = None     # 변이 보상: f([변이 id 셋]) (play_mode가 카드 창을 연다). 없으면 첫 번째를 준다
         self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
+        self.rewards = {c: self._roll_reward(c) for c in self.layout if self.type_of(c) == 'combat'}   # 방 보상 (11/22)
+
+    def _roll_reward(self, coord):
+        import mutations
+        rng = random.Random(f'{self.seed}:{coord}:reward')
+        kinds = list(mutations.REWARD_WEIGHTS)
+        return rng.choices(kinds, [mutations.REWARD_WEIGHTS[k] for k in kinds])[0]
+
+    def reward_of(self, coord):
+        """이 방을 깨면 받을 보상 (전투방만, 아니면 None)."""
+        return self.rewards.get(coord)
+
+    def grant_reward(self, kind):
+        """방 보상을 준다. 변이면 셋을 골라 on_mutation(카드 창)으로 넘긴다."""
+        import mutations
+        p = self.player
+        rng = random.Random(f'{self.seed}:{self.coord}:grant')
+        cx, cy = p.center
+        if kind == 'shards':
+            n = rng.randint(*mutations.REWARD_SHARDS)
+            p.shards += n
+            effects.float_text(cx, cy + 90, f'조각 +{n}', mutations.REWARDS[kind][2])
+        elif kind == 'heal':
+            p.hp = min(p.max_hp, p.hp + mutations.REWARD_HEAL)
+            effects.float_text(cx, cy + 90, f'체력 +{mutations.REWARD_HEAL}', mutations.REWARDS[kind][2])
+        elif kind == 'crystal':
+            p.bonus_crystals += mutations.REWARD_CRYSTALS
+            effects.float_text(cx, cy + 90, f'헤이즈 결정 +{mutations.REWARD_CRYSTALS}', mutations.REWARDS[kind][2])
+        elif kind == 'mutation':
+            choices = mutations.offer(p, rng)
+            if not choices:
+                return
+            if self.on_mutation:
+                self.on_mutation(choices)
+            else:
+                mutations.give(p, choices[0])
 
     def _pick_template(self, coord):
         """전투 방은 원래 모양 또는 새 모양 중 하나 (판의 시드로 정한다). 그 밖의 방은 원래 모양."""
@@ -192,6 +231,9 @@ class Stage:
             kind = self.type_of(self.neighbour(coord, d))
             if kind in SPECIAL_TYPES:
                 self.room.door_hints[d] = kind
+            target = self.neighbour(coord, d)
+            if self.reward_of(target) and target not in self.cleared:      # 깨면 받을 보상을 문에 미리 보인다
+                self.room.door_rewards[d] = self.reward_of(target)
         if self.type_of(coord) == 'hideout':
             self.room.door_hints['R'] = 'depart'
         self._update_door_texts()
@@ -448,6 +490,8 @@ class Stage:
                     self.player.run_ends += 1
             if self.on_clear:
                 self.on_clear(self)
+            if self.reward_of(self.coord) and p is not None:
+                self.grant_reward(self.reward_of(self.coord))
             if before > 0 and self.gold_rooms_left() == 0 and any(self.type_of(c) == 'gold' for c in self.layout):
                 self._say('모든 전투방을 클리어했다: 황금방이 열렸다')
             self._update_door_texts()

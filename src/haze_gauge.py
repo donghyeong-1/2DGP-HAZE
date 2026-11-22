@@ -26,6 +26,10 @@ class HazeGauge:
         self.zone = self._zone_of(self.value)
         self.decay_interval = config.GAUGE_DECAY_INTERVAL
         self.enhance_cost = config.ENHANCE_COST
+        self.cost_cut = 0          # 변이로 깎인 강화 비용 (mutations 'tide_cost')
+        self.enhance_time_mult = 1.0   # 강화 준비 시간 배율 (강화 계열 시너지)
+        self.filters = []          # 바뀌는 양을 고치는 함수 목록: f(게이지, 양) -> 양 (변이 시너지)
+        self.rescue = None         # 0이 되는 순간 한 번 부르는 함수: f(게이지) -> 버텼으면 True (변이 '마지막 숨')
         self.enhance_timer = 0.0   # 강화 일격 준비가 남은 시간 (0이면 준비 안 됨)
         self.enhance_level = 0     # 쌓인 강화 단계 (0~ENHANCE_MAX_LEVEL). E를 누를 때마다 +1, 공격 한 번에 모두 쓰인다
         self.stun_timer = 0.0      # 오버로드 기절 남은 시간
@@ -63,9 +67,14 @@ class HazeGauge:
     def add(self, delta, reason=''):
         if self.zone == DEAD:
             return
+        for f in self.filters:
+            delta = f(self, delta)
         self.value += delta
         for f in self.change_listeners:
             f(delta, reason)
+        if self.value <= 0 and self.rescue is not None and self.rescue(self):
+            self._set_zone(self._zone_of(self.value))
+            return
         if self.value <= 0:
             self.value = 0.0
             self._set_zone(DEAD)
@@ -107,7 +116,12 @@ class HazeGauge:
     # ----- E 강화 -----
     @property
     def enhance_min(self):
-        return self.enhance_cost + config.ENHANCE_FLOOR
+        return self.cost + config.ENHANCE_FLOOR
+
+    @property
+    def cost(self):
+        """지금 E 한 번의 값 (변이로 깎인 만큼 뺀다)."""
+        return max(1, self.enhance_cost - self.cost_cut)
 
     @property
     def enhanced(self):
@@ -127,9 +141,9 @@ class HazeGauge:
         """E: 게이지 enhance_cost를 내고 강화 단계를 하나 쌓는다. 준비 시간은 처음부터 다시 잰다."""
         if not self.can_enhance():
             return False
-        self.add(-self.enhance_cost, 'enhance')
+        self.add(-self.cost, 'enhance')
         self.enhance_level += 1
-        self.enhance_timer = config.ENHANCE_TIME
+        self.enhance_timer = config.ENHANCE_TIME * self.enhance_time_mult
         return True
 
     # ----- 구간 배율 -----

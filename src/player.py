@@ -157,6 +157,8 @@ class Dash(_State):
             cx, cy = p.center
             p.last_dash_path = (ox, oy, cx, cy)        # 지나온 직선
             p.dash_end()
+            import mutations
+            mutations.on_dash_end(p)                   # 변이 '포자 폭발'
             if p.dash_strike_queued:                   # 대시 중에 눌러 둔 평타: 지나온 경로를 한 번에 벤다
                 p.dash_strike_queued = False
                 p.weapon.resolve_dash_strike(p.dash_strike_enhanced)
@@ -212,6 +214,8 @@ class Player(TileBody):
         self.run_kills = 0             # 이번 판에 쓰러뜨린 적 수 (사망·탈출 화면의 판 기록, 계획 4-2)
         self.run_clock = 0.0           # 이번 판에 구역 안에서 보낸 시간(초, 은신처 제외)
         self.items = []                # 가진 아이템 id 목록
+        self.mutations = []            # 이번 판의 헤이즈 변이 (mutations, 방을 깨고 셋 중 하나를 고른다)
+        self.bonus_crystals = 0        # 방 보상으로 얻은 헤이즈 결정 (판이 끝날 때 meta에 더한다)
         self.aura_time = 0.0           # 오라 반복 재생 시간
         self.move_dist = 0.0           # 땅 위에서 달린 거리(px). 달리기·뒷걸음 프레임이 이 거리에 비례해 넘어간다 (멈추면 0)
         self.was_moving = False        # 지난 프레임에 땅 위에서 움직였는가 (출발·멈춤 판정)
@@ -316,7 +320,13 @@ class Player(TileBody):
         return (self.x - hw, self.y, self.x + hw, self.y + config.PLAYER_HB_H)
 
     def speed_mult(self):
-        return self.gauge.zone_multipliers()['speed']
+        import mutations
+        return mutations.speed_mult(self, self.gauge.zone_multipliers()['speed'])
+
+    def kill_gain(self, enhanced=False):
+        """적을 쓰러뜨렸을 때 오르는 게이지 (기본 + 아이템 + 변이)."""
+        import mutations
+        return config.GAIN_KILL + self.kill_bonus + mutations.kill_extra(self, enhanced)
 
     def aim_vector(self):
         """몸 중심에서 마우스까지 단위 벡터. 거의 겹치면 보는 방향."""
@@ -478,6 +488,8 @@ class Player(TileBody):
         적 종류별 추가 변화(gauge_delta, 예: 간수 +15)도 받는다."""
         if self.invuln_left > 0 or self.state == 'DEAD':
             return
+        import mutations
+        damage = round(damage * mutations.taken_mult(self))     # 변이 '그을린 피부'
         self.hp = max(0, self.hp - damage)
         import killers
         self.last_hit_by = killers.describe(source)          # 사망 화면의 '쓰러진 원인' (11/22)
@@ -500,7 +512,10 @@ class Player(TileBody):
             effects.request_hit_stop(config.OVERLOAD_HIT_STOP)            # 폭발 순간 멈춤
             assets.play_sound('overload_zap')
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
-            self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult))
+            import mutations
+            mutations.on_overload(self)                                   # 변이 '불씨 폭주'
+            self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult
+                                           * mutations.overload_mult(self)))
             if self.hp <= 0 and self.state != 'DEAD':
                 import killers
                 self.death_cause = killers.OVERLOAD

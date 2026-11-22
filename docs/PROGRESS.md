@@ -251,3 +251,6 @@
 2026-11-22 [Claude Code] 안개를 배경 뒤로 옮김(캐릭터를 가리지 않게) / src/atmosphere.py, src/room.py
 2026-11-22 [Claude Code] 안개·빛·날씨·비네트를 배경 위·타일 아래로, 전경 실루엣을 캐릭터 뒤로(캐릭터·몹·보스가 가장 위) / src/atmosphere.py, src/room.py, src/play_mode.py
 2026-11-22 [Claude Code] Codex 작업 상태 정리: 게임에 적용한 T38~T42·T44·T45를 done으로, T45 뒤 작업 T46·T47을 ready로 (적용 때 상태를 안 바꿔 막혀 있었음) / docs/codex/TASKS.md
+2026-11-22 [Codex] T46 헤이즈 심장 기계 오른손 8장 제작, 1배에서 주먹·손바닥 예고와 결정 밝기 검증(검토 대기) / assets/sprites/forge/heart_hands_v1/, docs/codex/reports/T46.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Codex] T47 헤이즈 심장 결전 방 원경·등장 카드 제작, 본체 1배 합성 및 제목 대비 확인(검토 대기) / assets/sprites/forge/heart_arena_v1/, docs/codex/reports/T47.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Claude Code] Codex T46·T47 적용: 헤이즈 심장 손을 코드 사각형에서 그림 8장으로(대기·들어 올린 주먹·내려친 주먹·광선 예고·발사·기절 2, 바닥 컷은 그림 아래 끝이 바닥에), 심장이 내려오면 원경이 결전 방으로 1.5초 겹쳐 바뀜(Room.set_far), 등장 카드 연결, 테스트 2개 / src/(heart, room, sprites, config).py, tests/test_heart.py, assets/sprites/unified/heart_hand_*, assets/backgrounds/(far_heart, boss_card_heart).png, docs/*

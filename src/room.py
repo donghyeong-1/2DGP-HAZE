@@ -35,6 +35,7 @@ DECAL_WINDOW, DECAL_VENT, DECAL_OUTLET, DECAL_STENCIL, DECAL_CRACK, DECAL_STAIN 
 DOOR_V, DOOR_V_BARS, DOOR_V_GLOW, DOOR_H, DOOR_H_BARS, DOOR_H_GLOW = 0, 3, 6, 7, 10, 13
 GLOW_SIZE = 120                      # 램프 빛 한 장의 크기(px)
 FG_PARALLAX = 1.35                    # 전경 실루엣이 카메라를 따라 움직이는 비율 (1보다 커서 플레이어보다 앞에 있는 느낌)
+FAR_FADE = 1.5                        # 원경을 바꿀 때(헤이즈 심장 등장) 겹쳐 바꾸는 시간(초)
 FG_THEMES = ('cell', 'foundry', 'haze')   # 전경 그림이 있는 구역 (T48)
 MID_PARALLAX = (0.35, 0.12)          # 중경이 카메라를 따라 움직이는 비율 (가로, 세로)
 LOCKED_TINT = (255, 130, 140)        # 전투 중 잠긴 쇠창살 문
@@ -59,6 +60,8 @@ class Room:
         self.theme = theme if theme in THEMES or theme in BACKDROP_THEMES else 'cell'
         self.tile_theme = BACKDROP_THEMES.get(self.theme, self.theme)   # 타일·장식에 쓰는 테마
         self.has_mid = self.theme not in BACKDROP_THEMES
+        self.far_over = None          # 원경을 바꿔 그릴 그림 (헤이즈 심장 결전 방, T47). far_mix 0 -> 1로 겹쳐 그린다
+        self.far_mix = 0.0
         self.name = name
         self.extra_solids = {}      # (열, 줄) -> 임시 벽 조각 (보스가 세운 고철 기둥·결정 벽, boss_terrain)
         self.links = set(links or ())   # 이웃 방(또는 탈출구)이 있어서 열릴 수 있는 출입구 방향. 나머지 출입구는 벽이다
@@ -292,21 +295,36 @@ class Room:
         if decal is not None:
             self._cell(atlas, ATLAS_DECAL + decal, ROW_MISC, col, bottom, tint)
 
+    def set_far(self, path):
+        """원경을 다른 그림으로 바꾼다. step_far로 far_mix가 1이 될 때까지 원래 원경·중경 위에 겹쳐 그린다."""
+        self.far_over, self.far_mix = path, 0.0
+
+    def step_far(self, dt, seconds=FAR_FADE):
+        if self.far_over is not None:
+            self.far_mix = min(1.0, self.far_mix + dt / seconds)
+
     def _draw_backdrop(self):
         """원경(화면 고정)과 중경(카메라를 조금 따라가는 시차 배경, 가로로 이어 붙는다). 좌표는 정수만 쓴다."""
         screen_offset = assets.draw_offset
         assets.draw_offset = (0, 0)
-        assets.draw_image(assets.image(f'backgrounds/far_{self.theme}.png'), config.SCREEN_W // 2, 0)
-        if not self.has_mid:
+        if self.far_over is not None and self.far_mix >= 1.0:          # 바뀐 원경만 (중경 없음)
+            assets.draw_image(assets.image(self.far_over), config.SCREEN_W // 2, 0)
             assets.draw_offset = screen_offset
             return
+        assets.draw_image(assets.image(f'backgrounds/far_{self.theme}.png'), config.SCREEN_W // 2, 0)
+        if self.has_mid:
+            self._draw_mid()
+        if self.far_over is not None and self.far_mix > 0:
+            assets.draw_image_tinted(assets.image(self.far_over), config.SCREEN_W // 2, 0, '', (255, 255, 255), self.far_mix)
+        assets.draw_offset = screen_offset
+
+    def _draw_mid(self):
         mid = assets.image(f'backgrounds/mid_{self.theme}.png')
         shift = int(camera.x * MID_PARALLAX[0]) % mid.w
         drop = min(mid.h - config.SCREEN_H, max(0, int(camera.y * MID_PARALLAX[1])))
         for left in (-shift, mid.w - shift):
             if left < config.SCREEN_W:
                 assets.draw_clip(mid, 0, 0, mid.w, mid.h, left, -drop)
-        assets.draw_offset = screen_offset
 
     def draw_foreground(self):
         """플레이어보다 앞에 겹치는 어두운 전경 실루엣 (T48). 화면에 붙어 가로로만 크게 밀리며 이어 붙는다.

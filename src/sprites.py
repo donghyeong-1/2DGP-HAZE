@@ -66,6 +66,11 @@ FRAMES = {
     'boss_ark_phase': (1, 64, 177), 'boss_ark_death': (2, 76, 110),
     # 최종 보스 헤이즈 심장 본체 (Codex T45, 캔버스 900x560). 기준점 y=462는 열린 핵 중심(행 312)이 히트박스 가운데(발 위 150)에 오게 한 값
     'heart_core': (3, 450, 462), 'heart_core_hurt': (1, 450, 462), 'heart_core_dying': (2, 450, 462),
+    # 헤이즈 심장 기계 손 (Codex T46, 캔버스 260x260, 손 중심 (130,130), 오른손 그림 -> 왼손은 좌우 반전).
+    # 떠 있는 자세는 손 중심이 히트박스(높이 110) 가운데에 오게 (130,185). 손바닥은 결정(광선 시작점)이 히트박스 아래에 (130,130).
+    # 바닥에 닿는 컷(내려친 주먹·기절)은 FRAME_ANCHOR에서 그림 맨 아래가 바닥에 오게 따로 잡는다
+    'heart_hand_idle': (2, 130, 185), 'heart_hand_fist': (2, 130, 185), 'heart_hand_palm': (2, 130, 130),
+    'heart_hand_stun': (2, 130, 250),
 }
 # 그림 안에서 발이 캔버스 바닥보다 떠 있게 그려진 프레임의 뜬 높이(px).
 # 몸이 이미 공중에 있으므로 그림에서 또 띄우지 않도록 그만큼 기준점을 올려 잡는다.
@@ -82,6 +87,8 @@ for _k, (_x, _y) in ENEMY_T25_ANCHOR.items():
 # (이름, 번호) -> 이 그림만의 기준점 (FRAMES의 세트 기준점 대신)
 FRAME_ANCHOR = {(f'enemy_{_k}_hurt', 2): _a for _k, _a in ENEMY_T25_ANCHOR.items()}
 FRAME_ANCHOR[('enemy_drone_wreck', 2)] = (73, 113)
+FRAME_ANCHOR[('heart_hand_fist', 2)] = (130, 208)      # 내려친 주먹: 아래 끝(78px)이 바닥에
+FRAME_ANCHOR[('heart_hand_stun', 2)] = (130, 234)      # 기절 2: 아래 끝(104px)이 바닥에 (1은 120px -> 기본 250)
 
 SHIFT = {
     # 맨손 자세는 프레임마다 발 위치가 다르게 그려져 있어 발을 같은 자리에 맞춘다 (발 가운데 x: 43.5, 36, 25, 36.5)

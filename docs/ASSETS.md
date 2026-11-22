@@ -304,3 +304,8 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-22: Codex T44(내장 image_gen, 모델명 미제공) 결과를 `assets/ui/mut_*.png`(변이 문양 4), `card_frame_*.png`(카드 테두리 3), `reward_*.png`(방 보상 아이콘 6)으로 그대로 복사. AI 생성물.
 2026-11-22 [Claude Code] T48 적용: `assets/backgrounds/fg_cell.png`·`fg_foundry.png`·`fg_haze.png` (Codex T48 foreground_v1 복사, 출처·라이선스는 위 T48 항목과 같음). `Room.draw_foreground`로 UI 아래에 시차 1.35배로 이어 붙여 그린다. 설정 옵션은 만들지 않았다(전투 높이가 비어 있어 가려지지 않음).
 - 2026-11-22: Codex T38~T42(내장 image_gen, 모델명 미제공, Hibit 마감) 결과를 `assets/sprites/unified/enemy_(eye|knight|wraith|rat|shaman)_*.png`(59장)로 그대로 복사. AI 생성물. 출처·프롬프트는 `assets/sprites/forge/<이름>_v1/provenance.json`.
+
+2026-11-22 [Codex] T46 assets/sprites/forge/heart_hands_v1/frames/ 헤이즈 심장 기계 오른손 8장. 프로젝트 자체 심장 본체와 아크 장갑을 참조한 Codex 내장 image_gen(모델명 미제공) 신규 생성, generate2dsprite 및 Agent Sprite Forge 0.5.0(MIT) Hibit 마감, codixel 픽셀 코어(MIT) 비교판. 260×260·본체 팔레트 중 공용 39색·이진 알파·2px 블록·1배. 출처와 프롬프트 assets/sprites/forge/heart_hands_v1/provenance.json. 검토 대기.
+
+2026-11-22 [Codex] T47 assets/sprites/forge/heart_arena_v1/의 `far_heart.png`(결전 방 원경 1920×1080) 및 `boss_card_heart.png`(등장 카드 1920×400). 프로젝트 자체 탑·보스방 배경, 아크 카드, 헤이즈 심장 본체와 손을 참조한 Codex 내장 image_gen(모델명 미제공) 신규 생성, generate2dmap 및 Agent Sprite Forge 0.5.0(MIT) Hibit 마감. 파일당 불투명 32색·2px 블록·1배. 출처와 프롬프트 assets/sprites/forge/heart_arena_v1/provenance.json. 검토 대기.
+- 2026-11-22: Codex T46·T47(내장 image_gen, 모델명 미제공, Hibit 마감) 결과를 그대로 복사해 게임에 적용. 손 8장 → `assets/sprites/unified/heart_hand_(idle|fist|palm|stun)_1·2.png`(왼손은 좌우 반전), 결전 방 원경 → `assets/backgrounds/far_heart.png`, 등장 카드 → `assets/backgrounds/boss_card_heart.png`. AI 생성물. 출처·프롬프트는 `assets/sprites/forge/heart_hands_v1/provenance.json`, `heart_arena_v1/provenance.json`.

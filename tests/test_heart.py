@@ -177,6 +177,29 @@ def test_ark_death_brings_heart_in_final_room():
     assert isinstance(st.boss, hm.HeartCore) and st.room.locked and boss_coord not in st.cleared
 
 
+def test_arena_backdrop_fades_in_when_heart_arrives():
+    # Codex T47: 심장이 내려오면 아크의 방 원경이 결전 방(far_heart)으로 천천히 바뀐다
+    room, p, core = make_fight(intro=True)
+    assert room.far_over == 'backgrounds/far_heart.png' and 0 <= room.far_mix < 1
+    run(int(60 * 1.6))
+    assert room.far_mix == 1.0
+
+
+def test_hand_frame_follows_its_move():
+    # Codex T46: 대기 -> 내려치기 예고(들어 올린 주먹) -> 떨어짐(내려친 주먹), 광선 예고 -> 발사, 기절
+    room, p, core = make_fight()
+    hand = core.hands[0]
+    assert hand._frame()[0] == 'heart_hand_idle'
+    for mode, frame in (('aim', ('heart_hand_fist', 1)), ('fall', ('heart_hand_fist', 2)), ('rest', ('heart_hand_fist', 2)),
+                        ('warn', ('heart_hand_palm', 1)), ('sweep', ('heart_hand_palm', 2))):
+        hand.mode = mode
+        assert hand._frame() == frame, mode
+    hand.mode, hand.timer = 'stun', 0.0
+    assert hand._frame() == ('heart_hand_stun', 1)
+    hand.timer = 1.0
+    assert hand._frame() == ('heart_hand_stun', 2)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

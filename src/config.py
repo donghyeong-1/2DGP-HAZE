@@ -392,7 +392,7 @@ HEART = dict(
     shards=30)
 _PART = dict(speed=0.0, sight=0, sight_dy=0, attack_range=0, reach_dy=0, damage=0, windup=1.0, attack_time=0.1,
              cooldown=1.0, gain_on_hit=0, sprite='boss_ark_idle', leap=0.0,
-             code_drawn=True)   # 그림 파일 없이 코드로 그린다 (Codex T45·T46 전)
+             code_drawn=True)   # 정지 그림(<이름>.png) 없이 부위별 동작 그림만 쓴다 (heart.py가 직접 고른다)
 ENEMY_STATS['heart'] = dict(_PART, hp=HEART['hp'], hb=(360, 300))
 ENEMY_STATS['heart_hand'] = dict(_PART, hp=HEART['hand_hp'], hb=(150, 110))
 SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'drone': 2, 'cart': 2, 'eye': 2, 'knight': 4, 'wraith': 3, 'rat': 1, 'shaman': 3, 'crasher': 10, 'ark': 20}

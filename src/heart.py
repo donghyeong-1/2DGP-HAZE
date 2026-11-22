@@ -8,7 +8,7 @@
 - 패턴(심장이 고른다): 손 내려치기 slam / 손바닥 광선 훑기 laser / 결정 비 rain / 농도 파동 pulse.
 - 페이즈(체력 비율 phases): 2페이즈 가운데 양옆에 발판이 솟는다(임시 벽, room.extra_solids 값 'heart'),
   3페이즈 바닥이 헤이즈로 잠기고(고농도 방) 심장이 내려온다.
-본체 그림은 Codex T45(900x560, sprites.FRAMES). 손은 T46이 오기 전까지 코드로 그린 임시 그림(정수 좌표 사각형).
+그림: 본체 Codex T45(900x560), 손 Codex T46(260x260 오른손, 왼손은 반전), 결전 방 원경·등장 카드 Codex T47.
 """
 import math
 import random
@@ -44,6 +44,7 @@ def floor_under(room, x, y_from):
 def spawn(room, player):
     """심장과 두 손을 world에 넣고 심장을 돌려준다 (stage가 보스로 삼는다)."""
     core = HeartCore(room, player)
+    room.set_far('backgrounds/far_heart.png')       # 아크의 방이 심장의 기계 공동으로 바뀐다 (T47, 천천히 겹쳐 그린다)
     game_world.add_object(core, game_world.LAYER_ENEMY)
     for h in core.hands:
         game_world.add_object(h, game_world.LAYER_ENEMY)
@@ -114,6 +115,7 @@ class HeartCore(_Part):
             if self.dead_time >= 3.0:
                 game_world.remove_object(self)
             return
+        self.room.step_far(dt)
         if self.intro_left > 0:
             self.intro_left -= dt
             k = max(0.0, self.intro_left / H['intro'])
@@ -265,7 +267,7 @@ class HeartCore(_Part):
         for dx, dy in ((0, 100), (-120, 180), (120, 220), (0, 300)):
             effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.7)
 
-    # ----- 그리기 (Codex T45 그림. 손은 아직 T46 전 임시 그림) -----
+    # ----- 그리기 (Codex T45 그림) -----
     def _core_frame(self):
         """(세트 이름, 번호): 쓰러짐 2장 -> 열림 중 피격 -> 열림 -> 닫힘 두 장 느린 맥동."""
         if not self.alive:
@@ -441,7 +443,7 @@ class HeartHand(_Part):
             assets.play_sound('chain_latch_heavy')
         return False
 
-    # ----- 그리기 (T46 전 임시 그림) -----
+    # ----- 그리기 (Codex T46 그림) -----
     def draw(self):
         if not self.alive:
             return
@@ -460,29 +462,33 @@ class HeartHand(_Part):
             assets.draw_rect_color(int(x0) + 8, int(y0), w - 16, int(y1 - y0), CORE_HOT)
             assets.draw_rect_color(int(x0) - 30, int(y0), w + 60, 10, CORE, 0.8)
         x, y = int(self.x), int(self.y)
-        w, h = int(self.hb_w), int(self.hb_h)
-        dark = self.stunned
-        iron = (44, 42, 52) if dark else IRON
-        assets.draw_rect_color(x - w // 2, y + 20, w, h - 20, iron)                       # 손바닥
-        assets.draw_rect_color(x - w // 2 + 6, y + h - 14, w - 12, 8, SHELL_HI)
-        for i in range(4):                                                               # 손가락 (아래로 쥔 주먹)
-            fx = x - w // 2 + 6 + i * (w - 12) // 4
-            assets.draw_rect_color(fx, y, (w - 12) // 4 - 6, 34, iron)
-            assets.draw_rect_color(fx, y + 34, (w - 12) // 4 - 6, 6, (30, 28, 36))
-        joint = (60, 80, 90) if dark else JOINT
-        assets.draw_rect_color(x - 14, y + h // 2, 28, 18, joint)                           # 관절 빛
-        if self.mode in ('warn', 'sweep'):
-            assets.draw_rect_color(x - 18, y - 6, 36, 10, CORE_HOT)                         # 손바닥 광선 구멍
+        h = int(self.hb_h)
+        name, n = self._frame()
+        sprites.draw(name, n, x, y, self.side, outline=False)
         if self.flash > 0:
-            assets.draw_rect_color(x - w // 2, y, w, h, (255, 255, 255), 0.4)
-        if dark and int(self.timer * 6) % 2 == 0:                                         # 기절: 불똥
-            assets.draw_rect_color(x + 30, y + h - 4, 8, 8, (255, 200, 90))
-        if self.hp < self.max_hp and not dark:                                            # 손 체력 (작게)
-            assets.draw_rect_color(x - 50, y + h + 10, 100, 8, (30, 20, 30))
-            assets.draw_rect_color(x - 50, y + h + 10, int(100 * self.hp / self.max_hp), 8, (230, 80, 90))
-        if self.mode in ('aim',):
-            assets.draw_rect_color(x - 3, y + h + 24, 6, 22, (255, 90, 70))                  # '!'
-            assets.draw_rect_color(x - 3, y + h + 50, 6, 6, (255, 90, 70))
+            sprites.draw_white(name, n, x, y, self.side)
+        if self.stunned and int(self.timer * 6) % 2 == 0:                                 # 기절: 불똥
+            assets.draw_rect_color(x + 30 * self.side, y + 40, 8, 8, (255, 200, 90))
+        if self.hp < self.max_hp and not self.stunned:                                    # 손 체력 (작게, 손 위)
+            assets.draw_rect_color(x - 50, y + h + 40, 100, 8, (30, 20, 30))
+            assets.draw_rect_color(x - 50, y + h + 40, int(100 * self.hp / self.max_hp), 8, (230, 80, 90))
+        if self.mode == 'aim':                                                            # '!'
+            assets.draw_rect_color(x - 3, y + h + 64, 6, 22, (255, 90, 70))
+            assets.draw_rect_color(x - 3, y + h + 90, 6, 6, (255, 90, 70))
+
+    def _frame(self):
+        """(세트 이름, 번호): 내려치기 예고 = 들어 올린 주먹 -> 떨어짐·박힘 = 내려친 주먹, 광선 예고 -> 발사, 기절 두 장, 그 밖은 대기 두 장."""
+        if self.mode == 'aim':
+            return 'heart_hand_fist', 1
+        if self.mode in ('fall', 'rest'):
+            return 'heart_hand_fist', 2
+        if self.mode == 'warn':
+            return 'heart_hand_palm', 1
+        if self.mode == 'sweep':
+            return 'heart_hand_palm', 2
+        if self.stunned:
+            return 'heart_hand_stun', 1 if self.timer < 0.3 else 2
+        return 'heart_hand_idle', 1 + int(self.time * 2 + (self.side > 0)) % 2
 
 
 class CrystalShard(projectile.Debris):

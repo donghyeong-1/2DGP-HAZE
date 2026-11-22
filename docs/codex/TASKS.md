@@ -65,8 +65,8 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T42 | 누더기 무당 (슬럼, 보호막) 11장 | [T42_enemy_shaman.md](tasks/T42_enemy_shaman.md) | - | done |
 | T44 | 헤이즈 변이 문양·카드 테두리·방 보상 아이콘 | [T44_mutation_icons.md](tasks/T44_mutation_icons.md) | - | done |
 | T45 | 거대 보스 헤이즈 심장 본체 6장 | [T45_heart_core.md](tasks/T45_heart_core.md) | - | done |
-| T46 | 헤이즈 심장 기계 손 8장 | [T46_heart_hands.md](tasks/T46_heart_hands.md) | T45 | ready |
-| T47 | 헤이즈 심장 결전 방 배경 + 등장 카드 | [T47_heart_arena.md](tasks/T47_heart_arena.md) | T45 | ready |
+| T46 | 헤이즈 심장 기계 손 8장 | [T46_heart_hands.md](tasks/T46_heart_hands.md) | T45 | done |
+| T47 | 헤이즈 심장 결전 방 배경 + 등장 카드 | [T47_heart_arena.md](tasks/T47_heart_arena.md) | T45 | done |
 | T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | done |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)

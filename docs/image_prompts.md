@@ -280,3 +280,23 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-22 [Codex] T37 공장 타일·원경·장식 수레·간수·크래셔를 참조해 고철, 바퀴 넷, 찌그러진 범퍼, 청록 통, 빨간 경고등을 가진 수레를 만들었다. 굴러감·통 팽창과 경고등 점멸·앞바퀴 들림·그을린 잔해를 각각 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/cart_v1/provenance.json.
 
 2026-11-22 [Codex] T43 공장·헤이즈 원경과 타일, 기존 소품을 참조해 수평 발판이 있는 고철 기둥의 낙하·박힘·붕괴, 증기 밸브의 열림·피격·닫힘, 배기구의 꺼짐·빨간 예고·황주황 분출 직전, 결정 기둥의 솟음·직립·파괴를 각각 마젠타 3칸 시트로 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/boss_terrain_v1/provenance.json.
+
+2026-11-22 [Codex] T38 탑 감시 카메라·청록 패널·아크·탑 원경과 타일을 참조해 둥근 청회색 철 몸통과 마름모·케이블·우향 청록 렌즈·왼쪽 벽 고정판을 가진 감시 눈을 만들었다. 마스터를 기준으로 동공 좌우 이동, 렌즈 점등 3단계, 발사 직전보다 밝은 발사, 균열과 반동, 파편과 소등을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/eye_v1/provenance.json.
+
+2026-11-22 [Codex] T39 중장갑 간수·아크와 탑 원경·타일을 참조해 얼굴을 가린 투구, 날렵한 갑옷, 어깨 청록 결정, 한 손의 결정 장검을 그렸다. 대기, 가까운 다리와 먼 다리가 교대하는 걷기, 결정 분해와 재조립, 칼을 뒤로 빼는 예고부터 타격과 회수, 반동과 파편을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/knight_v1/provenance.json.
+
+2026-11-22 [Codex] T40 각성 오라·아크·탑 원경과 타일을 참조해 어두운 청록색 연기 상반신, 밝은 민트 눈 두 개, 연기 꼬리 하나를 가진 망령을 만들었다. 꼬리의 네 단계 변화, 양손을 모으는 예고부터 앞으로 뻗고 거두는 흡수, 피격으로 갈라진 몸, 눈이 사라지고 옅은 연기점만 남는 소멸을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/wraith_v1/provenance.json.
+
+2026-11-22 [Codex] T41 사냥개·폐인·슬럼 원경과 타일을 참조해 짙은 남색 털, 뾰족한 주둥이, 둥근 귀, 붉은 눈, 등에 솟은 청록 결정과 긴 꼬리를 가진 헤이즈 쥐를 만들었다. 달리기 발 접지와 도약, 웅크린 뒤 턱을 벌리는 물기, 피격 반동, 뒤집혀 눈이 닫히는 쓰러짐을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/rat_v1/provenance.json.
+
+2026-11-22 [Codex] T42 폐인·투척병·보관인과 슬럼 원경·타일을 참조해 황토색 누더기 후드, 큰 부적, 청록 결정을 낀 고철 지팡이로 누더기 무당을 만들었다. 지팡이를 짚는 대기, 발을 교대하는 뒷걸음, 손을 올린 뒤 민트색 결정 지팡이를 들어 올리는 보호막 시전, 피격 뒤 균형을 잡는 동작을 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/shaman_v1/provenance.json.
+
+2026-11-22 [Codex] T44 기존 UI 아이콘을 참조해 각성 꽃결정·위험 불씨·페이드 고리·강화 소용돌이, 리벳 쇠·청록 결정·금과 진홍 결정의 빈 카드 테두리, 조각·심장·결정 꽃·보라 결정·망치·해골 보상을 각각 시트로 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/mutation_ui_v1/provenance.json.
+
+2026-11-22 [Codex] T45 아크의 날개 문장과 가슴 청록 결정을 탑 기계 강철 껍질에 옮겼다. 고정된 외곽 안에서 셔터 닫힘·반개방·완전 개방, 열린 마름모 약점의 피격 균열, 균열이 퍼지고 하단 판 두 조각이 떨어지는 두 붕괴 단계를 순서대로 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/heart_core_v1/provenance.json.
+
+2026-11-22 [Codex] T48 각 구역의 중경을 참고해 중앙이 빈 마젠타 바탕에 좌우로 이어지는 어두운 실루엣을 요청했다. 슬럼은 전선·빨래·철창, 공장은 배관·사슬·크레인 갈고리, 탑은 가로 철골과 결정 가지를 지정했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/foreground_v1/provenance.json.
+
+2026-11-22 [Codex] T46 본체의 강철·날개 문장·청록 결정과 아크 장갑을 참조해 손목에 짧은 케이블 두 가닥을 단 기계 오른손을 요청했다. 대기, 주먹 내려치기, 펼친 손바닥 레이저 예고와 발사, 결정이 꺼진 기절을 순서대로 각각 두 자세로 지정했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/heart_hands_v1/provenance.json.
+
+2026-11-22 [Codex] T47 탑과 보스방 원경을 참조해 중앙 상단을 비우고 하단 1/4을 어둡게 둔 기계 공동을 요청했다. T34 아크 카드, T45 본체 및 T46 손을 참조해 오른쪽 1/3에 열린 본체와 양손을, 왼쪽 2/3에는 글자 자리를 둔 카드를 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/heart_arena_v1/provenance.json.

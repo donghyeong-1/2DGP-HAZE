@@ -411,12 +411,12 @@ class GameUI:
 
     def _draw_chips(self, top):
         right = W - MARGIN
-        top = self._chip(right, top, f'헤이즈 조각 {self.player.shards}', TEAL, icon='ui_shard_s')
+        top = self._chip(right, top, f'{self.player.shards}', TEAL, icon='ui_shard_s')      # 아이콘 + 숫자만
         room = self.stage.room
         if room.locked:
             top = self._chip(right, top, f'남은 적 {self.stage.enemy_count()}', RED)
         if room.is_high_haze:
-            top = self._chip(right, top, '고농도 방 · 게이지 상승', (150, 240, 230))
+            top = self._chip(right, top, '고농도', (150, 240, 230))
         n = len(getattr(self.player, 'mutations', []))
         if n:
             self._chip(right, top, f'변이 {n}', (190, 160, 255))
@@ -456,7 +456,7 @@ class GameUI:
                 x0 = W // 2 + side * (tw // 2 + 30) - (160 if side < 0 else 0)
                 assets.draw_rect_color(x0, y - 2, 160, 4, GOLD)
             kit.text(W // 2, y, text, GOLD, center=True, big=True)
-            kit.text(W // 2, y - 46, '열린 문으로 이동하라', (205, 215, 235), small=True, center=True)
+            kit.text(W // 2, y - 46, '열린 문으로 이동하세요', (205, 215, 235), small=True, center=True)
         if play_mode.message_time > 0:
             kit.text(W // 2, TOAST_Y - 40, play_mode.message, GOLD, center=True)
 

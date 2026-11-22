@@ -68,11 +68,11 @@ def rows():
     if kind == 'keeper':
         if not meta.keeper_open():
             return [('보관 칸 열기', f'{config.META_KEEPER_PRICE} 결정',
-                     '판이 끝날 때 들고 있던 것 하나를 맡기면 다음 판 시작 때 돌려준다', 'unlock')]
+                     '판이 끝날 때 물건 하나를 맡기면 다음 판 시작 때 돌려받습니다', 'unlock')]
         keep = meta.state['keepsake']
         name = items.ITEMS[keep]['name'] if keep else '없음'
-        return [('맡긴 물건', name, '다음 판 시작 때 받는다 (업그레이드는 1단계로, 무기는 그대로)', None),
-                ('맡기는 법', '', '판이 끝나면 사망·탈출 화면에서 들고 있던 것 중 하나를 고른다', None)]
+        return [('맡긴 물건', name, '다음 판 시작 때 받습니다 (업그레이드는 1단계로, 무기는 그대로)', None),
+                ('맡기는 법', '', '판이 끝나면 사망·탈출 화면에서 맡길 물건을 고릅니다', None)]
     s = meta.state
     return [(line, '', '', None) for line in STORY['archivist']] + [
         ('지금까지', f'{s["runs"]}판 · 탈출 {s["escapes"]}번', f'헤이즈 결정 {s["crystals"]}', None)]
@@ -85,16 +85,16 @@ def act(key):
         return
     if key == 'unlock':
         ok = meta.unlock_keeper()
-        note = '보관 칸을 열었다' if ok else '헤이즈 결정이 모자라다'
+        note = '보관 칸을 열었습니다' if ok else '헤이즈 결정이 부족합니다'
         result = 'ok' if ok else 'fail'
     elif key in meta.UPGRADES:
         name = meta.UPGRADES[key]['name']
         if meta.price(key) is None:
-            note, result = f'{name}: 이미 최대 단계다', None
+            note, result = f'{name}: 이미 최대 단계입니다', None
         elif meta.buy(key):
             note, result = f'{name} {meta.level(key)}단계 (다음 판부터)', 'ok'
         else:
-            note, result = '헤이즈 결정이 모자라다', 'fail'
+            note, result = '헤이즈 결정이 부족합니다', 'fail'
     assets.play_sound('pickup')
 
 

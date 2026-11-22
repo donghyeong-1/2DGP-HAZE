@@ -13,7 +13,7 @@ ITEMS = {
     'cap':     dict(name='게이지 용량', glyph='용', desc='게이지 한계 +20% (최대 160%)', price=6, color=(90, 210, 240)),
     'absorb':  dict(name='흡수 효율', glyph='흡', desc='처치할 때 게이지 +2% 더', price=5, color=(130, 235, 225)),
     'steady':  dict(name='결핍 방지', glyph='결', desc='게이지가 줄어드는 간격 +1초', price=5, color=(110, 150, 220)),
-    'enhance': dict(name='강화 효율', glyph='강', desc='E 강화 비용이 줄어든다', price=6, color=(240, 150, 60)),
+    'enhance': dict(name='강화 효율', glyph='강', desc='E 강화 비용 감소', price=6, color=(240, 150, 60)),
     'resist':  dict(name='오버로드 내성', glyph='내', desc='오버로드 피해 -5%p', price=5, color=(250, 220, 90)),
     'dash':    dict(name='대시 강화', glyph='대', desc='대시 슬롯 +1 (최대 5)', price=7, color=(170, 200, 255)),
     'power':   dict(name='기본 성장: 공격력', glyph='공', desc='공격력 +20%', price=6, color=(255, 120, 120)),
@@ -21,11 +21,11 @@ ITEMS = {
     'heal':    dict(name='응급 치료', glyph='약', desc='체력 40 회복 (정비방 전용)', price=3, color=(120, 235, 150)),
     'fury':    dict(name='균열의 분노', glyph='분', desc='이번 판 공격력 +30% (균열방 전용)', price=0, color=(200, 130, 255)),
     # 무기: 두 번째 칸에 들어가고 바로 든다 (Q·1·2로 철파이프와 바꾼다). 이미 다른 무기가 있으면 바뀐다
-    'w_knife':    dict(name='투척용 식칼 묶음', glyph='칼', desc='구간이 오를수록 많이 던진다 (위험 구간 관통)', price=9,
+    'w_knife':    dict(name='투척용 식칼 묶음', glyph='칼', desc='구간이 오를수록 더 많이 던짐 (위험 구간 관통)', price=9,
                      color=(220, 228, 240), weapon='knife'),
     'w_gauntlet': dict(name='헤이즈 건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 충격파', price=9,
                      color=(120, 220, 245), weapon='gauntlet'),
-    'w_chain':    dict(name='헤이즈 사슬', glyph='사', desc='맞은 적을 끌어온다 (끌려온 적마다 게이지 +2%)', price=9,
+    'w_chain':    dict(name='헤이즈 사슬', glyph='사', desc='맞은 적을 끌어옴 (끌려온 적마다 게이지 +2%)', price=9,
                      color=(170, 160, 255), weapon='chain'),
 }
 UPGRADES = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 단계가 있는 것 (7종, 기본 성장은 둘)

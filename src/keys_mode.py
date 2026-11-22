@@ -56,35 +56,35 @@ def press_key(key):
     action, slot = listening
     listening = None
     if key == SDLK_ESCAPE:
-        message = '취소했다'
+        message = '취소했습니다'
         return
     if key in (SDLK_BACKSPACE, SDLK_DELETE):
         if slot == 1:
             keybinds.clear(action, 1)
-            message = f'{keybinds.NAMES[action]}: 보조 칸을 비웠다'
+            message = f'{keybinds.NAMES[action]}: 보조 칸을 비웠습니다'
         else:
-            message = '기본 칸은 비울 수 없다'
+            message = '기본 칸은 비울 수 없습니다'
         return
     if key in keybinds.RESERVED:
-        message = f'{keybinds.key_name(key)}는 쓸 수 없는 키다 (일시정지·도움말)'
+        message = f'{keybinds.key_name(key)}는 쓸 수 없는 키입니다 (일시정지·도움말)'
         return
     before = keybinds.action_for(key)
     if keybinds.bind(action, slot, key):
         name = keybinds.key_name(key)
         if before is not None and before != action:
-            message = f'{name}: {keybinds.NAMES[action]} (원래 {keybinds.NAMES[before]}와 맞바꿨다)'
+            message = f'{name}: {keybinds.NAMES[action]} (원래 {keybinds.NAMES[before]}와 맞바꿨습니다)'
         else:
             message = f'{name}: {keybinds.NAMES[action]}'
         assets.play_sound('pickup')
     else:
-        message = f'{keybinds.NAMES[before]}에 남는 키가 없어 바꿀 수 없다'
+        message = f'{keybinds.NAMES[before]}에 남는 키가 없어 바꿀 수 없습니다'
 
 
 def _run_button(i):
     global message
     if i == 0:
         keybinds.reset_defaults()
-        message = '기본 키로 되돌렸다'
+        message = '기본 키로 되돌렸습니다'
         assets.play_sound('pickup')
     else:
         game_framework.pop_mode()
@@ -109,7 +109,7 @@ def handle_events():
                 press_key(event.key)
             elif event.type == SDL_MOUSEBUTTONDOWN:
                 listening = None
-                message = '취소했다'
+                message = '취소했습니다'
             continue
         if event.type == SDL_MOUSEMOTION:
             mx, my = event.x, H - 1 - event.y
@@ -154,7 +154,7 @@ def update():
 
 def draw_panel():
     """키 바꾸기 화면 (11/22 메뉴 v2): 줄마다 카드, 기본·보조 칸은 키 글자 알약."""
-    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '키 바꾸기', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꾸지 않는다)')
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '키 바꾸기', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)')
     kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', kit.FAINT, small=True, center=True)
     kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', kit.FAINT, small=True, center=True)
     for i, action in enumerate(keybinds.IDS):

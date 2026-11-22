@@ -136,14 +136,14 @@ def draw():
     if result == 'clear':
         assets.draw_image(assets.image('backgrounds/screen_ending.png'), cx, 0)
         assets.draw_text(cx, 880, '탈출 성공', (170, 230, 250), center=True, big=True)
-        assets.draw_text(cx, 830, '안개를 삼키고 감옥을 벗어났다', (170, 185, 210), center=True)
+        assets.draw_text(cx, 830, '안개를 뚫고 감옥을 벗어났습니다', (170, 185, 210), center=True)
     else:                                                          # 사망 화면: 쓰러진 인물 위쪽에 글자를 둔다
         assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
         assets.draw_text(cx, 880, '사망', (225, 90, 100), center=True, big=True)
         assets.draw_text(cx, 830, '게이지 또는 체력이 0이 되었습니다', (170, 185, 210), center=True)
     _draw_summary(cx)
     if choosing:                                                   # 보관인에게 맡길 것 고르기
-        assets.draw_text(cx, 480, '보관인에게 하나를 맡긴다 (다음 판 시작 때 받는다)', (200, 210, 230), center=True)
+        assets.draw_text(cx, 480, '보관인에게 맡길 물건을 고르세요 (다음 판 시작 때 돌려받습니다)', (200, 210, 230), center=True)
         n = len(choices)
         gap = 96
         x0 = cx - (n - 1) * gap // 2

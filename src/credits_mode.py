@@ -12,7 +12,6 @@ import game_framework
 # (종류, 글자): title 큰 제목 / head 절 제목 / line 본문 / small 작은 설명 / gap 빈 줄
 CREDITS = [
     ('title', '헤이즈 (HAZE)'),
-    ('small', '안개를 삼키고 탈출하라'),
     ('gap', ''),
     ('head', '기획 · 개발'),
     ('line', '김동형'),

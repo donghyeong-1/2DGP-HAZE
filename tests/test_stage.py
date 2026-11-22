@@ -316,7 +316,7 @@ def test_shop_upgrade_price_rises_by_level_and_sells_out_at_level_three():
     msgs = []
     stage.on_message = msgs.append
     p.shards = 0
-    assert not stage.interact() and '모자라' in msgs[-1]        # 조각이 없으면 못 산다
+    assert not stage.interact() and '부족' in msgs[-1]        # 조각이 없으면 못 산다
     prices = []
     for level in range(1, items.MAX_LEVEL + 1):
         assert not ped.gone and ped.price == items.price(p, ped.item_id)

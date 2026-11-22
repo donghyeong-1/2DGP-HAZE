@@ -86,14 +86,21 @@ class Button:
         return self.x <= mx < self.x + self.w and self.y <= my < self.y + self.h
 
     def draw(self, hot, label=None, left=False):
-        """메뉴 줄 모양(11/22 메뉴 v2): 고르면 밝은 속 + 왼쪽 강조 띠 + 화살표, 아니면 어두운 속 + 얇은 테두리."""
-        row(self.x, self.y, self.w, self.h, hot)
-        color = (240, 248, 255) if hot else (150, 165, 192)
+        """메뉴 항목 (11/22 메뉴 v3): 상자 없이 글자만. 고른 항목은 밝은 글자 + 앞에 헤이즈 조각 표시
+        (게임 안 재화 아이콘을 그대로 써서, 흔한 화살표·테두리 대신 이 게임의 표시로)."""
         s = label or self.label
+        color = (244, 236, 214) if hot else (128, 140, 166)
+        cy = self.y + self.h // 2
         if left:
-            text(self.x + 34, self.y + self.h // 2, s, color)
+            tx = self.x + 40
+            text(tx, cy, s, color)
+            if hot:
+                marker(self.x + 4, cy)
         else:
-            text(self.x + self.w // 2, self.y + self.h // 2, s, color, center=True)
+            text(self.x + self.w // 2, cy, s, color, center=True)
+            if hot:
+                tw = assets.text_width(s, False)
+                marker(self.x + self.w // 2 - tw // 2 - 40, cy)
 
 
 def menu_pick(buttons, selected, event, height):
@@ -147,33 +154,36 @@ def backdrop(alpha=0.8):
     assets.draw_rect_color(0, h - 30, w, 30, (5, 8, 15), 0.6)
 
 
-def heading(x, y, title, sub=None, color=(240, 246, 255)):
-    """큰 제목(왼쪽 정렬, 글자 가운데 y) + 아래 강조선 + 작은 부제."""
+def heading(x, y, title, sub=None, color=(244, 236, 214)):
+    """큰 제목(왼쪽 정렬, 글자 가운데 y). 부제가 있으면 그 아래 작게 (장식 선 없이)."""
     text(x, y, title, color, big=True)
-    assets.draw_rect_color(int(x), int(y) - 40, 120, 4, ACCENT)
-    assets.draw_rect_color(int(x) + 124, int(y) - 40, 40, 4, EDGE)
     if sub:
-        text(x + 180, y - 38, sub, FAINT, small=True)
+        text(x + 2, y - 42, sub, FAINT, small=True)
 
 
 def row(x, y, w, h, hot):
-    """메뉴 줄 바탕 (불투명). 고른 줄은 밝은 속·테두리·왼쪽 강조 띠·화살표."""
+    """목록 한 줄 (메뉴 v3): 평소에는 바탕 없이 아래 구분선만, 고른 줄은 밝은 바탕 + 앞에 헤이즈 조각 표시."""
     x, y, w, h = int(x), int(y), int(w), int(h)
-    assets.draw_rect_color(x, y, w, h, ACCENT if hot else EDGE)
-    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, ROW_HOT if hot else ROW_BG)
     if hot:
-        assets.draw_rect_color(x + 2, y + 2, 8, h - 4, ACCENT)
-        ax, ay = x - 22, y + h // 2
-        for i in range(8):
-            assets.draw_rect_color(ax + i, ay - 8 + i, 2, 16 - 2 * i, ACCENT)
+        assets.draw_rect_color(x, y, w, h, (30, 38, 58))
+        marker(x - 34, y + h // 2)
+    assets.draw_rect_color(x, y, w, 2, (34, 42, 62))
+
+
+def marker(x, y):
+    """고른 항목 앞 표시: 헤이즈 조각 아이콘(ui_shard_s, 24px)을 글자 가운데 y에 맞춘다."""
+    img = assets.image('ui/ui_shard_s.png')
+    assets.draw_image(img, int(x) + img.w // 2, int(y) - img.h // 2)
 
 
 def keycap(x, y, label, hot=True):
-    """키 글자 판 (왼쪽 아래 x, y, 높이 30). 폭은 글자에 맞춘다. 돌려주는 값은 폭."""
+    """키 글자 판 (왼쪽 아래 x, y, 높이 30): 아래가 두꺼운 키보드 키 모양. 폭은 글자에 맞춘다. 돌려주는 값은 폭."""
     w = max(34, assets.text_width(label, True) + 16)
-    assets.draw_rect_color(int(x), int(y), w, 30, EDGE)
-    assets.draw_rect_color(int(x) + 2, int(y) + 4, w - 4, 24, (26, 34, 54) if hot else (18, 22, 34))
-    text(int(x) + w // 2, int(y) + 16, label, (235, 245, 255) if hot else FAINT, small=True, center=True)
+    x, y = int(x), int(y)
+    assets.draw_rect_color(x, y, w, 30, (20, 24, 36))                         # 키 옆면(아래)
+    assets.draw_rect_color(x, y + 4, w, 26, (92, 100, 122) if hot else (52, 58, 76))
+    assets.draw_rect_color(x + 2, y + 6, w - 4, 22, (54, 60, 80) if hot else (30, 34, 48))
+    assets.draw_text(x + w // 2, y + 18, label, (236, 238, 244) if hot else FAINT, small=True, center=True)
     return w
 
 
@@ -190,11 +200,14 @@ def footer(pairs, y=34):
 
 
 def pill(x, y, w, h, label, on, focus=False):
-    """값 고르기 칸: 고른 값은 청록으로 채우고 어두운 글자, 아니면 테두리만."""
+    """값 고르기 칸 (메뉴 v3): 고른 값은 밝은 글자 + 아래 두꺼운 선, 아니면 흐린 글자. 글자 뒤에 효과를 넣지 않는다
+    (밝은 칸 위 어두운 글자 + 그림자가 오히려 읽기 어렵다는 사용자 의견, 11/22)."""
     x, y, w, h = int(x), int(y), int(w), int(h)
-    assets.draw_rect_color(x, y, w, h, ACCENT if on else (EDGE if not focus else (70, 86, 120)))
-    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (110, 215, 205) if on else ROW_BG)
-    text(x + w // 2, y + h // 2, label, (10, 22, 30) if on else (150, 165, 192), small=True, center=True)
+    if on:
+        assets.draw_rect_color(x, y, w, h, (38, 50, 74))
+        assets.draw_rect_color(x, y, w, 4, (232, 200, 120))
+    assets.draw_text(x + w // 2, y + h // 2 + 2, label,
+                     (250, 244, 226) if on else ((150, 162, 188) if focus else (104, 116, 142)), small=True, center=True)
 
 
 def card(x, y, w, h, title=None):
@@ -203,5 +216,4 @@ def card(x, y, w, h, title=None):
     assets.draw_rect_color(x, y, w, h, EDGE)
     assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (12, 17, 30))
     if title:
-        text(x + 28, y + h - 34, title, ACCENT)
-        assets.draw_rect_color(x + 28, y + h - 60, 60, 3, ACCENT)
+        text(x + 28, y + h - 34, title, (232, 200, 120))

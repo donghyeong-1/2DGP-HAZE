@@ -126,7 +126,6 @@ def _draw_card(i, mid):
     if hot:                                               # 고른 카드: 계열 색 테두리
         assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
     kit.panel('panel', x, y, CARD_W, CARD_H)
-    assets.draw_rect_color(x + 16, y + CARD_H - 24, CARD_W - 32, 8, color)       # 위 띠
     img = assets.image(fam['icon'])
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 200, m['name'], (240, 244, 252), center=True, big=True)
@@ -135,9 +134,7 @@ def _draw_card(i, mid):
         kit.text(x + CARD_W // 2, y + CARD_H - 310 - j * 34, line, (205, 215, 235), center=True, small=True)
     have = mu.family_count(player, m['family']) if player is not None else 0
     pips = min(2, have + 1)                               # 이걸 고르면 몇 개가 되는가
-    for j in range(2):
-        on = j < pips
-        assets.draw_rect_color(x + CARD_W // 2 - 34 + j * 44, y + 92, 24, 24, color if on else (50, 60, 80))
+    kit.text(x + CARD_W // 2, y + 104, f'{fam["name"]} {pips}/2', color if pips >= 2 else kit.FAINT, small=True, center=True)
     note = ('시너지 켜짐: ' if pips >= 2 else '2개면 시너지: ') + fam['set']
     for j, line in enumerate(_wrap(note, 16)):
         kit.text(x + CARD_W // 2, y + 66 - j * 26, line, (255, 225, 140) if pips >= 2 else (130, 145, 170), center=True,
@@ -163,9 +160,9 @@ def draw():
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
     assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.66)
-    kit.text(W // 2, CARD_Y + CARD_H + 80, '헤이즈 변이', (150, 240, 225), center=True, big=True)
-    kit.text(W // 2, CARD_Y + CARD_H + 36, '셋 중 하나를 몸에 들인다 (이번 판 동안)', (150, 165, 190), center=True, small=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 80, '헤이즈 변이', (244, 236, 214), center=True, big=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 36, '하나를 고르세요 · 이번 판 동안 유지됩니다', (150, 165, 190), center=True, small=True)
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
-    kit.text(W // 2, CARD_Y - 60, 'A D 고르기   Enter 결정   (마우스로 눌러도 된다)', (110, 125, 150), small=True, center=True)
+    kit.footer([('A D', '고르기'), ('Enter', '결정')], y=CARD_Y - 80)
     update_canvas()

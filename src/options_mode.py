@@ -31,7 +31,7 @@ NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
          'music': '배경음악', 'sfx': '타격·발소리·경고음',
          'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게',
-         'hints': '처음 보는 상황에 짧은 안내판', 'damage': '적이 맞은 자리에 피해를 띄운다', 'keys': '키보드 동작 키 (마우스는 그대로)'}
+         'hints': '처음 보는 상황에 짧은 안내판', 'damage': '적이 맞은 자리에 피해 숫자 표시', 'keys': '키보드 동작 키 (마우스는 그대로)'}
 SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints', 'damage')
 back_button = kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 40, 360, 64)
 selected = 0
@@ -205,7 +205,7 @@ def lines():
 
 def draw_panel():
     """설정 화면 (11/22 메뉴 v2: 큰 판 없이 화면 전체 덮개 + 줄마다 카드 + 값은 알약 칸)."""
-    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '설정', '바꾼 값은 바로 저장된다')
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '설정')
     current_of = {'shake': options.shake_level, 'flash': options.reduce_flash,
                   'resolution': options.resolution, 'confine': options.confine_mouse, 'hints': options.show_hints,
                   'damage': options.show_damage}
@@ -235,7 +235,7 @@ def draw_frozen():
     """키 바꾸기 창이 아래에 깔 때: 아래 화면 + 설정 판."""
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
-    kit.backdrop(0.92)
+    kit.backdrop(0.97)
     draw_panel()
 
 
@@ -243,6 +243,6 @@ def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()                       # 멈춘 화면 위에 덮는다
-    kit.backdrop(0.92)
+    kit.backdrop(0.97)
     draw_panel()
     update_canvas()

@@ -13,6 +13,7 @@ import hud_kit as kit
 
 W, H = config.SCREEN_W, config.SCREEN_H
 BUTTON_W, BUTTON_H, GAP = 420, 62, 16
+VERSION = 'v0.9 · 2026'
 MENU_TOP = 470                             # 첫 버튼의 위쪽 y
 MENU = [kit.Button(key, label, (W - BUTTON_W) // 2, MENU_TOP - BUTTON_H - i * (BUTTON_H + GAP), BUTTON_W, BUTTON_H)
         for i, (key, label) in enumerate((('start', '게임 시작'), ('options', '설정'), ('credits', '크레딧'),
@@ -92,12 +93,9 @@ def draw_frozen():
     """제목 화면 (설정 창이 아래에 깔 때도 쓴다)."""
     assets.draw_image(assets.image('backgrounds/screen_title.png'), W // 2, 0)   # Codex T16 제목 화면 일러스트
     assets.draw_image(assets.image('ui/logo_title.png'), W // 2, 588)          # 상점 로고(T29)를 1배로 (tools/make_store_art.py)
-    kit.text(W // 2, 556, '안개를 삼키고 탈출하라', (150, 220, 245), center=True)
     for i, b in enumerate(MENU):
         b.draw(i == selected)
-    assets.draw_rect_color(0, 20, W, 48, (5, 8, 15), 0.78)            # 조작 줄 (메뉴 v2: 판 없이 어두운 띠)
-    assets.draw_rect_color(0, 66, W, 2, kit.EDGE)
-    kit.text(W // 2, 44, controls_text(), (175, 190, 215), small=True, center=True)
+    kit.text(W - 28, 30, VERSION, (96, 110, 138), small=True, right=True)   # 조작은 일시정지·설정에서 (제목 화면은 비워 둔다)
 
 
 def draw():

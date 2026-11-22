@@ -15,9 +15,9 @@ FAMILIES = {
     'bloom': {'name': '각성', 'zone': 'AWAKE', 'color': (110, 235, 215), 'icon': 'ui/icon_absorb.png',
               'set': '각성 구간에서 이동 속도 +12%'},
     'ember': {'name': '위험', 'zone': 'CRITICAL', 'color': (255, 120, 80), 'icon': 'ui/icon_fury.png',
-              'set': '위험 구간에서 게이지가 25% 덜 오른다'},
+              'set': '위험 구간 게이지 상승 -25%'},
     'hollow': {'name': '페이드', 'zone': 'FADE', 'color': (130, 150, 230), 'icon': 'ui/icon_steady.png',
-               'set': '페이드 구간의 이동 감속이 사라진다'},
+               'set': '페이드 구간 이동 감속 없음'},
     'tide': {'name': '강화', 'zone': None, 'color': (215, 150, 255), 'icon': 'ui/icon_enhance.png',
              'set': 'E 강화 준비 시간 +50%'},
 }
@@ -47,10 +47,10 @@ MUTATIONS = {
     'ember_cool': {'family': 'ember', 'name': '방열판', 'desc': f'오버로드 피해 -{round((1 - EMBER_COOL) * 100)}%'},
     'hollow_leech': {'family': 'hollow', 'name': '굶주림', 'desc': f'페이드 구간 적중마다 체력 +{HOLLOW_LEECH}'},
     'hollow_dash': {'family': 'hollow', 'name': '빈 몸', 'desc': f'대시 충전 시간 -{round((1 - HOLLOW_DASH) * 100)}%'},
-    'hollow_floor': {'family': 'hollow', 'name': '마지막 숨', 'desc': f'게이지가 바닥나면 한 번 {int(HOLLOW_FLOOR)}%로 버틴다'},
+    'hollow_floor': {'family': 'hollow', 'name': '마지막 숨', 'desc': f'게이지가 바닥나면 한 번 {int(HOLLOW_FLOOR)}%로 회복 (한 번)'},
     'tide_cost': {'family': 'tide', 'name': '얕은 물', 'desc': f'E 강화 비용 -{TIDE_COST}%'},
     'tide_chain': {'family': 'tide', 'name': '되밀림', 'desc': f'강화 공격으로 처치하면 게이지 +{TIDE_CHAIN}%'},
-    'tide_wave': {'family': 'tide', 'name': '파문', 'desc': f'강화 타격이 주변 적에게 {round(TIDE_WAVE[1] * 100)}% 번진다'},
+    'tide_wave': {'family': 'tide', 'name': '파문', 'desc': f'강화 타격이 주변 적에게 {round(TIDE_WAVE[1] * 100)}% 확산'},
 }
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.

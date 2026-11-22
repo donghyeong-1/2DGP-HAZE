@@ -134,7 +134,7 @@ def test_options_row_opens_key_screen_and_screen_binds():
     assert options_mode.lines()[row][1] == '기본'
     keys_mode.listening = ('enhance', 0)
     keys_mode.press_key(sdl2.SDLK_f)                                    # 상호작용 키 -> 맞바꿈 안내
-    assert keybinds.action_for(sdl2.SDLK_f) == 'enhance' and '맞바꿨다' in keys_mode.message
+    assert keybinds.action_for(sdl2.SDLK_f) == 'enhance' and '맞바꿨습니다' in keys_mode.message
     assert options_mode.lines()[row][1] == '바꿈'
     keys_mode.listening = ('jump', 1)
     keys_mode.press_key(sdl2.SDLK_BACKSPACE)                            # 보조 칸 비우기

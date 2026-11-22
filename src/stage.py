@@ -305,11 +305,11 @@ class Stage:
         """그 문으로 지금 들어갈 수 없으면 이유(글자), 들어갈 수 있으면 None. 균열방은 여기서 체력을 낸다."""
         kind = self.type_of(target)
         if kind == 'gold' and self.gold_rooms_left() > 0:
-            return f'황금방은 이 구역의 전투방을 모두 클리어하면 열린다 (남은 방 {self.gold_rooms_left()})'
+            return f'이 구역의 전투방을 모두 클리어하면 황금방이 열립니다 (남은 방 {self.gold_rooms_left()})'
         if kind == 'rift' and target not in self.paid_rifts:
             cost = self.rift_cost()
             if self.player.hp <= cost:
-                return f'균열에 들어가려면 체력이 {cost}보다 많아야 한다'
+                return f'균열에 들어가려면 체력이 {cost}보다 많아야 합니다'
             self.player.hp -= cost
             self.paid_rifts.add(target)
             self._say(f'균열의 대가: 체력 -{cost}')
@@ -431,11 +431,11 @@ class Stage:
         ped = min(near, key=lambda d: abs(d.x - p.x))
         saved = self.state[self.coord]
         if not items.can_take(p, ped.item_id):
-            self._say('이미 한계다')
+            self._say('이미 최대입니다')
             return False
         if ped.mode == 'shop':
             if p.shards < ped.price:
-                self._say(f'조각이 모자라다 ({p.shards}/{ped.price})')
+                self._say(f'조각이 부족합니다 ({p.shards}/{ped.price})')
                 return False
             p.shards -= ped.price
         text = items.describe(p, ped.item_id)
@@ -495,7 +495,7 @@ class Stage:
             if self.reward_of(self.coord) and p is not None:
                 self.grant_reward(self.reward_of(self.coord))
             if before > 0 and self.gold_rooms_left() == 0 and any(self.type_of(c) == 'gold' for c in self.layout):
-                self._say('모든 전투방을 클리어했다: 황금방이 열렸다')
+                self._say('모든 전투방을 클리어했습니다. 황금방이 열렸습니다')
             self._update_door_texts()
         if self.type_of(self.coord) in END_TYPES and self.coord in self.cleared and not self.finished:
             self.finish_timer += 1 / 60

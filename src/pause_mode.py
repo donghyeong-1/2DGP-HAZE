@@ -123,7 +123,7 @@ def _draw_build(x, y, w, h):
     ty = y + h - 110
     muts = list(getattr(p, 'mutations', [])) if p is not None else []
     if not muts and not (p is not None and p.items):
-        kit.text(x + 28, ty + 15, '아직 얻은 것이 없다', kit.FAINT, small=True)
+        kit.text(x + 28, ty + 15, '아직 얻은 것이 없습니다', kit.FAINT, small=True)
         return
     for mid in muts:
         m = mu.MUTATIONS[mid]

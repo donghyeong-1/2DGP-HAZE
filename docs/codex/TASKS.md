@@ -55,10 +55,24 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T33 | 구역 제목 카드 일러스트 3장 (1920x400) | [T33_zone_cards.md](tasks/T33_zone_cards.md) | - | done·게임 적용 2026-11-21 (`backgrounds/zone_*`, 구역에 들어갈 때 띠가 열리고 구역 이름) |
 | T34 | 보스 등장 카드 2장 (크래셔·아크, 1920x400) | [T34_boss_cards.md](tasks/T34_boss_cards.md) | - | done·게임 적용 2026-11-21 (`backgrounds/boss_card_*`, 보스방에 들어서면 띠가 열리고 그동안 게임이 멈춘다) |
 | T35 | 엔딩 크레딧 장면 3장 (1920x1080) | [T35_credits_scenes.md](tasks/T35_credits_scenes.md) | - | done·게임 적용 2026-11-21 (`backgrounds/credits_1~3`, 크레딧이 흐르는 동안 차례로) |
+| T36 | 용접 드론 (공장, 비행) 13장 | [T36_enemy_drone.md](tasks/T36_enemy_drone.md) | - | ready |
+| T37 | 자폭 수레 (공장) 11장 | [T37_enemy_cart.md](tasks/T37_enemy_cart.md) | - | ready |
+| T43 | 보스방 지형 소품 (고철 기둥·밸브·배기구·결정 기둥) 12장 | [T43_boss_terrain.md](tasks/T43_boss_terrain.md) | - | ready |
+| T38 | 감시 눈 (탑, 벽 포탑) 10장 | [T38_enemy_eye.md](tasks/T38_enemy_eye.md) | - | ready |
+| T39 | 결정 기사 (탑, 순간이동) 14장 | [T39_enemy_knight.md](tasks/T39_enemy_knight.md) | - | ready |
+| T40 | 헤이즈 망령 (탑, 벽 통과) 10장 | [T40_enemy_wraith.md](tasks/T40_enemy_wraith.md) | - | ready |
+| T41 | 헤이즈 쥐 떼 (슬럼) 9장 | [T41_enemy_rat.md](tasks/T41_enemy_rat.md) | - | ready |
+| T42 | 누더기 무당 (슬럼, 보호막) 11장 | [T42_enemy_shaman.md](tasks/T42_enemy_shaman.md) | - | ready |
+| T44 | 헤이즈 변이 문양·카드 테두리·방 보상 아이콘 | [T44_mutation_icons.md](tasks/T44_mutation_icons.md) | - | ready |
+| T45 | 거대 보스 헤이즈 심장 본체 6장 | [T45_heart_core.md](tasks/T45_heart_core.md) | - | ready |
+| T46 | 헤이즈 심장 기계 손 8장 | [T46_heart_hands.md](tasks/T46_heart_hands.md) | T45 | blocked |
+| T47 | 헤이즈 심장 결전 방 배경 + 등장 카드 | [T47_heart_arena.md](tasks/T47_heart_arena.md) | T45 | blocked |
+| T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | ready |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.
-- **추천 순서(2026-11-21 저녁): T34 → T35.** 퀄리티 계획 4단계(`docs/quality_plan.md`). 보스 등장 연출이 먼저, 크레딧은 다음.
+- **추천 순서(2026-11-22, v5 `docs/plan_v5.md`): T36 → T37 → T43 → T38 → T39 → T40 → T41 → T42 → T44 → T45 → T46 → T47 → T48.** 새 적(구역마다 같은 적만 나온다는 사용자 의견)이 먼저, 공장 적과 보스 지형은 1주 차 코드(크래셔 페이즈 패턴)와 맞춘다. T46·T47은 T45(본체)가 끝나야 시작(blocked). 사용자가 순서를 바꾸면 그대로 따른다.
+- (그 전 2026-11-21 저녁: T34 → T35, 모두 완료) 퀄리티 계획 4단계(`docs/quality_plan.md`). 보스 등장 연출이 먼저, 크레딧은 다음.
 - (그 전 2026-11-21: T30 → T31 → T32 → T33, 모두 완료)
 - (그 전 추천 2026-11-20: T24 → T25 → T26 → T27 → T28 → T29, 모두 완료) 스팀 출시 수준 퀄리티 계획(`docs/quality_plan.md`)의 그림이다. 눈에 가장 많이 띄는 동작부터. 하나 끝날 때마다 Claude Code에게 검토를 맡긴다.
 - (11/19: 대기 중인 작업 없음.) (T22·T23 적용 완료) v4(`docs/plan_v4.md`)의 그림. 그동안 Claude Code가 황금방 잠금·균열방·E 중첩 코드를 만든다. (T21 달리기 걸음 교대 적용 완료) (T17~T20 완료) 이동 속도(초당 480px = 키의 3.9배)가 걷기가 아니라 달리기 속도라, 늘 화면에 나오는 이동 모션을 달리기로 바꾸는 T19가 휘두르기 사이 프레임(T18)보다 먼저다.

@@ -2,7 +2,7 @@
 
 본 안내는 영구 저장(meta.state['hints'])에 남아 다음 판에는 나오지 않는다. 설정의 '처음 안내'로 끌 수 있다.
 순서(먼저 걸리는 것부터): 조작(은신처) -> 게이지(첫 전투 구역) -> 페이드·각성·위험(처음 그 구간) -> E 강화 -> 무기 바꾸기.
-안내판은 HINT_TIME초 보이고, 여럿이 걸리면 차례로 보인다. 화면 가운데(캐릭터 머리 위)에 HUD 위로 그린다.
+안내판은 HINT_TIME초 보이고, 여럿이 걸리면 차례로 보인다. 왼쪽 위 체력 아래에 카드로 그린다(11/22 UI v4).
 """
 import assets
 import config
@@ -94,17 +94,24 @@ class Tutorial:
         self.update_with(self.player, self.stage, dt)
 
     def draw(self):
+        """왼쪽 위 체력 아래의 안내 카드 (화면 가운데·캐릭터를 가리지 않게, 11/22 UI v4).
+        왼쪽에 청록 띠, 제목, 왼쪽 정렬 줄, 아래에 남은 시간 막대. 옆에서 미끄러져 들어왔다 나간다."""
         if self.current is None:
             return
+        import ui
         title, lines = hint_text(self.current)
-        W = config.SCREEN_W
-        w = max(assets.text_width(line, False) for line in lines + [title]) + 90
-        h = 62 + 34 * len(lines)
-        x, y = (W - w) // 2, 540                       # 캐릭터 머리 위, 알림 띠(NOTICE_Y - 230)보다 아래
         k = min(1.0, (config.HINT_TIME - self.left) / 0.2, self.left / 0.3)   # 짧게 나타나고 사라진다
         if k <= 0:
             return
-        kit.panel('panel', x, y, w, h)
-        kit.text(W // 2, y + h - 30, title, (130, 235, 225), center=True)
+        w = max([assets.text_width(line, True) for line in lines] + [assets.text_width(title, False)]) + 64
+        h = 58 + 32 * len(lines) + 14
+        x = ui.MARGIN - int((1 - k) * (w + ui.MARGIN))
+        y = ui.HINT_TOP - h
+        assets.draw_rect_color(x, y, w, h, (46, 56, 82))
+        assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (12, 17, 30))
+        assets.draw_rect_color(x + 2, y + 2, 8, h - 4, (130, 235, 225))           # 왼쪽 띠
+        kit.text(x + 30, y + h - 30, title, (130, 235, 225))
         for i, line in enumerate(lines):
-            kit.text(W // 2, y + h - 66 - 34 * i, line, (225, 232, 245), center=True)
+            kit.text(x + 30, y + h - 68 - 32 * i, line, (225, 232, 245), small=True)
+        left = max(0.0, self.left / config.HINT_TIME)
+        assets.draw_rect_color(x + 10, y + 2, int((w - 12) * left), 4, (90, 150, 170))   # 남은 시간

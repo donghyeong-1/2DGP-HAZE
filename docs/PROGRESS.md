@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-21 [Claude Code]
 
 ## 진행 중
-- [Codex] T39 결정 기사 / 수정 중인 파일: assets/sprites/forge/knight_v1/, docs/codex/reports/T39.md
+- [Codex] T41 헤이즈 쥐 떼 / 수정 중인 파일: assets/sprites/forge/rat_v1/, docs/codex/reports/T41.md
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -229,3 +229,6 @@
 2026-11-22 [Claude Code] Codex T43 검토·적용: 보스방 지형(고철 기둥·밸브·결정 기둥·크래셔 증기 분출 자리의 배기구)을 Codex 그림으로 / src/(boss_terrain, projectile, assets), assets/props/boss/, docs/*
 2026-11-22 [Codex] T38 탑 감시 눈 마스터 1장·동작 10장 제작, 고정판 위치·예고 밝기·1배 GIF 검증(검토 대기) / assets/sprites/forge/eye_v1/, docs/codex/reports/T38.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-22 [Claude Code] v5 3주 차: 저스트 대시(슬로 모션·게이지·대시 회복), 최종 거대 보스 헤이즈 심장(아크 뒤 등장, 본체+손 둘, 내려치기·광선·결정 비·농도 파동, 페이즈별 방 변화, 임시 코드 그림), 실행 파일 다시 만듦, 테스트 16개 추가 / src/(heart, player, projectile, stage, config, ui, killers, zone_card), data/stages/stage3.py, tests/(test_heart, test_just_dash, test_sprites), docs/*
+2026-11-22 [Codex] T39 탑 결정 기사 마스터 1장과 동작 14장 제작, 걷기 발 교대·순간이동 파편·베기 예고 1배 확인(검토 대기) / assets/sprites/forge/knight_v1/, docs/codex/reports/T39.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Codex] T40 탑 헤이즈 망령 마스터 1장과 동작 10장 제작, 두 눈·꼬리 움직임·흡수 예고 1배 확인(검토 대기) / assets/sprites/forge/wraith_v1/, docs/codex/reports/T40.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-22 [Claude Code] HUD v4 전면 수정(네 귀퉁이 배치, 체력 깎인 자국, 오른쪽 아래 무기·강화 행동 칸, 미니맵 아래 칩, 얇은 보스 막대, 가운데 큰 띠 제거)·튜토리얼 카드를 왼쪽 위로 / src/(ui, tutorial), docs/(DECISIONS, PROGRESS)

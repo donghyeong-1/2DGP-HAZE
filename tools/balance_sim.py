@@ -43,6 +43,12 @@ SCENARIOS = {
     'hound': ([('hound', 800)], 30),
     'guard': ([('guard', 700)], 40),
     'group': ([('slum', 650), ('hound', 900), ('thrower', 1300), ('slum', 1100)], 60),
+    # 구역 새 적 (11/22 v5): 쥐는 무리 3마리, 눈은 벽에 붙는다, 무당은 슬럼에 보호막을 건다
+    'rat': ([('rat', 800)], 30),
+    'shaman': ([('shaman', 1000), ('slum', 700), ('thrower', 1100)], 60),
+    'eye': ([('eye', 900)], 40),
+    'knight': ([('knight', 800)], 40),
+    'wraith': ([('wraith', 800)], 40),
     'boss': ([('boss', 900)], 90),
     'ark': ([('ark', 900)], 120),
 }
@@ -77,7 +83,12 @@ def spawn(kind, x, room, player):
         from ark import Ark
         e = Ark(x, FLOOR_Y, room, player)
     else:
-        e = Enemy(kind, x, FLOOR_Y, room, player)
+        import enemy_kinds
+        y = 2 * config.TILE if kind in ('eye', 'wraith') else FLOOR_Y      # 벽·공중 적은 실제 바닥(아래 두 줄 위)에서 올린다
+        foes = enemy_kinds.make_pack(kind, x, y, room, player)             # 새 적은 자기 클래스, 쥐는 무리
+        for e in foes:
+            game_world.add_object(e, game_world.LAYER_ENEMY)
+        return foes[0]
     game_world.add_object(e, game_world.LAYER_ENEMY)
     return e
 

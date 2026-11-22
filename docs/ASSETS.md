@@ -303,3 +303,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-22: `screen_title`·`screen_death`·`screen_ending`·`credits_1`·`boss_card_crasher`·`boss_card_ark`의 캐릭터 영역만 `tools/pixelize_chars.py`로 픽셀화(자체 가공, 원본 AI 그림은 `assets/concept/bg_ai_original/`). 캐릭터 검은 테두리는 실행 중 `assets.outline_image`로 만든다.
 - 2026-11-22: Codex T44(내장 image_gen, 모델명 미제공) 결과를 `assets/ui/mut_*.png`(변이 문양 4), `card_frame_*.png`(카드 테두리 3), `reward_*.png`(방 보상 아이콘 6)으로 그대로 복사. AI 생성물.
 2026-11-22 [Claude Code] T48 적용: `assets/backgrounds/fg_cell.png`·`fg_foundry.png`·`fg_haze.png` (Codex T48 foreground_v1 복사, 출처·라이선스는 위 T48 항목과 같음). `Room.draw_foreground`로 UI 아래에 시차 1.35배로 이어 붙여 그린다. 설정 옵션은 만들지 않았다(전투 높이가 비어 있어 가려지지 않음).
+- 2026-11-22: Codex T38~T42(내장 image_gen, 모델명 미제공, Hibit 마감) 결과를 `assets/sprites/unified/enemy_(eye|knight|wraith|rat|shaman)_*.png`(59장)로 그대로 복사. AI 생성물. 출처·프롬프트는 `assets/sprites/forge/<이름>_v1/provenance.json`.

@@ -78,7 +78,8 @@ def test_start_room_is_safe_and_offers_two_ways():
 def test_combat_room_locks_until_cleared_then_opens():
     stage, p = make_stage()
     go(stage, p, 'R')
-    assert stage.coord == (1, 0) and stage.room.locked and stage.enemy_count() == 6
+    assert stage.coord == (1, 0) and stage.room.locked and stage.enemy_count() == sum(
+        config.PACK_SIZE.get(k, 1) for k in stage.layout[(1, 0)]['enemies'])      # 쥐 떼는 한 칸에 여러 마리
     assert stage.room.tile_at(stage.room.cols - 1, stage.room.nrows - 3) == '#'   # 잠긴 문은 벽이다
     notices = []
     stage.on_clear = lambda s: notices.append(s.coord)

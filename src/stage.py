@@ -376,11 +376,11 @@ class Stage:
             else:
                 kind = swap.get(kind, kind)
             import enemy_kinds
-            enemy = enemy_kinds.make(kind, x, y, self.room, self.player)     # 드론·수레는 자기 클래스 (11/22)
-            mod = roll_elite(rng, self.name)
-            if mod:
-                enemy.make_elite(mod)
-            game_world.add_object(enemy, game_world.LAYER_ENEMY)
+            for i, enemy in enumerate(enemy_kinds.make_pack(kind, x, y, self.room, self.player)):   # 드론·수레·새 적은 자기 클래스, 쥐는 무리 (11/22)
+                mod = roll_elite(rng, self.name) if i == 0 else None
+                if mod:
+                    enemy.make_elite(mod)
+                game_world.add_object(enemy, game_world.LAYER_ENEMY)
 
     def _spawn_pedestals(self, coord, kind):
         saved = self.state.setdefault(coord, {})

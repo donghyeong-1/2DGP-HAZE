@@ -293,6 +293,32 @@ ENEMY_STATS = {
                  windup=0.8, attack_time=0.05, cooldown=1.0, gain_on_hit=6, sprite='enemy_cart_idle', leap=0.0,
                  moves=[('arm', 1)], walk_px=26.0, blast_r=170, blast_enemy=60, return_speed=820.0,
                  frames=dict(walk='enemy_cart_roll', attack='enemy_cart_arm', hurt='enemy_cart_hurt')),
+
+    # 구역 새 적 (11/22 v5, src/enemy_kinds.py, Codex T38~T42). 감시 눈·결정 기사·헤이즈 망령은 탑(스테이지 3), 쥐 떼·무당은 슬럼(스테이지 1)
+    # 감시 눈: 벽에 붙은 포탑. 예고(렌즈가 밝아짐, 조준선) -> 레이저가 바닥을 훑는다(sweep rad). attack_range는 보이는 거리
+    'eye': dict(hp=40, hb=(96, 96), speed=0.0, sight=1100, sight_dy=800, attack_range=1000, reach_dy=800, damage=12,
+                windup=1.0, attack_time=0.7, cooldown=2.6, gain_on_hit=0, sprite='enemy_eye_idle', leap=0.0,
+                moves=[('laser', 1)], beam_w=34, sweep=0.5),
+    # 결정 기사: 걷다가 멀면 사라졌다 플레이어 옆에 나타나 벤다(blink_min~blink_max px 떨어져 있을 때, blink_cd 초마다). 가까우면 그냥 벤다
+    'knight': dict(hp=110, hb=(52, 120), speed=140.0, sight=900, sight_dy=300, attack_range=150, reach_dy=160, damage=16,
+                   windup=0.5, attack_time=0.3, cooldown=1.6, gain_on_hit=0, sprite='enemy_knight_idle', leap=0.0,
+                   moves=[('slash', 1), ('blink', 1)], patrol=60, walk_px=44.0, blink_min=300, blink_max=900, blink_cd=4.0,
+                   frames=dict(walk='enemy_knight_walk', attack='enemy_knight_slash', hurt='enemy_knight_hurt')),
+    # 헤이즈 망령: 벽을 통과해 천천히 다가와 팔을 뻗어 빨아들인다(맞으면 게이지 gain_on_hit만큼 더 줄어든다). 맞으면 오래 흐트러진다
+    'wraith': dict(hp=60, hb=(64, 100), speed=110.0, sight=1000, sight_dy=700, attack_range=140, reach_dy=700, damage=6,
+                   windup=0.7, attack_time=0.3, cooldown=2.2, gain_on_hit=-8, sprite='enemy_wraith_idle', leap=0.0,
+                   moves=[('grab', 1)], hover_side=110, stun=0.45),
+    # 헤이즈 쥐: 작고 빠르고 한 대에 죽는다. 무리(PACK_SIZE마리)로 나온다. 사냥개처럼 물거나 덮친다
+    'rat': dict(hp=18, hb=(64, 36), speed=340.0, sight=900, sight_dy=300, attack_range=70, reach_dy=80, damage=5,
+                windup=0.25, attack_time=0.1, cooldown=0.8, gain_on_hit=0, sprite='enemy_rat_idle', leap=1250.0,
+                moves=[('bite', 2), ('pounce', 3)], speed_jitter=(0.9, 1.2), retreat=0.3, patrol=120, walk_px=48.0,
+                frames=dict(walk='enemy_rat_run', attack='enemy_rat_bite', pounce='enemy_rat_bite', hurt='enemy_rat_hurt')),
+    # 누더기 무당: 뒤에서 거리를 두고(keep_away~approach) 보호막 없는 다른 적에게 보호막(shield_hp)을 건다. 직접 공격은 없다
+    'shaman': dict(hp=45, hb=(46, 112), speed=105.0, sight=900, sight_dy=400, attack_range=650, reach_dy=300, damage=0,
+                   windup=0.7, attack_time=0.1, cooldown=3.0, gain_on_hit=0, sprite='enemy_shaman_idle', leap=0.0,
+                   moves=[('cast', 1)], keep_away=320, approach=520, back_speed=0.9, shield_hp=40, shield_range=650,
+                   patrol=60, walk_px=40.0,
+                   frames=dict(walk='enemy_shaman_walk', attack='enemy_shaman_cast', hurt='enemy_shaman_hurt')),
 }
 # 적 동작 프레임 세트: 접두어 -> (프레임 수, 발 기준점 x, 발 기준점 y). 파일은 assets/sprites/unified/<접두어>_<번호>.png
 ENEMY_FRAMES = {'enemy_slum_walk': (4, 43, 118), 'enemy_slum_attack': (3, 35, 119), 'enemy_slum_hurt': (1, 39, 118),
@@ -369,7 +395,7 @@ _PART = dict(speed=0.0, sight=0, sight_dy=0, attack_range=0, reach_dy=0, damage=
              code_drawn=True)   # 그림 파일 없이 코드로 그린다 (Codex T45·T46 전)
 ENEMY_STATS['heart'] = dict(_PART, hp=HEART['hp'], hb=(360, 300))
 ENEMY_STATS['heart_hand'] = dict(_PART, hp=HEART['hand_hp'], hb=(150, 110))
-SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'drone': 2, 'cart': 2, 'crasher': 10, 'ark': 20}
+SHARDS_PER_KILL = {'slum': 1, 'thrower': 2, 'hound': 1, 'guard': 3, 'drone': 2, 'cart': 2, 'eye': 2, 'knight': 4, 'wraith': 3, 'rat': 1, 'shaman': 3, 'crasher': 10, 'ark': 20}
 # 정예 적 (11/21 퀄리티 계획 2-4): 일반 적에 수식어. 색 테두리와 이름으로 표시, 조각 2배
 ELITE_MODS = {
     'swift': dict(name='질주', color=(90, 235, 220), speed=1.35, windup=0.8),
@@ -413,7 +439,8 @@ ENEMY_HIT_FLASH = 0.10       # 맞았을 때 붉게 번쩍이는 시간(초)
 ENEMY_KNOCKBACK = 260.0      # 맞았을 때 밀려나는 속도(px/s). 실제로는 x 공격 크기(KNOCK_*) / 적 무게(ENEMY_WEIGHT)
 # 손맛 (11/21 퀄리티 계획 1-5): 맞은 순간 흰 번쩍임 -> 붉게, 무게·공격 크기에 따른 밀림, 방 마지막 적에서 슬로 모션
 ENEMY_WHITE_FLASH = 0.05     # 맞은 뒤 처음 이만큼은 하얗게 번쩍인다 (ENEMY_HIT_FLASH 안에서)
-ENEMY_WEIGHT = {'hound': 0.7, 'slum': 1.0, 'thrower': 1.0, 'guard': 1.8, 'drone': 0.8, 'cart': 1.2}   # 클수록 덜 밀린다
+ENEMY_WEIGHT = {'hound': 0.7, 'slum': 1.0, 'thrower': 1.0, 'guard': 1.8, 'drone': 0.8, 'cart': 1.2,
+                'eye': 99.0, 'knight': 1.2, 'wraith': 0.6, 'rat': 0.6, 'shaman': 1.0}   # 클수록 덜 밀린다
 KNOCK_BIG = 1.8              # 큰 공격(3타·강화·궁극기 마지막 등 big=True)의 밀림 배율
 SLOW_CLEAR = (0.45, 0.35)    # 방의 마지막 적을 쓰러뜨렸을 때 슬로 모션 (실제 시간 초, 시간 배율)
 SLOW_BOSS = (1.1, 0.25)      # 보스를 쓰러뜨렸을 때
@@ -424,7 +451,8 @@ CORPSE_FADE = 0.35            # 흩어지며 사라지는 시간
 HINT_TIME = 6.0               # 처음 안내판을 보여 주는 시간(초) (11/21 계획 2-5, src/tutorial.py)
 AMB_GAP = (3.0, 8.0)          # 환경음 사이 간격(초, 무작위) (11/21 계획 2-3, src/ambience.py)
 ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound': 'windup_hound', 'guard': 'windup_guard',
-                      'drone': 'windup_drone', 'cart': 'windup_cart'}
+                      'drone': 'windup_drone', 'cart': 'windup_cart', 'eye': 'windup_drone', 'knight': 'windup_guard',
+                      'wraith': 'windup_slum', 'rat': 'windup_hound'}
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
 # 표에 없는 소리는 1.0
 SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
@@ -438,7 +466,9 @@ SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swin
 # 적 테두리·강한 공격 예고 (11/22 v5): 모든 적에 얇은 옅은 테두리(정예는 자기 색), 강한 기술은 예고 동안 머리 위 '!',
 # 돌진 기술은 바닥에 가는 방향 표시
 ENEMY_OUTLINE = (150, 165, 200)
-STRONG_MOVES = ('heavy', 'bash', 'lunge', 'pounce', 'combo', 'volley', 'torch', 'arm')
+SHIELD_COLOR = (120, 220, 255)     # 무당의 보호막 테두리 색 (11/22 v5)
+PACK_SIZE = {'rat': 3}              # 한 스폰 칸에 이만큼 무리로 나오는 적 (11/22 v5)
+STRONG_MOVES = ('heavy', 'bash', 'lunge', 'pounce', 'combo', 'volley', 'torch', 'arm', 'laser', 'grab')
 RUSH_MOVES = {'lunge': 300, 'pounce': 340, 'bash': 380}     # 기술 -> 바닥 표시 길이(px)
 # 자주 나는 소리: 3버전(<이름>, _v2, _v3)을 돌려 쓴다 (2026-11-22, tools/make_sfx.py가 음 높이·잡음을 조금 바꿔 만든다)
 SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')

@@ -42,6 +42,18 @@ FRAMES = {
     'enemy_drone_hurt': (2, 73, 97), 'enemy_drone_wreck': (2, 73, 97),
     'enemy_cart_roll': (4, 76, 104), 'enemy_cart_arm': (3, 76, 104), 'enemy_cart_hurt': (2, 76, 104),
     'enemy_cart_wreck': (2, 76, 104),
+    # 탑·슬럼 새 적 (Codex T38~T42, 11/22). 눈: 캔버스 150x140, 몸통 중심 (78,70)을 히트박스(높이 96) 가운데에 맞춰 y=118.
+    # 기사: 250x176, 골반 x 바닥 (107,155). 망령: 192x156, 몸통 (82,63)을 히트박스(높이 100) 가운데에 맞춰 y=113.
+    # 쥐: 124x68, (68,53). 무당: 192x188, (73,162)
+    'enemy_eye_idle': (2, 78, 118), 'enemy_eye_charge': (3, 78, 118), 'enemy_eye_fire': (1, 78, 118),
+    'enemy_eye_hurt': (2, 78, 118), 'enemy_eye_death': (2, 78, 118),
+    'enemy_knight_idle': (2, 107, 155), 'enemy_knight_walk': (4, 107, 155), 'enemy_knight_vanish': (2, 107, 155),
+    'enemy_knight_appear': (2, 107, 155), 'enemy_knight_slash': (3, 107, 155), 'enemy_knight_hurt': (1, 107, 155),
+    'enemy_wraith_float': (4, 82, 113), 'enemy_wraith_grab': (3, 82, 113), 'enemy_wraith_hurt': (1, 82, 113),
+    'enemy_wraith_death': (2, 82, 113),
+    'enemy_rat_run': (4, 68, 53), 'enemy_rat_bite': (2, 68, 53), 'enemy_rat_hurt': (1, 68, 53), 'enemy_rat_death': (2, 68, 53),
+    'enemy_shaman_idle': (2, 73, 162), 'enemy_shaman_walk': (4, 73, 162), 'enemy_shaman_cast': (3, 73, 162),
+    'enemy_shaman_hurt': (2, 73, 162),
     # 보스 크래셔
     'boss_crasher_idle': (2, 96, 205), 'boss_crasher_smash': (3, 94, 246), 'boss_crasher_charge': (2, 100, 174),
     'boss_crasher_leap': (3, 114, 210), 'boss_crasher_hurt': (1, 96, 196),
@@ -57,7 +69,7 @@ FRAMES = {
 }
 # 그림 안에서 발이 캔버스 바닥보다 떠 있게 그려진 프레임의 뜬 높이(px).
 # 몸이 이미 공중에 있으므로 그림에서 또 띄우지 않도록 그만큼 기준점을 올려 잡는다.
-LIFT = {('boss_crasher_leap', 2): 41}
+LIFT = {('boss_crasher_leap', 2): 41, ('enemy_rat_bite', 2): 5}
 STILL_FOOT_MARGIN = 1          # 정지 그림(번호 0)의 발 아래 투명 여백(px)
 
 # 프레임마다 그리는 위치를 조금 옮기는 보정 (dx: 앞쪽 +, dy: 위쪽 +), 단위 px.

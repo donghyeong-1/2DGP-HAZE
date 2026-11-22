@@ -14,6 +14,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'src'))
 
+import config  # noqa: E402
 import game_world  # noqa: E402
 import stage as stage_mod  # noqa: E402
 from player import Player  # noqa: E402
@@ -66,7 +67,9 @@ def test_variant_room_keeps_the_same_enemies():
                 continue
             st.enter_room(coord, 'L')
             got = kinds_in_world()
-            want = collections.Counter(st.original_kinds(info))
+            want = collections.Counter()
+            for k in st.original_kinds(info):                  # 쥐는 스폰 칸 하나에 무리(PACK_SIZE)로 나온다
+                want[k] += config.PACK_SIZE.get(k, 1)
             assert got == want, (seed, coord, st.template_of(coord), got, want)
             found += 1
         if found >= 6:

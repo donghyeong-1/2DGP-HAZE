@@ -4,7 +4,8 @@ take_hit(..., source=무엇)으로 넘어온 것을 사람이 읽는 이름으�
 가시. 게이지가 바닥나거나 오버로드로 쓰러지면 그 이유(GAUGE_EMPTY, OVERLOAD)를 쓴다.
 """
 ENEMY_NAMES = {'slum': '슬럼 폐인', 'thrower': '고철 투척병', 'hound': '사냥개', 'guard': '간수',
-               'drone': '용접 드론', 'cart': '자폭 수레', 'heart': '헤이즈 심장', 'heart_hand': '헤이즈 심장의 손',
+               'drone': '용접 드론', 'cart': '자폭 수레', 'eye': '감시 눈', 'knight': '결정 기사',
+               'wraith': '헤이즈 망령', 'rat': '헤이즈 쥐', 'shaman': '누더기 무당', 'heart': '헤이즈 심장', 'heart_hand': '헤이즈 심장의 손',
                'crasher': '크래셔', 'ark': '총감시관 아크'}
 PROJECTILE_NAMES = {'Scrap': '투척병의 고철', 'Lob': '투척병의 포물선 고철', 'Shockwave': '크래셔의 충격파',
                     'Debris': '떨어지는 고철', 'SteamVent': '크래셔의 증기', 'HazeBullet': '아크의 헤이즈 탄',

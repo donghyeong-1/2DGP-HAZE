@@ -62,6 +62,7 @@ class Enemy(TileBody):
         self.flash = 0.0           # 맞은 뒤 붉게 번쩍이는 남은 시간
         self.elite = None          # 정예 수식어 (swift / tough / volatile) 또는 None
         self.weight_mult = 1.0     # 정예 강철: 덜 밀린다
+        self.shield = 0.0          # 무당이 건 보호막: 이만큼의 피해를 대신 받는다 (깨지면 0)
         self.attack_time = 0.0     # ATTACK 상태에 들어온 뒤 지난 시간
         self.struck = False        # 이번 공격의 (첫) 타격을 이미 냈는가
         self.hits_done = 0         # 이번 공격에서 낸 타격 수 (두 번 치기·연달아 던지기)
@@ -154,6 +155,16 @@ class Enemy(TileBody):
         """피해를 받는다. 죽었으면 True. knock은 밀림 배율(큰 공격일수록 크다)."""
         if not self.alive:
             return False
+        if self.shield > 0 and damage > 0:                # 보호막이 먼저 받는다 (넘친 피해만 몸에 들어간다)
+            absorbed = min(self.shield, damage)
+            self.shield -= absorbed
+            damage -= absorbed
+            if self.shield <= 0:
+                self.shield = 0.0
+                effects.spawn('puff', self.x, self.y + self.hb_h / 2, duration=0.3)
+            if damage <= 0:
+                assets.play_sound('enemy_hit')
+                return False
         self.hp -= damage
         self.flash = config.ENEMY_HIT_FLASH
         import drama
@@ -629,6 +640,8 @@ class Enemy(TileBody):
             name = self.stats['sprite']
         if self.elite:                                    # 정예: 수식어 색 테두리 (그림 뒤에 색을 더해 네 방향으로)
             sprites.draw_glow(name, n, self.x + dx, self.y + dy, self.face_dir, self.elite_color())
+        elif self.shield > 0:                             # 무당의 보호막: 하늘색 테두리 (깜빡이다 깨진다)
+            sprites.draw_glow(name, n, self.x + dx, self.y + dy, self.face_dir, config.SHIELD_COLOR, width=3, alpha=0.9)
         else:                                             # 모든 적: 얇은 옅은 테두리 (11/22)
             sprites.draw_glow(name, n, self.x + dx, self.y + dy, self.face_dir, config.ENEMY_OUTLINE, width=2, alpha=0.55)
         self._draw_telegraph()

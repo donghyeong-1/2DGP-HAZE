@@ -31,7 +31,7 @@ OUT = os.path.join(ROOT, 'assets', 'effects')
 INK = (11, 16, 32)
 BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0 - 0.5
 FLAT = True                                # v7 (2026-11-23): 점묘·어두운 외곽선 없이 깔끔한 단색 면 (INARI 참고)
-CUTS = (0.70, 0.46, 0.22, 0.05)          # 열 -> 색 4단계 (흰 코어, 밝음, 중간, 짙음)
+CUTS = (0.46, 0.30, 0.16, 0.05)          # 열 -> 색 4단계 (흰 코어, 밝음, 중간, 짙음). v7: 흰 코어를 넓게 (예전 0.70, 0.46, 0.22)
 
 
 def rgb(h):
@@ -44,12 +44,12 @@ def ramp(*cols):
 
 
 WARM = ramp('#ffffff', '#fff1a6', '#ffb347', '#d0602a')
-TEAL = ramp('#ffffff', '#b8fff0', '#3fd6a4', '#1f8a78')
+TEAL = ramp('#ffffff', '#e8fff4', '#33e39e', '#0d6b55')   # v7 A안
 FIRE = ramp('#fff4d6', '#ffc457', '#ff6a2e', '#a3262a')
 VIOLET = ramp('#ffffff', '#e6ccff', '#a46bff', '#5a2fb8')
 DIM = ramp('#d9b4c4', '#a8657f', '#7a3a52', '#4a2238')
 SMOKE = ramp('#dfe6f2', '#a9b6cc', '#6f7d99', '#454f68')
-HAZE = ramp('#ffffff', '#b9f6ff', '#4fc8e6', '#2a6f9e')
+HAZE = ramp('#ffffff', '#e6fffb', '#2ee6d6', '#0b6a74')   # v7 A안: 흰 주 + 고대비 청록
 QUAKE = ramp('#fff6d8', '#ffd27a', '#e8843a', '#8a4a2a')
 
 

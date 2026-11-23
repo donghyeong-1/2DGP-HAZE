@@ -47,9 +47,9 @@ def ramp(*cols):
     return [hexrgb(c) for c in cols]
 
 
-BLUE = ramp("#ffffff", "#cdf0ff", "#78d2eb", "#3c8cb4")
+BLUE = ramp("#ffffff", "#e6fffb", "#2ee6d6", "#0b6a74")      # v7 A안: 흰 주 + 고대비 청록 (예전 파스텔 #cdf0ff·#78d2eb·#3c8cb4)
 DIM = ramp("#d9b4c4", "#a8657f", "#7a3a52", "#4a2238")
-TEAL = ramp("#f4fff9", "#a2f7d2", "#3fd6a4", "#1f8a78")
+TEAL = ramp("#ffffff", "#e8fff4", "#33e39e", "#0d6b55")      # v7: 각성 (흰 주 + 초록빛 청록)
 FIRE = ramp("#fff4d6", "#ffb347", "#ff5a2e", "#a3262a")
 GOLD = ramp("#fffbe8", "#ffe08c", "#ff9a4a", "#b8502e")
 VIOLET = ramp("#ffffff", "#e6ccff", "#a46bff", "#5a2fb8")
@@ -153,6 +153,7 @@ def layer_heat(X, Y, c, cfg, layer, sa, t, kind):
     return heat
 
 
+CUTS = (0.40, 0.27, 0.14, 0.05)   # v7 A안: 흰색이 넓게 (INARI 흰+진홍처럼 흰 주, 색은 가장자리). 예전 (0.70, 0.46, 0.22, 0.05)
 DITHER = 0.0          # v7 (2026-11-23): 점묘 없이 단색 경계 (INARI처럼 깔끔하게). 예전 값 0.16
 OUTLINE = False       # v7: 어두운 외곽선 없이 빛나게. 예전 True
 
@@ -161,7 +162,7 @@ def quantize(heat, ramp_cols, bayer_tiled):
     """열 → 4톤 색 (DITHER > 0이면 베이어 디더링). 불투명 마스크와 RGB를 돌려준다."""
     th = heat + bayer_tiled * DITHER
     idx = np.full(heat.shape, -1)
-    cut = [0.70, 0.46, 0.22, 0.05]                                # 흰, 밝은, 중간, 짙은
+    cut = list(CUTS)                                              # 흰, 밝은, 중간, 짙은
     for i, cv in enumerate(cut):
         idx[(th >= cv) & (idx < 0)] = i
     idx[heat < 0] = -1

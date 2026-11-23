@@ -20,7 +20,29 @@ FAMILIES = {
                'set': '페이드 구간 이동 감속 없음'},
     'tide': {'name': '강화', 'zone': None, 'color': (215, 150, 255), 'icon': 'ui/mut_tide.png',
              'set': 'E 강화 준비 시간 +50%'},
+    # v7 무기 갈래 (docs/plan_v7.md 2절). weapon: 그 무기를 들고 있을 때 잘 나온다. set: 같은 갈래 2개면 열리는 진화
+    'pipe_combo': {'name': '연타', 'zone': None, 'weapon': 'pipe', 'color': (240, 248, 255), 'icon': 'ui/mut_bloom.png',
+                   'set': '진화: 난타 (준비 중)'},
+    'pipe_air': {'name': '공중', 'zone': None, 'weapon': 'pipe', 'color': (150, 210, 255), 'icon': 'ui/mut_hollow.png',
+                 'set': '진화: 낙뢰 내려찍기 (준비 중)'},
+    'pipe_dash': {'name': '이동 베기', 'zone': None, 'weapon': 'pipe', 'color': (120, 240, 230), 'icon': 'ui/mut_tide.png',
+                  'set': '진화: 섬광 베기 (준비 중)'},
+    'dash': {'name': '대시', 'zone': None, 'weapon': None, 'color': (190, 215, 255), 'icon': 'ui/mut_hollow.png',
+             'set': '진화: 잔영 대시 (준비 중)'},
 }
+GAUGE_FAMILIES = ('bloom', 'ember', 'hollow', 'tide')   # 공통 갈래 '게이지' (v5 변이 12종)
+COMBO_SPEED = 0.85        # 연타: 공격 쿨다운 배율 (공속 +15%)
+COMBO_THIRD = 1.3         # 3타 피해
+COMBO_REACH = 1.15        # 사거리
+AIR_POWER = 1.25          # 공중 공격 피해
+AIR_HANG = 0.18           # 공중에서 맞히면 이 시간 동안 떨어지지 않는다(초)
+DASHCUT_POWER = 1.3       # 대시 공격 피해
+DASHCUT_REFUND = 0.3      # 대시 공격이 맞으면 대시 충전이 이만큼(비율) 찬다
+DASH_IFRAME = 0.1         # 대시 무적 추가(초)
+DASHCUT_WIDE = 1.5        # 대시 공격 판정 폭 배율
+LIFT_VY = 620.0           # '띄우기': 위로 친 적이 뜨는 속도
+DASH_RECHARGE = 0.75      # 대시 충전 시간 배율
+OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0, 'other': 0.2}
 
 BLOOM_CRIT = 1.2          # 각성 구간 공격 배율
 BLOOM_GAIN = 4            # 각성 구간 처치 게이지 추가
@@ -51,6 +73,23 @@ MUTATIONS = {
     'tide_cost': {'family': 'tide', 'name': '얕은 물', 'desc': f'E 강화 비용 -{TIDE_COST}%'},
     'tide_chain': {'family': 'tide', 'name': '되밀림', 'desc': f'강화 공격으로 처치하면 게이지 +{TIDE_CHAIN}%'},
     'tide_wave': {'family': 'tide', 'name': '파문', 'desc': f'강화 타격이 주변 적에게 {round(TIDE_WAVE[1] * 100)}% 확산'},
+    # v7 철파이프 갈래 (기본 3 + 진화 1). 진화는 동작·이펙트가 준비되면 ready=True
+    'combo_speed': {'family': 'pipe_combo', 'name': '손목 풀기', 'desc': f'철파이프 공격 속도 +{round((1 / COMBO_SPEED - 1) * 100)}%'},
+    'combo_third': {'family': 'pipe_combo', 'name': '마무리', 'desc': f'3타 피해 +{round((COMBO_THIRD - 1) * 100)}%'},
+    'combo_reach': {'family': 'pipe_combo', 'name': '긴 손잡이', 'desc': f'철파이프 사거리 +{round((COMBO_REACH - 1) * 100)}%'},
+    'combo_evo': {'family': 'pipe_combo', 'tier': 'evo', 'ready': False, 'name': '난타', 'desc': '4·5타가 생기고 마지막은 회전 베기'},
+    'air_power': {'family': 'pipe_air', 'name': '낙차', 'desc': f'공중 공격 피해 +{round((AIR_POWER - 1) * 100)}%'},
+    'air_hang': {'family': 'pipe_air', 'name': '체공', 'desc': '공중에서 맞히면 잠깐 떨어지지 않는다'},
+    'air_lift': {'family': 'pipe_air', 'name': '띄우기', 'desc': '땅에서 위로 친 적이 크게 뜬다'},
+    'air_evo': {'family': 'pipe_air', 'tier': 'evo', 'ready': False, 'name': '낙뢰 내려찍기', 'desc': '내려찍기 착지에 번개 기둥과 충격파'},
+    'dashcut_power': {'family': 'pipe_dash', 'name': '돌진 베기', 'desc': f'대시 공격 피해 +{round((DASHCUT_POWER - 1) * 100)}%'},
+    'dashcut_refund': {'family': 'pipe_dash', 'name': '흐름', 'desc': f'대시 공격이 맞으면 대시 충전 {round(DASHCUT_REFUND * 100)}%'},
+    'dashcut_wide': {'family': 'pipe_dash', 'name': '넓은 궤적', 'desc': '대시 공격 판정이 두꺼워진다'},
+    'dashcut_evo': {'family': 'pipe_dash', 'tier': 'evo', 'ready': False, 'name': '섬광 베기', 'desc': '지나간 자리에 0.3초 뒤 번쩍이며 다시 벤다'},
+    'dash_extra': {'family': 'dash', 'name': '여분의 숨', 'desc': '대시 +1칸'},
+    'dash_iframe': {'family': 'dash', 'name': '미끄러짐', 'desc': f'대시 무적 +{DASH_IFRAME}초'},
+    'dash_recharge': {'family': 'dash', 'name': '가쁜 숨', 'desc': f'대시 충전 시간 -{round((1 - DASH_RECHARGE) * 100)}%'},
+    'dash_evo': {'family': 'dash', 'tier': 'evo', 'ready': False, 'name': '잔영 대시', 'desc': '대시 경로의 분신이 한 번 더 공격'},
 }
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.
@@ -87,18 +126,84 @@ def _zone(player):
     return player.gauge.zone
 
 
+def tier(mid):
+    return MUTATIONS[mid].get('tier', 'base')
+
+
+def base_count(player, family):
+    return sum(1 for m in owned(player) if MUTATIONS[m]['family'] == family and tier(m) == 'base')
+
+
+def available(player, mid):
+    """카드에 나올 수 있는가: 아직 없고, 진화는 같은 갈래 기본 2개 + 구현 완료(ready), 합성은 필요한 것 + ready."""
+    if has(player, mid):
+        return False
+    m = MUTATIONS[mid]
+    if tier(mid) == 'evo':
+        return bool(m.get('ready')) and base_count(player, m['family']) >= 2
+    if tier(mid) == 'duo':
+        return bool(m.get('ready')) and all(has(player, r) for r in m.get('requires', ()))
+    return True
+
+
+def _held_weapons(player):
+    held = {'pipe'}
+    for w in getattr(player, 'weapons', []) or []:
+        if w is not None:
+            held.add(getattr(w, 'weapon_id', None))
+    return held
+
+
+def _weight(player, mid):
+    fam = MUTATIONS[mid]['family']
+    if any(MUTATIONS[m]['family'] == fam for m in owned(player)):
+        return OFFER_WEIGHTS['owned']
+    weapon = FAMILIES[fam].get('weapon')
+    if weapon is None:
+        return OFFER_WEIGHTS['common']
+    return OFFER_WEIGHTS['held'] if weapon in _held_weapons(player) else OFFER_WEIGHTS['other']
+
+
+def _pick(player, cands, rng, taken):
+    """갈래를 무게대로 먼저 고르고, 그 갈래의 카드 하나. 이미 고른 갈래는 피한다 (없으면 같은 갈래라도).
+    (카드마다 무게를 주면 카드가 많이 남은 갈래가 유리해져, 가진 갈래가 오히려 덜 나온다)"""
+    fams_taken = {MUTATIONS[m]['family'] for m in taken}
+    left = [m for m in cands if m not in taken and MUTATIONS[m]['family'] not in fams_taken]
+    left = left or [m for m in cands if m not in taken]
+    if not left:
+        return None
+    by_fam = {}
+    for m in left:
+        by_fam.setdefault(MUTATIONS[m]['family'], []).append(m)
+    fams = sorted(by_fam)
+    weights = [_weight(player, by_fam[f][0]) for f in fams]
+    r = rng.random() * sum(weights)
+    for f, w in zip(fams, weights):
+        r -= w
+        if r <= 0:
+            return rng.choice(by_fam[f])
+    return rng.choice(by_fam[fams[-1]])
+
+
 def offer(player, rng, n=3):
-    """가지지 않은 변이 n개. 먼저 서로 다른 계열에서 하나씩 뽑고, 모자라면 남은 것에서 채운다."""
-    left = [m for m in MUTATIONS if not has(player, m)]
-    rng.shuffle(left)
-    out, fams = [], set()
-    for m in left:
-        if MUTATIONS[m]['family'] not in fams and len(out) < n:
-            out.append(m)
-            fams.add(MUTATIONS[m]['family'])
-    for m in left:
-        if m not in out and len(out) < n:
-            out.append(m)
+    """카드 n장 (v7 증강 v2). 진화·합성이 열려 있으면 한 장을 먼저 차지한다. 나머지는 갈래 무게로 뽑되
+    서로 다른 갈래에서, 그리고 셋 중 하나는 아직 가지지 않은 갈래에서 (빌드를 바꿀 여지)."""
+    pool = [m for m in MUTATIONS if available(player, m)]
+    out = []
+    special = [m for m in pool if tier(m) != 'base']
+    if special:
+        out.append(rng.choice(special))
+    base = [m for m in pool if tier(m) == 'base']
+    owned_fams = {MUTATIONS[m]['family'] for m in owned(player)}
+    fresh = [m for m in base if MUTATIONS[m]['family'] not in owned_fams]
+    if fresh and not any(MUTATIONS[m]['family'] not in owned_fams for m in out):
+        out.append(_pick(player, fresh, rng, out))
+    while len(out) < n:
+        m = _pick(player, base, rng, out)
+        if m is None:
+            break
+        out.append(m)
+    rng.shuffle(out)
     return out
 
 
@@ -116,6 +221,11 @@ def give(player, mid):
         g.cost_cut += TIDE_COST
     elif mid == 'hollow_floor':
         g.rescue = _rescue
+    elif mid == 'dash_extra':
+        player.dash_max += 1
+        player.dash_slots = min(player.dash_max, player.dash_slots + 1)
+    elif mid == 'dash_recharge':
+        player.dash_recharge *= DASH_RECHARGE
     if synergy(player, 'ember') and _ember_filter not in g.filters:
         g.filters.append(_ember_filter)
     if synergy(player, 'tide'):
@@ -137,6 +247,43 @@ def _ember_filter(gauge, delta):
 
 
 # ----- 효과 (player·weapon이 부른다) -----
+def attack_speed_mult(player):
+    """철파이프 공격 쿨다운 배율 (연타 '손목 풀기')."""
+    return COMBO_SPEED if has(player, 'combo_speed') else 1.0
+
+
+def reach_mult(player):
+    return COMBO_REACH if has(player, 'combo_reach') else 1.0
+
+
+def pipe_damage_mult(player, finisher=False, air=False, dash=False):
+    """철파이프 갈래 피해 배율: 3타 '마무리', 공중 '낙차', 대시 공격 '돌진 베기'."""
+    k = 1.0
+    if finisher and has(player, 'combo_third'):
+        k *= COMBO_THIRD
+    if air and has(player, 'air_power'):
+        k *= AIR_POWER
+    if dash and has(player, 'dashcut_power'):
+        k *= DASHCUT_POWER
+    return k
+
+
+def dash_invuln_extra(player):
+    return DASH_IFRAME if has(player, 'dash_iframe') else 0.0
+
+
+def on_air_hit(player):
+    """공중에서 맞혔다: '체공'이면 잠깐 떨어지지 않는다."""
+    if has(player, 'air_hang') and not player.on_ground:
+        player.vy = max(player.vy, 0.0)
+        player.hang_left = AIR_HANG
+
+
+def on_dash_strike_hit(player):
+    """대시 공격이 맞았다: '흐름'이면 대시 충전이 찬다."""
+    if has(player, 'dashcut_refund') and player.dash_slots < player.dash_max:
+        player.dash_charge += player.dash_recharge * DASHCUT_REFUND
+
 def damage_mult(player):
     return BLOOM_CRIT if has(player, 'bloom_crit') and _zone(player) == 'AWAKE' else 1.0
 

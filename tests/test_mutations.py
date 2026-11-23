@@ -30,13 +30,14 @@ def world(gauge=40.0):
 
 
 # ----- 목록 -----
-def test_twelve_mutations_in_four_families():
-    assert len(mu.MUTATIONS) == 12
-    fams = [m['family'] for m in mu.MUTATIONS.values()]
-    assert set(fams) == set(mu.FAMILIES) and len(mu.FAMILIES) == 4
-    assert all(fams.count(f) == 3 for f in mu.FAMILIES)
+def test_twelve_gauge_mutations_in_four_families():
+    """v7: 게이지 갈래(각성·위험·페이드·강화)는 지금처럼 12종 4계열. 무기·대시 갈래는 test_augments.py."""
+    gauge = [m for m in mu.MUTATIONS.values() if m['family'] in mu.GAUGE_FAMILIES]
+    assert len(gauge) == 12 and len(mu.GAUGE_FAMILIES) == 4
+    fams = [m['family'] for m in gauge]
+    assert all(fams.count(f) == 3 for f in mu.GAUGE_FAMILIES)
     assert all(m['name'] and m['desc'] for m in mu.MUTATIONS.values())
-    assert all(f['set'] for f in mu.FAMILIES.values())          # 계열마다 시너지 설명
+    assert all(f['set'] for f in mu.FAMILIES.values())          # 갈래마다 시너지·진화 설명
 
 
 def test_offer_three_distinct_unowned_and_seeded():

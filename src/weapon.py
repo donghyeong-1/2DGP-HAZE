@@ -238,7 +238,9 @@ class Pipe:
         return self.owner.gauge.zone in ('FADE', 'DEAD')
 
     def _reach(self):
-        return config.FADE_REACH if self._weak() else 1.0
+        import mutations
+        base = config.FADE_REACH if self._weak() else 1.0
+        return base * (mutations.reach_mult(self.owner) if getattr(self, 'weapon_id', 'pipe') == 'pipe' else 1.0)   # v7 연타 '긴 손잡이'
 
     def _special(self, mult):
         """대시·점프·내려찍기의 추가 피해 배율. 페이드에서는 기본 공격과 같은 1.0."""
@@ -287,15 +289,22 @@ class Pipe:
         self.combo = self.combo % 3 + 1
         finisher = self.combo == 3
         p.set_swing_style(self.combo, ax)                # 1타·2타·3타마다 자세 시간과 내딛기가 다르다
-        self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[self.combo - 1]
+        import mutations
+        self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[self.combo - 1] * mutations.attack_speed_mult(p)   # v7 '손목 풀기'
         self.combo_left = self.cooldown + config.PIPE_COMBO_WINDOW
         effects.spawn(effects.slash_sheet(p.gauge.zone, finisher), cx, cy, flip=flip, duration=0.22, variant=variant)
-        damage = self._damage(config.PIPE_FINISHER_MULT if finisher else 1.0)
+        damage = self._damage(config.PIPE_FINISHER_MULT if finisher else 1.0) * mutations.pipe_damage_mult(
+            p, finisher=finisher, air=not p.on_ground)                                    # v7 '마무리'·'낙차'
         gain = config.PIPE_FINISHER_GAIN if finisher else config.GAIN_HIT
+        lift = p.on_ground and p.swing_dir in ('up', 'upfwd') and mutations.has(p, 'air_lift')
         color = config.DAMAGE_COLOR_FINISHER if finisher else None
         for enemy in self._targets(lambda e: self._in_arc(e, cx, cy, ax, ay, scale=self._reach())):
             self._hit(enemy, damage, gain, fx, big=finisher, color=color,
                       shake=config.SHAKE_FINISHER / config.SHAKE_HIT if finisher else 1.0, stop=2 if finisher else 1)
+            if lift and getattr(enemy, 'alive', False) and not getattr(enemy, 'BOSS', False):
+                enemy.vy = max(getattr(enemy, 'vy', 0.0), mutations.LIFT_VY)         # v7 '띄우기'
+            if not p.on_ground:
+                mutations.on_air_hit(p)                                              # v7 '체공'
 
     # ----- 철파이프 2단계: 올려베기 -> 내려찍기 (11/20) -----
     def _stage2_rise(self, ax, ay):
@@ -391,9 +400,13 @@ class Pipe:
             return
         dx, dy = (x1 - x0) / length, (y1 - y0) / length
         fx = self._fx(enhanced)
+        import mutations
         half = (self._enh('half') if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
+        if mutations.has(self.owner, 'dashcut_wide'):
+            half *= mutations.DASHCUT_WIDE                                       # v7 '넓은 궤적'
         effects.spawn_path_slash(x0, y0, x1, y1, enhanced)
         damage = self._damage(self._enh('damage') if enhanced else self._special(config.DASH_STRIKE_MULT))
+        damage *= mutations.pipe_damage_mult(self.owner, dash=True)               # v7 '돌진 베기'
         for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
             if not enemy.alive or not self._segment_hit(enemy, x0, y0, dx, dy, length, half):
                 continue
@@ -403,6 +416,7 @@ class Pipe:
                 continue
             self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
                       shake=1.8 if enhanced else 1.2, blast=enhanced)
+            mutations.on_dash_strike_hit(self.owner)                                  # v7 '흐름'
         if enhanced:
             effects.add_trauma(config.SHAKE_FINISHER)
         self._finish(enhanced)

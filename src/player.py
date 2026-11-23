@@ -122,7 +122,8 @@ class Dash(_State):
         p.dash_slots -= 1
         assets.play_sound('dash')
         p.dash_left = config.DASH_TIME
-        p.invuln_left = config.DASH_INVULN
+        import mutations
+        p.invuln_left = config.DASH_INVULN + mutations.dash_invuln_extra(p)   # v7 '미끄러짐'
         p.dash_age = 0.0                 # 저스트 대시 판정 (대시를 시작하고 지난 시간)
         p.just_used = False
         ax, ay = p.aim_vector()
@@ -253,6 +254,7 @@ class Player(TileBody):
         self.knock_vx = 0.0          # 피격 넉백 속도 (Hit 상태가 쓴다)
         self.potions = config.POTION_START   # v7 물약 (Q)
         self.potion_cool = 0.0
+        self.hang_left = 0.0         # v7 증강 '체공' 남은 시간
         self.steady_left = 0.0           # 이 시간 동안의 무적은 깜빡이지 않는다 (궁극기 시전: 몸이 보여야 한다)
 
         self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
@@ -640,7 +642,8 @@ class Player(TileBody):
         state = self.states[self.state]
         state.do(dt)
         self._apply_swing_motion(dt)
-        if state.gravity:
+        self.hang_left = max(0.0, self.hang_left - dt)
+        if state.gravity and self.hang_left <= 0:                    # v7 '체공': 공중에서 맞힌 직후 잠깐 떨어지지 않는다
             self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self.move_with_tiles(dt)
         self._check_spikes()

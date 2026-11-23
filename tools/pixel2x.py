@@ -24,7 +24,11 @@ K = 2
 # (경로, 방식) 'mean': 칸 평균을 원본 팔레트의 가장 가까운 색에 붙인다 (잔무늬가 많은 타일: 노이즈 없이 큰 색 덩어리)
 #              'pick': 칸 평균에 가장 가까운 원본 픽셀 하나 (작은 소품: 윤곽·포인트 색이 살아남는다)
 TARGETS = [('tiles/*.png', 'mean'), ('decor/*.png', 'pick'), ('props/*.png', 'pick'), ('props/boss/*.png', 'pick'),
-           ('backgrounds/fg_*.png', 'pick')]
+           ('backgrounds/fg_*.png', 'pick'),
+           # 2차: 새로 만들기 전까지 기존 캐릭터도 같은 굵기로 (hero6_*는 이미 2배라 제외)
+           ('sprites/unified/n09*.png', 'pick'), ('sprites/unified/enemy_*.png', 'pick'),
+           ('sprites/unified/boss_*.png', 'pick'), ('sprites/unified/heart_*.png', 'pick'),
+           ('sprites/unified/npc_*.png', 'pick'), ('sprites/unified/proj_*.png', 'pick')]
 
 
 def to_2x(a):

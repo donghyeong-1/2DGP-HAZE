@@ -3,7 +3,10 @@
 마지막 갱신: 2026-11-23 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Codex] T49 v6 구역 원경·중경 6장 / 수정 중인 파일: `assets/sprites/forge/backdrops_v6/`, `docs/codex/reports/T49.md`
+- [Gemini] G02 보스 3종 새 디자인 / 수정 중인 파일: assets/sprites/gemini/boss_designs_v1/, docs/gemini/reports/G02.md
+- [Gemini] G03 일반 적 6종 새 디자인 / 수정 중인 파일: assets/sprites/gemini/enemy_designs_v1/, docs/gemini/reports/G03.md
+- [Gemini] G04 대화 초상화 (주인공 + NPC 3) / 수정 중인 파일: assets/sprites/gemini/portraits_v1/, docs/gemini/reports/G04.md
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -266,3 +269,4 @@
 2026-11-23 [Claude Code] 새 주인공 동작 13세트 게임 적용(대기·달리기·출발/멈춤·점프·대시·휘두르기 3종·2단계 강화·낙하 공격·피격·사망), 흰 궤적 자동 제거, 남은 것: 식칼·건틀릿·사슬 자세·맨손·궁극기는 기존 그림 / tools/apply_pixellab_hero.py, src/sprites.py, assets/sprites/unified/hero6*, tests/test_sprites.py
 2026-11-23 [Claude Code] 입력 그림 충실도 시험 검토(대기는 pixminimax, 크게 움직이는 동작은 skeleton v3), 눈 복원(기준 그림의 청록 눈을 머리 기준 같은 자리에) / tools/apply_pixellab_hero.py
 2026-11-23 [Claude Code] v6 작업 나누기: Gemini G02(보스 3종)·G03(적 6종)·G04(초상화) 작성, Codex T49(구역 배경 960x540 픽셀) 작성, 적 6종 확정(등장 횟수 기준) / docs/gemini/, docs/codex/(TASKS.md, tasks/T49_zone_backdrops_v6.md), docs/(plan_v6, DECISIONS, PROGRESS).md
+2026-11-23 [Claude Code] 화면 규격 전환 1차: 타일·소품·전경 87장을 2배 픽셀로(원본 보관, 세 구역 실제 창 확인) / tools/pixel2x.py, assets/(tiles, decor, props, backgrounds/fg_*), assets/concept/pixel1x_original/

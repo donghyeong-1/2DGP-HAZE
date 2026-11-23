@@ -81,6 +81,13 @@ def pickup():
     return np.concatenate([first * envelope(s / 2, release=0.5), second * envelope(s / 2, release=0.9)])
 
 
+def absorb(freq):
+    """v7 흡수 알갱이가 몸에 닿는 소리: 짧고 맑은 '팅' (연달아 닿을수록 높은 음, absorb_1~5)."""
+    s = 0.07
+    tone = triangle(np.full(int(RATE * s), freq)) * 0.7 + square(np.full(int(RATE * s), freq * 2), 0.25) * 0.15
+    return tone * envelope(s, attack=0.002, release=0.9)
+
+
 def enhance():
     s = 0.32
     return (triangle(sweep(260, 1040, s, 1.6)) * 0.8 + square(sweep(520, 2080, s, 1.6), 0.25) * 0.2) * envelope(s, 0.02, 0.5)
@@ -549,7 +556,8 @@ def ui_back():
 
 
 SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
-          "pickup": pickup, "enhance": enhance, "overload": overload, "death": death,
+          "pickup": pickup, "enhance": enhance,
+          **{f"absorb_{i + 1}": (lambda f=f: absorb(f)) for i, f in enumerate((1047.0, 1175.0, 1319.0, 1568.0, 1760.0))}, "overload": overload, "death": death,
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
           "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw,
           # 2026-11-19 추가

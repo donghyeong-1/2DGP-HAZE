@@ -189,6 +189,15 @@ def draw_glow(name, n, x, y, face_dir, color, width=3, alpha=0.85):
         assets.draw_image_tinted(img, x + dx + ox, y - foot + oy, flip, color, alpha)
 
 
+def draw_silhouette(name, n, x, y, face_dir, color, alpha):
+    """그림 모양의 흰 실루엣을 color로 물들여 한 번 그린다 (잔상용). v7 새 주인공은 옷이 어두워서
+    그림 색에 곱하면(tint) 검은 덩어리가 되므로, 실루엣에 색을 입힌다."""
+    name, n = resolve(name, n)
+    img = assets.silhouette(path(name, n))
+    dx, foot = place(name, n, img.w, img.h, face_dir)
+    assets.draw_image_tinted(img, x + dx, y - foot, 'h' if face_dir < 0 else '', color, alpha)
+
+
 def draw_white(name, n, x, y, face_dir=1):
     """같은 그림을 '더하기' 섞기로 한 번 더 그려 하얗게 번쩍이게 한다 (맞은 순간)."""
     name, n = resolve(name, n)

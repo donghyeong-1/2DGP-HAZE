@@ -276,7 +276,7 @@ class BodyGhost:
         if self.time < self.delay:
             return
         fade = 1.0 - (self.time - self.delay) / self.life
-        sprites.draw(*self.frame, self.x, self.y, self.face_dir, self.color, max(0.0, self.alpha * fade), outline=False)
+        sprites.draw_silhouette(*self.frame, self.x, self.y, self.face_dir, self.color, max(0.0, self.alpha * fade))
 
 
 class SlashMark:
@@ -504,7 +504,7 @@ class KillSlash:
         p = self.time / self.life
         half = self.length * (0.5 + 0.5 * min(1.0, p * 4))          # 처음 1/4 동안 양쪽으로 뻗는다
         thick = max(2, int(round(10 * (1 - p))) // 2 * 2)            # 2배 픽셀 격자: 짝수 두께
-        step = 4
+        step = 2                                                      # 촘촘히 (끊긴 점선처럼 보이지 않게)
         t = -half
         while t <= half:
             x = int(round(self.x + self.dx * t)) // 2 * 2
@@ -564,3 +564,59 @@ def ground_slam(x, floor_y, power=1.0, color=(255, 200, 140)):
         game_world.add_object(SlamChip(x + rng.uniform(-30, 30), floor_y + 4, vx, vy, SLAM_DEBRIS[k % 3],
                                      rng.choice((4, 4, 6)), rng.uniform(0.35, 0.6)), game_world.LAYER_EFFECT)
     spawn_bloom(x, floor_y + 20, color, big=power >= 1.2, life=0.22, strength=0.7)
+
+
+class AbsorbOrb:
+    """v7 흡수 연출: 처치 자리에서 튀어나온 알갱이가 잠깐 퍼졌다가 주인공에게 빨려 들어온다.
+    조각(청록 사각)·게이지(흰 빛) 수치는 처치 순간 이미 올랐다. 이건 보이는 것과 소리뿐이다."""
+    BURST = 0.15
+
+    def __init__(self, x, y, player, kind, order, rng):
+        self.x, self.y, self.player, self.kind, self.order = x, y, player, kind, order
+        ang = rng.uniform(0, math.tau)
+        speed = rng.uniform(260, 520)
+        self.vx, self.vy = math.cos(ang) * speed, math.sin(ang) * speed + 180
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time < self.BURST:                      # 퍼지며 느려진다
+            self.vx *= 0.86
+            self.vy *= 0.86
+        else:                                           # 점점 빨라지며 몸 가운데로
+            tx, ty = self.player.center
+            dx, dy = tx - self.x, ty - self.y
+            dist = math.hypot(dx, dy) or 1.0
+            if dist < 26 or self.time > 1.6:
+                self._arrive()
+                return
+            speed = 400 + 2400 * min(1.0, (self.time - self.BURST) / 0.45)
+            self.vx += (dx / dist * speed - self.vx) * min(1.0, 12 * dt)
+            self.vy += (dy / dist * speed - self.vy) * min(1.0, 12 * dt)
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+
+    def _arrive(self):
+        game_world.remove_object(self)
+        assets.play_sound(f'absorb_{min(5, self.order + 1)}')
+        cx, cy = self.player.center
+        spawn_bloom(cx, cy, (120, 250, 235) if self.kind == 'shard' else (255, 255, 255), life=0.12, strength=0.35)
+
+    def draw(self):
+        x, y = int(self.x) // 2 * 2, int(self.y) // 2 * 2
+        if self.kind == 'shard':                        # 조각: 청록 마름모(사각 2단)
+            assets.draw_rect_color(x - 2, y - 4, 4, 8, (110, 245, 230))
+            assets.draw_rect_color(x - 4, y - 2, 8, 4, (110, 245, 230))
+            assets.draw_rect_color(x - 2, y - 2, 4, 4, (235, 255, 252))
+        else:                                           # 게이지: 흰 빛 알갱이
+            assets.draw_rect_color(x - 3, y - 3, 6, 6, (255, 255, 255))
+
+
+def spawn_absorb(x, y, player, shards, gauge_orbs=3):
+    """처치 순간 조각 shards개(최대 6)와 게이지 알갱이를 흩뿌린다. 소리는 닿는 차례대로 음이 오른다."""
+    if player is None:
+        return
+    rng = random.Random(int(x) * 7 + int(y))
+    kinds = ['shard'] * min(6, shards) + ['gauge'] * gauge_orbs
+    for order, kind in enumerate(kinds):
+        game_world.add_object(AbsorbOrb(x, y, player, kind, order % 5, rng), game_world.LAYER_EFFECT)

@@ -221,6 +221,19 @@ def test_player_is_knocked_back_away_from_the_attacker():
     assert p.x > x1 + 20, (x1, p.x)
 
 
+def test_kill_spawns_absorb_orbs_that_fly_into_the_player():
+    """v7 흡수 연출: 처치하면 조각·게이지 알갱이가 생기고, 잠시 뒤 모두 주인공에게 닿아 사라진다."""
+    import game_world
+    room, p, e = _foe('slum', gap=100)
+    e.hp = 1
+    e.take_damage(5, from_x=p.x)
+    tc.step(2)
+    orbs = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'AbsorbOrb']
+    assert len(orbs) >= 3
+    tc.step(100)
+    assert not [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'AbsorbOrb']
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

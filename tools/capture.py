@@ -8,6 +8,7 @@
   --cell 1,0          스테이지 1의 방 좌표 (기본: 시작 방)
   --clear             방에 원래 있던 적을 지운다
   --spawn hound:400 guard:-300   적을 플레이어 기준 x 거리에 세운다 (boss, heart:0도 가능)
+  --enemy-hp 1        불러낸 적의 체력 (처치 연출·흡수를 빨리 볼 때)
   --weapon knife      두 번째 칸 무기를 주고 든다 (knife, gauntlet, chain)
   --gauge 65          게이지(%) 설정
   --bot stand|dodge   tools/balance_sim.py의 봇이 플레이어를 조작해 싸운다 (없으면 가만히 서 있다)
@@ -38,6 +39,7 @@ def main():
     ap.add_argument('--stage', type=int, default=1, help='0 은신처, 1~3 스테이지 (기본 1)')
     ap.add_argument('--clear', action='store_true')
     ap.add_argument('--spawn', nargs='*', default=[])
+    ap.add_argument('--enemy-hp', type=int, default=None)   # 불러낸 적의 체력 (처치 연출을 빨리 보려고 1 등)
     ap.add_argument('--weapon')
     ap.add_argument('--gauge', type=float)
     ap.add_argument('--bot', choices=('stand', 'dodge'))
@@ -130,6 +132,8 @@ def main():
         else:
             import enemy_kinds
             e = enemy_kinds.make(kind, x, p.y, stage.room, p)       # 드론·수레는 자기 클래스
+        if a.enemy_hp is not None:
+            e.hp = a.enemy_hp
         game_world.add_object(e, game_world.LAYER_ENEMY)
         if not (0 < x < stage.room.width):
             print(f'경고: {spec}는 방 밖(x={x:.0f}, 방 폭 {stage.room.width})')

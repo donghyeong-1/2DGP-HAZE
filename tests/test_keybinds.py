@@ -92,9 +92,9 @@ def test_saved_with_options_and_bad_data_ignored():
         options.load(path)                                             # 이상한 값은 무시하고 기본을 쓴다
         assert keybinds.action_for(sdl2.SDLK_SPACE) == 'jump'
         assert keybinds.action_for(sdl2.SDLK_a) == 'left'
-        keybinds.bind('swap', 0, sdl2.SDLK_TAB)
-        keybinds.reset_defaults()                                      # '기본값으로'
-        assert keybinds.action_for(sdl2.SDLK_q) == 'swap' and keybinds.action_for(sdl2.SDLK_TAB) is None
+        keybinds.bind('swap', 0, sdl2.SDLK_r)
+        keybinds.reset_defaults()                                      # '기본값으로' (v7: 무기 바꾸기 기본 Tab, Q는 물약)
+        assert keybinds.action_for(sdl2.SDLK_TAB) == 'swap' and keybinds.action_for(sdl2.SDLK_q) == 'potion'
     finally:
         options.PATH = old
         keybinds.reset()

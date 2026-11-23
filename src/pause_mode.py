@@ -1,8 +1,8 @@
 """일시정지 창: 멈춘 게임 위에 메뉴(계속하기 · 설정 · 타이틀로)와 조작 안내를 띄운다.
 
-Esc로 바로 돌아가고, O는 설정, Q는 타이틀. 메뉴는 키보드(W/S, Enter)와 마우스로 고른다.
+Esc로 바로 돌아가고, O는 설정, H는 은신처로, Q는 타이틀. 판을 포기하는 두 항목은 두 번 눌러야 한다. 메뉴는 키보드(W/S, Enter)와 마우스로 고른다.
 """
-from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_o, SDLK_q, clear_canvas, get_events, update_canvas)
+from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_h, SDLK_o, SDLK_q, clear_canvas, get_events, update_canvas)
 
 import assets
 import config
@@ -13,8 +13,9 @@ import hud_kit as kit
 W, H = config.SCREEN_W, config.SCREEN_H
 LEFT_X = 150                       # 메뉴 줄 왼쪽 (11/22 메뉴 v2: 큰 판 없이 화면 전체를 덮는다)
 MENU = [kit.Button(key, label, LEFT_X, H - 380 - i * 84, 420, 66)
-        for i, (key, label) in enumerate((('resume', '계속하기'), ('options', '설정'), ('title', '판 포기하고 타이틀로')))]
-CARD_H = 140 + 50 * 9             # 오른쪽 카드 두 장: 조작 / 이번 판 (조작 9줄 높이)
+        for i, (key, label) in enumerate((('resume', '계속하기'), ('options', '설정'),
+                                          ('hideout', '판 포기하고 은신처로'), ('title', '판 포기하고 타이틀로')))]
+CARD_H = 140 + 50 * 10            # 오른쪽 카드 두 장: 조작 / 이번 판 (조작 10줄 높이)
 CARD_Y = H - 314 - CARD_H + 66
 
 
@@ -33,18 +34,32 @@ def controls():
         (k('enhance'), '강화 일격 (게이지 25% 사용)'),
         (f'{k("swap")}  {k("weapon1")}  {k("weapon2")}', '무기 바꾸기'),
         (k('interact'), '진열대 아이템 줍기·구매'),
+        (k('potion'), '물약 마시기 (체력 회복)'),
     ]
 
 
 selected = 0
-GIVE_UP_LABEL = MENU[2].label
-GIVE_UP_ASK = '정말 포기하려면 한 번 더'      # 판 도중 실수로 타이틀로 나가지 않게 두 번 누르게 한다
+CONFIRM = ('hideout', 'title')                # 판을 포기하는 항목: 실수로 나가지 않게 두 번 누르게 한다
+LABELS = {b.key: b.label for b in MENU}
+GIVE_UP_ASK = '정말 포기하려면 한 번 더'
+asking = None                                 # 한 번 눌러 확인을 기다리는 항목
+
+
+def _button(key):
+    return next(b for b in MENU if b.key == key)
+
+
+def _reset_labels():
+    global asking
+    asking = None
+    for b in MENU:
+        b.label = LABELS[b.key]
 
 
 def enter():
     global selected
     selected = 0
-    MENU[2].label = GIVE_UP_LABEL
+    _reset_labels()
 
 
 def exit():
@@ -60,18 +75,24 @@ def resume():
 
 
 def run(key):
-    import title_mode
-    if key == 'title' and MENU[2].label == GIVE_UP_LABEL:
-        MENU[2].label = GIVE_UP_ASK                # 첫 입력은 묻기만 한다
+    global asking
+    if key in CONFIRM and asking != key:
+        _reset_labels()
+        asking = key
+        _button(key).label = GIVE_UP_ASK           # 첫 입력은 묻기만 한다
         return
-    if key != 'title':
-        MENU[2].label = GIVE_UP_LABEL
+    _reset_labels()
     if key == 'resume':
         game_framework.pop_mode()
     elif key == 'options':
         import options_mode
         game_framework.push_mode(options_mode)
+    elif key == 'hideout':                         # 판 포기: 은신처에서 새 판 (영구 성장은 meta에 남는다)
+        import play_mode
+        game_framework.pop_mode()
+        game_framework.change_mode(play_mode)
     else:
+        import title_mode
         game_framework.pop_mode()                  # 일시정지를 끝낸 뒤
         game_framework.change_mode(title_mode)     # 플레이 모드를 타이틀로 교체
 
@@ -82,8 +103,8 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
             return
-        if event.type == SDL_KEYDOWN and event.key in (SDLK_ESCAPE, SDLK_o, SDLK_q):
-            run({SDLK_ESCAPE: 'resume', SDLK_o: 'options', SDLK_q: 'title'}[event.key])
+        if event.type == SDL_KEYDOWN and event.key in (SDLK_ESCAPE, SDLK_o, SDLK_h, SDLK_q):
+            run({SDLK_ESCAPE: 'resume', SDLK_o: 'options', SDLK_h: 'hideout', SDLK_q: 'title'}[event.key])
             return
         selected, action = kit.menu_pick(MENU, selected, event, H)
         if action == 'click':
@@ -165,5 +186,5 @@ def draw():
         b.draw(i == selected, left=True)
     _draw_controls(660, CARD_Y, 700, CARD_H)
     _draw_build(1390, CARD_Y, 400, CARD_H)
-    kit.footer([('Esc', '계속'), ('O', '설정'), ('Q', '판 포기'), ('W S', '고르기'), ('Enter', '결정')])
+    kit.footer([('Esc', '계속'), ('O', '설정'), ('H', '은신처로'), ('Q', '타이틀로'), ('W S', '고르기'), ('Enter', '결정')])
     update_canvas()

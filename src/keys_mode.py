@@ -16,9 +16,9 @@ import hud_kit as kit
 import keybinds
 
 W, H = config.SCREEN_W, config.SCREEN_H
-ROW_STEP = 60
+ROW_STEP = 56                 # v7: 동작 11개(물약 추가)가 화면에 들어가게 (예전 60)
 N = len(keybinds.IDS)
-PANEL_W, PANEL_H = 1180, 320 + ROW_STEP * N
+PANEL_W, PANEL_H = 1180, 290 + ROW_STEP * N
 PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 ROW_Y = [PANEL_Y + PANEL_H - 160 - i * ROW_STEP for i in range(N)]
 SLOT_X = (PANEL_X + 560, PANEL_X + 850)
@@ -160,13 +160,13 @@ def draw_panel():
     for i, action in enumerate(keybinds.IDS):
         cy = ROW_Y[i]
         on = i == row
-        kit.row(PANEL_X, cy - 27, PANEL_W, 54, on)
+        kit.row(PANEL_X, cy - 25, PANEL_W, 50, on)
         kit.text(PANEL_X + 34, cy, keybinds.NAMES[action], (240, 248, 255) if on else (190, 202, 225))
         for s in (0, 1):
             wait = listening == (action, s)
             hot = wait or (on and col == s)
             label = '키를 누르세요' if wait else keybinds.key_name(keybinds.keys(action)[s])
-            kit.pill(SLOT_X[s], cy - 21, SLOT_W, 42, label, hot)
+            kit.pill(SLOT_X[s], cy - 19, SLOT_W, 38, label, hot)
     if message:
         kit.text(W // 2, PANEL_Y + 150, message, kit.ACCENT, small=True, center=True)
     for i, b in enumerate(buttons):

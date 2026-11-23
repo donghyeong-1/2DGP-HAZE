@@ -151,6 +151,26 @@ def test_menus_have_buttons_that_do_not_overlap():
     assert [b.key for b in title_mode.MENU] == ['start', 'options', 'credits', 'quit']
 
 
+def test_pause_menu_can_return_to_hideout_with_confirm():
+    """v7 (2026-11-23): 일시정지에서 '은신처로 돌아가기'. 판 도중 실수로 나가지 않게 두 번 눌러야 한다."""
+    import game_framework
+    import pause_mode
+    import play_mode
+    assert [b.key for b in pause_mode.MENU] == ['resume', 'options', 'hideout', 'title']
+    calls = []
+    saved = game_framework.pop_mode, game_framework.change_mode
+    game_framework.pop_mode = lambda: calls.append('pop')
+    game_framework.change_mode = lambda m: calls.append(m)
+    try:
+        pause_mode.enter()
+        pause_mode.run('hideout')
+        assert calls == []                                   # 첫 입력은 묻기만
+        pause_mode.run('hideout')
+        assert calls == ['pop', play_mode]                   # 두 번째에 은신처(새 판)로
+    finally:
+        game_framework.pop_mode, game_framework.change_mode = saved
+
+
 def test_ui_kit_images_exist_for_every_part():
     """HUD·메뉴가 쓰는 판·막대·칸 그림이 모두 있다 (tools/make_ui.py)."""
     import re

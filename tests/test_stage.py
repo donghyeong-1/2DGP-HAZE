@@ -330,15 +330,17 @@ def test_shop_upgrade_price_rises_by_level_and_sells_out_at_level_three():
     assert ped.gone and not stage.interact()                        # 3단계면 품절
 
 
-def test_shop_first_aid_sells_once():
+def test_shop_potion_sells_once():
+    """v7: 정비방 '물약'은 물약 한 병을 채운다 (예전 응급 치료 체력 +40). 한 번 팔리면 사라진다."""
+    import config
     stage, p = make_stage()
     to_shop(stage, p)
     ped = next(d for d in stage.pedestals if d.item_id == 'heal')
     p.x, p.y = ped.x, ped.y
-    p.hp, p.shards = 10, 99
-    assert stage.interact() and p.hp == 50 and ped.gone
-    p.hp = 10
+    p.potions, p.shards = 0, 99
+    assert stage.interact() and p.potions == 1 and ped.gone
     assert not stage.interact()
+    assert config.POTION_MAX >= 1
 
 
 # ----- 보스 -----
@@ -397,11 +399,12 @@ def test_upgrades_follow_the_design_table_for_three_levels():
             items.apply(p, item_id)
             assert items.level(p, item_id) == lv and abs(read() - want) < 1e-9, (item_id, lv, read())
         assert not items.can_take(p, item_id)                       # 3단계가 끝
-    p.hp = p.max_hp
-    assert not items.can_take(p, 'heal')                            # 체력이 가득이면 회복약은 의미가 없다
-    p.hp = 10
+    import config as cfg
+    p.potions = cfg.POTION_MAX
+    assert not items.can_take(p, 'heal')                            # v7: 물약이 가득이면 정비방 물약은 못 산다
+    p.potions = 0
     items.apply(p, 'heal')
-    assert p.hp == 50
+    assert p.potions == 1                                           # v7: 체력 대신 물약 한 병
 
 
 def test_basic_growth_is_attack_or_health_sharing_three_levels():

@@ -18,7 +18,7 @@ ITEMS = {
     'dash':    dict(name='대시 강화', glyph='대', desc='대시 슬롯 +1 (최대 5)', price=7, color=(170, 200, 255)),
     'power':   dict(name='기본 성장: 공격력', glyph='공', desc='공격력 +20%', price=6, color=(255, 120, 120)),
     'vigor':   dict(name='기본 성장: 체력', glyph='체', desc='최대 체력 +25, 그만큼 회복', price=6, color=(255, 150, 170)),
-    'heal':    dict(name='응급 치료', glyph='약', desc='체력 40 회복 (정비방 전용)', price=3, color=(120, 235, 150)),
+    'heal':    dict(name='물약', glyph='약', desc='물약 한 병 채우기 (Q로 마심, 정비방 전용)', price=3, color=(120, 235, 150)),
     'fury':    dict(name='균열의 분노', glyph='분', desc='이번 판 공격력 +30% (균열방 전용)', price=0, color=(200, 130, 255)),
     # 무기: 두 번째 칸에 들어가고 바로 든다 (Q·1·2로 철파이프와 바꾼다). 이미 다른 무기가 있으면 바뀐다
     'w_knife':    dict(name='투척용 식칼 묶음', glyph='칼', desc='구간이 오를수록 더 많이 던짐 (위험 구간 관통)', price=9,
@@ -81,8 +81,8 @@ def can_take(player, item_id):
     """더 얻을 수 있는가 (이미 3단계거나 의미가 없으면 못 얻는다)."""
     if 'weapon' in ITEMS[item_id]:
         return not player.has_weapon(ITEMS[item_id]['weapon'])
-    if item_id == 'heal':
-        return player.hp < player.max_hp
+    if item_id == 'heal':                          # v7: 물약 한 병 (가득하면 못 산다)
+        return player.potions < config.POTION_MAX
     if item_id == 'fury':
         return True
     return level(player, item_id) < MAX_LEVEL
@@ -101,7 +101,7 @@ def apply(player, item_id):
         player.give_weapon(ITEMS[item_id]['weapon'])
         return
     if item_id == 'heal':
-        player.hp = min(player.max_hp, player.hp + 40)
+        player.potions = min(config.POTION_MAX, player.potions + 1)
         return
     if item_id == 'fury':                          # 균열방 보상: 단계 없이 이번 판 공격력이 오른다
         player.attack_bonus += config.RIFT_FURY_ATTACK

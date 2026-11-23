@@ -251,6 +251,8 @@ class Player(TileBody):
         self.dash_left = 0.0
         self.invuln_left = 0.0
         self.knock_vx = 0.0          # 피격 넉백 속도 (Hit 상태가 쓴다)
+        self.potions = config.POTION_START   # v7 물약 (Q)
+        self.potion_cool = 0.0
         self.steady_left = 0.0           # 이 시간 동안의 무적은 깜빡이지 않는다 (궁극기 시전: 몸이 보여야 한다)
 
         self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
@@ -370,6 +372,8 @@ class Player(TileBody):
                 self.interact_pressed = True   # 진열대 앞에서 상호작용: stage가 처리한다
             elif action == 'swap':
                 self.swap_weapon()
+            elif action == 'potion':
+                self.drink_potion()
             elif action in ('weapon1', 'weapon2'):
                 self.swap_weapon(0 if action == 'weapon1' else 1)
         elif event.type == SDL_MOUSEMOTION:
@@ -433,6 +437,22 @@ class Player(TileBody):
         from weapon import WEAPONS
         self.weapons[1] = WEAPONS[weapon_id](self)
         self.swap_weapon(1)
+
+    def drink_potion(self):
+        """물약을 마신다 (Q). 체력 POTION_HEAL 회복. 마셨으면 True."""
+        if (self.state == 'DEAD' or self.potions <= 0 or self.potion_cool > 0 or self.hp >= self.max_hp):
+            if self.potions <= 0 and self.state != 'DEAD':
+                assets.play_sound('ui_move')                  # 빈 병: 작은 소리만
+            return False
+        self.potions -= 1
+        self.potion_cool = config.POTION_COOLDOWN
+        healed = min(self.max_hp, self.hp + config.POTION_HEAL) - self.hp
+        self.hp += healed
+        assets.play_sound('enhance')
+        cx, cy = self.center
+        effects.spawn_bloom(cx, cy, (120, 255, 170), big=True, life=0.35, strength=0.6)
+        effects.float_text(cx, cy + 90, f'+{int(healed)}', (130, 255, 170), big=True)
+        return True
 
     def swap_weapon(self, index=None):
         """Q: 다른 칸으로, 1·2: 그 칸으로. 빈 칸이면 바꾸지 않는다. 건틀릿 충전은 풀린다."""
@@ -580,6 +600,7 @@ class Player(TileBody):
         self.swing_left = max(0.0, self.swing_left - dt)
         self.punch_left = max(0.0, self.punch_left - dt)
         self.ult_pose_left = max(0.0, self.ult_pose_left - dt)
+        self.potion_cool = max(0.0, self.potion_cool - dt)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
             self.move_dist += abs(self.vx) * dt

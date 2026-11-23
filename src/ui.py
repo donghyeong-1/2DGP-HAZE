@@ -242,7 +242,23 @@ class GameUI:
             if i == p.dash_slots and p.dash_slots < p.dash_max:
                 k = p.dash_charge / max(0.01, p.dash_recharge)
                 assets.draw_rect_color(x + 4, DASH_Y - 6, int(46 * k), 4, TEAL)
+        self._draw_potions()
         self._draw_items()
+
+    def _draw_potions(self):
+        """v7 물약 (Q): 대시 칸 줄 오른쪽 끝에 병 POTION_MAX개. 찬 병은 초록 액체, 빈 병은 테두리만. 2배 픽셀 사각형."""
+        p = self.player
+        for i in range(config.POTION_MAX):
+            x, y = HP_X + 300 + i * 26, DASH_Y + 2
+            full = i < p.potions
+            ink = (12, 16, 28)
+            assets.draw_rect_color(x + 6, y + 30, 8, 6, (150, 110, 70) if full else (70, 60, 56))   # 코르크
+            assets.draw_rect_color(x + 4, y + 22, 12, 8, ink)                                       # 목 테두리
+            assets.draw_rect_color(x + 6, y + 22, 8, 8, (200, 230, 225) if full else (40, 48, 60))
+            assets.draw_rect_color(x, y, 20, 24, ink)                                               # 몸통 테두리
+            assets.draw_rect_color(x + 2, y + 2, 16, 20, (70, 220, 140) if full else (34, 40, 54))
+            if full:
+                assets.draw_rect_color(x + 4, y + 14, 4, 6, (200, 255, 220))                        # 빛 반사
 
     def _draw_items(self):
         """체력 아래 줄: 가진 업그레이드 아이콘 칸 (같은 것을 여러 번 얻으면 개수)."""

@@ -309,3 +309,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 2026-11-22 [Codex] T47 assets/sprites/forge/heart_arena_v1/의 `far_heart.png`(결전 방 원경 1920×1080) 및 `boss_card_heart.png`(등장 카드 1920×400). 프로젝트 자체 탑·보스방 배경, 아크 카드, 헤이즈 심장 본체와 손을 참조한 Codex 내장 image_gen(모델명 미제공) 신규 생성, generate2dmap 및 Agent Sprite Forge 0.5.0(MIT) Hibit 마감. 파일당 불투명 32색·2px 블록·1배. 출처와 프롬프트 assets/sprites/forge/heart_arena_v1/provenance.json. 검토 대기.
 - 2026-11-22: Codex T46·T47(내장 image_gen, 모델명 미제공, Hibit 마감) 결과를 그대로 복사해 게임에 적용. 손 8장 → `assets/sprites/unified/heart_hand_(idle|fist|palm|stun)_1·2.png`(왼손은 좌우 반전), 결전 방 원경 → `assets/backgrounds/far_heart.png`, 등장 카드 → `assets/backgrounds/boss_card_heart.png`. AI 생성물. 출처·프롬프트는 `assets/sprites/forge/heart_hands_v1/provenance.json`, `heart_arena_v1/provenance.json`.
+
+2026-11-23 [Gemini] G01 `assets/sprites/gemini/hero_concepts_v1/` 새 주인공 디자인 시안 3안(`hero_{A,B,C}_{side,sheet,small}.png` 9장). Antigravity 내장 image-generator(모델명 미제공)로 원화 생성 후 PNG 변환, `*_small.png`는 Pillow로 1/24 축소 후 최근접 확대. 검토 대기. docs/gemini/reports/G01.md.

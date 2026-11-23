@@ -372,5 +372,5 @@ class Ark(Enemy):
             for dx, dy in ((0, 40), (-50, 100), (50, 150)):
                 effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.6)
             return True                                           # 몸은 남아 쓰러진다 (방 클리어는 alive로 판정)
-        assets.play_sound('enemy_hit')
+        assets.play_sound('hit_boss_crystal')
         return False

@@ -103,6 +103,13 @@ STREAK_MAX = 6          # 소리 단계 수 (assets/sfx/kill_streak_1~6.wav, too
 _streak = [0, -99.0]    # [지금 단계, 마지막 처치 시각]
 
 
+def hit_sound(kind):
+    """적이 맞을 때의 재질 소리 이름 (config.HIT_MATERIAL, 없으면 예전 공통 소리)."""
+    import config
+    mat = config.HIT_MATERIAL.get(kind)
+    return f'hit_{mat}' if mat else 'enemy_hit'
+
+
 def kill_streak():
     """적을 처치했다: 연속 처치 단계를 올리고 그 단계의 처치 소리를 낸다. 단계를 돌려준다."""
     import assets

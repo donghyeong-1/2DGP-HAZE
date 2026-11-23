@@ -33,7 +33,7 @@ CREDITS = [
     ('line', '타일·이펙트·HUD·무기 아이콘·로고 - 코드로 직접 그림 (code-drawn)'),
     ('gap', ''),
     ('head', '소리'),
-    ('line', '효과음 77종 · 배경음악 7곡 - 코드로 합성 (numpy)'),
+    ('line', '효과음 109종 · 배경음악 7곡 - 코드로 합성 (numpy)'),
     ('line', '효과음 녹음 원본 - Kenney (kenney.nl) Impact · Interface · Sci-fi · RPG · Digital Audio, CC0'),
     ('small', '타이틀 · 은신처 · 슬럼 · 공장 · 탑 · 보스전 · 최종 보스 아크'),
     ('gap', ''),

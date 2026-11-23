@@ -55,8 +55,7 @@ class ExtraHits:
         effects.spawn(self.fx['spark'], ex + jx, ey + jy, duration=self.fx['spark_time'])
         effects.spawn_impact(ex + jx, ey + jy, ex - p.x, ey - p.center[1], config.IMPACT_RAYS_EXTRA, self.fx['damage_color'])
         effects.spawn_slash_marks(ex + jx, ey + jy, ex - p.x, ey - p.center[1], self.fx['damage_color'])   # 다단 히트 자국
-        effects.add_trauma(config.SHAKE_HIT * 0.5)
-        assets.play_sound('enemy_hit')
+        effects.add_trauma(config.SHAKE_HIT * 0.5)       # 소리는 적이 재질 소리를 낸다 (v7)
         if killed:
             p.gauge.add(p.kill_gain(), 'kill')
             effects.add_trauma(config.SHAKE_KILL)
@@ -71,6 +70,10 @@ class ExtraHits:
 
 class Pipe:
     IMPACT = 'impact_pipe'          # 명중할 때 적 피격음 위에 겹치는 무기 소리 (11/21 계획 1-7). 사슬은 갈고리 소리가 따로 있다
+    # v7 효과음 v3: 철파이프는 공격 종류마다 다른 타격음 (hit_kind)
+    PIPE_IMPACTS = {'finisher': 'impact_pipe_heavy', 'dash': 'impact_pipe_dash', 'air': 'impact_pipe_air',
+                    'plunge': 'impact_pipe_plunge'}
+    hit_kind = 'normal'
     name = '철파이프'
     weapon_id = 'pipe'
     base_damage = config.PIPE_DAMAGE
@@ -196,7 +199,7 @@ class Pipe:
         with drama.hit_style(big=big or None, color=color or fx['damage_color']):   # 피해 숫자 모양 (픽셀 글꼴, 하나만)
             killed = enemy.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG if big else 1.0)
         if self.IMPACT:
-            assets.play_sound(self.IMPACT)
+            assets.play_sound(self._impact_sound(fx))
         p.gauge.add(gain, 'hit')
         ex, ey = enemy.center
         effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
@@ -227,6 +230,27 @@ class Pipe:
         if extra and not killed:                         # 타수 증가: 첫 타격 뒤에 작은 추가 타격이 이어진다
             game_world.add_object(ExtraHits(p, enemy, damage * config.EXTRA_HIT_RATIO, fx, extra, big), game_world.LAYER_EFFECT)
         return killed
+
+    def _impact_sound(self, fx):
+        """무기 쪽 타격음: 강화면 단계 소리, 철파이프는 공격 종류(1·2타·마무리·이동·공중·찍기)마다, 그 밖은 무기 소리."""
+        if fx.get('enhanced'):
+            return f'impact_enh{max(1, min(3, self.level))}'
+        if self.IMPACT == 'impact_pipe':
+            return self.PIPE_IMPACTS.get(self.hit_kind, self.IMPACT)
+        return self.IMPACT
+
+    def _swing_sound(self, kind, enhanced):
+        """휘두르는 소리 (v7 효과음 v3): 강화는 단계 소리, 페이드는 힘 빠진 소리, 각성·위험은 공격 소리 위에 색 소리를 겹친다."""
+        if enhanced:
+            assets.play_sound(f'swing_enh{max(1, min(3, self.level))}')
+            return
+        zone = self.owner.gauge.zone
+        if zone == 'FADE':
+            assets.play_sound('swing_fade')
+            return
+        assets.play_sound(kind)
+        if zone in ('AWAKE', 'CRITICAL'):
+            assets.play_sound('accent_' + zone.lower())
 
     def _damage(self, mult):
         p = self.owner
@@ -269,13 +293,13 @@ class Pipe:
         fx = self._fx(enhanced)                          # 게이지 구간(또는 강화)에 따라 모양·색·반응이 다르다
         p.start_swing(ax, ay)                            # 철파이프를 든 공격 자세
         effects.spawn_smear(('n09_swing_' + p.swing_dir, 2), p.x, p.y, p.face_dir, (ax, ay), enhanced)   # 휘두르는 몸의 잔상
-        assets.play_sound(fx['sound'])
         variant, flip = effects.slash_variant(ax, ay)
         if enhanced and self.level >= 2:
             self._stage2_rise(ax, ay)
             return
         if enhanced:
             self.combo = 0
+            self._swing_sound('swing_3', True)
             p.set_swing_style(3, ax)                     # 강화 일격은 3타처럼 크게 끌어 내딛는다
             p.swing_anim = 'n09_e1'                      # 공격 v3: X베기
             self.cooldown = config.ENHANCE_STRIKE_COOLDOWN
@@ -289,6 +313,8 @@ class Pipe:
             return
         self.combo = self.combo % 3 + 1
         finisher = self.combo == 3
+        self.hit_kind = 'finisher' if finisher else 'normal'
+        self._swing_sound(f'swing_{self.combo}', False)
         p.set_swing_style(self.combo, ax)                # 1타·2타·3타마다 자세 시간과 내딛기가 다르다
         import mutations
         self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[self.combo - 1] * mutations.attack_speed_mult(p)   # v7 '손목 풀기'
@@ -347,7 +373,7 @@ class Pipe:
         p.set_swing_style(3, side)
         p.swing_dir = 's2slam'                           # 전용 그림 (Codex T24): 두 손 들고 뜸 -> 45도 -> 바닥 타격
         p.swing_total = p.swing_left = config.STAGE2_SLAM_POSE
-        assets.play_sound('swing_enhanced')
+        assets.play_sound('swing_enh2')
         self.followup = (config.STAGE2_SLAM_FRAMES[1], lambda: self._stage2_impact(side))
 
     def _stage2_impact(self, side):
@@ -385,7 +411,8 @@ class Pipe:
     def _attack_dash(self, enhanced):
         p = self.owner
         self.cooldown = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.DASH_STRIKE_COOLDOWN
-        assets.play_sound(self._fx(enhanced)['sound'])
+        self.hit_kind = 'dash'
+        self._swing_sound('swing_dash', enhanced)
         if p.state == 'DASH':                            # 대시 중: 끝나는 순간 지나온 경로를 벤다
             p.dash_strike_queued = True
             p.dash_strike_enhanced = enhanced
@@ -436,7 +463,8 @@ class Pipe:
         self.cooldown = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.AIR_COOLDOWN
         cx, cy = p.center
         fx = self._fx(enhanced)
-        assets.play_sound(fx['sound'])
+        self.hit_kind = 'air'
+        self._swing_sound('swing_air', enhanced)
         p.vy = max(p.vy, config.AIR_HOP)                                  # 살짝 떠오르며 한 바퀴 돈다
         ax, ay = p.aim_vector()
         anim = p.start_air_swing(ax, ay)                                  # 공격 v3: 가로 베기 -> 반원, 위로 겨누면 올려베기
@@ -469,7 +497,8 @@ class Pipe:
         self.cooldown = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.PLUNGE_COOLDOWN
         cx, cy = p.center
         fx = self._fx(enhanced)
-        assets.play_sound(fx['sound'])
+        self.hit_kind = 'plunge'
+        self._swing_sound('swing_plunge', enhanced)
         p.start_plunge_pose()
         sheet, _ = effects.special_sheet('plunge', enhanced)
         effects.spawn(sheet, cx, cy, duration=0.26, variant=4)             # 아래 방향 변형

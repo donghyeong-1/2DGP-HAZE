@@ -470,7 +470,12 @@ ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
 # 표에 없는 소리는 1.0
 SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
-            'enemy_hit': 0.7, 'impact_pipe': 0.75, 'impact_knife': 0.7, 'impact_gauntlet': 0.8, 'throw': 0.75,
+            'enemy_hit': 0.7, 'impact_pipe': 1.0, 'impact_knife': 0.9, 'impact_gauntlet': 1.0, 'throw': 0.75,
+            # v7 효과음 v3: 타격이 휘두르기보다 확실히 크게 (사용자: 타격음이 작다)
+            'impact_pipe_heavy': 1.15, 'impact_pipe_dash': 1.0, 'impact_pipe_air': 0.95, 'impact_pipe_plunge': 1.15,
+            'impact_enh1': 1.1, 'impact_enh2': 1.2, 'impact_enh3': 1.3, 'swing_1': 0.8, 'swing_2': 0.85, 'swing_3': 0.95,
+            'swing_air': 0.8, 'swing_dash': 0.85, 'swing_plunge': 0.9, 'accent_awake': 0.6, 'accent_critical': 0.65,
+            'enhance_1': 1.0, 'enhance_2': 1.1, 'enhance_3': 1.25,
             'chain_throw': 0.8, 'dash': 0.8, 'ult_hit': 0.8, 'windup_slum': 0.8, 'windup_thrower': 0.75,
             'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ark_roar': 1.1,
             'ult_final_pipe': 1.2, 'ult_final_knife': 1.2, 'ult_final_gauntlet': 1.2, 'ult_final_chain': 1.2,
@@ -485,7 +490,13 @@ PACK_SIZE = {'rat': 3}              # 한 스폰 칸에 이만큼 무리로 나�
 STRONG_MOVES = ('heavy', 'bash', 'lunge', 'pounce', 'combo', 'volley', 'torch', 'arm', 'laser', 'grab')
 RUSH_MOVES = {'lunge': 300, 'pounce': 340, 'bash': 380}     # 기술 -> 바닥 표시 길이(px)
 # 자주 나는 소리: 3버전(<이름>, _v2, _v3)을 돌려 쓴다 (2026-11-22, tools/make_sfx.py가 음 높이·잡음을 조금 바꿔 만든다)
-SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw')
+# v7 효과음 v3 (2026-11-24): 적이 맞을 때의 재질 소리 (assets/sfx/hit_<재질>.wav). 무기 소리(공격 종류)와 겹쳐 난다
+HIT_MATERIAL = {'slum': 'flesh', 'thrower': 'flesh', 'shaman': 'flesh', 'hound': 'beast', 'rat': 'small',
+                'guard': 'armor', 'knight': 'armor_crystal', 'drone': 'mech', 'cart': 'mech', 'eye': 'crystal',
+                'wraith': 'ethereal', 'crasher': 'boss_metal', 'ark': 'boss_crystal', 'heart': 'organic', 'heart_hand': 'organic'}
+SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw',
+                'swing_1', 'swing_2', 'swing_3', 'swing_air', 'swing_dash', 'impact_pipe_dash', 'impact_pipe_air',   # v7 효과음 v3
+                'hit_flesh', 'hit_beast', 'hit_small', 'hit_armor', 'hit_mech')
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)
 PROJECTILE_HB = (30, 18)
 

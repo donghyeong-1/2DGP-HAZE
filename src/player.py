@@ -415,7 +415,7 @@ class Player(TileBody):
             return False
         if not self.gauge.use_enhance():
             return False
-        assets.play_sound('enhance')
+        assets.play_sound(f'enhance_{max(1, min(3, self.gauge.enhance_level))}')   # v7: 단계마다 더 크고 무겁게
         effects.spawn('surge', self.x, self.y, duration=0.5)       # 발밑에서 기운이 솟는다
         effects.add_trauma(0.25)
         return True

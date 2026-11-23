@@ -421,7 +421,7 @@ class Boss(Enemy):
                                       game_world.LAYER_EFFECT)
             game_world.remove_object(self)
             return True
-        assets.play_sound('enemy_hit')
+        assets.play_sound('hit_boss_metal')
         return False
 
     def _draw_hp_bar(self):

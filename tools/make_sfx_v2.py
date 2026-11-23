@@ -322,6 +322,163 @@ def drone_torch():
     return S('sci-fi-sounds', 'thrusterFire_001', 0.6)
 
 
+# ===== v3 (2026-11-24, 사용자: 휘두르기가 가볍고 타격이 작다, 공격 종류·적마다 달라야 한다) =====
+# 참고한 방식 (소리를 가져오지 않음): 하데스·스컬·할로우 나이트처럼 타격 = 날카로운 시작(탁) + 몸통(퍽·쾅) + 꼬리(울림),
+# 휘두르기 = 낮은 '훙'(무게) + 높은 '쉭'(속도). 강한 공격일수록 낮은 쿵과 길이가 늘고, 강화는 마법 같은 울림이 붙는다.
+def heavy_whoosh(sec, low=(220, 800), high=(1200, 3400), weight=1.0, peak=0.4):
+    """무게 있는 휘두르기: 낮은 띠(훙) + 높은 띠(쉭)."""
+    return whoosh(sec, *low, bright=0.4, peak=peak) * (0.9 * weight) + whoosh(sec, *high, peak=peak) * 0.55
+
+
+def swing_n(step, v=1):
+    """땅 1·2·3타: 뒤로 갈수록 낮고 길고 무겁다. 3타는 끝에 낮은 쿵."""
+    k = PV[v]
+    if step == 1:
+        return K.mix(0.24, [(0, heavy_whoosh(0.22, (260 * k, 900 * k), (1400 * k, 3600 * k)), 1.0),
+                            (0.0, S('rpg-audio', f'cloth{v}', 0.12, 1.2 * k), 0.25)])
+    if step == 2:
+        return K.mix(0.28, [(0, heavy_whoosh(0.26, (200 * k, 760 * k), (1100 * k, 3000 * k), 1.2), 1.0),
+                            (0.0, S('rpg-audio', f'cloth{v + 1}', 0.14, 1.0 * k), 0.3)])
+    return K.mix(0.38, [(0, heavy_whoosh(0.34, (150 * k, 620 * k), (900 * k, 2800 * k), 1.5, peak=0.5), 1.0),
+                        (0.22, sub(0.14, 120, 55, 18), 0.45), (0.0, S('rpg-audio', 'clothBelt', 0.14, 0.9 * k), 0.3)])
+
+
+def swing_air(v=1):
+    """공중 베기: 가볍게 도는 바람 (두 번 출렁)."""
+    w = heavy_whoosh(0.26, (320 * PV[v], 1000 * PV[v]), (1600 * PV[v], 4200 * PV[v]), 0.8)
+    t = np.linspace(0, 1, len(w))
+    return K.mix(0.28, [(0, w * (0.75 + 0.25 * np.cos(2 * np.pi * 2 * t)), 1.0), (0, S('rpg-audio', 'cloth3', 0.12, 1.3), 0.25)])
+
+
+def swing_dash(v=1):
+    """이동 베기: 빠르게 지나가는 바람 (높은 쪽에서 낮은 쪽으로, 도플러)."""
+    return K.mix(0.22, [(0, heavy_whoosh(0.2, (900 * PV[v], 300 * PV[v]), (4200 * PV[v], 1200 * PV[v]), 1.0, peak=0.18), 1.1),
+                        (0, sub(0.1, 140, 70, 25), 0.35)])
+
+
+def swing_plunge():
+    """찍기: 위에서 떨어지는 바람 (점점 낮아진다)."""
+    return K.mix(0.34, [(0, heavy_whoosh(0.32, (700, 220), (3200, 900), 1.3, peak=0.7), 1.0),
+                        (0, S('rpg-audio', 'clothBelt2', 0.14, 0.9), 0.3)])
+
+
+def accent(zone):
+    """구간 색 소리 (휘두르기 위에 겹친다): 각성 = 반짝이는 종 둘, 위험 = 지글거리는 불꽃."""
+    if zone == 'awake':
+        return K.mix(0.3, [(0.02, bell(1568, 0.25, 12), 0.35), (0.06, bell(2093, 0.22, 14), 0.25),
+                           (0, S('digital-audio', 'phaserUp4', 0.2, 1.4), 0.2)])
+    return K.mix(0.3, [(0, K.highpass(S('sci-fi-sounds', 'explosionCrunch_002', 0.25, 1.2)), 0.6), (0, sub(0.2, 90, 45, 10), 0.4)])
+
+
+ENH_NOTES = {1: (659.3,), 2: (659.3, 987.8), 3: (659.3, 987.8, 1318.5)}
+
+
+def swing_enh(level):
+    """강화 휘두르기: 단계마다 무겁고 화음이 두꺼워진다 (1 보라·2 금·3 진홍)."""
+    s = 0.36 + 0.08 * level
+    parts = [(0, heavy_whoosh(s - 0.04, (180, 700), (1000, 3200), 1.2 + 0.3 * level, peak=0.45), 1.0),
+             (0, S('sci-fi-sounds', f'forceField_00{level}', s, 1.3 - 0.1 * level), 0.35 + 0.1 * level)]
+    parts += [(0.02 + 0.03 * i, bell(f, s, 7), 0.22) for i, f in enumerate(ENH_NOTES[level])]
+    if level >= 2:
+        parts.append((0.1, sub(0.3, 110, 40, 6), 0.5))
+    if level >= 3:
+        parts.append((0.08, K.highpass(S('sci-fi-sounds', 'explosionCrunch_000', 0.3)), 0.4))
+    return K.mix(s, parts)
+
+
+def impact_pipe_heavy():
+    """3타 마무리: 쇠 + 판 + 주먹 + 깊은 쿵 + 부서지는 소리."""
+    return K.mix(0.5, [(0, S('impact-sounds', 'impactPunch_heavy_000', 0.3, 0.85), 1.0), (0, S('impact-sounds', 'impactMetal_heavy_000', 0.4, 0.85), 0.6),
+                       (0, S('impact-sounds', 'impactPlate_heavy_000', 0.3), 0.45), (0, sub(0.4, 170, 38, 7), 0.8),
+                       (0.005, K.highpass(S('sci-fi-sounds', 'explosionCrunch_001', 0.2)), 0.35)])
+
+
+def impact_pipe_dash(v=1):
+    """이동 베기 적중: 날카롭게 가르는 소리 + 주먹."""
+    return K.mix(0.3, [(0, S('rpg-audio', 'knifeSlice' + ('' if v == 1 else '2'), 0.2, 0.8 * PV[v]), 0.8),
+                       (0, S('impact-sounds', f'impactPunch_medium_00{v + 1}', 0.25, PV[v]), 0.9), (0, sub(0.14, 160, 60, 18), 0.4)])
+
+
+def impact_pipe_air(v=1):
+    """공중 베기 적중: 가볍고 맑게 (쇠 울림이 위로)."""
+    return K.mix(0.28, [(0, S('impact-sounds', f'impactPunch_medium_00{(v + 2) % 5}', 0.22, 1.05 * PV[v]), 0.9),
+                        (0, S('impact-sounds', f'impactMetal_light_00{v}', 0.22, 1.1 * PV[v]), 0.55)])
+
+
+def impact_pipe_plunge():
+    """찍기 적중: 땅까지 울리는 쿵 + 돌 부서짐."""
+    return K.mix(0.55, [(0, S('impact-sounds', 'impactPunch_heavy_003', 0.3, 0.8), 1.0), (0, S('impact-sounds', 'impactMining_002', 0.35, 0.8), 0.7),
+                        (0, sub(0.45, 150, 32, 6), 0.9), (0.01, K.highpass(S('sci-fi-sounds', 'explosionCrunch_004', 0.25)), 0.35)])
+
+
+def impact_enh(level):
+    """강화 적중 1~3단계: 묵직한 일격 + 마법 울림, 단계마다 폭발이 커진다."""
+    s = 0.45 + 0.15 * level
+    parts = [(0, S('impact-sounds', 'impactPunch_heavy_001', 0.3, 0.85), 1.0), (0, sub(0.3 + 0.1 * level, 160, 38, 8 - level), 0.6 + 0.1 * level),
+             (0, S('sci-fi-sounds', f'forceField_00{level + 1}', 0.3, 1.4), 0.3)]
+    parts += [(0.01, bell(f * 0.5, s, 6), 0.25) for f in ENH_NOTES[level]]
+    if level >= 2:
+        parts.append((0, S('impact-sounds', 'impactPlate_heavy_004', 0.3), 0.45))
+    if level >= 3:
+        parts.append((0, S('sci-fi-sounds', 'lowFrequency_explosion_000', 0.6), 0.7))
+    return K.mix(s, parts)
+
+
+def enhance_level(level):
+    """E 강화 1~3단계: 1 = 모이는 소리, 2 = 두 음 + 쿵, 3 = 세 음 화음 + 우렁찬 낮은 소리 + 큰 쿵."""
+    s = 0.6 + 0.2 * level
+    parts = [(0, S('digital-audio', ('powerUp7', 'powerUp3', 'powerUp11')[level - 1], 0.5), 0.6),
+             (0, S('sci-fi-sounds', f'forceField_00{level - 1}', s * 0.8, 1.1), 0.45), (0, rise(0.35, 220 * level, 1100), 0.25)]
+    parts += [(0.12 + 0.07 * i, bell(f, s - 0.15, 4.5), 0.3) for i, f in enumerate(ENH_NOTES[level])]
+    if level >= 2:
+        parts.append((0.1, sub(0.5, 120, 36, 4), 0.7))
+    if level >= 3:
+        parts += [(0.08, S('sci-fi-sounds', 'lowFrequency_explosion_001', 0.7), 0.7),
+                  (0.05, S('sci-fi-sounds', 'spaceEngineLow_002', 0.6, 0.7), 0.35)]
+    return K.mix(s, parts)
+
+
+def hit_material(mat, v=1):
+    """적이 맞는 소리 (재질). 무기 타격음과 겹쳐 난다."""
+    k = PV[v]
+    m = {
+        'flesh': [(S('impact-sounds', f'impactPunch_medium_00{v}', 0.2, 0.95 * k), 0.8), (S('impact-sounds', f'impactSoft_heavy_00{v}', 0.22, k), 0.6)],
+        'beast': [(S('impact-sounds', f'impactSoft_medium_00{v}', 0.18, 1.15 * k), 0.8), (S('impact-sounds', f'impactGeneric_light_00{v}', 0.12, 0.9 * k), 0.5)],
+        'small': [(S('impact-sounds', f'impactSoft_medium_00{v + 1}', 0.12, 1.45 * k), 0.8), (S('impact-sounds', f'impactGeneric_light_00{v + 1}', 0.1, 1.3 * k), 0.4)],
+        'armor': [(S('impact-sounds', f'impactPlate_medium_00{v}', 0.25, k), 0.8), (S('impact-sounds', f'impactMetal_light_00{v + 1}', 0.22, k), 0.45)],
+        'armor_crystal': [(S('impact-sounds', f'impactPlate_medium_00{v + 1}', 0.22, k), 0.7), (S('impact-sounds', f'impactGlass_light_00{v}', 0.25, k), 0.55)],
+        'mech': [(S('impact-sounds', f'impactTin_medium_00{v}', 0.22, k), 0.8), (S('impact-sounds', f'impactMetal_medium_00{v + 1}', 0.2, 1.1 * k), 0.4),
+                 (K.highpass(S('sci-fi-sounds', 'explosionCrunch_003', 0.1, 1.3)), 0.25)],
+        'crystal': [(S('impact-sounds', f'impactGlass_medium_00{v}', 0.3, k), 0.8), (bell(1760 * k, 0.3, 10), 0.2)],
+        'ethereal': [(K.lowpass(S('impact-sounds', f'impactGlass_light_00{v + 1}', 0.3, 0.7 * k), 3), 0.7),
+                     (S('sci-fi-sounds', 'forceField_004', 0.25, 1.6 * k), 0.35)],
+        'boss_metal': [(S('impact-sounds', f'impactMetal_heavy_00{v}', 0.35, 0.9 * k), 0.8), (S('impact-sounds', f'impactPlate_heavy_00{v}', 0.3, k), 0.5),
+                       (sub(0.25, 120, 45, 9), 0.5)],
+        'boss_crystal': [(S('impact-sounds', f'impactGlass_heavy_00{v}', 0.35, k), 0.8), (S('impact-sounds', 'impactBell_heavy_003', 0.4, 1.2 * k), 0.3),
+                         (sub(0.25, 130, 50, 9), 0.4)],
+        'organic': [(S('impact-sounds', f'impactSoft_heavy_00{v + 1}', 0.3, 0.75 * k), 0.9), (S('sci-fi-sounds', 'slime_000', 0.3, 0.9 * k), 0.5)],
+    }[mat]
+    return K.mix(0.4, [(0, x, g) for x, g in m])
+
+
+def jump_v3(v=1):
+    """점프: 발로 밀어내는 짧은 소리 + 옷 + 짧은 바람."""
+    return K.mix(0.2, [(0, S('impact-sounds', f'footstep_concrete_00{v - 1}', 0.1, 1.25 * PV[v]), 0.45),
+                       (0, S('rpg-audio', f'cloth{v}', 0.14, 1.1 * PV[v]), 0.45), (0.01, whoosh(0.15, 600, 1600, peak=0.25), 0.4)])
+
+
+def double_jump_v3():
+    """2단 점프: 위로 솟는 바람 + 헤이즈 반짝임."""
+    return K.mix(0.3, [(0, heavy_whoosh(0.24, (400, 1200), (1500, 4200), 0.7, peak=0.3), 0.9),
+                       (0.03, bell(2093, 0.2, 14), 0.18), (0.06, bell(2637, 0.18, 16), 0.12), (0, S('rpg-audio', 'cloth4', 0.12, 1.3), 0.3)])
+
+
+def dash_v3(v=1):
+    """대시: 앞이 묵직한 '훅' + 빠르게 지나가는 바람 + 헤이즈 반짝임 꼬리."""
+    return K.mix(0.28, [(0, sub(0.1, 150, 70, 22), 0.5), (0, heavy_whoosh(0.24, (900 * PV[v], 260 * PV[v]), (4400 * PV[v], 1400 * PV[v]), 1.1, peak=0.15), 1.0),
+                        (0.04, S('rpg-audio', f'cloth{v + 1}', 0.12, 1.2), 0.3), (0.08, bell(2349 * PV[v], 0.16, 18), 0.1)])
+
+
 SOUNDS = {
     'swing': swing, 'swing_fade': swing_fade, 'swing_awake': swing_awake, 'swing_critical': swing_critical,
     'swing_enhanced': swing_enhanced, 'dash': dash, 'jump': jump, 'double_jump': double_jump, 'land': land, 'hit': hit,
@@ -337,11 +494,27 @@ SOUNDS = {
     **{f'throw_{z}': (lambda z=z: throw_zone(z)) for z in ('fade', 'awake', 'critical', 'enhanced')},
     **{f'chain_throw_{z}': (lambda z=z: chain_zone(z)) for z in ('fade', 'awake', 'critical', 'enhanced')},
     **{f'ult_final_{w}': (lambda w=w: ult_final(w)) for w in ('pipe', 'knife', 'gauntlet', 'chain')},
+    # v3
+    'swing_1': lambda: swing_n(1), 'swing_2': lambda: swing_n(2), 'swing_3': lambda: swing_n(3),
+    'swing_air': swing_air, 'swing_dash': swing_dash, 'swing_plunge': swing_plunge,
+    'accent_awake': lambda: accent('awake'), 'accent_critical': lambda: accent('critical'),
+    **{f'swing_enh{k}': (lambda k=k: swing_enh(k)) for k in (1, 2, 3)},
+    'impact_pipe_heavy': impact_pipe_heavy, 'impact_pipe_dash': impact_pipe_dash, 'impact_pipe_air': impact_pipe_air,
+    'impact_pipe_plunge': impact_pipe_plunge,
+    **{f'impact_enh{k}': (lambda k=k: impact_enh(k)) for k in (1, 2, 3)},
+    **{f'enhance_{k}': (lambda k=k: enhance_level(k)) for k in (1, 2, 3)},
+    **{f'hit_{m}': (lambda m=m: hit_material(m)) for m in ('flesh', 'beast', 'small', 'armor', 'armor_crystal', 'mech', 'crystal',
+                                                           'ethereal', 'boss_metal', 'boss_crystal', 'organic')},
+    'jump': jump_v3, 'double_jump': double_jump_v3, 'dash': dash_v3,
 }
 # 자주 나는 소리의 2·3버전 (src/config.SFX_VARIANTS): 다른 원본 파일과 음 높이로
 VARIANT_FNS = {'swing': swing, 'swing_fade': swing_fade, 'swing_awake': swing_awake, 'swing_critical': swing_critical,
                'enemy_hit': enemy_hit, 'impact_pipe': impact_pipe, 'impact_knife': impact_knife, 'impact_gauntlet': impact_gauntlet,
-               'hit': hit, 'dash': dash, 'jump': jump, 'land': land, 'throw': throw}
+               'hit': hit, 'dash': dash_v3, 'jump': jump_v3, 'land': land, 'throw': throw,
+               # v3
+               'swing_1': lambda v: swing_n(1, v), 'swing_2': lambda v: swing_n(2, v), 'swing_3': lambda v: swing_n(3, v),
+               'swing_air': swing_air, 'swing_dash': swing_dash, 'impact_pipe_dash': impact_pipe_dash, 'impact_pipe_air': impact_pipe_air,
+               **{f'hit_{m}': (lambda v, m=m: hit_material(m, v)) for m in ('flesh', 'beast', 'small', 'armor', 'mech')}}
 
 
 # 원본이 꽉 찬(평균 크기가 큰) 소리는 줄인다: 다른 소리와 체감 크기를 맞춘다 (나머지는 최고점 0.85)

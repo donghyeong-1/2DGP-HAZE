@@ -187,10 +187,17 @@ def sfx_gain(name):
     return config.SFX_GAIN.get(name, 1.0)
 
 
+_channels_ready = [False]
+
+
 def sound(name):
     """assets/sfx/<name>.wav 를 불러와 캐시한다. 오디오를 쓸 수 없으면 None."""
     if name not in _sounds:
         try:
+            if not _channels_ready[0]:                 # v7 효과음 v3: 휘두르기·무기·재질·처치 소리가 겹친다 (기본 8 -> 32)
+                _channels_ready[0] = True
+                from sdl2.sdlmixer import Mix_AllocateChannels
+                Mix_AllocateChannels(32)
             from pico2d import load_wav
             wav = load_wav(os.path.join(ASSET_DIR, 'sfx', name + '.wav'))
             if wav is not None:

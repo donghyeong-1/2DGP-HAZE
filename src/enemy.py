@@ -163,7 +163,7 @@ class Enemy(TileBody):
                 self.shield = 0.0
                 effects.spawn('puff', self.x, self.y + self.hb_h / 2, duration=0.3)
             if damage <= 0:
-                assets.play_sound('enemy_hit')
+                assets.play_sound('hit_ethereal')         # 보호막이 받았다: 막에 튕기는 소리
                 return False
         self.hp -= damage
         self.flash = config.ENEMY_HIT_FLASH
@@ -192,7 +192,7 @@ class Enemy(TileBody):
                 effects.spawn('death-burst', *self.center, duration=0.45)   # 헤이즈 조각으로 흩어진다
             game_world.remove_object(self)
             return True
-        assets.play_sound('enemy_hit')
+        assets.play_sound(drama.hit_sound(self.kind))     # v7: 적 재질마다 다른 맞는 소리
         if self.stats.get('super_armor') and self.state == 'ATTACK':
             return False                                  # 간수는 공격 중에 맞아도 기술이 끊기지 않는다
         if self.stagger_guard > 0:

@@ -243,7 +243,7 @@ class HeartCore(_Part):
         dealt = damage * (H['open_mult'] if self.is_open else H['closed_mult'])
         self.hp -= dealt
         self._hurt_fx(damage, dealt)
-        assets.play_sound('enemy_hit' if self.is_open else 'chain_clash')
+        assets.play_sound('hit_organic' if self.is_open else 'chain_clash')
         if self.hp <= 0:
             self._die()
             return True
@@ -441,7 +441,7 @@ class HeartHand(_Part):
             return False
         self.hp = max(0.0, self.hp - damage)
         self._hurt_fx(damage, damage)
-        assets.play_sound('enemy_hit')
+        assets.play_sound('hit_organic')
         if self.hp <= 0:
             self.mode, self.timer = 'stun', 0.0
             effects.add_trauma(0.5)

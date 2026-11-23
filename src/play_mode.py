@@ -43,6 +43,7 @@ def enter():
     stage.on_pickup = _on_pickup
     stage.on_mutation = _on_mutation
     stage.on_npc = _on_npc
+    stage.on_practice = _on_practice
     stage.start()
     room = stage.room
     game_world.add_object(player, game_world.LAYER_PLAYER)
@@ -52,6 +53,8 @@ def enter():
     game_world.add_object(Ambience(stage), game_world.LAYER_UI)             # 구역 환경음 (그림 없음)
     from tutorial import Tutorial
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
+    from practice import PracticeHud
+    game_world.add_object(PracticeHud(stage), game_world.LAYER_UI)          # 연습장 초당 피해 (연습장에서만 그린다)
     game_world.add_object(Tutorial(player, stage), game_world.LAYER_UI)     # 처음 안내판 (HUD 위에)
     from zone_card import ZoneCard
     game_world.add_object(ZoneCard(stage), game_world.LAYER_UI)             # 구역 제목 카드 (Codex T33, 맨 위)
@@ -61,7 +64,7 @@ def enter():
 def music_for(stage):
     """지금 방에 맞는 곡: 은신처 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 MUSIC, 기본 'boss'), 아니면 스테이지 곡."""
     name = getattr(stage, 'name', '')
-    if name == 'hideout':
+    if name in ('hideout', 'practice'):
         return 'hideout'
     boss = stage.boss
     if boss is not None and boss.alive:
@@ -73,7 +76,10 @@ STAGE_MUSIC = {'stage1': 'explore', 'stage2': 'factory', 'stage3': 'tower'}   # 
 
 
 def _on_npc(npc):
-    """은신처 NPC 앞에서 F: 그 NPC의 창을 연다."""
+    """은신처 NPC 앞에서 F: 그 NPC의 창을 연다. 연습장 표지판이면 연습장으로."""
+    if npc.kind == 'practice':
+        _go_stage('practice')
+        return
     import npc_mode
     npc_mode.kind = npc.kind
     npc_mode.player = player
@@ -195,7 +201,7 @@ def update():
     camera.update(player, room, dt)
     if room.locked:
         clear_notice = 0.0  # 새 방에 들어오면 이전 방의 클리어 안내를 지운다
-    if stage.name != 'hideout':                    # 은신처에서는 게이지가 줄지 않는다 (안전한 곳)
+    if stage.name not in ('hideout', 'practice'):  # 은신처·연습장에서는 게이지가 줄지 않는다 (안전한 곳)
         player.gauge.tick(dt, room.is_high_haze)
     player.tick_run_clock(dt, stage.name)        # 판 기록의 시간 (은신처 제외)
     import drama
@@ -219,6 +225,27 @@ def update():
         import ending_mode
         ending_mode.result = 'dead'
         game_framework.change_mode(ending_mode)
+
+
+def _on_practice():
+    """연습장에서 F: 연습 메뉴."""
+    import practice_mode
+    practice_mode.stage, practice_mode.player = stage, player
+    game_framework.push_mode(practice_mode)
+
+
+def _go_stage(name):
+    """같은 플레이어로 name 구역의 시작 방을 연다 (연습장, 테스트 모드 바로가기)."""
+    global stage, room
+    import stage as stage_mod
+    stage = stage_mod.jump_to(stage, name)
+    player.no_death = name == 'practice'         # 연습장: 불러낸 적에게 맞아도 쓰러지지 않는다
+    room = stage.room
+    for obj in game_world.world[game_world.LAYER_UI]:
+        if hasattr(obj, 'stage'):
+            obj.stage = stage
+    camera.snap(player, stage.room)
+    assets.play_music(music_for(stage))
 
 
 def _test_jump(target):

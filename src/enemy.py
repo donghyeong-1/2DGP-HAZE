@@ -169,6 +169,12 @@ class Enemy(TileBody):
         self.flash = config.ENEMY_HIT_FLASH
         import drama
         drama.damage_number(self, damage, self.player)    # 피해 숫자 (11/21 타격감)
+        if getattr(self, 'immortal', False):               # v7 연습장 허수아비: 피해만 재고 쓰러지지 않는다
+            import practice
+            practice.record(damage)
+            if self.hp <= 0:
+                self.hp = self.max_hp
+            return False
         if self.hp <= 0:
             self.alive = False
             self.die()

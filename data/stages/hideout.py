@@ -12,4 +12,4 @@ HIDEOUT = {
     (0, 0): {"template": "hideout_room", "type": "hideout", "theme": "hideout"},
 }
 
-NPCS = [('mechanic', 9), ('keeper', 17), ('archivist', 25), ('armory', 13)]   # 무기 걸이는 정비사와 보관인 사이 (11/23)
+NPCS = [('mechanic', 9), ('keeper', 17), ('archivist', 25), ('armory', 13), ('practice', 21)]   # 연습장 표지판 (11/24)   # 무기 걸이는 정비사와 보관인 사이 (11/23)

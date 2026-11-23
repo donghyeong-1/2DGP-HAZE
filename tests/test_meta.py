@@ -134,11 +134,11 @@ def test_run_starts_in_the_hideout_and_its_door_leads_to_stage_one():
     p = new_player()
     s = stage_mod.Stage(p, name='hideout')
     s.start()
-    assert s.type_of(s.coord) == 'hideout' and len(s.npcs) == 4   # 정비사·보관인·기록관 + 무기 걸이
+    assert s.type_of(s.coord) == 'hideout' and len(s.npcs) == 5   # 정비사·보관인·기록관 + 무기 걸이 + 연습장 표지판
     for _ in range(60):
         game_world.update(DT)
     assert p.on_ground and p.y == 2 * config.TILE == s.npcs[0].y                      # 바닥 위에 선다 (바닥 속에 끼지 않는다)
-    assert {n.kind for n in s.npcs} == {'mechanic', 'keeper', 'archivist', 'armory'}
+    assert {n.kind for n in s.npcs} == {'mechanic', 'keeper', 'archivist', 'armory', 'practice'}
     assert 'R' in s.room.links and not s.room.locked
     assert [c for c, *_ in s.minimap_cells()] == [(0, 0)]                               # 출발 문 너머는 지도에 없다
     p.x, p.y = s.room.width - config.PLAYER_HB_W / 2 - 1, s.room.door_center('R')[1]

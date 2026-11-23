@@ -232,6 +232,30 @@ def give(player, mid):
         g.enhance_time_mult = TIDE_TIME
 
 
+def remove(player, mid):
+    """증강을 뺀다 (연습장). give에서 한 번 건 효과(대시 칸·충전·강화 비용·버티기·시너지)를 되돌린다."""
+    if not has(player, mid):
+        return
+    had_ember, had_tide = synergy(player, 'ember'), synergy(player, 'tide')
+    player.mutations.remove(mid)
+    g = player.gauge
+    if mid == 'hollow_dash':
+        player.dash_recharge /= HOLLOW_DASH
+    elif mid == 'tide_cost':
+        g.cost_cut -= TIDE_COST
+    elif mid == 'hollow_floor':
+        g.rescue = None
+    elif mid == 'dash_extra':
+        player.dash_max -= 1
+        player.dash_slots = min(player.dash_slots, player.dash_max)
+    elif mid == 'dash_recharge':
+        player.dash_recharge /= DASH_RECHARGE
+    if had_ember and not synergy(player, 'ember') and _ember_filter in g.filters:
+        g.filters.remove(_ember_filter)
+    if had_tide and not synergy(player, 'tide'):
+        g.enhance_time_mult = 1.0
+
+
 def _rescue(gauge):
     """마지막 숨: 게이지가 0이 되는 순간 한 번만 HOLLOW_FLOOR로 되돌린다."""
     gauge.rescue = None

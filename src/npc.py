@@ -10,12 +10,13 @@ import config
 import sprites
 
 INTERACT_RANGE = 120
-NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관', 'armory': '무기 걸이'}
+NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관', 'armory': '무기 걸이', 'practice': '연습장'}
 ROLES = {'mechanic': '기본 능력 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록',
-         'armory': '시작 무기 고르기'}
-COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255), 'armory': (230, 210, 150)}
+         'armory': '시작 무기 고르기', 'practice': '연습장 들어가기'}
+COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255), 'armory': (230, 210, 150),
+          'practice': (140, 235, 170)}
 # 임시 모습: (몸 폭, 키, 소품 색)
-SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None)}
+SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None), 'practice': (60, 120, None)}
 
 
 class NPC:
@@ -53,6 +54,9 @@ class NPC:
         if self.kind == 'armory':
             self._draw_rack()
             return
+        if self.kind == 'practice':
+            self._draw_sign()
+            return
         """그림이 오기 전 임시 모습: 외곽선 있는 몸통·머리와 하는 일을 보여 주는 소품 하나 (왼쪽을 본다)."""
         w, h, prop = SHAPES[self.kind]
         x, y = int(self.x), int(self.y)
@@ -71,6 +75,17 @@ class NPC:
         else:                                                    # 품에 안은 장부
             assets.draw_rect_color(x - w // 2 - 6, y + 40, 26, 30, prop)
         assets.draw_rect_color(x - w // 2, y + 2, w, 6, COLORS[self.kind])   # 하는 일 색 띠
+
+    def _draw_sign(self):
+        """연습장 표지판 (그림이 오기 전 임시): 나무 기둥 + 과녁 판. 2배 픽셀 사각형."""
+        x, y = int(self.x) // 2 * 2, int(self.y)
+        ink = (11, 16, 32)
+        assets.draw_rect_color(x - 6, y, 12, 80, ink)
+        assets.draw_rect_color(x - 4, y, 8, 78, (120, 90, 60))                 # 기둥
+        assets.draw_rect_color(x - 34, y + 62, 68, 54, ink)
+        assets.draw_rect_color(x - 32, y + 64, 64, 50, (150, 115, 75))         # 판
+        for r, c in ((20, (230, 230, 220)), (14, (200, 70, 60)), (8, (230, 230, 220)), (3, (200, 70, 60))):
+            assets.draw_rect_color(x - r, y + 89 - r, r * 2, r * 2, c)          # 과녁 (사각 동심)
 
     def _draw_rack(self):
         """무기 걸이 (코드로 그림, 2026-11-23): 나무 틀에 무기 셋이 걸려 있고, 고른 무기 아래에 불이 켜진다."""

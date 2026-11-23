@@ -61,10 +61,14 @@ def jump_to(stage, name):
         for obj in list(game_world.world[layer]):
             game_world.remove_object(obj)
     nxt = Stage(stage.player, seed=stage.seed + 1, name=name)
-    nxt.on_clear, nxt.on_message, nxt.on_pickup = stage.on_clear, stage.on_message, stage.on_pickup
-    nxt.on_mutation = stage.on_mutation
+    _copy_callbacks(stage, nxt)
     nxt.start()
     return nxt
+
+
+def _copy_callbacks(old, new):
+    new.on_clear, new.on_message, new.on_pickup = old.on_clear, old.on_message, old.on_pickup
+    new.on_mutation, new.on_npc, new.on_practice = old.on_mutation, old.on_npc, old.on_practice
 
 
 def boss_room(stage):
@@ -82,8 +86,7 @@ def next_stage(stage):
         for obj in list(game_world.world[layer]):
             game_world.remove_object(obj)
     nxt = Stage(stage.player, seed=stage.seed + 1, name=stage.next_name)
-    nxt.on_clear, nxt.on_message, nxt.on_pickup = stage.on_clear, stage.on_message, stage.on_pickup
-    nxt.on_mutation = stage.on_mutation
+    _copy_callbacks(stage, nxt)
     nxt.start()
     return nxt
 
@@ -136,6 +139,7 @@ class Stage:
         self.pedestals = []
         self.npcs = []              # 은신처 NPC (정비사·보관인·기록관)
         self.on_npc = None          # NPC 앞에서 F: f(npc) (play_mode가 창을 연다)
+        self.on_practice = None     # 연습장에서 F: 연습 메뉴 (play_mode가 연다)
         self.boss = None
         self.finished = False       # 끝 방(보스·관문)을 클리어해 이 구역이 끝났는가
         self.finish_timer = 0.0
@@ -210,6 +214,8 @@ class Stage:
     def next_name(self):
         if self.name == 'hideout':                 # 은신처의 출발 문 -> 스테이지 1
             return STAGE_ORDER[0]
+        if self.name == 'practice':                # 연습장은 다음 구역이 없다 (메뉴에서 은신처로)
+            return None
         i = STAGE_ORDER.index(self.name) if self.name in STAGE_ORDER else len(STAGE_ORDER)
         return STAGE_ORDER[i + 1] if i + 1 < len(STAGE_ORDER) else None
 
@@ -273,7 +279,10 @@ class Stage:
             self._spawn_pedestals(coord, kind)
         elif kind == 'hideout':
             self._spawn_npcs()
-        self.room.locked = self.enemy_count() > 0
+        elif kind == 'practice':                   # v7 연습장: 쓰러지지 않는 허수아비
+            import practice
+            practice.spawn_dummies(self)
+        self.room.locked = self.enemy_count() > 0 and kind != 'practice'   # 연습장은 잠그지 않는다 (남은 적 칩도 안 뜬다)
 
     def _make_boss(self, kind, x, y):
         """보스 종류별 객체: 크래셔(스테이지 2), 아크(스테이지 3)."""
@@ -442,6 +451,10 @@ class Stage:
     def interact(self):
         """F: 가까운 진열대의 아이템을 얻거나 사고, 은신처에서는 가까운 NPC와 이야기한다."""
         p = self.player
+        if self.type_of(self.coord) == 'practice':  # 연습장 어디서나 F: 연습 메뉴
+            if self.on_practice:
+                self.on_practice()
+            return True
         talk = [n for n in self.npcs if n.near(p)]
         if talk:
             if self.on_npc:

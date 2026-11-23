@@ -1,6 +1,6 @@
 # 진행상황 (PROGRESS)
 
-마지막 갱신: 2026-11-23 [Claude Code]
+마지막 갱신: 2026-11-24 [Claude Code]
 
 ## 진행 중
 - (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
@@ -284,3 +284,4 @@
 2026-11-24 [Claude Code] 증강 v2 뼈대: 갈래(게이지 4계열 + 철파이프 연타·공중·이동 베기 + 공통 대시), 갈래 단위 무게(가진 x3·든 무기 x2·공통 x1·안 든 무기 x0.2), 셋 중 하나는 새 갈래, 진화는 기본 2개+준비 완료일 때만. 철파이프·대시 기본 증강 12종 실제 효과(공속·사거리·3타·공중·체공·띄우기·대시 공격 피해·폭·충전·대시 +1·무적·충전 시간), 테스트 먼저 / src/(mutations, weapon, player).py, tests/(test_augments, test_mutations).py
 2026-11-24 [Claude Code] 주인공 공격 v3 1차: 파이프 손 경로 키포인트 생성기(gen_v3.py)로 skeleton v3 18동작(땅6·공중4·E/증강8) + 무기별 기준 그림 3종(권총·건틀릿·사슬) 생성, 약 92회(남은 1637회), 커밋 안 함 / assets/sprites/pixellab/hero_v6_test/raw/v3_*, base_{pistols,gauntlets,chain}.png, shots/pixellab_test/v3_*
 2026-11-24 [Claude Code] 맵 절차 생성: 매판 시드로 구역 배치(본 경로 + 위 갈래 + 균열방, 황금방 위·정비방 아래, 문 방향 맞는 템플릿, 구역별 적 목록), config.PROCEDURAL_MAPS, 40시드 도달 가능·끝 방 하나·특수방 수 테스트, 전체 판 자동 점검 2판(70방) 통과 / src/(mapgen, stage, config).py, tests/(test_mapgen, test_stage, test_room_variants).py
+2026-11-24 [Claude Code] 연습장: 은신처 '연습장' 표지판 -> 평평한 연습 방(발판 3층), 쓰러지지 않는 허수아비 둘(맞아도 체력이 다시 참, 초당 피해 5초), 주인공도 쓰러지지 않고 게이지 흐르지 않음, F 연습 메뉴(적 11종 불러내기·정리·두 번째 무기·게이지 ±10·증강 넣기/빼기·모두 빼기·은신처로), 연습장은 잠그지 않음, 실제 창 확인 / src/(practice, practice_mode, stage, enemy, npc, player, play_mode, mutations).py, data/(stages/practice.py, stages/hideout.py, rooms/practice_room.txt), tests/(test_practice, test_meta, test_rooms).py

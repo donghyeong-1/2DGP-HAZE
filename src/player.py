@@ -255,6 +255,7 @@ class Player(TileBody):
         self.potions = config.POTION_START   # v7 물약 (Q)
         self.potion_cool = 0.0
         self.hang_left = 0.0         # v7 증강 '체공' 남은 시간
+        self.no_death = False        # 연습장: 맞아도 체력 1에서 멈춘다
         self.steady_left = 0.0           # 이 시간 동안의 무적은 깜빡이지 않는다 (궁극기 시전: 몸이 보여야 한다)
 
         self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
@@ -350,7 +351,7 @@ class Player(TileBody):
 
     def tick_run_clock(self, dt, stage_name):
         """판 기록의 시간: 은신처 밖에서만 센다."""
-        if stage_name != 'hideout':
+        if stage_name not in ('hideout', 'practice'):
             self.run_clock += dt
 
     def handle_event(self, event):
@@ -527,6 +528,8 @@ class Player(TileBody):
         import mutations
         damage = round(damage * mutations.taken_mult(self))     # 변이 '그을린 피부'
         self.hp = max(0, self.hp - damage)
+        if self.no_death and self.hp <= 0:                   # 연습장: 쓰러지지 않는다
+            self.hp = 1
         import killers
         self.last_hit_by = killers.describe(source)          # 사망 화면의 '쓰러진 원인' (11/22)
         self.gauge.add(config.LOSS_DAMAGED + gauge_delta, 'damaged')
@@ -608,7 +611,7 @@ class Player(TileBody):
         self.ult_pose_left = max(0.0, self.ult_pose_left - dt)
         self.potion_cool = max(0.0, self.potion_cool - dt)
         import options
-        if options.test_mode and self.state != 'DEAD':      # v7 테스트 모드: 게이지가 사망·오버로드에 닿지 않게
+        if (options.test_mode or self.no_death) and self.state != 'DEAD':   # 테스트 모드·연습장: 게이지가 사망·오버로드에 닿지 않게
             self.gauge.value = min(max(self.gauge.value, 5.0), self.gauge.cap - 1.0)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:

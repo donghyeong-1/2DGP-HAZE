@@ -65,6 +65,57 @@ def remove_white_arcs(a):
     return out
 
 
+HEAD_LIGHT = 140          # 흰 머리·옆얼굴로 보는 밝기 (RGB 최솟값)
+HEAD_ROWS = 9             # 머리 꼭대기부터 이만큼 줄 안에서 머리 오른쪽 끝을 잰다
+
+
+def head_ref(a):
+    """머리 기준점: (밝은 덩어리 맨 위 줄, 그 아래 HEAD_ROWS줄 안의 오른쪽 끝 x). 오른쪽을 보는 그림 기준."""
+    light = (a[:, :, 3] == 255) & (a[:, :, :3].min(axis=2) > HEAD_LIGHT)
+    ys = np.nonzero(light.any(axis=1))[0]
+    if not len(ys):
+        return None
+    top = int(ys[0])
+    xs = np.nonzero(light[top:top + HEAD_ROWS].any(axis=0))[0]
+    return top, int(xs.max())
+
+
+def find_eye(base):
+    """기준 그림에서 눈 픽셀(머리 안의 청록 계열 한 점)과 머리 기준점으로부터의 거리를 찾는다."""
+    top, right = head_ref(base)
+    rgb = base[:, :, :3].astype(int)
+    tealish = (base[:, :, 3] == 255) & (rgb[:, :, 1] - rgb[:, :, 0] > 25) & (rgb[:, :, 2] - rgb[:, :, 0] > 25)
+    region = np.zeros_like(tealish)
+    region[top:top + HEAD_ROWS + 4, right - 8:right + 1] = True
+    ys, xs = np.nonzero(tealish & region)
+    if not len(ys):
+        return None
+    y, x = int(ys[0]), int(xs[0])
+    return y - top, x - right, base[y, x].copy()
+
+
+def restore_eye(a, eye):
+    """생성 결과에서 눈이 사라지거나 검게 바뀐 프레임에 기준 그림의 눈을 같은 자리(머리 기준)에 다시 찍는다.
+    그 자리가 얼굴·머리처럼 밝거나 검은 눈구멍일 때만 찍는다 (머리가 크게 가려진 프레임은 건드리지 않는다)."""
+    if eye is None:
+        return a
+    ref = head_ref(a)
+    if ref is None:
+        return a
+    dy, dx, color = eye
+    y, x = ref[0] + dy, ref[1] + dx
+    if not (0 <= y < a.shape[0] and 0 <= x < a.shape[1]) or a[y, x, 3] != 255:
+        return a
+    out = a.copy()
+    region = out[max(0, y - 2):y + 3, max(0, x - 3):x + 2]
+    rgb = region[:, :, :3].astype(int)
+    black = (region[:, :, 3] == 255) & (rgb.max(axis=2) < 40)
+    region[black] = out[y, x + 1] if x + 1 < out.shape[1] and out[y, x + 1, 3] == 255 else region[black]   # 검은 눈구멍은 옆 살색으로
+    if out[y, x, :3].min() > HEAD_LIGHT - 60 or out[y, x, :3].max() < 40:
+        out[y, x] = color
+    return out
+
+
 def load(rel, n=None):
     p = os.path.join(RAW, rel) if n is None else os.path.join(RAW, rel, f'frame_{n}.png')
     a = np.array(Image.open(p).convert('RGBA'))

@@ -64,3 +64,30 @@ initial_pose "standing upright facing right, pipe lowered in the front hand", �
 
 확인용: `shots/pixellab_test/<동작>62_sheet_x3.png`, `<동작>62_dark_x3.png`, `<동작>62.gif` (재시도 전 것은 `_try1`).
 공통 손볼 것: 동작마다 몸 위치가 흘러 게임 적용 시 발 기준 정렬 필요. 모델이 휘두름·피격 효과(청록/흰 궤적)를 그림에 같이 그리는 경향이 있음 — 청록 궤적은 그대로 써도 되지만 효과를 코드로 따로 그릴 거면 지워야 함.
+
+## 4차: 입력 그림(ref_input_96_whitehair) 충실도 시험 (2026-11-23)
+목표: PixelLab이 다시 그리지 않고 입력 그림 모습(끝이 꺾인 파이프, 뾰족한 흰 머리, 목에 감긴 머플러)을 유지한 채 움직이게.
+
+### 기준 base96 (무료)
+- `raw/ref_input_96_whitehair.png`는 973색. 마젠타 배경이 섞인 테두리 62px(r-g>18, b-g>12)는 팔레트 후보에서 뺐다.
+- 요청한 MAXCOVERAGE는 테두리를 빼도 몸이 보라·청록으로 떠서(평균 색 오차 15.0) `raw/base96_maxcoverage.png`로만 남겼다.
+- **`raw/base96.png` = FASTOCTREE 24색**(오차 8.5, MEDIANCUT 9.0), dither 없음, 팔레트 각 색을 원본에 실제 있던 가장 가까운 색으로 되돌림, 알파 0/255.
+- 비교: `shots/pixellab_test/base96_compare.png` (원본 / MAXCOVERAGE / base96, 4배)
+
+### MCP 도구 확인 (모양 유지형)
+- `animate_with_skeleton_v3`: 한 장 기준 그림을 18관절 뼈대 포즈대로 매 프레임 다시 그림. `estimate_skeleton`(0.1회)로 관절 추출, `write_motion_frames`로 동작 자동 작성. 4~14프레임 3회.
+- `animate_character`(mode skeleton-v3/template): PixelLab에 저장된 캐릭터가 있어야 함 → `create_character_pro_flash`(첫 그림 재사용 시 회전 비용) 추가 비용이라 이번엔 안 씀.
+- `estimate_custom_skeleton`: 머플러·파이프 같은 추가 관절 리그(8프레임당 1회). 안 씀.
+- `pixelart_workbench` draw/motion: 원본 픽셀을 부위로 잘라 위치·각도 트랙으로 움직이는 방식(무료, 픽셀 그대로 유지). 부위 영역·피벗·키를 직접 써야 하고, 가려졌던 부분(뒷다리 등)은 손으로 채워야 함. 이번엔 시간상 안 씀.
+
+### 결과 (5.1회 사용 → 남은 7.9회)
+| 방식·폴더 | 도구·옵션 | 비용 | 꺾인 파이프 | 머리 | 머플러 | base96 팔레트 이탈 | 평가 |
+|---|---|---|---|---|---|---|---|
+| `raw/pixminimax_idle96/` (8+1) | `animate_image_pixminimax`, first=last=base96, side/east, seed 5, "keep exact same design ... do not redraw or restyle" | 1 | 유지 | 유지 | 유지, 끝 불꽃만 흔들림 | 0% (24색 그대로) | **매우 충실**. 사실상 입력 그대로에 머플러만 움직임 |
+| `raw/pixminimax_run96/` (8+1) | 같은 설명 + 달리기, seed 5 | 1 | 유지(갈고리 보임) | **바뀜**: 2번 이후 얼굴이 정면으로 돌아 하얀 가면·해골처럼 보이고 귀 같은 뿔이 생김, 7~8번 흰 셔츠 앞섶 | 유지 | 0% | 보통. 동작은 좋지만 얼굴 정체성이 흔들림 |
+| `raw/skeleton_run96/` (8, 입력 반환 없음) | `estimate_skeleton`(0.1) + `animate_with_skeleton_v3`, write_motion_frames 8, side/east, seed 5 | 3.1 | 유지 | **유지**(뒤로 살짝 돈 머리 그대로) | 유지, 불꽃 끝이 조금 납작 | 0% | **가장 충실한 달리기**. 단 4~5번 팔 흔들림에 파이프가 세로로 들림, 다리 보폭 큼 |
+| (참고) `raw/run62_whitehair_pixminimax/` | 3차 게임 적용분 | - | 곧은 막대로 바뀜 | 바뀜 | - | 100% 이탈(15색, 평균 거리 10.8) | 입력과 다른 그림 |
+
+비교 그림: `shots/pixellab_test/fidelity_pixminimax.png`, `fidelity_skeleton.png`, `fidelity_old_still62.png` (첫 칸이 base96, 4배).
+발견: 입력이 24색처럼 적은 색이면 두 방식 모두 입력 팔레트를 그대로 지킨다(이탈 0%). 3차에서 모습이 달라진 주원인은 pixflux로 still62를 다시 그린 단계였다.
+추천: 서서 하는 동작(대기·피격 등 몸이 크게 안 도는 것)은 pixminimax(first=last=base96, 1회), 크게 움직이는 동작(달리기·점프·공격)은 skeleton v3(3회)로. 파이프가 들리는 문제는 뼈대 keypoints를 직접 주어 오른팔(RIGHT ARM)을 낮게 고정하면 줄일 수 있음.

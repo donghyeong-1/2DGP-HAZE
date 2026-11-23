@@ -4,9 +4,6 @@
 
 ## 진행 중
 - [Codex] T49 v6 구역 원경·중경 6장 / 수정 중인 파일: `assets/sprites/forge/backdrops_v6/`, `docs/codex/reports/T49.md`
-- [Gemini] G02 보스 3종 새 디자인 / 수정 중인 파일: assets/sprites/gemini/boss_designs_v1/, docs/gemini/reports/G02.md
-- [Gemini] G03 일반 적 6종 새 디자인 / 수정 중인 파일: assets/sprites/gemini/enemy_designs_v1/, docs/gemini/reports/G03.md
-- [Gemini] G04 대화 초상화 (주인공 + NPC 3) / 수정 중인 파일: assets/sprites/gemini/portraits_v1/, docs/gemini/reports/G04.md
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -271,3 +268,6 @@
 2026-11-23 [Claude Code] v6 작업 나누기: Gemini G02(보스 3종)·G03(적 6종)·G04(초상화) 작성, Codex T49(구역 배경 960x540 픽셀) 작성, 적 6종 확정(등장 횟수 기준) / docs/gemini/, docs/codex/(TASKS.md, tasks/T49_zone_backdrops_v6.md), docs/(plan_v6, DECISIONS, PROGRESS).md
 2026-11-23 [Claude Code] 화면 규격 전환 1차: 타일·소품·전경 87장을 2배 픽셀로(원본 보관, 세 구역 실제 창 확인) / tools/pixel2x.py, assets/(tiles, decor, props, backgrounds/fg_*), assets/concept/pixel1x_original/
 2026-11-23 [Claude Code] 화면 규격 전환 2차: 기존 적·보스·심장·NPC·투사체·무기 자세용 옛 주인공 그림 309장을 2배 픽셀로(새로 만들기 전까지 굵기 맞춤, 세 구역 적 캡처 확인) / tools/pixel2x.py, assets/sprites/unified/(n09·enemy·boss·heart·npc·proj)_*
+
+2026-11-23 [Gemini] G04 주인공 대화 초상화 1장(`hero_portrait.png`) 제작 후 `gemini-3.1-flash-image` 429 할당량 소진(21:02 KST 초기화)으로 G02·G03·G04 나머지 중단, 상태 ready 복원 / assets/sprites/gemini/portraits_v1/hero_portrait.png, docs/gemini/reports/G04.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-23 [Claude Code] 새 주인공 v2 적용: 고른 그림(base96)을 첫 프레임으로 다시 만든 13세트(색 기준 base96 24색, 눈 복원), 실제 창 확인 / tools/apply_pixellab_hero.py, assets/sprites/unified/hero6*, assets/sprites/pixellab/hero_v6_test/

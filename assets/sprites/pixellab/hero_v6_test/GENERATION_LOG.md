@@ -91,3 +91,31 @@ initial_pose "standing upright facing right, pipe lowered in the front hand", �
 비교 그림: `shots/pixellab_test/fidelity_pixminimax.png`, `fidelity_skeleton.png`, `fidelity_old_still62.png` (첫 칸이 base96, 4배).
 발견: 입력이 24색처럼 적은 색이면 두 방식 모두 입력 팔레트를 그대로 지킨다(이탈 0%). 3차에서 모습이 달라진 주원인은 pixflux로 still62를 다시 그린 단계였다.
 추천: 서서 하는 동작(대기·피격 등 몸이 크게 안 도는 것)은 pixminimax(first=last=base96, 1회), 크게 움직이는 동작(달리기·점프·공격)은 skeleton v3(3회)로. 파이프가 들리는 문제는 뼈대 keypoints를 직접 주어 오른팔(RIGHT ARM)을 낮게 고정하면 줄일 수 있음.
+
+## 5차 (v2): base96 기준 주인공 전체 동작 (2026-11-23, 결제 후)
+계정: Tier 1(Pixel Apprentice), 이번 주기 2000회(2026-12-23 갱신), 크레딧 $0. 이번 작업 35회 사용 → 남은 1965회. 동시 작업 여러 개 가능해짐.
+공통: 첫 프레임·기준 = `raw/base96.png`(upload, 96x96, side/east). 뼈대는 `estimate_skeleton`(4차 결과) 재사용.
+- pixminimax 설명: "keep exact same design: hooked crowbar iron pipe held in the front hand, spiky white hair, scarf wrapped around neck with cyan flame ends, side-view face with one cyan glowing eye, never turn the face toward the camera, do not redraw or restyle" + 동작.
+- skeleton v3 description: "young man with spiky white hair and a side-view face with one cyan glowing eye, dark charcoal jacket and pants, grey scarf wrapped around his neck with long tails ending in cyan flames, holding a hooked crowbar iron pipe (low) in his front (right) hand", action은 짧은 동작 문장, `write_motion_frames`.
+- 프레임: pixminimax 폴더는 frame_0=base96(입력 반환), skeleton 폴더는 모두 생성 프레임(입력 없음).
+- 흐름 = base96 대비 몸 중심 x 이동 / 발끝 y 이동(px). 팔레트 이탈 = base96 24색 밖 픽셀 비율.
+
+| 폴더 | 도구·옵션 | 비용 | 파이프 손 | 얼굴 유지 | 흐름 x / 발 y | 이탈 | 평가 |
+|---|---|---|---|---|---|---|---|
+| `idle96/` (8+1) | 4차 `pixminimax_idle96` 복사, first=last | 0 | 유지 | 유지 | 0~2 / 0 | 0% | **좋음** |
+| `hurt96_try1/` (4+1) | pixminimax first=last, "no effects, no slash marks", seed 5 | 1 | 유지 | 유지 | -4~2 / -2 | 6.4% | 다시: 흰 베기 효과가 그려짐 |
+| `hurt96/` (4) | **skeleton v3로 바꿈**, write 4, seed 9 | 3 | 유지 | 유지 | -6~0 / -2 | 0% | **좋음**. 효과 없음, 마지막이 서기에 가까움 |
+| `land96_try1/` (4+1) | pixminimax first=last, seed 5 | 1 | 유지 | **정면으로 돎**(흰 가면) | 0~3 / 0 | 0% | 다시 |
+| `land96/` (4) | **skeleton v3로 바꿈**, write 4, seed 9 | 3 | 유지(수평으로 낮게) | 유지 | 2~5 / 0 | 0% | **좋음** |
+| `run96/` (8) | skeleton v3, 4차 달리기 뼈대에서 앞팔(RIGHT ELBOW/ARM)을 어깨 기준 base96과 같은 오프셋(+0.030,+0.078 / +0.130,+0.134)으로 고정, x ±0.02 흔들림, seed 5 | 3 | **매 프레임 앞아래로 유지** | 유지 | 3~4 / -4 | 0% | **좋음**. 4차의 파이프 들림 해결 |
+| `run_start96/` (4) | skeleton v3, write 4, seed 5 | 3 | 유지 | 유지 | 1~4 / -6 | 0% | **좋음** |
+| `jump96/` (8) | skeleton v3, write 8, seed 5 | 3 | 유지 | 유지 | -1~4 / -16 | 0% | **보통**. 3~5번 파이프 끝이 머리 위로 삐죽 보임. 캔버스 안 상승은 16px뿐이라 높이는 게임 물리로 |
+| `dash96_try1/` (6) | skeleton v3, write 6, seed 5 | 3 | 바닥에 놓임 | 머리가 바닥까지 꺾임 | 1~17 / 2 | 0% | 다시: 기어가는 모양 |
+| `dash96/` (6) | skeleton v3, "lunge forward in a low wide stance ... head up", seed 9 | 3 | 유지하나 2~5번 세로로 듦 | 유지 | -2~8 / 0 | 0% | **보통**. 자세는 낮은 돌진, 파이프가 세워짐(앞팔 고정 뼈대로 재생성하면 나아질 것) |
+| `attack196/` (8) | skeleton v3, 가로 휘두르기, seed 5 | 3 | 유지 | 유지 | -5~9 / 0 | 0% | **좋음**. 휘두르기보다 앞으로 뻗는 쪽, 끝이 기본 자세로 돌아옴 |
+| `attack296/` (8) | skeleton v3, 아래→위 올려치기, seed 5 | 3 | 유지 | 대체로 유지 | 0~8 / 0 | 0% | **보통**. 2~4번 파이프 세로, 6~7번 몸이 비틀리며 머플러가 뭉침 |
+| `attack396/` (8) | skeleton v3, 내려찍기, seed 5 | 3 | 유지 | 유지 | -6~14 / 0 | 0% | **좋음**. 머리 위로 들었다가 5번에 수직 내려찍고 웅크림 |
+| `death96/` (8) | skeleton v3, 쓰러짐, seed 5 | 3 | 놓침(의도) | 유지 | -9~-1 / 1 | 0% | **좋음**. 파이프 떨어뜨리고 뒤로 누움 |
+
+확인 시트: `shots/pixellab_test/v2_<동작>.png`(첫 칸 base96, 3배, 어두운 배경)와 `v2_<동작>.gif`. 첫 시도는 `v2_<동작>_try1`.
+교훈: pixminimax는 서 있는 동작에서도 피격·착지처럼 몸이 크게 움직이면 얼굴을 정면으로 돌리거나 효과를 그린다. skeleton v3는 얼굴·팔레트를 지키고 효과를 안 그린다. 파이프 방향은 앞팔 관절을 직접 주면 잡힌다.

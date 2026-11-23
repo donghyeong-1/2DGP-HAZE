@@ -19,7 +19,7 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, 'assets', 'sprites', 'pixellab', 'hero_v6_test', 'raw')
 DST = os.path.join(ROOT, 'assets', 'sprites', 'unified')
-STILL = 'still62_whitehair_try1.png'
+STILL = 'base96.png'          # 사용자가 고른 그림(Gemini 원화를 62px로 줄여 24색으로 정리) = 색·눈 기준
 SCALE = 2
 
 # 세트 이름: (프레임 목록 [(원본 폴더, 번호)], 맞추기)
@@ -31,22 +31,23 @@ def _f(src, numbers):
     return [(src, n) for n in numbers]
 
 
-RUN = 'run62_whitehair_pixminimax'
+# v2 (2026-11-23 결제 후): base96을 첫 프레임으로 다시 만든 동작. skeleton 폴더는 0번부터 생성 프레임이다.
+# 번호를 고른 이유는 shots/pixellab_test/all96_review.png 참고. 휘두르기는 게임의 타격 순간(3번째)에 타격 프레임이 오게.
 SETS = {
-    'hero6_idle': (_f('idle62', range(1, 9)), 'hair'),                    # 0번 = 8번(반복)이라 1~8
-    'hero6_run': (_f(RUN, [3, 4, 5, 6, 7, 8]), 'hair'),                   # 0 입력, 1~2 출발, 3~8 반복 구간
-    # 출발 1·2, 멈춤 3·4(착지의 무릎 굽힘을 제동으로), 방향 전환 5
-    'hero6_run_trans': (_f(RUN, [1, 2]) + _f('land62', [2, 3]) + _f(RUN, [2]), 'none'),
-    'hero6_jump': (_f('jump62', [1, 3, 6, 8]), 'air'),                    # 게임은 2 상승·3 정점·4 낙하를 쓴다
-    'hero6_dash': (_f('dash62', [5, 7]), 'none'),
-    'hero6_swing_side': (_f('attack162', [2, 3, 4, 5, 6]), 'none'),      # 3번째가 타격(청록 궤적)
-    'hero6_swing_up': (_f('attack262', [3, 4, 5, 6, 7]), 'none'),        # 올려치기
-    'hero6_swing_down': (_f('attack362', [2, 3, 4, 5, 6]), 'none'),      # 내려찍기
-    'hero6_s2rise': (_f('attack262', [4, 5, 6]), 'none'),
-    'hero6_s2slam': (_f('attack362', [3, 4, 5]), 'none'),
-    'hero6_plunge': (_f('attack362', [4, 5]), 'none'),
-    'hero6_hurt': (_f('hurt62', [2, 3]), 'none'),
-    'hero6_death': (_f('death62', [3, 5, 8]), 'none'),
+    'hero6_idle': (_f('idle96', range(1, 9)), 'hair'),                     # 0번 = 8번(반복)이라 1~8
+    'hero6_run': (_f('run96', range(0, 8)), 'hair'),
+    # 출발 1·2, 멈춤 3·4(착지의 무릎 굽힘), 방향 전환 5
+    'hero6_run_trans': (_f('run_start96', [1, 2]) + _f('land96', [0, 1]) + _f('run_start96', [0]), 'none'),
+    'hero6_jump': (_f('jump96', [0, 2, 4, 5]), 'air'),                     # 게임은 2 상승·3 정점·4 낙하를 쓴다
+    'hero6_dash': (_f('dash96', [2, 3]), 'none'),
+    'hero6_swing_side': (_f('attack196', [1, 2, 3, 4, 5]), 'none'),       # 3번째 = 앞으로 뻗은 타격
+    'hero6_swing_up': (_f('attack296', [2, 3, 4, 5, 6]), 'none'),         # 3번째 = 머리 위로 올려친 순간
+    'hero6_swing_down': (_f('attack396', [2, 3, 4, 5, 6]), 'none'),       # 3번째 = 내려찍어 웅크림
+    'hero6_s2rise': (_f('attack296', [3, 4, 5]), 'none'),
+    'hero6_s2slam': (_f('attack396', [2, 3, 4]), 'none'),
+    'hero6_plunge': (_f('attack396', [4, 5]), 'none'),
+    'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
+    'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }
 
 
@@ -166,9 +167,10 @@ def main():
     pal = palette_of(still)
     still_hair = hair_x(still)
     still_foot = foot_row([still])
+    eye = find_eye(still)
     meta = {}
     for name, (frames_src, align) in SETS.items():
-        frames = [lock_palette(remove_white_arcs(load(src, n)), pal) for src, n in frames_src]
+        frames = [restore_eye(lock_palette(remove_white_arcs(load(src, n)), pal), eye) for src, n in frames_src]
         hx = [hair_x(f) for f in frames]
         anchor_x = still_hair
         if align == 'hair':

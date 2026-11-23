@@ -271,3 +271,4 @@
 
 2026-11-23 [Gemini] G04 주인공 대화 초상화 1장(`hero_portrait.png`) 제작 후 `gemini-3.1-flash-image` 429 할당량 소진(21:02 KST 초기화)으로 G02·G03·G04 나머지 중단, 상태 ready 복원 / assets/sprites/gemini/portraits_v1/hero_portrait.png, docs/gemini/reports/G04.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-23 [Claude Code] 새 주인공 v2 적용: 고른 그림(base96)을 첫 프레임으로 다시 만든 13세트(색 기준 base96 24색, 눈 복원), 실제 창 확인 / tools/apply_pixellab_hero.py, assets/sprites/unified/hero6*, assets/sprites/pixellab/hero_v6_test/
+2026-11-23 [Claude Code] G04 부분 검토·적용: 주인공 대화 초상화를 새 디자인으로(100px로 줄여 32색, 2배, 마젠타 가장자리 제거, 기본·결의 같은 그림). 나머지 NPC 3장·G02·G03은 Gemini 이미지 할당량 소진(21:02 KST 이후 재개) / assets/portraits/n09_1~2.png, assets/concept/portraits_v5/

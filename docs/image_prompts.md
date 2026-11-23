@@ -302,3 +302,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-22 [Codex] T47 탑과 보스방 원경을 참조해 중앙 상단을 비우고 하단 1/4을 어둡게 둔 기계 공동을 요청했다. T34 아크 카드, T45 본체 및 T46 손을 참조해 오른쪽 1/3에 열린 본체와 양손을, 왼쪽 2/3에는 글자 자리를 둔 카드를 요청했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 assets/sprites/forge/heart_arena_v1/provenance.json.
 
 2026-11-23 [Gemini] G01 새 주인공 디자인 시안 3안(A: 짧은 작업 재킷+청록 연기 머플러, B: 찢어진 롱코트+헤이즈 흡입 마스크·관, C: 각진 후드+등 헤이즈 탱크·팔 호스). 어두운 무채색 몸체·청록(#00F0E0) 단일 포인트·3단계 평면 음영·마젠타 배경 옆모습(`hero_<A|B|C>_side.png`)과 정면·달리기 실루엣·8색 색표 시트(`hero_<A|B|C>_sheet.png`) 요청. Antigravity 내장 image-generator(모델명 미제공). 상세는 docs/gemini/reports/G01.md.
+
+2026-11-23 [Gemini] G04 주인공 대화 초상화(`hero_portrait.png`, 1024×1024). `hero_A_side.png` 기준에 G01 결정 흰 머리·청록 눈(#00F0E0)·어두운 작업 재킷·청록 연기 머플러, 가슴 위 3/4 구도, 애니풍 선화·3단계 셀 음영, 마젠타 배경 요청. Antigravity 내장 image-generator(`gemini-3.1-flash-image`). 나머지 NPC 3장 및 G02·G03은 429 할당량 소진으로 중단. 상세는 docs/gemini/reports/G04.md.

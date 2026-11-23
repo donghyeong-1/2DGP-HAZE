@@ -313,3 +313,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-23 [Gemini] G01 `assets/sprites/gemini/hero_concepts_v1/` 새 주인공 디자인 시안 3안(`hero_{A,B,C}_{side,sheet,small}.png` 9장). Antigravity 내장 image-generator(모델명 미제공)로 원화 생성 후 PNG 변환, `*_small.png`는 Pillow로 1/24 축소 후 최근접 확대. 검토 대기. docs/gemini/reports/G01.md.
 - 2026-11-23: 새 주인공(v6) `assets/sprites/unified/hero6_*.png`, `hero6.json` — PixelLab(pixellab.ai, MCP `create_image_pixflux`·`animate_image_pixminimax`, 체험판)으로 생성, 기준 그림은 Gemini G01 A안(머리를 흰색으로 칠함). 원본·옵션 기록 `assets/sprites/pixellab/hero_v6_test/GENERATION_LOG.md`. 마무리 `tools/apply_pixellab_hero.py`(기준 그림 15색 고정, 머리 위치 맞춤, 최근접 2배). **이용 조건(상업·학업)은 결제 전에 확인해 여기에 적는다.**
 - 2026-11-23: 타일·장식·소품·전경(`assets/tiles`, `decor`, `props`, `backgrounds/fg_*`)을 `tools/pixel2x.py`로 2배 픽셀 규격으로 변환(code-drawn 처리, 원본 색만 사용). 원본은 `assets/concept/pixel1x_original/`.
+
+2026-11-23 [Gemini] G04(부분) `assets/sprites/gemini/portraits_v1/hero_portrait.png`(1024×1024). Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 생성 후 PNG 변환. 나머지 NPC 3장 및 G02·G03은 429 할당량 소진(21:02 KST 초기화)으로 미완료. docs/gemini/reports/G04.md.

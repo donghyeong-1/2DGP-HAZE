@@ -79,6 +79,7 @@ SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(p
 PLAYER_HB_W = 42           # 충돌 박스 너비
 PLAYER_HB_H = 108          # 충돌 박스 높이 (스프라이트 키 123px의 약 88%)
 HIT_STUN = 0.25            # 피격 경직(초)
+PROCEDURAL_MAPS = True     # v7 맵 절차 생성 (mapgen.py). False면 data/stages의 손으로 짠 배치
 POTION_START = 2           # v7 물약: 판 시작 병 수
 POTION_MAX = 3
 POTION_HEAL = 35           # 한 병 회복량

@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 
 import camera  # noqa: E402
 import config  # noqa: E402
+config.PROCEDURAL_MAPS = False   # 손으로 짠 배치(data/stages)의 좌표로 방 로직을 검사한다. 생성 배치는 test_mapgen.py
 import effects  # noqa: E402
 import game_world  # noqa: E402
 import items  # noqa: E402

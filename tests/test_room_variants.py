@@ -15,6 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'src'))
 
 import config  # noqa: E402
+config.PROCEDURAL_MAPS = False   # 손으로 짠 배치(data/stages)의 좌표로 방 로직을 검사한다. 생성 배치는 test_mapgen.py
 import game_world  # noqa: E402
 import stage as stage_mod  # noqa: E402
 from player import Player  # noqa: E402

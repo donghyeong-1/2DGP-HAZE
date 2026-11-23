@@ -113,17 +113,20 @@ class Stage:
         self.name = name
         self.title, self.default_theme = '', 'cell'
         self.npc_spots = []
+        self.seed = random.randrange(1 << 30) if seed is None else seed
         if layout is None:
             module = _load_module(name)
             start, layout = module.START, getattr(module, name.upper())
             self.title = getattr(module, 'TITLE', '')
             self.default_theme = getattr(module, 'THEME', 'cell')
             self.npc_spots = getattr(module, 'NPCS', [])
+            import mapgen
+            if config.PROCEDURAL_MAPS and name in mapgen.SPECS:     # v7: 매판 시드로 배치를 새로 만든다
+                start, layout = mapgen.generate(name, self.seed)
         self.layout = layout
         self.player = player
         self.start_coord = start
         self.coord = start
-        self.seed = random.randrange(1 << 30) if seed is None else seed
         self.visited = set()
         self.cleared = set()
         self.state = {}             # 방 좌표 -> 아이템 선택·품절 같은 진행 상태

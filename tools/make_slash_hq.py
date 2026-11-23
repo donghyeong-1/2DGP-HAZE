@@ -84,6 +84,25 @@ SHEETS = {
 }
 
 
+# v7 공격 v3 (2026-11-24): 동작에 맞춘 모양.
+#   <구간>-flat: 가로 베기(땅 1타·공중 1타). 몸 뒤에서 앞쪽(카메라 쪽) 아래를 지나 앞으로 도는 납작한 타원 호
+#   pipe-slash-finisher-rise: 올려베기 마무리(3타). 아래에서 위로 올라가는 금색 호
+FLAT = 0.42                             # 타원 세로 / 가로
+
+
+def _flat(cfg):
+    layers = [dict(l, a0=-185 + (l.get("a0", -SWEEP) + SWEEP) * 0.5, a1=10 + (l.get("a1", SWEEP) - SWEEP) * 0.5, rev=True,
+                   w=l["w"] * 1.7)                  # 눌린 아래쪽이 가늘어지지 않게 두껍게
+              for l in cfg["layers"]]
+    return dict(cfg, flat=FLAT, grid=int(cfg["grid"] * 1.25) // 2 * 2, layers=layers)
+
+
+for _name in ("pipe-slash", "pipe-slash-fade", "pipe-slash-awake", "pipe-slash-critical"):
+    SHEETS[_name + "-flat"] = _flat(SHEETS[_name])
+SHEETS["pipe-slash-finisher-rise"] = dict(SHEETS["pipe-slash-finisher"],
+                                          layers=[dict(l, rev=True) for l in SHEETS["pipe-slash-finisher"]["layers"]])
+
+
 def ease_out(p):
     p = min(1.0, max(0.0, p))
     return 1 - (1 - p) ** 2.4
@@ -115,6 +134,12 @@ def layer_heat(X, Y, c, cfg, layer, sa, t, kind):
         a0 = layer.get("a0", -SWEEP)
         a1 = layer.get("a1", SWEEP)
         theta = np.degrees(np.arctan2(dy, dx)) - sa
+        if cfg.get("flat"):                         # v7 가로 베기: 조준 방향 기준으로 세로를 눌러 납작한 타원 호
+            ang = math.radians(sa)
+            lx = dx * math.cos(ang) + dy * math.sin(ang)
+            ly = (-dx * math.sin(ang) + dy * math.cos(ang)) / cfg["flat"]
+            r = np.hypot(lx, ly)
+            theta = np.degrees(np.arctan2(ly, lx))
         if layer.get("rev"):
             theta = -theta
         rel = ((theta - a0) % 360.0) + a0
@@ -260,9 +285,15 @@ def frame_image(name, cfg, aim, i):
         ring = (pad[:-2, 1:-1] | pad[2:, 1:-1] | pad[1:-1, :-2] | pad[1:-1, 2:]) & ~mask & (img[:, :, 3] == 0)
         img[ring] = (*INK, 255)
     end_rel = cfg["layers"][0].get("a1", SWEEP)
+    if cfg["layers"][0].get("rev"):                                # 거꾸로 도는 호는 끝이 반대쪽
+        end_rel = -end_rel
     tip_ang = math.radians(sa + end_rel) if kind == "arc" else math.radians(sa)
     tr = cfg["layers"][0]["r"] * (1.0 if kind == "arc" else 1.0)
     tip = (c + tr * math.cos(tip_ang), c + tr * math.sin(tip_ang))
+    if cfg.get("flat"):                                            # 납작한 호: 조준 방향 기준 세로만 누른다
+        lx, ly = tr * math.cos(math.radians(end_rel)), tr * math.sin(math.radians(end_rel)) * cfg["flat"]
+        a = math.radians(sa)
+        tip = (c + lx * math.cos(a) - ly * math.sin(a), c + lx * math.sin(a) + ly * math.cos(a))
     if cfg.get("spin"):
         tip = (c + tr * math.cos(math.radians(sa)), c + tr * math.sin(math.radians(sa)))
     rnd = np.random.RandomState(7 + i * 0)

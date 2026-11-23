@@ -408,13 +408,14 @@ def fx_for(zone, enhanced=False):
     return config.ENHANCED_FX_BY_LEVEL[max(1, min(3, enh_level))] if enhanced else config.ZONE_FX[zone]
 
 
-def slash_sheet(zone, finisher=False, enhanced=False):
-    """휘두르기 시트 이름. 강화 > 3타 > 구간 순으로 정한다."""
+def slash_sheet(zone, finisher=False, enhanced=False, shape=None):
+    """휘두르기 시트 이름. 강화 > 3타 > 구간 순으로 정한다.
+    shape (공격 v3): 'flat' = 가로 베기의 납작한 호(구간 색), 'rise' = 올려베기 마무리의 올라가는 금색 호."""
     if enhanced:
         return config.ENHANCED_FX['slash'] + enh_suffix()
     if finisher:
-        return config.FINISHER_SLASH
-    return config.ZONE_FX[zone]['slash']
+        return config.FINISHER_SLASH + ('-rise' if shape == 'rise' else '')
+    return config.ZONE_FX[zone]['slash'] + ('-flat' if shape == 'flat' else '')
 
 
 def special_sheet(kind, enhanced=False):

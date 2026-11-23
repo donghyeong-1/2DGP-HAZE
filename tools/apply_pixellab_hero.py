@@ -40,12 +40,21 @@ SETS = {
     'hero6_run_trans': (_f('run_start96', [1, 2]) + _f('land96', [0, 1]) + _f('run_start96', [0]), 'none'),
     'hero6_jump': (_f('jump96', [0, 2, 4, 5]), 'air'),                     # 게임은 2 상승·3 정점·4 낙하를 쓴다
     'hero6_dash': (_f('dash96', [2, 3]), 'none'),
-    'hero6_swing_side': (_f('attack196', [1, 2, 3, 4, 5]), 'none'),       # 3번째 = 앞으로 뻗은 타격
-    'hero6_swing_up': (_f('attack296', [2, 3, 4, 5, 6]), 'none'),         # 3번째 = 머리 위로 올려친 순간
-    'hero6_swing_down': (_f('attack396', [2, 3, 4, 5, 6]), 'none'),       # 3번째 = 내려찍어 웅크림
-    'hero6_s2rise': (_f('attack296', [3, 4, 5]), 'none'),
-    'hero6_s2slam': (_f('attack396', [2, 3, 4]), 'none'),
-    'hero6_plunge': (_f('attack396', [4, 5]), 'none'),
+    # 공격 v3 (2026-11-24, plan_v7 8절, 배치는 shots/pixellab_test/v3_*.png 검토). 휘두르기 세트는 5장:
+    # 젖힘 -> 휘두르는 중 -> 타격(3번째) -> 마무리 -> 회수. 게임의 SWING_STYLE_PHASES가 이 순서로 고른다.
+    'hero6_swing_side': (_f('v3_combo5', [1, 3, 4, 5, 6]), 'none'),       # 땅 1타: 뒤로 당겼다 수평으로 (가로 베기)
+    'hero6_swing_side2': (_f('v3_g2', [3, 4, 5, 6, 7]), 'none'),          # 땅 2타: 머리 위에서 앞 아래로 사선 반원
+    'hero6_swing_side3': (_f('v3_up', [2, 3, 4, 5, 7]), 'none'),          # 땅 3타(마무리): 올려베기
+    'hero6_swing_up': (_f('v3_up', [2, 3, 4, 5, 7]), 'none'),             # 위·앞 위로 겨눔
+    'hero6_swing_down': (_f('v3_low', [1, 2, 3, 4, 6]), 'none'),          # 아래·앞 아래로 겨눔: 발밑 훑기
+    'hero6_air1': (_f('v3_air1', [2, 3, 4, 5, 6]), 'none'),               # 공중 1타: 가로 베기
+    'hero6_air2': (_f('v3_air2', [3, 4, 5, 5, 7]), 'none'),               # 공중 2타: 반원 (6번은 파이프에 초승달이 붙어 5번을 한 번 더)
+    'hero6_airup': (_f('v3_air_up', [2, 3, 4, 5, 6]), 'none'),            # 공중에서 위로 겨눔
+    'hero6_dashcut': (_f('v3_dash', [1, 2, 3, 4, 5]), 'none'),            # 대시 평타: 낮은 돌진 가로 베기
+    'hero6_e1': (_f('v3_e1', [1, 1, 4, 5, 6]), 'none'),                   # E 1단계: X베기 (초승달이 붙은 2·3·7번은 뺀다)
+    'hero6_s2rise': (_f('v3_e2_rise', [2, 4, 6]), 'none'),                # E 2단계 첫 타: 웅크림 -> 올려베기 -> 뛰어오름 (기존과 같은 3장)
+    'hero6_s2slam': (_f('v3_e2_slam', [2, 3, 5]), 'none'),                # E 2단계 둘째 타: 머리 위 -> 내림 -> 바닥 타격(머문다)
+    'hero6_plunge': (_f('v3_air_down2', [1, 4]), 'none'),                 # 내려찍기: 머리 위로 듦 -> 파이프를 수직 아래로 내리꽂음
     'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
     'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }
@@ -62,6 +71,28 @@ def remove_white_arcs(a):
     for k in range(1, n + 1):
         comp = lab == k
         if (light[comp]).all():
+            out[comp] = 0
+    return out
+
+
+def remove_loose_grey(a, min_size=4):
+    """몸과 떨어진 회색 덩어리(생성 모델이 그린 회색 초승달·궤적 조각)를 지운다.
+    가장 큰 덩어리(몸)에 붙은 것은 남기고, 떨어진 것 중 채도가 낮은(회색) 덩어리만 지운다. 목도리 끝 청록 조각은 남는다."""
+    from scipy import ndimage
+    opaque = a[:, :, 3] == 255
+    lab, n = ndimage.label(opaque, structure=np.ones((3, 3)))
+    if n <= 1:
+        return a
+    sizes = ndimage.sum(opaque, lab, range(1, n + 1))
+    body = int(np.argmax(sizes)) + 1
+    rgb = a[:, :, :3].astype(int)
+    grey = (rgb.max(axis=2) - rgb.min(axis=2)) < 40
+    out = a.copy()
+    for k in range(1, n + 1):
+        if k == body:
+            continue
+        comp = lab == k
+        if comp.sum() >= min_size and grey[comp].mean() > 0.8:
             out[comp] = 0
     return out
 
@@ -170,7 +201,7 @@ def main():
     eye = find_eye(still)
     meta = {}
     for name, (frames_src, align) in SETS.items():
-        frames = [restore_eye(lock_palette(remove_white_arcs(load(src, n)), pal), eye) for src, n in frames_src]
+        frames = [restore_eye(lock_palette(remove_loose_grey(remove_white_arcs(load(src, n))), pal), eye) for src, n in frames_src]
         hx = [hair_x(f) for f in frames]
         anchor_x = still_hair
         if align == 'hair':

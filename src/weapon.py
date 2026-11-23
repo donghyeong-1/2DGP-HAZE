@@ -277,6 +277,7 @@ class Pipe:
         if enhanced:
             self.combo = 0
             p.set_swing_style(3, ax)                     # 강화 일격은 3타처럼 크게 끌어 내딛는다
+            p.swing_anim = 'n09_e1'                      # 공격 v3: X베기
             self.cooldown = config.ENHANCE_STRIKE_COOLDOWN
             effects.spawn(fx['slash'], cx, cy, flip=flip, duration=0.24, variant=variant)
             effects.add_trauma(config.SHAKE_FINISHER)
@@ -292,7 +293,14 @@ class Pipe:
         import mutations
         self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[self.combo - 1] * mutations.attack_speed_mult(p)   # v7 '손목 풀기'
         self.combo_left = self.cooldown + config.PIPE_COMBO_WINDOW
-        effects.spawn(effects.slash_sheet(p.gauge.zone, finisher), cx, cy, flip=flip, duration=0.22, variant=variant)
+        shape = None                                     # 공격 v3: 그림에 맞춘 모양 (1타 가로 = 납작한 호, 3타 올려베기 = 올라가는 호)
+        if p.swing_dir == 'side' and self.combo == 1:
+            shape = 'flat'
+        elif finisher and p.swing_dir in ('side', 'up', 'upfwd'):
+            shape = 'rise'
+        lift_y = config.FLAT_SLASH_LIFT if shape == 'flat' else 0     # 납작한 호는 아래 반쪽이라 허리 높이로 올린다
+        effects.spawn(effects.slash_sheet(p.gauge.zone, finisher, shape=shape), cx, cy + lift_y, flip=flip, duration=0.22,
+                      variant=variant)
         damage = self._damage(config.PIPE_FINISHER_MULT if finisher else 1.0) * mutations.pipe_damage_mult(
             p, finisher=finisher, air=not p.on_ground)                                    # v7 '마무리'·'낙차'
         gain = config.PIPE_FINISHER_GAIN if finisher else config.GAIN_HIT
@@ -400,6 +408,7 @@ class Pipe:
             return
         dx, dy = (x1 - x0) / length, (y1 - y0) / length
         fx = self._fx(enhanced)
+        self.owner.start_dash_cut()                                       # 공격 v3: 낮은 돌진 가로 베기 자세
         import mutations
         half = (self._enh('half') if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
         if mutations.has(self.owner, 'dashcut_wide'):
@@ -429,15 +438,23 @@ class Pipe:
         fx = self._fx(enhanced)
         assets.play_sound(fx['sound'])
         p.vy = max(p.vy, config.AIR_HOP)                                  # 살짝 떠오르며 한 바퀴 돈다
+        ax, ay = p.aim_vector()
+        anim = p.start_air_swing(ax, ay)                                  # 공격 v3: 가로 베기 -> 반원, 위로 겨누면 올려베기
         damage = self._damage(self._enh('damage') if enhanced else self._special(config.AIR_SPIN_MULT))
         if self._weak() and not enhanced:
             # 페이드: 한 바퀴 돌 힘이 없다. 기본 공격처럼 조준 앞쪽만 작게 벤다 (2026-11-20 사용자 요청)
-            ax, ay = p.aim_vector()
             variant, flip = effects.slash_variant(ax, ay)
             effects.spawn(effects.slash_sheet(p.gauge.zone, False), cx, cy, flip=flip, duration=0.22, variant=variant)
             in_range = lambda e: self._in_arc(e, cx, cy, ax, ay, scale=self._reach())
         else:
-            effects.spawn(effects.special_sheet('spin', enhanced)[0], cx, cy, duration=0.26)
+            if enhanced:
+                effects.spawn(effects.special_sheet('spin', enhanced)[0], cx, cy, duration=0.26)
+            else:                                                         # 공격 v3: 동작과 같은 모양의 호 (판정은 그대로 몸 둘레)
+                variant, flip = effects.slash_variant(ax, ay)
+                shape = 'flat' if anim == 'n09_air1' else None
+                lift_y = config.FLAT_SLASH_LIFT if shape == 'flat' else 0
+                effects.spawn(effects.slash_sheet(p.gauge.zone, shape=shape), cx, cy + lift_y, flip=flip, duration=0.24,
+                              variant=variant)
             reach = config.AIR_SPIN_REACH * (self._enh('reach') if enhanced else 1.0)
             in_range = lambda e: self._within(e, cx, cy, reach)
         for enemy in self._targets(in_range):

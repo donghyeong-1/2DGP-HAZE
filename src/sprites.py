@@ -121,6 +121,10 @@ SKIN_PAIRS = (
     ('n09_swing_down', 'hero6_swing_down'), ('n09_swing_downfwd', 'hero6_swing_down'),
     ('n09_s2rise', 'hero6_s2rise'), ('n09_s2slam', 'hero6_s2slam'), ('n09_plunge', 'hero6_plunge'),
     ('n09_hurt', 'hero6_hurt'), ('n09_death', 'hero6_death'),
+    # 공격 v3 (2026-11-24): 기존 그림이 없던 새 동작. 플레이어가 swing_anim으로 고른다 (그림이 없으면 n09_swing_<방향>)
+    ('n09_swing_side2', 'hero6_swing_side2'), ('n09_swing_side3', 'hero6_swing_side3'),
+    ('n09_air1', 'hero6_air1'), ('n09_air2', 'hero6_air2'), ('n09_airup', 'hero6_airup'),
+    ('n09_dashcut', 'hero6_dashcut'), ('n09_e1', 'hero6_e1'),
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 

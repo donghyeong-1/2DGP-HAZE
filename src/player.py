@@ -235,6 +235,8 @@ class Player(TileBody):
         self.dead_time = 0.0           # 사망 후 지난 시간 (쓰러지는 프레임 재생용)
         self.swing_dir = 'side'        # 공격 자세 방향: side / up / down / upfwd / downfwd
         self.swing_style = 1           # 연타 몇 번째 모양인가 (1·2·3, config.SWING_STYLE_TIME)
+        self.swing_anim = None         # v7 공격 v3: 이번 휘두르기 전용 그림 세트 (없으면 n09_swing_<방향>)
+        self.air_combo = 0             # 이번 체공에서 친 공중 공격 수 (1타 가로 -> 2타 반원, 땅에 닿으면 0)
         self.lunge_vx = 0.0            # 휘두를 때 한 발 내딛는 속도 (빠르게 줄어든다)
         self.swing_connected = False
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
@@ -693,11 +695,14 @@ class Player(TileBody):
 
     def _apply_swing_motion(self, dt):
         """땅 위에서 휘두르는 동안은 거의 멈추고, 조준 쪽으로 한 발 내딛는다 (선 자세로 미끄러지는 것을 막는다)."""
+        if self.on_ground:
+            self.air_combo = 0
         if self.lunge_vx:
             self.lunge_vx *= max(0.0, 1.0 - config.SWING_LUNGE_DECAY * dt)
             if abs(self.lunge_vx) < 5:
                 self.lunge_vx = 0.0
-        if self.swing_left > 0 and self.on_ground and self.state in ('IDLE', 'RUN') and self.swing_dir != 'plunge':
+        if (self.swing_left > 0 and self.on_ground and self.state in ('IDLE', 'RUN') and self.swing_dir != 'plunge'
+                and self.swing_anim != 'n09_dashcut'):                 # 대시 평타는 흐름을 끊지 않는다
             self.vx = self.vx * config.SWING_MOVE_MULT + self.lunge_vx
         elif self.on_ground and self.state in ('IDLE', 'RUN'):
             if getattr(self.weapon, 'charging', False):           # 건틀릿 충전 중에는 천천히 걷는다
@@ -753,6 +758,7 @@ class Player(TileBody):
         else:
             self.swing_dir = 'side'
         self.swing_style = 1
+        self.swing_anim = None
         self.swing_connected = False   # 이번 휘두르기가 적을 맞혔는가 (weapon._hit이 켠다)
         self.swing_total = config.SWING_TIME
         self.swing_left = config.SWING_TIME
@@ -762,8 +768,31 @@ class Player(TileBody):
         """연타 몇 번째인지에 따라 자세 시간과 내딛기를 바꾼다. 위·아래로 똑바로 휘두를 때는 내딛지 않는다."""
         self.swing_style = style
         self.swing_total = self.swing_left = config.SWING_STYLE_TIME[style]
+        if self.swing_dir == 'side' and style in (2, 3):     # 공격 v3: 2타 사선 반원, 3타 올려베기
+            self.swing_anim = f'n09_swing_side{style}'
         forward = self.swing_dir in ('side', 'upfwd', 'downfwd') and abs(ax) > 0.2
         self.lunge_vx = (1 if ax > 0 else -1) * config.SWING_LUNGE[style] if forward and self.on_ground else 0.0
+
+    def start_air_swing(self, ax, ay):
+        """공중 공격 자세 (공격 v3): 위로 겨누면 올려베기, 아니면 이번 체공의 1타 가로 베기 -> 2타 반원을 번갈아.
+        고른 그림 세트 이름을 돌려준다 (이펙트 모양을 맞추는 데 쓴다)."""
+        self.start_swing(ax, ay)
+        if ay > 0.6:
+            anim = 'n09_airup'
+        else:
+            self.air_combo += 1
+            anim = 'n09_air1' if self.air_combo % 2 == 1 else 'n09_air2'
+        self.swing_anim = anim
+        self.swing_total = self.swing_left = config.AIR_SWING_TIME
+        return anim
+
+    def start_dash_cut(self):
+        """대시 평타 자세 (공격 v3): 낮은 돌진 가로 베기. 몸 이동은 늦추지 않는다."""
+        self.swing_dir = 'side'
+        self.swing_style = 1
+        self.swing_anim = 'n09_dashcut'
+        self.swing_connected = False
+        self.swing_total = self.swing_left = config.DASH_CUT_POSE_TIME
 
     def start_plunge_pose(self):
         """내려찍기 자세(파이프를 아래로 겨눈 두 프레임)를 보여 준다."""
@@ -805,7 +834,8 @@ class Player(TileBody):
             return 'n09_idle', 0
         if self.swing_left > 0 and self.swing_dir == 's2rise':     # 철파이프 2단계 올려베기 (T24): 3장을 고르게
             done = 1.0 - self.swing_left / self.swing_total
-            return 'n09_s2rise', min(3, 1 + int(done * 3))
+            k = sprites.count('n09_s2rise')
+            return 'n09_s2rise', min(k, 1 + int(done * k))
         if self.swing_left > 0 and self.swing_dir == 's2slam':     # 내려찍기: 들고 뜸 -> 45도 -> 바닥 타격(머문다)
             t = self.swing_total - self.swing_left
             return 'n09_s2slam', 1 + sum(1 for edge in config.STAGE2_SLAM_FRAMES if t >= edge)
@@ -830,6 +860,8 @@ class Player(TileBody):
             if self.swing_connected:        # 맞혔으면 타격 자세부터 (판정은 누르는 순간이라, 젖힌 채 멈추거나 멈춤 뒤 젖힘으로 되돌아가면 어색하다)
                 n = max(n, 3)
             n = min(n, config.SWING_LAST_FRAME)   # 5번(회수)은 파이프를 몸 뒤로 되감는 그림이라 앞으로 친 뒤 뒤로 감기는 것처럼 보여 쓰지 않는다
+            if self.swing_anim and self.swing_anim in sprites.SKIN:   # 공격 v3 전용 그림 (연타·공중·대시·강화)
+                return self.swing_anim, n
             return 'n09_swing_' + self.swing_dir, n
         if not self.on_ground and self.state in ('JUMP', 'FALL'):
             if self.vy > config.JUMP_RISE_VY:

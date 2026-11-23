@@ -370,7 +370,8 @@ def test_weapon_spawns_zone_specific_slash_and_spark():
         p.request_attack()
         names = spawned_names()
         seen[zone] = names
-        assert config.ZONE_FX[zone]['slash'] in names and config.ZONE_FX[zone]['spark'] in names, (zone, names)
+        slash = config.ZONE_FX[zone]['slash']                       # 1타 가로 베기는 같은 구간 색의 납작한 호(-flat)
+        assert (slash in names or slash + '-flat' in names) and config.ZONE_FX[zone]['spark'] in names, (zone, names)
     assert seen['FADE'] != seen['AWAKE'] != seen['CRITICAL']
 
 
@@ -553,7 +554,7 @@ def test_jump_attack_spins_around_the_player_and_hops():
     vy0 = p.vy
     assert p.request_attack() and p.weapon.last_kind == 'spin'
     assert behind.hp < behind.max_hp                                        # 360도라 뒤도 벤다
-    assert p.vy >= config.AIR_HOP and 'air-spin' in spawned_names()
+    assert p.vy >= config.AIR_HOP and any(n.endswith('-flat') for n in spawned_names())   # 공격 v3: 공중 1타 가로 호
 
 
 def test_plunge_hits_below_and_bounces():
@@ -1089,7 +1090,7 @@ def test_combo_swings_have_different_shapes():
     assert p.swing_style == 1 and p._body_frame() == ('n09_swing_side', 1)   # 1타: 준비부터
     run_frames(int(config.PIPE_COOLDOWN[0] * 60) + 1)
     p.request_attack()
-    assert p.swing_style == 2 and p._body_frame() == ('n09_swing_side', 3)   # 2타: 젖힘 없이 바로 타격(되치기)
+    assert p.swing_style == 2 and p._body_frame() == ('n09_swing_side2', 1)  # 2타: 공격 v3 사선 반원 (머리 위로 든 모습을 짧게 보인다)
     run_frames(int(config.PIPE_COOLDOWN[1] * 60) + 1)
     p.request_attack()
     assert p.swing_style == 3 and p.swing_total == config.SWING_STYLE_TIME[3]   # 3타: 길게 끌어 크게 내딛는다

@@ -151,3 +151,50 @@ Pro Flash는 128 캔버스가 6회라 한도 때문에 간수 1안에만 썼다.
 
 교훈: 편집 도구는 색을 16 → 50~70색으로 늘린다. 화풍(16색 안팎)을 지키려면 편집 뒤 로컬 20색 줄이기가 필요하고, 줄여도 모습은 거의 그대로(평균 색 오차 7~9).
 추천: 간수 = `guard_1b_3_20c.png`, 크래셔 = `crasher_1b_2_20c.png`. 크래셔 1안은 정면 시점이라 횡스크롤 east 동작으로 쓰려면 옆모습 회전(rotate_image 1회)이 따로 필요하다.
+
+## v3: 주인공 공격 동작 1차 (2026-11-23~24, plan_v7 8절)
+약 92회 사용 → 남은 1637회.
+방법: `raw/v3_kp/gen_v3.py`가 동작마다 8프레임의 앞손(파이프) 위치·파이프 각도·몸 자세(서기/돌진/웅크림/공중/무릎)를 정하고 2관절 IK로 RIGHT ELBOW/ARM을 계산해 `<동작>.json`(keypoints)과 `tips.json`(계획한 파이프 끝)을 만든다.
+→ `animate_with_skeleton_v3`(first_frame=base96, first_frame_keypoints=기존 추정, keypoints=위 파일, side/east, seed 5, 3회).
+description 공통: "... gripping a hooked crowbar iron pipe in his front hand every frame; keep exact same design; strict side view, face never turns to the camera; no effects, no trails".
+결과 `raw/v3_<동작>/frame_0~7.png`(모두 생성 프레임). 시트 `shots/pixellab_test/v3_<동작>.png`: 윗줄 = 결과(첫 칸 base96), 아랫줄 = 같은 프레임 위에 계획 궤적(빨강)과 그 프레임의 계획 파이프 끝(노랑 점). 계획 전체 미리보기 `v3_plan_overview.png`.
+주의: 점은 "계획한" 끝이다. 모델은 손 위치는 대체로 따르지만 파이프 방향은 스스로 정해서, 실제 끝과 다를 수 있다.
+
+| 동작 | 평가 | 파이프 궤적이 의도와 맞는지 |
+|---|---|---|
+| g1 수평 횡베기 | 보통 | 뒤로 당김(4번)→앞(5번)은 맞으나 2번에 앞으로 뻗었다가 돌아감, 가로지르는 느낌 약함 |
+| g2 사선 반원 내려베기 | **좋음** | 머리 뒤로 들어 앞 아래로, 계획과 거의 같음 |
+| g3 회전 횡베기 | 보통 | 수평으로 앞을 향하지만 찌르기처럼 보이고 회전감이 약함 |
+| up 올려베기 | **좋음** | 앞 아래 → 세로 → 머리 위, 계획대로 |
+| low 발밑 훑기 | 보통 | 웅크림은 맞지만 파이프가 바닥을 수평으로 훑기보다 사선 |
+| dash 낮은 돌진 횡베기 | 보통 | 허리 높이 수평은 맞으나 찌르기 느낌, 캔버스 안 전진은 작음 |
+| air1 공중 횡베기 | 보통 | 다리 접음 OK, 수평 앞. 4번에 작은 궤적 선 |
+| air2 공중 반원 | 보통 | 뒤 아래→머리 위→앞 아래 원은 읽히지만 5~7번에 흰 초승달 효과를 그림 |
+| air_up 공중 올려베기 | **좋음** | 계획대로 |
+| air_down 내려찍기 | 보통(2회 시도) | 1차 = 들었다가 앞으로 수평(다시), 2차 = 들었다가 앞 아래 사선. 수직으로 내리꽂지는 않음. 2차를 `v3_air_down/`, 1차는 `v3_air_down_try1/` |
+| e1 X베기 | 보통 | 내려베기·올려베기 두 번은 맞으나 흰 초승달 효과 3장(팔레트 밖 1%) |
+| e2_rise 크게 올려베기 | **좋음** | 웅크림→올려베기→뛰어올라 머리 위 |
+| e2_slam 크게 내려찍기 | **좋음** | 공중 머리 위 → 앞 아래로 내려찍고 웅크림 |
+| ult 난무 | 보통 | 세 번 휘두름 순서는 맞으나 흰 궤적·잔상 효과가 섞임 |
+| combo4 빠른 역횡베기 | 보통 | 가슴 앞으로 감았다 어깨 높이로 뻗는 동작이 찌르기처럼 보임 |
+| combo5 회전베기 | 보통 | 크게 당겼다 수평 앞, 회전감 약함 |
+| quake 낙뢰 내려찍기 착지 | **좋음** | 머리 위 → 무릎 꿇고 파이프를 세로로 땅에 박음 |
+| flash 섬광 베기 | 보통 | 낮은 자세→앞으로 뻗기→멈춤, 5번에 파이프가 세로로 섬, 전진 거리 작음 |
+공통: 얼굴은 모든 동작에서 옆모습 유지, 팔레트 이탈 0~1%. 횡베기 계열은 2D 옆모습에서 "파이프가 카메라 쪽을 지나는" 순간을 모델이 찌르기로 그리는 경향이 있다 — 이펙트(납작한 타원 호)를 코드로 덧그려 보완하는 쪽이 현실적.
+
+### D. 무기별 기준 그림 (각 5회, 권총 인페인트 1회는 정책 필터로 실패·무과금)
+| 파일 | 도구 | 결과 |
+|---|---|---|
+| `weapon_bases/pistols_edit.png` | edit_image_pro_flash, palette correction, seed 5 | 두 정을 앞으로 겨눔. 머리 모양이 더 뾰족하게 바뀜, 11색 |
+| `weapon_bases/pistols_edit2.png` | 같은 도구, "sci-fi blasters", seed 11 | **추천** → `base_pistols.png`(14색). 머리·옷 유지, 앞손 겨눔 + 뒷손 가슴 앞 |
+| `weapon_bases/pistols_inpaint.png` | inpaint_image_pro_flash (x50 y40 w34 h32), seed 11 | 몸은 원본 그대로, 권총 한 정만 보임 |
+| `weapon_bases/gauntlets_edit.png` | edit_image_pro_flash, seed 5 | 양손 건틀릿이지만 작고 어두워 잘 안 읽힘 |
+| `weapon_bases/gauntlets_inpaint.png` | inpaint, seed 5 | **추천** → `base_gauntlets.png`(24색). 몸 원본 그대로, 앞으로 쥔 큰 주먹 건틀릿 |
+| `weapon_bases/chain_edit.png` | edit_image_pro_flash, seed 5 | 사슬은 좋으나 파이프 조각이 남음(다시) |
+| `weapon_bases/chain_inpaint.png` | inpaint (h40), seed 5 | **추천** → `base_chain.png`(24색). 앞손에 감긴 청록 사슬이 아래로 늘어짐 |
+비교 `shots/pixellab_test/v3_weapon_bases.png`. base_*.png는 자기 색 24색 이하·알파 0/255로 정리. 인페인트안은 뒷손이 원래 그림처럼 가려져 있어 "양손"은 동작 단계에서 보이게 해야 함.
+
+### air_down2 (2026-11-24, 수직 내리꽂기 재생성, 6회)
+`raw/v3_kp/gen_air_down2.py`(gen_v3의 IK 재사용 + 다리를 높이 접는 tuck 자세, 3~7번은 몸을 7~9% 올려 파이프 끝이 캔버스 안에 들게 함).
+- 1차(seed 5, 손 = 허리 앞 0.05,0.19): 마지막 7번만 수직 아래, 4~6번은 파이프가 위로 서고 허리에 가로 막대가 한 개 더 그려짐 → `raw/v3_air_down2_try1/`, `shots/.../v3_air_down2_try1.png`.
+- **2차(seed 9, 손 = 어깨 바로 아래 0.02,0.19, "exactly one pipe ... hooked end at the bottom")**: 3~7번 모두 파이프가 수직 아래(갈고리 끝이 아래), 계획 궤적과 일치 → `raw/v3_air_down2/`, `shots/.../v3_air_down2.png`. 타격 프레임 = frame_4(3번부터 수직, 4번이 완전히 뻗음). 파이프 끝은 발바닥보다 약 17px 아래(96 캔버스·파이프 길이상 25~30px은 불가). frame_0은 웅크린 자세에 파이프가 잘 안 보임.

@@ -1,0 +1,49 @@
+{
+ "frames": {
+  "v6_crasher_idle": [
+   2,
+   114,
+   252
+  ],
+  "v6_crasher_walk": [
+   4,
+   111,
+   252
+  ],
+  "v6_crasher_smash": [
+   3,
+   115,
+   252
+  ],
+  "v6_crasher_charge": [
+   2,
+   115,
+   252
+  ],
+  "v6_crasher_leap": [
+   3,
+   115,
+   252
+  ],
+  "v6_crasher_hurt": [
+   1,
+   115,
+   252
+  ],
+  "v6_crasher_death": [
+   2,
+   115,
+   252
+  ]
+ },
+ "skin": {
+  "boss_crasher": "v6_crasher_idle",
+  "boss_crasher_idle": "v6_crasher_idle",
+  "boss_crasher_walk": "v6_crasher_walk",
+  "boss_crasher_smash": "v6_crasher_smash",
+  "boss_crasher_charge": "v6_crasher_charge",
+  "boss_crasher_leap": "v6_crasher_leap",
+  "boss_crasher_hurt": "v6_crasher_hurt",
+  "boss_crasher_death": "v6_crasher_death"
+ }
+}

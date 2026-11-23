@@ -49,10 +49,22 @@ CHARS = {
                  'enemy_guard_heavy': 'heavy', 'enemy_guard_bash': 'bash', 'enemy_guard_hurt': 'hurt',
                  'enemy_guard_death': 'death'},
     },
+    # 크래셔 (3/4 시점 v2, shots/pixellab_test/crasher_all_b.png). 장수는 보스 코드(src/boss.py _body_frame)가 정한다:
+    # 숨쉬기 2, 걷기 4, 내려찍기 3(들기·머리 위·타격), 돌진 2, 도약 3(웅크림·공중·착지), 피격 1, 사망 2
     'crasher': {
         'prefix': 'v6_crasher',
-        'sets': {},
-        'skin': {},
+        'sets': {
+            'idle': (_f('idle', [1, 3]), 'loop'),
+            'walk': (_f('walk', [0, 2, 4, 6]), 'loop'),
+            'smash': (_f('smash', [2, 4, 5]), 'none'),
+            'charge': (_f('charge', [2, 4]), 'none'),
+            'leap': (_f('leap', [0, 4, 5]), 'none'),
+            'hurt': (_f('hurt', [0]), 'none'),
+            'death': (_f('death', [2, 4]), 'none'),
+        },
+        'skin': {'boss_crasher': 'idle', 'boss_crasher_idle': 'idle', 'boss_crasher_walk': 'walk',
+                 'boss_crasher_smash': 'smash', 'boss_crasher_charge': 'charge', 'boss_crasher_leap': 'leap',
+                 'boss_crasher_hurt': 'hurt', 'boss_crasher_death': 'death'},
     },
 }
 

@@ -119,3 +119,35 @@ initial_pose "standing upright facing right, pipe lowered in the front hand", �
 
 확인 시트: `shots/pixellab_test/v2_<동작>.png`(첫 칸 base96, 3배, 어두운 배경)와 `v2_<동작>.gif`. 첫 시도는 `v2_<동작>_try1`.
 교훈: pixminimax는 서 있는 동작에서도 피격·착지처럼 몸이 크게 움직이면 얼굴을 정면으로 돌리거나 효과를 그린다. skeleton v3는 얼굴·팔레트를 지키고 효과를 안 그린다. 파이프 방향은 앞팔 관절을 직접 주면 잡힌다.
+
+## 6차: 적·보스 디자인 시험 (2026-11-23, 10회 한도)
+8.2회 사용(생성 8 + 뼈대 추정 0.2) → 남은 1956.8회. 결과 `raw/designs/`, 확인 `shots/pixellab_test/design_guard.png`, `design_crasher.png`(주인공 base96과 같은 바닥, 3배), `design_skeleton_check.png`(추정 뼈대 겹침).
+색표 그림: `raw/designs/palette_guard.png`(base96 24색에서 청록 7색 빼고 주황 3단 추가, 20색), `palette_crasher.png`(base96 어두운 6색 + 녹슨 주황·갈색·회색 11색).
+Pro Flash는 128 캔버스가 6회라 한도 때문에 간수 1안에만 썼다.
+
+| 파일 | 도구·옵션 | 비용 | 키 / 색 | 평가 |
+|---|---|---|---|---|
+| `guard_1.png` (96) | `create_image_pro_flash`, style_image=base96("art style and pixel scale only"), seed 3 | 5 | 64px / 16색 | **좋음**. 오른쪽 옆모습, 앞쪽 큰 방패, 뒷손 곤봉 끝만 주황. 평면 색면·1px 어두운 가장자리로 주인공과 화풍·픽셀 굵기가 맞음. 회청 장갑이 감옥 구역 색과 맞음 |
+| `guard_2.png` (96) | `create_image_pixflux`, color_image=palette_guard(강제 팔레트), side/east, selective outline, basic shading, seed 11 | 1 | 82px / 18색 | 다시: 정면을 봄, 가슴 바이저까지 주황, 키 과함. 색은 맞음 |
+| `crasher_1.png` (128) | `create_image_pixflux`, color_image=palette_crasher, side/east, seed 11 | 1 | 118px / 16색 | 다시: 정면 골렘, 망치 팔·배기관이 안 보임, 키 과함 |
+| `crasher_2.png` (128) | `create_image_pixen`, side/east, selective outline, seed 23 | 1 | 121px / 40색 | **보통**. 디자인은 요구에 가장 맞음(치켜든 큰 망치, 등 배기관, 덧댄 고철, 녹슨 주황·갈색). 단 3/4 시점이고 검은 굵은 외곽선·40색으로 주인공보다 진하고 촘촘함, 키 121(목표 100) |
+
+뼈대 추정(`estimate_skeleton`, 각 0.1): guard_1·crasher_2 모두 18관절이 팔다리에 맞게 잡힘(간수 곤봉 팔·방패 팔, 크래셔 망치 든 팔 포함) → skeleton v3 동작 가능. 크래셔는 배기관·망치가 커서 `estimate_custom_skeleton` 리그가 더 나을 수 있음.
+다음 추천: 간수는 guard_1 그대로 동작 진행. 크래셔는 crasher_2를 style 참조 없이 쓰기보다 `create_image_pro_flash`(128, 6회)에 style_image=base96(128로 패딩) + crasher_2 디자인 설명으로 화풍을 맞춘 1안을 더 뽑아 보기.
+
+## 7차: 간수·크래셔 1안에 디테일 추가 (2026-11-23, 15회 한도)
+10회 사용 → 남은 1946.8회. 시작 그림은 각 1안(처음부터 새로 그리지 않음). 결과 `raw/designs/<이름>_1b_<n>.png`, 색 줄인 것 `_20c.png`.
+확인: `shots/pixellab_test/design2_guard.png`, `design2_crasher.png`(base96, 1안, 새 3안, 같은 바닥, 3배), `design2_<이름>_20c.png`(20색으로 줄인 것 비교).
+색 줄이기(무료, 로컬): 그림 자신의 색 중 FASTOCTREE 20색, 각 색을 원래 있던 색으로 되돌림, 디더 없음.
+
+| 파일 | 도구·옵션 | 비용 | 색 | 평가 |
+|---|---|---|---|---|
+| `guard_1b_1` | `edit_image_pixen`(guard_1), seed 3 | 1 | 54 | 보통: 디테일은 읽히나 장갑 판 가장자리 전체에 주황 선이 둘러져 1안의 차분한 회청 화풍이 깨짐 |
+| `guard_1b_2` | `edit_image_pixen`, seed 17 | 1 | 30 | 다시: 주황 테두리가 더 많아 네온처럼 됨 |
+| `guard_1b_3` | `edit_image_pro_flash`(source=guard_1 Pro Flash id), text, seed 5 | 5 | 63 → **20c 판 20** | **좋음**: 1안 화풍·실루엣 그대로, 바이저 주황 가는 선, 가슴 주황 표시등, 방패 경고 표식·긁힌 자국, 판 가장자리 하이라이트 몇 점. 41~62px(3배 화면)에서도 바이저·표시등이 읽힘 |
+| `crasher_1b_1` | `edit_image_pixen`(crasher_1), seed 3 | 1 | 72 → 20c 판 20 | 보통: 망치 머리·용접·가슴 열기 3곳은 좋으나 배기관이 회색 연기 줄처럼 가늘게 나옴 |
+| `crasher_1b_2` | `edit_image_pixen`, seed 17 | 1 | 66 → **20c 판 20** | **좋음**: 1안 화풍 유지 + 큰 망치 머리 팔, 등 위 배기관 2개(끝 그을음), 녹·금·덧댄 판, 가슴 주황 용광로. 20c 판에서 그을음이 조금 옅어짐 |
+| `crasher_1b_3` | `create_image_pixflux` init=crasher_1 strength 300, 강제 팔레트, seed 29 | 1 | 17 | 다시: 거의 안 바뀜(망치·배기관 없음). strength가 높음 |
+
+교훈: 편집 도구는 색을 16 → 50~70색으로 늘린다. 화풍(16색 안팎)을 지키려면 편집 뒤 로컬 20색 줄이기가 필요하고, 줄여도 모습은 거의 그대로(평균 색 오차 7~9).
+추천: 간수 = `guard_1b_3_20c.png`, 크래셔 = `crasher_1b_2_20c.png`. 크래셔 1안은 정면 시점이라 횡스크롤 east 동작으로 쓰려면 옆모습 회전(rotate_image 1회)이 따로 필요하다.

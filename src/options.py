@@ -25,6 +25,7 @@ RESOLUTION_DEFAULT = 2
 resolution = RESOLUTION_DEFAULT
 show_hints = True         # 처음 하는 사람 안내판 (11/21 계획 2-5)
 show_damage = True        # 피해 숫자 (11/21 타격감)
+test_mode = False         # v7 테스트 모드: 무적, 게이지 유지, F6~F9 바로가기 (발표·점검용)
 confine_mouse = False     # True면 마우스가 게임 창 밖으로 나가지 않는다 (조준하다 다른 모니터를 누르는 일 방지)
 _loaded = False
 
@@ -61,6 +62,12 @@ def toggle_damage():
     global show_damage
     show_damage = not show_damage
     save()
+
+
+def toggle_test_mode():
+    """저장하지 않는다: 켜 둔 채 잊지 않게 게임을 켤 때마다 꺼진 상태로 시작한다."""
+    global test_mode
+    test_mode = not test_mode
 
 
 def toggle_confine():
@@ -106,8 +113,8 @@ def toggle_flash():
 
 def reset():
     """기본값으로 되돌린다 (테스트용, 파일은 건드리지 않는다)."""
-    global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, show_damage
-    shake_level, reduce_flash, show_hints, show_damage = 2, False, True, True
+    global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, show_damage, test_mode
+    shake_level, reduce_flash, show_hints, show_damage, test_mode = 2, False, True, True, False
     music_level = sfx_level = VOLUME_DEFAULT
     resolution, confine_mouse = RESOLUTION_DEFAULT, False
     keybinds.reset()

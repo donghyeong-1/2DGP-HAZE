@@ -140,6 +140,9 @@ class GameUI:
             self._draw_toasts()
         self._draw_pickup()
         self._draw_reticle()
+        import options
+        if options.test_mode:                                   # v7 테스트 모드 표시 (화면 아래 가운데)
+            kit.text(W // 2, 22, '테스트 모드  무적 · F6 F7 F8 구역 · F9 보스방', (255, 200, 90), small=True, center=True)
         if config.DEBUG:
             self._draw_debug()
 

@@ -1,6 +1,6 @@
 """전투 진행 모드. 방을 불러오고 플레이어·UI를 world에 넣어 갱신한다."""
-from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_F1, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_h, clear_canvas,
-                    get_events, hide_cursor, show_cursor, update_canvas)
+from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_F1, SDLK_F3, SDLK_F4, SDLK_F5, SDLK_F6, SDLK_F7, SDLK_F8,
+                    SDLK_F9, SDLK_h, clear_canvas, get_events, hide_cursor, show_cursor, update_canvas)
 
 import assets
 import camera
@@ -8,6 +8,7 @@ import config
 import effects
 import game_framework
 import game_world
+import options
 from player import Player
 from stage import Stage
 from ui import GameUI
@@ -18,6 +19,7 @@ stage = None
 clear_notice = 0.0  # "방 클리어" 안내를 보여 줄 남은 시간
 message = ''        # 아이템 획득·구매 실패 같은 짧은 안내
 message_time = 0.0
+TEST_KEYS = {SDLK_F6: 'stage1', SDLK_F7: 'stage2', SDLK_F8: 'stage3', SDLK_F9: 'boss'}   # 테스트 모드 바로가기
 
 
 def enter():
@@ -152,6 +154,8 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.push_mode(pause_mode)
+        elif event.type == SDL_KEYDOWN and event.key in TEST_KEYS and options.test_mode:
+            _test_jump(TEST_KEYS[event.key])              # v7 테스트 모드 바로가기
         elif event.type == SDL_KEYDOWN and event.key == SDLK_F1:
             config.DEBUG = not config.DEBUG
         elif event.type == SDL_KEYDOWN and config.DEBUG and event.key == SDLK_F3:
@@ -215,6 +219,25 @@ def update():
         import ending_mode
         ending_mode.result = 'dead'
         game_framework.change_mode(ending_mode)
+
+
+def _test_jump(target):
+    """테스트 모드: 'stage1'~'stage3'이면 그 구역 시작 방, 'boss'면 지금 구역의 보스·관문 방으로."""
+    global stage, room
+    import stage as stage_mod
+    if target == 'boss':
+        coord = stage_mod.boss_room(stage)
+        if coord is None:
+            return
+        stage.enter_room(coord, 'L')
+    else:
+        stage = stage_mod.jump_to(stage, target)
+    room = stage.room
+    for obj in game_world.world[game_world.LAYER_UI]:
+        if hasattr(obj, 'stage'):
+            obj.stage = stage
+    camera.snap(player, stage.room)
+    assets.play_music(music_for(stage))
 
 
 def draw():

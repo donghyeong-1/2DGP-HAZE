@@ -518,6 +518,10 @@ class Player(TileBody):
         if self.invuln_left > 0:
             self.try_just_dash()
             return
+        import options
+        if options.test_mode:                                # v7 테스트 모드: 무적 (흔들림만)
+            effects.add_trauma(config.SHAKE_DAMAGED * 0.5)
+            return
         import mutations
         damage = round(damage * mutations.taken_mult(self))     # 변이 '그을린 피부'
         self.hp = max(0, self.hp - damage)
@@ -601,6 +605,9 @@ class Player(TileBody):
         self.punch_left = max(0.0, self.punch_left - dt)
         self.ult_pose_left = max(0.0, self.ult_pose_left - dt)
         self.potion_cool = max(0.0, self.potion_cool - dt)
+        import options
+        if options.test_mode and self.state != 'DEAD':      # v7 테스트 모드: 게이지가 사망·오버로드에 닿지 않게
+            self.gauge.value = min(max(self.gauge.value, 5.0), self.gauge.cap - 1.0)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
             self.move_dist += abs(self.vx) * dt

@@ -53,6 +53,25 @@ def load_layout(name='stage1'):
     return module.START, getattr(module, name.upper())
 
 
+def jump_to(stage, name):
+    """테스트 모드 바로가기 (F6~F8): 같은 플레이어로 name 구역의 시작 방을 연다. 지금 구역의 방·적·이펙트는 치운다."""
+    if stage.room is not None:
+        game_world.remove_object(stage.room)
+    for layer in (game_world.LAYER_TILES, game_world.LAYER_ENEMY, game_world.LAYER_EFFECT):
+        for obj in list(game_world.world[layer]):
+            game_world.remove_object(obj)
+    nxt = Stage(stage.player, seed=stage.seed + 1, name=name)
+    nxt.on_clear, nxt.on_message, nxt.on_pickup = stage.on_clear, stage.on_message, stage.on_pickup
+    nxt.on_mutation = stage.on_mutation
+    nxt.start()
+    return nxt
+
+
+def boss_room(stage):
+    """그 구역의 보스·관문 방 좌표 (없으면 None). 테스트 모드 F9."""
+    return next((c for c in stage.layout if stage.type_of(c) in END_TYPES), None)
+
+
 def next_stage(stage):
     """끝난 구역 다음 구역을 같은 플레이어로 연다. 마지막 구역이면 None(탈출 = 엔딩)."""
     if stage.next_name is None:

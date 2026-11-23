@@ -147,7 +147,27 @@ class SheetEffect:
         s = self.info.get('scale', config.EFFECT_SCALE)  # 정수 배율(최근접)로만 키운다. pivot도 같은 배율로 옮긴다
         dx = self.x - ((fw - px) if self.flip else px) * s
         dy = self.y - (fh - py) * s
+        glow = glow_of(self.name)
+        if glow is not None:                       # v7: 같은 칸의 번진 빛을 아래에 더하기로 (INARI처럼 빛나게)
+            g = assets.image(glow)
+            k = img.w // g.w                       # 빛 시트는 절반 크기로 저장될 수 있다
+            p = self.time / self.duration
+            a = GLOW_ALPHA * (1.0 - p * p) * (0.5 if options.reduce_flash else 1.0)
+            assets.draw_clip_added(g, left // k, bottom // k, fw // k, fh // k, dx, dy, 'h' if self.flip else '', s * k, a)
         assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '', s)
+
+
+GLOW_ALPHA = 0.85        # 휘두르기·타격 시트 아래 번진 빛의 세기 (처음 값, 끝으로 갈수록 준다)
+_glow_cache = {}
+
+
+def glow_of(name):
+    """그 시트의 빛 시트 경로 (assets 기준, tools/make_glow.py가 만든다). 없으면 None (먼지·오라 등)."""
+    if name not in _glow_cache:
+        import os
+        rel = f'light/glow_{name}.png'
+        _glow_cache[name] = rel if os.path.exists(os.path.join(assets.ASSET_DIR, rel)) else None
+    return _glow_cache[name]
 
 
 # 직선 베기 색 (밝음 -> 어두움): 대시 평타는 금색, 강화는 단계 색(1 보라·2 금·3 진홍)+흰 코어
@@ -567,57 +587,92 @@ def ground_slam(x, floor_y, power=1.0, color=(255, 200, 140)):
     spawn_bloom(x, floor_y + 20, color, big=power >= 1.2, life=0.22, strength=0.7)
 
 
-class AbsorbOrb:
-    """v7 흡수 연출: 처치 자리에서 튀어나온 알갱이가 잠깐 퍼졌다가 주인공에게 빨려 들어온다.
-    조각(청록 사각)·게이지(흰 빛) 수치는 처치 순간 이미 올랐다. 이건 보이는 것과 소리뿐이다."""
-    BURST = 0.15
+ABSORB_COLORS = {'shard': (110, 245, 230), 'gauge': (255, 255, 255)}
+ABSORB_GLOW = 0.16          # 입자가 닿을 때 주인공 몸이 빛나는 시간(초)
 
-    def __init__(self, x, y, player, kind, order, rng):
-        self.x, self.y, self.player, self.kind, self.order = x, y, player, kind, order
+
+class AbsorbOrb:
+    """v7 흡수 연출 (2026-11-24 사용자 피드백으로 강화): 처치 자리에서 입자 여러 개가 사방으로 튀었다가,
+    휘어지며 주인공을 쫓아와 몸에 닿는다. 꼬리를 남기고 둘레에 작은 빛이 있다. 닿으면 몸이 빛나고(player.absorb_glow)
+    음이 오르는 소리가 나며, 마지막 입자가 닿으면 마무리 소리(absorb_done)와 큰 빛.
+    조각(청록 마름모)·게이지(흰 빛) 수치는 처치 순간 이미 올랐다. 이건 보이는 것과 소리뿐이다."""
+    BURST = 0.18
+    TRAIL = 6
+
+    def __init__(self, x, y, player, kind, group, rng):
+        self.x, self.y, self.player, self.kind, self.group = x, y, player, kind, group
         ang = rng.uniform(0, math.tau)
-        speed = rng.uniform(260, 520)
-        self.vx, self.vy = math.cos(ang) * speed, math.sin(ang) * speed + 180
-        self.time = 0.0
+        speed = rng.uniform(320, 720)
+        self.vx, self.vy = math.cos(ang) * speed, math.sin(ang) * speed + 220
+        self.swirl = rng.choice((-1, 1)) * rng.uniform(0.6, 1.2)      # 곧장 오지 않고 휘어 들어온다
+        self.time = -rng.uniform(0.0, 0.06)                            # 조금씩 엇갈려 출발
+        self.trail = []
 
     def update(self, dt):
         self.time += dt
+        self.trail.append((self.x, self.y))
+        del self.trail[:-self.TRAIL]
         if self.time < self.BURST:                      # 퍼지며 느려진다
-            self.vx *= 0.86
-            self.vy *= 0.86
-        else:                                           # 점점 빨라지며 몸 가운데로
+            self.vx *= 0.88
+            self.vy *= 0.88
+        else:                                           # 점점 빨라지며 몸 가운데로 (옆으로 휘는 힘은 점점 준다)
             tx, ty = self.player.center
             dx, dy = tx - self.x, ty - self.y
             dist = math.hypot(dx, dy) or 1.0
-            if dist < 26 or self.time > 1.6:
+            if dist < 30 or self.time > 1.4:
                 self._arrive()
                 return
-            speed = 400 + 2400 * min(1.0, (self.time - self.BURST) / 0.45)
-            self.vx += (dx / dist * speed - self.vx) * min(1.0, 12 * dt)
-            self.vy += (dy / dist * speed - self.vy) * min(1.0, 12 * dt)
+            k = min(1.0, (self.time - self.BURST) / 0.4)
+            speed = 500 + 2600 * k
+            side = self.swirl * (1.0 - k) * speed * 0.6
+            want_x = dx / dist * speed - dy / dist * side
+            want_y = dy / dist * speed + dx / dist * side
+            self.vx += (want_x - self.vx) * min(1.0, 10 * dt)
+            self.vy += (want_y - self.vy) * min(1.0, 10 * dt)
         self.x += self.vx * dt
         self.y += self.vy * dt
 
     def _arrive(self):
         game_world.remove_object(self)
-        assets.play_sound(f'absorb_{min(5, self.order + 1)}')
-        cx, cy = self.player.center
-        spawn_bloom(cx, cy, (120, 250, 235) if self.kind == 'shard' else (255, 255, 255), life=0.12, strength=0.35)
+        g = self.group
+        g['arrived'] += 1
+        p = self.player
+        p.absorb_glow = ABSORB_GLOW
+        cx, cy = p.center
+        color = ABSORB_COLORS[self.kind]
+        if g['arrived'] >= g['total']:                  # 마지막 입자: 마무리 소리 + 큰 빛
+            assets.play_sound('absorb_done')
+            spawn_bloom(cx, cy, (150, 255, 240), big=True, life=0.22, strength=0.55)
+        else:
+            if g['arrived'] % 2 == 1:                   # 소리는 두 개에 하나 (많이 겹치면 지저분하다), 차례대로 음이 오른다
+                assets.play_sound(f'absorb_{min(5, (g["arrived"] + 1) // 2)}')
+            spawn_bloom(cx, cy, color, life=0.12, strength=0.3)
 
     def draw(self):
+        color = ABSORB_COLORS[self.kind]
+        img = assets.image('light/dot_48.png')
+        img.opacify(0.9)
+        assets.draw_image_added(img, int(self.x), int(self.y) - img.h // 2, color=color, times=1)
+        img.opacify(1.0)
+        n = len(self.trail)
+        for i, (tx, ty) in enumerate(self.trail):       # 꼬리: 뒤로 갈수록 작고 옅다 (2배 픽셀 격자)
+            s = 2 + 2 * (i * 2 // max(1, n))
+            assets.draw_rect_color(int(tx) // 2 * 2 - s // 2, int(ty) // 2 * 2 - s // 2, s, s, color, alpha=0.25 + 0.5 * i / n)
         x, y = int(self.x) // 2 * 2, int(self.y) // 2 * 2
         if self.kind == 'shard':                        # 조각: 청록 마름모(사각 2단)
-            assets.draw_rect_color(x - 2, y - 4, 4, 8, (110, 245, 230))
-            assets.draw_rect_color(x - 4, y - 2, 8, 4, (110, 245, 230))
-            assets.draw_rect_color(x - 2, y - 2, 4, 4, (235, 255, 252))
+            assets.draw_rect_color(x - 2, y - 8, 4, 16, color)
+            assets.draw_rect_color(x - 8, y - 2, 16, 4, color)
+            assets.draw_rect_color(x - 4, y - 4, 8, 8, (235, 255, 252))
         else:                                           # 게이지: 흰 빛 알갱이
-            assets.draw_rect_color(x - 3, y - 3, 6, 6, (255, 255, 255))
+            assets.draw_rect_color(x - 5, y - 5, 10, 10, color)
 
 
 def spawn_absorb(x, y, player, shards, gauge_orbs=3):
-    """처치 순간 조각 shards개(최대 6)와 게이지 알갱이를 흩뿌린다. 소리는 닿는 차례대로 음이 오른다."""
+    """처치 순간 조각 하나에 입자 둘(최대 12)과 게이지 입자(gauge_orbs x 2)를 흩뿌린다. 소리는 닿는 차례대로 음이 오른다."""
     if player is None:
         return
     rng = random.Random(int(x) * 7 + int(y))
-    kinds = ['shard'] * min(6, shards) + ['gauge'] * gauge_orbs
-    for order, kind in enumerate(kinds):
-        game_world.add_object(AbsorbOrb(x, y, player, kind, order % 5, rng), game_world.LAYER_EFFECT)
+    kinds = ['shard'] * min(12, shards * 2) + ['gauge'] * (gauge_orbs * 2)
+    group = {'total': len(kinds), 'arrived': 0}
+    for kind in kinds:
+        game_world.add_object(AbsorbOrb(x, y, player, kind, group, rng), game_world.LAYER_EFFECT)

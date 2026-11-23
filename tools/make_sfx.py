@@ -534,6 +534,55 @@ def kill_last():
     return place(s, [(0.0, hit_), (0.05, bell)])
 
 
+# ----- 2026-11-24 v7 손맛: 연속 처치 단계·흡수 마무리 (사용자 플레이 피드백) -----
+def bell(f0, sec, decay, partials=((1.0, 1.0), (2.0, 0.45), (3.0, 0.22), (4.16, 0.12))):
+    """맑게 울리는 종·유리 소리: 배음마다 빨리 사라진다."""
+    t = t_axis(sec)
+    return sum(a * np.sin(2 * np.pi * f0 * k * t) * np.exp(-t * decay * k ** 0.6) for k, a in partials)
+
+
+def crack(sec=0.05):
+    """짧고 밝은 '탁': 잡음에서 낮은 소리를 빼 높은 결만 남긴다."""
+    n = noise(sec)
+    return (n - lowpass(n, 5)) * envelope(sec, 0.0005, 0.9)
+
+
+STREAK_STEPS = (0, 2, 4, 7, 9, 12)     # 단계마다 오르는 음 (반음, 장조 오음 음계)
+
+
+def kill_streak(level):
+    """연속 처치 단계 소리 (1~6). 공통 '쿵 + 탁' 위에 단계마다 높아지고 두꺼워지는 반짝임이 얹힌다.
+    1 = 한 음, 3부터 다섯째 음, 5부터 옥타브, 4부터 짧게 올라가는 아르페지오와 바람 소리."""
+    s = 0.5 + 0.06 * level
+    base = 523.25 * 2 ** (STREAK_STEPS[level - 1] / 12)          # C5에서 시작
+    thump = drive(sub_drop(0.24, 150 + 12 * level, 42, 9) * 1.3, 1.8)
+    parts = [(0.0, thump * 0.9), (0.0, crack(0.05) * (0.7 + 0.05 * level))]
+    ring = bell(base, s, 6.5 - 0.5 * level) * 0.35
+    if level >= 3:
+        ring = ring + bell(base * 1.5, s, 7.0 - 0.5 * level) * 0.22
+    if level >= 5:
+        ring = ring + bell(base * 2.0, s, 7.5 - 0.5 * level) * 0.18
+    parts.append((0.012, ring))
+    if level >= 4:                                                   # 짧게 올라가는 반짝임
+        for i, r in enumerate((1.0, 1.26, 1.5, 2.0)[:level - 2]):
+            parts.append((0.05 + 0.035 * i, bell(base * 2 * r, 0.18, 14) * 0.14))
+        whoosh = lowpass(noise(0.18), 4) * envelope(0.18, 0.12, 0.6) * 0.25
+        parts.append((0.0, whoosh))
+    return place(s, parts)
+
+
+def absorb_done():
+    """흡수 마무리: 맑은 두 음이 겹쳐 올라가며 반짝이고 부드럽게 사라진다."""
+    s = 0.45
+    return place(s, [(0.0, bell(1318.5, 0.3, 9) * 0.4), (0.05, bell(1760.0, 0.35, 8) * 0.38),
+                     (0.1, bell(2637.0, 0.35, 10) * 0.25), (0.0, lowpass(noise(0.25), 3) * envelope(0.25, 0.1, 0.7) * 0.12)])
+
+
+def absorb_v7(freq):
+    """흡수 입자가 닿는 소리 (v7 다시): 종 배음의 짧은 '팅' (예전 사각파보다 맑게)."""
+    return place(0.12, [(0.0, bell(freq, 0.12, 22, ((1.0, 1.0), (2.0, 0.3), (3.0, 0.1))) * 0.6), (0.0, crack(0.015) * 0.15)])
+
+
 # ----- 2026-11-22 메뉴 전용 소리 -----
 def ui_move():
     """메뉴 이동: 짧고 가벼운 똑."""
@@ -557,7 +606,9 @@ def ui_back():
 
 SOUNDS = {"warn_low": warn_low, "warn_high": warn_high, "overload_zap": overload_zap, "stun_end": stun_end, "jump": jump, "double_jump": double_jump, "dash": dash, "land": land, "hit": hit,
           "pickup": pickup, "enhance": enhance,
-          **{f"absorb_{i + 1}": (lambda f=f: absorb(f)) for i, f in enumerate((1047.0, 1175.0, 1319.0, 1568.0, 1760.0))}, "overload": overload, "death": death,
+          **{f"absorb_{i + 1}": (lambda f=f: absorb_v7(f)) for i, f in enumerate((1047.0, 1175.0, 1319.0, 1568.0, 1760.0))}, "overload": overload, "death": death,
+          "absorb_done": absorb_done,
+          **{f"kill_streak_{k}": (lambda k=k: kill_streak(k)) for k in range(1, 7)},
           "swing": swing, "swing_fade": swing_fade, "swing_awake": swing_awake, "swing_critical": swing_critical,
           "swing_enhanced": swing_enhanced, "enemy_hit": enemy_hit, "enemy_die": enemy_die, "throw": throw,
           # 2026-11-19 추가

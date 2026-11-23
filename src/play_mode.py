@@ -131,7 +131,8 @@ _FLOAT_REASONS = {'hit', 'kill', 'damaged', 'enhance'}
 def _on_gauge_change(delta, reason):
     if reason in _FLOAT_REASONS and delta != 0:
         color = (130, 235, 225) if delta > 0 else (240, 110, 120)
-        effects.float_text(player.x, player.y + config.PLAYER_HB_H + 40, f'{delta:+g}%', color)
+        import drama
+        drama.gauge_number(player.x, player.y + config.PLAYER_HB_H + 40, delta, color)   # v7: 피해 숫자와 같은 글꼴
 
 
 def _on_gauge_event(name, gauge):

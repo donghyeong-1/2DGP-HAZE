@@ -184,7 +184,7 @@ class Enemy(TileBody):
             effects.spawn_absorb(*self.center, self.player, got)          # v7 흡수 연출 (수치는 이미 올랐다)
             if self.elite == 'volatile':                  # 폭발 정예: 예고 고리 뒤에 터진다
                 game_world.add_object(EliteBurst(self.x, self.y + self.hb_h / 2, self.player), game_world.LAYER_EFFECT)
-            assets.play_sound('enemy_die')
+            drama.kill_streak()                           # v7: 이어 잡을수록 처치 소리가 단계별로 좋아진다
             death = f'enemy_{self.kind}_death'
             if death in sprites.FRAMES or death in sprites.SKIN:   # 쓰러지는 그림이 있으면 (v6 새 그림만 있는 적도) 시체가 쓰러진 뒤 흩어진다 (Codex T25)
                 game_world.add_object(Corpse(death, self.x, self.y, self.face_dir, self.vx * 0.5), game_world.LAYER_EFFECT)

@@ -1,7 +1,9 @@
 """피해 숫자 전용 픽셀 글꼴 (2026-11-21, 코드로 그림): 0~9를 굵은 3x5 점 글꼴로 그려 한 줄 시트로 저장한다.
 
-  assets/ui/dmg_small.png  칸 17x25 (점 하나 4px)   보통 타격
-  assets/ui/dmg_big.png    칸 26x38 (점 하나 6px)   강한 타격·궁극기
+  assets/ui/dmg_tiny.png   점 하나 4px   게이지 증감 (+3%, -5%)
+  assets/ui/dmg_small.png  점 하나 6px   보통 타격 (v7: 4 -> 6)
+  assets/ui/dmg_big.png    점 하나 8px   강한 타격·궁극기 (v7: 6 -> 8)
+글자: 0~9와 + - % (게이지 증감도 같은 글꼴).
 흰 몸통(아래 한 줄은 옅은 회색으로 입체감) + 짙은 2px 테두리. 게임이 색을 곱해(SDL color mod) 구간·강화 색으로 칠한다
 (흰색 -> 그 색, 테두리는 짙은 그대로). 알파는 켜짐·꺼짐뿐.
 사용: python tools/make_digits.py
@@ -22,8 +24,11 @@ GLYPHS = {
     '7': ['###', '..#', '.#.', '.#.', '.#.'],
     '8': ['###', '#.#', '###', '#.#', '###'],
     '9': ['###', '#.#', '###', '..#', '###'],
+    '+': ['...', '.#.', '###', '.#.', '...'],
+    '-': ['...', '...', '###', '...', '...'],
+    '%': ['#.#', '..#', '.#.', '#..', '#.#'],
 }
-ORDER = '0123456789'
+ORDER = '0123456789+-%'          # src/drama.DIGITS와 같은 순서
 INK = (22, 14, 30, 255)
 WHITE = (255, 255, 255, 255)
 SHADE = (196, 196, 204, 255)
@@ -56,7 +61,8 @@ def sheet(dot):
 
 
 def main():
-    for name, dot in (('dmg_small', 4), ('dmg_big', 6)):
+    # v7 (2026-11-24 사용자: 피해 숫자가 작다): 점 4 -> 6, 6 -> 8. 게이지 증감(+3%)은 점 4(tiny)로 같은 글꼴
+    for name, dot in (('dmg_tiny', 4), ('dmg_small', 6), ('dmg_big', 8)):
         im = sheet(dot)
         im.save(os.path.join(ROOT, 'assets', 'ui', name + '.png'))
         print('saved', name, im.size)

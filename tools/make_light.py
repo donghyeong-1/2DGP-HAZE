@@ -34,6 +34,20 @@ def main():
     for size in (128, 256):
         bloom(size).save(os.path.join(OUT, f'bloom_{size}.png'))
         print('저장', f'assets/light/bloom_{size}.png')
+    dot(48).save(os.path.join(OUT, 'dot_48.png'))       # v7 흡수 입자 둘레의 작은 빛
+    print('저장', 'assets/light/dot_48.png')
+
+
+def dot(size):
+    """작은 부드러운 빛 점 (흡수 입자·불씨용): 흰 심 없이 넓게 퍼지는 빛만."""
+    c = (size - 1) / 2
+    y, x = np.mgrid[0:size, 0:size]
+    r = np.hypot(x - c, y - c) / c
+    a = np.exp(-(r / 0.45) ** 2) * np.clip((1 - r) / 0.2, 0, 1)
+    img = np.zeros((size, size, 4), np.uint8)
+    img[:, :, :3] = 255
+    img[:, :, 3] = np.round(a * 255).astype(np.uint8)
+    return Image.fromarray(img, 'RGBA')
 
 
 if __name__ == '__main__':

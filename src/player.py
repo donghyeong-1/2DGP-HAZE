@@ -258,6 +258,7 @@ class Player(TileBody):
         self.potion_cool = 0.0
         self.hang_left = 0.0         # v7 증강 '체공' 남은 시간
         self.no_death = False        # 연습장: 맞아도 체력 1에서 멈춘다
+        self.absorb_glow = 0.0       # v7 흡수 입자가 닿은 뒤 몸이 빛나는 남은 시간 (effects.AbsorbOrb)
         self.steady_left = 0.0           # 이 시간 동안의 무적은 깜빡이지 않는다 (궁극기 시전: 몸이 보여야 한다)
 
         self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
@@ -609,6 +610,7 @@ class Player(TileBody):
         self._sync_mouse()
         self.aura_time += dt
         self.swing_left = max(0.0, self.swing_left - dt)
+        self.absorb_glow = max(0.0, self.absorb_glow - dt)
         self.punch_left = max(0.0, self.punch_left - dt)
         self.ult_pose_left = max(0.0, self.ult_pose_left - dt)
         self.potion_cool = max(0.0, self.potion_cool - dt)
@@ -902,6 +904,9 @@ class Player(TileBody):
                 if int(self.aura_time * 18) % 2 == 0:
                     tint = (255, 240, 140)
             sprites.draw(name, n, x, self.y, self.draw_face(), tint)
+            if self.absorb_glow > 0:                    # v7 흡수: 입자가 닿으면 몸이 청록·흰 빛으로 번쩍
+                k = self.absorb_glow / effects.ABSORB_GLOW
+                sprites.draw_silhouette(name, n, x, self.y, self.draw_face(), (190, 255, 245), 0.6 * k)
         if config.DEBUG:
             self._draw_debug()
 

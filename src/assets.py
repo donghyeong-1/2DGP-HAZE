@@ -143,6 +143,18 @@ def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):
         img.clip_draw_to_origin(left, bottom, w, h, x, y, dw, dh)
 
 
+def draw_clip_added(img, left, bottom, w, h, x, y, flip='', scale=1, alpha=1.0):
+    """draw_clip을 더하기 섞기로 (빛 층 assets/light 전용: 시트 칸 둘레로 번지는 빛). 끝나면 원래대로."""
+    from sdl2 import SDL_BLENDMODE_ADD, SDL_BLENDMODE_BLEND, SDL_SetTextureBlendMode
+    SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_ADD)
+    img.opacify(alpha)
+    try:
+        draw_clip(img, left, bottom, w, h, x, y, flip, scale)
+    finally:
+        SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_BLEND)
+        img.opacify(1.0)
+
+
 def draw_rect_color(left, bottom, w, h, color, alpha=1.0):
     """임의 색의 단색 사각형을 정수 좌표로 채운다 (직선 이펙트 같은 코드 그림용). 확대·회전 없이 사각형만 쓴다."""
     from sdl2 import SDL_SetTextureColorMod

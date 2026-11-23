@@ -94,6 +94,23 @@ def reset():
     _beat[0] = 0.0
     _recent.clear()
     style.clear()
+    _streak[:] = [0, -99.0]
+
+
+# ----- 연속 처치 (v7, 2026-11-24 사용자: 이어 잡을수록 소리가 좋아지면 잡는 맛) -----
+STREAK_WINDOW = 2.2     # 이 시간 안에 다음 적을 잡으면 단계가 오른다
+STREAK_MAX = 6          # 소리 단계 수 (assets/sfx/kill_streak_1~6.wav, tools/make_sfx.py)
+_streak = [0, -99.0]    # [지금 단계, 마지막 처치 시각]
+
+
+def kill_streak():
+    """적을 처치했다: 연속 처치 단계를 올리고 그 단계의 처치 소리를 낸다. 단계를 돌려준다."""
+    import assets
+    now = _clock[0]
+    _streak[0] = min(STREAK_MAX, _streak[0] + 1) if now - _streak[1] <= STREAK_WINDOW else 1
+    _streak[1] = now
+    assets.play_sound(f'kill_streak_{_streak[0]}')
+    return _streak[0]
 
 
 def tick(dt, player):
@@ -135,21 +152,24 @@ def damage_color(player):
 
 
 STACK_WINDOW = 0.45     # 같은 적에게 이 시간 안에 이어 맞으면 숫자가 위로 쌓인다(다단 히트)
-STACK_STEP = {False: 30, True: 40}     # 숫자 칸 높이(25·35)보다 조금 넓게 (겹치지 않게)
+STACK_STEP = {False: 40, True: 50}     # 숫자 칸 높이(35·45)보다 조금 넓게 (겹치지 않게)
+DIGITS = '0123456789+-%'                # 숫자 글꼴 시트의 글자 순서 (tools/make_digits.py ORDER)
 _clock = [0.0]
 _recent = {}            # id(적) -> (마지막으로 맞은 시각, 쌓인 수)
 style = {}              # 지금 때리는 공격의 숫자 모양: big(큰 숫자), color(색). 무기가 take_damage 앞뒤로 정한다
 
 
 class DamageNumber:
-    """맞은 자리에 튀어 오르는 피해 숫자 (세계 좌표, 효과 레이어). 전용 픽셀 글꼴(assets/ui/dmg_small·dmg_big)에
+    """맞은 자리에 튀어 오르는 피해 숫자 (세계 좌표, 효과 레이어). 전용 픽셀 글꼴(assets/ui/dmg_tiny·small·big)에
     색을 곱해 그린다. 처음 0.07초는 조금 위에서 '톡' 튀고, 솟았다가 멈춘 뒤 끝에서 깜빡이며 사라진다.
-    큰 숫자는 처음 0.12초 좌우로 떨린다. 반투명 없이 그린다."""
+    큰 숫자는 처음 0.12초 좌우로 떨린다. 반투명 없이 그린다.
+    v7: 게이지 증감(+3%)도 같은 글꼴의 작은 판(size='tiny')으로 띄운다 (gauge_number)."""
 
-    def __init__(self, x, y, damage, color, big=None, stack=0):
-        self.x, self.y0 = x + random.uniform(-10, 10), y + STACK_STEP[bool(big)] * stack
-        self.text, self.color = str(int(round(damage))), color
+    def __init__(self, x, y, damage, color, big=None, stack=0, text=None, size=None):
         self.big = damage >= BIG_DAMAGE if big is None else bool(big)
+        self.size = size or ('big' if self.big else 'small')
+        self.x, self.y0 = x + random.uniform(-10, 10), y + STACK_STEP[self.size == 'big'] * stack
+        self.text, self.color = text if text is not None else str(int(round(damage))), color
         self.stack = stack
         self.time = 0.0
 
@@ -172,15 +192,15 @@ class DamageNumber:
         if self.time / NUMBER_LIFE > 0.78 and int(self.time * 30) % 2:   # 끝에서 깜빡이며 사라진다
             return
         from sdl2 import SDL_SetTextureColorMod
-        img = assets.image('ui/dmg_big.png' if self.big else 'ui/dmg_small.png')
-        cw, ch = img.w // 10, img.h
+        img = assets.image(f'ui/dmg_{self.size}.png')
+        cw, ch = img.w // len(DIGITS), img.h
         dx, dy = self.offset()
         x = int(self.x) + dx - cw * len(self.text) // 2 + len(self.text)   # 글자끼리 1px 겹쳐 붙인다
         y = int(self.y0) + dy
         SDL_SetTextureColorMod(img.texture, *self.color)
         try:
             for k, ch_ in enumerate(self.text):
-                assets.draw_clip(img, int(ch_) * cw, 0, cw, ch, x + k * (cw - 2), y)
+                assets.draw_clip(img, DIGITS.index(ch_) * cw, 0, cw, ch, x + k * (cw - 2), y)
         finally:
             SDL_SetTextureColorMod(img.texture, 255, 255, 255)
 
@@ -197,6 +217,15 @@ def damage_number(target, damage, player):
     top = target.y + getattr(target, 'hb_h', 100) + 12
     color = style.get('color') or damage_color(player)
     game_world.add_object(DamageNumber(target.x, top, damage, color, style.get('big'), stack), game_world.LAYER_EFFECT)
+
+
+def gauge_number(x, y, delta, color):
+    """게이지 증감을 피해 숫자와 같은 픽셀 글꼴(작은 판)로 띄운다. 0이 되는 작은 변화는 띄우지 않는다."""
+    n = int(round(delta))
+    if n == 0:
+        return
+    import game_world
+    game_world.add_object(DamageNumber(x, y, 0, color, big=False, text=f'{n:+d}%', size='tiny'), game_world.LAYER_EFFECT)
 
 
 class hit_style:

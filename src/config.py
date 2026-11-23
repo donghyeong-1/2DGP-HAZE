@@ -79,6 +79,8 @@ SPRITE_FOOT_MARGIN = 1     # hibit 스프라이트의 발 아래 투명 여백(p
 PLAYER_HB_W = 42           # 충돌 박스 너비
 PLAYER_HB_H = 108          # 충돌 박스 높이 (스프라이트 키 123px의 약 88%)
 HIT_STUN = 0.25            # 피격 경직(초)
+PLAYER_KNOCK_VX = 520.0    # v7 무게감: 주인공 피격 넉백 처음 속도(px/s). 경직 동안 줄어 멈춘다
+PLAYER_KNOCK_VY = 260.0    # 땅에서 맞으면 살짝 뜬다
 HIT_INVULN = 0.8           # 피격 뒤 무적(초). 연속으로 맞아 순식간에 죽는 것을 막는다
 
 # 헤이즈 게이지
@@ -241,6 +243,8 @@ PIPE_COMBO_WINDOW = 0.55    # 이 시간 안에 다시 치면 다음 타로 이�
 PIPE_FINISHER_MULT = 1.5    # 3타 대미지 배율
 PIPE_FINISHER_GAIN = 6      # 3타 명중 시 게이지 (일반 타격은 GAIN_HIT)
 HIT_STOP = 0.045            # 명중 시 화면이 잠깐 멈추는 시간(초)
+KILL_STOP = 0.07            # v7 처치 순간 멈춤(초)
+KILL_FLASH = 0.05           # v7 처치 순간 화면 번쩍임(초, 번쩍임 줄이기면 없음)
 HIT_STOP_DAMAGED = 0.07     # 내가 맞았을 때 멈추는 시간(초)
 
 # 화면 흔들림 (trauma 방식: 충격마다 trauma가 오르고 시간에 따라 줄며, 흔들림 폭은 trauma의 제곱에 비례한다)
@@ -251,6 +255,7 @@ SHAKE_FINISHER = 0.38       # 파이프 3타
 SHAKE_KILL = 0.30           # 적 처치
 SHAKE_DAMAGED = 0.5         # 내가 맞음
 SHAKE_OVERLOAD = 1.0        # 오버로드 폭발
+SHAKE_SLAM = 0.6            # v7 땅 강타(내려찍기·건틀릿 완충·보스 착지) 기본 세기, power를 곱한다
 
 # 적 (hb = 충돌 박스 너비·높이, 스프라이트 키에서 위쪽 여유를 뺀 값)
 # sight_dy: 이 높이 차(px) 안에 플레이어가 있어야 발견, reach_dy: 이 높이 차 안일 때만 공격(투척병은 같은 층만 노린다)

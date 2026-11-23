@@ -1,0 +1,17 @@
+{
+ "id": "fx/shockwave",
+ "frames": 4,
+ "frameSize": [
+  64,
+  52
+ ],
+ "columns": 4,
+ "fps": 20,
+ "loop": true,
+ "pivot": [
+  32,
+  48
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

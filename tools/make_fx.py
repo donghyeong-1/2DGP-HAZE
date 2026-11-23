@@ -30,6 +30,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'assets', 'effects')
 INK = (11, 16, 32)
 BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0 - 0.5
+FLAT = True                                # v7 (2026-11-23): 점묘·어두운 외곽선 없이 깔끔한 단색 면 (INARI 참고)
 CUTS = (0.70, 0.46, 0.22, 0.05)          # 열 -> 색 4단계 (흰 코어, 밝음, 중간, 짙음)
 
 
@@ -86,6 +87,8 @@ class Frame:
         self.bayer = np.tile(BAYER, (h // 4 + 1, w // 4 + 1))[:h, :w]
 
     def paint(self, heat, colors, dither=0.16, outline=True):
+        if FLAT:                                   # v7: 점묘·외곽선 없이 단색 면
+            dither, outline = 0.0, False
         th = heat + self.bayer * dither
         idx = np.full(heat.shape, -1)
         for i, cut in enumerate(CUTS):

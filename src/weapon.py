@@ -208,11 +208,13 @@ class Pipe:
         else:                                            # 맞을 때마다 적을 가로지르는 베기 자국 (다단 히트가 하나하나 보이게)
             effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
+        effects.spawn_bloom(ex, ey, fx['damage_color'], big=big, strength=0.9 if big else 0.6)   # v7 빛 번짐
         p.swing_connected = True                         # 이번 휘두르기가 맞았다: 몸은 젖힘으로 되돌아가지 않는다
         effects.add_trauma(config.SHAKE_HIT * shake * fx['shake'])
         if killed:
             p.gauge.add(p.kill_gain(bool(fx.get('enhanced'))), 'kill')
             effects.add_trauma(config.SHAKE_KILL)
+            effects.spawn_kill(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])   # v7 처치 연출
         import mutations
         mutations.on_hit(p)                              # 변이 '굶주림'
         if fx.get('enhanced'):
@@ -341,6 +343,7 @@ class Pipe:
         assets.play_sound('swing_critical')
         effects.spawn('quake-blast', p.x + side * 150, p.y, duration=0.4)
         effects.add_trauma(config.SHAKE_FINISHER * 1.3)
+        effects.ground_slam(p.x + side * 150, p.y, power=1.2, color=fx['damage_color'])   # v7 땅 강타
         self.level = 2
         damage = self._damage(config.STAGE2_SLAM_MULT)
         scale = self._enh('reach') / config.ENHANCE_REACH_MULT * config.STAGE2_SLAM_REACH
@@ -703,6 +706,8 @@ class Gauntlet(Pipe):
         p.start_punch('blast')
         assets.play_sound('overload_zap' if size >= 1.5 else fx['sound'])
         effects.add_trauma(0.25 + 0.25 * size)
+        if size >= 1.5 and p.on_ground:                               # v7 완충 강타: 발밑이 울린다
+            effects.ground_slam(p.x, p.y, power=0.8, color=(255, 190, 120))
         p.lunge_vx = -ax * 260 * size                                 # 반동으로 살짝 밀린다
         self.cooldown = self.cooldown_max = config.GAUNTLET_COOLDOWN
         self._finish(enhanced)
@@ -936,6 +941,7 @@ class ChainHook:
         w, p = self.weapon, self.weapon.owner
         cx, cy = p.center
         effects.spawn('quake-blast', p.x, p.y, duration=0.4)
+        effects.ground_slam(p.x, p.y, power=0.9)                                          # v7 땅 강타
         effects.spawn('hit-enhanced2', cx, cy, duration=0.35)
         effects.add_trauma(config.SHAKE_FINISHER)
         for e in list(game_world.world[game_world.LAYER_ENEMY]):

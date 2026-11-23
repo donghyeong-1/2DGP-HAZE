@@ -172,7 +172,8 @@ class Hit(_State):
 
     def do(self, dt):
         p = self.p
-        p.vx = 0.0
+        k = max(0.0, p.hit_left / config.HIT_STUN)        # 넉백: 경직이 끝날수록 줄어 멈춘다 (v7 무게감)
+        p.vx = p.knock_vx * k
         p.hit_left -= dt
 
     def check(self):
@@ -249,6 +250,7 @@ class Player(TileBody):
         self.dash_vec = (1.0, 0.0)
         self.dash_left = 0.0
         self.invuln_left = 0.0
+        self.knock_vx = 0.0          # 피격 넉백 속도 (Hit 상태가 쓴다)
         self.steady_left = 0.0           # 이 시간 동안의 무적은 깜빡이지 않는다 (궁극기 시전: 몸이 보여야 한다)
 
         self.afterimages = []            # 대시 잔상: [x, y, face_dir, 남은 수명, (그림 세트, 번호)]
@@ -508,6 +510,11 @@ class Player(TileBody):
         elif self.state != 'DEAD':
             assets.play_sound('hit')
             self.invuln_left = config.HIT_INVULN
+            sx = getattr(source, 'x', None)                  # 때린 쪽 반대로 밀린다 (위치를 모르면 보는 쪽 뒤로)
+            away = (1 if self.x >= sx else -1) if sx is not None else -self.face_dir
+            self.knock_vx = away * config.PLAYER_KNOCK_VX
+            if self.on_ground:
+                self.vy = config.PLAYER_KNOCK_VY
             self.hit()
         effects.add_trauma(config.SHAKE_DAMAGED)
         effects.request_hit_stop(config.HIT_STOP_DAMAGED)

@@ -464,3 +464,103 @@ def slash_variant(ax, ay, angles=(0, 45, 90, -45, -90)):
 
 def float_text(x, y, text, color, big=False, life=0.8):
     game_world.add_object(FloatText(x, y, text, color, life=life, big=big), game_world.LAYER_EFFECT)
+
+
+# ----- v7 (2026-11-23) 빛 번짐·처치 연출 (docs/plan_v7.md 3) -----
+class Bloom:
+    """타격 순간 하얗게 번지는 빛. 부드러운 둥근 빛(assets/light, 빛 층만 반투명 예외)을 색을 곱해 더하기로 그리고 빠르게 식힌다."""
+
+    def __init__(self, x, y, color, big=False, life=0.16, strength=1.0):
+        self.x, self.y, self.color, self.big = x, y, color, big
+        self.life, self.time, self.strength = life, 0.0, strength
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        img = assets.image('light/bloom_256.png' if self.big else 'light/bloom_128.png')
+        k = (1.0 - self.time / self.life) ** 1.6
+        img.opacify(min(1.0, self.strength * k * (0.5 if options.reduce_flash else 1.0)))
+        assets.draw_image_added(img, int(self.x), int(self.y - img.h // 2), color=self.color, times=1)
+        img.opacify(1.0)
+
+
+class KillSlash:
+    """처치 순간 적을 가로지르는 한 줄 베는 선 (INARI의 베는 선). 흰 심 + 색 가장자리, 앞으로 뻗었다가 가늘어지며 사라진다."""
+
+    def __init__(self, x, y, dir_x, dir_y, color, life=0.2, length=260):
+        n = math.hypot(dir_x, dir_y) or 1.0
+        self.x, self.y, self.dx, self.dy = x, y, dir_x / n, dir_y / n
+        self.color, self.life, self.time, self.length = color, life, 0.0, length
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        p = self.time / self.life
+        half = self.length * (0.5 + 0.5 * min(1.0, p * 4))          # 처음 1/4 동안 양쪽으로 뻗는다
+        thick = max(2, int(round(10 * (1 - p))) // 2 * 2)            # 2배 픽셀 격자: 짝수 두께
+        step = 4
+        t = -half
+        while t <= half:
+            x = int(round(self.x + self.dx * t)) // 2 * 2
+            y = int(round(self.y + self.dy * t)) // 2 * 2
+            edge = abs(t) > half * 0.7
+            assets.draw_rect_color(x - thick // 2, y - thick // 2, thick, thick, self.color if edge else (255, 255, 255))
+            t += step
+
+
+def spawn_bloom(x, y, color, big=False, life=0.16, strength=1.0):
+    game_world.add_object(Bloom(x, y, color, big, life, strength), game_world.LAYER_EFFECT)
+
+
+def spawn_kill(x, y, dir_x, dir_y, color):
+    """처치 연출: 큰 빛 번짐 + 가로지르는 베는 선 + 짧은 화면 번쩍임 + 짧은 멈춤."""
+    spawn_bloom(x, y, (255, 255, 255), big=True, life=0.22, strength=1.0)
+    spawn_bloom(x, y, color, big=True, life=0.32, strength=0.7)
+    game_world.add_object(KillSlash(x, y, dir_x, dir_y, color), game_world.LAYER_EFFECT)
+    if not options.reduce_flash:
+        request_flash(config.KILL_FLASH)
+    request_hit_stop(config.KILL_STOP)
+
+
+class SlamChip:
+    """땅 강타 파편: 2배 픽셀 사각 조각이 튀어 올랐다가 중력으로 떨어지며 사라진다."""
+    GRAVITY = -1800.0
+
+    def __init__(self, x, y, vx, vy, color, size, life):
+        self.x, self.y, self.vx, self.vy = x, y, vx, vy
+        self.color, self.size, self.life, self.time = color, size, life, 0.0
+
+    def update(self, dt):
+        self.time += dt
+        self.vy += self.GRAVITY * dt
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        s = self.size
+        assets.draw_rect_color(int(self.x) // 2 * 2, int(self.y) // 2 * 2, s, s, self.color)
+
+
+SLAM_DEBRIS = ((92, 84, 78), (140, 128, 116), (60, 56, 54))     # 돌·쇳가루 색
+
+
+def ground_slam(x, floor_y, power=1.0, color=(255, 200, 140)):
+    """v7 무게감: 무거운 공격이 땅을 칠 때. 강한 흔들림 + 양옆 먼지 + 튀는 파편 + 바닥 빛 번짐 (power 1 = 보통 강타)."""
+    add_trauma(config.SHAKE_SLAM * power)
+    for side in (-1, 1):
+        spawn('dust-land', x + side * 60 * power, floor_y, flip=side < 0, duration=0.35)
+    rng = random.Random(int(x) * 31 + int(floor_y))
+    for k in range(int(10 * power)):
+        vx = rng.uniform(-420, 420) * power
+        vy = rng.uniform(380, 760) * (0.7 + 0.3 * power)
+        game_world.add_object(SlamChip(x + rng.uniform(-30, 30), floor_y + 4, vx, vy, SLAM_DEBRIS[k % 3],
+                                     rng.choice((4, 4, 6)), rng.uniform(0.35, 0.6)), game_world.LAYER_EFFECT)
+    spawn_bloom(x, floor_y + 20, color, big=power >= 1.2, life=0.22, strength=0.7)

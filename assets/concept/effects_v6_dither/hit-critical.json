@@ -1,0 +1,17 @@
+{
+ "id": "fx/hit-critical",
+ "frames": 6,
+ "frameSize": [
+  88,
+  88
+ ],
+ "columns": 6,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  44,
+  44
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

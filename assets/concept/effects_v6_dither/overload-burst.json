@@ -1,0 +1,17 @@
+{
+ "id": "aura/overload-burst",
+ "frames": 13,
+ "frameSize": [
+  460,
+  460
+ ],
+ "columns": 8,
+ "fps": 25,
+ "loop": false,
+ "pivot": [
+  230,
+  230
+ ],
+ "scale": 2,
+ "source": "tools/make_aura.py (code-drawn, codeart2d render QA, no image model)"
+}

@@ -1,0 +1,17 @@
+{
+ "id": "fx/puff",
+ "frames": 7,
+ "frameSize": [
+  72,
+  72
+ ],
+ "columns": 7,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  36,
+  41
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

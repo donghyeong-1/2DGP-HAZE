@@ -1,0 +1,23 @@
+{
+ "id": "melee/air-spin",
+ "frames": 6,
+ "variants": 1,
+ "variantAngles": [
+  0
+ ],
+ "frameSize": [
+  210,
+  210
+ ],
+ "columns": 6,
+ "fps": 25,
+ "loop": false,
+ "pivot": [
+  105,
+  105
+ ],
+ "scale": 2,
+ "impactMs": 120,
+ "durationMs": 240,
+ "source": "tools/make_slash_hq.py (code-drawn, numpy, no image model)"
+}

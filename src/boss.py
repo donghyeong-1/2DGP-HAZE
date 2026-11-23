@@ -124,6 +124,7 @@ class Boss(Enemy):
         assets.play_sound('overload')
         effects.add_trauma(0.8)
         effects.spawn('quake-blast', self.x, self.y, duration=0.6)
+        effects.ground_slam(self.x, self.y, power=1.6)                    # v7 보스 땅 강타
         effects.float_text(self.x, self.y + self.hb_h + 80, '분노', (255, 110, 90), big=True, life=1.0)
 
     def _do_chase(self, dt):
@@ -199,6 +200,7 @@ class Boss(Enemy):
             assets.play_sound('overload')
             effects.add_trauma(0.7)
             effects.spawn('quake-blast', self.x, self.y, duration=0.5)
+            effects.ground_slam(self.x, self.y, power=1.6)                    # v7 보스 땅 강타
             self._shockwaves()
         elif self.pattern == 'rubble':
             self._stomp_rubble()
@@ -261,6 +263,7 @@ class Boss(Enemy):
         assets.play_sound('overload')
         effects.add_trauma(0.5)
         effects.spawn('quake-blast', self.x, self.y, duration=0.4)
+        effects.ground_slam(self.x, self.y, power=1.6)                    # v7 보스 땅 강타
         count = RUBBLE_COUNT[self.phase - 1]
         px = self.player.x
         offsets = [0]
@@ -326,6 +329,7 @@ class Boss(Enemy):
         assets.play_sound('overload')
         effects.add_trauma(0.8)
         effects.spawn('quake-blast', self.x, self.y, duration=0.5)
+        effects.ground_slam(self.x, self.y, power=1.6)                    # v7 보스 땅 강타
         self._shockwaves()
         px, py = self.player.center
         cx, cy = self.center

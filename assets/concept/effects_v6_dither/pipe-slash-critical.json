@@ -1,0 +1,27 @@
+{
+ "id": "melee/pipe-slash-critical",
+ "frames": 30,
+ "variants": 5,
+ "variantAngles": [
+  0,
+  45,
+  90,
+  -45,
+  -90
+ ],
+ "frameSize": [
+  250,
+  250
+ ],
+ "columns": 6,
+ "fps": 25,
+ "loop": false,
+ "pivot": [
+  125,
+  125
+ ],
+ "scale": 2,
+ "impactMs": 120,
+ "durationMs": 240,
+ "source": "tools/make_slash_hq.py (code-drawn, numpy, no image model)"
+}

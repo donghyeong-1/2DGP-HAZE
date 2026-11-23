@@ -1,0 +1,17 @@
+{
+ "id": "fx/surge",
+ "frames": 7,
+ "frameSize": [
+  64,
+  88
+ ],
+ "columns": 7,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  32,
+  80
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

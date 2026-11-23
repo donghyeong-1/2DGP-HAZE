@@ -1,0 +1,17 @@
+{
+ "id": "aura/aura-enhanced",
+ "frames": 16,
+ "frameSize": [
+  240,
+  320
+ ],
+ "columns": 8,
+ "fps": 20,
+ "loop": true,
+ "pivot": [
+  120,
+  296
+ ],
+ "scale": 1,
+ "source": "tools/make_aura.py (code-drawn silhouette flame, codeart2d render_pixelspec QA, no image model)"
+}

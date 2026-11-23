@@ -205,6 +205,22 @@ def test_boss_bar_damage_trail_and_phase_marks():
     assert ui.boss_phase_marks('ark') == sorted(config.ARK_PHASES)
 
 
+def test_player_is_knocked_back_away_from_the_attacker():
+    """v7 (2026-11-23) 무게감: 주인공도 맞으면 때린 쪽 반대로 밀려난다 (경직 동안 점점 멈춘다)."""
+    room, p, e = _foe('slum', gap=120)              # 적이 오른쪽에 있다
+    x0 = p.x
+    p.take_hit(5, source=e)
+    tc.step(int(config.HIT_STUN * 60))
+    assert p.x < x0 - 20, (x0, p.x)                  # 왼쪽으로 밀렸다
+    e.x = p.x - 120                                  # 이번엔 왼쪽에서 맞는다
+    p.invuln_left = 0.0
+    tc.step(30)
+    x1 = p.x
+    p.take_hit(5, source=e)
+    tc.step(int(config.HIT_STUN * 60))
+    assert p.x > x1 + 20, (x1, p.x)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

@@ -315,3 +315,6 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-23: 타일·장식·소품·전경(`assets/tiles`, `decor`, `props`, `backgrounds/fg_*`)을 `tools/pixel2x.py`로 2배 픽셀 규격으로 변환(code-drawn 처리, 원본 색만 사용). 원본은 `assets/concept/pixel1x_original/`.
 
 2026-11-23 [Gemini] G04(부분) `assets/sprites/gemini/portraits_v1/hero_portrait.png`(1024×1024). Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 생성 후 PNG 변환. 나머지 NPC 3장 및 G02·G03은 429 할당량 소진(21:02 KST 초기화)으로 미완료. docs/gemini/reports/G04.md.
+
+2026-11-23 [Codex] T49 `assets/sprites/forge/backdrops_v6/` 슬럼·공장·탑의 v6 원경 3장(960×540)과 반복 중경 3장(1440×540). 기존 프로젝트 배경의 구도를 참고해 Codex 내장 image_gen(모델명 미제공)으로 새로 생성하고 generate2dmap Agent Sprite Forge 0.5.0(MIT)와 Pillow로 마감했다. 파일당 32색·알파 0/255·1픽셀 논리 격자. 출처와 프롬프트 `assets/sprites/forge/backdrops_v6/provenance.json`. 검토 대기.
+- 2026-11-23: 빛 번짐 `assets/light/bloom_128.png`, `bloom_256.png` — `tools/make_light.py` code-drawn. 이펙트 시트 전체를 점묘 없는 단색 면으로 다시 그림(make_slash_hq.py, make_fx.py), 예전 시트는 `assets/concept/effects_v6_dither/`.

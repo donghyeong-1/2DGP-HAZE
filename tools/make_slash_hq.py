@@ -28,7 +28,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "effects"
 
-SWEEP = 65.0
+SWEEP = 95.0                             # v7: 65 -> 95 (길게 그어지는 궤적)
+THICK = 1.0                              # v7: 두께 배율 1.45 -> 1.0 (가늘고 날카롭게)
 AIMS = [0, 45, 90, -45, -90]            # 조준 각도(도, 동 0, 북 90). 시트의 줄 순서 (게임 규칙: 반시계가 +)
 FRAMES = 6
 FPS = 25
@@ -133,7 +134,7 @@ def layer_heat(X, Y, c, cfg, layer, sa, t, kind):
         u = np.clip((s - tail) / max(1e-3, head - tail), 0, 1)
         axis_off = p
     taper = (u ** 0.62) * np.sqrt(np.clip(1 - u ** 7, 0, 1))      # 꼬리 가늘게, 머리 끝은 뾰족하게
-    h = layer["w"] * 1.45 * taper * (1.0 - 0.35 * max(0.0, tail_p))       # 꼬리가 따라잡을수록 가늘어진다
+    h = layer["w"] * THICK * taper * (1.0 - 0.35 * max(0.0, tail_p))       # 꼬리가 따라잡을수록 가늘어진다
     if kind == "arc":
         outer, inner = layer["r"] + h * 0.40, layer["r"] - h * 0.60
         v = (r - inner) / np.maximum(outer - inner, 1e-3)         # 0 안쪽 → 1 바깥 가장자리
@@ -143,16 +144,22 @@ def layer_heat(X, Y, c, cfg, layer, sa, t, kind):
         ok = inside & (np.abs(axis_off) <= h * 0.5) & (h > 0.35)
         v = 1 - np.abs(v - 0.5) * 2 * 0.0 - np.abs(axis_off) / np.maximum(h * 0.5, 1e-3)   # 중심선이 밝다
     peak = layer.get("heat", 1.0)
-    base = 0.52 * np.clip(v, 0, 1) ** 1.4 + 0.5 * u ** 2.2
+    base = 0.62 * np.clip(v, 0, 1) ** 1.2 + 0.5 * u ** 1.8        # v7: 흰 심이 넓게 (바깥 가장자리·머리)
     life = 1.0 - 0.55 * ease_in((t - 0.55) / 0.45)                # 끝으로 갈수록 식는다
+    if t < 0.3:
+        life *= 1.25                                              # v7: 처음 두 프레임은 하얗게 번쩍
     val = np.clip(base, 0, 1) * peak * life
     heat[ok] = val[ok]
     return heat
 
 
+DITHER = 0.0          # v7 (2026-11-23): 점묘 없이 단색 경계 (INARI처럼 깔끔하게). 예전 값 0.16
+OUTLINE = False       # v7: 어두운 외곽선 없이 빛나게. 예전 True
+
+
 def quantize(heat, ramp_cols, bayer_tiled):
-    """열 → 4톤 색 (베이어 디더링). 불투명 마스크와 RGB를 돌려준다."""
-    th = heat + bayer_tiled * 0.16
+    """열 → 4톤 색 (DITHER > 0이면 베이어 디더링). 불투명 마스크와 RGB를 돌려준다."""
+    th = heat + bayer_tiled * DITHER
     idx = np.full(heat.shape, -1)
     cut = [0.70, 0.46, 0.22, 0.05]                                # 흰, 밝은, 중간, 짙은
     for i, cv in enumerate(cut):
@@ -245,6 +252,8 @@ def frame_image(name, cfg, aim, i):
             m = idx == tone
             img[m] = (*cols[tone], 255)
         mask = idx >= 0
+        if not OUTLINE:
+            continue
         # 이 겹의 1px 외곽선 (기존 그림 위에는 그리지 않는다)
         pad = np.pad(mask, 1)
         ring = (pad[:-2, 1:-1] | pad[2:, 1:-1] | pad[1:-1, :-2] | pad[1:-1, 2:]) & ~mask & (img[:, :, 3] == 0)

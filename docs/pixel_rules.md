@@ -44,3 +44,9 @@ pixelfx(MIT)가 만드는 이펙트는 반투명 빛 번짐과 수천 색을 쓰
 3. 결과는 `assets/effects/`에 `<이름>.png`(시트)와 `<이름>.json`(프레임 수, 크기, 열 수, fps, 반복 여부, pivot)로 저장된다. `tests/test_pixel_assets.py`가 알파·색 수·프레임 수·pixelfx 라이선스 동봉을 검사한다.
 4. 새 이펙트도 규칙 8번대로 캐릭터 옆에 1배로 놓고 크기를 눈으로 확인한다.
 - 투사체 방향이 필요하면 pixelfx의 `angle` 옵션(`--opts '{"angle":...}'`)으로 8방향(45도)을 따로 구워 둔다 (규칙 5번).
+
+## 빛 층 예외 (2026-11-23 v7)
+INARI처럼 타격·처치 순간 하얗게 번지는 빛(블룸)을 내려고 **빛 층만** 반투명을 허용한다.
+- 대상: `assets/light/` (tools/make_light.py, 부드러운 둥근 빛). 게임은 더하기 섞기로 색을 곱해 그린다(`effects.Bloom`).
+- 캐릭터·타일·배경·이펙트 시트는 그대로 알파 0/255.
+- 이펙트 시트(make_slash_hq.py, make_fx.py)는 v7부터 점묘(베이어 디더)와 어두운 외곽선 없이 단색 면으로 그린다. 예전 시트는 `assets/concept/effects_v6_dither/`.

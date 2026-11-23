@@ -1,0 +1,17 @@
+{
+ "id": "fx/hit-normal",
+ "frames": 6,
+ "frameSize": [
+  64,
+  64
+ ],
+ "columns": 6,
+ "fps": 20,
+ "loop": false,
+ "pivot": [
+  32,
+  32
+ ],
+ "scale": 2,
+ "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+}

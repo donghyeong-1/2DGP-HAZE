@@ -71,7 +71,7 @@ def test_reduce_flash_skips_bright_start_of_big_effects():
 def test_credits_cover_every_external_source_and_finish():
     import credits_mode
     text = ' '.join(t for _, t in credits_mode.CREDITS)
-    for must in ('Galmuri', 'SIL Open Font License', 'pico2d', 'transitions', 'Codex', 'Claude Code', 'agent-sprite-forge'):
+    for must in ('Galmuri', 'SIL Open Font License', 'pico2d', 'transitions', 'Codex', 'Claude Code', 'agent-sprite-forge', 'Kenney'):
         assert must in text, must
     credits_mode.scroll = 0.0
     assert not credits_mode.finished()

@@ -1,7 +1,7 @@
 """효과음을 코드로 직접 합성해 assets/sfx/*.wav 로 저장한다. (외부 음원 없음, 저작권 문제 없음)
 
 사각파·삼각파·잡음에 짧은 엔벨로프를 걸어 8비트 느낌으로 만든다. 소리를 바꾸려면 SOUNDS의 값을 고쳐 다시 실행한다.
-사용: python tools/make_sfx.py
+사용: python tools/make_sfx.py   (2026-11-24부터 tools/make_sfx_v2.py가 만드는 소리는 건너뛴다)
 """
 import wave
 import zlib
@@ -657,12 +657,20 @@ def save(name, samples):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     global RNG
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import make_sfx_v2                                           # 2026-11-24: 녹음 원본으로 다시 만든 소리는 건드리지 않는다
+    newer = set(make_sfx_v2.SOUNDS) | {f'{n}_v{v}' for n in make_sfx_v2.VARIANT_FNS for v in (2, 3)}
     for name, fn in SOUNDS.items():
+        if name in newer:
+            continue
         RNG = np.random.default_rng(zlib.crc32(name.encode()))   # 소리마다 따로: 하나를 고쳐도 다른 소리가 바뀌지 않는다
         save(name, fn())
         print("saved", name)
     for name in VARIANTS:
         for v, k in PITCH.items():
+            if f'{name}_v{v}' in newer:
+                continue
             RNG = np.random.default_rng(zlib.crc32(f'{name}_v{v}'.encode()))
             save(f'{name}_v{v}', pitch_shift(SOUNDS[name](), k))
             print("saved", f'{name}_v{v}')

@@ -265,3 +265,4 @@
 2026-11-23 [Claude Code] 새 주인공(62px) 대기·달리기 게임 적용: 적용 도구(15색 고정·머리 맞춤·2배), sprites.SKIN으로 n09_idle·n09_run을 hero6로, 테스트(스킨·뒷걸음 장수) / tools/apply_pixellab_hero.py, src/sprites.py, assets/sprites/unified/hero6*, tests/(test_sprites, test_combat).py
 2026-11-23 [Claude Code] 새 주인공 동작 13세트 게임 적용(대기·달리기·출발/멈춤·점프·대시·휘두르기 3종·2단계 강화·낙하 공격·피격·사망), 흰 궤적 자동 제거, 남은 것: 식칼·건틀릿·사슬 자세·맨손·궁극기는 기존 그림 / tools/apply_pixellab_hero.py, src/sprites.py, assets/sprites/unified/hero6*, tests/test_sprites.py
 2026-11-23 [Claude Code] 입력 그림 충실도 시험 검토(대기는 pixminimax, 크게 움직이는 동작은 skeleton v3), 눈 복원(기준 그림의 청록 눈을 머리 기준 같은 자리에) / tools/apply_pixellab_hero.py
+2026-11-23 [Claude Code] v6 작업 나누기: Gemini G02(보스 3종)·G03(적 6종)·G04(초상화) 작성, Codex T49(구역 배경 960x540 픽셀) 작성, 적 6종 확정(등장 횟수 기준) / docs/gemini/, docs/codex/(TASKS.md, tasks/T49_zone_backdrops_v6.md), docs/(plan_v6, DECISIONS, PROGRESS).md

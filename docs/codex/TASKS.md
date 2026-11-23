@@ -68,6 +68,7 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T46 | 헤이즈 심장 기계 손 8장 | [T46_heart_hands.md](tasks/T46_heart_hands.md) | T45 | done |
 | T47 | 헤이즈 심장 결전 방 배경 + 등장 카드 | [T47_heart_arena.md](tasks/T47_heart_arena.md) | T45 | done |
 | T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | done |
+| T49 | v6 구역 배경 다시 그리기 (원경·중경 6장, 960x540 픽셀) | [T49_zone_backdrops_v6.md](tasks/T49_zone_backdrops_v6.md) | - | ready |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.

@@ -60,8 +60,7 @@ def outline_image(relative_path, radius, color=(6, 8, 14), rim=0, rim_color=(110
     key = (relative_path, radius, color, rim, rim_color)
     if key not in _outlines:
         import tempfile
-        import numpy as np
-        from PIL import Image
+        from PIL import Image, ImageChops
         from pico2d import load_image
         folder = os.path.join(tempfile.gettempdir(), 'haze_outlines')
         os.makedirs(folder, exist_ok=True)
@@ -73,21 +72,20 @@ def outline_image(relative_path, radius, color=(6, 8, 14), rim=0, rim_color=(110
         alpha = src.getchannel('A').point(lambda v: 255 if v > 0 else 0)
         padded = Image.new('L', (w + 2 * big, h + 2 * big), 0)
         padded.paste(alpha, (big, big))
-        a = np.array(padded) > 0
 
-        def grow(r):                                   # 둥근 모양(원 안의 칸)으로 부풀린다. PIL에는 이동 합성이 없어 numpy를 쓴다
-            g = np.zeros_like(a)
+        def grow(r):                                   # 둥근 모양(원 안의 칸)으로 부풀린다. 게임 실행에 numpy가 없어도 되게 Pillow만
+            g = Image.new('L', padded.size, 0)         # (여백이 r 이상이라 offset이 가장자리를 넘겨 감싸도 빈칸끼리다)
             for oy in range(-r, r + 1):
                 for ox in range(-r, r + 1):
                     if ox * ox + oy * oy <= r * r + 1:
-                        g |= np.roll(np.roll(a, oy, axis=0), ox, axis=1)
+                        g = ImageChops.lighter(g, ImageChops.offset(padded, ox, oy))
             return g
         inner = grow(radius)
         outer = grow(big) if rim else inner
-        px = np.zeros((*a.shape, 4), np.uint8)
-        px[outer] = (*rim_color, 255)
-        px[inner] = (*color, 255)
-        Image.fromarray(px, 'RGBA').save(out)
+        img = Image.new('RGBA', padded.size, (0, 0, 0, 0))
+        img.paste(rim_color + (255,), (0, 0) + padded.size, outer)
+        img.paste(color + (255,), (0, 0) + padded.size, inner)
+        img.save(out)
         _outlines[key] = load_image(out)
     return _outlines[key]
 

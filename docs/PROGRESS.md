@@ -21,6 +21,7 @@
 - **2차 발표(11/18 수)**: 제출 마감은 **11/18 0시 1분**(11/17 밤). 영상 1분 30초(진행 상황 + 게임 데모), YouTube 링크와 GitHub 주소를 e-class에 제출. 자료 `docs/presentation_2nd.pptx`, 대본 `docs/script_2nd.md`, 촬영 순서 `docs/demo_2nd.md`.
 
 ## 다음 할 일 (우선순위 순, 2026-11-20 정리. 큰 그림은 `docs/quality_plan.md`)
+00. [ ] **v6 새 화풍 `docs/plan_v6.md`** (11/23): **(사용자) Gemini에게 G01 주인공 시안 3안 맡기기**(`docs/gemini/TASKS.md`), PixelLab 가입·MCP 연결, Aseprite 설치. 시안이 오면 Claude Code가 검토 → 고른 안 마스터 → PixelLab 달리기 시험 → 세계만 3배로 그리는 엔진 전환.
 0. [ ] **(Claude Code) v5 계획 `docs/plan_v5.md`** (11/22): 1주 차(빠른 개선 6·보스 페이즈 패턴) 완료, 2주 차 변이 3택·방 보상 완료. 공장 새 적(드론·수레)과 슬럼·탑 새 적 5종(쥐 떼·무당·눈·기사·망령, T38~T42) 완료. 남은 것: 3주 차 헤이즈 심장·저스트 대시 완료(본체 그림 T45 적용 완료, 손 T46·결전 방 T47은 오면 바꾼다). **사용자: 변이 카드·문 보상, 드론·수레, 저스트 대시, 헤이즈 심장전 직접 플레이 확인** (실행 파일 dist/Haze_win64.zip 11/22 다시 만듦).
 1. [ ] **(사용자) 직접 플레이 점검.** 11/20에 바뀐 것: 궁극기 범위·이펙트·소리, 철파이프 2단계(E 두 번), 페이드 점프 공격, 설정의 해상도·마우스 가두기. 그 전 v4(은신처·영구 성장·사슬·균열방)도 아직 손으로 확인하지 않았다.
 2. [ ] **(Codex) v5 그림 T36~T48** (11/22 작성, 순서는 `docs/codex/TASKS.md`). T24~T35는 11/21 모두 적용. 다음 그림 작업은 필요할 때 Claude Code가 `docs/codex/`에 만든다. (`docs/codex/TASKS.md`). 하나 끝날 때마다 "T24 결과를 검토해줘"로 Claude Code에게.
@@ -256,3 +257,4 @@
 2026-11-22 [Claude Code] Codex T46·T47 적용: 헤이즈 심장 손을 코드 사각형에서 그림 8장으로(대기·들어 올린 주먹·내려친 주먹·광선 예고·발사·기절 2, 바닥 컷은 그림 아래 끝이 바닥에), 심장이 내려오면 원경이 결전 방으로 1.5초 겹쳐 바뀜(Room.set_far), 등장 카드 연결, 테스트 2개 / src/(heart, room, sprites, config).py, tests/test_heart.py, assets/sprites/unified/heart_hand_*, assets/backgrounds/(far_heart, boss_card_heart).png, docs/*
 2026-11-22 [Claude Code] 캐릭터 테두리를 NPC 3명(정비사·보관인·기록관)과 헤이즈 심장 본체·손에도 적용(심장은 처음 그릴 때 테두리 판 14장을 미리 만듦, sprites.warm_outlines) / src/(npc, heart, sprites).py, docs/DECISIONS.md
 2026-11-23 [Claude Code] 은신처에 무기 걸이 추가: 시작할 두 번째 칸 무기(식칼·건틀릿·사슬·없음)를 고르면 바로 바뀌고 저장되어 다음 판에도 그대로(맡긴 무기가 우선), 테스트 4개 / src/(meta, npc, npc_mode, play_mode).py, data/stages/hideout.py, tests/test_meta.py, docs/*
+2026-11-23 [Claude Code] v6 계획(INARI 참고, 캐릭터 전면 교체) 작성, 0단계 규격 목업(세 구역 640×360·3배), Gemini 작업 체계와 G01 주인공 시안 3안 작성, AGENTS 역할에 Gemini 추가 / docs/plan_v6.md, docs/gemini/, AGENTS.md, docs/(DECISIONS, changes_from_plan, PROGRESS).md

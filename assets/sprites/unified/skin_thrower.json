@@ -1,0 +1,42 @@
+{
+ "frames": {
+  "v6_thrower_idle": [
+   1,
+   80,
+   188
+  ],
+  "v6_thrower_walk": [
+   8,
+   78,
+   188
+  ],
+  "v6_thrower_back": [
+   2,
+   79,
+   188
+  ],
+  "v6_thrower_throw": [
+   3,
+   80,
+   188
+  ],
+  "v6_thrower_hurt": [
+   2,
+   80,
+   188
+  ],
+  "v6_thrower_death": [
+   3,
+   80,
+   188
+  ]
+ },
+ "skin": {
+  "enemy_thrower_idle": "v6_thrower_idle",
+  "enemy_thrower_walk": "v6_thrower_walk",
+  "enemy_thrower_back": "v6_thrower_back",
+  "enemy_thrower_throw": "v6_thrower_throw",
+  "enemy_thrower_hurt": "v6_thrower_hurt",
+  "enemy_thrower_death": "v6_thrower_death"
+ }
+}

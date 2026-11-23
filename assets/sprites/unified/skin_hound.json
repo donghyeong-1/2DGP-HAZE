@@ -1,0 +1,42 @@
+{
+ "frames": {
+  "v6_hound_idle": [
+   1,
+   82,
+   188
+  ],
+  "v6_hound_run": [
+   8,
+   87,
+   188
+  ],
+  "v6_hound_bite": [
+   3,
+   82,
+   188
+  ],
+  "v6_hound_pounce": [
+   2,
+   82,
+   188
+  ],
+  "v6_hound_hurt": [
+   2,
+   82,
+   188
+  ],
+  "v6_hound_death": [
+   3,
+   82,
+   188
+  ]
+ },
+ "skin": {
+  "enemy_hound_idle": "v6_hound_idle",
+  "enemy_hound_run": "v6_hound_run",
+  "enemy_hound_bite": "v6_hound_bite",
+  "enemy_hound_pounce": "v6_hound_pounce",
+  "enemy_hound_hurt": "v6_hound_hurt",
+  "enemy_hound_death": "v6_hound_death"
+ }
+}

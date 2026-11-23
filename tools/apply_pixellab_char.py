@@ -49,6 +49,50 @@ CHARS = {
                  'enemy_guard_heavy': 'heavy', 'enemy_guard_bash': 'bash', 'enemy_guard_hurt': 'hurt',
                  'enemy_guard_death': 'death'},
     },
+    # 적 5종 (2026-11-23, shots/pixellab_test/<이름>_all.png). 장수는 src/enemy.py·enemy_kinds.py가 쓰는 그대로.
+    'slum': {
+        'prefix': 'v6_slum',
+        'sets': {'idle': ([('base.png', None)], 'none'), 'walk': (_f('walk', range(0, 8)), 'loop'),
+                 'attack': (_f('attack', [1, 3, 5]), 'none'), 'hurt': (_f('hurt', [0, 1]), 'none'),
+                 'death': (_f('death', [2, 4, 7]), 'none')},
+        'skin': {'enemy_slum_idle': 'idle', 'enemy_slum_walk': 'walk', 'enemy_slum_attack': 'attack',
+                 'enemy_slum_hurt': 'hurt', 'enemy_slum_death': 'death'},
+    },
+    'thrower': {
+        'prefix': 'v6_thrower',
+        'sets': {'idle': ([('base.png', None)], 'none'), 'walk': (_f('walk', range(0, 8)), 'loop'),
+                 'back': (_f('walk', [0, 4]), 'loop'), 'throw': (_f('throw', [1, 3, 5]), 'none'),
+                 'hurt': (_f('hurt', [1, 2]), 'none'), 'death': (_f('death', [2, 4, 7]), 'none')},
+        'skin': {'enemy_thrower_idle': 'idle', 'enemy_thrower_walk': 'walk', 'enemy_thrower_back': 'back',
+                 'enemy_thrower_throw': 'throw', 'enemy_thrower_hurt': 'hurt', 'enemy_thrower_death': 'death'},
+    },
+    'hound': {
+        'prefix': 'v6_hound',
+        'sets': {'idle': ([('base.png', None)], 'none'), 'run': (_f('run', range(1, 9)), 'loop'),
+                 'bite': (_f('bite', [3, 4, 6]), 'none'), 'pounce': (_f('pounce', [4, 6]), 'none'),
+                 'hurt': (_f('hurt', [1, 3]), 'none'), 'death': (_f('death', [5, 6, 8]), 'none')},
+        'skin': {'enemy_hound_idle': 'idle', 'enemy_hound_run': 'run', 'enemy_hound_bite': 'bite',
+                 'enemy_hound_pounce': 'pounce', 'enemy_hound_hurt': 'hurt', 'enemy_hound_death': 'death'},
+    },
+    'drone': {
+        'prefix': 'v6_drone',
+        'float_hb': 32, 'foot_sets': ('wreck',),          # 몸통 중심을 히트박스 가운데에 (기존 드론 규칙), 잔해는 바닥
+        'sets': {'fly': (_f('fly', [1, 2, 3, 4]), 'loop'), 'aim': (_f('aim', [2, 4]), 'none'),
+                 'fire': (_f('fire', [3, 4, 5]), 'none'), 'hurt': (_f('hurt', [3, 4]), 'none'),
+                 'wreck': (_f('wreck', [6, 8]), 'none')},
+        'skin': {'enemy_drone_idle': 'fly', 'enemy_drone_fly': 'fly', 'enemy_drone_aim': 'aim',
+                 'enemy_drone_fire': 'fire', 'enemy_drone_hurt': 'hurt', 'enemy_drone_wreck': 'wreck'},
+    },
+    'knight': {
+        'prefix': 'v6_knight',
+        'sets': {'idle': (_f('idle', [1, 3]), 'loop'), 'walk': (_f('walk', range(0, 8)), 'loop'),
+                 'slash': (_f('slash', [1, 3, 5]), 'none'), 'vanish': (_f('vanish', [2, 3]), 'none'),
+                 'appear': (_f('appear', [2, 3]), 'none'), 'hurt': (_f('hurt', [2]), 'none'),
+                 'death': (_f('death', [2, 4, 7]), 'none')},
+        'skin': {'enemy_knight_idle': 'idle', 'enemy_knight_walk': 'walk', 'enemy_knight_slash': 'slash',
+                 'enemy_knight_vanish': 'vanish', 'enemy_knight_appear': 'appear', 'enemy_knight_hurt': 'hurt',
+                 'enemy_knight_death': 'death'},
+    },
     # 크래셔 (3/4 시점 v2, shots/pixellab_test/crasher_all_b.png). 장수는 보스 코드(src/boss.py _body_frame)가 정한다:
     # 숨쉬기 2, 걷기 4, 내려찍기 3(들기·머리 위·타격), 돌진 2, 도약 3(웅크림·공중·착지), 피격 1, 사망 2
     'crasher': {
@@ -109,7 +153,11 @@ def apply(char):
         for i, f in enumerate(frames, 1):
             im = Image.fromarray(f, 'RGBA')
             im.resize((im.width * SCALE, im.height * SCALE), Image.NEAREST).save(os.path.join(DST, f'{name}_{i}.png'))
-        frames_meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1, foot * SCALE]
+        anchor_y = foot * SCALE
+        if cfg.get('float_hb') and tail not in cfg.get('foot_sets', ()):
+            # 떠 있는 적: 몸통 중심(기준 그림 불투명 줄의 평균)을 히트박스 가운데(발 위 float_hb px)에 맞춘다
+            anchor_y = int(round(np.nonzero(base[:, :, 3])[0].mean() * SCALE)) + cfg['float_hb']
+        frames_meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1, anchor_y]
         print(f'{name}: {len(frames)}장, 기준점 {frames_meta[name][1:]}')
     for old, tail in cfg['skin'].items():
         skin[old] = f"{cfg['prefix']}_{tail}"

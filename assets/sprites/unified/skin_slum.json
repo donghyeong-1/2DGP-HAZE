@@ -1,0 +1,36 @@
+{
+ "frames": {
+  "v6_slum_idle": [
+   1,
+   54,
+   188
+  ],
+  "v6_slum_walk": [
+   8,
+   60,
+   188
+  ],
+  "v6_slum_attack": [
+   3,
+   54,
+   188
+  ],
+  "v6_slum_hurt": [
+   2,
+   54,
+   188
+  ],
+  "v6_slum_death": [
+   3,
+   54,
+   188
+  ]
+ },
+ "skin": {
+  "enemy_slum_idle": "v6_slum_idle",
+  "enemy_slum_walk": "v6_slum_walk",
+  "enemy_slum_attack": "v6_slum_attack",
+  "enemy_slum_hurt": "v6_slum_hurt",
+  "enemy_slum_death": "v6_slum_death"
+ }
+}

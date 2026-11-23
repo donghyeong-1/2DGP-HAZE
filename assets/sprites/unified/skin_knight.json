@@ -1,0 +1,48 @@
+{
+ "frames": {
+  "v6_knight_idle": [
+   2,
+   82,
+   188
+  ],
+  "v6_knight_walk": [
+   8,
+   84,
+   188
+  ],
+  "v6_knight_slash": [
+   3,
+   80,
+   188
+  ],
+  "v6_knight_vanish": [
+   2,
+   80,
+   188
+  ],
+  "v6_knight_appear": [
+   2,
+   80,
+   188
+  ],
+  "v6_knight_hurt": [
+   1,
+   80,
+   188
+  ],
+  "v6_knight_death": [
+   3,
+   80,
+   188
+  ]
+ },
+ "skin": {
+  "enemy_knight_idle": "v6_knight_idle",
+  "enemy_knight_walk": "v6_knight_walk",
+  "enemy_knight_slash": "v6_knight_slash",
+  "enemy_knight_vanish": "v6_knight_vanish",
+  "enemy_knight_appear": "v6_knight_appear",
+  "enemy_knight_hurt": "v6_knight_hurt",
+  "enemy_knight_death": "v6_knight_death"
+ }
+}

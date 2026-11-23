@@ -178,7 +178,7 @@ class Enemy(TileBody):
                 game_world.add_object(EliteBurst(self.x, self.y + self.hb_h / 2, self.player), game_world.LAYER_EFFECT)
             assets.play_sound('enemy_die')
             death = f'enemy_{self.kind}_death'
-            if death in sprites.FRAMES:                   # 쓰러지는 그림이 있으면 시체가 쓰러진 뒤 흩어진다 (Codex T25)
+            if death in sprites.FRAMES or death in sprites.SKIN:   # 쓰러지는 그림이 있으면 (v6 새 그림만 있는 적도) 시체가 쓰러진 뒤 흩어진다 (Codex T25)
                 game_world.add_object(Corpse(death, self.x, self.y, self.face_dir, self.vx * 0.5), game_world.LAYER_EFFECT)
             else:
                 effects.spawn('death-burst', *self.center, duration=0.45)   # 헤이즈 조각으로 흩어진다

@@ -1,0 +1,37 @@
+{
+ "frames": {
+  "v6_drone_fly": [
+   4,
+   93,
+   106
+  ],
+  "v6_drone_aim": [
+   2,
+   90,
+   106
+  ],
+  "v6_drone_fire": [
+   3,
+   90,
+   106
+  ],
+  "v6_drone_hurt": [
+   2,
+   90,
+   106
+  ],
+  "v6_drone_wreck": [
+   2,
+   90,
+   168
+  ]
+ },
+ "skin": {
+  "enemy_drone_idle": "v6_drone_fly",
+  "enemy_drone_fly": "v6_drone_fly",
+  "enemy_drone_aim": "v6_drone_aim",
+  "enemy_drone_fire": "v6_drone_fire",
+  "enemy_drone_hurt": "v6_drone_hurt",
+  "enemy_drone_wreck": "v6_drone_wreck"
+ }
+}

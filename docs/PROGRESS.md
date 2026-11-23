@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-23 [Claude Code]
 
 ## 진행 중
-- [Codex] T49 v6 구역 원경·중경 6장 / 수정 중인 파일: `assets/sprites/forge/backdrops_v6/`, `docs/codex/reports/T49.md`
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-19)
 - **플레이 가능**: 타이틀 → 은신처(영구 강화·보관인) → 스테이지 1 슬럼(방 12개, 끝은 관문 정예 전투) → 스테이지 2 공장(방 12개, 보스 크래셔) → 스테이지 3 탑(방 8개, 최종 보스 아크) → 탈출 화면. 체력·게이지·아이템·무기·조각은 구역을 넘어 이어진다. 사망하면 처음부터. 실행 `python src/main.py`, 테스트 `python tests/run_all.py`(423개).
@@ -260,7 +260,7 @@
 2026-11-23 [Claude Code] v6 계획(INARI 참고, 캐릭터 전면 교체) 작성, 0단계 규격 목업(세 구역 640×360·3배), Gemini 작업 체계와 G01 주인공 시안 3안 작성, AGENTS 역할에 Gemini 추가 / docs/plan_v6.md, docs/gemini/, AGENTS.md, docs/(DECISIONS, changes_from_plan, PROGRESS).md
 
 2026-11-23 [Gemini] G01 새 주인공 디자인 시안 3안(옆모습·정면/실루엣/색표 시트·1/24 축소 확인 9장) 제작 및 보고서 작성(검토 대기) / assets/sprites/gemini/hero_concepts_v1/, docs/gemini/reports/G01.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
-2026-11-23 [Claude Code] PixelLab 새 주인공 시험(G01 A안 기준, 64x64·키 41px): 서기 pixflux 채택(Pro Flash는 디자인 틀어짐), 대기·달리기는 PixMiniMax가 animate_image보다 나음, 이어서 흰 머리로 41px(64캔버스)·62px(96캔버스) 2안 서기·달리기 비교(size_compare.png), 62px안 확정 후 idle·jump·land·dash·attack1~3·hurt·death 생성(재시도 2), 입력 그림 충실도 시험(base96 24색, pixminimax·skeleton v3 비교) 후, 결제(Tier 1) 뒤 base96 기준 전체 동작 v2(idle·run·run_start·jump·land·dash·attack1~3·hurt·death) 생성 35회(남은 1965회), 커밋 안 함 / assets/sprites/pixellab/hero_v6_test/, shots/pixellab_test/
+2026-11-23 [Claude Code] PixelLab 새 주인공 시험(G01 A안 기준, 64x64·키 41px): 서기 pixflux 채택(Pro Flash는 디자인 틀어짐), 대기·달리기는 PixMiniMax가 animate_image보다 나음, 이어서 흰 머리로 41px(64캔버스)·62px(96캔버스) 2안 서기·달리기 비교(size_compare.png), 62px안 확정 후 idle·jump·land·dash·attack1~3·hurt·death 생성(재시도 2), 입력 그림 충실도 시험(base96 24색, pixminimax·skeleton v3 비교) 후, 결제(Tier 1) 뒤 base96 기준 전체 동작 v2(idle·run·run_start·jump·land·dash·attack1~3·hurt·death) 생성 35회, 적·보스 디자인 시험(간수 guard_1 좋음, 크래셔 보통) 8.2회, 1안 디테일 추가(guard_1b_3·crasher_1b_2, 20색 정리) 10회, 간수 v6 동작 6종·크래셔 손 수정 시도·회전(약 29회, 남은 약 1918회, 크래셔 동작은 미완), 커밋 안 함 / assets/sprites/pixellab/hero_v6_test/, shots/pixellab_test/
 2026-11-23 [Claude Code] G01 검토(A안 머플러 + 흰 머리 확정), PixelLab 시험 결과 검토, 규격을 960×540·2배(주인공 62px)로 변경 / docs/(plan_v6, DECISIONS, PROGRESS).md, docs/gemini/TASKS.md
 2026-11-23 [Claude Code] 새 주인공(62px) 대기·달리기 게임 적용: 적용 도구(15색 고정·머리 맞춤·2배), sprites.SKIN으로 n09_idle·n09_run을 hero6로, 테스트(스킨·뒷걸음 장수) / tools/apply_pixellab_hero.py, src/sprites.py, assets/sprites/unified/hero6*, tests/(test_sprites, test_combat).py
 2026-11-23 [Claude Code] 새 주인공 동작 13세트 게임 적용(대기·달리기·출발/멈춤·점프·대시·휘두르기 3종·2단계 강화·낙하 공격·피격·사망), 흰 궤적 자동 제거, 남은 것: 식칼·건틀릿·사슬 자세·맨손·궁극기는 기존 그림 / tools/apply_pixellab_hero.py, src/sprites.py, assets/sprites/unified/hero6*, tests/test_sprites.py
@@ -272,3 +272,5 @@
 2026-11-23 [Gemini] G04 주인공 대화 초상화 1장(`hero_portrait.png`) 제작 후 `gemini-3.1-flash-image` 429 할당량 소진(21:02 KST 초기화)으로 G02·G03·G04 나머지 중단, 상태 ready 복원 / assets/sprites/gemini/portraits_v1/hero_portrait.png, docs/gemini/reports/G04.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-23 [Claude Code] 새 주인공 v2 적용: 고른 그림(base96)을 첫 프레임으로 다시 만든 13세트(색 기준 base96 24색, 눈 복원), 실제 창 확인 / tools/apply_pixellab_hero.py, assets/sprites/unified/hero6*, assets/sprites/pixellab/hero_v6_test/
 2026-11-23 [Claude Code] G04 부분 검토·적용: 주인공 대화 초상화를 새 디자인으로(100px로 줄여 32색, 2배, 마젠타 가장자리 제거, 기본·결의 같은 그림). 나머지 NPC 3장·G02·G03은 Gemini 이미지 할당량 소진(21:02 KST 이후 재개) / assets/portraits/n09_1~2.png, assets/concept/portraits_v5/
+2026-11-23 [Codex] T49 v6 슬럼·공장·탑 원경·중경 6장 제작, 1픽셀 격자·가로 반복·전투 가독성 검증(검토 대기) / assets/sprites/forge/backdrops_v6/, docs/codex/reports/T49.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-23 [Claude Code] 새 간수(v6) 게임 적용: PixelLab 디자인 1b_3 + 동작 6종(걷기 8장, 휘두르기·내려찍기·방패 밀치기·피격·사망은 기존 장수로), 공장 실제 창 확인 / tools/apply_pixellab_char.py, assets/sprites/unified/(v6_guard_*, skin_guard.json), assets/sprites/pixellab/guard_v6/, tests/test_sprites.py

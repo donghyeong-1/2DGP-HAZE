@@ -95,9 +95,10 @@ def test_hero6_skin_replaces_idle_and_run():
     assert sprites.resolve('n09_run', n + 1) == ('hero6_run', 1)
     assert sprites.resolve('n09_idle', 0) == ('hero6_idle', 1)   # 정지 그림도 새 그림으로
     assert sprites.resolve('n09_knife', 2) == ('n09_knife', 2)      # 새 그림이 없는 동작은 그대로
-    for old, new in sprites.SKIN.items():
-        assert sprites.count(old) == sprites.FRAMES[old][0] or old in ('n09_idle', 'n09_run'), (old, new)   # 장수가 같아야 상태 코드가 그대로 맞는다
-    for name in sprites.HERO6:
+    for old, new in sprites.SKIN.items():          # 장수로 타이밍을 잡는 동작(공격·피격 등)은 장수가 같아야 상태 코드가 그대로 맞는다
+        if old in sprites.FRAMES and not old.endswith(('_idle', '_run', '_walk')):
+            assert sprites.count(old) == sprites.FRAMES[old][0], (old, new)
+    for name in list(sprites.HERO6) + list(sprites.SKIN_FRAMES):
         for i in range(1, sprites.count(name) + 1):
             im = Image.open(os.path.join(BASE, sprites.path(name, i)))
             w, h = im.size

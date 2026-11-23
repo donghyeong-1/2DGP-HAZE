@@ -1,0 +1,48 @@
+{
+ "frames": {
+  "v6_guard_idle": [
+   1,
+   83,
+   186
+  ],
+  "v6_guard_walk": [
+   8,
+   86,
+   186
+  ],
+  "v6_guard_swing": [
+   3,
+   83,
+   186
+  ],
+  "v6_guard_heavy": [
+   3,
+   83,
+   186
+  ],
+  "v6_guard_bash": [
+   2,
+   83,
+   186
+  ],
+  "v6_guard_hurt": [
+   2,
+   83,
+   186
+  ],
+  "v6_guard_death": [
+   3,
+   83,
+   186
+  ]
+ },
+ "skin": {
+  "enemy_guard": "v6_guard_idle",
+  "enemy_guard_walk": "v6_guard_walk",
+  "enemy_guard_swing": "v6_guard_swing",
+  "enemy_guard_heavy": "v6_guard_heavy",
+  "enemy_guard_bash": "v6_guard_bash",
+  "enemy_guard_hurt": "v6_guard_hurt",
+  "enemy_guard_death": "v6_guard_death"
+ }
+}

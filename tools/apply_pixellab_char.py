@@ -33,10 +33,21 @@ def _f(src, numbers):
 # 캐릭터: {'prefix': 새 세트 접두, 'sets': {세트 꼬리: (프레임 목록, 맞추기)}, 'skin': {기존 이름: 세트 꼬리}}
 # 프레임 번호는 PixelLab 결과를 본 뒤 정한다 (shots/pixellab_test/<캐릭터>_v6_<동작>.png).
 CHARS = {
+    # 간수 (2026-11-23, shots/pixellab_test/guard_all.png). 적 공격 그림은 1 예고·2 타격·3 회수 (src/enemy.py _attack_frame)
     'guard': {
         'prefix': 'v6_guard',
-        'sets': {},
-        'skin': {},
+        'sets': {
+            'idle': ([('base.png', None)], 'none'),                 # 서 있기 = 확정 그림
+            'walk': (_f('walk', range(0, 8)), 'loop'),
+            'swing': (_f('swing', [1, 3, 5]), 'none'),             # 곤봉 젖힘 -> 앞으로 내지름 -> 회수 (4번은 궤적이 그려져 뺌)
+            'heavy': (_f('heavy', [1, 3, 4]), 'none'),             # 머리 위로 듦 -> 내려찍음 -> 회수
+            'bash': (_f('bash', [1, 3]), 'none'),                  # 방패 웅크림 -> 밀치기
+            'hurt': (_f('hurt', [0, 1]), 'none'),
+            'death': (_f('death', [2, 5, 7]), 'none'),             # 무릎 -> 쓰러짐 -> 누움
+        },
+        'skin': {'enemy_guard': 'idle', 'enemy_guard_walk': 'walk', 'enemy_guard_swing': 'swing',
+                 'enemy_guard_heavy': 'heavy', 'enemy_guard_bash': 'bash', 'enemy_guard_hurt': 'hurt',
+                 'enemy_guard_death': 'death'},
     },
     'crasher': {
         'prefix': 'v6_crasher',

@@ -824,7 +824,7 @@ def test_backpedal_plays_run_frames_in_reverse_and_slower():
         if not seen or seen[-1] != n:
             seen.append(n)
     assert len(seen) >= 3
-    steps = [(seen[i] - seen[i + 1]) % 8 for i in range(len(seen) - 1)]
+    steps = [(seen[i] - seen[i + 1]) % sprites.count('n09_run') for i in range(len(seen) - 1)]   # v6 새 주인공은 6장
     assert all(s == 1 for s in steps), seen                              # 번호가 거꾸로 줄어든다 (8 -> 7 -> 6 ...)
     assert abs(p.vx - config.RUN_SPEED * config.BACKPEDAL_SPEED_MULT) < 1e-6   # 앞으로 달릴 때보다 느리다
 

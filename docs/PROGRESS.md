@@ -262,3 +262,4 @@
 2026-11-23 [Gemini] G01 새 주인공 디자인 시안 3안(옆모습·정면/실루엣/색표 시트·1/24 축소 확인 9장) 제작 및 보고서 작성(검토 대기) / assets/sprites/gemini/hero_concepts_v1/, docs/gemini/reports/G01.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-23 [Claude Code] PixelLab 새 주인공 시험(G01 A안 기준, 64x64·키 41px): 서기 pixflux 채택(Pro Flash는 디자인 틀어짐), 대기·달리기는 PixMiniMax가 animate_image보다 나음, 이어서 흰 머리로 41px(64캔버스)·62px(96캔버스) 2안 서기·달리기 비교(size_compare.png), 체험판 14회 사용(남은 24회), 커밋 안 함 / assets/sprites/pixellab/hero_v6_test/, shots/pixellab_test/
 2026-11-23 [Claude Code] G01 검토(A안 머플러 + 흰 머리 확정), PixelLab 시험 결과 검토, 규격을 960×540·2배(주인공 62px)로 변경 / docs/(plan_v6, DECISIONS, PROGRESS).md, docs/gemini/TASKS.md
+2026-11-23 [Claude Code] 새 주인공(62px) 대기·달리기 게임 적용: 적용 도구(15색 고정·머리 맞춤·2배), sprites.SKIN으로 n09_idle·n09_run을 hero6로, 테스트(스킨·뒷걸음 장수) / tools/apply_pixellab_hero.py, src/sprites.py, assets/sprites/unified/hero6*, tests/(test_sprites, test_combat).py

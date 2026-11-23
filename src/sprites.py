@@ -97,8 +97,36 @@ SHIFT = {
 }
 
 
+# v6 새 주인공 (PixelLab 62px를 2배, tools/apply_pixellab_hero.py가 hero6.json에 세트를 쓴다, docs/plan_v6.md).
+# 플레이어 코드는 그대로 n09_* 이름을 고르고, 새 그림이 있는 동작만 여기서 hero6_*로 바꿔 그린다(SKIN).
+# 새 그림은 PixelLab이 1px(화면 2px) 검은 테두리를 이미 그려 두어, 실행 중 테두리는 밝은 선만 화면 2px로 두른다.
+def _load_hero6():
+    import json
+    import os
+    p = os.path.join(assets.ASSET_DIR, 'sprites', 'unified', 'hero6.json')
+    if not os.path.exists(p):
+        return {}
+    with open(p, encoding='utf-8') as fp:
+        return {k: tuple(v) for k, v in json.load(fp).items()}
+
+
+HERO6 = _load_hero6()
+FRAMES.update(HERO6)
+SKIN = {old: new for old, new in (('n09_idle', 'hero6_idle'), ('n09_run', 'hero6_run')) if new in HERO6}
+OWN_OUTLINE = set(HERO6)          # 테두리를 그림에 이미 가진 세트
+OWN_RIM = 2                       # 그런 세트에 두를 밝은 선 두께 (화면 px = 원본 1px)
+
+
+def resolve(name, n):
+    """새 주인공 그림이 있는 동작이면 (hero6 세트, 번호)로 바꾼다. 정지 그림(0)은 1번으로."""
+    new = SKIN.get(name)
+    if new is None:
+        return name, n
+    return new, (n - 1) % FRAMES[new][0] + 1 if n else 1
+
+
 def count(name):
-    return FRAMES[name][0]
+    return FRAMES[SKIN.get(name, name)][0]
 
 
 def path(name, n):
@@ -122,6 +150,7 @@ def place(name, n, width, height, face_dir):
 def draw_glow(name, n, x, y, face_dir, color, width=3, alpha=0.85):
     """그림의 흰 실루엣을 색으로 물들여 상하좌우 width px씩 비켜 네 번 그린다 = 색 테두리 (정예 3px, 모든 적 얇게 2px).
     본 그림은 그 위에."""
+    name, n = resolve(name, n)
     img = assets.silhouette(path(name, n))
     dx, foot = place(name, n, img.w, img.h, face_dir)
     flip = 'h' if face_dir < 0 else ''
@@ -132,6 +161,7 @@ def draw_glow(name, n, x, y, face_dir, color, width=3, alpha=0.85):
 
 def draw_white(name, n, x, y, face_dir=1):
     """같은 그림을 '더하기' 섞기로 한 번 더 그려 하얗게 번쩍이게 한다 (맞은 순간)."""
+    name, n = resolve(name, n)
     img = assets.image(path(name, n))
     dx, foot = place(name, n, img.w, img.h, face_dir)
     assets.draw_image_added(img, x + dx, y - foot, 'h' if face_dir < 0 else '')
@@ -152,15 +182,17 @@ def warm_outlines(names):
 
 def draw_outline(name, n, x, y, face_dir, alpha=1.0):
     """그림 모양을 OUTLINE_WIDTH px 부풀린 검은 판을 본 그림 아래에 깐다 (판은 사방 여백이 붙어 있어 y를 그만큼 내린다)."""
-    img = assets.outline_image(path(name, n), OUTLINE_WIDTH, OUTLINE_COLOR, RIM_WIDTH, RIM_COLOR)
+    black, rim = (0, OWN_RIM) if name in OWN_OUTLINE else (OUTLINE_WIDTH, RIM_WIDTH)
+    img = assets.outline_image(path(name, n), black, OUTLINE_COLOR, rim, RIM_COLOR)
     orig = assets.image(path(name, n))
     dx, foot = place(name, n, orig.w, orig.h, face_dir)
-    assets.draw_image_tinted(img, x + dx, y - foot - OUTLINE_WIDTH - RIM_WIDTH, 'h' if face_dir < 0 else '', (255, 255, 255), alpha)
+    assets.draw_image_tinted(img, x + dx, y - foot - black - rim, 'h' if face_dir < 0 else '', (255, 255, 255), alpha)
 
 
 def draw(name, n, x, y, face_dir=1, tint=None, alpha=1.0, outline=True):
     """세트 name의 n번 그림을 발 위치 (x, y)에 그린다. tint(색 곱)와 alpha는 잔상·번쩍임용.
-    outline: 검은 1px 테두리를 먼저 깐다 (잔상은 끈다)."""
+    outline: 검은 테두리와 밝은 선을 먼저 깐다 (잔상은 끈다)."""
+    name, n = resolve(name, n)
     img = assets.image(path(name, n))
     dx, foot = place(name, n, img.w, img.h, face_dir)
     flip = 'h' if face_dir < 0 else ''

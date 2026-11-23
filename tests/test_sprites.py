@@ -85,6 +85,25 @@ def test_walk_and_run_cycles_alternate_left_and_right_steps():
         assert check_gait.gait_ratio(paths)[2] >= check_gait.PASS_RATIO, name
 
 
+def test_hero6_skin_replaces_idle_and_run():
+    """v6 새 주인공(hero6.json)이 있으면 n09_idle·n09_run을 hero6 세트로 바꿔 그린다. 다른 동작은 그대로."""
+    if not sprites.HERO6:
+        return
+    assert sprites.resolve('n09_run', 1) == ('hero6_run', 1)
+    n = sprites.count('hero6_run')
+    assert sprites.count('n09_run') == n                     # 플레이어의 달리기 순환이 새 장수를 따른다
+    assert sprites.resolve('n09_run', n + 1) == ('hero6_run', 1)
+    assert sprites.resolve('n09_idle', 0) == ('hero6_idle', 1)   # 정지 그림도 새 그림으로
+    assert sprites.resolve('n09_jump', 2) == ('n09_jump', 2)
+    for name in ('hero6_idle', 'hero6_run'):
+        for i in range(1, sprites.count(name) + 1):
+            im = Image.open(os.path.join(BASE, sprites.path(name, i)))
+            w, h = im.size
+            _, px, py = sprites.FRAMES[name]
+            assert 0 <= px < w and 0 < py <= h, (name, i)
+            assert w % 2 == 0 and h % 2 == 0                  # 원본을 정수 2배로 키운 그림
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

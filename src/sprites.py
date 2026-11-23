@@ -123,7 +123,27 @@ SKIN_PAIRS = (
     ('n09_hurt', 'hero6_hurt'), ('n09_death', 'hero6_death'),
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
-OWN_OUTLINE = set(HERO6)          # 테두리를 그림에 이미 가진 세트
+
+
+def _load_skins():
+    """v6 다른 캐릭터(적·보스): tools/apply_pixellab_char.py가 쓰는 skin_<캐릭터>.json.
+    {"frames": {새 세트: [장수, 기준점 x, y]}, "skin": {기존 이름: 새 세트}}. 기존 이름 그대로 고르면 새 그림이 그려진다."""
+    import glob
+    import json
+    import os
+    frames, skin = {}, {}
+    for p in sorted(glob.glob(os.path.join(assets.ASSET_DIR, 'sprites', 'unified', 'skin_*.json'))):
+        with open(p, encoding='utf-8') as fp:
+            data = json.load(fp)
+        frames.update({k: tuple(v) for k, v in data['frames'].items()})
+        skin.update({old: new for old, new in data['skin'].items() if new in data['frames']})
+    return frames, skin
+
+
+SKIN_FRAMES, _skin_more = _load_skins()
+FRAMES.update(SKIN_FRAMES)
+SKIN.update(_skin_more)
+OWN_OUTLINE = set(HERO6) | set(SKIN_FRAMES)   # 테두리를 그림에 이미 가진 세트 (PixelLab 그림)
 OWN_RIM = 2                       # 그런 세트에 두를 밝은 선 두께 (화면 px = 원본 1px)
 
 

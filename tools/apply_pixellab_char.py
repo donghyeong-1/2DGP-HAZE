@@ -1,0 +1,105 @@
+"""v6 적·보스(PixelLab)를 게임 그림으로 적용한다 (2026-11-23, docs/plan_v6.md). 주인공은 tools/apply_pixellab_hero.py.
+
+캐릭터마다 assets/sprites/pixellab/<캐릭터>_v6/raw/ 에 base.png(첫 프레임·색 기준)와 동작 폴더(frame_N.png)가 있다.
+1. 알파 0/255, 몸과 떨어진 흰 궤적 제거, 색을 base의 색으로만 다시 칠한다.
+2. 'loop' 동작은 몸 가로 중심을 구간 평균에 맞춰 흔들림을 없앤다. 나머지는 원본 위치 그대로(base와 같은 좌표).
+3. 최근접 2배로 키워 assets/sprites/unified/<접두>_<동작>_<번호>.png 로 쓴다.
+4. assets/sprites/unified/skin_<캐릭터>.json 에 {"frames": {세트: [장수, 기준점 x, y]}, "skin": {기존 이름: 세트}}.
+   src/sprites.py가 읽어 기존 이름(enemy_guard_walk 등)을 새 그림으로 바꿔 그린다. 게임 코드는 그대로.
+공격처럼 적 코드가 장수로 타이밍을 잡는 동작은 기존과 같은 장수를 고른다 (src/sprites.py FRAMES의 기존 장수).
+
+실행: python tools/apply_pixellab_char.py [캐릭터 ...]   (없으면 원본이 있는 캐릭터 전부)
+"""
+import json
+import os
+import sys
+
+import numpy as np
+from PIL import Image
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from apply_pixellab_hero import foot_row, lock_palette, palette_of, remove_white_arcs, shift_x  # noqa: E402
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PIX = os.path.join(ROOT, 'assets', 'sprites', 'pixellab')
+DST = os.path.join(ROOT, 'assets', 'sprites', 'unified')
+SCALE = 2
+
+
+def _f(src, numbers):
+    return [(src, n) for n in numbers]
+
+
+# 캐릭터: {'prefix': 새 세트 접두, 'sets': {세트 꼬리: (프레임 목록, 맞추기)}, 'skin': {기존 이름: 세트 꼬리}}
+# 프레임 번호는 PixelLab 결과를 본 뒤 정한다 (shots/pixellab_test/<캐릭터>_v6_<동작>.png).
+CHARS = {
+    'guard': {
+        'prefix': 'v6_guard',
+        'sets': {},
+        'skin': {},
+    },
+    'crasher': {
+        'prefix': 'v6_crasher',
+        'sets': {},
+        'skin': {},
+    },
+}
+
+
+def load(char, rel, n=None):
+    base = os.path.join(PIX, f'{char}_v6', 'raw')
+    p = os.path.join(base, rel) if n is None else os.path.join(base, rel, f'frame_{n}.png')
+    a = np.array(Image.open(p).convert('RGBA'))
+    a[:, :, 3] = np.where(a[:, :, 3] >= 128, 255, 0)
+    a[a[:, :, 3] == 0] = 0
+    return a
+
+
+def body_x(a):
+    """몸 가로 중심: 아래쪽 절반(다리·몸통) 불투명 픽셀의 평균 x. 무기·머리 장식에 덜 흔들린다."""
+    ys, xs = np.nonzero(a[:, :, 3])
+    if not len(xs):
+        return None
+    mid = (ys.min() + ys.max()) / 2
+    low = ys >= mid
+    return float(xs[low].mean())
+
+
+def apply(char):
+    cfg = CHARS[char]
+    if not cfg['sets']:
+        print(f'{char}: 세트가 아직 없다 (원본을 보고 CHARS에 번호를 적는다)')
+        return
+    base = load(char, 'base.png')
+    pal = palette_of(base)
+    base_x = body_x(base)
+    foot = foot_row([base])
+    frames_meta, skin = {}, {}
+    for tail, (frames_src, align) in cfg['sets'].items():
+        name = f"{cfg['prefix']}_{tail}"
+        frames = [lock_palette(remove_white_arcs(load(char, src, n)), pal) for src, n in frames_src]
+        anchor_x = base_x
+        if align == 'loop':
+            bx = [body_x(f) for f in frames]
+            anchor_x = float(np.mean([b for b in bx if b is not None]))
+            frames = [shift_x(f, int(round(anchor_x - b))) if b is not None else f for f, b in zip(frames, bx)]
+        for i, f in enumerate(frames, 1):
+            im = Image.fromarray(f, 'RGBA')
+            im.resize((im.width * SCALE, im.height * SCALE), Image.NEAREST).save(os.path.join(DST, f'{name}_{i}.png'))
+        frames_meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1, foot * SCALE]
+        print(f'{name}: {len(frames)}장, 기준점 {frames_meta[name][1:]}')
+    for old, tail in cfg['skin'].items():
+        skin[old] = f"{cfg['prefix']}_{tail}"
+    path = os.path.join(DST, f'skin_{char}.json')
+    with open(path, 'w', encoding='utf-8') as fp:
+        json.dump({'frames': frames_meta, 'skin': skin}, fp, ensure_ascii=False, indent=1)
+    print('저장', os.path.relpath(path, ROOT))
+
+
+def main(names):
+    for char in names or [c for c in CHARS if os.path.exists(os.path.join(PIX, f'{c}_v6', 'raw', 'base.png'))]:
+        apply(char)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

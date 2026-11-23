@@ -12,6 +12,8 @@
   tower    스테이지 3 탑 (88 BPM, 16마디, C단조: 합창 패드와 종 선율, 성긴 북 = 높고 차가운 곳)
   hideout  은신처 (80 BPM, 16마디, F장조: 따뜻한 패드와 뜯는 소리, 쉬어 가는 곳)
 사용: python tools/make_music.py [곡 이름 ...]
+2026-11-24부터 게임은 OpenGameArt 곡(assets/music/*.ogg·mp3, docs/ASSETS.md)을 쓴다. 이 도구는 예전 합성 곡 기록으로만 남긴다
+(실행하면 wav가 생기지만 assets.music_path는 ogg·mp3를 먼저 고른다).
 """
 import os
 import sys

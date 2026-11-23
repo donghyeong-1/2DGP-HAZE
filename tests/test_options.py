@@ -90,7 +90,7 @@ def test_credits_list_v4_art_and_match_the_sound_files():
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
     sfx = len([f for f in os.listdir(os.path.join(root, 'sfx'))
                if f.endswith('.wav') and not re.search(r'_v\d\.wav$', f)])    # 3버전(_v2·_v3)은 같은 소리로 센다
-    music = len([f for f in os.listdir(os.path.join(root, 'music')) if f.endswith('.wav')])
+    music = len([f for f in os.listdir(os.path.join(root, 'music')) if f.endswith(('.wav', '.ogg', '.mp3'))])
     m = re.search(r'효과음 (\d+)종 · 배경음악 (\d+)곡', text)
     assert m, '크레딧에 소리 수가 없다'
     assert (int(m.group(1)), int(m.group(2))) == (sfx, music), (m.groups(), sfx, music)

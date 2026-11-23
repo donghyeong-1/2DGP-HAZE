@@ -262,23 +262,48 @@ _music = {}
 current_music = None   # 지금 틀고 있는 곡 이름 (없으면 None)
 
 
+MUSIC_EXTS = ('.ogg', '.mp3', '.wav')      # v7 (2026-11-24): OpenGameArt 곡은 ogg·mp3 그대로 쓴다 (SDL_mixer가 읽는다)
+MUSIC_FADE_MS = 700                        # 곡이 바뀔 때 새 곡이 서서히 커지는 시간
+_music_pos = {}                            # 곡 이름 -> 마지막으로 멈춘 위치(초). 전투곡 <-> 탐험곡을 오가도 처음부터 다시 틀지 않는다
+
+
+def music_path(name):
+    """assets/music/<name>.(ogg|mp3|wav) 중 있는 파일. 없으면 None."""
+    for ext in MUSIC_EXTS:
+        p = os.path.join(ASSET_DIR, 'music', name + ext)
+        if os.path.exists(p):
+            return p
+    return None
+
+
 def play_music(name):
-    """배경음악(assets/music/<name>.wav)을 반복 재생한다. 같은 곡이 이미 나오고 있으면 그대로 둔다.
+    """배경음악을 반복 재생한다. 같은 곡이 이미 나오고 있으면 그대로 둔다.
+    v7: 곡이 바뀌면 지금 곡의 위치를 기억하고, 새 곡은 기억한 위치에서 서서히 커지며 시작한다.
     소리가 꺼져 있거나 오디오가 없으면 곡 이름만 기억하고 조용히 넘어간다."""
     global current_music
     if name == current_music:
         return
+    old = current_music
     current_music = name
     import config
     if not config.SOUND_ENABLED:
         return
     try:
+        import sdl2.sdlmixer as mix
+        if old is not None and _music.get(old) is not None:
+            try:
+                _music_pos[old] = float(mix.Mix_GetMusicPosition(_music[old].music))
+            except Exception:
+                pass
         if name not in _music:
             from pico2d import load_music
-            _music[name] = load_music(os.path.join(ASSET_DIR, 'music', name + '.wav'))
+            _music[name] = load_music(music_path(name))
         import options
         _music[name].set_volume(int(options.volume(config.MUSIC_VOLUME, options.music_level) * music_duck))
-        _music[name].repeat_play()
+        try:
+            mix.Mix_FadeInMusicPos(_music[name].music, -1, MUSIC_FADE_MS, _music_pos.get(name, 0.0))
+        except Exception:
+            _music[name].repeat_play()
     except Exception:
         _music[name] = None
 

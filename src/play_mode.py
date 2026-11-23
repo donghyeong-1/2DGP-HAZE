@@ -62,13 +62,17 @@ def enter():
 
 
 def music_for(stage):
-    """지금 방에 맞는 곡: 은신처 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 MUSIC, 기본 'boss'), 아니면 스테이지 곡."""
+    """지금 방에 맞는 곡: 은신처 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 MUSIC, 기본 'boss'),
+    적이 남아 방이 잠겨 있으면 전투곡(v7), 아니면 스테이지 탐험곡."""
     name = getattr(stage, 'name', '')
     if name in ('hideout', 'practice'):
         return 'hideout'
     boss = stage.boss
     if boss is not None and boss.alive:
         return getattr(boss, 'MUSIC', 'boss')
+    room_ = getattr(stage, 'room', None)
+    if room_ is not None and getattr(room_, 'locked', False):
+        return 'combat'
     return STAGE_MUSIC.get(name, 'explore')
 
 

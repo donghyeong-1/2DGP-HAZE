@@ -47,10 +47,14 @@ def test_sound_is_silent_when_disabled():
 
 
 def test_music_files_loop_cleanly():
-    """배경음악 7곡: 20초 이상, 무음·클리핑 없음, 끝과 처음이 이어진다(반복 재생 이음매)."""
+    """배경음악: 곡마다 파일이 있다. 2026-11-24부터 OpenGameArt의 ogg·mp3 곡이라 길이·이음매 검사는
+    tests/test_music_v2.py(파일 크기)로 옮겼다. 남은 합성 wav가 있으면 예전 규칙대로 검사한다."""
+    import assets
     for name in ('title', 'explore', 'boss', 'ark', 'factory', 'tower', 'hideout'):
-        path = os.path.join(ROOT, 'assets', 'music', name + '.wav')
-        assert os.path.exists(path), name
+        path = assets.music_path(name)
+        assert path, name
+        if not path.endswith('.wav'):
+            continue
         with wave.open(path, 'rb') as f:
             assert f.getnchannels() == 1 and f.getsampwidth() == 2
             n = f.getnframes()

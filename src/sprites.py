@@ -112,7 +112,17 @@ def _load_hero6():
 
 HERO6 = _load_hero6()
 FRAMES.update(HERO6)
-SKIN = {old: new for old, new in (('n09_idle', 'hero6_idle'), ('n09_run', 'hero6_run')) if new in HERO6}
+# 기존 동작 이름 -> 새 세트. 위 대각·아래 대각 휘두르기는 올려치기·내려찍기 그림을 같이 쓴다.
+# 아직 새 그림이 없는 것(식칼·건틀릿·사슬 자세, 맨손, 궁극기)은 기존 그림 그대로.
+SKIN_PAIRS = (
+    ('n09_idle', 'hero6_idle'), ('n09_run', 'hero6_run'), ('n09_run_trans', 'hero6_run_trans'),
+    ('n09_jump', 'hero6_jump'), ('n09_dash', 'hero6_dash'),
+    ('n09_swing_side', 'hero6_swing_side'), ('n09_swing_up', 'hero6_swing_up'), ('n09_swing_upfwd', 'hero6_swing_up'),
+    ('n09_swing_down', 'hero6_swing_down'), ('n09_swing_downfwd', 'hero6_swing_down'),
+    ('n09_s2rise', 'hero6_s2rise'), ('n09_s2slam', 'hero6_s2slam'), ('n09_plunge', 'hero6_plunge'),
+    ('n09_hurt', 'hero6_hurt'), ('n09_death', 'hero6_death'),
+)
+SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 OWN_OUTLINE = set(HERO6)          # 테두리를 그림에 이미 가진 세트
 OWN_RIM = 2                       # 그런 세트에 두를 밝은 선 두께 (화면 px = 원본 1px)
 

@@ -40,3 +40,27 @@ frame_0은 모두 입력 그림 그대로다(도구가 0번에 입력을 돌려�
 
 비교 그림: `shots/pixellab_test/size_compare.png` (41px는 3배, 62px는 2배, 서기 키 123/124px로 맞춤), 시트·GIF는 `run41_whitehair*`, `run62_whitehair*`.
 붉은 포인트: 41px안의 손에 피부 그림자색(185,104,110) 1색이 있다. 포인트가 아닌 피부색이지만 청록만 남기려면 손볼 곳.
+
+## 3차: 62px안 확정, 전체 동작 (2026-11-23)
+공통: `animate_image_pixminimax`, first_frame=`raw/still62_whitehair_try1.png`(96x96), view side, direction east,
+subject "a young man with white hair in black clothes with a long dark scarf with cyan flame ends, holding an iron pipe in his front hand",
+initial_pose "standing upright facing right, pipe lowered in the front hand", 설명에 "holding iron pipe in front hand, same hand every frame".
+각 1회(8프레임 이하는 1회 요금). 11회 사용 → 남은 13회. frame_0은 입력 그대로, 프레임 수는 입력 포함.
+흐름 px = frame_0 대비 몸 중심(알파 픽셀 평균) 최대 이동.
+
+| 폴더 | 프레임 | 추가 옵션 | 파이프 손 | 흐름 px (x / y) | 평가 |
+|---|---|---|---|---|---|
+| `idle62/` | 8+1 | last=still(루프), seed 5 | 유지 | 1 / 1 | **좋음**. 0번=8번 루프, 15색 |
+| `jump62/` | 8+1 | 1~4 도약·상승, 5~8 낙하, seed 5 | 유지 | 7 / 32 위로 | **보통**. 머플러 위로 날림 좋음. 7~8번 몸이 길게 늘어지고 머플러가 위쪽 끝(y 3) 닿음. 게임에선 위치를 몸 기준으로 다시 맞춰야 함 |
+| `land62/` | 4+1 | last=still, seed 5 | 유지 | 2 / 6 | **좋음**. 무릎 굽혔다 원래 자세로 |
+| `dash62/` | 8+1 | seed 5 (6프레임 요청 → pixminimax는 4의 배수라 8) | 유지(낮게 앞으로) | 18 / 9 | **좋음**. 낮은 돌진, 머플러 길게 수평. 4~5번 오른쪽 끝(x 95) 닿아 잘릴 수 있음, 원래 자세로 안 돌아옴 |
+| `attack162/` | 8+1 | seed 5 | 유지 | 7 / 3 | **보통**. 4번에 청록 휘두름 궤적이 함께 그려짐. 5~8번은 휘두름보다 앞으로 찌른 자세로 끝나고 얼굴이 약간 정면으로 돎 |
+| `attack262_try1/` | 8+1 | 반대 방향 백핸드, seed 5 | 섞임 | 7 / 3 | 다시: 몸이 정면으로 돌고 2번에 파이프가 두 개로 보임 |
+| `attack262/` (재시도) | 8+1 | 아래→위 대각 올려치기로 바꿈, "never turning toward the camera", seed 9 | 유지 | 8 / 6 | **보통**. 5번에 청록 궤적, 8번=처음 자세라 이어 붙이기 쉬움. 2~4번 얼굴이 정면 쪽으로 돎 |
+| `attack362/` | 8+1 | 내려찍기, seed 5 | 유지(양손 들어올림) | 15 / 14 | **보통**. 힘 있는 내려찍기, 4~5번 흰 궤적. 2~3번 위쪽 끝(y 2) 닿고 4번 위쪽에 흰 점 1~2개, 끝에 낮은 자세로 머묾 |
+| `hurt62_try1/` | 4+1 | last=still, seed 5 | 유지 | 9 / 3 | 다시: 붉은 베기 효과가 그려짐(붉은 포인트 금지) |
+| `hurt62/` (재시도) | 4+1 | "no effects and no slash marks", last=still, seed 9 | 유지 | 5 / 10 | **보통**. 자세는 좋으나 1~2번에 흰 충격 호가 여전히 그려짐(2번은 몸과 떨어져 지우기 쉬움, 1번은 몸과 겹침) |
+| `death62/` | 8+1 | seed 5 | 놓침(의도) | 4 / 28 아래로 | **좋음**. 파이프 떨어뜨리고 뒤로 쓰러져 누움, 불꽃 어두워짐. 누운 몸이 캔버스 폭 거의 전부(x 3~93) |
+
+확인용: `shots/pixellab_test/<동작>62_sheet_x3.png`, `<동작>62_dark_x3.png`, `<동작>62.gif` (재시도 전 것은 `_try1`).
+공통 손볼 것: 동작마다 몸 위치가 흘러 게임 적용 시 발 기준 정렬 필요. 모델이 휘두름·피격 효과(청록/흰 궤적)를 그림에 같이 그리는 경향이 있음 — 청록 궤적은 그대로 써도 되지만 효과를 코드로 따로 그릴 거면 지워야 함.

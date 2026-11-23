@@ -176,6 +176,9 @@ def main():
         if align == 'hair':
             anchor_x = float(np.mean([h for h in hx if h is not None]))
             frames = [shift_x(f, int(round(anchor_x - h))) if h is not None else f for f, h in zip(frames, hx)]
+            # 바닥 고정 (2026-11-23): 달리기·대기는 프레임마다 가장 아래 픽셀을 발 줄에 붙인다.
+            # PixelLab 달리기는 장마다 발이 최대 8px 떠서(두 발이 다 뜬 장) 둥둥 튀어 보였다
+            frames = [np.roll(f, still_foot - foot_row([f]), axis=0) for f in frames]
         elif align == 'air':
             frames = [shift_x(f, int(round(still_hair - h))) if h is not None else f for f, h in zip(frames, hx)]
             frames = [np.roll(f, still_foot - foot_row([f]), axis=0) for f in frames]

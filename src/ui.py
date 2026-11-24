@@ -357,6 +357,9 @@ class GameUI:
     def _attack_text(w, g):
         """지금 나가는 공격."""
         kind = w.current_kind()
+        import forms
+        if forms.active(w) and kind in ('pipe', 'pistol', 'gauntlet', 'chain', 'charge') and not g.enhanced:    # v8 무기 형태: 그 이름
+            return '형태: ' + forms.FORMS[w.weapon_id]['name'], forms.COLOR
         prefix = {'pistol_dash': '대시 ', 'pistol_air': '공중 ', 'chain_dash': '대시 ', 'chain_air': '공중 '}.get(kind, '')
         if w.weapon_id == 'pistol':
             count, _, pierce = w.volley()

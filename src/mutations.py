@@ -216,6 +216,7 @@ REWARDS = {
     'shards': ('조각', 'ui/reward_shards.png', (130, 235, 225)),
     'heal': ('회복', 'ui/reward_heal.png', (255, 150, 150)),
     'crystal': ('결정', 'ui/reward_crystal.png', (190, 200, 255)),
+    'form': ('형태', 'ui/reward_mutation.png', (255, 214, 120)),      # v8 무기 형태: 구역의 첫 전투방 (무작위로는 안 나온다)
 }
 REWARD_WEIGHTS = {'mutation': 4, 'shards': 3, 'heal': 2, 'crystal': 1}
 REWARD_SHARDS = (6, 10)   # 조각 보상 범위
@@ -279,7 +280,9 @@ def _weight(player, mid):
     weapon = FAMILIES[fam].get('weapon')
     if weapon is None:
         return OFFER_WEIGHTS['common']
-    return OFFER_WEIGHTS['held'] if weapon in _held_weapons(player) else OFFER_WEIGHTS['other']
+    import forms
+    base = OFFER_WEIGHTS['held'] if weapon in _held_weapons(player) else OFFER_WEIGHTS['other']
+    return base * forms.weight_mult(player, fam)       # v8: 얻은 무기 형태와 잘 맞는 갈래는 더 자주
 
 
 def _pick(player, cands, rng, taken):

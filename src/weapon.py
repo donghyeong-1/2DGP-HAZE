@@ -696,6 +696,9 @@ class Pipe:
     hit_kind = 'normal'
     name = '철파이프'
     weapon_id = 'pipe'
+    form_state = None            # v8 무기 형태의 진행 중인 동작 (src/forms.py). 없으면 None
+    heavy = False                # 철파이프 '중량 타격'을 모으는 중
+    jab, jab_left = 0, 0.0       # 건틀릿 '연타'의 잽 번호와 이어지는 시간
     base_damage = config.PIPE_DAMAGE
 
     def __init__(self, owner):
@@ -712,6 +715,9 @@ class Pipe:
 
     def update(self, dt):
         self.cooldown = max(0.0, self.cooldown - dt)
+        import forms
+        forms.tick_combo(self, dt)
+        forms.update(self, dt)                               # v8 무기 형태: 모으는 중·이어치기·갈고리 이동
         p = self.owner
         if p.state == 'DASH' and p.dash_strike_queued:      # 대시 v2: 대시 중 눌렀으면 지나가는 순간 벤다
             self._dash_pass()
@@ -743,11 +749,14 @@ class Pipe:
 
     def try_attack(self):
         """공격을 시도한다. 공격했으면 True."""
-        if not self.ready:
+        if not self.ready or getattr(self, 'form_state', None) is not None:    # 형태의 동작(모으는 중 등)이 진행 중이면 받지 않는다
             return False
         if self._try_ultimate():
             return True
         kind = self.current_kind()
+        import forms
+        if kind == 'pipe' and forms.active(self) and not self.owner.gauge.enhanced:    # v8 형태 '중량 타격'
+            return forms.pipe_attack(self)
         enhanced = self._take_level()
         self.last_kind, self.last_enhanced = kind, enhanced
         getattr(self, '_attack_' + kind)(enhanced)
@@ -1401,6 +1410,9 @@ class Pistols(Pipe):
             return True
         p = self.owner
         kind = self.current_kind()
+        import forms
+        if kind == 'pistol' and forms.active(self) and not p.gauge.enhanced and not self.loaded:    # v8 형태 '산탄'
+            return forms.pistol_attack(self)
         enhanced = self._take_level()
         loaded = self.loaded and not enhanced            # v7 '장전 회피': 강화 비용 없이 큰 한 발
         if loaded:
@@ -1726,7 +1738,7 @@ class Gauntlet(Pipe):
         return config.GAUNTLET_SIZE.get(self.owner.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
 
     def try_attack(self):
-        if not self.ready or self.charging:
+        if not self.ready or self.charging or getattr(self, 'form_state', None) is not None:
             return False
         if self._try_ultimate():
             return True
@@ -1740,6 +1752,9 @@ class Gauntlet(Pipe):
             self._start_rush(config.GAUNTLET_QUICK_RATIO, enhanced, self._size(enhanced), config.GAUNTLET_RUSH_QUICK, dive)
             self.last_kind = kind
             return True
+        import forms
+        if forms.active(self) and not p.gauge.enhanced:             # v8 형태 '연타': 충전 대신 빠른 잽
+            return forms.gauntlet_attack(self)
         if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 바로 끝까지, 게이지를 크게 비운다
             p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')
             self._start_rush(1.0, False, config.GAUNTLET_SIZE['CRITICAL'], config.GAUNTLET_RUSH_MAX)
@@ -2227,6 +2242,15 @@ class Chain(Pipe):
             reach_mult *= mutations.PIERCE_REACH
         return count, config.CHAIN_RANGE * reach_mult, stun
 
+    def rush_velocity(self):
+        """v8 형태 '갈고리 이동': 걸린 적에게 날아가는 동안의 속도 (Player._apply_swing_motion이 쓴다). 아니면 None."""
+        import forms
+        return forms.zip_velocity(self)
+
+    def on_put_away(self):
+        import forms
+        forms.cancel(self)
+
     def try_attack(self):
         if not self.ready:
             return False
@@ -2234,6 +2258,11 @@ class Chain(Pipe):
             return True
         p = self.owner
         kind = self.current_kind()
+        import forms
+        if forms.busy(self):
+            return False
+        if kind == 'chain' and forms.active(self) and not p.gauge.enhanced:    # v8 형태 '갈고리 이동'
+            return forms.chain_attack(self)
         enhanced = self._take_level()
         self.last_kind, self.last_enhanced = kind, enhanced
         count, reach, stun = self.grip(enhanced, kind)

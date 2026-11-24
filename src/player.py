@@ -244,6 +244,7 @@ class Player(TileBody):
         self.air_combo = 0             # 이번 체공에서 친 공중 공격 수 (1타 가로 -> 2타 반원, 땅에 닿으면 0)
         self.lunge_vx = 0.0            # 휘두를 때 한 발 내딛는 속도 (빠르게 줄어든다)
         self.swap_cool = 0.0           # v8 교체기 쿨다운 (0이면 바꾸는 순간 기술이 나간다)
+        self.forms = set()             # v8 무기 형태: 새 형태를 얻은 무기 이름들 (판 동안 유지, src/forms.py)
         self.swing_connected = False
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다

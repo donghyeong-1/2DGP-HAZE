@@ -149,6 +149,9 @@ class Stage:
         self.on_mutation = None     # 변이 보상: f([변이 id 셋]) (play_mode가 카드 창을 연다). 없으면 첫 번째를 준다
         self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
         self.rewards = {c: self._roll_reward(c) for c in self.layout if self.type_of(c) == 'combat'}   # 방 보상 (11/22)
+        if self.rewards:                             # v8 무기 형태: 출발 방에서 가장 가까운 전투방의 보상은 늘 형태 카드
+            first = min(sorted(self.rewards), key=lambda c: abs(c[0] - start[0]) + abs(c[1] - start[1]))
+            self.rewards[first] = 'form'
 
     def _roll_reward(self, coord):
         import mutations
@@ -176,8 +179,16 @@ class Stage:
         elif kind == 'crystal':
             p.bonus_crystals += mutations.REWARD_CRYSTALS
             effects.float_text(cx, cy + 90, f'헤이즈 결정 +{mutations.REWARD_CRYSTALS}', mutations.REWARDS[kind][2])
-        elif kind == 'mutation':
-            choices = mutations.offer(p, rng)
+        elif kind in ('mutation', 'form'):
+            import forms
+            choices = forms.cards(p) if kind == 'form' else []          # 형태 카드: 들고 있는 무기의 새 형태 + 넘기기
+            if choices:
+                if self.on_mutation:
+                    self.on_mutation(choices)
+                else:
+                    forms.take_card(p, choices[0])
+                return
+            choices = mutations.offer(p, rng)                           # 내놓을 형태가 없으면 증강 셋으로 대신한다
             if not choices:
                 return
             if self.on_mutation:

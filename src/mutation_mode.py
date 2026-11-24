@@ -12,6 +12,7 @@ import assets
 import config
 import game_framework
 import hud_kit as kit
+import forms
 import mutations as mu
 
 W, H = config.SCREEN_W, config.SCREEN_H
@@ -35,6 +36,13 @@ def setup(p, ids):
 def choose():
     """고른 카드의 변이를 준다. 시너지가 켜졌으면 알려 준다."""
     mid = choices[selected]
+    if mid.startswith(forms.CARD):                        # v8 무기 형태 카드
+        name, color = forms.take_card(player, mid)
+        assets.play_sound('enhance')
+        import effects
+        cx, cy = player.center
+        effects.float_text(cx, cy + 110, name, color, big=True, life=1.2)
+        return
     fam = mu.MUTATIONS[mid]['family']
     before = mu.synergy(player, fam)
     mu.give(player, mid)
@@ -144,7 +152,37 @@ def draw_frame(x, y, w, h, rarity='common'):
         off += step
 
 
+def _draw_form_card(i, mid):
+    """무기 형태 카드: 금색 테두리, 무기 그림, 형태 이름과 설명. 'form:skip'은 넘기기."""
+    wid = mid[len(forms.CARD):]
+    hot = i == selected
+    k = min(1.0, age / OPEN_TIME)
+    x = card_x(i)
+    y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
+    skip = wid == 'skip'
+    color = (150, 165, 190) if skip else forms.COLOR
+    if hot:
+        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))
+    draw_frame(x, y, CARD_W, CARD_H, 'common' if skip else 'legendary')
+    if skip:
+        name, sub, desc = '넘기기', '형태를 얻지 않습니다', f'대신 조각 {forms.SKIP_SHARDS}개를 받습니다'
+    else:
+        img = assets.image(f'ui/icon_w_{wid}.png')
+        assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
+        kit.text(x + CARD_W // 2, y + CARD_H - 54, '형태', color, center=True, small=True)
+        name, sub, desc = forms.FORMS[wid]['name'], mu.WEAPON_NAMES.get(wid, '') + ' · 기본 공격이 바뀝니다', forms.FORMS[wid]['desc']
+    kit.text(x + CARD_W // 2, y + CARD_H - 200, name, (240, 244, 252), center=True, big=True)
+    for j, line in enumerate(_wrap(sub, 13)):
+        kit.text(x + CARD_W // 2, y + CARD_H - 250 - j * 28, line, color, center=True, small=True)
+    for j, line in enumerate(_wrap(desc, 13)):
+        kit.text(x + CARD_W // 2, y + CARD_H - 330 - j * 30, line, (205, 215, 235), center=True, small=True)
+
+
 def _draw_card(i, mid):
+    if mid.startswith(forms.CARD):
+        _draw_form_card(i, mid)
+        return
     m = mu.MUTATIONS[mid]
     fam = mu.FAMILIES[m['family']]
     hot = i == selected
@@ -203,8 +241,9 @@ def draw():
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
     assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.66)
-    kit.text(W // 2, CARD_Y + CARD_H + 110, '증강 선택', (244, 236, 214), center=True, big=True)
-    kit.text(W // 2, CARD_Y + CARD_H + 66, '하나를 선택하세요. 이번 판이 끝날 때까지 유지됩니다', (150, 165, 190), center=True, small=True)
+    form = any(c.startswith(forms.CARD) for c in choices)
+    kit.text(W // 2, CARD_Y + CARD_H + 110, '무기 형태' if form else '증강 선택', (244, 236, 214), center=True, big=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 66, ('무기 하나의 기본 공격이 달라집니다. ' if form else '하나를 선택하세요. ') + '이번 판이 끝날 때까지 유지됩니다', (150, 165, 190), center=True, small=True)
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
     kit.footer([('A D', '선택'), ('Enter', '확인')], y=CARD_Y - 80)

@@ -397,111 +397,168 @@ def _star(p, arms, color, w0):
         p.needle(0, 0, math.cos(ang) * ln, math.sin(ang) * ln, color, w * w0)
 
 
-EXEC_DISC_META = dict(size=[248, 248], origin=[124, 124], duration=6 / 30, fps=30, options=dict(seed=3))
-
-
-def exec_disc_create(o):
-    """0 작은 원반 / 1·2 큰 진한 원반 + 밝은 테두리 + 흰 여덟 갈래 별 + 흰 불티 / 3 비워진 굵은 고리 + 작은 별 / 4·5 가늘어지는 고리."""
-    core = o['layer'] == 'core'
-    rng = Rng(o['seed'])
-    sparks = [(rng.range(0, TAU), rng.range(0.8, 1.25), rng.range(5, 12)) for _ in range(14)]
-    star8 = [(TAU * i / 8, 40 if i % 2 == 0 else 20, 1.0 if i % 2 == 0 else 0.6) for i in range(8)]
-
-    def draw(p, i):
-        if i == 0:
-            if not core:
-                p.disc(0, 0, 22, G[3])
-                p.ring(0, 0, 22, 2.5, G[3])
-                p.glow(0, 0, 44, WHITE, 120)
-        elif i in (1, 2):
-            r = 45 if i == 1 else 48
-            if not core:
-                p.disc(0, 0, r, G[3])                                  # 진한 색 면 (주인공): 색을 그대로 받는다
-                p.ring(0, 0, r, 3.5, G[1])                             # 조금 어두운 테두리 (면이 더 밝다)
-                p.ring(0, 0, r * 0.72, 1.5, G[3], gaps=6, phase=i)
-                p.glow(0, 0, r * 2.1, WHITE, 150)
-                p.glow(0, 0, r * 1.3, WHITE, 110)
-            else:
-                k = 1.0 if i == 1 else 0.82
-                _star(p, [(a, ln * k, w) for a, ln, w in star8], WHITE, 5.5)
-                p.disc(0, 0, 4.5 * k, WHITE)
-                for ang, far, ln in sparks:                             # 흰 불티: 꼬리를 끌며 바깥으로
-                    d0 = (r + 6 + (14 if i == 2 else 0)) * far
-                    c, s_ = math.cos(ang), math.sin(ang)
-                    p.needle(c * d0, s_ * d0, c * (d0 + ln), s_ * (d0 + ln), WHITE, 2.4)
-        elif i == 3:
-            if not core:
-                p.ring(0, 0, 50, 7, G[3])
-                p.ring(0, 0, 53, 1.5, G[3])
-                p.glow_ring(0, 0, 50, 16, WHITE, 110)
-            else:
-                _star(p, [(a, ln * 0.45, w) for a, ln, w in star8], WHITE, 4.0)
-                for ang, far, ln in sparks[::2]:
-                    d0 = 78 * far
-                    c, s_ = math.cos(ang), math.sin(ang)
-                    p.needle(c * d0, s_ * d0, c * (d0 + ln * 0.7), s_ * (d0 + ln * 0.7), WHITE, 1.6)
-        elif i == 4 and not core:
-            p.ring(0, 0, 53, 3.5, G[1], gaps=7, phase=1.0)
-            p.glow_ring(0, 0, 53, 10, WHITE, 60)
-        elif i == 5 and not core:
-            p.ring(0, 0, 55, 1.5, G[0], a=0.7, gaps=9, phase=2.0)
-    return _frame_fx(draw)
-
-
-EXEC_STAR_META = dict(size=[248, 248], origin=[124, 124], duration=2 / 30, fps=30, options=dict(seed=3))
-
-
-def exec_star_create(o):
-    """0 첫 일격: 위아래로 긴 색 가시 + 작은 흰 별 / 1 둘째 일격: 큰 색 네 갈래 별(면이 크다) + 가운데 흰 십자."""
-    core = o['layer'] == 'core'
-
-    def draw(p, i):
-        q = TAU / 4
-        if i == 0:
-            if not core:
-                _star(p, [(q, 96, 1.0), (-q, 96, 1.0), (0, 34, 0.7), (2 * q, 34, 0.7)], G[3], 13)
-                p.glow(0, 0, 70, WHITE, 140)
-            else:
-                _star(p, [(a, 24 if k % 2 == 0 else 13, 1.0) for k, a in enumerate(TAU * j / 8 for j in range(8))], WHITE, 3.5)
-                p.disc(0, 0, 4, WHITE)
-        else:
-            if not core:
-                _star(p, [(q, 108, 1.0), (-q, 108, 1.0), (0, 88, 0.9), (2 * q, 88, 0.9)], G[3], 30)
-                _star(p, [(q / 2 + q * j, 40, 1.0) for j in range(4)], G[2], 14)
-                p.glow(0, 0, 110, WHITE, 150)
-            else:
-                _star(p, [(q * j, 44, 1.0) for j in range(4)], WHITE, 4.5)
-                p.disc(0, 0, 6, WHITE)
-    return _frame_fx(draw)
-
-
 EXEC_CRESCENT_META = dict(size=[216, 128], origin=[108, 64], duration=5 / 30, fps=30, options=dict(seed=3))
 
 
 def exec_crescent_create(o):
-    """적을 감싸는 예고 초승달 (왼쪽이 굵고 오른쪽 끝이 가늘게 올라간다). 0·1·2 꽉 찬 모양 / 3·4 가늘어져 줄기로.
-    색은 게임이 장면마다 바꾼다: 회색(예고) -> 흰색 -> 진한 자홍."""
+    """적을 감싸는 예고 초승달 (왼쪽이 굵고 오른쪽 끝이 가늘게 올라간다): 왼쪽에서 그어지며 나타나 -> 꽉 찬 모양 두 장 ->
+    가늘어지며 알갱이를 흘린다. 바깥 가장자리가 한 단계 밝다. 색은 게임이 장면마다 바꾼다: 회색(예고) -> 흰색 -> 진한 색."""
     core = o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    motes = [(rng.range(-95, 60), rng.range(10, 46), rng.range(-40, 40), rng.range(20, 70)) for _ in range(16)]
 
     def draw(p, i):
         if core:
             return
         s = (1.0, 1.0, 1.0, 0.62, 0.3)[min(i, 4)]
+        reach = -20 if i == 0 else 200                       # 첫 장은 왼쪽 절반만 (그어지는 중)
 
         def fn(X, Y):
-            outer = (X / 100.0) ** 2 + ((Y - 6) / 44.0) ** 2 <= 1.0
+            d = (X / 100.0) ** 2 + ((Y - 6) / 44.0) ** 2
             inner = ((X - 22 * s) / 96.0) ** 2 + ((Y + 12 * s - 6) / 40.0) ** 2 <= 1.0
-            keep = outer & ~inner & (Y > -14 - 20 * (X < 0))
-            return fx.np.where(keep, 3, -1)
+            keep = (d <= 1.0) & ~inner & (Y > -14 - 20 * (X < 0)) & (X < reach)
+            return fx.np.where(keep, fx.np.where(d > 0.86, 3, 2), -1)     # 바깥 가장자리가 밝다
         p.shade(-104, -60, 104, 60, fn, G)
-        if i >= 1:
-            p.glow(-40, 18, 70, WHITE, 90 if i < 3 else 40)
+        p.glow(-40, 18, 80, WHITE, 100 if i < 3 else 45)
+        p.glow(30, 30, 50, WHITE, 60 if 0 < i < 3 else 0)
+        if i >= 3:                                           # 가늘어지며 흘리는 알갱이
+            k = i - 2
+            for x, y, vx, vy in motes[:8 * k]:
+                p.px(x + vx * 0.03 * k, y + vy * 0.03 * k, G[3])
+                if k == 1:
+                    p.px(x + vx * 0.03 + 1, y + vy * 0.03, G[2])
     return _frame_fx(draw)
 
 
-TINTS['exec-disc'] = [(EXEC_DISC_META, exec_disc_create)]
-TINTS['exec-star'] = [(EXEC_STAR_META, exec_star_create)]
 TINTS['exec-crescent'] = [(EXEC_CRESCENT_META, exec_crescent_create)]
+
+
+# =====================================================================================================
+# 큰 마무리 폭발 fin-burst (2026-11-24, haze-fx 절차로 다시): 처형·궁극기 마무리의 첫 일격부터 끝까지 한 장의 흐르는 이펙트.
+# 한 줄: 긴 색 가시와 작은 흰 별 -> 작은 원반 -> (검은 띠 동안 알갱이만) -> 큰 색 네 갈래 별 -> 크고 진한 원반이 부풀고
+#        가운데 작은 흰 별, 흰 불티가 꼬리를 끌며 흩어진다 -> 원반이 가운데부터 비워져 고리가 되고 끊어지며 사라진다, 조각이 떨어진다.
+# 원칙(사용자): 흰 부분보다 진한 원래 색 면이 훨씬 크다. 빛줄기·검은 띠·실루엣은 화면 전체라 게임(weapon.FinisherCut)이 그린다.
+# =====================================================================================================
+WHITES = [(150, 150, 150), (200, 200, 200), (235, 235, 235), WHITE, WHITE]      # 흰 심 층의 불티 색 띠
+FIN_META = dict(size=[272, 272], origin=[136, 136], duration=0.54, fps=30, options=dict(seed=6))
+
+
+def fin_create(o):
+    core = o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    pw = Particles(rng, WHITES, sparks=WHITES)              # 흰 불티 (흰 심 층)
+    pc = Particles(rng, G)                                  # 색 조각·알갱이 (색 층, 게임이 색을 곱한다)
+    lights = Lights()
+    q = TAU / 4
+    S1, S2 = 0.0, 0.10                                      # 첫 일격, 둘째 일격
+    pw.burst(SPARK, 0, 0, 10, (260, 620), (0.12, 0.26))
+    pc.burst(MOTE, 0, 0, 8, (120, 380), (0.14, 0.3), size=(0.8, 1.8))
+    lights.add(0, 0, 80, WHITE, 150, 0.12)
+    star8 = [(TAU * i / 8 + (0.0 if i % 2 == 0 else rng.range(-0.08, 0.08)), 33 if i % 2 == 0 else 17, 1.0 if i % 2 == 0 else 0.62)
+             for i in range(8)]
+    arcs = [(TAU * i / 7 + rng.range(-0.15, 0.15), rng.range(0.5, 0.82), rng.range(0.6, 1.6), rng.range(0.0, 0.07))
+            for i in range(7)]                               # 고리 토막: 고르게 나눈 뒤 흔든다 (각도, 길이, 속도, 늦게 사라짐)
+    twinkles = [(rng.range(-100, 100), rng.range(-90, 90), rng.range(0.16, 0.4), rng.range(2, 5)) for _ in range(10)]
+    t = [0.0]
+    fired = [False]
+
+    class Fin:
+        def update(self, dt):
+            t[0] += dt
+            if not fired[0] and t[0] >= S2:                 # 둘째 일격: 흰 불티가 크게 흩어지고 색 조각이 날아간다
+                fired[0] = True
+                pw.burst(SPARK, 0, 0, 22, (380, 1050), (0.2, 0.42), up=40)
+                pc.burst(SHARD, 0, 0, 12, (240, 620), (0.3, 0.44), up=120, size=(1.5, 3.0))
+                pc.burst(MOTE, 0, 0, 18, (160, 520), (0.22, 0.42), size=(0.8, 1.8))
+                pc.burst(EMBER, 0, 0, 10, (40, 160), (0.3, 0.42), delay=(0.1, 0.2))
+                lights.add(0, 0, 124, WHITE, 165, 0.3)
+                lights.add(0, 0, 60, WHITE, 120, 0.16)
+            pw.update(dt)
+            pc.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            i = int(u * 30 + 0.01)                           # 장면은 프레임 단위로 끊는다 (30fps)
+            if i == 0:                                       # 첫 일격: 위아래로 긴 색 가시 + 작은 흰 별
+                if core:
+                    for a, ln, w in star8:
+                        p.needle(0, 0, math.cos(a) * ln * 0.7, math.sin(a) * ln * 0.7, WHITE, 5.0 * w)
+                    p.disc(0, 0, 4.5, WHITE)
+                else:
+                    for a, ln, w in ((q, 104, 13), (-q, 104, 13), (0, 36, 9), (2 * q, 36, 9)):
+                        p.needle(0, 0, math.cos(a) * ln, math.sin(a) * ln, G[3], w)
+            elif i == 1:                                     # 작은 진한 원반
+                if not core:
+                    p.disc(0, 0, 21, G[3])
+                    p.ring(0, 0, 21, 2.5, G[1])
+                    p.ring(0, 0, 27, 1.5, G[3], gaps=5, phase=1.0)
+                    p.glow(0, 0, 46, WHITE, 110)
+            elif i == 3:                                     # 둘째 일격: 큰 색 네 갈래 별 (면이 크다) + 흰 십자
+                if core:
+                    for j in range(4):
+                        p.needle(0, 0, math.cos(q * j) * 46, math.sin(q * j) * 46, WHITE, 4.5)
+                    p.disc(0, 0, 6, WHITE)
+                else:
+                    for a, ln, w in ((q, 112, 30), (-q, 112, 30), (0, 92, 27), (2 * q, 92, 27)):
+                        p.needle(0, 0, math.cos(a) * ln, math.sin(a) * ln, G[3], w)
+                    for j in range(4):
+                        a = q / 2 + q * j
+                        p.needle(0, 0, math.cos(a) * 42, math.sin(a) * 42, G[2], 14)
+            elif i >= 4:                                     # 원반 -> 고리
+                v = u - 4 / 30
+                r = 40 + 9 * out_expo(v / 0.07)
+                hole = 0.0 if v < 0.07 else (r - 5) * out_cubic((v - 0.07) / 0.06)         # 가운데부터 비워진다 (원반은 세 장 유지)
+                late = max(0.0, v - 0.135)                                               # 고리가 된 뒤
+                r += 8 * out_cubic(late / 0.27)
+                if not core:
+                    wide = (r - hole) * (1.0 if late == 0 else max(0.12, 1.0 - late / 0.2))
+                    fade = 1.0 if late < 0.1 else max(0.0, 1.0 - (late - 0.1) / 0.17)
+                    if hole < 1:
+                        p.disc(0, 0, r, G[2])                                            # 진한 색 면 (이 이펙트의 주인공)
+                        p.ring(0, 0, r - 1.5, 4.0, G[3])                                  # 밝은 테두리
+                        p.ring(0, 0, r + 4, 1.5, G[3], gaps=6, phase=u * 5)
+                        p.ring(0, 0, r * 0.66, 1.5, G[1], gaps=5, phase=u * 9)
+                        p.ring(0, 0, r * 0.4, 1.5, G[1], gaps=3, phase=-u * 7)
+                    elif late < 0.04 and wide >= 1:                                       # 막 비워진 굵은 고리 (온전하다)
+                        p.ring(0, 0, r - wide / 2, wide, G[3])
+                    else:                                                                # 토막 나서 저마다 퍼지며 가늘어진다
+                        for a0, span, speed, stay in arcs:
+                            life = 0.2 + stay
+                            if late >= life:
+                                continue
+                            kk = late / life
+                            rr = r + 16 * speed * out_cubic(kk)
+                            ww = max(1.0, 7.0 * (1 - kk) ** 1.5)
+                            p.ring(0, 0, rr, ww, G[3] if kk < 0.35 else G[2], a=1.0 if kk < 0.7 else 1.0 - (kk - 0.7) / 0.3,
+                                   a0=a0, a1=a0 + span * (1 - kk * 0.5))
+                    p.glow(0, 0, r * 2.2, WHITE, 130 * max(0.0, 1.0 - v / 0.3))
+                    p.glow_ring(0, 0, r, 12, WHITE, 90 * max(0.0, 1.0 - v / 0.36))
+                else:
+                    k = max(0.0, 1.0 - v / 0.17)                                         # 가운데 작은 흰 별: 줄어든다
+                    if k > 0.08:
+                        for a, ln, w in star8:
+                            p.needle(0, 0, math.cos(a) * ln * (0.2 + 0.8 * k), math.sin(a) * ln * (0.2 + 0.8 * k), WHITE,
+                                     max(1.5, 8.0 * w * k))
+                        p.disc(0, 0, 1.5 + 5 * k, WHITE)
+            if core:
+                pw.draw(p)
+                for x, y, t0, arm in twinkles:                                           # 둘레의 작은 십자 반짝임
+                    v = (u - t0) / 0.12
+                    if 0 <= v < 1:
+                        a_ = arm * math.sin(math.pi * v)
+                        p.line(x - a_, y, x + a_, y, WHITE)
+                        p.line(x, y - a_, x, y + a_, WHITE)
+            else:
+                pc.draw(p)
+                lights.draw(p)
+    return Fin()
+
+
+TINTS['fin-burst'] = [(FIN_META, fin_create)]
+
+
+LOOK_COLOR = [236, 30, 52]          # 모아 보기에서 색 층에 입혀 볼 색 (게임에서는 공격마다 다르다)
 
 
 def build_tint(name, look):
@@ -513,14 +570,14 @@ def build_tint(name, look):
     for r in (0, len(variants) // 3, (2 * len(variants)) // 3) if len(variants) > 1 else (0,):
         for (tc, tl), (cc, _) in zip(tint[r], core[r]):
             arr = fx.np.asarray(tc, fx.np.float32)
-            arr[..., :3] *= fx.np.array([46, 230, 214], fx.np.float32) / 255.0
+            arr[..., :3] *= fx.np.array(LOOK_COLOR, fx.np.float32) / 255.0
             body = fx.Image.fromarray(arr.astype(fx.np.uint8), 'RGBA')
             body.paste(cc, (0, 0), cc)
             la = fx.np.asarray(tl, fx.np.float32)
-            la[..., :3] *= fx.np.array([46, 230, 214], fx.np.float32) / 255.0
+            la[..., :3] *= fx.np.array(LOOK_COLOR, fx.np.float32) / 255.0
             show.append((body, fx.Image.fromarray(la.astype(fx.np.uint8), 'RGBA')))
     path = fx.contact(show, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), actor=HERO, origin=meta['origin'],
-                      cols=len(tint[0]), label=f"{name}  {meta['size'][0]}x{meta['size'][1]}  {len(tint[0])}f  variants {len(variants)}")
+                      cols=len(tint[0]) if len(variants) > 1 else 4, zoom=2 if len(variants) == 1 else 3, label=f"{name}  {meta['size'][0]}x{meta['size'][1]}  {len(tint[0])}f  variants {len(variants)}")
     if look:
         print('본다', path)
         return

@@ -6,11 +6,15 @@ description: 헤이즈의 전투 이펙트(타격 불꽃, 폭발, 베기 궤적,
 # haze-fx: 이펙트 제작
 
 2026-11-24 사용자 요청으로 만들었다. 방식은 patch-gg/pixelfx(MIT)와 Hugo Duprez의 Sprite Fusion VFX 글에서 배웠고,
-코드·결과물은 가져오지 않았다(전부 자체 구현, `docs/REFERENCES.md`). 목표 화풍은 INARI: 흰색이 주, 색은 가장자리와 강조.
+코드·결과물은 가져오지 않았다(전부 자체 구현, `docs/REFERENCES.md`). 목표 화풍은 INARI.
+
+**이펙트는 반드시 이 절차로 만든다 (2026-11-24 사용자 지적).** 장면마다 납작한 도형을 한 장씩 찍거나(도장), 실행 중 사각형으로
+그리면 품질이 떨어진다: 불티·조각·빛이 시간에 따라 흐르지 않기 때문이다. 급해도 create(o)에 시간·입자·빛을 넣고 모아 보기를 세 번 본다.
 
 ## 1. 기준 (이펙트 하나가 통과해야 하는 것)
-1. **선과 빛으로 만든다.** 1~3px 줄기·고리·불티·가시. 넓은 단색 면은 터지는 1~2프레임(흰 주인공 프레임)에만 쓴다.
-   밝기는 빛 층이 맡는다. 색 층에 큰 원반·사각형·바퀴살 무늬가 보이면 실패다.
+1. **작은 타격은 선과 빛으로, 큰 일격은 진한 색 면으로.** 평타·불꽃은 1~3px 줄기·고리·불티·가시로 만들고 밝기는 빛 층이 맡는다.
+   대시 베기·처형·궁극기 같은 큰 일격은 **진한 원래 색의 큰 면**(원반·네 갈래 별·초승달)이 주인공이고, 흰색은 가운데 작은 별·불티·빛줄기뿐이다
+   (사용자: "흰색보다 진한 원래 색의 영역이 더 크다"). 큰 면은 민짜로 두지 않는다: 한 단계 밝은 테두리, 안쪽의 끊어진 가는 고리, 둘레 빛.
 2. **단계가 있다.** (모으기) → 터짐: 흰 주인공 프레임 1~2장 → 퍼짐: 줄기·고리가 빠르게 나가 느려진다(out_expo) →
    머무름: 불티·알갱이·파편 → 긴 소멸. 타격은 0.3~0.5초, 큰 폭발은 0.7~1.0초.
 3. **진짜 움직임.** 불티는 속도만큼 늘어나고 떨어지고 바닥에서 튄다. 파편은 돌며 날아간다. 빠르게 터지고 천천히 흩어진다(끌림).
@@ -76,5 +80,7 @@ def create(o):
 - v8 시트(`make_fx2.py`): hit-fade·normal·awake·critical·enhanced·enhanced2·enhanced3, haze-blast.
 - v8 두 겹 시트(색을 게임이 입힌다, `fxkit.export_tint` + `effects.draw_tint_sheet`): cut-mark·cut-mark-big(8각도, SlashMark), impact-rays·impact-rays-big(8방향, ImpactBurst), shock-ring-s·m·l(ImpactRing). 색이 공격마다 다른 이펙트는 이 방식으로: create(o)에서 `o['layer']`가 'tint'면 회색조(`fxkit.GRAY`) 몸통·빛, 'core'면 흰 심만 그린다.
 - 휘두르기 궤적(`make_slash_hq.py`)은 v7에서 이미 흰 초승달 + 청록 가장자리로 만들어 그대로 둔다(사용자가 바꾸자고 하면 fxkit의 shade로).
+- 큰 마무리(처형·궁극기, `weapon.FinisherCut`): `fin-burst`(가시 -> 작은 원반 -> 큰 별 -> 진한 원반 -> 고리 -> 토막, 0.54초 16장)와
+  `exec-crescent`(예고 초승달 5장). 화면 전체를 가르는 빛줄기·검은 띠·실루엣만 게임이 그린다. 별 섬광 `flare`·`flare-s`.
 - 아직 예전 방식: `make_fx.py`의 나머지(puff·surge·quake-blast·death-burst·dust-land·ult-nova·overload-burst 등),
   실행 중 사각형 이펙트(effects.py의 PathSlash·LightPillar·ground_slam·처치 연출, weapon.py의 DashStreak·RushTrail·표식). 순서대로 옮긴다.

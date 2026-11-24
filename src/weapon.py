@@ -426,7 +426,6 @@ class FinisherCut:
         self.step = 0 if start < self.T1 else 1
         self.frame = enemy._body_frame() if enemy is not None and hasattr(enemy, '_body_frame') else None
         self.efoot, self.eface = ((enemy.x, enemy.y), enemy.face_dir) if enemy is not None else ((x, y), 1)
-        self.debris = []
         effects.request_slow_motion(*slow)
         game_world.add_object(ExecDim(color=(8, 4, 12), strength=0.72, life=0.14), game_world.LAYER_TILES)
 
@@ -456,19 +455,10 @@ class FinisherCut:
         if self.step == 1 and self.rt >= self.T2:
             self.step = 2
             self.on_hit()
-            for _ in range(22):                                        # 흩어지는 조각 (흰색·진한 색)
-                a = random.uniform(0, math.tau)
-                sp = random.uniform(260, 900)
-                self.debris.append([self.ex, self.ey, math.cos(a) * sp, math.sin(a) * sp + 260,
-                                    random.choice(((255, 255, 255), (255, 255, 255), self.deep)), random.choice((4, 6, 8))])
             effects.add_trauma(config.SHAKE_FINISHER * 1.6)
         if self.step == 2 and self.rt >= 0.45:                         # 원반이 사라진 뒤에 가로로 번지는 블러 (영상의 순서)
             self.step = 3
             effects.spawn_blur(self.ex, self.ey, self.deep, self.player)
-        for d in self.debris:
-            d[0] += d[2] * dt
-            d[1] += d[3] * dt
-            d[3] -= 1500 * dt
         if self.rt >= self.END:
             game_world.remove_object(self)
 
@@ -480,6 +470,17 @@ class FinisherCut:
         import camera
         left, _ = camera.to_world(0, 0)
         assets.draw_rect_color(left - 16, int(y - h / 2) // 2 * 2, config.SCREEN_W + 32, max(2, int(h) // 2 * 2), color, alpha)
+
+    def _glow_row(self, y, color, alpha):
+        """빛줄기를 따라 화면 끝까지 번지는 빛 (빛 층)."""
+        import camera
+        import options
+        left, _ = camera.to_world(0, 0)
+        img = assets.image('light/bloom_256.png')
+        img.opacify(alpha * (0.5 if options.reduce_flash else 1.0))
+        for off in range(0, config.SCREEN_W + 1, 96):
+            assets.draw_image_added(img, int(left + off), int(y - img.h // 2), color=color, times=1)
+        img.opacify(1.0)
 
     def _stamp(self, name, i, color):
         n = effects.sheet_info(name)['columns']
@@ -498,35 +499,31 @@ class FinisherCut:
         if rt < 0.52:                                                  # 주인공은 흰 실루엣 (끝에서 색이 돌아온다). 별·원반보다 아래에
             a = 1.0 if rt < 0.42 else 1.0 - (rt - 0.42) / 0.1
             sprites.draw_silhouette(*p._body_frame(), p.x, p.y, p.draw_face(), white, a)
-        if rt < 0.17:                                                  # 첫 일격: 흰 빛줄기 + 긴 색 가시
+        # 가운데 폭발은 구운 시트 fin-burst 한 장이 흐른다 (haze-fx 스킬로 제작: 가시 -> 작은 원반 -> 큰 별 -> 진한 원반 -> 고리 -> 토막)
+        # 화면 전체를 가르는 빛줄기와 검은 띠만 여기서 그린다
+        if rt < 0.173:                                                 # 첫 일격의 흰 빛줄기 (위아래 색 가장자리)
+            self._glow_row(ey, self.color, 0.5)
             self._band(ey, 22, self.color)
             self._band(ey - 12, 4, (90, 130, 255))
             self._band(ey, 14, white)
-            self._stamp('exec-star', 0, deep)
-        elif rt < 0.20:                                                # 작은 진한 원반
-            self._stamp('exec-disc', 0, deep)
-        elif rt < self.T2:                                             # 검은 띠 (빛줄기의 잔상)
+        elif 0.207 <= rt < self.T2:                                    # 검은 띠 (빛줄기의 잔상)
             self._band(ey, 16, (2, 0, 2), 0.9)
             assets.draw_rect_color(int(ex) - 2, int(ey) - 150, 4, 300, (2, 0, 2), 0.8)
-        elif rt < 0.27:                                                # 둘째 일격: 흰 빛줄기 + 큰 색 네 갈래 별
+        elif self.T2 <= rt < 0.273:                                    # 둘째 일격의 흰 빛줄기
+            self._glow_row(ey, self.color, 0.6)
             self._band(ey, 24, self.color)
             self._band(ey - 13, 4, (90, 130, 255))
             self._band(ey, 16, white)
-            self._stamp('exec-star', 1, deep)
-        elif rt < 0.34:                                                # 색 빛줄기 + 크고 진한 원반 + 작은 흰 별
+        elif 0.273 <= rt < 0.373:                                      # 진한 원반 동안: 색 빛줄기
+            self._glow_row(ey, deep, 0.4)
             self._band(ey, 10, deep)
             self._band(ey, 2, white, 0.6)
-            self._stamp('exec-disc', 1 if rt < 0.305 else 2, deep)
-        elif rt < 0.40:                                                # 고리로 비워지고 검은 선
+        elif 0.373 <= rt < 0.43:                                       # 고리로 비워질 때: 검은 선
             self._band(ey, 6, (2, 0, 2), 0.85)
-            self._stamp('exec-disc', 3, deep)
-        else:                                                          # 가는 흰 선과 고리가 스러진다
-            k = max(0.0, 1.0 - (rt - 0.40) / (self.END - 0.40))
+        elif rt >= 0.43:                                               # 가는 흰 선이 스러진다
+            k = max(0.0, 1.0 - (rt - 0.43) / (self.END - 0.43))
             self._band(ey, 4 if k > 0.5 else 2, white, k)
-            if rt < 0.56:
-                self._stamp('exec-disc', 4 if rt < 0.48 else 5, deep)
-        for x, y, _, _, color, size in self.debris:
-            assets.draw_rect_color(int(x) // 2 * 2, int(y) // 2 * 2, size, size, color)
+        effects.draw_tint_sheet('fin-burst', ex, ey, min(0.999, (rt - self.T1) / 0.54), deep)
 
 
 class DashExecution(FinisherCut):

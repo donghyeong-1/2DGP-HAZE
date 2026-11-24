@@ -837,34 +837,40 @@ class Pipe:
 
 
 # =====================================================================================================
-# 투척용 식칼 묶음 (원거리, 구간 연동형): 구간이 오를수록 한 번에 던지는 칼이 늘고, 위험 구간에서는 관통한다.
-# 노멀 2발(나란히) / 각성 3발 부채꼴 / 위험 3발 관통 / 페이드 1발. E 강화: 발사 수 +2, 모든 칼 관통.
-# 칼은 실행 중 회전하지 않고 8방향 그림(proj_knife_0~7) 중 가장 가까운 것을 쓴다.
+# 쌍권총 (v7, 2026-11-24, 식칼 대체, docs/plan_v7.md 1절): 좌우 총을 번갈아 쏜다. 쏘면서 움직이고 뛸 수 있다.
+# 구간: 노멀 1발 / 각성 2발 / 위험 3발 부채꼴 / 페이드 느리게 1발. 대시 중·직후: 일자로 모은 3발 관통.
+# E 강화: 두 총을 모아 큰 한 발(관통)과 반동. 2단계는 큰 한 발이 처음 맞힌 자리에서 사방 8발 파편.
+# 총알·총구 섬광은 코드로 그린다 (정수 좌표, 2배 픽셀 격자).
 # =====================================================================================================
-class Knife(Pipe):
-    IMPACT = 'impact_knife'
-    name = '식칼'
-    weapon_id = 'knife'
-    base_damage = config.KNIFE_DAMAGE
+BULLET_COLORS = {False: [(255, 255, 255), (150, 250, 238), (46, 230, 214), (11, 106, 116)],      # 흰 머리 -> 청록 꼬리
+                 True: [(255, 255, 255), (230, 204, 255), (164, 107, 255), (90, 47, 184)]}      # 강화: 보라
+
+
+class Pistols(Pipe):
+    IMPACT = 'impact_pistol'
+    name = '쌍권총'
+    weapon_id = 'pistol'
+    base_damage = config.PISTOL_DAMAGE
+
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.side = 1                                    # 다음에 쏠 총 (+1 앞손, -1 뒷손). 쏠 때마다 바뀐다
 
     def current_kind(self):
-        """대시 중·직후 = 대시 투척, 공중 = 공중 투척, 그 밖 = 기본 투척."""
-        kind = self.ult_kind()
-        return {'dash': 'knife_dash', 'jump': 'knife_air'}.get(kind, 'knife')
+        """대시 중·직후 = 대시 사격, 공중 = 공중 사격, 그 밖 = 기본 사격."""
+        return {'dash': 'pistol_dash', 'jump': 'pistol_air'}.get(self.ult_kind(), 'pistol')
 
     def volley(self, enhanced=None, kind=None):
-        """지금 구간·공격 종류에서 던지는 (칼 수, 퍼지는 각도, 관통)."""
+        """지금 구간·공격 종류에서 쏘는 (총알 수, 퍼지는 각도, 관통)."""
         p = self.owner
         enhanced = p.gauge.enhanced if enhanced is None else enhanced
         kind = kind or self.current_kind()
-        count, spread, pierce = config.KNIFE_ZONE[p.gauge.zone]
-        if kind == 'knife_dash':                    # 대시: 한 자루 더, 일자로 모아 꿰뚫는다
-            count, spread, pierce = count + config.KNIFE_DASH_EXTRA, config.KNIFE_DASH_SPREAD, True
-        elif kind == 'knife_air':                   # 공중: 한 자루 더, 넓은 부채꼴
-            count, spread = count + config.KNIFE_AIR_EXTRA, spread + config.KNIFE_AIR_SPREAD
         if enhanced:
-            count, spread, pierce = count + config.KNIFE_ENHANCED_EXTRA, max(spread, 10), True
-        return count, spread, pierce
+            return 1, 0, True
+        if kind == 'pistol_dash':
+            return config.PISTOL_DASH_COUNT, config.PISTOL_DASH_SPREAD, True
+        count, spread = config.PISTOL_ZONE[p.gauge.zone]
+        return count, spread, False
 
     def try_attack(self):
         if not self.ready:
@@ -879,52 +885,64 @@ class Knife(Pipe):
         ax, ay = p.aim_vector()
         base = math.degrees(math.atan2(ay, ax))
         cx, cy = p.center
+        self.side = -self.side
+        mx = cx + ax * config.PISTOL_MUZZLE
+        my = cy + 8 + ay * config.PISTOL_MUZZLE + self.side * 6
         fx = self._fx(enhanced)
-        damage = self._damage(config.ENHANCE_DAMAGE_MULT * 0.6 * self._stack() if enhanced else 1.0)
-        for i in range(count):
-            off = 0.0 if count == 1 else -spread + 2 * spread * i / (count - 1)
-            a = math.radians(base + off)
-            game_world.add_object(ThrownKnife(self, cx, cy + 8, math.cos(a), math.sin(a), damage, pierce, fx, enhanced),
-                                  game_world.LAYER_EFFECT)
-        if enhanced and self.level >= 2:                 # 2단계: 칼날 폭풍 — 사방으로 한 바퀴 더 (8자루, 관통)
-            for i in range(config.KNIFE_RING):
-                a = math.radians(base + 22.5 + 360.0 * i / config.KNIFE_RING)
-                game_world.add_object(ThrownKnife(self, cx, cy + 8, math.cos(a), math.sin(a), damage * 0.6, True, fx, True),
+        if enhanced:                                     # 두 총을 모아 큰 한 발
+            damage = self._damage(config.PISTOL_BIG_MULT * self._stack())
+            game_world.add_object(Bullet(self, mx, my, ax, ay, damage, True, fx, self.side, big=True,
+                                         burst=self.level >= 2), game_world.LAYER_EFFECT)
+            back = -(1 if ax >= 0 else -1)
+            p.lunge_vx = back * config.PISTOL_RECOIL     # 반동: 쏜 반대쪽으로 밀린다
+            effects.add_trauma(config.SHAKE_FINISHER * 0.8)
+            effects.spawn_bloom(mx, my, BULLET_COLORS[True][2], big=True, life=0.2, strength=0.9)
+            p.start_punch('shoot_big')
+        else:
+            damage = self._damage(1.0)
+            for i in range(count):
+                off = 0.0 if count == 1 else -spread + 2 * spread * i / (count - 1)
+                a = math.radians(base + off)
+                game_world.add_object(Bullet(self, mx, my, math.cos(a), math.sin(a), damage, pierce, fx, self.side),
                                       game_world.LAYER_EFFECT)
-            effects.spawn('hit-enhanced2', cx, cy, duration=0.35)
+            p.start_punch('shoot')
+        game_world.add_object(MuzzleFlash(mx, my, ax, ay, enhanced), game_world.LAYER_EFFECT)
         import drama
-        assets.play_sound(drama.knife_sound(p.gauge.zone, enhanced))   # 구간·강화마다 다른 던지기 소리 (11/21)
-        p.start_punch('throw')
-        self.cooldown = self.cooldown_max = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.KNIFE_COOLDOWN
-        if enhanced:
-            effects.add_trauma(config.SHAKE_FINISHER * 0.6)
+        assets.play_sound(drama.pistol_sound(p.gauge.zone, enhanced))
+        slow = p.gauge.zone in ('FADE', 'DEAD')
+        self.cooldown = self.cooldown_max = (config.ENHANCE_STRIKE_COOLDOWN if enhanced else
+                                             config.PISTOL_FADE_COOLDOWN if slow else config.PISTOL_COOLDOWN)
         self._finish(enhanced)
         return True
 
 
-class ThrownKnife:
-    """날아가는 칼 한 자루. 벽(#)에 닿거나 사거리를 넘으면 사라지고, 관통이 아니면 첫 적에서 멈춘다."""
+class Bullet:
+    """날아가는 총알 한 발 (코드로 그린 빛줄기). 벽(#)에 닿거나 사거리를 넘으면 사라지고, 관통이 아니면 첫 적에서 멈춘다.
+    big(강화 큰 한 발)은 굵고 보라. burst(강화 2단계)면 처음 맞힌 자리에서 사방으로 파편(shrapnel)이 튄다."""
 
-    def __init__(self, weapon, x, y, dx, dy, damage, pierce, fx, enhanced):
+    def __init__(self, weapon, x, y, dx, dy, damage, pierce, fx, side, big=False, burst=False, shrapnel=False,
+                 reach=None, skip=()):
         self.weapon, self.x, self.y = weapon, x, y
-        self.dx, self.dy = dx, dy
-        self.damage, self.pierce, self.fx, self.enhanced = damage, pierce, fx, enhanced
+        n = math.hypot(dx, dy) or 1.0
+        self.dx, self.dy = dx / n, dy / n
+        self.damage, self.pierce, self.fx, self.side = damage, pierce, fx, side
+        self.big, self.burst, self.shrapnel = big, burst, shrapnel
+        self.reach = reach or (config.PISTOL_SHRAPNEL_RANGE if shrapnel else config.PISTOL_RANGE)
         self.travel = 0.0
-        self.hit = set()
-        self.frame = int(round(math.degrees(math.atan2(dy, dx)) / 45.0)) % 8   # 가장 가까운 8방향 그림
+        self.hit = set(id(e) for e in skip)
 
     def rect(self):
-        h = config.KNIFE_HB / 2
+        h = config.PISTOL_HB * (2.0 if self.big else 0.5 if self.shrapnel else 1.0) / 2
         return (self.x - h, self.y - h, self.x + h, self.y + h)
 
     def update(self, dt):
-        step = config.KNIFE_SPEED * dt
+        step = config.PISTOL_SPEED * dt * (0.7 if self.shrapnel else 1.0)
         self.x += self.dx * step
         self.y += self.dy * step
         self.travel += step
         room = self.weapon.owner.room
-        if self.travel > config.KNIFE_RANGE or (room is not None and room.tile_at_world(self.x, self.y) == '#'):
-            effects.spawn('puff', self.x, self.y - 20, duration=0.2)
+        if self.travel > self.reach or (room is not None and room.tile_at_world(self.x, self.y) == '#'):
+            effects.spawn_bloom(self.x, self.y, BULLET_COLORS[self.big][2], life=0.08, strength=0.4)
             game_world.remove_object(self)
             return
         left, bottom, right, top = self.rect()
@@ -934,15 +952,86 @@ class ThrownKnife:
             el, eb, er, et = enemy.rect()
             if left < er and el < right and bottom < et and eb < top:
                 self.hit.add(id(enemy))
-                self.weapon._hit(enemy, self.damage, config.KNIFE_GAIN, self.fx, big=self.enhanced,
-                                 shake=0.5, stop=0.35, blast=self.enhanced, extra=False)
+                self.weapon._hit(enemy, self.damage, config.PISTOL_GAIN, self.fx, big=self.big,
+                                 shake=0.9 if self.big else 0.3, stop=1.2 if self.big else 0.25, blast=self.big, extra=False)
+                if self.burst:
+                    self._shrapnel(enemy)
                 if not self.pierce:
                     game_world.remove_object(self)
                     return
 
+    def _shrapnel(self, enemy):
+        """강화 2단계: 처음 맞힌 자리에서 사방으로 파편 (맞힌 적은 다시 맞지 않는다)."""
+        self.burst = False
+        ex, ey = enemy.center
+        for i in range(config.PISTOL_SHRAPNEL):
+            a = math.tau * i / config.PISTOL_SHRAPNEL + 0.2
+            game_world.add_object(Bullet(self.weapon, ex, ey, math.cos(a), math.sin(a), self.damage * config.PISTOL_SHRAPNEL_MULT,
+                                         False, self.fx, self.side, shrapnel=True, skip=(enemy,)), game_world.LAYER_EFFECT)
+        effects.spawn('hit-enhanced2', ex, ey, duration=0.3)
+
     def draw(self):
-        img = assets.image(f'sprites/unified/proj_knife_{self.frame}.png')
-        assets.draw_image(img, self.x, self.y - img.h // 2)
+        cols = BULLET_COLORS[self.big]
+        length = 80 if self.big else 26 if self.shrapnel else 52
+        thick = 12 if self.big else 6
+        for k in range(0, length, 2):                   # 머리(흰)에서 꼬리(짙은 청록)로, 꼬리 쪽이 가늘다
+            t = k / length
+            c = cols[min(3, int(t * 4))]
+            w = max(2, int(thick * (1.0 - 0.6 * t)) // 2 * 2)
+            x = int(round(self.x - self.dx * k)) // 2 * 2
+            y = int(round(self.y - self.dy * k)) // 2 * 2
+            assets.draw_rect_color(x - w // 2, y - w // 2, w, w, c)
+
+
+class MuzzleFlash:
+    """총구 섬광: 흰 사각 심 + 앞쪽으로 뻗는 짧은 빛살 세 줄, 0.06초. 작은 빛 번짐."""
+    LIFE = 0.06
+
+    def __init__(self, x, y, dx, dy, big=False):
+        n = math.hypot(dx, dy) or 1.0
+        self.x, self.y, self.dx, self.dy, self.big = x, y, dx / n, dy / n, big
+        self.time = 0.0
+        effects.spawn_bloom(x, y, BULLET_COLORS[big][1], big=big, life=0.08, strength=0.5)
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        cols = BULLET_COLORS[self.big]
+        k = 1.0 - self.time / self.LIFE
+        core = (14 if self.big else 8)
+        x, y = int(self.x) // 2 * 2, int(self.y) // 2 * 2
+        assets.draw_rect_color(x - core // 2, y - core // 2, core, core, cols[0])
+        for ang in (-28, 0, 28):                         # 앞쪽 부채꼴 빛살
+            a = math.atan2(self.dy, self.dx) + math.radians(ang)
+            ln = int((34 if ang == 0 else 18) * (1.6 if self.big else 1.0) * k)
+            for s in range(0, ln, 2):
+                px = int(round(self.x + math.cos(a) * s)) // 2 * 2
+                py = int(round(self.y + math.sin(a) * s)) // 2 * 2
+                assets.draw_rect_color(px - 1, py - 1, 2 if s > ln // 2 else 4, 2 if s > ln // 2 else 4,
+                                       cols[0] if s < ln // 2 else cols[1])
+
+
+class Tracer:
+    """궁극기 연출용 날아가는 총알 줄기 (판정 없음)."""
+
+    def __init__(self, x, y, vx, vy, life, big=False):
+        self.x, self.y, self.vx, self.vy, self.life, self.big = x, y, vx, vy, life, big
+        n = math.hypot(vx, vy) or 1.0
+        self.dx, self.dy = vx / n, vy / n
+        self.shrapnel = False
+
+    def update(self, dt):
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+        self.life -= dt
+        if self.life <= 0:
+            game_world.remove_object(self)
+
+    def draw(self):
+        Bullet.draw(self)
 
 
 # =====================================================================================================
@@ -1404,18 +1493,18 @@ class ChainHook:
 # 컷인 그림은 Codex T23이 오면 이름 띠 자리에 넣는다.
 # =====================================================================================================
 ULT_NAMES = {('pipe', 'basic'): '안개 대참격', ('pipe', 'dash'): '관통 질주', ('pipe', 'jump'): '낙하 붕괴',
-             ('knife', 'basic'): '칼비', ('knife', 'dash'): '칼날 회오리', ('knife', 'jump'): '부채 폭격',
+             ('pistol', 'basic'): '탄우', ('pistol', 'dash'): '총탄 회오리', ('pistol', 'jump'): '폭격 사격',
              ('gauntlet', 'basic'): '헤이즈 포격', ('gauntlet', 'dash'): '충격 돌파', ('gauntlet', 'jump'): '낙하 포격',
              ('chain', 'basic'): '포획 폭발', ('chain', 'dash'): '사슬 질주', ('chain', 'jump'): '공중 낚아채기'}
-ULT_COLORS = {'pipe': (150, 235, 255), 'knife': (235, 240, 255), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
+ULT_COLORS = {'pipe': (150, 235, 255), 'pistol': (180, 250, 240), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
 # (무기, 종류) -> 범위 모양과 크기. forward(앞 거리) / line(길이, 반폭: 조준 방향) / slam(좌우) / aim(조준점 둘레 반지름) /
 # below(아래쪽 좌우) / circle(플레이어 둘레 반지름)
 # 2026-11-20: 화면 전체가 아니라 광역 공격 (크기를 약 절반으로, 건틀릿 광선만 조금 더 멀리)
 ULT_AREAS = {('pipe', 'basic'): ('forward', config.ULT_FORWARD),
              ('pipe', 'dash'): ('line', config.ULT_DASH_LENGTH, config.ULT_DASH_HALF),
              ('pipe', 'jump'): ('slam', config.ULT_SLAM_RADIUS),
-             ('knife', 'basic'): ('aim', 300), ('knife', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
-             ('knife', 'jump'): ('below', 420),
+             ('pistol', 'basic'): ('aim', 300), ('pistol', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
+             ('pistol', 'jump'): ('below', 420),
              ('gauntlet', 'basic'): ('line', 900, 120), ('gauntlet', 'dash'): ('circle', 380),
              ('gauntlet', 'jump'): ('below', 460),
              ('chain', 'basic'): ('circle', 450), ('chain', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
@@ -1586,8 +1675,8 @@ class Ultimate:
         """타격마다 범위를 보여 주는 큰 궤적 (무기마다 다르다)."""
         i = self.hits_done
         wid = self.weapon.weapon_id
-        if wid == 'knife':
-            self._knife_shape(i)
+        if wid == 'pistol':
+            self._pistol_shape(i)
             return
         if wid in ('gauntlet', 'chain'):
             shape = self.area[0]
@@ -1613,25 +1702,21 @@ class Ultimate:
             if i == 0:
                 effects.spawn('haze-blast', self.x0, self.floor_y + 20, duration=0.5)
 
-    def _knife_shape(self, i):
-        """식칼 궁극기: 칼이 쏟아진다 (칼비 = 조준점 위에서, 회오리 = 직선을 따라, 부채 폭격 = 아래로 부채꼴)."""
+    def _pistol_shape(self, i):
+        """쌍권총 궁극기: 총알이 쏟아진다 (탄우 = 조준점 위에서, 회오리 = 직선을 따라, 폭격 사격 = 아래로 부채꼴)."""
         shape = self.area[0]
-        down = 'sprites/unified/proj_knife_6.png'
         for j in range(9 if shape == 'aim' else 5):
             jitter = ((i * 5 + j) * 37) % 100 - 50
-            if shape == 'aim':                       # 칼이 작아서(1배 그림) 많이, 높이를 엇갈려 떨어뜨린다
+            if shape == 'aim':
                 x = self.aim[0] + (j - 4) * 100 + jitter
-                game_world.add_object(Decor(down, x, self.aim[1] + 600 + (j % 3) * 120, 0.0, -2600.0, 0.32),
+                game_world.add_object(Tracer(x, self.aim[1] + 600 + (j % 3) * 120, 0.0, -2600.0, 0.32, big=j % 3 == 0),
                                       game_world.LAYER_EFFECT)
             elif shape == 'line':
                 reach = config.ULT_DASH_LENGTH * (j + 1) / 6
-                frame = int(round(math.degrees(math.atan2(self.dy, self.dx)) / 45.0)) % 8
-                game_world.add_object(Decor(f'sprites/unified/proj_knife_{frame}.png', self.x0 + self.dx * reach,
-                                            self.y0 + self.dy * reach + jitter, self.dx * 900, self.dy * 900, 0.2),
-                                      game_world.LAYER_EFFECT)
+                game_world.add_object(Tracer(self.x0 + self.dx * reach, self.y0 + self.dy * reach + jitter,
+                                             self.dx * 1800, self.dy * 1800, 0.2), game_world.LAYER_EFFECT)
             else:
-                vx = (j - 2) * 500
-                game_world.add_object(Decor(down, self.x0 + (j - 2) * 40, self.y0, vx, -2200.0, 0.35),
+                game_world.add_object(Tracer(self.x0 + (j - 2) * 40, self.y0, (j - 2) * 500, -2200.0, 0.35),
                                       game_world.LAYER_EFFECT)
 
     def _draw_reach(self):
@@ -1676,4 +1761,4 @@ class Ultimate:
                 assets.draw_text(tx, y + img.h // 2, self.name, self.color, big=True, center=True)
 
 
-WEAPONS = {'pipe': Pipe, 'knife': Knife, 'gauntlet': Gauntlet, 'chain': Chain}
+WEAPONS = {'pipe': Pipe, 'pistol': Pistols, 'gauntlet': Gauntlet, 'chain': Chain}

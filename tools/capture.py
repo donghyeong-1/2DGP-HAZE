@@ -9,7 +9,7 @@
   --clear             방에 원래 있던 적을 지운다
   --spawn hound:400 guard:-300   적을 플레이어 기준 x 거리에 세운다 (boss, heart:0도 가능)
   --enemy-hp 1        불러낸 적의 체력 (처치 연출·흡수를 빨리 볼 때)
-  --weapon knife      두 번째 칸 무기를 주고 든다 (knife, gauntlet, chain)
+  --weapon pistol     두 번째 칸 무기를 주고 든다 (pistol, gauntlet, chain)
   --gauge 65          게이지(%) 설정
   --bot stand|dodge   tools/balance_sim.py의 봇이 플레이어를 조작해 싸운다 (없으면 가만히 서 있다)
   --shots 8 --every 10   10프레임마다 8장

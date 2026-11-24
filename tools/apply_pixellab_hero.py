@@ -55,6 +55,7 @@ SETS = {
     'hero6_s2rise': (_f('v3_e2_rise', [2, 4, 6]), 'none'),                # E 2단계 첫 타: 웅크림 -> 올려베기 -> 뛰어오름 (기존과 같은 3장)
     'hero6_s2slam': (_f('v3_e2_slam', [2, 3, 5]), 'none'),                # E 2단계 둘째 타: 머리 위 -> 내림 -> 바닥 타격(머문다)
     'hero6_plunge': (_f('v3_air_down2', [1, 4]), 'none'),                 # 내려찍기: 머리 위로 듦 -> 파이프를 수직 아래로 내리꽂음
+    'hero6_pistol': ([('base_pistols.png', None)], 'none'),            # 쌍권총 겨눔 (v3 무기 기준 그림, 추천안)
     'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
     'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }

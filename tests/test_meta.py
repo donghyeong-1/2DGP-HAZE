@@ -98,9 +98,9 @@ def test_keepsake_choices_are_what_the_player_held():
     items.apply(p, 'cap')
     items.apply(p, 'cap')
     items.apply(p, 'dash')
-    p.give_weapon('knife')
+    p.give_weapon('pistol')
     opts = meta.keepsake_options(p)
-    assert set(opts) == {'cap', 'dash', 'w_knife'}                                      # 겹치지 않게, 무기 포함
+    assert set(opts) == {'cap', 'dash', 'w_pistol'}                                      # 겹치지 않게, 무기 포함
 
 
 def test_kept_upgrade_returns_at_level_one_and_weapon_as_is_once():
@@ -276,7 +276,7 @@ def test_start_weapon_is_saved_and_given_at_run_start():
 def test_kept_weapon_wins_over_start_weapon():
     fresh()
     meta.state['keeper'] = True
-    meta.set_start_weapon('knife')
+    meta.set_start_weapon('pistol')
     meta.set_keepsake('w_gauntlet')
     p = new_player()
     meta.apply_to_player(p)
@@ -289,10 +289,10 @@ def test_weapon_rack_window_changes_the_weapon_now():
     p = new_player()
     npc_mode.kind, npc_mode.player, npc_mode.selected, npc_mode.note = 'armory', p, 0, ''
     keys = [r[3] for r in npc_mode.rows()]
-    assert keys == ['w_none', 'w_knife', 'w_gauntlet', 'w_chain']
-    npc_mode.act('w_knife')
-    assert p.weapons[1].weapon_id == 'knife' and p.weapon is p.weapons[1]   # 은신처에서 바로 바뀐다
-    assert meta.state['start_weapon'] == 'knife'
+    assert keys == ['w_none', 'w_pistol', 'w_gauntlet', 'w_chain']
+    npc_mode.act('w_pistol')
+    assert p.weapons[1].weapon_id == 'pistol' and p.weapon is p.weapons[1]   # 은신처에서 바로 바뀐다
+    assert meta.state['start_weapon'] == 'pistol'
     npc_mode.act('w_none')
     assert p.weapons[1] is None and p.weapon.weapon_id == 'pipe'
     assert meta.state['start_weapon'] is None

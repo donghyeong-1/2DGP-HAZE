@@ -1,6 +1,6 @@
 """상황에 따른 극적인 연출과 타격감 (2026-11-21 사용자 요청). pico2d 없이 돌아가는 규칙 + 그리기.
 
-- 효과음 고르기: 식칼·사슬은 게이지 구간과 강화에 따라(knife_sound, chain_sound, latch_sound), 궁극기 마무리는 무기마다.
+- 효과음 고르기: 쌍권총·사슬은 게이지 구간과 강화에 따라(pistol_sound, chain_sound, latch_sound), 궁극기 마무리는 무기마다.
 - 구간이 바뀌면 그 구간 색으로 화면이 잠깐 번쩍인다(on_zone -> zone_flash). 각성에 들어서면 zone_awake.
   번쩍임 줄이기(접근성)를 켜면 options.FLASH_SCALE만큼 약하게.
 - 심장 소리: 체력 30% 이하(15% 이하면 더 빠르게)·위험 구간에서 뛴다(tick). 체력이 낮으면 화면 가장자리가 붉게 맥동(low_hp_pulse).
@@ -15,15 +15,16 @@ import options
 
 NEW_SOUNDS = ('throw_fade', 'throw_awake', 'throw_critical', 'throw_enhanced',
               'chain_throw_fade', 'chain_throw_awake', 'chain_throw_critical', 'chain_throw_enhanced', 'chain_latch_heavy',
-              'ult_final_pipe', 'ult_final_knife', 'ult_final_gauntlet', 'ult_final_chain',
+              'ult_final_pipe', 'ult_final_pistol', 'ult_final_gauntlet', 'ult_final_chain',
               'zone_awake', 'heartbeat', 'kill_last')
 
 # ----- 효과음 고르기 -----
 _ZONE_SUFFIX = {'FADE': '_fade', 'NORMAL': '', 'AWAKE': '_awake', 'CRITICAL': '_critical', 'OVERLOAD': '_critical', 'DEAD': '_fade'}
 
 
-def knife_sound(zone, enhanced):
-    return 'throw_enhanced' if enhanced else 'throw' + _ZONE_SUFFIX.get(zone, '')
+def pistol_sound(zone, enhanced):
+    """쌍권총 사격 소리 (v7): 강화 = 큰 한 발, 그 밖은 구간마다."""
+    return 'shot_big' if enhanced else 'shot' + _ZONE_SUFFIX.get(zone, '').replace('_critical', '_critical')
 
 
 def chain_sound(zone, enhanced):

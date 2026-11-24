@@ -120,12 +120,12 @@ def _poses(p, frames):
     return seen
 
 
-def test_knife_throw_uses_its_own_three_poses():
+def test_pistol_shot_uses_its_aiming_pose():
     room, p = tc.make_world()
-    p.give_weapon('knife')
+    p.give_weapon('pistol')
     assert p.request_attack()
     seen = _poses(p, 30)
-    assert [s for s in seen if s[0] == 'n09_knife'] == [('n09_knife', 1), ('n09_knife', 2), ('n09_knife', 3)], seen
+    assert ('n09_pistol', 1) in seen, seen                                # 두 총을 앞으로 겨눈 자세
 
 
 def test_gauntlet_fire_and_air_down_poses():

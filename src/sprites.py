@@ -125,6 +125,7 @@ SKIN_PAIRS = (
     ('n09_swing_side2', 'hero6_swing_side2'), ('n09_swing_side3', 'hero6_swing_side3'),
     ('n09_air1', 'hero6_air1'), ('n09_air2', 'hero6_air2'), ('n09_airup', 'hero6_airup'),
     ('n09_dashcut', 'hero6_dashcut'), ('n09_e1', 'hero6_e1'),
+    ('n09_pistol', 'hero6_pistol'),                       # v7 쌍권총 겨눔 (PixelLab base_pistols)
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 

@@ -26,7 +26,12 @@ UPGRADES = {
     'dash':   dict(name='발놀림', desc=f'대시 충전 -{config.META_DASH:g}초', max=3, prices=(10, 16, 24)),
 }
 ORDER = ('hp', 'attack', 'gauge', 'dash')
-START_WEAPONS = ('knife', 'gauntlet', 'chain')   # 무기 걸이에서 고를 수 있는 두 번째 칸 무기 (철파이프는 늘 첫 칸)
+START_WEAPONS = ('pistol', 'gauntlet', 'chain')
+LEGACY_WEAPONS = {'knife': 'pistol'}             # v7 (2026-11-24): 식칼이 쌍권총으로 바뀌었다 (예전 저장을 그대로 읽는다)
+
+
+def migrate_weapon(weapon_id):
+    return LEGACY_WEAPONS.get(weapon_id, weapon_id)   # 무기 걸이에서 고를 수 있는 두 번째 칸 무기 (철파이프는 늘 첫 칸)
 
 state = {}
 
@@ -64,7 +69,7 @@ def load():
     state['keeper'] = bool(data.get('keeper', False))
     keep = data.get('keepsake')
     state['keepsake'] = keep if isinstance(keep, str) and keep in items.ITEMS else None
-    start = data.get('start_weapon')
+    start = migrate_weapon(data.get('start_weapon'))
     state['start_weapon'] = start if isinstance(start, str) and start in START_WEAPONS else None
     state['runs'] = max(0, _int(data.get('runs', 0)))
     state['escapes'] = max(0, _int(data.get('escapes', 0)))

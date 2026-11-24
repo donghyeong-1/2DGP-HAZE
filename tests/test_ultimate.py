@@ -181,7 +181,7 @@ def test_ultimate_damage_to_a_boss_is_capped():
 
 def test_every_weapon_has_named_ultimates_for_each_attack_kind():
     import weapon
-    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):
         for kind in ('basic', 'dash', 'jump'):
             assert weapon.ULT_NAMES.get((wid, kind)), (wid, kind)
 
@@ -193,12 +193,12 @@ def give(p, weapon_id):
     assert p.gauge.enhance_level == level
 
 
-def test_knife_rain_falls_around_the_aim_point_not_around_the_player():
+def test_pistol_rain_falls_around_the_aim_point_not_around_the_player():
     room, p, (near, far) = stacked(90, 3, [120, 620], player_x=600.0)
-    give(p, 'knife')
-    p.mouse_x, p.mouse_y = far.center                                    # 조준한 곳 일대에 칼비
+    give(p, 'pistol')
+    p.mouse_x, p.mouse_y = far.center                                    # 조준한 곳 일대에 탄우
     p.request_attack()
-    assert ultimates()[0].name == '칼비'
+    assert ultimates()[0].name == '탄우'
     run_out_ultimate()
     assert far.hp < far.max_hp and near.hp == near.max_hp
 
@@ -228,7 +228,7 @@ def test_chain_capture_pulls_enemies_in_before_the_blast():
 def test_ultimate_damage_is_the_same_for_every_weapon():
     """궁극기는 게이지 75%를 쓰는 값이 무기마다 같아야 한다 (식칼 기본 피해 11, 건틀릿 34와 무관)."""
     dealt = {}
-    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):
         room, p, (e,) = stacked(90, 3, [300])
         if wid != 'pipe':
             give(p, wid)
@@ -256,7 +256,7 @@ def test_casting_pose_gathers_then_releases_and_cutin_art_exists():
 
 def test_every_ultimate_shows_the_new_area_burst_and_dims_less():
     """광역 공격 이펙트(ult-nova)가 범위 한가운데에 터진다. 화면을 덮던 어둠은 옅게."""
-    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):
         room, p, (e,) = stacked(90, 3, [300])
         if wid != 'pipe':
             give(p, wid)
@@ -269,7 +269,7 @@ def test_every_ultimate_shows_the_new_area_burst_and_dims_less():
         assert u.nova_name == 'ult-nova-' + wid                          # 무기마다 색·모양이 다른 폭발 (11/21 계획 1-6)
     assert config.ULT_DIM <= 0.35
     root = os.path.join(HERE, '..', 'assets', 'effects')
-    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):
         assert os.path.exists(os.path.join(root, f'ult-nova-{wid}.png')), wid
 
 

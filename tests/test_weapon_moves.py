@@ -35,40 +35,26 @@ def objects(name):
     return [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == name]
 
 
-# ----- 식칼 -----
-def test_knife_kinds_follow_dash_and_air():
-    room, p = world('knife')
-    assert p.weapon.current_kind() == 'knife'
+# ----- 쌍권총 (2026-11-24 식칼 대체, 자세한 규칙은 tests/test_pistol.py) -----
+def test_pistol_kinds_follow_dash_and_air():
+    room, p = world('pistol')
+    assert p.weapon.current_kind() == 'pistol'
     p.dash_window = 0.2
-    assert p.weapon.current_kind() == 'knife_dash'
+    assert p.weapon.current_kind() == 'pistol_dash'
     p.dash_window = 0.0
     airborne(p)
-    assert p.weapon.current_kind() == 'knife_air'
+    assert p.weapon.current_kind() == 'pistol_air'
 
 
-def test_knife_dash_throws_one_more_in_a_line_and_pierces():
-    room, p = world('knife')
-    ground, _, pierce = p.weapon.volley()
+def test_pistol_dash_shot_is_a_tight_piercing_line():
+    room, p = world('pistol')
+    _, _, pierce = p.weapon.volley()
     assert not pierce                                                   # 노멀 기본은 관통하지 않는다
     p.dash_window = 0.2
     p.request_attack()
-    ks = objects('ThrownKnife')
-    assert len(ks) == ground + 1 and all(k.pierce for k in ks)
-    spread = max(k.dy for k in ks) - min(k.dy for k in ks)
-    assert spread < 0.15                                                # 거의 일자
-
-
-def test_knife_air_throws_a_wider_fan():
-    room, p = world('knife')
-    p.request_attack()
-    ground = objects('ThrownKnife')
-    g_spread = max(k.dy for k in ground) - min(k.dy for k in ground)
-    room, p = world('knife')
-    airborne(p)
-    p.request_attack()
-    air = objects('ThrownKnife')
-    assert len(air) == len(ground) + 1
-    assert max(k.dy for k in air) - min(k.dy for k in air) > g_spread + 0.2
+    bs = objects('Bullet')
+    assert len(bs) == 3 and all(b.pierce for b in bs)
+    assert max(b.dy for b in bs) - min(b.dy for b in bs) < 0.15         # 거의 일자
 
 
 # ----- 건틀릿 -----

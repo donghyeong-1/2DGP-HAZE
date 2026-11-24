@@ -615,14 +615,14 @@ def test_next_stage_keeps_player_progress():
     import stage as stage_mod
     stage, p = make_stage()
     p.hp, p.shards = 61, 17
-    p.give_weapon('knife')
+    p.give_weapon('pistol')
     p.items.append('w_dummy')
     p.gauge.value = 47.0
     stage.finished = True
     nxt = stage_mod.next_stage(stage)
     assert nxt is not None and nxt.name == 'stage2' and nxt.player is p
     assert nxt.on_clear is stage.on_clear and nxt.on_message is stage.on_message
-    assert (p.hp, p.shards, p.weapon.weapon_id, p.gauge.value) == (61, 17, 'knife', 47.0) and 'w_dummy' in p.items
+    assert (p.hp, p.shards, p.weapon.weapon_id, p.gauge.value) == (61, 17, 'pistol', 47.0) and 'w_dummy' in p.items
     assert p.room is nxt.room and nxt.coord == nxt.start_coord
     last, _ = make_stage(name='stage3')
     last.finished = True

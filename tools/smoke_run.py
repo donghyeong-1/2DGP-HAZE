@@ -107,7 +107,7 @@ def main():
                 o.stage = st
         p = play_mode.player
         if rng.random() < 0.75:                          # 판마다 두 번째 무기를 바꿔 들어 무기별 코드를 돈다
-            p.give_weapon(rng.choice(('knife', 'gauntlet', 'chain')))
+            p.give_weapon(rng.choice(('pistol', 'gauntlet', 'chain')))
         order, seen = [(st.start_coord, None)], {st.start_coord}
         k = 0
         while k < len(order):                            # 시작 방에서 문으로 이어진 순서 (너비 우선)

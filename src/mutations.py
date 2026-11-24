@@ -473,7 +473,7 @@ def on_linked_hit(player, enemy, damage, killed):
 
 
 # ----- 카드·일시정지 화면에 보일 정보 -----
-WEAPON_NAMES = {'pipe': '철파이프', 'knife': '식칼', 'gauntlet': '건틀릿', 'chain': '사슬'}
+WEAPON_NAMES = {'pipe': '철파이프', 'pistol': '쌍권총', 'gauntlet': '건틀릿', 'chain': '사슬'}
 RARITY = {'base': 'common', 'evo': 'rare', 'duo': 'legendary'}
 
 

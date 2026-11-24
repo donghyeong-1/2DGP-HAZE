@@ -479,6 +479,50 @@ def dash_v3(v=1):
                         (0.04, S('rpg-audio', f'cloth{v + 1}', 0.12, 1.2), 0.3), (0.08, bell(2349 * PV[v], 0.16, 18), 0.1)])
 
 
+# ===== 쌍권총 (v7, 2026-11-24, 식칼 대체) =====
+def gunshot(k=1.0, weight=1.0, zap=0.25, v=1):
+    """헤이즈 권총 한 발: 날카로운 '탁'(잡음 앞부분) + 몸통(낮게 거른 잡음) + 낮은 쿵 + 쇠 딸깍 + 옅은 에너지 '찌잉'."""
+    n = RNG.uniform(-1, 1, int(R * 0.16))
+    t = np.arange(len(n)) / R
+    crack = K.highpass(n[:int(R * 0.025)], 3) * np.exp(-np.arange(int(R * 0.025)) / R * 160)
+    body = K.lowpass(n, 6) * np.exp(-t * 30)
+    return K.mix(0.2, [(0, crack, 1.0), (0, body, 0.7 * weight), (0, sub(0.1, 170 * k, 60, 32), 0.6 * weight),
+                       (0, S('impact-sounds', f'impactMetal_light_00{v - 1}', 0.05, 2.2 * k), 0.25),
+                       (0.002, S('sci-fi-sounds', f'laserSmall_00{v + 1}', 0.12, 1.5 * k), zap)])
+
+
+def shot(v=1):
+    return gunshot(PV[v], v=v)
+
+
+def shot_zone(zone):
+    if zone == 'fade':
+        return K.lowpass(gunshot(0.85, 0.7, 0.1), 4)
+    if zone == 'awake':
+        return K.mix(0.24, [(0, gunshot(1.05, 1.0, 0.4), 1.0), (0.01, bell(2093, 0.15, 18), 0.12)])
+    return K.mix(0.26, [(0, gunshot(0.9, 1.3, 0.3), 1.0), (0.005, K.highpass(S('sci-fi-sounds', 'explosionCrunch_002', 0.15, 1.3)), 0.35)])
+
+
+def shot_big():
+    """강화: 두 총을 모은 큰 한 발. 묵직한 폭음 + 반동의 낮은 쿵 + 마법 울림."""
+    return K.mix(0.6, [(0, gunshot(0.7, 1.8, 0.5), 1.0), (0, sub(0.4, 140, 35, 6), 0.8),
+                       (0, S('sci-fi-sounds', 'laserLarge_001', 0.4, 0.9), 0.45), (0.01, bell(659.3, 0.45, 6), 0.2),
+                       (0, K.highpass(S('sci-fi-sounds', 'explosionCrunch_000', 0.3)), 0.4)])
+
+
+def impact_pistol(v=1):
+    """총알이 박힌다: 짧은 '퍽' + 금속 튕김."""
+    return K.mix(0.16, [(0, S('impact-sounds', f'impactPunch_medium_00{v + 1}', 0.12, 1.35 * PV[v]), 0.8),
+                        (0, S('impact-sounds', f'impactGeneric_light_00{v}', 0.1, 1.5 * PV[v]), 0.45)])
+
+
+def ult_final_pistol():
+    """쌍권총 궁극기 마무리: 빠른 연사 여섯 발 + 큰 폭발."""
+    parts = [(0.06 * i, gunshot(1.0 + 0.04 * (i % 3), 1.0, 0.3, v=1 + i % 3), 0.7) for i in range(6)]
+    parts += [(0.36, S('sci-fi-sounds', 'lowFrequency_explosion_001', 0.6), 0.9), (0.36, sub(0.5, 140, 30, 4), 0.6)]
+    return K.mix(0.98, parts)
+
+
 SOUNDS = {
     'swing': swing, 'swing_fade': swing_fade, 'swing_awake': swing_awake, 'swing_critical': swing_critical,
     'swing_enhanced': swing_enhanced, 'dash': dash, 'jump': jump, 'double_jump': double_jump, 'land': land, 'hit': hit,
@@ -506,6 +550,10 @@ SOUNDS = {
     **{f'hit_{m}': (lambda m=m: hit_material(m)) for m in ('flesh', 'beast', 'small', 'armor', 'armor_crystal', 'mech', 'crystal',
                                                            'ethereal', 'boss_metal', 'boss_crystal', 'organic')},
     'jump': jump_v3, 'double_jump': double_jump_v3, 'dash': dash_v3,
+    # 쌍권총
+    'shot': shot, 'shot_fade': lambda: shot_zone('fade'), 'shot_awake': lambda: shot_zone('awake'),
+    'shot_critical': lambda: shot_zone('critical'), 'shot_big': shot_big, 'impact_pistol': impact_pistol,
+    'ult_final_pistol': ult_final_pistol,
 }
 # 자주 나는 소리의 2·3버전 (src/config.SFX_VARIANTS): 다른 원본 파일과 음 높이로
 VARIANT_FNS = {'swing': swing, 'swing_fade': swing_fade, 'swing_awake': swing_awake, 'swing_critical': swing_critical,
@@ -514,7 +562,8 @@ VARIANT_FNS = {'swing': swing, 'swing_fade': swing_fade, 'swing_awake': swing_aw
                # v3
                'swing_1': lambda v: swing_n(1, v), 'swing_2': lambda v: swing_n(2, v), 'swing_3': lambda v: swing_n(3, v),
                'swing_air': swing_air, 'swing_dash': swing_dash, 'impact_pipe_dash': impact_pipe_dash, 'impact_pipe_air': impact_pipe_air,
-               **{f'hit_{m}': (lambda v, m=m: hit_material(m, v)) for m in ('flesh', 'beast', 'small', 'armor', 'mech')}}
+               **{f'hit_{m}': (lambda v, m=m: hit_material(m, v)) for m in ('flesh', 'beast', 'small', 'armor', 'mech')},
+               'shot': shot, 'impact_pistol': impact_pistol}
 
 
 # 원본이 꽉 찬(평균 크기가 큰) 소리는 줄인다: 다른 소리와 체감 크기를 맞춘다 (나머지는 최고점 0.85)

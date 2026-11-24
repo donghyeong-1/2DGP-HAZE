@@ -30,7 +30,7 @@ def test_balance_sim_start_gauge_option():
 
 
 def test_balance_sim_counts_overloads():
-    r = balance_sim.run_one('group', 'knife', 'stand', 0, gauge=95)       # 위험 구간에서 식칼 연사: 오버로드가 난다
+    r = balance_sim.run_one('group', 'pistol', 'stand', 0, gauge=95)       # 위험 구간에서 쌍권총 연사: 오버로드가 난다
     assert r['overloads'] >= 1, r
 
 

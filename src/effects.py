@@ -105,7 +105,7 @@ def sheet_info(name):
 
 
 # 번쩍임 줄이기를 켜면 처음의 하얀 섬광 부분을 건너뛰는 큰 이펙트들 (전체 길이에서 건너뛸 비율)
-FLASHY = ('haze-blast', 'ult-nova-pipe', 'ult-nova-knife', 'ult-nova-gauntlet', 'ult-nova-chain', 'quake-blast', 'overload-burst', 'death-burst', 'hit-critical', 'hit-enhanced')
+FLASHY = ('haze-blast', 'ult-nova-pipe', 'ult-nova-knife', 'ult-nova-pistol', 'ult-nova-gauntlet', 'ult-nova-chain', 'quake-blast', 'overload-burst', 'death-burst', 'hit-critical', 'hit-enhanced')
 FLASHY_SKIP = 0.25
 
 

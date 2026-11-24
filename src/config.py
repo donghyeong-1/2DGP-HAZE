@@ -122,8 +122,7 @@ ENHANCE_MAX_LEVEL = 3
 ENHANCE_LEVELS = {1: dict(damage=2.5, reach=1.5, extra=3, blast=190, half=115, plunge=1.35),
                   2: dict(damage=4.0, reach=1.9, extra=5, blast=260, half=150, plunge=1.7)}
 ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}
-# 강화 2단계 전용 공격 (11/21): 식칼 칼날 폭풍(사방 8자루), 건틀릿 부채꼴(양옆 ±각도), 사슬 귀환 충격(주인공 둘레)
-KNIFE_RING = 8
+# 강화 2단계 전용 공격 (11/21): 쌍권총 파편(사방 8발, v7), 건틀릿 부채꼴(양옆 ±각도), 사슬 귀환 충격(주인공 둘레)
 GAUNTLET_FAN_DEG = 22
 CHAIN_SHOCK_RADIUS = 260
 CHAIN_SHOCK_MULT = 0.8          # 식칼·건틀릿·사슬의 강화 피해에 곱한다 (2단계)
@@ -176,20 +175,28 @@ GAUNTLET_FLOOR = 25         # 충전으로는 이 아래까지 태우지 않는�
 
 # 무기: 철파이프 (충전형, 3연타. 3타째에 게이지가 더 오른다)
 PIPE_DAMAGE = 20
-# 투척용 식칼 묶음 (구간 연동형). KNIFE_ZONE: 구간 -> (칼 수, 양옆으로 퍼지는 각도(도), 관통)
-KNIFE_DAMAGE = 11
-KNIFE_ZONE = {'DEAD': (1, 0, False), 'FADE': (1, 0, False), 'NORMAL': (2, 4, False), 'AWAKE': (3, 14, False),
-              'CRITICAL': (3, 7, True), 'OVERLOAD': (3, 7, True)}
-KNIFE_ENHANCED_EXTRA = 2     # E 강화: 칼 +2, 모두 관통
-KNIFE_SPEED = 1500.0
-KNIFE_RANGE = 950.0
-KNIFE_HB = 26                # 칼 판정 상자 한 변(px)
-KNIFE_COOLDOWN = 0.36
-KNIFE_GAIN = 2               # 칼 한 자루 명중 게이지 (여러 자루가 맞으므로 일반 타격보다 작다)
+# 쌍권총 (v7, 2026-11-24, 식칼 대체, docs/plan_v7.md 1절): 좌우 총을 번갈아 쏜다. 누르고 있으면 이어서 쏜다.
+# PISTOL_ZONE: 구간 -> (한 번에 나가는 총알 수, 양옆으로 퍼지는 각도(도)). 페이드는 느리게 한 발.
+PISTOL_DAMAGE = 7
+PISTOL_ZONE = {'DEAD': (1, 0), 'FADE': (1, 0), 'NORMAL': (1, 0), 'AWAKE': (2, 5), 'CRITICAL': (3, 9), 'OVERLOAD': (3, 9)}
+PISTOL_COOLDOWN = 0.14       # 한 발 뒤 다음 발까지 (누르고 있으면 이 간격으로 이어서 쏜다)
+PISTOL_FADE_COOLDOWN = 0.24  # 페이드: 힘이 빠져 느리게
+PISTOL_SPEED = 2200.0
+PISTOL_RANGE = 1000.0
+PISTOL_HB = 18               # 총알 판정 상자 한 변(px)
+PISTOL_GAIN = 1              # 총알 한 발 명중 게이지 (자주 맞으므로 작다)
+PISTOL_MUZZLE = 46           # 몸 가운데에서 총구까지 (조준 방향)
+PISTOL_DASH_COUNT = 3        # 대시 사격: 일자로 모은 3발, 관통
+PISTOL_DASH_SPREAD = 2
+PISTOL_BIG_MULT = 4.5        # E 강화: 두 총을 모아 쏘는 큰 한 발 (관통)
+PISTOL_RECOIL = 620.0        # 큰 한 발의 반동 (뒤로 밀리는 속도 px/s)
+PISTOL_SHRAPNEL = 8          # 강화 2단계: 큰 한 발이 처음 맞힌 자리에서 사방으로 튀는 파편 수
+PISTOL_SHRAPNEL_MULT = 0.35  # 파편 피해 (큰 한 발 피해에 곱한다)
+PISTOL_SHRAPNEL_RANGE = 320.0
 # 헤이즈 건틀릿 (소모형). 충전 시간·크기는 구간별
 GAUNTLET_DAMAGE = 42          # 11/21 34 -> 42: 보스전에서 충전 동안 맞기만 하던 약세 보정 (balance-sim)
 GAUNTLET_CHARGE_TIME = {'DEAD': 0.9, 'FADE': 0.9, 'NORMAL': 0.9, 'AWAKE': 0.65, 'CRITICAL': 0.65, 'OVERLOAD': 0.65}   # 11/21 1.2·0.8 -> 0.9·0.65 (보스전 약세 보정)
-PUNCH_TIME = {'throw': 0.26, 'blast': 0.32, 'blast_down': 0.32}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
+PUNCH_TIME = {'throw': 0.26, 'blast': 0.32, 'blast_down': 0.32, 'shoot': 0.12, 'shoot_big': 0.3}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
 GAUNTLET_CHARGE_MOVE = 0.45  # 건틀릿을 충전하는 동안 땅 위 이동 속도 배율
 GAUNTLET_SIZE = {'AWAKE': 1.3, 'CRITICAL': 1.6}
 GAUNTLET_CRIT_COST = 15      # 위험 구간 즉시 발사가 비우는 게이지(%)
@@ -234,10 +241,6 @@ CHAIN_STUN = 1.0             # 위험 구간·E 강화: 끌려온 적 기절 시
 CHAIN_CLASH_DAMAGE = 15      # 위험 구간: 함께 끌려온 적끼리 부딪쳐 받는 피해
 CHAIN_COOLDOWN = 0.35        # 사슬이 돌아온 뒤 다음 던지기까지
 # 무기별 대시·점프 공격 (11/19): 대시 중·직후 = 대시 공격, 공중 = 점프 공격 (철파이프와 같은 규칙)
-KNIFE_DASH_EXTRA = 1         # 식칼 대시: 한 자루 더, 거의 일자로 모아 관통
-KNIFE_DASH_SPREAD = 2
-KNIFE_AIR_EXTRA = 1          # 식칼 점프: 한 자루 더, 부채꼴을 더 넓게
-KNIFE_AIR_SPREAD = 14
 GAUNTLET_QUICK_COST = 6      # 건틀릿 대시·점프: 충전 없이 바로 쏘는 작은 충격파의 게이지 값(%)
 GAUNTLET_QUICK_RATIO = 0.7   # 그 충격파의 세기 (충전 비율로 친다)
 GAUNTLET_AIR_RECOIL = 650.0  # 공중에서 아래로 쏘면 반동으로 떠오른다
@@ -470,7 +473,7 @@ ENEMY_WINDUP_SOUND = {'slum': 'windup_slum', 'thrower': 'windup_thrower', 'hound
 # 효과음 음량 균형 (11/21 계획 1-7): 소리마다 기본 음량에 곱한다. 자주 나는 소리는 작게, 큰 기술은 그대로나 조금 크게.
 # 표에 없는 소리는 1.0
 SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swing_fade': 0.7, 'swing_awake': 0.8,
-            'enemy_hit': 0.7, 'impact_pipe': 1.0, 'impact_knife': 0.9, 'impact_gauntlet': 1.0, 'throw': 0.75,
+            'enemy_hit': 0.7, 'impact_pipe': 1.0, 'impact_knife': 0.9, 'impact_pistol': 0.85, 'shot': 0.7, 'shot_big': 1.2, 'impact_gauntlet': 1.0, 'throw': 0.75,
             # v7 효과음 v3: 타격이 휘두르기보다 확실히 크게 (사용자: 타격음이 작다)
             'impact_pipe_heavy': 1.15, 'impact_pipe_dash': 1.0, 'impact_pipe_air': 0.95, 'impact_pipe_plunge': 1.15,
             'impact_enh1': 1.1, 'impact_enh2': 1.2, 'impact_enh3': 1.3, 'swing_1': 0.8, 'swing_2': 0.85, 'swing_3': 0.95,
@@ -478,7 +481,7 @@ SFX_GAIN = {'land': 0.55, 'jump': 0.65, 'double_jump': 0.7, 'swing': 0.75, 'swin
             'enhance_1': 1.0, 'enhance_2': 1.1, 'enhance_3': 1.25,
             'chain_throw': 0.8, 'dash': 0.8, 'ult_hit': 0.8, 'windup_slum': 0.8, 'windup_thrower': 0.75,
             'windup_hound': 0.85, 'windup_guard': 0.9, 'ult_cast': 1.15, 'ark_roar': 1.1,
-            'ult_final_pipe': 1.2, 'ult_final_knife': 1.2, 'ult_final_gauntlet': 1.2, 'ult_final_chain': 1.2,
+            'ult_final_pipe': 1.2, 'ult_final_knife': 1.2, 'ult_final_pistol': 1.2, 'ult_final_gauntlet': 1.2, 'ult_final_chain': 1.2,
             'throw_fade': 0.7, 'throw_awake': 0.8, 'chain_throw_fade': 0.75, 'chain_throw_awake': 0.8, 'heartbeat': 0.75,
             'zone_awake': 0.85, 'kill_last': 1.1,
             'amb_drip': 0.45, 'amb_steam': 0.35, 'amb_wind': 0.45, 'amb_forge': 0.4}   # 환경음은 작게
@@ -494,7 +497,7 @@ RUSH_MOVES = {'lunge': 300, 'pounce': 340, 'bash': 380}     # 기술 -> 바닥 �
 HIT_MATERIAL = {'slum': 'flesh', 'thrower': 'flesh', 'shaman': 'flesh', 'hound': 'beast', 'rat': 'small',
                 'guard': 'armor', 'knight': 'armor_crystal', 'drone': 'mech', 'cart': 'mech', 'eye': 'crystal',
                 'wraith': 'ethereal', 'crasher': 'boss_metal', 'ark': 'boss_crystal', 'heart': 'organic', 'heart_hand': 'organic'}
-SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw',
+SFX_VARIANTS = ('swing', 'swing_fade', 'swing_awake', 'swing_critical', 'enemy_hit', 'impact_pipe', 'impact_knife', 'impact_gauntlet', 'hit', 'dash', 'jump', 'land', 'throw', 'shot', 'impact_pistol',
                 'swing_1', 'swing_2', 'swing_3', 'swing_air', 'swing_dash', 'impact_pipe_dash', 'impact_pipe_air',   # v7 효과음 v3
                 'hit_flesh', 'hit_beast', 'hit_small', 'hit_armor', 'hit_mech')
 ENEMY_SPAWN_ORDER = ('slum', 'thrower')  # 방의 E 칸에 순서대로 배정한다 (스테이지 데이터가 생기기 전 임시)

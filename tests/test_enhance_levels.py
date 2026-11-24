@@ -46,15 +46,6 @@ def armed(wid, level, gauge=60, gaps=(300,)):
 
 
 # ----- 단계별 다른 공격 -----
-def test_knife_level2_adds_a_full_ring_of_knives():
-    counts = {}
-    for level in (1, 2):
-        room, p, foes = armed('knife', level)
-        assert p.request_attack()
-        counts[level] = len(objs('ThrownKnife'))
-    assert counts[2] >= counts[1] + 8
-
-
 def test_gauntlet_level2_fires_a_three_way_fan():
     for level, want in ((1, 1), (2, 3)):
         room, p, foes = armed('gauntlet', level)

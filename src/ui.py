@@ -360,8 +360,8 @@ class GameUI:
     def _attack_text(w, g):
         """지금 나가는 공격."""
         kind = w.current_kind()
-        prefix = {'knife_dash': '대시 ', 'knife_air': '공중 ', 'chain_dash': '대시 ', 'chain_air': '공중 '}.get(kind, '')
-        if w.weapon_id == 'knife':
+        prefix = {'pistol_dash': '대시 ', 'pistol_air': '공중 ', 'chain_dash': '대시 ', 'chain_air': '공중 '}.get(kind, '')
+        if w.weapon_id == 'pistol':
             count, _, pierce = w.volley()
             shape = '관통' if pierce else '부채꼴' if count >= 3 else '투척'
             return f'{prefix}{count}발 {shape}', (255, 225, 120) if prefix else DIM

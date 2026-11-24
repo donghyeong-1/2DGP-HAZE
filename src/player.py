@@ -816,15 +816,15 @@ class Player(TileBody):
         hook = getattr(self.weapon, 'hook', None)
         if wid == 'chain' and hook is not None and hook.phase == 'pull':
             return 'n09_chain', 3
-        if self.punch_left <= 0 or wid not in ('knife', 'gauntlet', 'chain'):
+        if self.punch_left <= 0 or wid not in ('pistol', 'gauntlet', 'chain'):
             return None
         done = 1.0 - self.punch_left / self.punch_total
+        if wid == 'pistol':                              # v7 쌍권총: 두 총을 앞으로 겨눈 자세 (새 그림이 없으면 맨손 뻗음)
+            return ('n09_pistol', 1) if 'n09_pistol' in sprites.SKIN else ('n09_punch', 3)
         if wid == 'gauntlet':
             if self.punch_kind == 'blast_down':
                 return 'n09_gauntlet', 4
             return 'n09_gauntlet', 2 if done < 0.45 else 3
-        if wid == 'knife':
-            return 'n09_knife', 1 if done < 0.2 else 2 if done < 0.6 else 3
         return 'n09_chain', 1 if done < 0.25 else 2 if done < 0.75 else 3
 
     def _body_frame(self):

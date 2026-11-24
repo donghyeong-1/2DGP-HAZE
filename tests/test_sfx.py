@@ -165,7 +165,7 @@ def test_each_weapon_adds_its_own_impact_sound():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import test_combat as tc
     heard = {}
-    for wid in ('pipe', 'knife', 'gauntlet'):
+    for wid in ('pipe', 'pistol', 'gauntlet'):
         room, p = tc.make_world()
         if wid != 'pipe':
             p.give_weapon(wid)

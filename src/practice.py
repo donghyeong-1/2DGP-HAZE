@@ -13,7 +13,7 @@ DUMMY_KIND = 'guard'          # 허수아비 모습 (간수 그림, 움직이지
 DUMMY_COLS = (21, 27)         # 허수아비가 서는 열 (data/rooms/practice_room.txt, 40열)
 DPS_WINDOW = 5.0              # 초당 피해를 재는 시간(초)
 ENEMY_KINDS = ('slum', 'thrower', 'hound', 'guard', 'rat', 'shaman', 'drone', 'cart', 'eye', 'knight', 'wraith')
-WEAPONS = ('knife', 'gauntlet', 'chain')
+WEAPONS = ('pistol', 'gauntlet', 'chain')
 _log = []                     # (시각, 피해)
 _time = 0.0
 

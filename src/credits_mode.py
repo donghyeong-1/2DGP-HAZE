@@ -33,7 +33,7 @@ CREDITS = [
     ('line', '타일·이펙트·HUD·무기 아이콘·로고 - 코드로 직접 그림 (code-drawn)'),
     ('gap', ''),
     ('head', '소리'),
-    ('line', '효과음 109종 · 배경음악 8곡'),
+    ('line', '효과음 116종 · 배경음악 8곡'),
     ('line', '효과음 - 코드로 합성 (numpy) + 녹음 원본'),
     ('line', '효과음 녹음 원본 - Kenney (kenney.nl) Impact · Interface · Sci-fi · RPG · Digital Audio, CC0'),
     ('line', '배경음악 - OpenGameArt.org'),

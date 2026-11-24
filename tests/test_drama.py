@@ -45,11 +45,11 @@ def _fire(wid, zone, enhanced=False):
     return rec.names
 
 
-def test_knife_throw_sounds_follow_zone_and_enhance():
-    want = {'FADE': 'throw_fade', 'NORMAL': 'throw', 'AWAKE': 'throw_awake', 'CRITICAL': 'throw_critical'}
+def test_pistol_shot_sounds_follow_zone_and_enhance():
+    want = {'FADE': 'shot_fade', 'NORMAL': 'shot', 'AWAKE': 'shot_awake', 'CRITICAL': 'shot_critical'}
     for zone, name in want.items():
-        assert name in _fire('knife', zone), zone
-    assert 'throw_enhanced' in _fire('knife', 'NORMAL', enhanced=True)
+        assert name in _fire('pistol', zone), zone
+    assert 'shot_big' in _fire('pistol', 'NORMAL', enhanced=True)
 
 
 def test_chain_throw_sounds_follow_zone_and_heavy_latch():
@@ -66,7 +66,7 @@ def test_chain_throw_sounds_follow_zone_and_heavy_latch():
 
 def test_ultimate_finisher_sound_per_weapon():
     import test_ultimate as tu
-    for wid in ('pipe', 'knife', 'gauntlet', 'chain'):
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):
         room, p, foes = tu.stacked(90, 3, [150])
         if wid != 'pipe':
             p.give_weapon(wid)

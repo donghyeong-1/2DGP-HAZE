@@ -23,7 +23,7 @@ ROW_H, ROW_STEP = 64, 76
 TOP_Y = H - 250
 ENEMY_NAMES = {'slum': '폐인', 'thrower': '투척병', 'hound': '사냥개', 'guard': '간수', 'rat': '쥐떼', 'shaman': '주술사',
                'drone': '드론', 'cart': '수레', 'eye': '감시안', 'knight': '결정 기사', 'wraith': '망령'}
-WEAPON_NAMES = {'knife': '단검', 'gauntlet': '건틀릿', 'chain': '사슬'}
+WEAPON_NAMES = {'pistol': '쌍권총', 'gauntlet': '건틀릿', 'chain': '사슬'}
 
 stage = None
 player = None

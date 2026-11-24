@@ -320,6 +320,9 @@ NOVA_STYLES = {
     # 식칼: 은빛 칼날이 사방으로 길고 가늘게 (가시 28개), 소용돌이 팔 6개
     'knife': dict(ring=ramp('#ffffff', '#eef3fa', '#aab7cc', '#5d6a85'), core=ramp('#ffffff', '#e6edf7', '#9fb0c8', '#56637d'),
                   spikes=28, spike_len=0.16, spike_w=1.0, rings=((0.47, 1.6, 1.0),), arms=6, links=0),
+    # 쌍권총 (v7, 2026-11-24): 흰·청록 총탄이 사방으로 길고 가늘게 (가시 32개), 고리 세 겹 (연사)
+    'pistol': dict(ring=ramp('#ffffff', '#e6fffb', '#2ee6d6', '#0b6a74'), core=ramp('#ffffff', '#d8fff8', '#5fe8da', '#1a7f86'),
+                   spikes=32, spike_len=0.17, spike_w=1.0, rings=((0.47, 1.6, 1.0), (0.40, 1.4, 0.8), (0.33, 1.2, 0.6)), arms=6, links=0),
     # 건틀릿: 주황 충격 + 청록 속, 굵은 고리 두 겹과 짧고 굵은 가시
     'gauntlet': dict(ring=ramp('#fff4d6', '#ffd27a', '#ff8a3a', '#a3402a'), core=ramp('#ffffff', '#b8fff0', '#3fd6a4', '#1f8a78'),
                      spikes=10, spike_len=0.07, spike_w=3.2, rings=((0.46, 3.6, 1.0), (0.36, 6.0, 0.85)), arms=3, links=0),
@@ -388,6 +391,7 @@ SHEETS = {
     'shockwave': build_shockwave,
     'ult-nova-pipe': lambda: build_nova('pipe'),
     'ult-nova-knife': lambda: build_nova('knife'),
+    'ult-nova-pistol': lambda: build_nova('pistol'),
     'ult-nova-gauntlet': lambda: build_nova('gauntlet'),
     'ult-nova-chain': lambda: build_nova('chain'),
 }

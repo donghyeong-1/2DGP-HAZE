@@ -1,4 +1,6 @@
 """무기 그림(식칼 투사체 8방향, 건틀릿 충격파, 무기 아이콘)을 코드로 그리고, 던지기·주먹 자세 프레임을 게임 폴더로 옮긴다.
+주의 (2026-11-24): 2026-11-23에 proj_*·n09_punch_* 그림은 tools/pixel2x.py로 2배 픽셀이 되었다. 이 도구를 통째로 다시 돌리면
+1배로 되돌아가니, 새 그림만 만들 때는 그 함수만 부른다 (예: python -c "import make_weapons as m; m.icon_pistol().save(...)").
 
 실행 중 회전은 금지(docs/pixel_rules.md)라서 식칼은 45도마다 미리 그린다. 방향 번호 k는 각도 k*45도(0 = 오른쪽, 반시계).
 주먹 자세는 Codex T05의 맨손 공격 4프레임(assets/sprites/forge/n09_attack_v3)을 그대로 쓴다 (던지기·건틀릿 공용).
@@ -134,6 +136,29 @@ def icon_knife():
     return img
 
 
+def icon_pistol():
+    """쌍권총 (v7, 2026-11-24): 오른쪽을 겨눈 권총 두 자루를 위아래로 엇갈려 겹친다. 총열은 강철, 손잡이는 짙은 색, 청록 헤이즈 관."""
+    img = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+    px = img.load()
+
+    def gun(ox, oy):
+        for x in range(ox, ox + 26):                  # 총열 (위가 밝다)
+            for y in range(oy, oy + 6):
+                px[x, y] = STEEL_HI if y == oy else STEEL
+        for x in range(ox + 4, ox + 20):              # 헤이즈 관
+            px[x, oy + 3] = CYAN
+        for x in range(ox + 2, ox + 9):               # 손잡이 (아래로 기울어짐)
+            for y in range(oy + 6, oy + 16):
+                if x - ox >= (y - oy - 6) // 3 + 2:
+                    px[x, y] = STEEL_LO
+        for x in range(ox + 9, ox + 13):              # 방아쇠 울
+            px[x, oy + 9] = STEEL
+        px[ox + 25, oy + 1] = WHITE
+    gun(14, 10)
+    gun(6, 24)
+    return outline(img)
+
+
 def icon_gauntlet():
     """옆에서 본 주먹(오른쪽이 앞): 왼쪽 손목 갑과 헤이즈 관, 가운데 손등 판, 오른쪽 손가락 마디, 아래 엄지."""
     img = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
@@ -222,6 +247,7 @@ def main():
         for phase in (1, 2):
             draw_blast(r, phase - 1).save(UNIFIED / f"proj_blast_{name}_{phase}.png")
     icon_knife().save(UI / "icon_w_knife.png")
+    icon_pistol().save(UI / "icon_w_pistol.png")
     icon_gauntlet().save(UI / "icon_w_gauntlet.png")
     icon_pipe().save(UI / "icon_w_pipe.png")
     icon_chain().save(UI / "icon_w_chain.png")

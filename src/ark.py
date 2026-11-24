@@ -36,6 +36,7 @@ KEEP_FAR, KEEP_NEAR = 480, 220   # 패턴 사이 이 거리 사이를 유지한�
 
 
 class Ark(Enemy):
+    BOSS, SPREAD = True, False      # 보스 표시 (weapon.py가 조각 처치·날려 보내기·처형 배율에서 거른다), 비켜 서지 않는다
     title = '총감시관 아크'
     pullable = False               # 사슬에 맞아도 끌려오지 않는다
     MUSIC = 'ark'                      # 최종 보스 전용 곡 (play_mode.music_for)

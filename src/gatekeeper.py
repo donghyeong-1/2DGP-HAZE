@@ -30,6 +30,7 @@ PHASE2_MULT = 0.8         # 2페이즈 예고 배율
 
 
 class Gatekeeper(Enemy):
+    BOSS, SPREAD = True, False      # 보스 표시 (weapon.py가 조각 처치·날려 보내기·처형 배율에서 거른다), 비켜 서지 않는다
     title = '문지기'
     pullable = False               # 사슬에 맞아도 끌려오지 않는다
     MUSIC = 'boss'

@@ -1,4 +1,7 @@
-"""적. 상태 머신(IDLE -> CHASE -> ATTACK -> HIT/DEAD)을 transitions로 돌린다.
+"""적. 상태 머신(IDLE -> CHASE -> ATTACK -> OPEN -> CHASE, 맞으면 HIT, 쓰러지면 DEAD)을 transitions로 돌린다.
+
+리듬(v8 6일 차 적 다듬기): 예고(ATTACK 앞부분, 노랗게 깜빡임·강한 기술은 '!') -> 공격 -> 빈틈(OPEN, 푸른 회색으로 서 있다).
+빈틈은 공격 쿨다운 안에서 흐르므로 공격 사이의 시간은 그대로다. 보스는 자기 패턴의 빈틈이 따로 있어 recover()로 바로 돌아간다.
 
 종류는 config.ENEMY_STATS의 수치와 **기술 목록(moves)**으로 갈린다. 공격에 들어갈 때 거리에 맞는 기술 중 하나를
 가중치로 고른다(첫 공격은 늘 기본기라 처음 보는 적도 읽을 수 있다). 기술마다 예고 시간과 움직임이 다르다.
@@ -8,7 +11,8 @@
   사냥개     : 물기 / 덮치기(멀리서 뛰어들어 닿으면 피해). 치고 빠진다(공격 뒤 크게 물러났다 다시 온다).
   간수       : 휘두르기 / 내려찍기(짧은 충격파) / 방패 돌진. 느리지만 한 방이 크다.
 
-공통 이동: 처음에는 제자리 주변을 순찰하다 플레이어를 보면 쫓는다. 같은 자리에 겹쳐 서지 않도록 서로 밀어낸다.
+공통 이동: 처음에는 제자리 주변을 순찰하다 플레이어를 보면 쫓는다. 같은 바닥의 땅 적은 겹쳐 서지 않는다:
+서 있는 적끼리는 서로 밀려나고, 앞(플레이어 쪽)에 싸우는 동료가 붙어 있으면 그 뒤에 줄을 선다.
 """
 import math
 import random
@@ -48,6 +52,8 @@ class Enemy(TileBody):
     pullable = True                # 사슬로 끌어올 수 있는가 (보스는 False: 맞기만 한다)
     launched = False               # v8 띄우기: 띄워져 떠 있는 중 (combo.launch). 땅에 닿으면 풀린다
     air_hits = 0                   # 떠 있는 동안 맞아 다시 뜬 횟수 (JUGGLE_MAX까지)
+    FLOATS = False                 # 중력 없이 떠다니는 적 (드론·망령·감시 눈): 띄우기가 경직으로만 먹힌다
+    SPREAD = True                  # 같은 바닥의 다른 적과 겹치지 않게 비켜 선다 (떠다니는 적·수레·보스는 False)
 
     def __init__(self, kind, x, y, room, player):
         self.kind = kind
@@ -72,6 +78,7 @@ class Enemy(TileBody):
         self.move = 'swing'        # 지금 쓰는 기술
         self.attacks = 0           # 지금까지 쓴 공격 수 (첫 공격은 기본기)
         self.cooldown = 0.0
+        self.open_left = 0.0       # 공격 뒤 빈틈(OPEN)의 남은 시간
         self.hit_left = 0.0
         self.stagger_guard = 0.0   # 경직 저항: 경직에서 풀린 뒤 이 시간 동안은 맞아도 끊기지 않는다
         self.leap_cooldown = 0.0   # 도약 재사용 대기
@@ -88,12 +95,14 @@ class Enemy(TileBody):
         self.stagger_timer = self.rng.uniform(2.0, 4.0)
         self.machine = Machine(
             model=self,
-            states=['IDLE', 'CHASE', 'ATTACK', 'HIT', 'DEAD'],
+            states=['IDLE', 'CHASE', 'ATTACK', 'OPEN', 'HIT', 'DEAD'],
             transitions=[
                 {'trigger': 'see', 'source': 'IDLE', 'dest': 'CHASE'},
                 {'trigger': 'engage', 'source': ['IDLE', 'CHASE'], 'dest': 'ATTACK', 'after': 'on_attack_start'},
                 {'trigger': 'recover', 'source': 'ATTACK', 'dest': 'CHASE', 'after': 'on_attack_end'},
-                {'trigger': 'hurt', 'source': ['IDLE', 'CHASE', 'ATTACK', 'HIT'], 'dest': 'HIT'},
+                {'trigger': 'open_up', 'source': 'ATTACK', 'dest': 'OPEN', 'after': 'on_attack_end'},
+                {'trigger': 'close_open', 'source': 'OPEN', 'dest': 'CHASE'},
+                {'trigger': 'hurt', 'source': ['IDLE', 'CHASE', 'ATTACK', 'OPEN', 'HIT'], 'dest': 'HIT'},
                 {'trigger': 'recover_hit', 'source': 'HIT', 'dest': 'CHASE'},
                 {'trigger': 'die', 'source': '*', 'dest': 'DEAD'},
             ],
@@ -249,11 +258,17 @@ class Enemy(TileBody):
             self.launched, self.air_hits = False, 0
             effects.spawn('dust-land', self.x, self.y, duration=0.28)
             self.hold(config.JUGGLE_LAND)
+        self._spread(dt)
         # 걸어가려는데 거의 못 움직였으면 막힌 것이다 (기둥, 벽)
         if self.state == 'CHASE' and self.vx != 0 and abs(self.x - before_x) < 0.5 and self.on_ground:
             self.blocked_time += dt
         else:
             self.blocked_time = 0.0
+
+    def _settle_float_launch(self):
+        """떠다니는 적(FLOATS)은 땅에 닿는 일이 없어 띄우기가 영영 풀리지 않았다: 경직이 끝나면 풀고 제 높이로 돌아간다."""
+        if self.launched and self.state != 'HIT':
+            self.launched, self.air_hits = False, 0
 
     def _player_alive(self):
         return self.player.state != 'DEAD'
@@ -298,8 +313,9 @@ class Enemy(TileBody):
                 self.vx = 0.0
                 self.engage()
                 return
-        if self.retreat_left > 0 and self.on_ground:      # 치고 빠지기: 등 뒤로 물러난다 (낭떠러지면 멈춘다)
-            self.vx = -self.face_dir * self._speed() * 0.75 if self._floor_behind() else 0.0
+        if self.retreat_left > 0 and self.on_ground:      # 치고 빠지기: 등 뒤로 물러난다 (낭떠러지·뒤에 선 동료 앞에서는 멈춘다)
+            room_behind = self._floor_behind() and self._ally_near(-self.face_dir) is None
+            self.vx = -self.face_dir * self._speed() * 0.75 if room_behind else 0.0
             return
         if s.get('keep_away') and d < s['keep_away'] and abs(dy) < 120:   # 투척병: 너무 가까우면 뒤로 뛴다
             if self.on_ground and self.hop_cooldown <= 0 and self._floor_behind(far=True):
@@ -328,6 +344,9 @@ class Enemy(TileBody):
             if self.stagger_timer <= 0:
                 self.stagger_timer = self.rng.uniform(2.2, 4.5)
                 self.pause_left = self.rng.uniform(0.25, 0.5)
+        if self.on_ground and self._ally_ahead() is not None:    # 앞에 싸우는 동료가 붙어 있다: 그 뒤에 줄을 선다
+            self.vx = 0.0
+            return
         # 위층의 플레이어를 쫓거나 기둥에 막히면 뛰어오른다
         if self.on_ground and self.leap_cooldown <= 0 and s['leap'] > 0 and (
                 (dy > 90 and d < 360) or (self.blocked_time > 0.2 and dy > -40)):
@@ -340,7 +359,6 @@ class Enemy(TileBody):
             self.vx = self.face_dir * speed
         else:
             self.vx = 0.0
-        self.vx += self._separation()
 
     def _pick_move(self, d, dy):
         """거리에 맞는 기술 하나를 가중치로 고른다. 첫 공격은 기본기(목록의 첫 기술)."""
@@ -366,16 +384,53 @@ class Enemy(TileBody):
                 return name
         return ok[-1][0]
 
-    def _separation(self):
-        """같은 층에서 바로 옆에 붙은 다른 적에게서 조금 떨어진다 (한 자리에 겹쳐 서지 않게)."""
-        push = 0.0
+    # ----- 겹치지 않기 (v8 6일 차 적 다듬기) -----
+    def _spacing(self, other):
+        """둘이 떨어져 서는 거리: 두 몸 너비 평균의 ENEMY_SPACING배."""
+        return (self.hb_w + other.hb_w) / 2 * config.ENEMY_SPACING
+
+    def _neighbors(self):
+        """같은 바닥에 서 있는 다른 땅 적들."""
         for o in game_world.world[game_world.LAYER_ENEMY]:
-            if o is self or not getattr(o, 'alive', False) or not isinstance(o, Enemy):
+            if (o is self or not isinstance(o, Enemy) or not o.alive or not o.SPREAD or not o.on_ground
+                    or abs(o.y - self.y) >= 40):
                 continue
+            yield o
+
+    def _standing(self):
+        return self.on_ground and self.state in ('IDLE', 'CHASE', 'ATTACK', 'OPEN') and abs(self.vx) < 1.0
+
+    def _ally_near(self, direction):
+        """direction 쪽(1 오른쪽, -1 왼쪽)에 바로 붙어 선 동료 (없으면 None)."""
+        for o in self._neighbors():
+            d = (o.x - self.x) * direction
+            if 0 < d < self._spacing(o) + 12 or (d == 0 and id(o) < id(self)):   # 같은 자리면 한쪽만 기다린다
+                return o
+        return None
+
+    def _ally_ahead(self):
+        """플레이어 쪽 바로 앞에 붙은 근접 동료 (없으면 None): 그 뒤에서 기다리면 한 덩어리로 겹쳐 걷지 않는다.
+        먼 데 선 투척병·무당(거리를 두는 적)은 지나간다."""
+        o = self._ally_near(self.face_dir)
+        if o is None or o.stats.get('approach') or o.stats.get('keep_away'):
+            return None
+        return o
+
+    def _spread(self, dt):
+        """서 있는 적끼리 겹쳐 있으면 서로 밀려난다 (자리만 옮긴다: 벽에 막히고 낭떠러지로는 밀리지 않는다)."""
+        if not self.SPREAD or not self.alive or not self._standing():
+            return
+        push = 0.0
+        for o in self._neighbors():
+            gap = self._spacing(o)
             dx = self.x - o.x
-            if abs(dx) < 50 and abs(o.y - self.y) < 40:
-                push += (1 if dx >= 0 else -1) * 70.0
-        return push
+            if abs(dx) >= gap or not o._standing():
+                continue
+            side = (1 if dx > 0 else -1) if dx != 0 else (1 if id(self) > id(o) else -1)
+            push += side * min(config.ENEMY_SPREAD_SPEED * dt, (gap - abs(dx)) / 2)
+        if push and self._floor_ahead(1 if push > 0 else -1):
+            self.x += push
+            self._resolve_x(push)
 
     def _floor_ahead(self, direction=None):
         direction = direction or self.face_dir
@@ -420,8 +475,33 @@ class Enemy(TileBody):
         getattr(self, '_move_' + self.move)(t - windup)
         if self.attack_time >= windup + active and (self.on_ground or self.attack_time > windup + active + 1.0):
             self.vx = 0.0
-            self.cooldown = s['cooldown'] * self.rng.uniform(0.85, 1.2)
+            self.finish_attack()
+
+    def opening(self):
+        """공격 뒤 빈틈의 길이(초)."""
+        return self.stats.get('opening', config.ENEMY_OPENING)
+
+    def finish_attack(self):
+        """공격을 마친다: 쿨다운을 정하고 빈틈(OPEN)에 들어선다. 빈틈은 쿨다운 안에서 흐른다 (공격 사이 시간은 그대로)."""
+        self.cooldown = self.stats['cooldown'] * self.rng.uniform(0.85, 1.2)
+        self.open_left = min(self.opening(), self.cooldown)
+        if self.open_left > 0:
+            self.open_up()
+        else:
             self.recover()
+
+    def _do_open(self, dt):
+        """빈틈: 돌아서지도 공격하지도 않고 서 있는다. 끝나면 쫓기로 (치고 빠지는 적은 그때 물러난다)."""
+        self.open_left -= dt
+        if self.FLOATS:
+            self.vx *= max(0.0, 1.0 - 8.0 * dt)
+            self.vy *= max(0.0, 1.0 - 8.0 * dt)
+        elif self.on_ground:
+            self.vx = 0.0
+        if self.open_left <= 0:
+            self.open_left = 0.0
+            self.retreat_left = self.stats.get('retreat', 0.0)
+            self.close_open()
 
     # 기술마다 예고가 끝난 뒤 시간(after)으로 움직인다
     def _move_swing(self, after):
@@ -570,6 +650,9 @@ class Enemy(TileBody):
         if self.state == 'ATTACK' and 'attack' in frames:
             name = frames.get(self.move, frames['attack'])     # 기술 전용 그림이 있으면 그것 (간수 내려찍기·방패 돌진, 사냥개 덮치기)
             return name, min(self._attack_frame(), sprites.count(name))
+        if self.state == 'OPEN' and 'attack' in frames:          # 빈틈: 회수 자세(3)를 붙든다. 두 장짜리는 웅크림(1)
+            name = frames.get(self.move, frames['attack'])
+            return name, 3 if sprites.count(name) >= 3 else 1
         moving = self.state in ('CHASE', 'IDLE') and self.on_ground and self.vx != 0
         if moving and 'back' in frames and self.vx * self.face_dir < 0:    # 본 쪽과 반대로 움직이면 뒷걸음 그림 (투척병)
             return frames['back'], int(self.walk_phase) % sprites.count(frames['back']) + 1
@@ -643,6 +726,8 @@ class Enemy(TileBody):
             return (255, 90, 90)                          # 맞은 순간 붉게
         if self.state == 'ATTACK' and self.attack_time < self._windup_time() and int(self.attack_time * 20) % 2 == 0:
             return (255, 225, 120)                        # 공격 직전 깜빡임(예고)
+        if self.state == 'OPEN':
+            return config.ENEMY_OPENING_TINT               # 빈틈: 숨 고르는 푸른 회색 (지금 치면 된다)
         return None
 
     def draw(self):

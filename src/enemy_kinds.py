@@ -97,6 +97,7 @@ def blast(x, y, radius, player, player_damage, enemy_damage, source, skip=None, 
 
 # ----- 용접 드론 -----
 class Drone(Enemy):
+    FLOATS, SPREAD = True, False                  # 떠다닌다: 띄우기는 경직으로만, 비켜 서기는 side로
     def __init__(self, kind, x, y, room, player):
         super().__init__(kind, x, y, room, player)
         self.move = 'torch'
@@ -111,6 +112,7 @@ class Drone(Enemy):
             self.stagger_guard = max(0.0, self.stagger_guard - dt)
         getattr(self, '_do_' + self.state.lower())(dt)
         self.move_with_tiles(dt)                  # 중력 없음
+        self._settle_float_launch()
 
     def _target(self):
         p = self.player
@@ -165,9 +167,8 @@ class Drone(Enemy):
                 self.struck = True
                 self.player.take_hit(self.stats['damage'], gauge_delta=self.stats['gain_on_hit'], source=self)
         if t >= windup + active:
-            self.cooldown = self.stats['cooldown'] * self.rng.uniform(0.85, 1.2)
             self.side = -self.side
-            self.recover()
+            self.finish_attack()                  # 빈틈(OPEN)을 거쳐 쫓기로 (v8 적 다듬기)
 
     def _do_hit(self, dt):
         self.hit_left -= dt
@@ -275,6 +276,7 @@ class FallingWreck(TileBody):
 
 # ----- 자폭 수레 -----
 class Cart(Enemy):
+    SPREAD = False                                # 굴러와 부딪치는 것이 일이다 (되밀려 다른 적에 닿으면 터진다)
     def __init__(self, kind, x, y, room, player):
         super().__init__(kind, x, y, room, player)
         self.move = 'arm'
@@ -382,6 +384,7 @@ class CartBlast:
 
 # ----- 감시 눈 (탑) -----
 class Eye(Enemy):
+    FLOATS, SPREAD = True, False                  # 벽에 붙어 있다
     """벽에 붙은 둥근 눈. 가까운 옆 벽에 달라붙어 방 안쪽을 본다. 중력·이동 없음."""
 
     def __init__(self, kind, x, y, room, player):
@@ -441,6 +444,7 @@ class Eye(Enemy):
             self.stagger_guard = max(0.0, self.stagger_guard - dt)
         self.vx = self.vy = 0.0
         getattr(self, '_do_' + self.state.lower())(dt)
+        self._settle_float_launch()
 
     def _do_idle(self, dt):
         if self._sees_player() and self.distance_x() <= self.stats['sight']:
@@ -482,8 +486,7 @@ class Eye(Enemy):
                         self.player.take_hit(self.stats['damage'], gauge_delta=self.stats['gain_on_hit'], source=self)
                         break
         if t >= windup + active:
-            self.cooldown = self.stats['cooldown'] * self.rng.uniform(0.85, 1.2)
-            self.recover()
+            self.finish_attack()
 
     def _beam_angle(self):
         """발사 중 레이저 방향: 고정한 조준선에서 시작해 바닥을 훑는다."""
@@ -609,8 +612,7 @@ class Knight(Enemy):
                 self.struck = True
                 self._melee()
             if rel >= self._windup_time() + self._active_time():
-                self.cooldown = self.stats['cooldown'] * self.rng.uniform(0.85, 1.2)
-                self.recover()
+                self.finish_attack()
 
     def _teleport(self):
         effects.spawn('death-burst', self.x, self.y + 60, duration=0.4)
@@ -666,6 +668,7 @@ class Knight(Enemy):
 # ----- 헤이즈 망령 (탑) -----
 class Wraith(Enemy):
     """중력도 벽도 무시하고 떠다닌다 (방 밖으로만 나가지 않는다)."""
+    FLOATS, SPREAD = True, False
 
     def __init__(self, kind, x, y, room, player):
         super().__init__(kind, x, y, room, player)
@@ -684,6 +687,7 @@ class Wraith(Enemy):
         self.y += self.vy * dt
         self.x = max(self.hb_w / 2, min(self.room.width - self.hb_w / 2, self.x))
         self.y = max(0.0, min(self.room.height - self.hb_h, self.y))
+        self._settle_float_launch()
 
     def _steer(self, tx, ty, dt, speed):
         dx, dy = tx - self.x, ty - self.y
@@ -728,9 +732,8 @@ class Wraith(Enemy):
             if self._player_alive() and projectile.overlap(box, self.player.rect()):
                 self.player.take_hit(self.stats['damage'], gauge_delta=self.stats['gain_on_hit'], source=self)
         if self.attack_time >= windup + active:
-            self.cooldown = self.stats['cooldown'] * self.rng.uniform(0.85, 1.2)
             self.side = -self.side
-            self.recover()
+            self.finish_attack()                  # 빈틈(OPEN)을 거쳐 쫓기로 (v8 적 다듬기)
 
     def _do_hit(self, dt):
         self.hit_left -= dt

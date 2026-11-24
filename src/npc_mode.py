@@ -85,7 +85,7 @@ def rows():
         out.append(('둘째 칸 · 비움', '선택' if now is None else '', '둘째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none'))
         for wid in meta.ALL_WEAPONS:
             info = items.ITEMS['w_' + wid]
-            desc = '첫 칸의 무기입니다 (첫 칸을 먼저 바꾸세요)' if wid == first else info['desc']
+            desc = '첫 칸의 무기입니다 (첫 칸을 먼저 변경하세요)' if wid == first else info['desc']
             out.append(('둘째 칸 · ' + info['name'], '선택' if now == wid else '', desc, 'w_' + wid))
         return out
     s = meta.state
@@ -107,7 +107,7 @@ def act(key):
         if player is not None:
             meta.equip_loadout(player)
         names = [items.ITEMS['w_' + w]['name'] for w in (meta.state['start_first'], meta.state['start_weapon']) if w]
-        note, result = ' + '.join(names) + f'{_ro(names[-1])} 시작합니다', 'ok'
+        note, result = '시작 무기 변경: ' + ' + '.join(names), 'ok'      # 말투 규칙: 이름 뒤에 조사를 붙이지 않는다
         return
     if key == 'unlock':
         ok = meta.unlock_keeper()
@@ -122,12 +122,6 @@ def act(key):
         else:
             note, result = '헤이즈 결정이 부족합니다', 'fail'
     assets.play_sound('pickup')
-
-
-def _ro(word):
-    """조사 '로/으로': 받침이 없거나 ㄹ 받침이면 '로'."""
-    code = ord(word[-1]) - 0xAC00
-    return '로' if not 0 <= code < 11172 or code % 28 in (0, 8) else '으로'
 
 
 def speech():

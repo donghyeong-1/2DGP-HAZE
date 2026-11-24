@@ -63,6 +63,12 @@ SETS = {
     'hero6_pistol_down': (_f('v3_pistol_aim', [3]), 'none'),
     'hero6_pistol_run': (_f('v3_pistol_run', range(8)), 'hair'),
     'hero6_pistol_air': (_f('v3_pistol_air', [0, 1, 2]), 'air'),
+    # 건틀릿 자세 (2026-11-24, raw/v3_kp/gen_gauntlet.py): 예전 n09_gauntlet 순서(충전·앞 강타·회수·공중 아래) 그대로 4장
+    'hero6_gauntlet': (_f('v3_gauntlet_ground', [0, 1, 2]) + _f('v3_gauntlet_air', [0]), 'none'),
+    'hero6_gauntlet_upfwd': (_f('v3_gauntlet_ground', [3]), 'none'),
+    'hero6_gauntlet_downfwd': (_f('v3_gauntlet_ground', [4]), 'none'),
+    'hero6_gauntlet_air': (_f('v3_gauntlet_air', [1, 2]), 'air'),       # 공중 앞·앞 위 (발을 발 줄에 맞춘다)
+    'hero6_gauntlet_airdown': (_f('v3_gauntlet_air', [0]), 'air'),      # 공중에서 아래로
     'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
     'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }
@@ -117,6 +123,19 @@ def remove_muzzle_flash(a, x_cut):
     out = a.copy()
     out[:, x_cut:] = 0
     return out
+
+
+def remove_grey_behind(a, x_cut):
+    """몸 뒤(x_cut보다 왼쪽)에 붙은 회색 궤적 덩어리를 지운다 (목도리의 청록은 남긴다)."""
+    out = a.copy()
+    rgb = out[:, :, :3].astype(int)
+    grey = (out[:, :, 3] == 255) & (rgb.max(axis=2) - rgb.min(axis=2) < 40) & (rgb.max(axis=2) > 95)
+    grey[:, x_cut:] = False
+    out[grey] = 0
+    return out
+
+
+GREY_CUT = {'hero6_gauntlet_downfwd': {0: 34}}   # 세트 -> {번호: 원본 x}: 몸 뒤 회색 궤적 (v3_gauntlet_ground 4번)
 
 
 # 세트 -> {세트 안 번호(0부터): 자를 원본 x}. 섬광이 그려진 장만 (raw/v3_pistol_run의 2·4·6번, 4번은 총열이 짧아 80)
@@ -228,6 +247,8 @@ def main():
     meta = {}
     for name, (frames_src, align) in SETS.items():
         frames = [restore_eye(lock_palette(remove_loose_grey(remove_white_arcs(load(src, n))), pal), eye) for src, n in frames_src]
+        if name in GREY_CUT:
+            frames = [remove_grey_behind(f, GREY_CUT[name][i]) if i in GREY_CUT[name] else f for i, f in enumerate(frames)]
         if name in FLASH_CUT:
             frames = [remove_muzzle_flash(f, FLASH_CUT[name][i]) if i in FLASH_CUT[name] else f for i, f in enumerate(frames)]
         hx = [hair_x(f) for f in frames]

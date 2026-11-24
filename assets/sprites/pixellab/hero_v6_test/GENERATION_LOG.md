@@ -213,3 +213,15 @@ with a dark teal scarf, holding two compact sci-fi pistols with glowing teal lin
 | `raw/v3_pistol_air/` (공중 앞·앞 위·앞 아래) | 3 | 보통. 다리를 접지 않고 선 다리 그대로 |
 확인 시트 `shots/pixellab_test/v3_pistol_poses.png`. 게임 적용 `hero6_pistol_up/upfwd/downfwd/down/run/air`, 총구 위치 `hero6_muzzle.json`.
 
+## 건틀릿 자세 (2026-11-24, 메인 세션)
+약 5.1회 사용 (뼈대 추정 0.1 + skeleton v3 3 + 2, 2장 요청은 3장부터라 거절·무과금).
+`estimate_skeleton`(base_gauntlets) + 점프 뼈대(pistol_src.json) → `raw/v3_kp/gen_gauntlet.py`가 관절을 옮겨 땅 5장·공중 3장.
+`animate_with_skeleton_v3`(first_frame=base_gauntlets upload, side/east, seed 5), description "... wearing a large armored haze gauntlet
+with glowing teal lines on his front fist ... no effects, no shockwave, no trails".
+
+| 결과 | 장 | 평가 |
+|---|---|---|
+| `raw/v3_gauntlet_ground/` (충전·앞 강타·회수·앞 위·앞 아래) | 5 | 좋음. 충전은 주먹이 몸 뒤라 잘 안 보임, 앞 아래는 몸 뒤 회색 궤적(적용 도구 GREY_CUT로 지움) |
+| `raw/v3_gauntlet_air/` (아래·앞·앞 위) | 3 | 좋음. 이번엔 무릎을 접음. 아래 강타는 주먹이 허리 옆이라 약함 |
+확인 시트 `shots/pixellab_test/v3_gauntlet_poses.png`. 게임 적용 `hero6_gauntlet`(예전 n09_gauntlet 4장 순서)·`_upfwd`·`_downfwd`·`_air`·`_airdown`.
+

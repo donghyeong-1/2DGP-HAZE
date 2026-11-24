@@ -143,7 +143,24 @@ def test_gauntlet_fire_and_air_down_poses():
     seen = _poses(p, 30)
     assert ('n09_gauntlet', 3) in seen                                    # 회수
     p.start_punch('blast_down')
-    assert p._body_frame() == ('n09_gauntlet', 4)                         # 공중에서 아래로 쏘는 자세
+    assert p._body_frame() in (('n09_gauntlet', 4), ('n09_gauntlet_airdown', 1))   # 공중에서 아래로 쏘는 자세 (v7 새 그림은 따로)
+
+
+def test_gauntlet_punch_follows_aim_and_air():
+    import sprites
+    if 'n09_gauntlet_upfwd' not in sprites.SKIN:
+        return
+    room, p = tc.make_world()
+    p.give_weapon('gauntlet')
+    for dy, name in ((300, 'n09_gauntlet_upfwd'), (-300, 'n09_gauntlet_downfwd'), (0, 'n09_gauntlet')):
+        p.mouse_x, p.mouse_y = p.x + 400, p.center[1] + dy
+        p.start_punch('blast')
+        assert p._body_frame()[0] == name, (dy, p._body_frame())
+    p.request_jump()
+    tc.step(8)
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.start_punch('blast')
+    assert p._body_frame() == ('n09_gauntlet_air', 1)                     # 공중 앞 강타
 
 
 def test_chain_throw_then_pull_poses():

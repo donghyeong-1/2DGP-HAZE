@@ -124,6 +124,31 @@
   103,
   186
  ],
+ "hero6_gauntlet": [
+  4,
+  103,
+  186
+ ],
+ "hero6_gauntlet_upfwd": [
+  1,
+  103,
+  186
+ ],
+ "hero6_gauntlet_downfwd": [
+  1,
+  103,
+  186
+ ],
+ "hero6_gauntlet_air": [
+  2,
+  103,
+  186
+ ],
+ "hero6_gauntlet_airdown": [
+  1,
+  103,
+  186
+ ],
  "hero6_hurt": [
   2,
   103,

@@ -150,6 +150,10 @@ SKIN_PAIRS = (
     ('n09_pistol_up', 'hero6_pistol_up'), ('n09_pistol_upfwd', 'hero6_pistol_upfwd'),
     ('n09_pistol_downfwd', 'hero6_pistol_downfwd'), ('n09_pistol_down', 'hero6_pistol_down'),
     ('n09_pistol_run', 'hero6_pistol_run'), ('n09_pistol_air', 'hero6_pistol_air'),
+    # v7 건틀릿 (2026-11-24 PixelLab): 충전·앞 강타·회수·공중 아래 4장은 예전 n09_gauntlet과 같은 순서
+    ('n09_gauntlet', 'hero6_gauntlet'), ('n09_gauntlet_upfwd', 'hero6_gauntlet_upfwd'),
+    ('n09_gauntlet_downfwd', 'hero6_gauntlet_downfwd'), ('n09_gauntlet_air', 'hero6_gauntlet_air'),
+    ('n09_gauntlet_airdown', 'hero6_gauntlet_airdown'),
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 

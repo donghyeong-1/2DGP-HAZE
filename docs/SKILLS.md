@@ -57,6 +57,20 @@
 | physics-tuning | 고정 시간 간격, 터널링 방지, 충돌 층 |
 | pygame-core | pygame 게임 기본 루프. 이 프로젝트는 pico2d라서 참고만 |
 
+**2026-11-24 추가 6종** (사용자가 준 소개 글 https://www.rebornstudio.kr/gamedev 이 같은 저장소를 가리켰다. 원문을 읽고 수상한
+지시·네트워크 실행이 없는지 확인한 뒤, 설치 명령을 돌리지 않고 문서 파일만 `~/.claude/skills/`에 복사했다. v8 계획의 날짜별 일에 맞춰 골랐다.)
+
+| 스킬 | 쓸 곳 (docs/plan_v8.md) |
+|---|---|
+| audio-design | 효과음 겹치기·반복 줄이기·음량 묶음 (4-6 효과음 방) |
+| camera-systems | 큰 방 카메라 따라가기·미리 보기·경계 (5-3), 카메라 킥 (4-4) |
+| game-ai | 적 판단·인지·길 찾기 다듬기 (6) |
+| procedural-gen | 시드·갈림길 생성·시드 훑기 검사 (5-1) |
+| dialogue-systems | 보스·NPC 대사 데이터와 진행기 (6) |
+| performance-optimization | 프레임 떨어짐 측정과 그리기 호출 줄이기 (이펙트가 늘어날 때) |
+
+설치하지 않은 것: 소개 글의 `npx rebornstudio-gamedev`(한국어 안내 스킬 하나를 넣는 설치기, 필요 없음), 다른 엔진·장르 스킬, steam-publish(출시를 정하면).
+
 ## 3. 스킬 밖의 개발 도구
 
 | 도구 | 버전 | 용도 |
@@ -110,3 +124,5 @@
 | playtest-capture | `tools/capture.py` | 실제 창으로 게임 화면 캡처. 방·적·무기·게이지 지정, 봇 조작 전투를 여러 장 찍고 모아 보기 저장. `--display 2`(또는 `HAZE_DISPLAY=2`)로 창을 두 번째 모니터에 띄운다 (게임 실행 `python src/main.py`도 `HAZE_DISPLAY`를 따른다) |
 
 시뮬레이터가 게임 코드 변경으로 깨지지 않게 `tests/test_tools.py`가 지킨다.
+- **haze-fx** (2026-11-24): 전투 이펙트 제작 절차. `tools/fxkit.py`(그림판·입자·빛, 색 시트 + 빛 시트)와 `tools/make_fx2.py`(이펙트마다 함수 하나).
+  `python tools/make_fx2.py --look <이름>`으로 모아 보기(`shots/fx/`)를 보고 세 번 이상 고친 뒤 굽는다. 기준: 선과 빛으로, 단계가 있는 연출, 점무늬 금지.

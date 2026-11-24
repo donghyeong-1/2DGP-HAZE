@@ -46,3 +46,11 @@ npx skills add gamedev-skills/awesome-gamedev-agent-skills --skill game-feel --a
 5. **스테이지 격자와 방 전환·미니맵**(기획서 5.6): 3주차 핵심. 적을 모두 처치하면 문이 열리는 흐름.
 6. **헤이즈 조각 드롭과 정비방 업그레이드**: 재화가 없어 성장 시스템이 비어 있다.
 7. **저장소 점검**: `tests/`를 `pytest` 없이도 도는 현재 방식 그대로 두되, 한 번에 돌리는 `tests/run_all.py`를 두면 편하다.
+
+## 이펙트 제작 방식 (2026-11-24)
+- [patch-gg/pixelfx](https://github.com/patch-gg/pixelfx) (MIT)의 `docs/AUTHORING.md`와 `skills/pixelfx/SKILL.md`, 그 바탕인 Hugo Duprez의
+  [How to make (good) pixel art effects with Claude](https://www.spritefusion.com/blog/how-to-make-good-pixel-art-effects-with-claude):
+  이펙트 하나 = 작은 코드, 색 층과 빛 층, 선과 빛으로 만들기, 속도만큼 늘어나는 불티, 단계가 있는 연출, 굽고 보고 고치기.
+  **방식만 배웠다.** 코드와 결과물은 가져오지 않고 `tools/fxkit.py`를 파이썬(numpy)으로 새로 썼다. 절차는 `.claude/skills/haze-fx/SKILL.md`.
+- 화풍 참고: INARI(스팀 상점 영상을 프레임별로 봄). 흰색이 주, 색은 가장자리. 그림·이름·캐릭터는 쓰지 않는다.
+

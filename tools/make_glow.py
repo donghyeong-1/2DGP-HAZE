@@ -59,8 +59,14 @@ def build(name):
 
 
 def main():
+    """2026-11-24: fxkit 시트(json에 duration이 있다)는 빛 시트를 직접 굽는다. 여기서 흐려 만들면 덮어쓰니 건너뛴다."""
+    import json
     os.makedirs(OUT, exist_ok=True)
     for name in (sys.argv[1:] or glow_sheets()):
+        info = os.path.join(ROOT, 'assets', 'effects', name + '.json')
+        if os.path.exists(info) and 'duration' in json.load(open(info, encoding='utf-8')):
+            print('건너뜀 (fxkit 빛 시트):', name)
+            continue
         build(name)
 
 

@@ -412,8 +412,15 @@ def save(name, frames, pivot):
     print('saved', name, sheet.size, len(frames), 'frames')
 
 
+V8 = ('hit-fade', 'hit-normal', 'hit-awake', 'hit-critical', 'hit-enhanced', 'hit-enhanced2', 'hit-enhanced3', 'haze-blast')
+
+
 def main():
-    for name in (sys.argv[1:] or list(SHEETS)):
+    """2026-11-24: V8의 시트는 tools/make_fx2.py(fxkit)가 만든다. 이름 없이 돌리면 건너뛴다 (덮어쓰지 않게)."""
+    for name in (sys.argv[1:] or [n for n in SHEETS if n not in V8]):
+        if name in V8:
+            print('건너뜀 (make_fx2.py가 만든다):', name)
+            continue
         frames, pivot = SHEETS[name]()
         save(name, frames, pivot)
 

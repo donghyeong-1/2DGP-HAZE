@@ -1,17 +1,18 @@
 {
  "id": "fx/hit-enhanced2",
- "frames": 6,
+ "frames": 15,
  "frameSize": [
-  96,
-  96
+  112,
+  112
  ],
- "columns": 6,
- "fps": 20,
+ "columns": 15,
+ "fps": 30,
  "loop": false,
  "pivot": [
-  48,
-  48
+  56,
+  56
  ],
  "scale": 2,
- "source": "tools/recolor_fx.py (hit-enhanced 다시 칠함, 강화 2단계)"
+ "duration": 0.5,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
 }

@@ -120,6 +120,8 @@ class SheetEffect:
         self.variant = variant           # 방향 변형 줄 번호 (휘두르기처럼 variants가 있는 시트만)
         self.time = 0.0
         self.info = sheet_info(name)
+        if 'duration' in self.info:      # v8 시트(tools/fxkit.py)는 연출 시간이 그림에 들어 있다: 부르는 쪽 시간 대신 그대로 재생
+            self.duration = self.info['duration']
         if options.reduce_flash and name in FLASHY:  # 접근성: 번쩍임 줄이기면 하얀 중심이 큰 첫 장면을 건너뛴다
             self.time = duration * FLASHY_SKIP
 

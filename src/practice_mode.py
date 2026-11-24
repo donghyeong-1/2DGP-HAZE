@@ -13,7 +13,7 @@ import practice
 
 W, H = config.SCREEN_W, config.SCREEN_H
 ROWS = ('enemy', 'reset', 'weapon', 'gauge', 'augment', 'clear', 'hideout', 'close')
-NAMES = {'enemy': '적 불러내기', 'reset': '적 정리·허수아비 다시 세우기', 'weapon': '두 번째 무기',
+NAMES = {'enemy': '적 불러내기', 'reset': '적 정리·허수아비 다시 세우기', 'weapon': '무기 받기',
          'gauge': '헤이즈 게이지', 'augment': '증강 넣기·빼기', 'clear': '증강 모두 빼기',
          'hideout': '은신처로 돌아가기', 'close': '닫기'}
 CHOICE = ('enemy', 'weapon', 'augment')          # A/D로 고르고 Enter로 실행하는 줄
@@ -21,8 +21,8 @@ GAUGE_STEP = 10
 PANEL_X, PANEL_W = 460, 1000
 ROW_H, ROW_STEP = 64, 76
 TOP_Y = H - 250
-ENEMY_NAMES = {'slum': '폐인', 'thrower': '투척병', 'hound': '사냥개', 'guard': '간수', 'rat': '쥐떼', 'shaman': '주술사',
-               'drone': '드론', 'cart': '수레', 'eye': '감시안', 'knight': '결정 기사', 'wraith': '망령'}
+ENEMY_NAMES = {'slum': '슬럼 폐인', 'thrower': '고철 투척병', 'hound': '사냥개', 'guard': '간수', 'rat': '헤이즈 쥐', 'shaman': '누더기 무당',
+               'drone': '용접 드론', 'cart': '자폭 수레', 'eye': '감시 눈', 'knight': '결정 기사', 'wraith': '헤이즈 망령'}
 WEAPON_NAMES = {'pistol': '쌍권총', 'gauntlet': '건틀릿', 'chain': '사슬'}
 
 stage = None
@@ -155,5 +155,5 @@ def draw():
         label = value_label(item)
         if label:
             kit.text(PANEL_X + PANEL_W - 34, cy, label, (255, 230, 150) if on else (170, 182, 205), small=True, right=True)
-    kit.footer([('Esc F', '닫기'), ('W S', '고르기'), ('A D', '값 바꾸기'), ('Enter', '실행')])
+    kit.footer([('Esc F', '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')])
     update_canvas()

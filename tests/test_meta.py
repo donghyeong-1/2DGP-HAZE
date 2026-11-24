@@ -213,7 +213,7 @@ def test_run_summary_lines():
     p.run_clock, p.run_rooms, p.run_kills, p.run_ends = 754.4, 9, 31, 1
     lines = ending_mode.run_summary(p, '제4구역: 철골 공장', reward=17)
     assert lines == [('도달한 구역', '제4구역: 철골 공장'), ('걸린 시간', '12:34'), ('클리어한 방', '9'),
-                     ('쓰러뜨린 적', '31'), ('깬 보스·관문', '1'), ('받은 헤이즈 결정', '+17')]
+                     ('처치한 적', '31'), ('처치한 보스·관문', '1'), ('받은 헤이즈 결정', '+17')]
 
 
 # ----- 사망 원인 (2026-11-22 v5 빠른 개선 3): 무엇에 죽었는지 사망 화면에 -----
@@ -237,7 +237,7 @@ def test_death_cause_names_the_killer():
     p.update(1 / 60)
     assert p.death_cause == killers.GAUGE_EMPTY                       # 게이지가 바닥나 쓰러짐
     lines = ending_mode.run_summary(p, '제9구역', reward=0)
-    assert ('쓰러진 원인', killers.GAUGE_EMPTY) in lines
+    assert ('사망 원인', killers.GAUGE_EMPTY) in lines
 
 
 def test_projectiles_and_elites_are_named():

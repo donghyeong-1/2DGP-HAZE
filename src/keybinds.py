@@ -19,7 +19,7 @@ ACTIONS = (
     ('enhance', '강화 일격', (sdl2.SDLK_e, None)),
     ('interact', '상호작용 (구매·말 걸기)', (sdl2.SDLK_f, None)),
     ('potion', '물약 마시기', (sdl2.SDLK_q, None)),
-    ('swap', '무기 바꾸기', (sdl2.SDLK_TAB, None)),
+    ('swap', '무기 교체', (sdl2.SDLK_TAB, None)),
     ('weapon1', '무기 1번', (sdl2.SDLK_1, None)),
     ('weapon2', '무기 2번', (sdl2.SDLK_2, None)),
 )

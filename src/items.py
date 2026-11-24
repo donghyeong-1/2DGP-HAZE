@@ -25,9 +25,9 @@ ITEMS = {
                      color=(200, 235, 245), weapon='pipe'),          # v8 두 칸 자유: 철파이프 없이 시작한 판에서만 황금방에 나온다
     'w_pistol':   dict(name='쌍권총', glyph='총', desc='좌우 번갈아 연사, 누르고 있으면 이어서 (구간이 오를수록 여러 발)', price=9,
                      color=(150, 245, 235), weapon='pistol'),
-    'w_gauntlet': dict(name='헤이즈 건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 돌진해 박는 강타', price=9,
+    'w_gauntlet': dict(name='건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 돌진해 박는 강타', price=9,
                      color=(120, 220, 245), weapon='gauntlet'),
-    'w_chain':    dict(name='헤이즈 사슬', glyph='사', desc='맞은 적을 끌어옴 (끌려온 적마다 게이지 +2%)', price=9,
+    'w_chain':    dict(name='사슬', glyph='사', desc='맞은 적을 끌어옴 (끌려온 적마다 게이지 +2%)', price=9,
                      color=(170, 160, 255), weapon='chain'),
 }
 UPGRADES = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 단계가 있는 것 (7종, 기본 성장은 둘)

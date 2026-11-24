@@ -25,7 +25,7 @@ def controls_text():
     import keybinds
     k = lambda a: keybinds.label(a, first=True)  # noqa: E731
     return (f'{k("left")} {k("right")} 이동   {k("jump")} 점프   마우스 조준·좌클릭 공격   {k("dash")}·우클릭 대시   '
-            f'{k("enhance")} 강화   {k("potion")} 물약   {k("swap")} 무기 바꾸기   {k("interact")} 상호작용')
+            f'{k("enhance")} 강화   {k("potion")} 물약   {k("swap")} 무기 교체   {k("interact")} 상호작용')
 
 
 selected = 0

@@ -99,7 +99,7 @@ def test_options_screen_shows_current_values():
     import options_mode
     options.reset()
     names = [n for n, _, _ in options_mode.lines()]
-    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기', '해상도', '마우스 가두기', '처음 안내', '피해 숫자', '테스트 모드', '키 바꾸기']
+    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기', '해상도', '마우스 가두기', '처음 안내', '피해 숫자', '테스트 모드', '키 설정']
     values = [v for _, v, _ in options_mode.lines()]
     assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT), '1920x1080', '끔', '켬', '켬', '끔', '기본']
 

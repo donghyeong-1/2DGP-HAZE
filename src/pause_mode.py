@@ -32,7 +32,7 @@ def controls():
         ('좌클릭', '공격 (3연타, 공중·대시 중 특수 공격)'),
         (f'{k("dash")}  우클릭', '대시 (아래로 겨누면 발판 통과)'),
         (k('enhance'), '강화 일격 (게이지 25% 사용)'),
-        (f'{k("swap")}  {k("weapon1")}  {k("weapon2")}', '무기 바꾸기'),
+        (f'{k("swap")}  {k("weapon1")}  {k("weapon2")}', '무기 교체 (바꾸는 순간 교체기)'),
         (k('interact'), '진열대 아이템 줍기·구매'),
         (k('potion'), '물약 마시기 (체력 회복)'),
     ]
@@ -41,7 +41,7 @@ def controls():
 selected = 0
 CONFIRM = ('hideout', 'title')                # 판을 포기하는 항목: 실수로 나가지 않게 두 번 누르게 한다
 LABELS = {b.key: b.label for b in MENU}
-GIVE_UP_ASK = '정말 포기하려면 한 번 더'
+GIVE_UP_ASK = '포기하려면 한 번 더 누르세요'
 asking = None                                 # 한 번 눌러 확인을 기다리는 항목
 
 
@@ -166,7 +166,7 @@ def _draw_build(x, y, w, h):
         kit.text(x + 28, ty + 20, head, color, small=True)
         if not on:
             weapon = mu.WEAPON_NAMES.get(fam.get('weapon'), '')
-            kit.text(x + w - 28, ty + 20, f'{weapon} 없음', kit.FAINT, small=True, right=True)
+            kit.text(x + w - 28, ty + 20, f'{weapon} 미장착', kit.FAINT, small=True, right=True)
         ty -= 34
         for mid in mids:
             if ty < y + 40:
@@ -200,5 +200,5 @@ def draw():
         b.draw(i == selected, left=True)
     _draw_controls(660, CARD_Y, 700, CARD_H)
     _draw_build(1390, CARD_Y, 400, CARD_H)
-    kit.footer([('Esc', '계속'), ('O', '설정'), ('H', '은신처로'), ('Q', '타이틀로'), ('W S', '고르기'), ('Enter', '결정')])
+    kit.footer([('Esc', '계속'), ('O', '설정'), ('H', '은신처로'), ('Q', '타이틀로'), ('W S', '선택'), ('Enter', '확인')])
     update_canvas()

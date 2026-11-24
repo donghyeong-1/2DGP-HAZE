@@ -29,9 +29,9 @@ def run_summary(player, zone_title, reward):
     """판 기록 줄 [(이름, 값)]. 시간은 분:초."""
     secs = int(getattr(player, 'run_clock', 0.0))
     return [('도달한 구역', zone_title or '-'), ('걸린 시간', f'{secs // 60}:{secs % 60:02d}'),
-            ('클리어한 방', str(player.run_rooms)), ('쓰러뜨린 적', str(getattr(player, 'run_kills', 0))),
-            ('깬 보스·관문', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')] + (
-        [('쓰러진 원인', player.death_cause)] if getattr(player, 'death_cause', '') else [])
+            ('클리어한 방', str(player.run_rooms)), ('처치한 적', str(getattr(player, 'run_kills', 0))),
+            ('처치한 보스·관문', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')] + (
+        [('사망 원인', player.death_cause)] if getattr(player, 'death_cause', '') else [])
 
 
 def enter():
@@ -101,7 +101,7 @@ def _icon_of(item_id):
     return items.icon_path(item_id)
 
 
-FULL_ROWS = ('도달한 구역', '쓰러진 원인')      # 글이 길어 한 줄을 다 쓰는 항목
+FULL_ROWS = ('도달한 구역', '사망 원인')      # 글이 길어 한 줄을 다 쓰는 항목
 
 
 def _draw_summary(cx):
@@ -118,7 +118,7 @@ def _draw_summary(cx):
     for i, (name, value) in enumerate(wide):
         ty = top - i * SUM_ROW
         kit.text(x + 34, ty, name, (130, 145, 175), small=True)
-        kit.text(x + SUM_W - 34, ty, value, (255, 150, 140) if name == '쓰러진 원인' else (235, 242, 252), right=True)
+        kit.text(x + SUM_W - 34, ty, value, (255, 150, 140) if name == '사망 원인' else (235, 242, 252), right=True)
     half = SUM_W // 2
     for i, (name, value) in enumerate(rest):
         col, row = i % 2, i // 2 + len(wide)
@@ -143,7 +143,7 @@ def draw():
         assets.draw_text(cx, 830, '이번 판은 여기까지입니다. 영구 강화는 그대로 남습니다', (170, 185, 210), center=True)
     _draw_summary(cx)
     if choosing:                                                   # 보관인에게 맡길 것 고르기
-        assets.draw_text(cx, 480, '보관인에게 맡길 물건을 고르세요 (다음 판 시작 때 돌려받습니다)', (200, 210, 230), center=True)
+        assets.draw_text(cx, 480, '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)', (200, 210, 230), center=True)
         n = len(choices)
         gap = 96
         x0 = cx - (n - 1) * gap // 2
@@ -160,7 +160,7 @@ def draw():
         name = '맡기지 않기' if sel is None else items.ITEMS[sel]['name'] + (
             ' (1단계로)' if sel in items.UPGRADES else '')
         assets.draw_text(cx, 330, name, (255, 225, 140), center=True)
-        kit.footer([('A D', '고르기'), ('Enter', '맡기기')], y=256)
+        kit.footer([('A D', '선택'), ('Enter', '맡기기')], y=256)
     else:
         if kept:
             assets.draw_text(cx, 470, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)

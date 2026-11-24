@@ -166,7 +166,7 @@ class GameUI:
         bw = 420                                                # 기절 남은 시간
         bx, by = (W - bw) // 2, TOAST_Y - 10
         kit.bar('red', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
-        kit.text(W // 2, by - 22, f'기절 {p.gauge.stun_timer:.1f}s', (255, 190, 190), small=True, center=True)
+        kit.text(W // 2, by - 22, f'기절 {p.gauge.stun_timer:.1f}초', (255, 190, 190), small=True, center=True)
 
     # ----- 가운데 위: 헤이즈 게이지 -----
     def _x_of(self, value):
@@ -360,7 +360,7 @@ class GameUI:
         prefix = {'pistol_dash': '대시 ', 'pistol_air': '공중 ', 'chain_dash': '대시 ', 'chain_air': '공중 '}.get(kind, '')
         if w.weapon_id == 'pistol':
             count, _, pierce = w.volley()
-            shape = '관통' if pierce else '부채꼴' if count >= 3 else '투척'
+            shape = '관통' if pierce else '부채꼴' if count >= 3 else '연사'
             return f'{prefix}{count}발 {shape}', (255, 225, 120) if prefix else DIM
         if w.weapon_id == 'chain':
             count, _, stun = w.grip()
@@ -435,7 +435,7 @@ class GameUI:
             top = self._chip(right, top, '고농도', (150, 240, 230))
         n = len(getattr(self.player, 'mutations', []))
         if n:
-            self._chip(right, top, f'변이 {n}', (190, 160, 255))
+            self._chip(right, top, f'증강 {n}', (190, 160, 255))
 
     # ----- 가운데 위: 보스 체력 (게이지 아래, 판 없이 얇게) -----
     def _draw_boss_bar(self):

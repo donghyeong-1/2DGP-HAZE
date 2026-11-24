@@ -27,7 +27,7 @@ ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     #
 VALUE_X = PANEL_X + 600                                          # 값 칸이 시작하는 x
 VALUE_W = 800
 NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
-         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'test': '테스트 모드', 'keys': '키 바꾸기'}
+         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'test': '테스트 모드', 'keys': '키 설정'}
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
          'music': '배경음악', 'sfx': '타격·발소리·경고음',
          'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게',
@@ -66,7 +66,7 @@ def open_keys():
 
 def keys_summary():
     import keybinds
-    return '기본' if keybinds.to_json() == keybinds.DEFAULTS else '바꿈'
+    return '기본' if keybinds.to_json() == keybinds.DEFAULTS else '변경됨'
 
 
 def change(item, step):
@@ -234,7 +234,7 @@ def draw_panel():
             kit.icon('ui_knob', kx, cy - 17)
             kit.text(VALUE_X + VALUE_W - 24, cy, str(level), (235, 245, 255), center=True)
     back_button.draw(selected == len(ROWS))
-    kit.footer([('W S', '항목'), ('A D', '값 바꾸기'), ('Enter', '결정'), ('Esc', '돌아가기')])
+    kit.footer([('W S', '항목'), ('A D', '값 변경'), ('Enter', '확인'), ('Esc', '돌아가기')])
 
 
 def draw_frozen():

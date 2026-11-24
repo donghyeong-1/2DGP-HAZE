@@ -170,7 +170,7 @@ def _draw_card(i, mid):
         sub = mu.WEAPON_NAMES.get(weapon, '') + ' · ' + sub
     kit.text(x + CARD_W // 2, y + CARD_H - 250, sub, color, center=True, small=True)
     for j, line in enumerate(_wrap(m['desc'], 13)):
-        kit.text(x + CARD_W // 2, y + CARD_H - 310 - j * 34, line, (205, 215, 235), center=True, small=True)
+        kit.text(x + CARD_W // 2, y + CARD_H - 300 - j * 30, line, (205, 215, 235), center=True, small=True)   # 세 줄까지 (그 아래는 갈래 칸)
     if tier == 'base':                                    # 이걸 고르면 같은 갈래가 몇 개가 되는가 (진화까지 2개)
         have = (mu.family_count(player, m['family']) if m['family'] in mu.GAUGE_FAMILIES
                 else mu.base_count(player, m['family'])) if player is not None else 0
@@ -203,9 +203,9 @@ def draw():
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
     assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.66)
-    kit.text(W // 2, CARD_Y + CARD_H + 110, '헤이즈 변이', (244, 236, 214), center=True, big=True)
-    kit.text(W // 2, CARD_Y + CARD_H + 66, '하나를 고르세요. 이번 판이 끝날 때까지 유지됩니다', (150, 165, 190), center=True, small=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 110, '증강 선택', (244, 236, 214), center=True, big=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 66, '하나를 선택하세요. 이번 판이 끝날 때까지 유지됩니다', (150, 165, 190), center=True, small=True)
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
-    kit.footer([('A D', '고르기'), ('Enter', '결정')], y=CARD_Y - 80)
+    kit.footer([('A D', '선택'), ('Enter', '확인')], y=CARD_Y - 80)
     update_canvas()

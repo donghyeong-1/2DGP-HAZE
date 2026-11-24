@@ -1,4 +1,4 @@
-"""키 바꾸기 창 (2026-11-21 퀄리티 계획 2-6). 설정 창에서 '키 바꾸기'로 위에 쌓아 연다.
+"""키 바꾸기 창 (2026-11-21 퀄리티 계획 2-6). 설정 창에서 '키 설정'로 위에 쌓아 연다.
 
 동작마다 두 칸(기본·보조). 칸을 고르고 Enter(또는 마우스로 누르기)를 누르면 '키를 누르세요'가 되고,
 다음에 누른 키가 그 칸에 들어간다. 다른 동작이 쓰던 키면 서로 맞바뀐다(keybinds.bind).
@@ -66,13 +66,13 @@ def press_key(key):
             message = '기본 칸은 비울 수 없습니다'
         return
     if key in keybinds.RESERVED:
-        message = f'{keybinds.key_name(key)}는 쓸 수 없는 키입니다 (일시정지·도움말)'
+        message = f'{keybinds.key_name(key)} 키는 쓸 수 없습니다 (일시정지·도움말에 쓰입니다)'
         return
     before = keybinds.action_for(key)
     if keybinds.bind(action, slot, key):
         name = keybinds.key_name(key)
         if before is not None and before != action:
-            message = f'{name}: {keybinds.NAMES[action]} (원래 {keybinds.NAMES[before]}와 맞바꿨습니다)'
+            message = f'{name}: {keybinds.NAMES[action]} ({keybinds.NAMES[before]} 키와 서로 바꿨습니다)'
         else:
             message = f'{name}: {keybinds.NAMES[action]}'
         assets.play_sound('pickup')
@@ -154,7 +154,7 @@ def update():
 
 def draw_panel():
     """키 바꾸기 화면 (11/22 메뉴 v2): 줄마다 카드, 기본·보조 칸은 키 글자 알약."""
-    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 22, '키 바꾸기', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)')
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 22, '키 설정', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)')
     kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', kit.FAINT, small=True, center=True)
     kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', kit.FAINT, small=True, center=True)
     for i, action in enumerate(keybinds.IDS):
@@ -174,7 +174,7 @@ def draw_panel():
     if listening:
         kit.footer([('아무 키', '그 칸에 넣기'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')])
     else:
-        kit.footer([('W S', '줄'), ('A D', '칸'), ('Enter', '바꾸기'), ('Esc', '돌아가기')])
+        kit.footer([('W S', '줄'), ('A D', '칸'), ('Enter', '변경'), ('Esc', '돌아가기')])
 
 
 def draw():

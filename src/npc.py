@@ -12,7 +12,7 @@ import sprites
 INTERACT_RANGE = 120
 NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관', 'armory': '무기 걸이', 'practice': '연습장'}
 ROLES = {'mechanic': '기본 능력 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록',
-         'armory': '시작 무기 고르기', 'practice': '연습장 들어가기'}
+         'armory': '시작 무기 선택', 'practice': '연습장 들어가기'}
 COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255), 'armory': (230, 210, 150),
           'practice': (140, 235, 170)}
 # 임시 모습: (몸 폭, 키, 소품 색)

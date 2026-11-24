@@ -74,18 +74,18 @@ def rows():
         keep = meta.state['keepsake']
         name = items.ITEMS[keep]['name'] if keep else '없음'
         return [('맡긴 물건', name, '다음 판 시작 때 받습니다 (업그레이드는 1단계로, 무기는 그대로)', None),
-                ('맡기는 법', '', '판이 끝나면 사망·탈출 화면에서 맡길 물건을 고릅니다', None)]
+                ('맡기는 법', '', '판이 끝나면 사망·탈출 화면에서 맡길 물건을 선택합니다', None)]
     if kind == 'armory':
         first, now = meta.state['start_first'], meta.state['start_weapon']   # v8 두 칸 자유: 첫 칸 넷 + 둘째 칸(비움 + 넷)
         out = []
         for wid in meta.ALL_WEAPONS:
             info = items.ITEMS['w_' + wid]
-            out.append(('첫 칸 · ' + info['name'], '고름' if first == wid else '', info['desc'], 'f_' + wid))
-        out.append(('둘째 칸 · 비움', '고름' if now is None else '', '둘째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none'))
+            out.append(('첫 칸 · ' + info['name'], '선택' if first == wid else '', info['desc'], 'f_' + wid))
+        out.append(('둘째 칸 · 비움', '선택' if now is None else '', '둘째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none'))
         for wid in meta.ALL_WEAPONS:
             info = items.ITEMS['w_' + wid]
             desc = '첫 칸의 무기입니다 (첫 칸을 먼저 바꾸세요)' if wid == first else info['desc']
-            out.append(('둘째 칸 · ' + info['name'], '고름' if now == wid else '', desc, 'w_' + wid))
+            out.append(('둘째 칸 · ' + info['name'], '선택' if now == wid else '', desc, 'w_' + wid))
         return out
     s = meta.state
     return [(line, '', '', None) for line in STORY['archivist']] + [
@@ -223,5 +223,5 @@ def draw():
         assets.draw_image(assets.image(f'portraits/{name}.png'), x + PORTRAIT // 2, y)
     if note:
         kit.text(W // 2, PANEL_Y + 120, note, (255, 240, 150), center=True)
-    kit.footer([('W S', '고르기'), ('Enter', '결정'), ('Esc', '닫기')])
+    kit.footer([('W S', '선택'), ('Enter', '확인'), ('Esc', '닫기')])
     update_canvas()

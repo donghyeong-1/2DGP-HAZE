@@ -134,8 +134,8 @@ def test_options_row_opens_key_screen_and_screen_binds():
     assert options_mode.lines()[row][1] == '기본'
     keys_mode.listening = ('enhance', 0)
     keys_mode.press_key(sdl2.SDLK_f)                                    # 상호작용 키 -> 맞바꿈 안내
-    assert keybinds.action_for(sdl2.SDLK_f) == 'enhance' and '맞바꿨습니다' in keys_mode.message
-    assert options_mode.lines()[row][1] == '바꿈'
+    assert keybinds.action_for(sdl2.SDLK_f) == 'enhance' and '서로 바꿨습니다' in keys_mode.message
+    assert options_mode.lines()[row][1] == '변경됨'
     keys_mode.listening = ('jump', 1)
     keys_mode.press_key(sdl2.SDLK_BACKSPACE)                            # 보조 칸 비우기
     assert keybinds.keys('jump')[1] is None
@@ -144,7 +144,7 @@ def test_options_row_opens_key_screen_and_screen_binds():
     assert keybinds.keys('jump')[0] == sdl2.SDLK_SPACE and keys_mode.listening is None
     keys_mode.listening = ('jump', 0)
     keys_mode.press_key(sdl2.SDLK_F1)                                   # 예약 키: 안 들어간다
-    assert keybinds.keys('jump')[0] == sdl2.SDLK_SPACE and '쓸 수 없는' in keys_mode.message
+    assert keybinds.keys('jump')[0] == sdl2.SDLK_SPACE and '쓸 수 없습니다' in keys_mode.message
     assert keys_mode.ROW_Y[-1] - 30 > keys_mode.buttons[0].y + keys_mode.buttons[0].h   # 버튼과 겹치지 않는다
     assert keys_mode.PANEL_Y > 66 and keys_mode.PANEL_Y + keys_mode.PANEL_H <= 1080
     game_framework.stack[:] = []

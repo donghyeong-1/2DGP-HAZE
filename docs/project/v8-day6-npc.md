@@ -105,3 +105,12 @@
 
 ### 테스트 (4번 뒤)
 - 전체 64개 파일 703개 통과, 픽셀 규칙 8개 통과.
+
+## 이어서 한 일: 최종 제출 준비 (같은 브랜치)
+- `docs/ASSETS.md` 맨 끝 "이미지 생성 도구·모델과 이용 조건" 표. 확인하지 못한 칸은 `(빈칸: 확인 필요)`. 약관은 읽지 않았고 기록만 옮겼다.
+- `src/credits_mode.py`: 크레딧 'AI 도구'에 PixelLab·Gemini 줄.
+- `docs/project/submission-checklist.md`: 제출 전 남은 일.
+- `docs/project/presentation_3rd_draft.md`: 다른 스레드 새 작업 반영(병합 전 보고서 기준, 5절에 출처). 8시(KST)쯤 한 번 더 맞춘다.
+
+### PROGRESS.md 작업 로그에 넣을 줄 (제출 준비)
+`2026-11-25 [Claude 프로젝트] 최종 제출 준비: 이미지 생성 도구·모델·이용 조건 표(빈칸 표시), 제출 체크리스트, 크레딧에 PixelLab·Gemini, 3차 발표 초안에 다른 스레드 작업 반영 / docs/ASSETS.md, docs/project/(submission-checklist, presentation_3rd_draft).md, src/credits_mode.py`

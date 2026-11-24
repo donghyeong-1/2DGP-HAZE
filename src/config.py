@@ -134,24 +134,26 @@ STAGE2_SLAM_POSE = 0.42        # 내려찍기 자세 전체 시간 (3번에서 �
 STAGE2_SLAM_REACH = 1.25      # 내려찍기 범위: 강화 일격 범위(2단계) x 이 값, 앞쪽만
 STAGE2_RISE_HOP = 260.0       # 올려베기에 맞은 적이 살짝 떠오르는 속도 (공중 적은 그대로)
 # 궁극기 (3단계)
-ULT_FREEZE = 0.30            # 시전 순간 화면 정지
-ULT_BANNER_TIME = 0.9        # 기술 이름 띠를 보여 주는 시간
+# 궁극기 v2 (2026-11-24): 화면 정지·컷인 띠 없음. 무기마다 구성이 다르다 (weapon.PipeUlt·PistolUlt·GauntletUlt·ChainUlt)
+ULT_FLURRY_RADIUS = 520      # 철파이프 안개 난무: 이 안의 적 사이를 순간이동하며 벤다
+ULT_FLURRY_TARGETS = 6       # 한 번에 노리는 적 수
+ULT_LOCKON_RANGE = 900       # 쌍권총 록온 난사: 이 안에서 보이는 적 모두를 조준
+ULT_METEOR_LENGTH = 620      # 건틀릿 유성 돌진: 돌진 거리
+ULT_METEOR_SPEED = 1700.0
+ULT_METEOR_RADIUS = 300      # 끝에서 터지는 반지름
+ULT_PRISON_RADIUS = 520      # 사슬 감옥: 이 안의 적을 모두 끌어모은다
+ULT_PRISON_HOLD = 2.5        # 끌어모은 뒤 묶어 두는 시간(초)
 ULT_HITS = 5                 # 연속 타격 수
 ULT_HIT_INTERVAL = 0.09
 ULT_HIT_MULT = 1.4           # 한 번 타격 배율 (5번이면 기본 피해 x7)
 ULT_BASE_DAMAGE = 20         # 궁극기 기본 피해: 무기와 상관없이 같다 (철파이프 기본 피해와 같은 값)
 ULT_BOSS_CAP = 0.15          # 궁극기 한 번이 보스에게 줄 수 있는 피해 = 최대 체력의 15%
 # 2026-11-20 사용자: 화면 전체가 아니라 새 이펙트(ult-nova)의 광역 공격. 범위를 약 절반으로 줄였다 (철파이프 평타 150px의 약 3배)
-ULT_FORWARD = 480            # 기본 궁극기: 앞쪽 범위(px)
-ULT_DASH_LENGTH = 700        # 대시 궁극기: 직선 길이
-ULT_DASH_HALF = 150          # 대시 궁극기: 직선 반폭
-ULT_SLAM_RADIUS = 420        # 점프 궁극기: 좌우 범위
-ULT_HEIGHT = 320             # 궁극기가 닿는 위아래 범위
 ULT_DIM = 0.3                # 시전할 때 화면을 어둡게 하는 정도 (화면 전체 기술처럼 보이지 않게 옅게, 전에는 0.6)
 ULT_INVULN = 1.3             # 시전하는 동안 플레이어 무적
 ULT_COOLDOWN = 0.9
 ULT_POSE_TIME = 0.75         # 시전 자세를 보여 주는 시간 (Codex T23): 앞쪽 ULT_POSE_GATHER는 모으기, 나머지는 해방
-ULT_POSE_GATHER = 0.12       # 화면 정지(ULT_FREEZE) 동안은 시간이 흐르지 않으니 정지 내내 모으기, 풀리고 0.12초 뒤 해방
+ULT_POSE_GATHER = 0.12       # 시전 자세의 앞쪽 이만큼은 모으기, 나머지는 해방
 OVERLOAD_DAMAGE_RATIO = 0.20
 OVERLOAD_STUN = 1.5
 OVERLOAD_RESET = 30

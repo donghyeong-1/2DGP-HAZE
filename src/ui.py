@@ -329,7 +329,7 @@ class GameUI:
         text, color = self._attack_text(w, g)
         if g.enhanced and g.enhance_level >= config.ENHANCE_MAX_LEVEL:      # 다음 공격이 궁극기: 그 이름
             import weapon as weapon_mod
-            text, color = '궁극기 ' + weapon_mod.ULT_NAMES[(w.weapon_id, w.ult_kind())], (255, 200, 120)
+            text, color = '궁극기 ' + weapon_mod.ULT_NAMES[w.weapon_id], (255, 200, 120)
         elif g.enhanced:
             text, color = f'강화 {g.enhance_level}단계 ' + text.split(':')[0], config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))]
         top = ACT_Y + SLOT + 44

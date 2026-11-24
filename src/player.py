@@ -287,6 +287,7 @@ class Player(TileBody):
         self.last_dash_path = None       # 마지막 대시가 지나온 직선 (x0, y0, x1, y1). 대시 평타가 이 경로를 벤다
         self.dash_strike_queued = False  # 대시 중에 평타를 눌렀다: 대시가 끝나면 지나온 경로를 벤다
         self.dash_strike_enhanced = False
+        self.motion_lock = 0.0           # 이 시간 동안 입력·중력으로 움직이지 않는다 (철파이프 궁극기 순간이동 베기)
         self.dash_count = 0              # 대시 v2: 지금까지 한 대시 수 (한 대시에 대시 공격 표식은 한 번)
         self.armed_dash = -1             # 대시 공격을 건 대시 번호
         self.dash_attack_left = 0.0      # 이 시간 동안의 적중이 대시 공격(표식·대시 회복)이다
@@ -499,8 +500,8 @@ class Player(TileBody):
             index = 1 - self.slot
         if self.weapons[index] is None or index == self.slot and self.weapon is self.weapons[index]:
             return False
-        if getattr(self.weapon, 'charging', False):
-            self.weapon.charging = False
+        if hasattr(self.weapon, 'on_put_away'):
+            self.weapon.on_put_away()                    # 건틀릿: 충전·돌진을 끊는다
         self.slot = index
         self.weapon = self.weapons[index]
         assets.play_sound('pickup')
@@ -676,6 +677,7 @@ class Player(TileBody):
             self.dash_buffer_left = 0.0 if self._try_dash() else self.dash_buffer_left - dt
         self.invuln_left = max(0.0, self.invuln_left - dt)
         self.dash_attack_left = max(0.0, self.dash_attack_left - dt)
+        self.motion_lock = max(0.0, self.motion_lock - dt)
         self.steady_left = max(0.0, self.steady_left - dt)
         if self.gauge.zone == DEAD and self.state != 'DEAD':
             import killers
@@ -735,6 +737,10 @@ class Player(TileBody):
         """땅 위에서 휘두르는 동안은 거의 멈추고, 조준 쪽으로 한 발 내딛는다 (선 자세로 미끄러지는 것을 막는다)."""
         if self.on_ground:
             self.air_combo = 0
+        if self.motion_lock > 0:                                    # 궁극기 순간이동 베기: 제자리에 뜬 채
+            self.vx = self.vy = 0.0
+            self.hang_left = max(self.hang_left, dt * 1.5)
+            return
         rush = self.weapon.rush_velocity() if hasattr(self.weapon, 'rush_velocity') else None
         if rush is not None:                                        # 건틀릿 돌진 강타: 곧게 날아간다 (땅 위 수평이면 바닥을 따라)
             self.vx = rush[0]

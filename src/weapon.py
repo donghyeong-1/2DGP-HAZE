@@ -407,20 +407,21 @@ class ExecDim:
     """처형 순간 배경을 어둡고 붉게 (타일 층에 그려서 적·주인공·이펙트는 밝게 남는다)."""
     LIFE = 0.45
 
-    def __init__(self):
+    def __init__(self, color=(34, 0, 8), strength=0.8, life=None):
         self.t = 0.0
+        self.color, self.strength, self.life = color, strength, life or self.LIFE     # 궁극기는 푸른 어둠으로 옅게
 
     def update(self, dt):
         self.t += dt
-        if self.t >= self.LIFE:
+        if self.t >= self.life:
             game_world.remove_object(self)
 
     def draw(self):
         import camera
-        k = self.t / self.LIFE
-        a = 0.8 * (min(1.0, k * 6) if k < 0.2 else 1.0 - (k - 0.2) / 0.8)
+        k = self.t / self.life
+        a = self.strength * (min(1.0, k * 6) if k < 0.2 else 1.0 - (k - 0.2) / 0.8)
         left, bottom = camera.to_world(0, 0)
-        assets.draw_rect_color(left - 16, bottom - 16, config.SCREEN_W + 32, config.SCREEN_H + 32, (34, 0, 8), a)
+        assets.draw_rect_color(left - 16, bottom - 16, config.SCREEN_W + 32, config.SCREEN_H + 32, self.color, a)
 
 
 class DashStreak:
@@ -552,12 +553,10 @@ class Pipe:
         self.level = config.ENHANCE_MAX_LEVEL
         effects.enh_level = self.level
         self.last_kind, self.last_enhanced = 'ult_' + kind, True
-        game_world.add_object(Ultimate(self, kind, ax, ay), game_world.LAYER_EFFECT)
+        game_world.add_object(ULTIMATES[self.weapon_id](self, kind, ax, ay), game_world.LAYER_EFFECT)
         g.consume_enhance()
-        p.ult_pose_left = config.ULT_POSE_TIME             # 시전 자세: 모으기 -> 해방 (Codex T23)
+        p.ult_pose_left = config.ULT_POSE_TIME             # 시전 자세: 모으기 -> 해방 (사슬만 끝까지 쓴다, 나머지는 자기 동작)
         p.swing_left = p.punch_left = 0.0
-        if kind == 'jump':
-            p.vy = min(p.vy, -1400.0)                    # 내리꽂힌다
         self.cooldown = self.cooldown_max = config.ULT_COOLDOWN
         return True
 
@@ -1582,8 +1581,15 @@ class Gauntlet(Pipe):
             return None
         return r['dx'] * r['speed'], (None if r['dy'] == 0.0 else r['dy'] * r['speed'])
 
+    def on_put_away(self):
+        """다른 무기로 바꿨다: 충전·돌진을 끊는다 (돌진 정보가 남으면 다시 들 때 멈추지 않는다)."""
+        self.charging = False
+        self.rush = None
+
     def _update_rush(self, dt):
         r, p = self.rush, self.owner
+        if r.get('ult') is not None:                                 # 궁극기 '유성 돌진': 이동만 여기 것, 판정은 GauntletUlt
+            return
         if p.state in ('HIT', 'DEAD') or p.stunned:
             self.rush = None
             return
@@ -2238,24 +2244,9 @@ class ChainHook:
 # 사슬 = 주위 적을 끌어모아 터뜨림. 철파이프는 앞쪽 화면 절반·긴 직선·좌우 내려찍기.
 # 컷인 그림은 Codex T23이 오면 이름 띠 자리에 넣는다.
 # =====================================================================================================
-ULT_NAMES = {('pipe', 'basic'): '안개 대참격', ('pipe', 'dash'): '관통 질주', ('pipe', 'jump'): '낙하 붕괴',
-             ('pistol', 'basic'): '탄우', ('pistol', 'dash'): '총탄 회오리', ('pistol', 'jump'): '폭격 사격',
-             ('gauntlet', 'basic'): '헤이즈 포격', ('gauntlet', 'dash'): '충격 돌파', ('gauntlet', 'jump'): '낙하 포격',
-             ('chain', 'basic'): '포획 폭발', ('chain', 'dash'): '사슬 질주', ('chain', 'jump'): '공중 낚아채기'}
+# 궁극기 v2 (2026-11-24): 무기마다 기술 하나, 구성이 서로 다르다 (아래 Ultimate와 무기별 클래스)
+ULT_NAMES = {'pipe': '안개 난무', 'pistol': '록온 난사', 'gauntlet': '유성 돌진', 'chain': '사슬 감옥'}
 ULT_COLORS = {'pipe': (150, 235, 255), 'pistol': (180, 250, 240), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
-# (무기, 종류) -> 범위 모양과 크기. forward(앞 거리) / line(길이, 반폭: 조준 방향) / slam(좌우) / aim(조준점 둘레 반지름) /
-# below(아래쪽 좌우) / circle(플레이어 둘레 반지름)
-# 2026-11-20: 화면 전체가 아니라 광역 공격 (크기를 약 절반으로, 건틀릿 광선만 조금 더 멀리)
-ULT_AREAS = {('pipe', 'basic'): ('forward', config.ULT_FORWARD),
-             ('pipe', 'dash'): ('line', config.ULT_DASH_LENGTH, config.ULT_DASH_HALF),
-             ('pipe', 'jump'): ('slam', config.ULT_SLAM_RADIUS),
-             ('pistol', 'basic'): ('aim', 300), ('pistol', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
-             ('pistol', 'jump'): ('below', 420),
-             ('gauntlet', 'basic'): ('line', 900, 120), ('gauntlet', 'dash'): ('circle', 380),
-             ('gauntlet', 'jump'): ('below', 460),
-             ('chain', 'basic'): ('circle', 450), ('chain', 'dash'): ('line', config.ULT_DASH_LENGTH, 200),
-             ('chain', 'jump'): ('circle', 420)}
-ULT_AIM_RANGE = 650              # 칼비가 떨어질 조준점은 플레이어에게서 이 거리 안
 
 
 class Decor:
@@ -2363,221 +2354,400 @@ def draw_chain_line(x0, y0, x1, y1, glow, link=12):
 
 
 class Ultimate:
-    END = 1.15                     # 궁극기 전체 길이(초, 화면 정지 뒤부터)
+    """궁극기 공통 (v2, 2026-11-24 사용자: 무기별로 다르게 구성, 화면 멈춤·컷인 띠는 없앤다 - 흐름을 끊지 않는다).
+    무기마다 아래 클래스 하나. 적 하나가 받는 피해 합은 무기와 상관없이 같다(ULT_BASE_DAMAGE x ULT_HIT_MULT x ULT_HITS),
+    보스는 한 번에 최대 체력의 ULT_BOSS_CAP까지. 타격은 게이지를 올리지 않는다. 시전하는 동안 무적."""
+    is_ultimate = True
 
     def __init__(self, weapon, kind, ax, ay):
         p = weapon.owner
+        wid = weapon.weapon_id
         self.weapon, self.kind = weapon, kind
-        self.name = ULT_NAMES.get((weapon.weapon_id, kind), ULT_NAMES[('pipe', kind)])
-        self.color = ULT_COLORS.get(weapon.weapon_id, (150, 235, 255))
+        self.name = ULT_NAMES[wid]
+        self.color = ULT_COLORS[wid]
         self.x0, self.y0 = p.center
         self.floor_y = p.y
         self.side = 1 if ax >= 0 else -1
         length = math.hypot(ax, ay) or 1.0
         self.dx, self.dy = ax / length, ay / length
-        if kind == 'dash' and abs(self.dy) < 0.35:      # 대시 궁극기는 거의 수평이면 수평으로
-            self.dx, self.dy = float(self.side), 0.0
-        self.area = ULT_AREAS.get((weapon.weapon_id, kind), ULT_AREAS[('pipe', kind)])
-        mx, my = p.mouse_x - self.x0, p.mouse_y - self.y0            # 칼비가 떨어질 조준점 (너무 멀면 당긴다)
-        d = math.hypot(mx, my)
-        k = min(1.0, ULT_AIM_RANGE / d) if d > 0 else 0.0
-        self.aim = (self.x0 + mx * k, self.y0 + my * k)
-        self.pulls = weapon.weapon_id == 'chain'                      # 사슬: 맞을 때마다 끌어온다
         self.nova_count = 0                                           # 광역 폭발 이펙트를 터뜨린 횟수 (테스트)
-        self.nova_name = 'ult-nova-' + weapon.weapon_id                  # 무기마다 색·모양이 다른 폭발
+        self.nova_name = 'ult-nova-' + wid                            # 무기마다 색·모양이 다른 폭발
         self.time = 0.0
         self.hits_done = 0
         self.dealt = {}
-        self.targets = [e for e in list(game_world.world[game_world.LAYER_ENEMY]) if e.alive and self._in_area(e)]
-        self.born = time.monotonic()                    # 이름 띠는 실제 시간으로 움직인다 (화면 정지 중에도 들어와야 한다)
-        effects.request_hit_stop(config.ULT_FREEZE)
-        effects.add_trauma(0.9)
+        self.targets = []
+        self.started = False
+        effects.add_trauma(0.6)
         p.invuln_left = max(p.invuln_left, config.ULT_INVULN)
         p.steady_left = max(p.steady_left, config.ULT_INVULN)   # 무적이지만 깜빡이지 않는다
-        assets.play_sound('ult_cast')                   # 모으기(화면 정지 0.3초) -> 터짐
+        assets.play_sound('ult_cast')
+        effects.float_text(p.x, p.y + config.PLAYER_HB_H + 70, self.name, self.color, big=True, life=0.9)
+        game_world.add_object(ExecDim(color=(6, 8, 26), strength=config.ULT_DIM * 2, life=0.7), game_world.LAYER_TILES)
+        self._nova(*p.center, duration=0.4)
 
-    def _in_area(self, e):
+    # ----- 공통 도구 -----
+    def _nova(self, x, y, duration=0.55):
+        effects.spawn(self.nova_name, x, y, duration=duration)
+        self.nova_count += 1
+
+    def _deal(self, e, share, last=False):
+        """적 하나에게 궁극기 피해 합의 share만큼. 보스는 상한까지만. 죽였으면 True."""
+        p = self.weapon.owner
+        damage = (config.ULT_BASE_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus *
+                  config.ULT_HIT_MULT * config.ULT_HITS * share)
+        if not getattr(e, 'pullable', True):              # 보스: 한 번의 궁극기로 최대 체력의 ULT_BOSS_CAP까지만
+            damage = min(damage, e.max_hp * config.ULT_BOSS_CAP - self.dealt.get(id(e), 0.0))
+        if damage <= 0 or not e.alive:
+            return False
+        fx = config.ENHANCED_FX_BY_LEVEL[3]             # 궁극기(3단계): 진홍
+        import drama
+        with drama.hit_style(big=last, color=self.color):
+            killed = e.take_damage(damage, from_x=p.x)
+        self.dealt[id(e)] = self.dealt.get(id(e), 0.0) + damage
         ex, ey = e.center
-        dx, dy = ex - self.x0, ey - self.y0
-        shape, size = self.area[0], self.area[1]
-        if shape == 'forward':
-            return -60 <= dx * self.side <= size and abs(dy) <= config.ULT_HEIGHT
-        if shape == 'line':
-            return Pipe._segment_hit(e, self.x0, self.y0, self.dx, self.dy, size, self.area[2])
-        if shape == 'aim':
-            return math.hypot(ex - self.aim[0], ey - self.aim[1]) <= size
-        if shape == 'below':
-            return abs(dx) <= size and -900 <= dy <= 80
-        if shape == 'circle':
-            return math.hypot(dx, dy) <= size
-        return abs(dx) <= size and abs(dy) <= config.ULT_HEIGHT       # slam
+        effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
+        effects.spawn_impact(ex, ey, ex - p.x, ey - p.center[1], config.IMPACT_RAYS['enhanced'], self.color, big=last)
+        effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], self.color, big=True, count=2 if last else 1)
+        effects.spawn_bloom(ex, ey, self.color, big=last, strength=0.9)
+        if killed:
+            p.gauge.add(p.kill_gain(), 'kill')
+        if last:
+            effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
+        return killed
+
+    def _finale(self, cx, cy):
+        """마지막 일격: 빛기둥 + 큰 고리 + 광역 폭발 + 무기별 마무리 소리 (화면은 멈추지 않는다)."""
+        game_world.add_object(effects.LightPillar(cx, self.floor_y, self.color), game_world.LAYER_EFFECT)
+        effects.spawn_ring(cx, cy, self.color, radius_max=440, life=0.45)
+        effects.spawn_ring(cx, cy, (255, 255, 255), radius_max=300, life=0.32)
+        effects.request_flash(0.06)
+        effects.add_trauma(0.8)
+        self._nova(cx, cy)
+        assets.play_sound(f'ult_final_{self.weapon.weapon_id}')
+
+    def _in_reach(self, radius, sight=True):
+        """시전 자리에서 radius 안의 살아 있는 적 (sight면 벽에 가린 적은 뺀다), 가까운 순."""
+        found = []
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            if not e.alive:
+                continue
+            ex, ey = e.center
+            d = math.hypot(ex - self.x0, ey - self.y0)
+            if d <= radius and (not sight or self.weapon._visible(e, self.x0, self.y0)):
+                found.append((d, id(e), e))
+        return [e for _, _, e in sorted(found)]
+
+    def _end(self):
+        game_world.remove_object(self)
 
     def update(self, dt):
+        if not self.started:
+            self.started = True
+            self._start()
         self.time += dt
-        while self.hits_done < config.ULT_HITS and self.time >= 0.12 + self.hits_done * config.ULT_HIT_INTERVAL:
-            self._strike()
-        if self.time >= self.END:
-            game_world.remove_object(self)
+        self._step(dt)
 
-    def _pull(self, e):
-        """사슬 궁극기: 맞을 때마다 플레이어 앞으로 끌어온다 (보스는 끌려오지 않는다)."""
-        if not getattr(e, 'pullable', True):
-            return
-        if self.kind == 'dash':
-            stop = self.x0 + self.side * 120                          # 직선 위의 적을 앞으로 끌고 온다
+    def _start(self):
+        pass
+
+    def _step(self, dt):
+        self._end()
+
+    def draw(self):
+        pass
+
+
+class PipeUlt(Ultimate):
+    """철파이프 '안개 난무': 둘레 적들 사이를 순간이동하며 벤다. 한 번 벨 때마다 걸린 적 모두에게 베기가 들어가고,
+    마지막에 제자리로 돌아오며 한꺼번에 터진다."""
+    BLINK = 0.085
+
+    def _start(self):
+        p = self.weapon.owner
+        p.ult_pose_left = 0.0
+        self.targets = self._in_reach(config.ULT_FLURRY_RADIUS)[:config.ULT_FLURRY_TARGETS]
+        self.home = (p.x, p.y)
+        self.prev = p.center
+
+    def _free(self, x, y):
+        """그 자리에 주인공 몸이 벽에 끼지 않고 설 수 있나."""
+        room = self.weapon.owner.room
+        if room is None:
+            return True
+        hw = config.PLAYER_HB_W / 2 - 2
+        for px in (x - hw, x, x + hw):
+            for py in (y + 4, y + config.PLAYER_HB_H / 2, y + config.PLAYER_HB_H - 4):
+                if room.tile_at_world(px, py) == '#':
+                    return False
+        return True
+
+    def _step(self, dt):
+        p = self.weapon.owner
+        p.motion_lock = max(p.motion_lock, dt * 2)                    # 난무하는 동안은 입력·중력으로 움직이지 않는다
+        while self.hits_done < config.ULT_HITS and self.time >= 0.06 + self.hits_done * self.BLINK:
+            self._blink()
+        if self.hits_done >= config.ULT_HITS and self.time >= 0.06 + config.ULT_HITS * self.BLINK + 0.08:
+            sx, sy = p.center
+            p.x, p.y = self.home                                       # 제자리로
+            game_world.add_object(DashStreak((sx, sy, *p.center), life=0.35, width=14, color=self.color),
+                                  game_world.LAYER_EFFECT)
+            p.vx = p.vy = 0.0
+            self._end()
+
+    def _blink(self):
+        p = self.weapon.owner
+        i = self.hits_done
+        last = i == config.ULT_HITS - 1
+        alive = [e for e in self.targets if e.alive]
+        if alive:
+            e = alive[i % len(alive)]
+            side = 1 if self.prev[0] <= e.x else -1                    # 적을 꿰뚫고 반대편에 선다
+            for s in (side, -side):
+                tx = e.x + s * 80
+                if self._free(tx, e.y):
+                    p.afterimages.append([p.x, p.y, p.face_dir, config.AFTERIMAGE_LIFE, p._body_frame()])
+                    p.x, p.y = tx, e.y
+                    break
+            cx, cy = p.center
+            game_world.add_object(DashStreak((*self.prev, cx, cy), life=0.4, width=18, color=self.color),
+                                  game_world.LAYER_EFFECT)
+            self.prev = (cx, cy)
+            p.start_dash_cut()
+        for e in alive:
+            ex, ey = e.center
+            self._deal(e, 1.0 / config.ULT_HITS, last)
+            effects.spawn_slash_marks(ex, ey, random.uniform(-1, 1), random.uniform(-0.6, 0.6), (255, 255, 255), big=True)
+        effects.add_trauma(0.3)
+        if last:
+            if alive:
+                cx = sum(e.x for e in alive) / len(alive)
+                cy = sum(e.center[1] for e in alive) / len(alive)
+            else:
+                cx, cy = self.x0, self.y0
+            self._finale(cx, cy)
         else:
-            stop = self.x0 + (1 if e.x >= self.x0 else -1) * 120      # 둘레의 적을 양옆에서 끌어모은다
-        left = config.ULT_HITS - self.hits_done
-        e.pull_step((stop - e.x) / max(1, left))
-        e.hold(0.3)
+            assets.play_sound('ult_hit')
+        self.hits_done += 1
 
-    def _strike(self):
-        w, p = self.weapon, self.weapon.owner
-        fx = config.ENHANCED_FX_BY_LEVEL[3]             # 궁극기(3단계): 진홍
-        # 궁극기 피해는 무기와 상관없이 같은 기준(ULT_BASE_DAMAGE)으로: 게이지 75%를 쓰는 값이 무기마다 달라지지 않게
-        base = config.ULT_BASE_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * config.ULT_HIT_MULT
+
+class PistolUlt(Ultimate):
+    """쌍권총 '록온 난사': 보이는 적 모두에 조준 표시가 걸리고, 주인공은 자유롭게 움직이며 다섯 번 일제 사격한다."""
+    VOLLEY = 0.11
+    LEAD = 0.18                    # 조준 표시가 조여드는 시간
+
+    def _start(self):
+        p = self.weapon.owner
+        p.ult_pose_left = 0.0
+        self.targets = self._in_reach(config.ULT_LOCKON_RANGE)
+
+    def _step(self, dt):
+        while self.hits_done < config.ULT_HITS and self.time >= self.LEAD + self.hits_done * self.VOLLEY:
+            self._volley()
+        if self.hits_done >= config.ULT_HITS and self.time >= self.LEAD + config.ULT_HITS * self.VOLLEY + 0.12:
+            self._end()
+
+    def _volley(self):
+        p = self.weapon.owner
         last = self.hits_done == config.ULT_HITS - 1
+        cx, cy = p.center
+        alive = [e for e in self.targets if e.alive]
+        for e in alive:
+            ex, ey = e.center
+            d = math.hypot(ex - cx, ey - cy) or 1.0
+            speed = 3000.0
+            game_world.add_object(Tracer(cx, cy, (ex - cx) / d * speed, (ey - cy) / d * speed, d / speed, big=last),
+                                  game_world.LAYER_EFFECT)
+            self._deal(e, 1.0 / config.ULT_HITS, last)
+        p.start_punch('shoot_big' if last else 'shoot')
+        effects.spawn_bloom(cx + p.face_dir * 40, cy + 10, self.color, life=0.08, strength=0.8)
+        effects.add_trauma(0.25)
+        if last:
+            if alive:
+                fx = sum(e.x for e in alive) / len(alive)
+                fy = sum(e.center[1] for e in alive) / len(alive)
+            else:
+                fx, fy = cx, cy
+            self._finale(fx, fy)
+        else:
+            assets.play_sound('shot_big')
+        self.hits_done += 1
+
+    def draw(self):
+        k = min(1.0, self.time / self.LEAD)                            # 조준 표시: 바깥에서 조여든다
+        gap = int(84 - 40 * k) // 2 * 2
+        blink = int(self.time * 20) % 2 == 0
         for e in self.targets:
             if not e.alive:
                 continue
-            if self.pulls:
-                self._pull(e)
-            damage = base
-            if not getattr(e, 'pullable', True):              # 보스: 한 번의 궁극기로 최대 체력의 ULT_BOSS_CAP까지만
-                damage = min(damage, e.max_hp * config.ULT_BOSS_CAP - self.dealt.get(id(e), 0.0))
-                if damage <= 0:
-                    continue
-            import drama
-            with drama.hit_style(big=last, color=self.color):
-                killed = e.take_damage(damage, from_x=self.x0)
-            self.dealt[id(e)] = self.dealt.get(id(e), 0.0) + damage
-            ex, ey = e.center
-            effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
-            effects.spawn_impact(ex, ey, ex - self.x0, ey - self.y0, config.IMPACT_RAYS['enhanced'], self.color, big=last)
-            effects.spawn_slash_marks(ex, ey, ex - self.x0, ey - self.y0, self.color, big=True, count=2 if last else 1)
-            if killed:
-                p.gauge.add(p.kill_gain(), 'kill')
-            if last:
-                effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
-        self._spawn_shape()
-        cx, cy = self.area_center()                                   # 베기 폭풍: 연타마다 범위 곳곳에 큰 베기 자국 (11/21)
-        for _ in range(3):
-            mx, my = cx + random.uniform(-220, 220), cy + random.uniform(-110, 130)
-            effects.spawn_slash_marks(mx, my, random.uniform(-1, 1), random.uniform(-1, 1), self.color, big=True)
-        if last:                                                       # 마지막 일격: 빛기둥 + 큰 고리 + 화면 섬광
-            game_world.add_object(effects.LightPillar(cx, self.floor_y, self.color), game_world.LAYER_EFFECT)
-            effects.spawn_ring(cx, cy, self.color, radius_max=440, life=0.45)
-            effects.spawn_ring(cx, cy, (255, 255, 255), radius_max=300, life=0.32)
-            effects.request_flash(0.12)
-        if self.hits_done == 0 or last:                                # 시작과 마지막 일격: 범위 한가운데에 광역 폭발
-            cx, cy = self.area_center()
-            effects.spawn(self.nova_name, cx, cy, duration=0.55 if last else 0.4)
-            self.nova_count += 1
-        effects.add_trauma(0.35 if not last else 0.8)
-        assets.play_sound(f'ult_final_{self.weapon.weapon_id}' if last else 'ult_hit')   # 마무리는 무기마다 다른 소리
+            x, y = _snap(e.center[0]), _snap(e.center[1])
+            for ink in (True, False):                                  # 검은 테두리 -> 밝은 꺾쇠
+                c = MARK_INK if ink else ((255, 255, 255) if blink else self.color)
+                g = 2 if ink else 0
+                for sx in (-1, 1):
+                    for sy in (-1, 1):                                 # 네 귀퉁이 꺾쇠
+                        bx, by = x + sx * gap, y + sy * gap
+                        assets.draw_rect_color(min(bx, bx - sx * 20) - g, by - 3 - g, 20 + g * 2, 6 + g * 2, c)
+                        assets.draw_rect_color(bx - 3 - g, min(by, by - sy * 20) - g, 6 + g * 2, 20 + g * 2, c)
+            assets.draw_rect_color(x - 5, y - 5, 10, 10, MARK_INK)
+            assets.draw_rect_color(x - 3, y - 3, 6, 6, EXEC_COLOR)                 # 가운데 붉은 점
+            img = assets.image('light/dot_48.png')
+            img.opacify(0.5)
+            assets.draw_image_added(img, x, y - img.h // 2, color=self.color, times=1)
+            img.opacify(1.0)
+
+
+class GauntletUlt(Ultimate):
+    """건틀릿 '유성 돌진': 조준 쪽으로 길게 돌진하며 닿는 적을 모두 주먹 앞에 끌고 가, 끝에서 한꺼번에 터뜨려 날린다."""
+
+    def _start(self):
+        p, w = self.weapon.owner, self.weapon
+        p.ult_pose_left = 0.0
+        dx, dy = self.dx, self.dy
+        if p.on_ground and dy < 0.2:                                   # 땅 위: 수평으로
+            dx, dy = float(self.side), 0.0
+        self.dx, self.dy = dx, dy
+        speed = config.ULT_METEOR_SPEED
+        w.charging = False
+        w.rush = dict(dx=dx, dy=dy, speed=speed, ult=self)             # 이동은 Gauntlet.rush_velocity, 판정은 여기서
+        self.left = config.ULT_METEOR_LENGTH / speed
+        self.carried, self.touched = [], set()
+        self.prev = None
+        self.ghost = 0.0
+        p.start_punch('blast')
+        if dy != 0.0:
+            p.vy = 0.0
+        game_world.add_object(RushTrail(w, self.color, 1.6), game_world.LAYER_EFFECT)
+        assets.play_sound('dash')
+        if p.on_ground:
+            effects.spawn('dust-land', p.x, p.y, duration=0.3)
+
+    def _step(self, dt):
+        p, w = self.weapon.owner, self.weapon
+        if w.rush is None or w.rush.get('ult') is not self:
+            self._burst()
+            return
+        if self.prev is not None and math.hypot(p.x - self.prev[0], p.y - self.prev[1]) < config.ULT_METEOR_SPEED * dt * 0.3:
+            self._burst()                                               # 벽에 막혔다: 거기서 터진다
+            return
+        self.prev = (p.x, p.y)
+        p.punch_left = max(p.punch_left, p.punch_total * 0.7)
+        self.ghost -= dt
+        if self.ghost <= 0:
+            self.ghost = 0.02
+            p.afterimages.append([p.x, p.y, p.face_dir, config.AFTERIMAGE_LIFE, p._body_frame()])
+        cx, cy = p.center
+        hx, hy = cx + self.dx * config.GAUNTLET_RUSH_REACH, cy + self.dy * config.GAUNTLET_RUSH_REACH
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            if e.alive and id(e) not in self.touched and Pipe._within(e, hx, hy, config.GAUNTLET_RUSH_HIT * 1.6):
+                self.touched.add(id(e))
+                self._deal(e, 0.4)
+                effects.request_hit_stop(config.HIT_STOP)
+                assets.play_sound('impact_gauntlet')
+                if e.alive and getattr(e, 'pullable', True):
+                    self.carried.append(e)
+        for k, e in enumerate(self.carried):                            # 주먹 앞에 얹혀 끌려간다
+            if e.alive:
+                e.pull_step(p.x + self.dx * (70 + 14 * k) - e.x)
+                e.hold(0.3)
+        self.left -= dt
+        if self.left <= 0:
+            self._burst()
+
+    def _burst(self):
+        p, w = self.weapon.owner, self.weapon
+        if w.rush is not None and w.rush.get('ult') is self:
+            w.rush = None
+        cx, cy = p.center
+        bx, by = cx + self.dx * 60, cy + self.dy * 60
+        side = self.side if abs(self.dx) > 0.2 else (1 if p.face_dir >= 0 else -1)
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            if not e.alive or not (e in self.carried or Pipe._within(e, bx, by, config.ULT_METEOR_RADIUS)):
+                continue
+            self._deal(e, 0.6 if id(e) in self.touched else 1.0, last=True)
+            if e.alive and getattr(e, 'pullable', True):                # 터지며 날아간다
+                weight = config.ENEMY_WEIGHT.get(getattr(e, 'kind', ''), 1.0)
+                away = side if e in self.carried else (1 if e.x >= bx else -1)
+                game_world.add_object(Fling(w, e, 0.0, away * config.GAUNTLET_KNOCK / weight), game_world.LAYER_EFFECT)
+        effects.ground_slam(bx, p.y, power=1.4, color=self.color)
+        effects.spawn('haze-blast', bx, by - 40, duration=0.5)
+        self._finale(bx, by)
+        p.vx = 0.0
+        p.lunge_vx = -side * 220 if p.on_ground else 0.0
+        p.punch_left = p.punch_total * 0.5
+        self._end()
+
+
+class ChainUlt(Ultimate):
+    """사슬 '사슬 감옥': 둘레 적 모두에 사슬을 걸어 한곳으로 끌어모으고, 마지막에 묶어 둔다(ULT_PRISON_HOLD초).
+    묶인 적은 서로 이어져(LinkNet) 하나를 치면 나머지도 피해를 나눠 받는다 - 다음 공격을 위한 판 깔기."""
+
+    def _start(self):
+        self.targets = self._in_reach(config.ULT_PRISON_RADIUS, sight=False)
+        self.gather_x = self.x0 + self.side * 110
+
+    def _step(self, dt):
+        while self.hits_done < config.ULT_HITS and self.time >= 0.12 + self.hits_done * config.ULT_HIT_INTERVAL:
+            self._tug()
+        if self.hits_done >= config.ULT_HITS and self.time >= 0.12 + config.ULT_HITS * config.ULT_HIT_INTERVAL + 0.2:
+            self._end()
+
+    def _tug(self):
+        last = self.hits_done == config.ULT_HITS - 1
+        left = config.ULT_HITS - self.hits_done
+        alive = [e for e in self.targets if e.alive]
+        for k, e in enumerate(alive):
+            if getattr(e, 'pullable', True):                            # 보스는 끌려오지 않는다
+                stop = self.gather_x + ((k % 3) - 1) * 26
+                e.pull_step((stop - e.x) / max(1, left))
+                e.hold(0.3)
+            self._deal(e, 1.0 / config.ULT_HITS, last)
+        effects.add_trauma(0.3)
+        if last:
+            held = [e for e in alive if e.alive and getattr(e, 'pullable', True)]
+            for e in held:
+                e.hold(config.ULT_PRISON_HOLD)
+            if len(held) >= 2:
+                net = LinkNet(held)
+                net.life = config.ULT_PRISON_HOLD
+                game_world.add_object(net, game_world.LAYER_EFFECT)
+            if held:
+                game_world.add_object(PrisonBind(held, self.color, config.ULT_PRISON_HOLD), game_world.LAYER_EFFECT)
+            self._finale(self.gather_x, self.y0)
+        else:
+            assets.play_sound('ult_hit')
         self.hits_done += 1
 
-    def area_center(self):
-        """범위의 한가운데 (광역 폭발 이펙트를 놓는 곳)."""
-        shape, size = self.area[0], self.area[1]
-        if shape == 'forward':
-            return self.x0 + self.side * size / 2, self.y0
-        if shape == 'line':
-            return self.x0 + self.dx * size / 2, self.y0 + self.dy * size / 2
-        if shape == 'aim':
-            return self.aim
-        if shape == 'below':
-            return self.x0, self.floor_y + 60
-        return self.x0, self.y0                                        # slam, circle
+    def draw(self):
+        p = self.weapon.owner
+        hx, hy = p.center
+        for e in self.targets:
+            if e.alive:
+                draw_chain([(hx, hy), e.center], self.color, age=self.time, flow=-1, shake=2.0, light=False)
 
-    def _spawn_shape(self):
-        """타격마다 범위를 보여 주는 큰 궤적 (무기마다 다르다)."""
-        i = self.hits_done
-        wid = self.weapon.weapon_id
-        if wid == 'pistol':
-            self._pistol_shape(i)
-            return
-        if wid in ('gauntlet', 'chain'):
-            shape = self.area[0]
-            if shape in ('circle', 'below') and wid == 'gauntlet':
-                r = self.area[1]
-                for s in (-1, 1):
-                    effects.spawn('haze-blast', self.x0 + s * r * (i + 1) / (config.ULT_HITS + 1), self.floor_y + 30,
-                                  duration=0.4)
-            if i == config.ULT_HITS - 1 and wid == 'chain':
-                effects.spawn('haze-blast', self.x0 + self.side * 120, self.y0 - 20, duration=0.55)
-            return                                    # 광선·사슬 줄은 draw에서 그린다
-        if self.kind == 'basic':
-            x = self.x0 + self.side * (90 + 80 * i)
-            variant, flip = effects.slash_variant(self.side, 0.0)
-            effects.spawn('pipe-slash-enhanced', x, self.y0 + (i % 2) * 60 - 30, flip=flip, duration=0.24, variant=variant)
-        elif self.kind == 'dash':
-            reach = config.ULT_DASH_LENGTH * (i + 1) / config.ULT_HITS
-            off = (i % 2) * 50 - 25
-            effects.spawn_path_slash(self.x0, self.y0 + off, self.x0 + self.dx * reach, self.y0 + self.dy * reach + off, True)
-        else:
-            for s in (-1, 1):
-                effects.spawn('dust-land', self.x0 + s * (80 + 75 * i), self.floor_y, duration=0.35)
-            if i == 0:
-                effects.spawn('haze-blast', self.x0, self.floor_y + 20, duration=0.5)
 
-    def _pistol_shape(self, i):
-        """쌍권총 궁극기: 총알이 쏟아진다 (탄우 = 조준점 위에서, 회오리 = 직선을 따라, 폭격 사격 = 아래로 부채꼴)."""
-        shape = self.area[0]
-        for j in range(9 if shape == 'aim' else 5):
-            jitter = ((i * 5 + j) * 37) % 100 - 50
-            if shape == 'aim':
-                x = self.aim[0] + (j - 4) * 100 + jitter
-                game_world.add_object(Tracer(x, self.aim[1] + 600 + (j % 3) * 120, 0.0, -2600.0, 0.32, big=j % 3 == 0),
-                                      game_world.LAYER_EFFECT)
-            elif shape == 'line':
-                reach = config.ULT_DASH_LENGTH * (j + 1) / 6
-                game_world.add_object(Tracer(self.x0 + self.dx * reach, self.y0 + self.dy * reach + jitter,
-                                             self.dx * 1800, self.dy * 1800, 0.2), game_world.LAYER_EFFECT)
-            else:
-                game_world.add_object(Tracer(self.x0 + (j - 2) * 40, self.y0, (j - 2) * 500, -2200.0, 0.35),
-                                      game_world.LAYER_EFFECT)
+class PrisonBind:
+    """사슬 감옥에 묶인 적: 몸을 가로지르는 사슬 두 줄이 묶인 시간 동안 남는다."""
 
-    def _draw_reach(self):
-        """광선(건틀릿)과 사슬 줄(사슬): 타격이 이어지는 동안 그린다."""
-        wid = self.weapon.weapon_id
-        if not (0.08 <= self.time <= 0.12 + config.ULT_HITS * config.ULT_HIT_INTERVAL):
-            return
-        if wid == 'gauntlet' and self.area[0] == 'line':
-            length, half = self.area[1], self.area[2]
-            for i in range(0, int(length), 24):
-                x, y = int(self.x0 + self.dx * i), int(self.y0 + self.dy * i)
-                assets.draw_rect_color(x - half, y - half, half * 2, half * 2, self.color, 0.10)
-                assets.draw_rect_color(x - 14, y - 14, 28, 28, (240, 255, 255), 0.35)
-        elif wid == 'gauntlet' and self.area[0] == 'below':
-            x = int(self.x0)
-            assets.draw_rect_color(x - 70, int(self.floor_y), 140, int(self.y0 - self.floor_y) + 40, self.color, 0.45)
-        elif wid == 'chain':
-            for e in self.targets:
-                if e.alive:
-                    ex, ey = e.center
-                    draw_chain_line(self.x0, self.y0, ex, ey, self.color)
+    def __init__(self, enemies, color, life):
+        self.enemies, self.color, self.life = list(enemies), color, life
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life or not any(e.alive for e in self.enemies):
+            game_world.remove_object(self)
 
     def draw(self):
-        self._draw_reach()
-        ox, oy = assets.draw_offset
-        left, bottom = -ox, -oy                         # 화면 왼쪽 아래의 세계 좌표 (오버레이는 화면 전체)
-        t = self.time
-        dark = config.ULT_DIM if t < 0.55 else max(0.0, config.ULT_DIM * (1.0 - (t - 0.55) / 0.45))
-        if dark > 0:
-            assets.draw_rect_color(left, bottom, config.SCREEN_W, config.SCREEN_H, (6, 8, 20), dark)
-            self.weapon.owner.draw()                    # 시전자는 어둠 위로 밝게
-        rt = time.monotonic() - self.born               # 화면 정지 중에도 흐르는 실제 시간
-        if rt < config.ULT_BANNER_TIME:
-            # 주인공 컷인 띠 (Codex T23, 1920x420): 왼쪽에서 밀려 들어와 머물고, 비워 둔 오른쪽 1/3에 기술 이름을 얹는다
-            img = assets.image('ui/ult_cutin.png')
-            k = min(1.0, (rt + 0.03) / 0.12)
-            y = bottom + config.SCREEN_H - 150 - img.h   # 위쪽 HUD 바로 아래
-            shown = int(img.w * k)
-            assets.draw_clip(img, img.w - shown, 0, shown, img.h, left, y)
-            if k >= 1.0:
-                tx = left + int(config.SCREEN_W * 0.83)
-                assets.draw_text(tx, y + img.h // 2, self.name, self.color, big=True, center=True)
+        for e in self.enemies:
+            if not e.alive:
+                continue
+            left, bottom, right, top = e.rect()
+            mid = (bottom + top) / 2
+            draw_chain([(left - 10, mid + 14), (right + 10, mid - 6)], self.color, age=self.time, link=10, light=False)
+            draw_chain([(left - 10, mid - 12), (right + 10, mid + 10)], self.color, age=self.time, link=10, light=False)
+
+
+ULTIMATES = {'pipe': PipeUlt, 'pistol': PistolUlt, 'gauntlet': GauntletUlt, 'chain': ChainUlt}
 
 
 WEAPONS = {'pipe': Pipe, 'pistol': Pistols, 'gauntlet': Gauntlet, 'chain': Chain}

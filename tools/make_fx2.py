@@ -315,12 +315,8 @@ FLARE_S_META = dict(size=[112, 112], origin=[56, 56], duration=0.3, fps=30, opti
 
 
 def flare_create(o):
-    """별 섬광 v4 (2026-11-24 사용자의 INARI 분석: '원에 불투명도가 있고, 불투명도가 다른 원을 여러 개 겹친 느낌. 흰 십자 둘레의
-    붉은 것도 불투명도로 낸 은은한 불빛. 계속 만들던 원을 넣는 게 아니다').
-    한 줄: 흰 여덟 갈래 별이 번쩍 -> 별 뒤로 **반투명한 색 원 세 겹**(바깥은 옅고 안으로 갈수록 진하다)이 펴져 두세 장 머물다
-    조금 커지며 옅어져 사라진다. 별 둘레에는 은은한 빛.
-    색 층(알파 0/255)에는 별과 불티만 둔다. 원은 전부 빛 층(부드러운 알파, 더하기)이라 배경이 비쳐 보인다.
-    꽉 찬 색 원반·테두리 선·입자 고리는 쓰지 않는다 (v2 원반: '파이썬으로 만든 듯한 원', v3 입자 테두리: '너무 별로')."""
+    """별 섬광 (사용자가 준 INARI 그림): 크고 진한 색 빛 원반 한가운데에 흰 여덟 갈래 별, 둘레에 작은 반짝임과 불티.
+    색 층 = 별의 색 가장자리·반짝임, 흰 심 = 별 가운데. 큰 빛 원반은 빛 층이 맡는다(게임이 색을 곱한다)."""
     core = o['layer'] == 'core'
     z = o['k']                                               # 크기 (1 = 큰 별, 0.5 = 작은 별)
     rng = Rng(o['seed'])
@@ -328,11 +324,6 @@ def flare_create(o):
     ps.burst(SPARK, 0, 0, int(16 * z), (260 * z, 760 * z), (0.2, 0.42), up=60 * z)
     ps.burst(MOTE, 0, 0, int(14 * z), (120 * z, 420 * z), (0.22, 0.4), size=(0.8, 1.8))
     twinkles = [(rng.range(-80, 80) * z, rng.range(-70, 70) * z, rng.range(0.02, 0.2), rng.range(3, 7)) for _ in range(int(12 * z))]
-    RD = (64 if z >= 1 else 54) * z                           # 가장 바깥 원의 반지름
-    hold = 0.1 if z >= 1 else 0.067                           # 원이 다 펴진 채 머무는 시간 (큰 별 세 장, 작은 별 두 장)
-    # 겹치는 원 (반지름 비율, 더해지는 밝기): 바깥은 옅고, 안쪽 원이 겹칠수록 진해진다
-    # 다 겹친 가운데의 합이 255를 넘지 않게 한다: 넘으면 넓은 면이 한 색으로 꽉 차 반투명한 겹이 사라지고, 밝은 색(금색·청록)은 하얗게 날아간다
-    LAYERS = ((1.0, 72), (0.82, 40), (0.6, 36), (0.36, 30))
     t = [0.0]
 
     class Flare:
@@ -342,44 +333,31 @@ def flare_create(o):
 
         def draw(self, p):
             u = t[0]
-            # ----- 별 -----
-            k = 1.0 if u < 0.07 else max(0.0, 1.0 - (u - 0.07) / 0.2)       # 두 장 꽉 찼다가 빠르게 준다
+            k = 1.0 if u < 0.07 else max(0.0, 1.0 - (u - 0.07) / 0.2)       # 별: 두 장 꽉 찼다가 빠르게 준다
             if k > 0.05:
-                for n in range(8):
-                    ang = TAU * n / 8
-                    ln = (86 if n % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if n % 4 == 0 else 1.0) * z
-                    w = (9 if n % 2 == 0 else 6) * k * (0.5 + 0.5 * z)
+                for i in range(8):
+                    ang = TAU * i / 8
+                    ln = (86 if i % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if i % 4 == 0 else 1.0) * z
+                    w = (9 if i % 2 == 0 else 6) * k * (0.5 + 0.5 * z)
                     c, s_ = math.cos(ang), math.sin(ang)
                     if core:
                         p.needle(0, 0, c * ln, s_ * ln, WHITE, max(1.0, w))
                     else:
-                        p.glow_line(0, 0, c * ln * 0.8, s_ * ln * 0.8, (7 if n % 2 == 0 else 5) * (0.6 + 0.4 * z), WHITE, 55 * k)   # 팔을 따라 은은한 빛
+                        p.needle(0, 0, c * ln * 1.06, s_ * ln * 1.06, G[2], w + 3.5)
                 if core:
                     p.disc(0, 0, (9 * k + 1) * (0.4 + 0.6 * z), WHITE)
             for x, y, t0, arm in twinkles:                             # 둘레의 작은 십자 반짝임
-                tv = (u - t0) / 0.16
-                if 0 <= tv < 1 and core:
-                    a_ = arm * math.sin(math.pi * tv)
+                v = (u - t0) / 0.16
+                if 0 <= v < 1 and core:
+                    a_ = arm * math.sin(math.pi * v)
                     p.line(x - a_, y, x + a_, y, WHITE)
                     p.line(x, y - a_, x, y + a_, WHITE)
-            if core:
-                return
-            ps.draw(p)
-            # ----- 반투명 원 여러 겹 (빛 층) -----
-            grow = (0.6 + 0.4 * out_expo(u / 0.05)) if u < 0.05 else 1.0 + 0.16 * out_cubic(max(0.0, min(1.0, (u - hold) / 0.22)))
-            fade = 1.0 if u < hold else max(0.0, 1.0 - (u - hold) / 0.22)
-            for n, (frac, add) in enumerate(LAYERS):
-                # 안쪽 원일수록 먼저 옅어진다 (가운데부터 비어 가며 사라진다)
-                f = fade ** (1.0 + 0.9 * n)
-                p.light_disc(0, 0, RD * frac * grow, WHITE, add * f, edge=1.6)
-                if n < 3:                                      # 원의 가장자리가 살짝 더 밝다 (겹친 유리판의 테두리처럼, 선이 아니라 빛으로)
-                    p.glow_ring(0, 0, RD * frac * grow - 1.5, 2.6, WHITE, 34 * f)
-            # ----- 은은한 불빛: 원 밖으로 번지는 주변광과 별 둘레의 빛 -----
-            g = 1.0 if u < hold + 0.03 else max(0.0, 1.0 - (u - hold - 0.03) / 0.24)
-            p.glow(0, 0, RD * 2.1, WHITE, 60 * g)
-            p.glow(0, 0, RD * 1.45, WHITE, 50 * g)                 # 바깥 원을 감싸는 빛
-            p.glow(0, 0, RD * 0.75, WHITE, 50 * g)
-            p.glow(0, 0, RD * 0.32, WHITE, 90 * max(g, k))         # 별 바로 둘레의 은은한 빛
+            if not core:
+                ps.draw(p)
+                g = 1.0 if u < 0.1 else max(0.0, 1.0 - (u - 0.1) / 0.3)
+                p.glow(0, 0, 100 * z, WHITE, 150 * g)                 # 큰 빛 원반 (진하게: 이 이펙트의 주인공)
+                p.glow(0, 0, 58 * z, WHITE, 130 * g)
+                p.glow_ring(0, 0, (60 + 30 * out_expo(u / 0.3)) * z, 9 * z, WHITE, 70 * g)
     return Flare()
 
 
@@ -1316,10 +1294,11 @@ def _prays(meta):
     return (meta, pb_create)
 
 
-TINTS['impact-rays'] = [_prays(rays_meta(False, a)) for a in RAY_ANGLES]
-TINTS['impact-rays-big'] = [_prays(rays_meta(True, a)) for a in RAY_ANGLES]
+PB_TINTS_LATE = dict()                                         # PB_TINTS는 아래에서 만들어진다: 여기서는 따로 모아 두었다가 합친다
+PB_TINTS_LATE['impact-rays'] = [_prays(rays_meta(False, a)) for a in RAY_ANGLES]
+PB_TINTS_LATE['impact-rays-big'] = [_prays(rays_meta(True, a)) for a in RAY_ANGLES]
 for _nm, _rad in (('shock-ring-s', 38), ('shock-ring-m', 78), ('shock-ring-l', 150)):
-    TINTS[_nm] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), pring_create)]
+    PB_TINTS_LATE[_nm + '-pb'] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), pring_create)]
 
 
 # 충격 고리 v3 (2026-11-24 사용자: '입자는 너무 별로', '원에 불투명도가 있고 겹친 느낌'): 색 층에는 튀는 알갱이 몇 개뿐이고,
@@ -1353,27 +1332,31 @@ def soft_ring_create(o):
 
 
 for _nm, _rad in (('shock-ring-s', 38), ('shock-ring-m', 78), ('shock-ring-l', 150)):
-    TINTS[_nm] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), soft_ring_create)]
+    PB_TINTS_LATE[_nm] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), soft_ring_create)]
 
 
 def _pb(size, origin, duration, **opt):
     return (dict(size=list(size), origin=list(origin), duration=duration, fps=30, options=opt), pb_create)
 
 
+# ----- 보류 (2026-11-24 사용자: '입자는 너무 별로', '일단은 우리 원래 이펙트를 쓰자') -----
+# 아래 입자 구성은 게임에 쓰지 않는다. 원래 레시피(hit_create·blast_create·MISC·rays_create·ring_create)가 그대로 등록되어 있고,
+# 이 판은 `python tools/make_fx2.py --pb --look <이름>`으로 모아 보기만 만들 수 있다.
+PB_EFFECTS, PB_TINTS = {}, PB_TINTS_LATE
 for _name, (_ramp, _power, _seed) in HITS.items():              # 타격 불꽃 7종: 작고 빠르게
     _size = 88 if _power < 1.2 else 112
-    EFFECTS[_name] = _pb((_size, _size), (_size // 2, _size // 2), 0.42 if _power < 1.2 else 0.5, ramp=_ramp, seed=_seed + 100,
+    PB_EFFECTS[_name] = _pb((_size, _size), (_size // 2, _size // 2), 0.42 if _power < 1.2 else 0.5, ramp=_ramp, seed=_seed + 100,
                          r=34 * _power, tl=0.62, white=0, body=int(2 * _power), band=int(12 * _power), tongues=3, tongue_n=6,
                          tongue_k=1.35, sparks=int(15 * _power), chunks=int(8 * _power), embers=3, spark_k=0.3 * _power,
                          spark_size=(1.0, 1.9), chunk_size=(1.0, 1.8), flash=30, glow=0.3)   # 타격은 튀는 불티·조각이 주인공. 흰 번쩍임은 별 섬광이 맡는다 (겹치면 별이 묻힌다)
-EFFECTS['haze-blast'] = _pb((176, 160), (88, 96), 0.8, ramp='haze', seed=104, r=74, white=9, body=28, band=90, tongues=8, tongue_n=11,
+PB_EFFECTS['haze-blast'] = _pb((176, 160), (88, 96), 0.8, ramp='haze', seed=104, r=74, white=9, body=28, band=90, tongues=8, tongue_n=11,
                             sparks=22, chunks=14, embers=12, spark_k=0.3)
 for _wid, _ramp, _seed in (('pipe', 'awake', 171), ('knife', 'fade', 172), ('pistol', 'mint', 173), ('gauntlet', 'ember', 174), ('chain', 'violet', 175)):
-    EFFECTS['ult-nova-' + _wid] = _pb((230, 230), (115, 115), 0.66, ramp=_ramp, seed=_seed, r=106, tl=0.85, white=11, body=36, band=120,
+    PB_EFFECTS['ult-nova-' + _wid] = _pb((230, 230), (115, 115), 0.66, ramp=_ramp, seed=_seed, r=106, tl=0.85, white=11, body=36, band=120,
                                       tongues=10, tongue_n=13, sparks=30, chunks=18, embers=14, spark_k=0.36)
-EFFECTS['death-burst'] = _pb((110, 110), (55, 55), 0.46, ramp='haze', seed=165, r=46, tl=0.62, white=4, ws=0.7, body=12, band=34, tongues=0,
+PB_EFFECTS['death-burst'] = _pb((110, 110), (55, 55), 0.46, ramp='haze', seed=165, r=46, tl=0.62, white=4, ws=0.7, body=12, band=34, tongues=0,
                              sparks=8, chunks=16, embers=10, spark_k=0.24, chunk_size=(1.2, 2.2))
-EFFECTS['quake-blast'] = _pb((220, 120), (110, 116), 0.46, ramp='ember', seed=164, ground=0, half=True, r=92, tl=0.6, white=6, ws=0.6, body=16,
+PB_EFFECTS['quake-blast'] = _pb((220, 120), (110, 116), 0.46, ramp='ember', seed=164, ground=0, half=True, r=92, tl=0.6, white=6, ws=0.6, body=16,
                              band=46, tongues=9, tongue_n=12, tongue_k=1.5, sparks=14, chunks=18, embers=4, spark_k=0.4, dust=4, chunk_size=(1.4, 2.6))
 
 
@@ -1514,6 +1497,12 @@ def build_loop(name, look):
 
 def main(argv):
     look = '--look' in argv
+    if '--pb' in argv:                                          # 보류한 입자 구성·반투명 띠 시안: 모아 보기만
+        if not look:
+            print('--pb 는 --look 과 함께만 쓴다 (게임 파일로 굽지 않는다)')
+            return
+        EFFECTS.update(PB_EFFECTS)
+        TINTS.update(PB_TINTS)
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
     names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS)

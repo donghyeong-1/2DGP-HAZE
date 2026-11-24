@@ -83,6 +83,11 @@ def test_boss_card_opens_and_freezes_game_until_it_closes():
     card.update(0.1)
     assert not card.visible()
     st.boss = FakeBoss('crasher', '크래셔')                            # 보스방에 들어섰다
+    import config
+    if config.BOSS_INTRO:                                             # v8: 등장씬이 대사 뒤에 연다 (tests/test_boss_intro.py)
+        card.update(0.0)
+        assert not card.visible()
+        assert card.open_boss(st.boss)
     card.update(0.0)
     assert card.visible() and card.theme == 'boss_crasher' and card.title == '크래셔'
     assert card.label == '용광로의 파수꾼'

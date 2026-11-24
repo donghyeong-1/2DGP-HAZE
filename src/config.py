@@ -677,3 +677,7 @@ MUSIC_VOLUME = 44          # 0~128 (효과음보다 작게 깔린다)
 
 # 개발용
 DEBUG = False
+
+# ----- v8 6일 차: 보스 등장씬 (스레드 v8/day6-boss, src/boss_intro.py) -----
+# 보스방에 들어서면 카메라 이동 -> 대사 2~3줄 -> 이름 띠. False면 예전처럼 이름 띠(zone_card 보스 카드)만 바로 뜬다.
+BOSS_INTRO = True

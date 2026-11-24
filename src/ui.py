@@ -130,6 +130,9 @@ class GameUI:
         self.boss_ghost = ghost_step(self.boss_ghost, ratio, dt, self.boss_held)
 
     def draw(self):
+        import boss_intro
+        if boss_intro.hud_hidden():     # v8 보스 등장씬 동안은 HUD를 숨긴다 (위아래 검은 띠와 대사만)
+            return
         self._draw_screen_fx()          # 화면 전체 효과(오버로드 섬광, 기절 비네트)는 HUD 아래에 깐다
         self._draw_gauge()
         self._draw_vitals()

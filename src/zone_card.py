@@ -6,6 +6,7 @@
 UI 레이어 객체다. play_mode가 구역이 바뀌면 stage를 바꿔 넣고, 이름이 바뀐 것을 보고 카드를 띄운다.
 보스 등장 카드(Codex T34, assets/backgrounds/boss_card_<보스>.png): 보스방에 들어서면(stage.boss가 새로 생기면)
 보스 그림 띠가 열리고 왼쪽에 별칭·이름. 띠가 열려 있는 동안(닫히기 전까지) 게임이 멈춘다(freezing, play_mode가 본다).
+v8 6일 차: config.BOSS_INTRO가 켜져 있으면 보스 카드는 스스로 뜨지 않고 등장씬(boss_intro)이 대사 뒤에 open_boss로 연다.
 """
 import os
 import assets
@@ -40,12 +41,13 @@ class ZoneCard:
         self.theme = None
         self.title = ''
         self.label = ''
+        self.hold = HOLD                           # 띠가 다 열린 채 머무는 시간 (다시 만난 보스는 짧게)
 
     def update(self, dt):
         global showing, freezing
         self._step(dt)
         showing = self.t is not None
-        freezing = self.boss and self.t is not None and self.t < OPEN + HOLD
+        freezing = self.boss and self.t is not None and self.t < OPEN + self.hold
 
     def _step(self, dt):
         name = self.stage.name
@@ -54,28 +56,45 @@ class ZoneCard:
             self.boss_seen = getattr(self.stage, 'boss', None)
             if name in CARDS:
                 self.t, self.theme, self.boss = 0.0, CARDS[name], False
+                self.hold = HOLD
                 self.image = f'backgrounds/zone_{self.theme}.png'
                 self.title, self.label = getattr(self.stage, 'title', ''), NUMBERS.get(name, '')
             return
         boss = getattr(self.stage, 'boss', None)
         if boss is not None and boss is not self.boss_seen and getattr(boss, 'alive', True):   # 보스방에 들어섰다
-            import assets as _assets
-            import ui
             self.boss_seen = boss
-            kind = getattr(boss, 'kind', 'crasher')
-            image = f'backgrounds/boss_card_{kind}.png'
-            if not os.path.exists(os.path.join(_assets.ASSET_DIR, image)):   # 등장 카드 그림이 아직 없다 (헤이즈 심장: T47)
-                return                                                        # 카드 없이 보스 자신의 등장 연출만
-            self.t, self.theme, self.boss = 0.0, f'boss_{kind}', True
-            self.image = image
-            self.title, self.label = getattr(boss, 'title', ''), ui.BOSS_EPITHET.get(kind, '')
-            _assets.play_sound('ult_cast')         # 모였다가 터지는 큰 소리로 등장
+            if not getattr(config, 'BOSS_INTRO', False):   # 등장씬이 켜져 있으면 등장씬이 대사 뒤에 연다
+                self.open_boss(boss)
             return
         if self.t is None:
             return
         self.t += dt
-        if self.t >= OPEN + HOLD + CLOSE:
+        if self.t >= OPEN + self.hold + CLOSE:
             self.t = None
+
+    def open_boss(self, boss, hold=HOLD):
+        """보스 이름 띠를 연다. 그림이 없으면(헤이즈 심장 T47 전처럼) 열지 않고 False."""
+        import assets as _assets
+        import ui
+        self.boss_seen = boss
+        kind = getattr(boss, 'kind', 'crasher')
+        image = f'backgrounds/boss_card_{kind}.png'
+        if not os.path.exists(os.path.join(_assets.ASSET_DIR, image)):   # 등장 카드 그림이 아직 없다
+            return False                                                  # 카드 없이 보스 자신의 등장 연출만
+        self.t, self.theme, self.boss, self.hold = 0.0, f'boss_{kind}', True, hold
+        self.image = image
+        self.title, self.label = getattr(boss, 'title', ''), ui.BOSS_EPITHET.get(kind, '')
+        _assets.play_sound('ult_cast')         # 모였다가 터지는 큰 소리로 등장
+        return True
+
+    def holding(self):
+        """보스 띠가 열리는 중이거나 다 열려 머무는 중인가 (닫히기 시작하면 False)."""
+        return self.boss and self.t is not None and self.t < OPEN + self.hold
+
+    def close_now(self):
+        """Enter·Space로 넘겼다: 머무는 시간을 건너뛰고 바로 닫기 시작한다."""
+        if self.t is not None:
+            self.t = max(self.t, OPEN + self.hold)
 
     def visible(self):
         return self.t is not None
@@ -86,10 +105,10 @@ class ZoneCard:
             return 0
         if self.t < OPEN:
             k = self.t / OPEN
-        elif self.t < OPEN + HOLD:
+        elif self.t < OPEN + self.hold:
             k = 1.0
         else:
-            k = max(0.0, 1.0 - (self.t - OPEN - HOLD) / CLOSE)
+            k = max(0.0, 1.0 - (self.t - OPEN - self.hold) / CLOSE)
         k = 1 - (1 - k) ** 2                        # 빠르게 열리고 끝에서 느려진다
         return int(CARD_H * k) // 2 * 2
 

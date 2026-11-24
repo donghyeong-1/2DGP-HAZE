@@ -126,6 +126,8 @@ class Boss(Enemy):
         effects.spawn('quake-blast', self.x, self.y, duration=0.6)
         effects.ground_slam(self.x, self.y, power=1.6)                    # v7 보스 땅 강타
         effects.float_text(self.x, self.y + self.hb_h + 80, '분노', (255, 110, 90), big=True, life=1.0)
+        import boss_intro
+        boss_intro.bark(self, 'phase2')                                   # v8 6일 차: 페이즈 전환 한 줄
 
     def _do_chase(self, dt):
         s = self.stats
@@ -410,6 +412,8 @@ class Boss(Enemy):
             self.alive = False
             self.die()
             assets.play_sound('enemy_die')
+            import boss_intro
+            boss_intro.bark(self, 'death')                    # v8 6일 차: 쓰러지며 한 줄
             self.player.run_kills = getattr(self.player, 'run_kills', 0) + 1     # 판 기록 (계획 4-2)
             self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1)
             effects.add_trauma(1.0)

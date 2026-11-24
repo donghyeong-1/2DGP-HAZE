@@ -127,6 +127,8 @@ class Ark(Enemy):
         effects.add_trauma(0.7)
         effects.spawn('puff', self.x, self.y + 20, duration=0.45)       # 큰 폭발은 페이즈 자세를 가린다
         effects.float_text(self.x, self.y + self.hb_h + 80, word, (150, 240, 230), big=True, life=1.0)
+        import boss_intro
+        boss_intro.bark(self, f'phase{phase}')                            # v8 6일 차: 페이즈 전환 한 줄
 
     def on_attack_start(self):
         super().on_attack_start()
@@ -366,6 +368,8 @@ class Ark(Enemy):
             self.die()
             self.vx = 0.0
             assets.play_sound('enemy_die')
+            import boss_intro
+            boss_intro.bark(self, 'death')                        # v8 6일 차: 쓰러지며 한 줄 (곧 헤이즈 심장이 내려온다)
             self.player.run_kills = getattr(self.player, 'run_kills', 0) + 1     # 판 기록 (계획 4-2)
             self.player.shards += config.SHARDS_PER_KILL.get(self.kind, 1)
             effects.add_trauma(1.0)

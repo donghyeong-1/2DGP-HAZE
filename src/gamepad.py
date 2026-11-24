@@ -176,6 +176,11 @@ def tick(mode, dt):
         actions = _translator.play(state, dt)
         if 'pause' in actions['press']:
             _push_key('escape')
+        import boss_intro
+        if boss_intro.freezing:                             # v8 보스 등장씬: A·X·Y는 넘기기(Enter), 플레이어는 움직이지 않는다
+            if {'jump', 'attack', 'interact'} & set(actions['press']):
+                _push_key('enter')
+            return
         p = play_mode.player
         cx, cy = p.center
         ox, oy = play_mode.camera.offset()

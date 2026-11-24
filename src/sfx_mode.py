@@ -70,9 +70,15 @@ def save():
         if bad:
             redo[label] = bad
     tmp = PATH + '.tmp'
-    with open(tmp, 'w', encoding='utf-8') as f:
-        json.dump({'marks': marks, 'redo': redo}, f, ensure_ascii=False, indent=1)
-    os.replace(tmp, PATH)
+    try:
+        with open(tmp, 'w', encoding='utf-8') as f:
+            json.dump({'marks': marks, 'redo': redo}, f, ensure_ascii=False, indent=1)
+        os.replace(tmp, PATH)
+    except OSError as e:                                   # 쓸 수 없는 폴더(실행 파일 등): 표시는 이번 실행 동안만, 게임은 계속
+        import log
+        log.error(f'효과음 표시를 저장하지 못했다: {PATH}', e)
+        return False
+    return True
 
 
 def mark(name, value):

@@ -1,0 +1,36 @@
+# 대기열 3 버그 훑기 보고서: 창을 여닫는 길
+
+브랜치: `claude/project-thread-7i2rva` (이 세션이 푸시할 수 있는 브랜치가 하나뿐이라 PR #2 안에 따로 커밋으로 묶었다)
+범위: 증강 선택(이벤트·형태 카드 포함)·일시정지·설정·키 설정·연습 메뉴·효과음 듣기·NPC·사망/탈출 화면
+
+## 어떻게 찾았나
+1. **코드 읽기**: 위 창들의 `enter / handle_events / update / draw`와 그 창을 여는 곳(`play_mode._on_*`, `stage` 보상, `events.take`).
+   `% len(...)`, `[0]`, 쓰기(`open(..., 'w')`), 키 칸 None을 찾아봤다.
+2. **실제 창으로 무작위 입력** (새 방법): 컨테이너에서 SDL `offscreen` 비디오 + `software` 렌더러로 실제 pico2d 창을 열 수 있다(소리는 dummy).
+   모드 스택을 그대로 돌리며 프레임마다 SDL 이벤트(키·마우스 이동·클릭)를 넣고 `handle_events → update → draw`까지 부른다.
+   장면 16개(증강 카드 4종류, 일시정지, 설정, 키 설정, 연습 메뉴, NPC 넷, 플레이, 타이틀, 사망·탈출)를 시드 여러 개로.
+   덧붙여 **무기 둘 + 증강 22개 + 합성 8종 전부**를 든 채 구역 1~3(절반은 보스방)에서 마구 싸우는 장면 3개.
+   이 스크립트는 저장소 밖(세션 임시 폴더)에 두었다. 필요하면 `tools/`로 옮길 수 있다.
+
+## 찾은 것과 고친 것 (테스트 먼저: `tests/test_bug_sweep_v8.py`, 구현 전 3개 모두 실패 확인)
+
+| 증상 | 원인 | 고친 곳 |
+|---|---|---|
+| 효과음 듣기에서 G·B·X를 누르면 저장 폴더를 쓸 수 없을 때 **게임이 꺼진다** (`FileNotFoundError`/`PermissionError`) | `sfx_mode.save`만 저장 실패를 잡지 않았다 (다른 저장은 `safe_io`가 잡는다) | `sfx_mode.save`: 실패하면 기록만 남기고 표시는 이번 실행 동안 유지 |
+| 키 설정의 빈 보조 칸(None)을 물으면 '왼쪽 이동'이 나온다 | `keybinds.action_for(None)`이 `None in [A, None]`을 참으로 봤다. 11/25 `sync_inputs` 튕김과 같은 종류. 지금 부르는 곳은 없지만 같은 실수를 막는다 | `keybinds.action_for` |
+| 카드가 0장인 증강 창에서 A·D·Enter를 누르면 튕긴다 (`ZeroDivisionError`/`IndexError`) | 지금은 여는 쪽이 빈 목록을 거르지만, 창 자체는 빈 목록을 가정하지 않았다 | `mutation_mode.handle_events`·`update`: 카드가 없으면 닫는다 |
+
+## 무작위 입력 결과
+- 1차(시드 1, 장면당 300프레임): 튕김 0.
+- (아래는 돌린 뒤 채운다)
+
+## 남은 것 / 확인하지 못한 것
+- 소리는 dummy라 소리 재생 길은 확인하지 못했다(효과음 파일 읽기까지만).
+- 게임패드는 컨테이너에 없어 `gamepad.tick`은 코드로만 읽었다.
+- NPC·사망 화면(`npc_mode`, `ending_mode`)과 이벤트(`events.py`)는 NPC 스레드가 고치고 있어 **읽기만 했다**. 튕김은 찾지 못했다.
+
+## PROGRESS.md 작업 로그에 넣을 한 줄
+`2026-11-25 [Claude 프로젝트] 버그 훑기: 창 여닫는 길 무작위 입력(offscreen 실제 창), 효과음 표시 저장 실패·키 빈 칸·빈 카드 창 / src/sfx_mode.py, src/keybinds.py, src/mutation_mode.py, tests/test_bug_sweep_v8.py`
+
+## DECISIONS.md에 넣을 결정
+- 2026-11-25 컨테이너(화면 없음)에서도 SDL offscreen + software 렌더러로 실제 창을 열어 그림을 찍고 입력을 넣을 수 있다. 화면 확인이 필요한 PR은 이 방법으로 먼저 본다.

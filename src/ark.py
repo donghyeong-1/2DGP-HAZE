@@ -30,6 +30,7 @@ TABLES = {1: {'barrage': 3, 'slash': 2, 'field': 2},
           2: {'barrage': 2, 'slash': 2, 'field': 1, 'wave': 3, 'bands': 2},
           3: {'barrage': 2, 'slash': 2, 'field': 1, 'wave': 3, 'bands': 2, 'crystals': 2}}
 # 2·3페이즈 방 쓰기 (11/22 v5): bands = 짙은·맑은 농도 띠가 방을 가로지름, crystals = 플레이어 양옆에 결정 벽
+POSE = {'bands': 'field', 'crystals': 'field'}   # 전용 그림이 없는 방 쓰기 패턴은 장판 자세(땅에 손을 뻗음)를 빌린다 (없는 그림을 그리다 튕겼다)
 GLOW = {'barrage': (90, 240, 230), 'slash': (220, 240, 255), 'absorb': (150, 100, 235),
         'overcharge': (255, 240, 150), 'field': (110, 235, 150)}   # 예고 중 손에 맺히는 빛 (패턴마다 색이 다르다)
 KEEP_FAR, KEEP_NEAR = 480, 220   # 패턴 사이 이 거리 사이를 유지한다(px)
@@ -324,7 +325,7 @@ class Ark(Enemy):
                     appear_end = self._vanish_time() + (windup - self._vanish_time()) * 0.5
                     return ('boss_ark_appear', 1) if t < appear_end else ('boss_ark_slash', 1)
                 return 'boss_ark_slash', 2 if t < windup + self._active() * 0.5 else 3
-            name = 'boss_ark_' + self.pattern
+            name = 'boss_ark_' + POSE.get(self.pattern, self.pattern)
             return name, 1 if t < windup else 2
         if self.roar_left > 0:
             return 'boss_ark_phase', 1

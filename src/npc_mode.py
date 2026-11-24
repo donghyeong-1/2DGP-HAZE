@@ -32,7 +32,7 @@ PORTRAIT = 200           # 초상화 크기(px)
 _under = None
 
 STORY = {
-    'archivist': ['"또 돌아왔군. 기록은 내가 남겨 둘 테니 걱정 마."',
+    'archivist': ['"이 교도소는 운석 구덩이 위에 세웠대. 그래서 안개가 안 걷혀."',   # 인사는 한마디(대사)가 맡는다
                   '"헤이즈는 줄어도 죽고, 넘쳐도 터진다. 그 사이를 걸어."',
                   '"탑 꼭대기의 아크는 게이지를 위아래로 흔든다. 여유를 남겨 둬."'],
 }
@@ -205,7 +205,7 @@ def draw():
     kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 50, crystals, (130, 235, 225), right=True)
     line = speech()
     if line:                                                     # 한마디 (v8 6일 차): 제목 오른쪽, 결정 수 아래
-        kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 92, line, (235, 228, 205), right=True)
+        kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 92, f'"{line}"', (235, 228, 205), right=True)   # 기록관 이야기 줄처럼 따옴표
     buttons = _buttons()
     for i, (title, value, desc, key) in enumerate(rows()):
         b = buttons[i]

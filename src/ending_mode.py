@@ -169,8 +169,8 @@ def draw():
     else:
         if kept:
             assets.draw_text(cx, 470, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
-        if ending_line:                                            # 탈출 뒤 한 줄 (판 기록 아래, 안내 위)
-            kit.text(cx, 430, ending_line, (215, 228, 240), center=True)
+        if ending_line:                                            # 탈출 뒤 한 줄 (판 기록 아래, 안내 위. 맡긴 물건이 있으면 그 아래)
+            kit.text(cx, 425 if kept else 450, ending_line, (215, 228, 240), center=True)
         kit.footer([('아무 키', nxt)], y=380)
     import transition
     transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)

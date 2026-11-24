@@ -126,3 +126,7 @@
 시뮬레이터가 게임 코드 변경으로 깨지지 않게 `tests/test_tools.py`가 지킨다.
 - **haze-fx** (2026-11-24): 전투 이펙트 제작 절차. `tools/fxkit.py`(그림판·입자·빛, 색 시트 + 빛 시트)와 `tools/make_fx2.py`(이펙트마다 함수 하나).
   `python tools/make_fx2.py --look <이름>`으로 모아 보기(`shots/fx/`)를 보고 세 번 이상 고친 뒤 굽는다. 기준: 선과 빛으로, 단계가 있는 연출, 점무늬 금지.
+- **haze-inari** (2026-11-24): haze-fx의 상위판. INARI 상점 영상을 프레임마다 재서 얻은 연출 문법을 모았다. 공격 등급 5단계별로 넣을 것과 넣지 않을 것,
+  기법 사전(영상의 기법 ↔ 우리 도구 ↔ 있음/없음), 큰 마무리(`weapon.FinisherCut`)의 시간표, 화면 왜곡(`src/postfx.py`) 세기 기준, 반려된 시도 목록.
+  `references/inari-analysis.md`(측정값), `scripts/video_probe.js`(내장 브라우저에서 영상을 프레임마다 재는 스크립트: 밝기·색 비율·프레임 차이 표, 프레임 모아 보기).
+  "무엇을 얼마나 넣을지"는 haze-inari, "어떻게 굽는지"는 haze-fx.

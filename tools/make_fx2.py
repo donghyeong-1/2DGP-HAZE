@@ -563,6 +563,159 @@ TINTS['fin-burst'] = [(FIN_META, fin_create)]
 LOOK_COLOR = [236, 30, 52]          # 모아 보기에서 색 층에 입혀 볼 색 (게임에서는 공격마다 다르다)
 
 
+# =====================================================================================================
+# haze-inari 스킬의 본보기 (2026-11-24): INARI 영상에서 읽어 낸 기법을 fxkit으로 옮긴 것.
+# =====================================================================================================
+# ----- 반짝임 glint: 칼이 맞부딪치거나 강하게 스친 자리의 가는 빛. 색은 게임이 입힌다 -----
+# 한 줄: 가로로 길고 세로는 짧은 네 갈래 별(가운데가 굵고 끝이 바늘처럼 가늘다)이 한 장 번쩍 -> 가운데가 비며 빛줄기가 양옆으로
+#        밀려나 토막 나고 -> 별빛 두세 개만 남는다. (게임 화면에서 처음 본 판은 굵기가 고른 '+' 조준선으로 보여 다시 만들었다:
+#        세로를 가로의 1/3로, 양팔 길이를 다르게, 막대 대신 끝이 뾰족한 삼각형으로)
+GLINT_META = dict(size=[128, 64], origin=[64, 32], duration=0.2, fps=30, options=dict(seed=9))
+
+
+def _star4(p, left, right, up, down, c, color):
+    """가로·세로 팔 길이가 제각각인 네 갈래 별: 팔마다 가운데(폭 2c)에서 끝점으로 좁아지는 삼각형."""
+    if right > 1:
+        p.poly([(0, -c), (right, 0), (0, c)], color)
+    if left > 1:
+        p.poly([(0, -c), (-left, 0), (0, c)], color)
+    if down > 1:
+        p.poly([(-c, 0), (0, down), (c, 0)], color)
+    if up > 1:
+        p.poly([(-c, 0), (0, -up), (c, 0)], color)
+
+
+def _sliver(p, x0, x1, w, color):
+    """양 끝이 가늘어지는 가로 토막 (가운데가 가장 굵다)."""
+    mid = (x0 + x1) / 2
+    p.needle(mid, 0, x0, 0, color, w)
+    p.needle(mid, 0, x1, 0, color, w)
+
+
+def glint_create(o):
+    core = o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    ps = Particles(rng, WHITES)
+    left, right, up, down = 58, 44, 17, 11                     # 팔 길이를 다르게 (같으면 조준선처럼 보인다)
+    for x, y, d in ((-30, -8, 0.06), (30, 7, 0.09)):           # 빛줄기 곁의 별빛 둘
+        ps.spawn(fx.TWINKLE, x, y, 0, 0, rng.range(0.1, 0.13), rng.range(1.0, 1.3), d)
+    t = [0.0]
+
+    class Glint:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            if u < 0.06:                                         # 꽉 찬 네 갈래 별 한 장 -> 가늘어진 별 한 장
+                k = 1.0 if u < 0.03 else 0.55
+                if core:
+                    _star4(p, left * (0.9 + 0.1 * k), right * (0.9 + 0.1 * k), up * k, down * k, 2.6 * k + 0.2, WHITE)
+                else:
+                    _star4(p, left + 4, right + 4, (up + 3) * k, (down + 3) * k, 4.6 * k + 0.4, G[3])
+                    p.glow(0, 0, 30, WHITE, 150 * k)
+                    p.glow_line(-left * 0.7, 0, right * 0.7, 0, 8, WHITE, 70 * k)
+            else:                                                # 가운데가 비며 빛줄기가 양옆으로 밀려나 짧아진다
+                v = (u - 0.06) / 0.065
+                if v < 1:
+                    for side, reach, far in ((1, right, 0.62), (-1, left, 0.5)):
+                        x0 = side * (6 + reach * far * out_expo(v))        # 안쪽 끝이 빠르게 바깥으로 달아난다
+                        x1 = side * (reach + 3 * v)
+                        if abs(x1 - x0) < 4:
+                            continue
+                        cut = x0 + (x1 - x0) * (0.3 if side > 0 else 0.42)  # 한 군데가 끊어져 긴 토막과 짧은 토막이 된다
+                        if core:
+                            _sliver(p, x0, cut - side * 2, 1.6 - 0.8 * v, WHITE)
+                            _sliver(p, cut + side * 2, x1, 1.6 - 0.8 * v, WHITE)
+                        else:
+                            _sliver(p, x0 - side * 2, x1 + side * 3, 3.4 - 1.6 * v, G[3])
+                            p.glow_line(x0, 0, x1, 0, 6, WHITE, 50 * (1 - v))
+            if core:
+                ps.draw(p)
+    return Glint()
+
+
+TINTS['glint'] = [(GLINT_META, glint_create)]
+
+# ----- 붓질 초승달 시안 inari-smear (보기 전용: 게임 파일로 굽지 않는다) -----
+# 한 줄: 회색 예고 한 장 -> 흰 초승달 한 장 -> 진한 색 면 두 장(바깥 가장자리가 밝고, 꼬리가 붓끝처럼 갈라진다) -> 뒤쪽이 가로 줄로
+#        찢기며 가늘어짐 -> 가는 흰 호와 별빛만 남는다. (INARI 평타: 색 면은 2~3프레임뿐, 끝이 갈라지고 찢긴다)
+SMEAR_META = dict(size=[190, 190], origin=[95, 95], duration=0.3, fps=30, options=dict(ramp='critical', seed=12))
+
+
+def smear_create(o):
+    R = RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    ps = Particles(rng, R, sparks=WHITES)
+    lights = Lights()
+    for _ in range(9):                                          # 지나온 쪽(왼쪽)에 남는 별빛
+        ps.spawn(fx.TWINKLE, rng.range(-80, -10), rng.range(-30, 40), rng.range(-30, 10), rng.range(-10, 10), rng.range(0.12, 0.22),
+                 rng.range(0.5, 1.2), rng.range(0.03, 0.14))
+    CX, CY, RO = -6.0, -6.0, 62.0                               # 바깥 원
+    tail = (CX + (RO - 9) * math.cos(1.0), CY + (RO - 9) * math.sin(1.0))    # 아래쪽 굵은 자리 (꼬리가 여기서 갈라져 나간다)
+    t = [0.0]
+    fired = [False]
+
+    def crescent(p, s, mode='color'):
+        """s: 두께 1 -> 0. 바깥 원에서 왼쪽(조금 위)으로 밀린 같은 크기의 안쪽 원을 뺀 모양: 위아래 끝은 저절로 가늘어지고
+        오른쪽(조금 아래)이 가장 굵다. 잘라 낸 직선 가장자리가 생기지 않게 다른 조건으로 자르지 않는다."""
+        def fn(X, Y):
+            d = fx.np.hypot(X - CX, Y - CY) / RO
+            inner = fx.np.hypot(X - CX + 24 * s, Y - CY + 7 * s) <= RO - 1
+            keep = (d <= 1.0) & ~inner
+            if mode == 'grey':
+                return fx.np.where(keep & (d > 0.92) & (X > 14), 2, -1)     # 예고: 오른쪽 바깥 테두리만
+            if mode == 'white':
+                return fx.np.where(keep, 4, -1)
+            return fx.np.where(keep, fx.np.where(d > 0.94, 3, 2), -1)       # 진한 색 면, 바깥 테두리만 한 단계 밝게
+        p.shade(-70, -72, 70, 70, fn, RAMPS['dust'] if mode == 'grey' else R)
+
+    def arc_glow(p, k):
+        for a in (-1.2, -0.7, -0.2, 0.3, 0.8):                  # 호를 따라 번지는 빛 (예전 초승달처럼 빛나게)
+            p.glow(CX + (RO - 10) * math.cos(a), CY + (RO - 10) * math.sin(a), 46, R[2], 130 * k)
+            p.glow(CX + (RO - 8) * math.cos(a), CY + (RO - 8) * math.sin(a), 22, R[3], 110 * k)
+
+    class Smear:
+        def update(self, dt):
+            t[0] += dt
+            if not fired[0] and t[0] >= 0.03:
+                fired[0] = True
+                ps.burst(SPARK, tail[0] + 22, tail[1] + 22, 7, (180, 460), (0.12, 0.26), spread=1.0, aim=0.8)
+                ps.burst(MOTE, 20, 10, 8, (40, 180), (0.14, 0.26), spread=2.0, aim=0.3)
+                lights.add(30, 0, 70, R[2], 130, 0.22)
+            ps.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            i = int(t[0] * 30 + 0.01)
+            if i == 0:
+                crescent(p, 1.0, 'grey')
+            elif i == 1:
+                crescent(p, 1.0, 'white')
+                p.fork(tail[0], tail[1], 0.8, 40, 12, WHITE, n=3, spread=0.34, seed=o['seed'])
+                arc_glow(p, 1.3)
+            elif i in (2, 3, 4):
+                s = (1.0, 0.9, 0.5)[i - 2]
+                crescent(p, s)
+                p.fork(tail[0], tail[1], 0.8, 40 * (1.0 if i < 4 else 0.75), 12 * s, R[2], n=3, spread=0.34, seed=o['seed'], tip=WHITE)
+                # 찢김은 휘두르기가 시작된 위쪽 끝에만 (안쪽 가장자리 전체를 찢으면 빗처럼 보인다)
+                p.streak_edges(-40, -72, 30, -46, -1, (6, 12, 20)[i - 2], seed=o['seed'] + i, band=1 if i < 4 else 2, trail=0.7)
+                arc_glow(p, (1.0, 0.8, 0.45)[i - 2])
+            elif i == 5:                                            # 가는 흰 호만 남는다
+                def fn(X, Y):
+                    d = fx.np.hypot(X - CX, Y - CY)
+                    return fx.np.where((fx.np.abs(d - RO + 1) <= 1.0) & (X > 22) & (Y < 34), 4, -1)
+                p.shade(-70, -72, 70, 70, fn, R)
+                arc_glow(p, 0.2)
+            ps.draw(p)
+            lights.draw(p)
+    return Smear()
+
+
+LOOK_ONLY = {'inari-smear': (SMEAR_META, smear_create)}      # --look으로만 굽는 시안
+
+
 def build_tint(name, look):
     variants = TINTS[name]
     tint = [fx.render(meta, create, layer='tint') for meta, create in variants]
@@ -1006,7 +1159,10 @@ def main(argv):
         if name in TINTS:
             build_tint(name, look)
             continue
-        meta, create = EFFECTS[name]
+        if name in LOOK_ONLY and not look:
+            print('보기 전용 시안이라 굽지 않는다 (--look):', name)
+            continue
+        meta, create = EFFECTS[name] if name in EFFECTS else LOOK_ONLY[name]
         frames = fx.render(meta, create)
         path = fx.contact(frames, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), actor=HERO, origin=meta['origin'],
                           label=f"{name}  {meta['size'][0]}x{meta['size'][1]}  {len(frames)}f @{meta.get('fps', 30)}fps")

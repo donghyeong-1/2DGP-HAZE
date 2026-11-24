@@ -687,6 +687,11 @@ def spawn_flare(x, y, color, big=False, line=False, small=False):
         game_world.add_object(ScreenLine(x, y, color), game_world.LAYER_EFFECT)
 
 
+def spawn_glint(x, y, color):
+    """십자 반짝임 (INARI의 맞부딪침 표시): 가로가 긴 가는 십자가 1~2프레임 번쩍인다. 반격·받아치기처럼 '칼이 맞닿은' 순간에."""
+    game_world.add_object(TintFx('glint', x, y, color), game_world.LAYER_EFFECT)
+
+
 def spawn_bloom(x, y, color, big=False, life=0.16, strength=1.0):
     game_world.add_object(Bloom(x, y, color, big, life, strength), game_world.LAYER_EFFECT)
 

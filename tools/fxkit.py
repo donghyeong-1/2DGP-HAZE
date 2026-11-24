@@ -203,6 +203,46 @@ class Painter:
                   rough * 0.35 * np.sin(8 * ang + seed * 29.7))
         self.put(box, np.hypot(X, Y) <= rr, color, a)
 
+    def fork(self, x, y, angle, length, w, color, n=3, spread=0.3, seed=0.0, tip=None):
+        """붓끝처럼 갈라진 꼬리: (x, y)에서 angle 쪽으로 길이·각도가 조금씩 다른 가시 n개. 초승달·스미어의 끝에 붙인다 (INARI의 갈라진 붓질)."""
+        for i in range(n):
+            k = (i / max(1, n - 1)) - 0.5
+            jit = math.sin(seed * 12.9 + i * 4.1)
+            a = angle + k * 2 * spread + jit * 0.06
+            ln = length * (1.0 - abs(k) * 0.9 + 0.15 * jit)
+            self.needle(x, y, x + math.cos(a) * ln, y + math.sin(a) * ln, color, w * (1.0 - abs(k) * 0.6), tip=tip)
+
+    def streak_edges(self, x0, y0, x1, y1, side, amount, seed=0, band=1, trail=0.5):
+        """가로로 움직이는 스미어의 뒤쪽 가장자리를 가로 줄무늬로 찢는다 (INARI: 스미어 끝이 픽셀 가로 줄로 풀린다).
+        box 안에서 줄마다(band줄씩 묶어) 뒤쪽(side -1 = 왼쪽, +1 = 오른쪽) 끝을 0~amount칸 깎고, 일부 줄은 바깥으로 줄을 더 긋는다."""
+        box = self._box(x0, y0, x1, y1)
+        if box is None:
+            return
+        on, rgb = self.on[box], self.rgb[box]
+        h, w = on.shape
+        for r in range(h):
+            cols = np.flatnonzero(on[r])
+            if cols.size < 3:
+                continue
+            n = (((r // band) * 668265263 + seed * 374761393) & 0xffffffff)
+            n = ((n ^ (n >> 13)) * 1274126177) & 0xffffffff
+            rnd, rnd2 = (n & 0xffff) / 65535.0, ((n >> 16) & 0xffff) / 65535.0
+            edge = cols[0] if side < 0 else cols[-1]
+            color = rgb[r, edge].copy()
+            cut = int(amount * rnd * rnd)                                  # 대부분 조금, 몇 줄만 깊게
+            if cut:
+                if side < 0:
+                    on[r, edge:min(w, edge + cut)] = False
+                else:
+                    on[r, max(0, edge - cut + 1):edge + 1] = False
+            if rnd2 < trail:                                              # 바깥으로 끊어진 줄 하나
+                ln, gap = int(amount * (0.4 + rnd)), 1 + int(rnd2 * 4)
+                a0, a1 = (edge - gap - ln, edge - gap) if side < 0 else (edge + gap + 1, edge + gap + 1 + ln)
+                a0, a1 = max(0, a0), min(w, a1)
+                if a1 > a0:
+                    on[r, a0:a1] = True
+                    rgb[r, a0:a1] = color
+
     def poly(self, pts, color, a=1.0):
         """볼록 다각형(삼각 파편·마름모). pts는 시계 방향이든 반대든 상관없다."""
         xs, ys = [p[0] for p in pts], [p[1] for p in pts]
@@ -268,7 +308,7 @@ class Painter:
 
 
 # ----- 입자 -----
-SPARK, MOTE, SHARD, EMBER, PUFF, FLAME, CHUNK, STREAK = range(8)
+SPARK, MOTE, SHARD, EMBER, PUFF, FLAME, CHUNK, STREAK, TWINKLE = range(9)
 
 
 def heat_ramp(ramp, n=9):
@@ -291,6 +331,7 @@ CHUNKS = [[(0, 0), (1, 0), (0, 1)], [(0, 0), (1, 0), (1, 1), (2, 1)], [(0, 0), (
 class Particles:
     """불티(SPARK: 속도만큼 늘어난 두 색 줄기, 중력, 바닥에서 튄다, 빛남) / 알갱이(MOTE: 끌림이 큰 점, 식으며 사라짐) /
     파편(SHARD: 돌며 날아가는 삼각 조각) / 잿불(EMBER: 떠오르며 흔들리는 점) / 연기 덩이(PUFF: 부풀다 부서지는 덩이) /
+    별빛(TWINKLE: 제자리에서 커졌다 작아지는 흰 십자, 빠른 움직임 뒤에 뿌린다) /
     **불덩이(FLAME)**: 어두운 테두리·밝은 심·위로 솟은 혀가 있는 작은 덩이가 식으며 줄어든다. 수십 개가 겹쳐 폭발의 몸통·가시·
     고리를 만든다(도형을 그리지 않는다) / **픽셀 조각(CHUNK)**: 불규칙한 2~4칸 덩어리가 튀어 떨어진다 /
     **줄기(STREAK)**: 점점 빨라지는 점선 (한 점으로 빨려드는 기운, target으로 모인다)."""
@@ -325,9 +366,9 @@ class Particles:
             if q['age'] >= q['life']:
                 continue
             k = q['k']
-            drag = {SPARK: 2.2, MOTE: 5.5, SHARD: 1.6, EMBER: 2.5, PUFF: 4.5, FLAME: 5.0, CHUNK: 1.8, STREAK: -3.2}[k]
+            drag = {SPARK: 2.2, MOTE: 5.5, SHARD: 1.6, EMBER: 2.5, PUFF: 4.5, FLAME: 5.0, CHUNK: 1.8, STREAK: -3.2, TWINKLE: 6.0}[k]
             grav = {SPARK: GRAVITY, MOTE: GRAVITY * 0.15, SHARD: GRAVITY * 0.9, EMBER: -60.0, PUFF: -25.0, FLAME: -40.0,
-                    CHUNK: GRAVITY, STREAK: 0.0}[k]
+                    CHUNK: GRAVITY, STREAK: 0.0, TWINKLE: 0.0}[k]
             q['vx'] -= q['vx'] * drag * dt
             q['vy'] += (grav - q['vy'] * drag) * dt
             if k == EMBER:
@@ -412,6 +453,14 @@ class Particles:
                                 p.disc(x - dx * j * 2, y - dy * j * 2, s * 0.62, hot if j < 3 else cool)
                             else:
                                 p.px(x - dx * j * 2, y - dy * j * 2, hot if j < 2 else cool)
+            elif q['k'] == TWINKLE:
+                arm = s * 3.2 * math.sin(math.pi * u)                                   # 커졌다 작아지는 십자 별빛 (INARI의 반짝임)
+                if arm >= 0.8:
+                    p.line(x - arm, y, x + arm, y, WHITE)
+                    p.line(x, y - arm, x, y + arm, WHITE)
+                    p.glow(x, y, 4 + arm, self.ramp[-2], 30 * math.sin(math.pi * u))
+                elif int(q['age'] * 30 + q['seed']) % 2 == 0:
+                    p.px(x, y, WHITE)
             elif q['k'] == PUFF:
                 grow = out_cubic(min(1.0, u * 2.6))
                 shrink = 1.0 if u < 0.4 else 1.0 - ((u - 0.4) / 0.6) ** 1.5   # 점무늬로 흩지 않고 줄어들며 사라진다

@@ -52,5 +52,8 @@ npx skills add gamedev-skills/awesome-gamedev-agent-skills --skill game-feel --a
   [How to make (good) pixel art effects with Claude](https://www.spritefusion.com/blog/how-to-make-good-pixel-art-effects-with-claude):
   이펙트 하나 = 작은 코드, 색 층과 빛 층, 선과 빛으로 만들기, 속도만큼 늘어나는 불티, 단계가 있는 연출, 굽고 보고 고치기.
   **방식만 배웠다.** 코드와 결과물은 가져오지 않고 `tools/fxkit.py`를 파이썬(numpy)으로 새로 썼다. 절차는 `.claude/skills/haze-fx/SKILL.md`.
-- 화풍 참고: INARI(스팀 상점 영상을 프레임별로 봄). 흰색이 주, 색은 가장자리. 그림·이름·캐릭터는 쓰지 않는다.
+- 화풍 참고: INARI(스팀 상점 영상을 프레임별로 봄). 그림·이름·캐릭터는 쓰지 않는다. 처음에는 '흰색이 주, 색은 가장자리'로 읽었으나
+  프레임마다 재 보니 반대였다: **진한 색 면이 주, 흰색은 한 장짜리 섬광과 작은 별뿐**(처형 원반 프레임에서 붉은색 약 11%, 흰색 약 2%),
+  색 면의 수명은 2~3프레임, 화면 정지는 한 번도 없음, 처형 전 0.3초 암전. 측정값과 장면별 관찰은
+  `.claude/skills/haze-inari/references/inari-analysis.md`, 기법과 우리 도구의 대응은 `.claude/skills/haze-inari/SKILL.md`. 영상의 프레임은 저장하지 않았다.
 

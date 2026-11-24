@@ -333,3 +333,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-24: 큰 마무리 연출 시트 `assets/effects/fin-burst.png`·`exec-crescent.png`와 빛 시트: `tools/make_fx2.py`(code-drawn, haze-fx 절차). 구성은 INARI 영상의 장면 순서를 참고(그림은 쓰지 않음). 처음 만든 도장 시트 exec-disc·exec-star는 삭제.
 - 2026-11-24: 이펙트 v8 5차 — `assets/effects/pipe-slash*`(13종), `air-spin*`(4종), `puff`·`surge`·`dust-land`·`quake-blast`·`death-burst`, `ult-nova-*`(5종), `overload-burst`와 빛 시트를 `tools/make_fx2.py`(code-drawn, haze-fx 절차)로 다시 만듦.
 - 2026-11-24: `assets/effects/overload-burst.png`(입자로만 만든 폭발)·`overload-gather.png`(모이는 기운)와 빛 시트: `tools/make_fx2.py`(code-drawn). 구성 방식은 pixelfx의 불덩이 입자를 참고(코드·결과물은 쓰지 않음).
+- 2026-11-24: `assets/effects/glint.png`(맞부딪침의 가는 십자 반짝임, 두 겹 시트)와 `assets/light/glow_glint.png`: `tools/make_fx2.py`(code-drawn, haze-inari 절차). 구성은 INARI 영상의 맞부딪침 장면을 참고(그림은 쓰지 않음). 붓질 초승달 시안 `inari-smear`는 모아 보기(`shots/fx/`)만 만들고 게임 파일로 굽지 않는다.

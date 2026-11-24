@@ -16,6 +16,7 @@ import hud_kit as kit
 import items
 import meta
 import npc as npc_mod
+import talk
 
 W, H = config.SCREEN_W, config.SCREEN_H
 PANEL_W, PANEL_H = 1100, 700
@@ -129,18 +130,31 @@ def _ro(word):
     return '로' if not 0 <= code < 11172 or code % 28 in (0, 8) else '으로'
 
 
+def speech():
+    """NPC의 한마디 (v8 6일 차): 직전 판 결과에 따라 다르다 (data/dialogue.py, src/talk.py). 무기 걸이는 None."""
+    meta.ensure_loaded()
+    got = talk.speech(kind, meta.state)
+    return got[0] if got else None
+
+
+def _speech_mood():
+    meta.ensure_loaded()
+    got = talk.speech(kind, meta.state)
+    return got[1] if got else 1
+
+
 def faces():
     """(주인공 초상화, NPC 초상화) 이름. 샀으면 주인공은 결의·정비사는 씩 웃음, 모자라면 보관인은 걱정,
     기록관은 '지금까지' 기록 줄을 고르면 놀란다."""
     hero = 'n09_2' if result == 'ok' else 'n09_1'
     if kind == 'mechanic':
-        mood = 2 if result == 'ok' else 1
+        mood = 2 if result == 'ok' else 1 if result else _speech_mood()      # 아직 아무것도 안 했으면 대사의 표정
     elif kind == 'keeper':
-        mood = 2 if result == 'fail' else 1
+        mood = 2 if result == 'fail' else 1 if result else _speech_mood()
     elif kind == 'armory':
         return hero, None                          # 무기 걸이는 사람이 아니다: 초상화 없음
     else:
-        mood = 2 if selected == len(rows()) - 1 else 1
+        mood = 2 if selected == len(rows()) - 1 else 1 if result else _speech_mood()
     return hero, f'{kind}_{mood}'
 
 
@@ -195,6 +209,9 @@ def draw():
     kit.heading(PANEL_X, PANEL_Y + PANEL_H - 50, npc_mod.NAMES[kind], npc_mod.ROLES[kind], color=color)
     crystals = f'헤이즈 결정 {meta.state["crystals"]}'
     kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 50, crystals, (130, 235, 225), right=True)
+    line = speech()
+    if line:                                                     # 한마디 (v8 6일 차): 제목 오른쪽, 결정 수 아래
+        kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 92, line, (235, 228, 205), right=True)
     buttons = _buttons()
     for i, (title, value, desc, key) in enumerate(rows()):
         b = buttons[i]

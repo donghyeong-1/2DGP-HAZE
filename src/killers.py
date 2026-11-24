@@ -12,6 +12,7 @@ PROJECTILE_NAMES = {'Scrap': '투척병의 고철', 'Lob': '투척병의 포물�
                     'GaugeWave': '아크의 게이지 파동', 'PollutionField': '아크의 오염 지대', 'EliteBurst': '폭발 정예의 폭발',
                     'CartBlast': '부서진 자폭 수레의 폭발', 'CrystalShard': '헤이즈 심장의 결정 비'}
 OTHER = {'spike': '가시', 'debug': '시험 피해'}
+DEVICE_NAMES = {'vent': '증기 분출구', 'laser': '감시 레이저'}   # v8 구역별 장치 (devices.py)
 GAUGE_EMPTY = '헤이즈 고갈 (게이지 0%)'
 OVERLOAD = '오버로드 폭발 (게이지 100%)'
 
@@ -27,4 +28,6 @@ def describe(source):
         name = ENEMY_NAMES[kind]
         label = source.elite_label() if getattr(source, 'elite', None) else ''
         return f'{label} {name}' if label else name
+    if kind in DEVICE_NAMES:
+        return DEVICE_NAMES[kind]
     return PROJECTILE_NAMES.get(type(source).__name__, '알 수 없음')

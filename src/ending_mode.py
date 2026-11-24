@@ -13,6 +13,7 @@ import game_framework
 import hud_kit as kit
 import items
 import meta
+import talk
 
 result = 'dead'  # 'clear' 또는 'dead'. 모드로 들어가기 전에 play_mode가 정한다.
 _ignore_input = 0.0  # 사망 직후 누르고 있던 키로 바로 넘어가지 않게 잠시 입력을 막는다
@@ -22,6 +23,7 @@ choice = 0
 choosing = False     # 지금 맡길 것을 고르는 중인가
 kept = None          # 맡긴 것 (보여 주기용)
 summary = []         # 판 기록 [(이름, 값)]
+ending_line = ''     # 탈출 뒤 한 줄 (v8 6일 차, data/dialogue.py ENDING)
 SUM_W, SUM_ROW = 760, 54
 
 
@@ -35,15 +37,18 @@ def run_summary(player, zone_title, reward):
 
 
 def enter():
-    global _ignore_input, reward, choices, choice, choosing, kept, summary
+    global _ignore_input, reward, choices, choice, choosing, kept, summary, ending_line
     import play_mode
     _ignore_input = 0.6
     import transition
     transition.reveal(0.6)                         # 쓰러진 뒤·탈출 뒤 천천히 드러난다
     assets.play_music('title')   # 사망·탈출 화면은 차분한 곡으로 돌아간다
     p = play_mode.player
-    reward = meta.finish_run(p, escaped=result == 'clear') if p is not None else 0
     st = getattr(play_mode, 'stage', None)
+    zone = getattr(st, 'name', None)                                     # 직전 판 기록 (NPC 대사): 어디서, 아크를 눕힌 뒤였나
+    ark_down = getattr(getattr(st, 'boss', None), 'kind', '') == 'heart'
+    reward = meta.finish_run(p, escaped=result == 'clear', zone=zone, ark_down=ark_down) if p is not None else 0
+    ending_line = talk.ending_line(meta.state.get('escapes', 0)) if result == 'clear' else ''
     summary = run_summary(p, getattr(st, 'title', ''), reward) if p is not None else []
     options = meta.keepsake_options(p) if p is not None and meta.keeper_open() else []
     choices = options + [None] if options else []
@@ -164,6 +169,8 @@ def draw():
     else:
         if kept:
             assets.draw_text(cx, 470, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
+        if ending_line:                                            # 탈출 뒤 한 줄 (판 기록 아래, 안내 위)
+            kit.text(cx, 430, ending_line, (215, 228, 240), center=True)
         kit.footer([('아무 키', nxt)], y=380)
     import transition
     transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)

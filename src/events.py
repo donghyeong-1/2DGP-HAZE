@@ -39,6 +39,14 @@ DEALS = {
 current = None          # 지금 카드 창을 연 이벤트 자리 (stage가 넣는다)
 
 
+def greeting():
+    """떠돌이 죄수 인사말 (v8 6일 차): 판마다 돌아가며 (data/dialogue.py DRIFTER). 가까이 가면 머리 위에 뜬다."""
+    import meta
+    import talk
+    meta.ensure_loaded()
+    return talk.drifter_line(meta.state.get('runs', 0))
+
+
 def kind_of(stage):
     """이 구역의 이벤트 종류. 구역이 바뀔 때마다 시드가 1씩 올라 번갈아 나온다."""
     return KINDS[stage.seed % len(KINDS)]
@@ -123,9 +131,11 @@ class Spot:
         self.player = None
         self.time = 0.0
         self.npc = None
+        self.greeting = ''
         if kind == 'drifter':
             from npc import NPC
             self.npc = NPC('drifter', x, y)
+            self.greeting = greeting()
 
     @property
     def used(self):
@@ -151,6 +161,8 @@ class Spot:
             self.npc.player = None if self.used else p       # 거래를 마치면 안내를 띄우지 않는다
             self.npc.draw()
             top = self.y + 132
+            if p is not None and not self.used and self.npc.near(p) and self.greeting:   # 인사말: 안내('F 거래') 위에
+                assets.draw_text(self.x, top + 106, self.greeting, (235, 220, 190), small=True, center=True)
         else:
             frame = 'dry' if self.used else str(int(self.time / 0.45) % 2 + 1)
             assets.draw_image(assets.image(f'ui/event_spring_{frame}.png'), self.x, self.y)

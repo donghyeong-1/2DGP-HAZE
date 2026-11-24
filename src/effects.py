@@ -641,8 +641,9 @@ class OverloadPop:
         import postfx
         sx, sy = camera.to_screen(self.x, self.y)
         g = config.OVERLOAD_GATHER
-        postfx.play([(0.0, 1.0, 0.0, 0.0), (g * 0.93, 1.08, 0.5, 3.0), (g + 0.03, 1.02, 1.0, 18.0), (g + 0.22, 1.0, 0.55, 9.0),
-                     (g + 0.6, 1.0, 0.0, 0.0)], sx, sy)
+        # (시각, 볼록 렌즈, 색 번짐 px, 굴절 고리 px): 모이는 동안 중심이 부풀며 색이 갈라지고, 터지는 순간 크게 휘며 고리가 퍼진다
+        postfx.play([(0.0, 0.0, 0.0, 0.0), (g * 0.95, 0.22, 9.0, 0.0), (g + 0.03, 0.3, 22.0, 46.0), (g + 0.3, 0.06, 10.0, 26.0),
+                     (g + 0.75, 0.0, 0.0, 0.0)], sx, sy, ring=(g, 2400.0, 260.0))
 
     def update(self, dt):
         if self.fresh:

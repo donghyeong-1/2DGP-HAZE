@@ -100,7 +100,9 @@ def create(o):
 - 큰 마무리(처형·궁극기, `weapon.FinisherCut`): `fin-burst`(가시 -> 작은 원반 -> 큰 별 -> 진한 원반 -> 고리 -> 토막, 0.54초 16장)와
   `exec-crescent`(예고 초승달 5장). 화면 전체를 가르는 빛줄기·검은 띠·실루엣만 게임이 그린다. 별 섬광 `flare`·`flare-s`.
 - 오버로드: `overload-gather`(기운이 모임) -> `overload-burst`(입자로만 만든 폭발). 게임에서는 `effects.OverloadPop`이 실제 시간으로 재생하고
-  `src/postfx.py`가 화면을 당기고(zoom) 번지게(방사 블러) 하고 일렁이게(wobble) 한다. 큰 연출에 화면 왜곡이 필요하면 `postfx.play(keys, 화면x, 화면y)`.
+  `src/postfx.py`가 **배경까지 화면 전체를** 렌즈처럼 휘고(볼록 렌즈·퍼지는 굴절 고리) 빨강·초록·파랑을 갈라 그린다(색 번짐). 큰 연출에는
+  `postfx.pulse(화면x, 화면y, 세기)`(처형·궁극기 마무리가 쓴다)나 `postfx.play(keys, 화면x, 화면y, ring=)`. 사용자가 말하는 '블러·공간 왜곡'은 이것이다
+  (빛 띠를 겹치는 BlurSmear는 그 뜻이 아니었다).
 - **도형으로 만든 채 남아 있는 것(입자 구성으로 다시 만들 대상)**: 타격 불꽃 hit-*(십자·가시·고리), haze-blast·ult-nova(가시·고리), 충격 방사선·고리·베기 자국,
   바닥 충격·소멸, 처형 fin-burst(원반·네 갈래 별), 별 섬광 flare.
 - 아직 예전 방식: dash-strike(창 모양)·shockwave(보스 충격파, 반복)·오라(make_aura.py),

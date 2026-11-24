@@ -462,15 +462,22 @@ class FinisherCut:
             self.step = 1
             effects.add_trauma(config.SHAKE_FINISHER)
             assets.play_sound('ult_hit')
+            self._warp(0.6)                                             # 첫 일격: 화면이 살짝 휜다
         if self.step == 1 and self.rt >= self.T2:
             self.step = 2
             self.on_hit()
+            self._warp(1.0)                                             # 둘째 일격: 배경까지 크게 휘고 색이 갈라진다
             effects.add_trauma(config.SHAKE_FINISHER * 1.6)
         if self.step == 2 and self.rt >= 0.45:                         # 원반이 사라진 뒤에 가로로 번지는 블러 (영상의 순서)
             self.step = 3
             effects.spawn_blur(self.ex, self.ey, self.deep, self.player)
         if self.rt >= self.END:
             game_world.remove_object(self)
+
+    def _warp(self, strength):
+        import camera
+        import postfx
+        postfx.pulse(*camera.to_screen(self.ex, self.ey), strength=strength, life=0.5)
 
     def on_hit(self):
         """둘째 일격 순간에 할 일 (처형은 여기서 피해를 준다)."""

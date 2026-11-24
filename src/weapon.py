@@ -152,8 +152,10 @@ class Vortex:
         import mutations
         self.weapon = weapon
         self.radius, self.pull, self.hold_time, mult = mutations.VORTEX
+        self.base_damage = damage
         self.damage = damage * mult
         self.age = 0.0
+        self.fired = False                               # 다 빨아들여 묶었다. 그 뒤 hold_time 동안 남아 '묶인 적'을 알려 준다 (합성 '집중 탄막')
         self.caught = []
         p = weapon.owner
         for e in list(game_world.world[game_world.LAYER_ENEMY]):
@@ -164,8 +166,13 @@ class Vortex:
         assets.play_sound('chain_clash')
 
     def update(self, dt):
+        import mutations
         p = self.weapon.owner
         self.age += dt
+        if self.fired:
+            if self.age >= self.pull + self.hold_time:
+                game_world.remove_object(self)
+            return
         for e in self.caught:
             if not e.alive:
                 continue
@@ -173,6 +180,7 @@ class Vortex:
             if abs(want) > 1.0:
                 e.pull_step(max(-700.0 * dt, min(700.0 * dt, want)))
         if self.age >= self.pull:
+            self.fired = True
             for e in self.caught:
                 if e.alive:
                     self.weapon._hit(e, self.damage, config.CHAIN_GAIN * 0.5, self.weapon._fx(False), color=VORTEX_COLOR,
@@ -180,9 +188,17 @@ class Vortex:
                     e.hold(self.hold_time)
             effects.spawn_ring(p.x, p.center[1], VORTEX_COLOR, radius_max=self.radius, life=0.3)
             effects.add_trauma(config.SHAKE_FINISHER * 0.5)
-            game_world.remove_object(self)
+            if mutations.has(p, 'duo_vortex_collapse'):          # v8 합성 '끌어모아 한 방': 모인 자리에서 붕괴가 터진다
+                _collapse_burst(self.weapon, (p.x, p.center[1]), self.base_damage * mutations.DUO_PULL_BLAST,
+                                self.weapon._fx(False))
+
+    def bound(self):
+        """소용돌이에 묶여 있는 (살아 있는) 적들. 빨아들이는 동안은 아직 없다."""
+        return [e for e in self.caught if e.alive] if self.fired else []
 
     def draw(self):
+        if self.fired:
+            return
         p = self.weapon.owner
         cx, cy = p.x, p.center[1]
         k = min(1.0, self.age / self.pull)
@@ -1081,9 +1097,16 @@ class Pipe:
         effects.add_trauma(config.SHAKE_FINISHER)
         assets.play_sound('impact_pipe_plunge')
         damage = self._damage(mult) * mutations.pipe_damage_mult(p, air=True)
+        bowl = mutations.has(p, 'duo_bolt_bowl')          # v8 합성 '볼링 내려찍기': 띄우는 대신 옆으로 날려 다른 적을 들이받게
         for enemy in self._targets(lambda e: self._within(e, p.x, cy, radius)):
             self._hit(enemy, damage, config.GAIN_HIT, fx, big=True, color=BOLT_COLOR, shake=1.2, extra=False)
-            if getattr(enemy, 'alive', False) and not getattr(enemy, 'BOSS', False):
+            if not getattr(enemy, 'alive', False) or getattr(enemy, 'BOSS', False):
+                continue
+            if bowl:
+                side = 1 if enemy.x >= p.x else -1
+                weight = config.ENEMY_WEIGHT.get(getattr(enemy, 'kind', ''), 1.0)
+                game_world.add_object(Fling(self, enemy, damage, side * mutations.DUO_BOWL / weight), game_world.LAYER_EFFECT)
+            else:
                 enemy.vy = max(getattr(enemy, 'vy', 0.0), lift)
 
     # ----- v7 진화 '섬광 베기': 대시 공격이 지난 직선을 잠시 뒤 번쩍이며 다시 벤다 -----
@@ -1540,12 +1563,15 @@ class Bullet:
         self.bounced = 0
         self.ric_power = mutations.has(p, 'ric_power')
         self.chains = 0 if shrapnel else (mutations.RIC_CHAIN[0] if mutations.has(p, 'ric_evo') else 0)          # v7 도탄 사슬
+        self.homing = not shrapnel and mutations.has(p, 'duo_focus_barrage')                                    # v8 합성 집중 탄막
 
     def rect(self):
         h = config.PISTOL_HB * (2.0 if self.big else 0.5 if self.shrapnel else 1.0) / 2
         return (self.x - h, self.y - h, self.x + h, self.y + h)
 
     def update(self, dt):
+        if self.homing:
+            self._home(dt)
         step = config.PISTOL_SPEED * dt * (0.7 if self.shrapnel else 1.0)
         self.x += self.dx * step
         self.y += self.dy * step
@@ -1592,6 +1618,30 @@ class Bullet:
             self.damage *= mutations.RIC_POWER
         effects.spawn_bloom(self.x, self.y, (255, 230, 140), life=0.1, strength=0.5)
         assets.play_sound('impact_pistol')
+
+    def _home(self, dt):
+        """v8 합성 '집중 탄막': 소용돌이에 묶인 적 가운데 가장 가까운 쪽으로 방향을 조금씩 꺾는다."""
+        import mutations
+        turn, reach = mutations.DUO_FOCUS
+        best, best_d = None, reach
+        for o in game_world.world[game_world.LAYER_EFFECT]:
+            if type(o) is not Vortex or o.weapon.owner is not self.weapon.owner:
+                continue
+            for e in o.bound():
+                if id(e) in self.hit:
+                    continue
+                ex, ey = e.center
+                d = math.hypot(ex - self.x, ey - self.y)
+                if d < best_d:
+                    best, best_d = e, d
+        if best is None or best_d < 1.0:
+            return
+        ex, ey = best.center
+        want = math.atan2(ey - self.y, ex - self.x)
+        now = math.atan2(self.dy, self.dx)
+        diff = (want - now + math.pi) % math.tau - math.pi
+        now += max(-turn * dt, min(turn * dt, diff))
+        self.dx, self.dy = math.cos(now), math.sin(now)
 
     def _chain_to_next(self, enemy):
         """맞힌 적 둘레에서 아직 안 맞힌 가장 가까운 적으로 날아간다. 찾으면 True."""
@@ -2158,6 +2208,11 @@ def _counter_success(p, enemy, weapon):
         p.gauge.add(mutations.COUNTER_GAIN, 'hit')
     if mutations.has(p, 'counter_evo'):
         _backflow(p, weapon)
+    if mutations.has(p, 'duo_counter_ring'):           # v8 합성 '반격 탄막': 다른 칸의 쌍권총이 사방으로 쏜다
+        for w in getattr(p, 'weapons', None) or ():
+            if w is not None and w.weapon_id == 'pistol':
+                w.ring_burst()
+                break
 
 
 def _backflow(p, weapon):

@@ -107,6 +107,12 @@ COUNTER_POWER = 2.0       # 예고 중인 적에게 강타 피해 배율
 COUNTER_GUARD = 0.3       # 반격 무적(초)
 COUNTER_GAIN = 5          # 반격 게이지 +%
 BACKFLOW = (300, 2.0)     # 역류: (투사체를 되돌리는 반지름, 되돌린 충격파 피해 = 투사체 피해 x)
+# v8 합성 6종 (2026-11-25, docs/plan_v8.md 1-4). 수치는 초안 (balance-sim·플레이로 맞춘다)
+DUO_PULL_BLAST = 1.6      # 끌어모아 한 방: 소용돌이 끝 붕괴 폭발 피해 (사슬 한 번 피해 배율, 여기에 COLLAPSE[1]이 곱해진다)
+DUO_BOWL = 760.0          # 볼링 내려찍기: 낙뢰에 맞은 적이 옆으로 날아가는 처음 속도(px/s)
+DUO_FOCUS = (9.0, 640.0)  # 집중 탄막: (총알이 꺾이는 빠르기 rad/s, 묶인 적을 찾는 거리 px)
+DUO_STORM = (300, 0.6)    # 각인 폭풍: (번지는 거리 px, 번진 격발의 피해 비율)
+DUO_MIST = (0.5, 3.0, 8.0)   # 교체 연무: (교체기 쿨다운 초, 쓸 때마다 게이지 -%, 이 게이지 아래면 보통 쿨다운)
 OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0, 'other': 0.2}
 
 BLOOM_CRIT = 1.2          # 각성 구간 공격 배율
@@ -209,6 +215,20 @@ MUTATIONS = {
                        'name': '분신 연타', 'desc': '잔영 대시의 분신이 회전 베기를 합니다'},
     'duo_flash_net': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('dashcut_evo', 'link_evo'),
                       'name': '그물 베기', 'desc': '섬광 베기에 맞은 적이 모두 그물로 묶입니다'},
+    # v8 합성 6종 (docs/plan_v8.md 1-4). 'any_evos': 정한 짝 대신 서로 다른 무기의 진화가 그만큼 있으면 열린다
+    'duo_vortex_collapse': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('gather_evo', 'charge_evo'),
+                            'name': '끌어모아 한 방', 'desc': '소용돌이가 끝나는 순간 그 자리에서 헤이즈 붕괴가 터집니다'},
+    'duo_bolt_bowl': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('air_evo', 'crash_evo'),
+                      'name': '볼링 내려찍기', 'desc': '낙뢰 내려찍기에 맞은 적이 옆으로 날아가 다른 적을 들이받습니다'},
+    'duo_focus_barrage': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('rapid_evo', 'gather_evo'),
+                          'name': '집중 탄막', 'desc': '쌍권총 총알이 소용돌이에 묶인 적에게 휘어 들어갑니다'},
+    'duo_counter_ring': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('counter_evo', 'dshot_evo'),
+                         'name': '반격 탄막', 'desc': '반격하는 순간 쌍권총이 사방으로 탄막을 쏩니다'},
+    'duo_imprint_storm': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': (), 'any_evos': 2,
+                          'name': '각인 폭풍', 'desc': '격발이 가장 가까운 다른 적에게 한 번 더 번집니다'},
+    'duo_swap_mist': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': (), 'any_evos': 2,
+                      'name': '교체 연무',
+                      'desc': f'교체기 쿨다운이 {DUO_MIST[0]}초로 줄어듭니다. 대신 쓸 때마다 게이지 -{int(DUO_MIST[1])}%'},
 }
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.
@@ -262,8 +282,21 @@ def available(player, mid):
     if tier(mid) == 'evo':
         return bool(m.get('ready')) and base_count(player, m['family']) >= 2
     if tier(mid) == 'duo':
+        if m.get('any_evos') and len(evolved_weapons(player)) < m['any_evos']:
+            return False
         return bool(m.get('ready')) and all(has(player, r) for r in m.get('requires', ()))
     return True
+
+
+def evolved_weapons(player):
+    """진화를 가진 무기들 (v8 합성 '각인 폭풍'·'교체 연무'의 조건). 대시·게이지 갈래는 무기가 아니라 세지 않는다."""
+    out = set()
+    for mid in owned(player):
+        if tier(mid) == 'evo':
+            weapon = FAMILIES[MUTATIONS[mid]['family']].get('weapon')
+            if weapon:
+                out.add(weapon)
+    return out
 
 
 def _held_weapons(player):
@@ -588,7 +621,9 @@ def card_info(player, mid):
     fam_id = m['family']
     fam = FAMILIES[fam_id]
     hot = False
-    if t == 'duo':
+    if t == 'duo' and m.get('any_evos'):
+        note, hot = '합성: 서로 다른 무기의 진화 둘', True
+    elif t == 'duo':
         note, hot = '합성: ' + ' + '.join(MUTATIONS[r]['name'] for r in m['requires']), True
     elif t == 'evo':
         note, hot = f'{fam["name"]} 갈래 진화', True

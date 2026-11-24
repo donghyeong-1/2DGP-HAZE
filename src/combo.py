@@ -107,7 +107,9 @@ def _strike(player, enemy, damage, color, knock=1.0):
     return killed
 
 
-def _detonate(weapon, enemy):
+def _detonate(weapon, enemy, echo=False):
+    """격발. echo=True는 합성 '각인 폭풍'이 번진 격발: 피해가 DUO_STORM[1]배이고 게이지·쿨다운 환급·다시 번지기는 없다."""
+    import mutations
     p = weapon.owner
     wid = weapon.weapon_id
     color = COLORS[wid]
@@ -115,14 +117,39 @@ def _detonate(weapon, enemy):
     enemy.imprint, enemy.imprint_left = None, 0.0
     enemy.imprint_lock = config.IMPRINT_LOCK
     _tag(enemy)                                           # 잠금 시간을 세어 줄 것이 있어야 한다
-    damage = detonate_damage(p)
-    p.gauge.add(config.DETONATE_GAUGE, 'hit')
-    p.swap_cool = max(0.0, getattr(p, 'swap_cool', 0.0) - config.DETONATE_SWAP_REFUND)
-    assets.play_sound('ult_hit')
-    effects.add_trauma(config.SHAKE_HIT * 1.6)
-    effects.float_text(ex, ey + 150, '격발 · ' + NAMES[wid], color, big=True, life=0.7)
+    damage = detonate_damage(p) * (mutations.DUO_STORM[1] if echo else 1.0)
+    if not echo:
+        p.gauge.add(config.DETONATE_GAUGE, 'hit')
+        p.swap_cool = max(0.0, getattr(p, 'swap_cool', 0.0) - config.DETONATE_SWAP_REFUND)
+        assets.play_sound('ult_hit')
+    effects.add_trauma(config.SHAKE_HIT * (1.0 if echo else 1.6))
+    effects.float_text(ex, ey + 150, ('번짐 · ' if echo else '격발 · ') + NAMES[wid], color, big=not echo, life=0.7)
     effects.spawn('haze-blast', ex, ey, duration=0.5)
     effects.spawn_flare(ex, ey, color)
+    _effect(p, wid, enemy, damage, color)
+    if not echo and mutations.has(p, 'duo_imprint_storm'):   # v8 합성 '각인 폭풍': 가장 가까운 다른 적에게 한 번 더
+        near = _nearest(enemy, mutations.DUO_STORM[0])
+        if near is not None:
+            game_world.add_object(StormArc(enemy.center, near, color), game_world.LAYER_EFFECT)
+            _detonate(weapon, near, echo=True)
+
+
+def _nearest(enemy, radius):
+    ex, ey = enemy.center
+    best, best_d = None, radius
+    for o in _enemies():
+        if o is enemy:
+            continue
+        ox, oy = o.center
+        d = math.hypot(ox - ex, oy - ey)
+        if d <= best_d:
+            best, best_d = o, d
+    return best
+
+
+def _effect(p, wid, enemy, damage, color):
+    """터뜨린 무기에 따른 격발 효과 (피해 damage)."""
+    ex, ey = enemy.center
     if wid == 'gauntlet':                                 # 분쇄: 피해 큼 + 띄움
         _strike(p, enemy, damage * config.DETONATE_CRUSH, color, knock=config.KNOCK_BIG)
         launch(enemy, config.DETONATE_LAUNCH)
@@ -148,6 +175,34 @@ def _detonate(weapon, enemy):
             game_world.add_object(Gather(enemy, pulled, color), game_world.LAYER_EFFECT)
 
 
+class StormArc:
+    """각인 폭풍: 격발한 적에서 번진 적으로 짧게 이어지는 빛 (헤이즈 빛 점을 줄지어 더한다)."""
+    LIFE = 0.22
+
+    def __init__(self, start, target, color):
+        self.x0, self.y0 = start
+        self.target, self.color = target, color
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        x1, y1 = self.target.center
+        k = max(0.0, 1.0 - self.time / self.LIFE)
+        img = assets.image('light/dot_48.png')
+        img.opacify(0.8 * k)
+        n = max(2, int(math.hypot(x1 - self.x0, y1 - self.y0) / 26))
+        for i in range(n + 1):
+            t = i / n
+            x = int(self.x0 + (x1 - self.x0) * t) // 2 * 2
+            y = int(self.y0 + (y1 - self.y0) * t + math.sin(t * math.pi) * 30) // 2 * 2    # 살짝 휘어 건너간다
+            assets.draw_image_added(img, x, y - img.h // 2, color=self.color, times=1)
+        img.opacify(1.0)
+
+
 # =====================================================================================================
 # 교체기 (v8 1-2): 무기를 바꾸는 순간 들어오는 무기의 기술이 나간다. 조준 방향을 따르고, 직전 공격의 후딜을 끊는다.
 # 맞히는 것은 Pipe._hit을 거치므로, 나가는 무기가 남긴 각인을 바로 격발한다 (묻히고 -> 바꾸며 터뜨린다).
@@ -161,13 +216,25 @@ def swap_strike(player):
     if p.state in ('DEAD', 'HIT') or p.stunned or p.swap_cool > 0 or not active(p):
         return False
     w = p.weapon
-    p.swap_cool = config.SWAP_COOLDOWN
+    p.swap_cool = swap_cooldown(p)
     p.swing_left = 0.0                                    # 직전 공격의 남은 자세를 끊는다
     w.cooldown = min(getattr(w, 'cooldown', 0.0), config.SWAP_FOLLOW)
     cx, cy = p.center
     effects.float_text(cx, cy - 70, STRIKE_NAMES[w.weapon_id], COLORS[w.weapon_id], life=0.5)     # 발밑 쪽에 (피해 숫자·격발 글자와 겹치지 않게)
     _STRIKES[w.weapon_id](p, w)
     return True
+
+
+def swap_cooldown(p):
+    """이번 교체기의 쿨다운. 합성 '교체 연무'면 짧고 대신 게이지를 쓴다 (게이지가 모자라면 보통 쿨다운, 게이지는 그대로)."""
+    import mutations
+    cool, cost, floor = mutations.DUO_MIST
+    if mutations.has(p, 'duo_swap_mist') and p.gauge.value >= floor:
+        p.gauge.add(-cost, 'swap')
+        cx, cy = p.center
+        effects.spawn_bloom(cx, cy, mutations.FAMILIES['duo']['color'], life=0.16, strength=0.5)
+        return cool
+    return config.SWAP_COOLDOWN
 
 
 def _strike_pipe(p, w):

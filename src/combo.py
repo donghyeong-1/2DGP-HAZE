@@ -123,7 +123,10 @@ def _detonate(weapon, enemy, echo=False):
         p.swap_cool = max(0.0, getattr(p, 'swap_cool', 0.0) - config.DETONATE_SWAP_REFUND)
         assets.play_sound('ult_hit')
     effects.add_trauma(config.SHAKE_HIT * (1.0 if echo else 1.6))
-    effects.float_text(ex, ey + 150, ('번짐 · ' if echo else '격발 · ') + NAMES[wid], color, big=not echo, life=0.7)
+    if echo:                                              # 번진 격발: 짧게, 아래쪽에 (가까운 원래 격발 글자와 겹치지 않게)
+        effects.float_text(ex, ey + 90, '번짐', color, life=0.6)
+    else:
+        effects.float_text(ex, ey + 150, '격발 · ' + NAMES[wid], color, big=True, life=0.7)
     effects.spawn('haze-blast', ex, ey, duration=0.5)
     effects.spawn_flare(ex, ey, color)
     _effect(p, wid, enemy, damage, color)

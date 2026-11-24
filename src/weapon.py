@@ -1687,6 +1687,7 @@ class Bullet:
         want = math.atan2(ey - self.y, ex - self.x)
         now = math.atan2(self.dy, self.dx)
         diff = (want - now + math.pi) % math.tau - math.pi
+        turn = max(turn, min(60.0, 2.0 * config.PISTOL_SPEED / best_d))   # 가까운 적: 돌아 드는 반지름이 거리의 절반이 되게 (소용돌이는 적을 바로 옆에 모은다)
         now += max(-turn * dt, min(turn * dt, diff))
         self.dx, self.dy = math.cos(now), math.sin(now)
 
@@ -2299,8 +2300,10 @@ def _parry_shots(p, radius):
         if math.hypot(o.x - cx, o.y - cy) > radius:
             continue
         game_world.remove_object(o)
-        effects.spawn_impact(o.x, o.y, o.x - cx, o.y - cy, 6, (255, 220, 160))
-        effects.spawn_bloom(o.x, o.y, (255, 220, 160), life=0.12, strength=0.6)
+        effects.spawn_impact(o.x, o.y, o.x - cx, o.y - cy, 8, (255, 220, 160), big=True)
+        effects.spawn_bloom(o.x, o.y, (255, 220, 160), life=0.14, strength=0.8)
+        effects.spawn_flare(o.x, o.y, (255, 210, 140))
+        effects.spawn_ring(o.x, o.y, (255, 200, 120), radius_max=70, life=0.16)
         n += 1
     if n:
         assets.play_sound('impact_gauntlet')

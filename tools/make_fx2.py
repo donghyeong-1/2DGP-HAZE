@@ -374,6 +374,136 @@ TINTS = {
 }
 
 
+# =====================================================================================================
+# 처형 연출용 도장 시트 (2026-11-24, 사용자가 준 INARI 영상을 프레임별로 분석): 시간으로 흐르는 이펙트가 아니라
+# 장면마다 골라 쓰는 그림. 프레임 번호 = 장면. weapon.DashExecution이 순서대로 찍는다. 색은 게임이 입힌다.
+# 원칙(사용자): 흰 부분보다 **진한 원래 색 면이 훨씬 크다**. 흰색은 가운데 작은 별과 불티뿐.
+# =====================================================================================================
+def _frame_fx(draw_frame):
+    """프레임 번호로 그리는 이펙트: draw_frame(p, i)."""
+    t = [0.0]
+
+    class F:
+        def update(self, dt):
+            t[0] += dt
+
+        def draw(self, p):
+            draw_frame(p, int(t[0] * 30 + 0.001))
+    return F()
+
+
+def _star(p, arms, color, w0):
+    for ang, ln, w in arms:
+        p.needle(0, 0, math.cos(ang) * ln, math.sin(ang) * ln, color, w * w0)
+
+
+EXEC_DISC_META = dict(size=[248, 248], origin=[124, 124], duration=6 / 30, fps=30, options=dict(seed=3))
+
+
+def exec_disc_create(o):
+    """0 작은 원반 / 1·2 큰 진한 원반 + 밝은 테두리 + 흰 여덟 갈래 별 + 흰 불티 / 3 비워진 굵은 고리 + 작은 별 / 4·5 가늘어지는 고리."""
+    core = o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    sparks = [(rng.range(0, TAU), rng.range(0.8, 1.25), rng.range(5, 12)) for _ in range(14)]
+    star8 = [(TAU * i / 8, 40 if i % 2 == 0 else 20, 1.0 if i % 2 == 0 else 0.6) for i in range(8)]
+
+    def draw(p, i):
+        if i == 0:
+            if not core:
+                p.disc(0, 0, 22, G[2])
+                p.ring(0, 0, 22, 2.5, G[3])
+                p.glow(0, 0, 44, WHITE, 120)
+        elif i in (1, 2):
+            r = 45 if i == 1 else 48
+            if not core:
+                p.disc(0, 0, r, G[2])                                  # 진한 색 면 (주인공)
+                p.ring(0, 0, r, 3.5, G[3])                             # 밝은 테두리
+                p.ring(0, 0, r * 0.72, 1.5, G[3], gaps=6, phase=i)
+                p.glow(0, 0, r * 2.1, WHITE, 150)
+                p.glow(0, 0, r * 1.3, WHITE, 110)
+            else:
+                k = 1.0 if i == 1 else 0.82
+                _star(p, [(a, ln * k, w) for a, ln, w in star8], WHITE, 5.5)
+                p.disc(0, 0, 4.5 * k, WHITE)
+                for ang, far, ln in sparks:                             # 흰 불티: 꼬리를 끌며 바깥으로
+                    d0 = (r + 6 + (14 if i == 2 else 0)) * far
+                    c, s_ = math.cos(ang), math.sin(ang)
+                    p.needle(c * d0, s_ * d0, c * (d0 + ln), s_ * (d0 + ln), WHITE, 2.4)
+        elif i == 3:
+            if not core:
+                p.ring(0, 0, 50, 7, G[2])
+                p.ring(0, 0, 53, 1.5, G[3])
+                p.glow_ring(0, 0, 50, 16, WHITE, 110)
+            else:
+                _star(p, [(a, ln * 0.45, w) for a, ln, w in star8], WHITE, 4.0)
+                for ang, far, ln in sparks[::2]:
+                    d0 = 78 * far
+                    c, s_ = math.cos(ang), math.sin(ang)
+                    p.needle(c * d0, s_ * d0, c * (d0 + ln * 0.7), s_ * (d0 + ln * 0.7), WHITE, 1.6)
+        elif i == 4 and not core:
+            p.ring(0, 0, 53, 3.5, G[1], gaps=7, phase=1.0)
+            p.glow_ring(0, 0, 53, 10, WHITE, 60)
+        elif i == 5 and not core:
+            p.ring(0, 0, 55, 1.5, G[0], a=0.7, gaps=9, phase=2.0)
+    return _frame_fx(draw)
+
+
+EXEC_STAR_META = dict(size=[248, 248], origin=[124, 124], duration=2 / 30, fps=30, options=dict(seed=3))
+
+
+def exec_star_create(o):
+    """0 첫 일격: 위아래로 긴 색 가시 + 작은 흰 별 / 1 둘째 일격: 큰 색 네 갈래 별(면이 크다) + 가운데 흰 십자."""
+    core = o['layer'] == 'core'
+
+    def draw(p, i):
+        q = TAU / 4
+        if i == 0:
+            if not core:
+                _star(p, [(q, 96, 1.0), (-q, 96, 1.0), (0, 34, 0.7), (2 * q, 34, 0.7)], G[3], 13)
+                p.glow(0, 0, 70, WHITE, 140)
+            else:
+                _star(p, [(a, 24 if k % 2 == 0 else 13, 1.0) for k, a in enumerate(TAU * j / 8 for j in range(8))], WHITE, 3.5)
+                p.disc(0, 0, 4, WHITE)
+        else:
+            if not core:
+                _star(p, [(q, 108, 1.0), (-q, 108, 1.0), (0, 88, 0.9), (2 * q, 88, 0.9)], G[3], 30)
+                _star(p, [(q / 2 + q * j, 40, 1.0) for j in range(4)], G[2], 14)
+                p.glow(0, 0, 110, WHITE, 150)
+            else:
+                _star(p, [(q * j, 44, 1.0) for j in range(4)], WHITE, 4.5)
+                p.disc(0, 0, 6, WHITE)
+    return _frame_fx(draw)
+
+
+EXEC_CRESCENT_META = dict(size=[216, 128], origin=[108, 64], duration=5 / 30, fps=30, options=dict(seed=3))
+
+
+def exec_crescent_create(o):
+    """적을 감싸는 예고 초승달 (왼쪽이 굵고 오른쪽 끝이 가늘게 올라간다). 0·1·2 꽉 찬 모양 / 3·4 가늘어져 줄기로.
+    색은 게임이 장면마다 바꾼다: 회색(예고) -> 흰색 -> 진한 자홍."""
+    core = o['layer'] == 'core'
+
+    def draw(p, i):
+        if core:
+            return
+        s = (1.0, 1.0, 1.0, 0.62, 0.3)[min(i, 4)]
+
+        def fn(X, Y):
+            outer = (X / 100.0) ** 2 + ((Y - 6) / 44.0) ** 2 <= 1.0
+            inner = ((X - 22 * s) / 96.0) ** 2 + ((Y + 12 * s - 6) / 40.0) ** 2 <= 1.0
+            keep = outer & ~inner & (Y > -14 - 20 * (X < 0))
+            return fx.np.where(keep, 3, -1)
+        p.shade(-104, -60, 104, 60, fn, G)
+        if i >= 1:
+            p.glow(-40, 18, 70, WHITE, 90 if i < 3 else 40)
+    return _frame_fx(draw)
+
+
+TINTS['exec-disc'] = [(EXEC_DISC_META, exec_disc_create)]
+TINTS['exec-star'] = [(EXEC_STAR_META, exec_star_create)]
+TINTS['exec-crescent'] = [(EXEC_CRESCENT_META, exec_crescent_create)]
+
+
 def build_tint(name, look):
     variants = TINTS[name]
     tint = [fx.render(meta, create, layer='tint') for meta, create in variants]

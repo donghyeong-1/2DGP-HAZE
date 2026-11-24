@@ -1,0 +1,20 @@
+{
+ "id": "fx/exec-disc",
+ "frames": 12,
+ "frameSize": [
+  248,
+  248
+ ],
+ "columns": 6,
+ "fps": 30,
+ "loop": false,
+ "pivot": [
+  124,
+  124
+ ],
+ "scale": 2,
+ "duration": 0.2,
+ "variants": 2,
+ "tint": 1,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

@@ -21,6 +21,15 @@ from weapon import Pipe
 STATE_NAMES = ['IDLE', 'RUN', 'JUMP', 'FALL', 'DASH', 'HIT', 'DEAD']
 
 
+def _easy_damage(damage):
+    """v8 초보자 모드: 받는 피해를 줄인다 (config.EASY_DAMAGE_MULT). 맞은 공격이 피해 0이 되지는 않는다."""
+    import options
+    mult = options.damage_taken_mult()
+    if mult == 1.0 or damage <= 0:
+        return damage
+    return max(1, round(damage * mult))
+
+
 class _State:
     """상태 객체. enter/exit는 전이 때, do는 매 프레임 속도·타이머 갱신, check는 물리 처리 뒤 전이 판단."""
 
@@ -627,6 +636,7 @@ class Player(TileBody):
             return
         import mutations
         damage = round(damage * mutations.taken_mult(self))     # 변이 '그을린 피부'
+        damage = _easy_damage(damage)                           # v8 초보자 모드
         self.hp = max(0, self.hp - damage)
         if self.no_death and self.hp <= 0:                   # 연습장: 쓰러지지 않는다
             self.hp = 1
@@ -682,8 +692,8 @@ class Player(TileBody):
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
             import mutations
             mutations.on_overload(self)                                   # 변이 '불씨 폭주'
-            self.hp = max(0, self.hp - int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult
-                                           * mutations.overload_mult(self)))
+            self.hp = max(0, self.hp - _easy_damage(int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult
+                                                        * mutations.overload_mult(self))))
             if self.hp <= 0 and self.state != 'DEAD':
                 import killers
                 self.death_cause = killers.OVERLOAD

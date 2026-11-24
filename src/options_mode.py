@@ -1,7 +1,8 @@
 """설정 창. 타이틀과 일시정지에서 위에 쌓아 연다(push_mode). Esc나 '돌아가기'로 닫는다.
 
 항목: 화면 흔들림(끔·약하게·보통), 번쩍임 줄이기(켬·끔), 음악 크기, 효과음 크기(0~10),
-      해상도(1280x720·1600x900·1920x1080·전체 화면), 마우스 가두기(켬·끔), 처음 안내, 키 바꾸기(keys_mode 창), 돌아가기.
+      해상도(1280x720·1600x900·1920x1080·전체 화면), 마우스 가두기(켬·끔), 처음 안내, 피해 숫자, 초보자 모드(v8),
+      테스트 모드, 키 바꾸기(keys_mode 창), 돌아가기.
 키보드: W/S·위/아래로 항목, A/D·좌/우로 값, Enter·Space로 켜고 끄기·돌아가기.
 마우스: 칸을 누르면 그 값, 막대를 누르면 그 위치의 크기, 돌아가기 버튼.
 바꾸면 바로 적용되고 저장된다(options.save). 부품 그림은 hud_kit(판·막대·버튼).
@@ -18,22 +19,24 @@ import hud_kit as kit
 import options
 
 W, H = config.SCREEN_W, config.SCREEN_H
-ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'damage', 'test', 'keys', 'back')
+ITEMS = ('shake', 'flash', 'music', 'sfx', 'resolution', 'confine', 'hints', 'damage', 'easy', 'test', 'keys', 'back')
 ROWS = ITEMS[:-1]
-ROW_STEP = 68                     # v7: 테스트 모드 줄이 들어가게 (예전 74)
+ROW_STEP = 66                     # v8: 초보자 모드 줄이 들어가게 (v7 68, 예전 74)
+ROW_H = ROW_STEP - 4              # 줄 카드 높이 (줄 사이 4px)
 PANEL_W, PANEL_H = 1440, 250 + ROW_STEP * len(ROWS)
 PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     # 항목 줄의 가운데 y
 VALUE_X = PANEL_X + 600                                          # 값 칸이 시작하는 x
 VALUE_W = 800
 NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
-         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'test': '테스트 모드', 'keys': '키 설정'}
+         'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'easy': '초보자 모드', 'test': '테스트 모드', 'keys': '키 설정'}
 DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
          'music': '배경음악', 'sfx': '타격·발소리·경고음',
          'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게',
-         'hints': '처음 보는 상황에 짧은 안내판', 'damage': '적이 맞은 자리에 피해 숫자 표시', 'test': '무적, F6~F8 구역 이동, F9 보스방',
+         'hints': '처음 보는 상황에 짧은 안내판', 'damage': '적이 맞은 자리에 피해 숫자 표시',
+         'easy': f'받는 피해 {100 - round(config.EASY_DAMAGE_MULT * 100)}% 감소, 줄어드는 게이지 {100 - round(config.EASY_GAUGE_LOSS_MULT * 100)}% 완화', 'test': '무적, F6~F8 구역 이동, F9 보스방',
          'keys': '키보드 동작 키 (마우스는 그대로)'}
-SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints', 'damage', 'test')
+SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints', 'damage', 'easy', 'test')
 back_button = kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 40, 360, 64)
 selected = 0
 _under = None            # 아래에 깔린 모드 (멈춘 화면을 그대로 보여 준다)
@@ -93,6 +96,8 @@ def change(item, step):
         options.toggle_hints()
     elif item == 'damage':
         options.toggle_damage()
+    elif item == 'easy':
+        options.toggle_easy()
     elif item == 'test':
         options.toggle_test_mode()
     assets.play_sound('pickup')                    # 바뀐 효과음 크기를 바로 들려준다
@@ -141,6 +146,8 @@ def click(mx, my):
                         options.toggle_hints()
                     elif item == 'damage' and value != options.show_damage:
                         options.toggle_damage()
+                    elif item == 'easy' and value != options.easy_mode:
+                        options.toggle_easy()
                     elif item == 'test' and value != options.test_mode:
                         options.toggle_test_mode()
         else:                                      # 막대: 누른 위치의 크기
@@ -204,6 +211,7 @@ def lines():
         (NAMES['confine'], '켬' if options.confine_mouse else '끔', DESCS['confine']),
         (NAMES['hints'], '켬' if options.show_hints else '끔', DESCS['hints']),
         (NAMES['damage'], '켬' if options.show_damage else '끔', DESCS['damage']),
+        (NAMES['easy'], '켬' if options.easy_mode else '끔', DESCS['easy']),
         (NAMES['test'], '켬' if options.test_mode else '끔', DESCS['test']),
         (NAMES['keys'], keys_summary(), DESCS['keys']),
     ]
@@ -214,11 +222,11 @@ def draw_panel():
     kit.heading(PANEL_X, PANEL_Y + PANEL_H - 40, '설정')
     current_of = {'shake': options.shake_level, 'flash': options.reduce_flash,
                   'resolution': options.resolution, 'confine': options.confine_mouse, 'hints': options.show_hints,
-                  'damage': options.show_damage, 'test': options.test_mode}
+                  'damage': options.show_damage, 'easy': options.easy_mode, 'test': options.test_mode}
     for i, item in enumerate(ROWS):
         cy = ROW_Y[i]
         on = i == selected
-        kit.row(PANEL_X, cy - 34, PANEL_W, 68, on)
+        kit.row(PANEL_X, cy - ROW_H // 2, PANEL_W, ROW_H, on)
         kit.text(PANEL_X + 34, cy + 11, NAMES[item], (240, 248, 255) if on else (190, 202, 225))
         kit.text(PANEL_X + 34, cy - 17, DESCS[item], (140, 155, 182) if on else kit.FAINT, small=True)
         if item == 'keys':

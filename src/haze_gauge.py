@@ -67,6 +67,9 @@ class HazeGauge:
     def add(self, delta, reason=''):
         if self.zone == DEAD:
             return
+        if delta < 0 and reason in config.EASY_GAUGE_LOSS_REASONS:
+            import options
+            delta *= options.gauge_loss_mult()          # v8 초보자 모드: 피격·시간 경과로 줄어드는 양만 완화
         for f in self.filters:
             delta = f(self, delta)
         self.value += delta

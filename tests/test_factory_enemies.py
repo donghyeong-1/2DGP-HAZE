@@ -156,14 +156,16 @@ def test_factory_enemies_only_in_foundry():
 
 def test_stage2_spawns_drone_through_factory():
     import stage as stage_mod
-    room, p = tc.make_world()
-    st = stage_mod.Stage(p, seed=1, name='stage2')
-    st.start()
     found = set()
-    for c, info in st.layout.items():
-        if info.get('type') == 'combat':
-            st.enter_room(c, 'L')
-            found |= {type(o).__name__ for o in game_world.world[game_world.LAYER_ENEMY]}
+    for seed in range(1, 7):                     # 판마다 배치가 다르다: 몇 판에 걸쳐 본다
+        room, p = tc.make_world()
+        st = stage_mod.Stage(p, seed=seed, name='stage2')
+        st.start()
+        for c, info in st.layout.items():
+            if info.get('type') == 'combat':
+                st.enter_room(c, 'L')
+                found |= {type(o).__name__ for o in game_world.world[game_world.LAYER_ENEMY]}
+                found |= {type(o).__name__ for w in st.waves for o in w}     # v8 물결 전투: 아직 나오지 않은 물결의 적
     assert {'Drone', 'Cart'} <= found
 
 

@@ -132,6 +132,7 @@ class Stage:
         self.coord = start
         self.visited = set()
         self.cleared = set()
+        self.sealed = set()         # v8 갈림길: 고르지 않아 닫힌 길의 방들 (문이 사라지고 황금방 조건에서도 빠진다)
         self.state = {}             # 방 좌표 -> 아이템 선택·품절 같은 진행 상태
         self.paid_rifts = set()     # 체력을 내고 들어간 균열방 (다시 들어갈 때는 내지 않는다)
         self.block_left = 0.0       # 막힌 문 안내를 너무 자주 띄우지 않게
@@ -152,6 +153,7 @@ class Stage:
         self.on_mutation = None     # 변이 보상: f([변이 id 셋]) (play_mode가 카드 창을 연다). 없으면 첫 번째를 준다
         self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
         self.rewards = {c: self._roll_reward(c) for c in self.layout if self.type_of(c) == 'combat'}   # 방 보상 (11/22)
+        self._split_lane_rewards()
         if self.rewards:                             # v8 무기 형태: 출발 방에서 가장 가까운 전투방의 보상은 늘 형태 카드
             first = min(sorted(self.rewards), key=lambda c: abs(c[0] - start[0]) + abs(c[1] - start[1]))
             self.rewards[first] = 'form'
@@ -161,6 +163,26 @@ class Stage:
         rng = random.Random(f'{self.seed}:{coord}:reward')
         kinds = list(mutations.REWARD_WEIGHTS)
         return rng.choices(kinds, [mutations.REWARD_WEIGHTS[k] for k in kinds])[0]
+
+    def _split_lane_rewards(self):
+        """v8 갈림길: 갈림 방의 두 문에 보이는 보상(두 길의 첫 방)이 같으면 긴 길 쪽을 다른 것으로 바꾼다 (보상을 보고 고르게)."""
+        import mutations
+        fork = next((c for c, i in self.layout.items() if i.get('fork')), None)
+        if fork is None:
+            return
+        firsts = sorted(c for c in (self.neighbour(fork, d) for d in STEP) if c in self.rewards and self.layout[c].get('lane'))
+        if len(firsts) == 2 and self.rewards[firsts[0]] == self.rewards[firsts[1]]:
+            long_ = next(c for c in firsts if self.layout[c]['lane'] == 'long')
+            other = [k for k in mutations.REWARD_WEIGHTS if k != self.rewards[long_]]
+            self.rewards[long_] = other[random.Random(f'{self.seed}:lane').randrange(len(other))]
+
+    def choose_lane(self, coord):
+        """v8 갈림길: 한쪽 길의 방에 들어섰다 -> 다른 길은 닫힌다. 길을 닫았으면 True."""
+        lane = self.layout[coord].get('lane')
+        if not lane or self.sealed:
+            return False
+        self.sealed = {c for c, i in self.layout.items() if i.get('lane') and i['lane'] != lane}
+        return bool(self.sealed)
 
     def reward_of(self, coord):
         """이 방을 깨면 받을 보상 (전투방만, 아니면 None)."""
@@ -245,7 +267,8 @@ class Stage:
             links |= {'R'} & here
         for d, (dx, dy) in STEP.items():
             n = (coord[0] + dx, coord[1] + dy)
-            if n in self.layout and d in here and OPPOSITE[d] in template_exits(self.layout[n]['template']):
+            if (n in self.layout and n not in self.sealed and d in here      # 닫힌 길(v8 갈림길)로 가는 문은 없다
+                    and OPPOSITE[d] in template_exits(self.layout[n]['template'])):
                 links.add(d)
         return links
 
@@ -258,6 +281,8 @@ class Stage:
         """방을 새로 읽고 적·진열대를 세운 뒤 플레이어를 입구에 놓는다. from_dir은 들어온 쪽 문(왼쪽 문으로 들어오면 'L')."""
         info = self.layout[coord]
         self.coord = coord
+        if self.choose_lane(coord):                      # v8 갈림길: 이 길을 골랐다
+            self._say('다른 길은 닫혔습니다')
         if self.room is not None:
             game_world.remove_object(self.room)
         for layer in (game_world.LAYER_TILES, game_world.LAYER_ENEMY, game_world.LAYER_EFFECT):
@@ -330,7 +355,7 @@ class Stage:
     # ----- 황금방 잠금·균열방 (11/19) -----
     def gold_rooms_left(self):
         """황금방이 열리기까지 남은 전투방 수: 이 구역의 보스·관문을 뺀 전투방 중 아직 클리어하지 않은 것."""
-        return sum(1 for c in self.layout if self.type_of(c) == 'combat' and c not in self.cleared)
+        return sum(1 for c in self.layout if self.type_of(c) == 'combat' and c not in self.cleared and c not in self.sealed)
 
     def rift_cost(self):
         """균열방에 처음 들어갈 때 내는 체력: 최대 체력의 RIFT_HP_COST% (올림)."""
@@ -661,6 +686,7 @@ class Stage:
             for d in self.links_of(c):
                 if self.neighbour(c, d) in self.layout:       # 은신처 출발 문처럼 너머에 방이 없는 문은 빼고
                     shown.add(self.neighbour(c, d))
+        shown -= self.sealed                                  # v8 갈림길: 닫힌 길은 지도에서 뺀다
         cells = []
         for c in shown:
             if c == self.coord:

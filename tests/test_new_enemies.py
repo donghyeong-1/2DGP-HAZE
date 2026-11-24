@@ -251,11 +251,12 @@ def test_shaman_backs_away_from_player():
 def _kinds(name):
     import stage as stage_mod
     room, p = tc.make_world()
-    st = stage_mod.Stage(p, seed=1, name=name)
     out = set()
-    for c, info in st.layout.items():
-        if info.get('type') == 'combat':
-            out |= set(info.get('enemies', [])) | set(info.get('swap', {}).values())
+    for seed in range(1, 7):                     # 판마다 배치가 다르다: 몇 판에 걸쳐 그 구역에 나오는 적을 모은다 (드문 적은 한 판에 안 나올 수 있다)
+        st = stage_mod.Stage(p, seed=seed, name=name)
+        for c, info in st.layout.items():
+            if info.get('type') == 'combat':
+                out |= set(info.get('enemies', [])) | set(info.get('swap', {}).values())
     return out
 
 
@@ -270,15 +271,16 @@ def test_new_enemies_only_in_their_zone():
 def test_stages_spawn_new_kinds():
     import stage as stage_mod
     for name, want in (('stage1', {'rat', 'shaman'}), ('stage3', {'eye', 'knight', 'wraith'})):
-        room, p = tc.make_world()
-        st = stage_mod.Stage(p, seed=1, name=name)
-        st.start()
         found = set()
-        for c, info in st.layout.items():
-            if info.get('type') == 'combat':
-                st.enter_room(c, 'L')
-                found |= {o.kind for o in game_world.world[game_world.LAYER_ENEMY]}
-                found |= {o.kind for w in st.waves for o in w}          # v8 물결 전투: 아직 나오지 않은 물결의 적
+        for seed in range(1, 7):                 # 판마다 배치가 다르다: 몇 판에 걸쳐 본다 (드문 적은 한 판에 안 나올 수 있다)
+            room, p = tc.make_world()
+            st = stage_mod.Stage(p, seed=seed, name=name)
+            st.start()
+            for c, info in st.layout.items():
+                if info.get('type') == 'combat':
+                    st.enter_room(c, 'L')
+                    found |= {o.kind for o in game_world.world[game_world.LAYER_ENEMY]}
+                    found |= {o.kind for w in st.waves for o in w}      # v8 물결 전투: 아직 나오지 않은 물결의 적
         assert want <= found, (name, found)
 
 

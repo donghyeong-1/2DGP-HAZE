@@ -19,10 +19,10 @@ COMBAT = {
 }
 # 구역 규모·특수방·적. pool: E 칸에 넣는 적과 무게(손으로 짠 배치의 등장 비율), swap: s·t 칸을 바꿀 후보
 SPECS = {
-    'stage1': dict(combat=8, specials=('gold', 'shop', 'rift'), end='gate', main=(5, 6),
+    'stage1': dict(combat=8, specials=('gold', 'shop', 'rift'), end='gate', main=(5, 6), fork=True,
                    pool={'slum': 5, 'thrower': 4, 'guard': 2, 'rat': 2, 'shaman': 1, 'hound': 1},
                    swap={}, high_haze=(1, 2)),
-    'stage2': dict(combat=8, specials=('gold', 'shop', 'rift'), end='boss', boss='crasher', main=(5, 6),
+    'stage2': dict(combat=8, specials=('gold', 'shop', 'rift'), end='boss', boss='crasher', main=(5, 6), fork=True,
                    pool={'thrower': 3, 'hound': 3, 'guard': 3, 'drone': 2, 'cart': 2, 'slum': 1},
                    swap={'slum': ('hound', 'guard', 'cart'), 'thrower': ('thrower', 'drone')}, high_haze=(1, 3)),
     'stage3': dict(combat=5, specials=('shop', 'rift'), end='boss', boss='ark', final='heart', main=(3, 4),
@@ -42,6 +42,62 @@ def _weighted(rng, weights):
         if r <= 0:
             return k
     return keys[-1]
+
+
+FORK_LONG = 3                # 갈림길의 긴 길에 있는 전투방 수 (짧은 길은 1)
+
+
+def _fork_shape(rng, spec):
+    """v8 갈림길: 본 경로의 갈림 방 F에서 짧은 길(아래, 전투방 1)과 긴 길(위, 전투방 3)로 갈라져 합류 방 M에서 만난다.
+
+        (f,1) - (f+1,1) - (f+2,1) - 균열       긴 길 (위)
+          |                  |
+    ... - F  -   (f+1,0)  -  M - ... - 끝      본 경로 (가운데가 짧은 길)
+
+    황금방은 갈림길 밖의 본 경로 방 위에, 정비방은 본 경로 방 아래에 붙인다: 어느 길을 골라도 갈 수 있다.
+    균열방은 긴 길 끝에 붙는다(긴 길을 고른 보상). (rooms, edges, lanes, marks)를 돌려준다."""
+    n_main = spec['combat'] - FORK_LONG
+    rooms = {(0, 0): 'start'}
+    edges = set()
+
+    def link(a, b):
+        edges.add((a, b))
+        edges.add((b, a))
+
+    prev = (0, 0)
+    for x in range(1, n_main + 1):
+        rooms[(x, 0)] = 'combat'
+        link(prev, (x, 0))
+        prev = (x, 0)
+    end = (n_main + 1, 0)
+    rooms[end] = spec['end']
+    link(prev, end)
+    f = rng.randint(1, n_main - 2)
+    fork, short, merge = (f, 0), (f + 1, 0), (f + 2, 0)
+    upper = [(f + k, 1) for k in range(FORK_LONG)]
+    prev = fork
+    for c in upper:
+        rooms[c] = 'combat'
+        link(prev, c)
+        prev = c
+    link(upper[-1], merge)
+    lanes = {short: 'short'}
+    lanes.update({c: 'long' for c in upper})
+    if 'rift' in spec['specials']:
+        rift = (f + FORK_LONG, 1)
+        rooms[rift] = 'rift'
+        link(upper[-1], rift)
+        lanes[rift] = 'long'
+    if 'gold' in spec['specials']:                      # 갈림길 밖의 본 경로 방 위 (위 칸이 비어 있는 곳)
+        free = [x for x in range(1, n_main + 1) if (x, 1) not in rooms and (x, 0) not in (fork, short, merge)]
+        x = rng.choice(free or [x for x in range(1, n_main + 1) if (x, 1) not in rooms])
+        rooms[(x, 1)] = 'gold'
+        link((x, 0), (x, 1))
+    if 'shop' in spec['specials']:
+        x = rng.choice([x for x in range(1, n_main) if (x, 0) != short] or [f])      # 짧은 길의 방 아래는 피한다 (긴 길로 가면 못 간다)
+        rooms[(x, -1)] = 'shop'
+        link((x, 0), (x, -1))
+    return rooms, edges, lanes, {fork: 'fork', merge: 'merge'}
 
 
 def _shape(rng, spec):
@@ -131,13 +187,21 @@ def generate(name, seed):
     """(START, layout). 같은 (name, seed)면 같은 배치."""
     spec = SPECS[name]
     rng = random.Random(f'mapgen:{name}:{seed}')
-    rooms, edges = _shape(rng, spec)
+    lanes, marks = {}, {}
+    if spec.get('fork'):
+        rooms, edges, lanes, marks = _fork_shape(rng, spec)      # v8: 갈라졌다 합쳐지는 길
+    else:
+        rooms, edges = _shape(rng, spec)
     layout, chosen = {}, {}
     for c in sorted(rooms, key=lambda c: (c[1] != 0, c)):      # 본 경로부터 (문 충돌 검사에 앞 방을 쓴다)
         kind = rooms[c]
         t = _template(rng, c, kind, spec, edges, rooms, chosen)
         chosen[c] = t
         info = {'template': t, 'type': kind}
+        if c in lanes:
+            info['lane'] = lanes[c]                 # 갈림길: 'short' / 'long' (한쪽에 들어서면 다른 쪽은 닫힌다)
+        if c in marks:
+            info[marks[c]] = True                   # 갈림 방('fork')·합류 방('merge')
         if kind == 'combat':
             info['enemies'] = _enemies(rng, spec)
             if spec['swap']:

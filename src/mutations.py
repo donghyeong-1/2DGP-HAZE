@@ -57,7 +57,7 @@ FAMILIES = {
 GAUGE_FAMILIES = ('bloom', 'ember', 'hollow', 'tide')   # 공통 갈래 '게이지' (v5 변이 12종)
 COMBO_SPEED = 0.85        # 연타: 공격 쿨다운 배율 (공속 +15%)
 COMBO_THIRD = 1.3         # 3타 피해
-COMBO_REACH = 1.15        # 사거리
+COMBO_WAVE = (0.6, 1300.0, 460.0, 46)   # 검기 (v8 '긴 손잡이' 대신): (3타 피해 배율, 속도 px/s, 날아가는 거리 px, 판정 반높이 px)
 AIR_POWER = 1.25          # 공중 공격 피해
 AIR_HANG = 0.18           # 공중에서 맞히면 이 시간 동안 떨어지지 않는다(초)
 DASHCUT_POWER = 1.3       # 대시 공격 피해
@@ -95,7 +95,7 @@ DSHOT_RING = (8, 0.8)     # 탄막 회피: (총알 수, 피해 배율)
 # v7 건틀릿 갈래 수치 (초안)
 CHARGE_FAST = 0.75        # 충전 시간 배율
 CHARGE_POWER = 1.3        # 완충 피해
-CHARGE_GUARD = 0.7        # 충전 중 받는 피해 배율
+CHARGE_PARRY = 120        # 쳐 내기 (v8 '버팀 자세' 대신): 충전하는 동안 이 거리(px) 안에 온 적 투사체를 지운다
 COLLAPSE = (220, 0.8)     # 헤이즈 붕괴: (폭발 반지름 px, 피해 배율)
 CRASH_KNOCK = 1.4         # 넉백 배율
 CRASH_WALL = 0.5          # 벽에 부딪힌 적이 받는 피해 (그 강타 피해에 곱한다)
@@ -139,7 +139,7 @@ MUTATIONS = {
     'ember_burst': {'family': 'ember', 'name': '불씨 폭주', 'desc': f'오버로드 폭발이 주변 적에게도 피해를 줍니다 (피해 {EMBER_BURST[1]})'},
     'ember_cool': {'family': 'ember', 'name': '방열판', 'desc': f'오버로드 피해 -{round((1 - EMBER_COOL) * 100)}%'},
     'hollow_leech': {'family': 'hollow', 'name': '굶주림', 'desc': f'페이드 구간 적중마다 체력 +{HOLLOW_LEECH}'},
-    'hollow_dash': {'family': 'hollow', 'name': '빈 몸', 'desc': f'대시 충전 시간 -{round((1 - HOLLOW_DASH) * 100)}%'},
+    'hollow_dash': {'family': 'hollow', 'name': '빈 몸', 'desc': f'페이드 구간 대시 충전 시간 -{round((1 - HOLLOW_DASH) * 100)}%'},   # v8: '가쁜 숨'과 겹쳐 페이드에서만
     'hollow_floor': {'family': 'hollow', 'name': '마지막 숨', 'desc': f'게이지가 0%가 되면 {int(HOLLOW_FLOOR)}%로 회복합니다 (판마다 한 번)'},
     'tide_cost': {'family': 'tide', 'name': '얕은 물', 'desc': f'E 강화 비용 -{TIDE_COST}%'},
     'tide_chain': {'family': 'tide', 'name': '되밀림', 'desc': f'강화 공격으로 처치하면 게이지 +{TIDE_CHAIN}%'},
@@ -147,7 +147,7 @@ MUTATIONS = {
     # v7 철파이프 갈래 (기본 3 + 진화 1). 진화는 동작·이펙트가 준비되면 ready=True
     'combo_speed': {'family': 'pipe_combo', 'name': '손목 풀기', 'desc': f'철파이프 공격 속도 +{round((1 / COMBO_SPEED - 1) * 100)}%'},
     'combo_third': {'family': 'pipe_combo', 'name': '마무리', 'desc': f'3타 피해 +{round((COMBO_THIRD - 1) * 100)}%'},
-    'combo_reach': {'family': 'pipe_combo', 'name': '긴 손잡이', 'desc': f'철파이프 사거리 +{round((COMBO_REACH - 1) * 100)}%'},
+    'combo_wave': {'family': 'pipe_combo', 'name': '검기', 'desc': '3타가 앞으로 검기를 날립니다'},   # v8: '긴 손잡이'(사거리 +15%) 대신
     'combo_evo': {'family': 'pipe_combo', 'tier': 'evo', 'ready': True, 'name': '난타', 'desc': '4타와 5타가 추가됩니다. 5타는 회전 베기입니다'},
     'air_power': {'family': 'pipe_air', 'name': '낙차', 'desc': f'공중 공격 피해 +{round((AIR_POWER - 1) * 100)}%'},
     'air_hang': {'family': 'pipe_air', 'name': '체공', 'desc': '공중에서 적을 맞히면 잠깐 떨어지지 않습니다'},
@@ -197,7 +197,7 @@ MUTATIONS = {
     # v7 건틀릿 갈래
     'charge_fast': {'family': 'gauntlet_charge', 'name': '빠른 장전', 'desc': f'건틀릿 충전 시간 -{round((1 - CHARGE_FAST) * 100)}%'},
     'charge_power': {'family': 'gauntlet_charge', 'name': '꽉 쥔 주먹', 'desc': f'끝까지 충전한 강타 피해 +{round((CHARGE_POWER - 1) * 100)}%'},
-    'charge_guard': {'family': 'gauntlet_charge', 'name': '버팀 자세', 'desc': f'충전하는 동안 받는 피해 -{round((1 - CHARGE_GUARD) * 100)}%'},
+    'charge_parry': {'family': 'gauntlet_charge', 'name': '쳐 내기', 'desc': '충전하는 동안 가까이 온 적 투사체를 쳐 냅니다'},   # v8: '버팀 자세'(받는 피해 -30%) 대신
     'charge_evo': {'family': 'gauntlet_charge', 'tier': 'evo', 'ready': True, 'name': '헤이즈 붕괴',
                    'desc': '끝까지 충전한 강타가 처음 맞힌 자리에서 폭발합니다'},
     'crash_knock': {'family': 'gauntlet_crash', 'name': '밀어내기', 'desc': f'건틀릿 넉백 +{round((CRASH_KNOCK - 1) * 100)}%'},
@@ -377,9 +377,7 @@ def give(player, mid):
         player.mutations = []
     player.mutations.append(mid)
     g = player.gauge
-    if mid == 'hollow_dash':
-        player.dash_recharge *= HOLLOW_DASH
-    elif mid == 'tide_cost':
+    if mid == 'tide_cost':
         g.cost_cut += TIDE_COST
     elif mid == 'hollow_floor':
         g.rescue = _rescue
@@ -401,9 +399,7 @@ def remove(player, mid):
     had_ember, had_tide = synergy(player, 'ember'), synergy(player, 'tide')
     player.mutations.remove(mid)
     g = player.gauge
-    if mid == 'hollow_dash':
-        player.dash_recharge /= HOLLOW_DASH
-    elif mid == 'tide_cost':
+    if mid == 'tide_cost':
         g.cost_cut -= TIDE_COST
     elif mid == 'hollow_floor':
         g.rescue = None
@@ -438,8 +434,12 @@ def attack_speed_mult(player):
     return COMBO_SPEED if has(player, 'combo_speed') else 1.0
 
 
-def reach_mult(player):
-    return COMBO_REACH if has(player, 'combo_reach') else 1.0
+def dash_recharge_time(player):
+    """대시 한 칸 충전 시간. '빈 몸'은 페이드 구간에서만 줄인다 (v8: 늘 줄이던 것이 '가쁜 숨'과 겹쳤다)."""
+    t = player.dash_recharge
+    if has(player, 'hollow_dash') and _zone(player) == 'FADE':
+        t *= HOLLOW_DASH
+    return t
 
 
 def pipe_damage_mult(player, finisher=False, air=False, dash=False):
@@ -474,10 +474,7 @@ def overload_mult(player):
 
 
 def taken_mult(player):
-    k = EMBER_GUARD if has(player, 'ember_guard') and _zone(player) == 'CRITICAL' else 1.0
-    if has(player, 'charge_guard') and getattr(getattr(player, 'weapon', None), 'charging', False):
-        k *= CHARGE_GUARD                                  # v7 건틀릿 '버팀 자세'
-    return k
+    return EMBER_GUARD if has(player, 'ember_guard') and _zone(player) == 'CRITICAL' else 1.0
 
 
 def kill_extra(player, enhanced=False):

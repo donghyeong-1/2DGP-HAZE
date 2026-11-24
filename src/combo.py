@@ -216,7 +216,7 @@ def swap_strike(player):
     if p.state in ('DEAD', 'HIT') or p.stunned or p.swap_cool > 0 or not active(p):
         return False
     w = p.weapon
-    p.swap_cool = swap_cooldown(p)
+    p.swap_cool = p.swap_cool_max = swap_cooldown(p)
     p.swing_left = 0.0                                    # 직전 공격의 남은 자세를 끊는다
     w.cooldown = min(getattr(w, 'cooldown', 0.0), config.SWAP_FOLLOW)
     cx, cy = p.center

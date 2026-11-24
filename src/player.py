@@ -852,8 +852,10 @@ class Player(TileBody):
             self.dash_charge = 0.0
             return
         self.dash_charge += dt
-        if self.dash_charge >= self.dash_recharge:
-            self.dash_charge -= self.dash_recharge
+        import mutations
+        need = mutations.dash_recharge_time(self)        # v8: 페이드 '빈 몸'은 그 구간에서만 줄인다
+        if self.dash_charge >= need:
+            self.dash_charge -= need
             self.dash_slots += 1
 
     # ----- 그리기 -----

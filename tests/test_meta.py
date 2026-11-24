@@ -153,9 +153,12 @@ def test_rooms_cleared_are_counted_for_the_reward():
     s = stage_mod.Stage(p, name='stage1')
     s.start()
     s.enter_room((1, 0), 'L')
-    for e in list(game_world.world[game_world.LAYER_ENEMY]):
-        e.take_damage(10 ** 6)
-    s.update()
+    for _ in range(400):                         # v8 물결 전투: 마지막 물결까지 쓰러뜨린다
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            e.take_damage(10 ** 6)
+        s.update()
+        if not s.room.locked:
+            break
     assert p.run_rooms == 1 and p.run_ends == 0
 
 

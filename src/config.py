@@ -482,6 +482,10 @@ SWAP_LAUNCH = 600.0           #   적을 띄우는 속도(px/s)
 SWAP_CHAIN_MULT = 0.8         # 사슬 '낚아채기': 피해 배율
 SWAP_CHAIN_RANGE = 520        #   끌어올 수 있는 거리(px)
 SWAP_CHAIN_TIME = 0.2         #   끌려오는 시간(초)
+# ----- 물결 전투 (v8 5-2, src/stage.py): 전투방의 적이 물결로 나온다 -----
+WAVE_MIN_PACKS = 4            # 적 무리가 이만큼 이상이면 2물결
+WAVE_THREE_PACKS = 6          # 이만큼 이상이면 3물결
+WAVE_WARN = 0.6               # 다음 물결이 나오기 전 예고 시간(초)
 # ----- 타격감 v8 (4절): 띄우기와 공중 연타, 카메라 킥, 조각 처치 -----
 JUGGLE_MAX = 3                # 한 번 뜬 동안 맞아서 다시 뜨는 횟수
 JUGGLE_POP = 360.0            # 떠 있는 적이 맞으면 다시 뜨는 속도(px/s)

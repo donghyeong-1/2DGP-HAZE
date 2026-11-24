@@ -51,8 +51,10 @@ def test_each_stage_gains_four_or_more_shapes():
         assert len(seen - base) >= 4, (name, sorted(seen - base))
 
 
-def kinds_in_world():
-    return collections.Counter(e.kind for e in game_world.world[game_world.LAYER_ENEMY])
+def kinds_in_world(stage=None):
+    """방의 적 구성. v8 물결 전투: 아직 나오지 않은 물결의 적도 센다."""
+    waiting = [e for w in stage.waves for e in w] if stage is not None else []
+    return collections.Counter(e.kind for e in list(game_world.world[game_world.LAYER_ENEMY]) + waiting)
 
 
 def test_variant_room_keeps_the_same_enemies():
@@ -67,7 +69,7 @@ def test_variant_room_keeps_the_same_enemies():
             if st.type_of(coord) != 'combat' or st.template_of(coord) == info['template']:
                 continue
             st.enter_room(coord, 'L')
-            got = kinds_in_world()
+            got = kinds_in_world(st)
             want = collections.Counter()
             for k in st.original_kinds(info):                  # 쥐는 스폰 칸 하나에 무리(PACK_SIZE)로 나온다
                 want[k] += config.PACK_SIZE.get(k, 1)

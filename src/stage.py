@@ -135,6 +135,9 @@ class Stage:
         self.state = {}             # 방 좌표 -> 아이템 선택·품절 같은 진행 상태
         self.paid_rifts = set()     # 체력을 내고 들어간 균열방 (다시 들어갈 때는 내지 않는다)
         self.block_left = 0.0       # 막힌 문 안내를 너무 자주 띄우지 않게
+        # v8 물결 전투: 아직 나오지 않은 물결들, 다음 물결 예고의 남은 시간(없으면 None), 이 방의 물결 수·지금 물결·무리 수·적 수
+        self.waves, self.wave_timer = [], None
+        self.wave_total, self.wave_index, self.wave_packs, self.wave_enemies = 1, 1, 0, 0
         self.room = None
         self.pedestals = []
         self.npcs = []              # 은신처 NPC (정비사·보관인·기록관)
@@ -261,6 +264,8 @@ class Stage:
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
         self.pedestals, self.boss, self.npcs = [], None, []
+        self.waves, self.wave_timer = [], None
+        self.wave_total, self.wave_index, self.wave_packs, self.wave_enemies = 1, 1, 0, 0
         import transition
         transition.reveal()                              # 새 방은 검은 화면에서 점묘로 드러난다 (계획 4-3)
         self.room = Room.load(self.template_of(coord), self.links_of(coord), info.get('high_haze', False), self.theme_of(info))
@@ -410,6 +415,7 @@ class Stage:
             generic, swap = [], {}
         else:
             spawns = self.room.enemy_spawns
+        packs = []
         for x, y, kind in spawns:
             if kind is None:
                 if not generic:
@@ -418,11 +424,58 @@ class Stage:
             else:
                 kind = swap.get(kind, kind)
             import enemy_kinds
-            for i, enemy in enumerate(enemy_kinds.make_pack(kind, x, y, self.room, self.player)):   # 드론·수레·새 적은 자기 클래스, 쥐는 무리 (11/22)
-                mod = roll_elite(rng, self.name) if i == 0 else None
-                if mod:
-                    enemy.make_elite(mod)
-                game_world.add_object(enemy, game_world.LAYER_ENEMY)
+            pack = list(enemy_kinds.make_pack(kind, x, y, self.room, self.player))   # 드론·수레·새 적은 자기 클래스, 쥐는 무리
+            mod = roll_elite(rng, self.name) if pack else None
+            if mod:
+                pack[0].make_elite(mod)
+            if pack:
+                packs.append(pack)
+        self._release_waves(packs, info)
+
+    def _release_waves(self, packs, info):
+        """v8 물결 전투: 무리가 많은 전투방은 2~3물결로 나눈다. 첫 물결은 바로 세우고 나머지는 앞 물결을 다 쓰러뜨리면 예고 뒤에 나온다.
+        정예가 있는 무리는 뒤로 돌려 마지막 물결에 나오게 한다. 관문(정예 전투)과 무리가 적은 방은 한 번에."""
+        self.wave_packs = len(packs)
+        self.wave_enemies = sum(len(pk) for pk in packs)
+        n = 1
+        if info.get('type') == 'combat' and len(packs) >= config.WAVE_MIN_PACKS:
+            n = 3 if len(packs) >= config.WAVE_THREE_PACKS else 2
+        elites = [pk for pk in packs if getattr(pk[0], 'elite', None)]
+        normals = [pk for pk in packs if not getattr(pk[0], 'elite', None)]
+        size = -(-len(packs) // n) if packs else 0
+        chunks = []
+        for _ in range(n - 1):                             # 앞 물결들은 보통 무리만
+            if normals[:size]:
+                chunks.append(normals[:size])
+            normals = normals[size:]
+        if normals or elites:
+            chunks.append(normals + elites)                # 마지막 물결: 남은 무리 + 정예 전부
+        self.wave_total, self.wave_index = max(1, len(chunks)), 1
+        for k, chunk in enumerate(chunks):
+            wave = [e for pk in chunk for e in pk]
+            if k == 0:
+                for e in wave:
+                    game_world.add_object(e, game_world.LAYER_ENEMY)
+            else:
+                self.waves.append(wave)
+
+    def _advance_wave(self):
+        """지금 물결을 다 쓰러뜨렸다: 다음 물결의 자리에 예고를 띄우고, WAVE_WARN 뒤에 내보낸다."""
+        if self.wave_timer is None:
+            self.wave_timer = config.WAVE_WARN
+            assets.play_sound('warn_low')
+            for e in self.waves[0]:
+                effects.spawn('surge', e.x, e.y, duration=0.36)
+                effects.spawn_bloom(e.x, e.y + 40, (255, 96, 96), big=True, life=config.WAVE_WARN, strength=0.8)
+            return
+        self.wave_timer -= 1 / 60
+        if self.wave_timer > 0:
+            return
+        self.wave_timer = None
+        self.wave_index += 1
+        for e in self.waves.pop(0):
+            effects.spawn('puff', e.x, e.y + 40, duration=0.3)
+            game_world.add_object(e, game_world.LAYER_ENEMY)
 
     def _spawn_pedestals(self, coord, kind):
         saved = self.state.setdefault(coord, {})
@@ -528,7 +581,9 @@ class Stage:
             self.interact()
         self.block_left = max(0.0, self.block_left - 1 / 60)
         self._summon_heart()
-        if self.room.locked and self.enemy_count() == 0:
+        if self.room.locked and self.enemy_count() == 0 and (self.waves or self.wave_timer is not None):
+            self._advance_wave()                   # v8 물결 전투: 아직 나올 물결이 있다 (방은 잠긴 채)
+        elif self.room.locked and self.enemy_count() == 0:
             self.room.locked = False
             before = self.gold_rooms_left()
             self.cleared.add(self.coord)

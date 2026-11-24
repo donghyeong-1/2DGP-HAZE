@@ -38,8 +38,11 @@ def kill_all():
 
 
 def clear_here(stage):
-    kill_all()
-    stage.update()
+    for _ in range(400):                   # v8 물결 전투: 마지막 물결까지 쓰러뜨려야 방이 열린다
+        kill_all()
+        stage.update()
+        if not stage.room.locked:
+            return
 
 
 def at_door(stage, p, side):
@@ -79,13 +82,12 @@ def test_start_room_is_safe_and_offers_two_ways():
 def test_combat_room_locks_until_cleared_then_opens():
     stage, p = make_stage()
     go(stage, p, 'R')
-    assert stage.coord == (1, 0) and stage.room.locked and stage.enemy_count() == sum(
+    assert stage.coord == (1, 0) and stage.room.locked and stage.wave_enemies == sum(      # v8: 물결로 나뉘어도 적의 수는 그대로
         config.PACK_SIZE.get(k, 1) for k in stage.layout[(1, 0)]['enemies'])      # 쥐 떼는 한 칸에 여러 마리
     assert stage.room.tile_at(stage.room.cols - 1, stage.room.nrows - 3) == '#'   # 잠긴 문은 벽이다
     notices = []
     stage.on_clear = lambda s: notices.append(s.coord)
-    kill_all()
-    stage.update()
+    clear_here(stage)                      # v8 물결 전투: 마지막 물결까지
     assert not stage.room.locked and notices == [(1, 0)] and (1, 0) in stage.cleared
     assert stage.room.tile_at(stage.room.cols - 1, stage.room.nrows - 3) == 'R'  # 열린 문은 지나갈 수 있다
 

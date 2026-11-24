@@ -435,7 +435,9 @@ class GameUI:
         top = self._chip(right, top, f'{self.player.shards}', TEAL, icon='ui_shard_s')      # 아이콘 + 숫자만
         room = self.stage.room
         if room.locked:
-            top = self._chip(right, top, f'남은 적 {self.stage.enemy_count()}', RED)
+            st = self.stage
+            wave = f'물결 {st.wave_index}/{st.wave_total} · ' if getattr(st, 'wave_total', 1) > 1 else ''     # v8 물결 전투
+            top = self._chip(right, top, f'{wave}남은 적 {st.enemy_count()}', RED)
         if room.is_high_haze:
             top = self._chip(right, top, '고농도', (150, 240, 230))
         n = len(getattr(self.player, 'mutations', []))

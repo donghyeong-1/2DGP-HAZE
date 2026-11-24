@@ -278,6 +278,7 @@ def test_stages_spawn_new_kinds():
             if info.get('type') == 'combat':
                 st.enter_room(c, 'L')
                 found |= {o.kind for o in game_world.world[game_world.LAYER_ENEMY]}
+                found |= {o.kind for w in st.waves for o in w}          # v8 물결 전투: 아직 나오지 않은 물결의 적
         assert want <= found, (name, found)
 
 

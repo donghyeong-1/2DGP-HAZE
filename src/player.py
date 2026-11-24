@@ -821,13 +821,40 @@ class Player(TileBody):
         if self.punch_left <= 0 or wid not in ('pistol', 'gauntlet', 'chain'):
             return None
         done = 1.0 - self.punch_left / self.punch_total
-        if wid == 'pistol':                              # v7 쌍권총: 두 총을 앞으로 겨눈 자세 (새 그림이 없으면 맨손 뻗음)
-            return ('n09_pistol', 1) if 'n09_pistol' in sprites.SKIN else ('n09_punch', 3)
+        if wid == 'pistol':                              # v7 쌍권총: 조준 방향·달리기·공중마다 다른 겨눔 자세
+            return self._pistol_pose()
         if wid == 'gauntlet':
             if self.punch_kind == 'blast_down':
                 return 'n09_gauntlet', 4
             return 'n09_gauntlet', 2 if done < 0.45 else 3
         return 'n09_chain', 1 if done < 0.25 else 2 if done < 0.75 else 3
+
+    def _pistol_pose(self):
+        """쌍권총 겨눔 자세 (2026-11-24 PixelLab): 공중이면 앞·앞 위·앞 아래 3장, 앞으로 달리며 쏘면 달리며 쏘기 8장,
+        서 있으면 위·앞 위·앞·앞 아래·아래 중 조준에 가까운 것. 새 그림이 없으면 앞 겨눔 한 장(없으면 맨손 뻗음)."""
+        if 'n09_pistol' not in sprites.SKIN:
+            return 'n09_punch', 3
+        ax, ay = self.aim_vector()
+        aim = 'up' if ay > 0.85 else 'upfwd' if ay > 0.35 else 'down' if ay < -0.85 else 'downfwd' if ay < -0.35 else 'side'
+        if not self.on_ground and 'n09_pistol_air' in sprites.SKIN:
+            return 'n09_pistol_air', {'up': 2, 'upfwd': 2, 'down': 3, 'downfwd': 3}.get(aim, 1)
+        if self.state == 'RUN' and aim == 'side' and 'n09_pistol_run' in sprites.SKIN:
+            count = sprites.count('n09_pistol_run')
+            step = int(self.move_dist / config.RUN_FRAME_PX) % count
+            return 'n09_pistol_run', (step + 1 if self._move_sign() == self.face_dir else count - step)   # 뒷걸음은 거꾸로
+        name = 'n09_pistol' if aim == 'side' else 'n09_pistol_' + aim
+        return (name, 1) if name in sprites.SKIN else ('n09_pistol', 1)
+
+    def pistol_muzzle(self):
+        """쌍권총 총알이 나가는 자리 (지금 겨눔 그림의 총구). 잰 값이 없으면 몸 가운데에서 조준 쪽으로."""
+        name, n = self._pistol_pose()
+        off = sprites.muzzle(name, n)
+        if off is None:
+            ax, ay = self.aim_vector()
+            cx, cy = self.center
+            return cx + ax * config.PISTOL_MUZZLE, cy + 8 + ay * config.PISTOL_MUZZLE
+        face = 1 if self.aim_vector()[0] >= 0 else -1    # 몸은 다음 프레임에 조준 쪽을 본다 (막 돌아선 첫 발도 총구에서)
+        return self.x + face * off[0], self.y + off[1]
 
     def _body_frame(self):
         """지금 상태에 맞는 몸 이미지 이름: 달리기 걷기 4장, 서 있기 숨쉬기 4장, 공중 점프 4장, 피격 2장. 없으면 대기 한 장."""

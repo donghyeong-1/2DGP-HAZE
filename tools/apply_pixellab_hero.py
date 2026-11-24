@@ -56,9 +56,22 @@ SETS = {
     'hero6_s2slam': (_f('v3_e2_slam', [2, 3, 5]), 'none'),                # E 2단계 둘째 타: 머리 위 -> 내림 -> 바닥 타격(머문다)
     'hero6_plunge': (_f('v3_air_down2', [1, 4]), 'none'),                 # 내려찍기: 머리 위로 듦 -> 파이프를 수직 아래로 내리꽂음
     'hero6_pistol': ([('base_pistols.png', None)], 'none'),            # 쌍권총 겨눔 (v3 무기 기준 그림, 추천안)
+    # 쌍권총 자세 (2026-11-24, raw/v3_kp/gen_pistol.py 뼈대로 skeleton v3): 조준 방향 4장, 달리며 쏘기 8장, 공중 3장
+    'hero6_pistol_up': (_f('v3_pistol_aim', [0]), 'none'),
+    'hero6_pistol_upfwd': (_f('v3_pistol_aim', [1]), 'none'),
+    'hero6_pistol_downfwd': (_f('v3_pistol_aim', [2]), 'none'),
+    'hero6_pistol_down': (_f('v3_pistol_aim', [3]), 'none'),
+    'hero6_pistol_run': (_f('v3_pistol_run', range(8)), 'hair'),
+    'hero6_pistol_air': (_f('v3_pistol_air', [0, 1, 2]), 'air'),
     'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
     'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }
+
+
+# 쌍권총 세트 -> 장마다 조준 방향 (앞 +x, 위 +y). 총구(총열 끝)를 찾는 데 쓴다 (hero6_muzzle.json, 게임의 총알 나가는 자리)
+MUZZLE_DIRS = {'hero6_pistol': [(1.0, 0.0)], 'hero6_pistol_up': [(0.17, 0.98)], 'hero6_pistol_upfwd': [(0.74, 0.67)],
+               'hero6_pistol_downfwd': [(0.74, -0.67)], 'hero6_pistol_down': [(0.26, -0.97)], 'hero6_pistol_run': [(1.0, 0.0)],
+               'hero6_pistol_air': [(1.0, 0.0), (0.74, 0.67), (0.74, -0.67)]}
 
 
 def remove_white_arcs(a):
@@ -96,6 +109,18 @@ def remove_loose_grey(a, min_size=4):
         if comp.sum() >= min_size and grey[comp].mean() > 0.8:
             out[comp] = 0
     return out
+
+
+def remove_muzzle_flash(a, x_cut):
+    """생성 모델이 그려 넣은 총구 섬광을 지운다 (섬광은 게임이 코드로 그린다): 총열 끝보다 앞(x_cut 이상)을 모두 비운다.
+    총열 끝은 섬광 없는 장에서 잰 값(손목 + 8~9px)으로 정한다."""
+    out = a.copy()
+    out[:, x_cut:] = 0
+    return out
+
+
+# 세트 -> {세트 안 번호(0부터): 자를 원본 x}. 섬광이 그려진 장만 (raw/v3_pistol_run의 2·4·6번, 4번은 총열이 짧아 80)
+FLASH_CUT = {'hero6_pistol_run': {2: 82, 4: 80, 6: 82}}
 
 
 HEAD_LIGHT = 140          # 흰 머리·옆얼굴로 보는 밝기 (RGB 최솟값)
@@ -203,6 +228,8 @@ def main():
     meta = {}
     for name, (frames_src, align) in SETS.items():
         frames = [restore_eye(lock_palette(remove_loose_grey(remove_white_arcs(load(src, n))), pal), eye) for src, n in frames_src]
+        if name in FLASH_CUT:
+            frames = [remove_muzzle_flash(f, FLASH_CUT[name][i]) if i in FLASH_CUT[name] else f for i, f in enumerate(frames)]
         hx = [hair_x(f) for f in frames]
         anchor_x = still_hair
         if align == 'hair':
@@ -221,6 +248,23 @@ def main():
         meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1, still_foot * SCALE]
         colors = len(np.unique(np.concatenate([palette_of(f) for f in frames]), axis=0))
         print(f'{name}: {len(frames)}장, 기준점 {meta[name][1:]}, 색 {colors}')
+    muzzle = {}
+    for name, dirs in MUZZLE_DIRS.items():                 # 쌍권총 총구 위치: 조준 방향으로 가장 멀리 나간 불투명 픽셀
+        if name not in meta:
+            continue
+        count, px, py = meta[name]
+        offs = []
+        for i in range(1, count + 1):
+            a = np.array(Image.open(os.path.join(DST, f'{name}_{i}.png')).convert('RGBA'))
+            ys, xs = np.nonzero(a[:, :, 3] == 255)
+            keep = (xs - px > 0) & (py - ys > 56)            # 몸 앞, 허리 위 (발·목도리 끝을 고르지 않게)
+            ys, xs = ys[keep], xs[keep]
+            dx, dy = dirs[min(i - 1, len(dirs) - 1)]
+            k = int(np.argmax((xs - px) * dx + (py - ys) * dy))
+            offs.append([int(xs[k] - px), int(py - ys[k])])     # 발 기준점에서 (앞 +, 위 +) 화면 px
+        muzzle[name] = offs
+    with open(os.path.join(DST, 'hero6_muzzle.json'), 'w', encoding='utf-8') as fp:
+        json.dump(muzzle, fp, indent=1)
     path = os.path.join(DST, 'hero6.json')
     with open(path, 'w', encoding='utf-8') as fp:
         json.dump(meta, fp, ensure_ascii=False, indent=1)

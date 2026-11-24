@@ -198,3 +198,18 @@ description 공통: "... gripping a hooked crowbar iron pipe in his front hand e
 `raw/v3_kp/gen_air_down2.py`(gen_v3의 IK 재사용 + 다리를 높이 접는 tuck 자세, 3~7번은 몸을 7~9% 올려 파이프 끝이 캔버스 안에 들게 함).
 - 1차(seed 5, 손 = 허리 앞 0.05,0.19): 마지막 7번만 수직 아래, 4~6번은 파이프가 위로 서고 허리에 가로 막대가 한 개 더 그려짐 → `raw/v3_air_down2_try1/`, `shots/.../v3_air_down2_try1.png`.
 - **2차(seed 9, 손 = 어깨 바로 아래 0.02,0.19, "exactly one pipe ... hooked end at the bottom")**: 3~7번 모두 파이프가 수직 아래(갈고리 끝이 아래), 계획 궤적과 일치 → `raw/v3_air_down2/`, `shots/.../v3_air_down2.png`. 타격 프레임 = frame_4(3번부터 수직, 4번이 완전히 뻗음). 파이프 끝은 발바닥보다 약 17px 아래(96 캔버스·파이프 길이상 25~30px은 불가). frame_0은 웅크린 자세에 파이프가 잘 안 보임.
+
+## 쌍권총 사격 자세 (2026-11-24, 메인 세션)
+약 8.0회 사용 (뼈대 추정 0.1 x 10 + skeleton v3 3 + 3 + 2) → 남은 약 1623회.
+방법: `estimate_skeleton`으로 base_pistols·run96 8장·jump96 4번의 뼈대를 얻고(`raw/v3_kp/pistol_src.json`), `raw/v3_kp/gen_pistol.py`가
+두 팔만 조준 각도로 다시 놓아(위팔 0.10, 아래팔 0.095, 팔꿈치 8도 아래로 굽힘) `pistol_aim/run/air.json`을 만든다.
+→ `animate_with_skeleton_v3`(first_frame=base_pistols upload, side/east, seed 5). description: "white-haired young man in a dark long coat
+with a dark teal scarf, holding two compact sci-fi pistols with glowing teal lines ... no effects, no muzzle flash, no trails".
+
+| 결과 | 장 | 평가 |
+|---|---|---|
+| `raw/v3_pistol_aim/` (위 80도·앞 위 42도·앞 아래 -42도·아래 -75도) | 4 | 좋음. 위 겨눔은 총이 작게 보임 |
+| `raw/v3_pistol_run/` (달리며 앞 겨눔) | 8 | 좋음. 2·4·6번에 총구 섬광을 그려 넣어 적용 도구가 총열 끝 앞을 자름(FLASH_CUT) |
+| `raw/v3_pistol_air/` (공중 앞·앞 위·앞 아래) | 3 | 보통. 다리를 접지 않고 선 다리 그대로 |
+확인 시트 `shots/pixellab_test/v3_pistol_poses.png`. 게임 적용 `hero6_pistol_up/upfwd/downfwd/down/run/air`, 총구 위치 `hero6_muzzle.json`.
+

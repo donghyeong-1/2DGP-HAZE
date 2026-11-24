@@ -879,7 +879,8 @@ class Pistols(Pipe):
         ax, ay = p.aim_vector()
         cx, cy = p.center
         self.side = -self.side
-        mx, my = cx + ax * config.PISTOL_MUZZLE, cy + 8 + ay * config.PISTOL_MUZZLE + self.side * 6
+        mx, my = p.pistol_muzzle()
+        my += self.side * 3
         dmg = self._damage(mutations.DSHOT_AUTO[1])
         game_world.add_object(Bullet(self, mx, my, ax, ay, dmg, False, self._fx(False), self.side), game_world.LAYER_EFFECT)
         game_world.add_object(MuzzleFlash(mx, my, ax, ay), game_world.LAYER_EFFECT)
@@ -957,8 +958,8 @@ class Pistols(Pipe):
             base += random.uniform(-mutations.RAPID_EVO[1], mutations.RAPID_EVO[1])
         cx, cy = p.center
         self.side = -self.side
-        mx = cx + ax * config.PISTOL_MUZZLE
-        my = cy + 8 + ay * config.PISTOL_MUZZLE + self.side * 6
+        mx, my = p.pistol_muzzle()                       # 겨눔 그림의 총구 (2026-11-24)
+        my += self.side * 3                              # 두 총이 살짝 위아래로 엇갈린다
         fx = self._fx(enhanced or loaded)
         if enhanced or loaded:                           # 두 총을 모아 큰 한 발
             damage = self._damage(config.PISTOL_BIG_MULT * self._stack())

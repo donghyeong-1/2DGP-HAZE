@@ -128,6 +128,33 @@ def test_enhanced_big_shot_pierces_and_recoils():
     assert len(seen) >= 8                                                # 2단계: 맞은 자리에서 8방향 파편
 
 
+def test_aiming_pose_follows_aim_running_and_air():
+    import sprites
+    if 'n09_pistol_up' not in sprites.SKIN:
+        return
+    room, p = _armed()
+    for dy, name in ((0, 'n09_pistol'), (500, 'n09_pistol_up'), (200, 'n09_pistol_upfwd'),
+                     (-200, 'n09_pistol_downfwd'), (-500, 'n09_pistol_down')):
+        p.mouse_x, p.mouse_y = p.x + 300, p.center[1] + dy
+        p.weapon.cooldown = 0
+        p.request_attack()
+        assert p._body_frame()[0] == name, (dy, p._body_frame())
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]
+    p.right = True
+    tc.run_frames(20)
+    p.weapon.cooldown = 0
+    p.request_attack()
+    assert p._body_frame()[0] == 'n09_pistol_run'                         # 달리며 쏘기: 다리가 계속 움직인다
+    p.right = False
+    tc.run_frames(30)
+    p.request_jump()
+    tc.run_frames(8)
+    p.mouse_x, p.mouse_y = p.x + 300, p.center[1]                         # 뛰어오른 높이에서 앞을 겨눈다
+    p.weapon.cooldown = 0
+    p.request_attack()
+    assert p._body_frame() == ('n09_pistol_air', 1)                       # 공중 앞 겨눔
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

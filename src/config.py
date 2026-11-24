@@ -196,7 +196,7 @@ PISTOL_SHRAPNEL_RANGE = 320.0
 # 헤이즈 건틀릿 (소모형). 충전 시간·크기는 구간별
 GAUNTLET_DAMAGE = 42          # 11/21 34 -> 42: 보스전에서 충전 동안 맞기만 하던 약세 보정 (balance-sim)
 GAUNTLET_CHARGE_TIME = {'DEAD': 0.9, 'FADE': 0.9, 'NORMAL': 0.9, 'AWAKE': 0.65, 'CRITICAL': 0.65, 'OVERLOAD': 0.65}   # 11/21 1.2·0.8 -> 0.9·0.65 (보스전 약세 보정)
-PUNCH_TIME = {'throw': 0.26, 'blast': 0.32, 'blast_down': 0.32, 'shoot': 0.12, 'shoot_big': 0.3}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
+PUNCH_TIME = {'throw': 0.26, 'blast': 0.32, 'blast_down': 0.32, 'shoot': 0.22, 'shoot_big': 0.3}   # 던지기·건틀릿 발사 자세를 보여 주는 시간(초)
 GAUNTLET_CHARGE_MOVE = 0.45  # 건틀릿을 충전하는 동안 땅 위 이동 속도 배율
 GAUNTLET_SIZE = {'AWAKE': 1.3, 'CRITICAL': 1.6}
 GAUNTLET_CRIT_COST = 15      # 위험 구간 즉시 발사가 비우는 게이지(%)

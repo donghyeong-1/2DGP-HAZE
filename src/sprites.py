@@ -111,6 +111,27 @@ def _load_hero6():
 
 
 HERO6 = _load_hero6()
+
+
+def _load_muzzle():
+    """쌍권총 총구 위치 (tools/apply_pixellab_hero.py가 그림에서 잰 값): {세트: [[앞, 위], ...]} 발 기준점에서 화면 px."""
+    import json
+    import os
+    p = os.path.join(assets.ASSET_DIR, 'sprites', 'unified', 'hero6_muzzle.json')
+    if not os.path.exists(p):
+        return {}
+    with open(p, encoding='utf-8') as fp:
+        return json.load(fp)
+
+
+MUZZLE = _load_muzzle()
+
+
+def muzzle(name, n):
+    """(앞, 위) 총구 위치 (발 기준점에서). 잰 값이 없으면 None."""
+    name, n = resolve(name, n)
+    offs = MUZZLE.get(name)
+    return tuple(offs[(n - 1) % len(offs)]) if offs else None
 FRAMES.update(HERO6)
 # 기존 동작 이름 -> 새 세트. 위 대각·아래 대각 휘두르기는 올려치기·내려찍기 그림을 같이 쓴다.
 # 아직 새 그림이 없는 것(식칼·건틀릿·사슬 자세, 맨손, 궁극기)은 기존 그림 그대로.
@@ -126,6 +147,9 @@ SKIN_PAIRS = (
     ('n09_air1', 'hero6_air1'), ('n09_air2', 'hero6_air2'), ('n09_airup', 'hero6_airup'),
     ('n09_dashcut', 'hero6_dashcut'), ('n09_e1', 'hero6_e1'),
     ('n09_pistol', 'hero6_pistol'),                       # v7 쌍권총 겨눔 (PixelLab base_pistols)
+    ('n09_pistol_up', 'hero6_pistol_up'), ('n09_pistol_upfwd', 'hero6_pistol_upfwd'),
+    ('n09_pistol_downfwd', 'hero6_pistol_downfwd'), ('n09_pistol_down', 'hero6_pistol_down'),
+    ('n09_pistol_run', 'hero6_pistol_run'), ('n09_pistol_air', 'hero6_pistol_air'),
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 

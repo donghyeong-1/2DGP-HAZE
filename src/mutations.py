@@ -36,6 +36,13 @@ FAMILIES = {
                      'set': '진화: 반사 사슬'},
     'chain_link': {'name': '연결', 'zone': None, 'weapon': 'chain', 'color': (235, 150, 235), 'icon': 'ui/mut_bloom.png',
                    'set': '진화: 헤이즈 그물'},
+    # v7 쌍권총 갈래 (2026-11-24, 쌍권총을 들고 있을 때만 효과가 있다)
+    'pistol_rapid': {'name': '연사', 'zone': None, 'weapon': 'pistol', 'color': (150, 250, 238), 'icon': 'ui/mut_bloom.png',
+                     'set': '진화: 난사'},
+    'pistol_ricochet': {'name': '도탄', 'zone': None, 'weapon': 'pistol', 'color': (255, 230, 140), 'icon': 'ui/mut_ember.png',
+                        'set': '진화: 도탄 사슬'},
+    'pistol_dash': {'name': '대시 사격', 'zone': None, 'weapon': 'pistol', 'color': (190, 215, 255), 'icon': 'ui/mut_hollow.png',
+                    'set': '진화: 탄막 회피'},
     # 합성: 서로 다른 진화 둘이 만나면 나온다 (전설 카드)
     'duo': {'name': '합성', 'zone': None, 'weapon': None, 'color': (255, 214, 120), 'icon': 'ui/mut_ember.png',
             'set': '진화 둘이 합쳐진 기술'},
@@ -68,6 +75,17 @@ LINK_SHARE = (0.25, 0.5)  # 묶인 적 하나를 치면 다른 쪽에 (묶기만
 LINK_TIME = 6.0           # 묶이는 시간(초)
 LINK_BURST = (170, 30)    # 묶인 적이 죽으면 폭발 (반경, 피해)
 NET_SIZE = 6              # 헤이즈 그물: 한 번에 묶는 수 (기본은 2)
+# v7 쌍권총 갈래 수치 (초안, balance-sim으로 맞춘다)
+RAPID_SPEED = 1 / 1.2     # 연사 +20% (쿨다운 배율)
+RAPID_STILL = 1 / 1.3     # 멈춰 서서 쏘면 연사 +30%
+RAPID_STILL_VX = 40.0     # 이 속도보다 느리면 '멈춰 섬'
+RAPID_EXTRA_SPREAD = 6    # 탄 +1의 부채꼴 각도(도)
+RAPID_EVO = (0.5, 4.0)    # 난사: 누르고 있을 때 (쿨다운 배율, 흩어짐 각도)
+RIC_POWER = 1.3           # 반사한 총알 피해
+RIC_CHAIN = (3, 460.0)    # 도탄 사슬: (튕기는 수, 다음 적을 찾는 거리)
+DSHOT_AUTO = (0.06, 0.7)  # 대시 중 자동 사격: (간격 초, 피해 배율)
+DSHOT_AFTER = (0.5, 0.5)  # 대시 직후 (시간, 쿨다운 배율 = 연사 2배)
+DSHOT_RING = (8, 0.8)     # 탄막 회피: (총알 수, 피해 배율)
 OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0, 'other': 0.2}
 
 BLOOM_CRIT = 1.2          # 각성 구간 공격 배율
@@ -132,6 +150,22 @@ MUTATIONS = {
     'link_burst': {'family': 'chain_link', 'name': '연쇄 폭발', 'desc': f'묶인 적이 죽으면 폭발해 피해 {LINK_BURST[1]} (묶기 포함)'},
     'link_evo': {'family': 'chain_link', 'tier': 'evo', 'ready': True, 'name': '헤이즈 그물',
                  'desc': f'걸린 적을 모두 그물로 묶고 {round(LINK_SHARE[1] * 100)}%씩 나눠 받는다'},
+    # v7 쌍권총 갈래
+    'rapid_speed': {'family': 'pistol_rapid', 'name': '방아쇠', 'desc': f'쌍권총 연사 +{round((1 / RAPID_SPEED - 1) * 100)}%'},
+    'rapid_extra': {'family': 'pistol_rapid', 'name': '덧탄', 'desc': '한 번에 나가는 총알 +1 (부채꼴)'},
+    'rapid_still': {'family': 'pistol_rapid', 'name': '거치 사격', 'desc': f'멈춰 서서 쏘면 연사 +{round((1 / RAPID_STILL - 1) * 100)}%'},
+    'rapid_evo': {'family': 'pistol_rapid', 'tier': 'evo', 'ready': True, 'name': '난사',
+                  'desc': '누르고 있으면 끊김 없는 탄막과 튀는 탄피'},
+    'ric_bounce': {'family': 'pistol_ricochet', 'name': '도탄', 'desc': '총알이 벽에 한 번 튕긴다'},
+    'ric_power': {'family': 'pistol_ricochet', 'name': '튕긴 탄', 'desc': f'튕긴 총알 피해 +{round((RIC_POWER - 1) * 100)}%'},
+    'ric_more': {'family': 'pistol_ricochet', 'name': '이중 도탄', 'desc': '총알이 벽에 한 번 더 튕긴다'},
+    'ric_evo': {'family': 'pistol_ricochet', 'tier': 'evo', 'ready': True, 'name': '도탄 사슬',
+                'desc': f'맞힌 총알이 가까운 적으로 튕긴다 (최대 {RIC_CHAIN[0]})'},
+    'dshot_auto': {'family': 'pistol_dash', 'name': '질주 사격', 'desc': '대시하는 동안 저절로 쏜다'},
+    'dshot_after': {'family': 'pistol_dash', 'name': '여세', 'desc': f'대시 직후 {DSHOT_AFTER[0]}초 연사 2배'},
+    'dshot_load': {'family': 'pistol_dash', 'name': '장전 회피', 'desc': '저스트 대시로 피하면 다음 한 발이 강화탄'},
+    'dshot_evo': {'family': 'pistol_dash', 'tier': 'evo', 'ready': True, 'name': '탄막 회피',
+                  'desc': f'대시가 끝난 자리에 {DSHOT_RING[0]}방향 탄막'},
     # v7 합성 (진화 둘)
     'duo_echo_combo': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('combo_evo', 'dash_evo'),
                        'name': '분신 연타', 'desc': '잔영 분신이 난타 회전 베기를 한다'},
@@ -419,10 +453,21 @@ def on_dash_end(player):
         cx, cy = player.center
         effects.spawn_ring(cx, cy, FAMILIES['bloom']['color'])
         _blast(player, cx, cy, BLOOM_DASH[0], BLOOM_DASH[1], color=FAMILIES['bloom']['color'])
+    w = getattr(player, 'weapon', None)
+    if has(player, 'dshot_evo') and getattr(w, 'weapon_id', None) == 'pistol':   # v7 진화 '탄막 회피'
+        w.ring_burst()
     path = getattr(player, 'last_dash_path', None)
     if has(player, 'dash_evo') and path is not None:
         import weapon
         game_world.add_object(weapon.DashEcho(player, path, has(player, 'duo_echo_combo')), game_world.LAYER_EFFECT)
+
+
+def on_just_dash(player):
+    """저스트 대시: '장전 회피'면 쌍권총의 다음 한 발이 강화탄."""
+    w = getattr(player, 'weapon', None)
+    if has(player, 'dshot_load') and getattr(w, 'weapon_id', None) == 'pistol':
+        w.loaded = True
+        effects.float_text(player.center[0], player.center[1] + 130, '장전!', FAMILIES['pistol_dash']['color'], life=0.7)
 
 
 def on_plunge_land(player):

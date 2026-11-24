@@ -855,6 +855,65 @@ class Pistols(Pipe):
     def __init__(self, owner):
         super().__init__(owner)
         self.side = 1                                    # 다음에 쏠 총 (+1 앞손, -1 뒷손). 쏠 때마다 바뀐다
+        self.loaded = False                              # v7 '장전 회피': 다음 한 발이 강화탄
+        self.after_dash = 0.0                            # v7 '여세': 대시가 끝나고 남은 빠른 연사 시간
+        self.auto_left = 0.0                             # v7 '질주 사격': 다음 자동 사격까지
+
+    def update(self, dt):
+        super().update(dt)
+        import mutations
+        p = self.owner
+        if p.state == 'DASH':
+            self.after_dash = mutations.DSHOT_AFTER[0]
+            if mutations.has(p, 'dshot_auto'):          # 대시하는 동안 저절로 쏜다
+                self.auto_left -= dt
+                if self.auto_left <= 0:
+                    self.auto_left = mutations.DSHOT_AUTO[0]
+                    self._auto_shot()
+        else:
+            self.after_dash = max(0.0, self.after_dash - dt)
+
+    def _auto_shot(self):
+        import mutations
+        p = self.owner
+        ax, ay = p.aim_vector()
+        cx, cy = p.center
+        self.side = -self.side
+        mx, my = cx + ax * config.PISTOL_MUZZLE, cy + 8 + ay * config.PISTOL_MUZZLE + self.side * 6
+        dmg = self._damage(mutations.DSHOT_AUTO[1])
+        game_world.add_object(Bullet(self, mx, my, ax, ay, dmg, False, self._fx(False), self.side), game_world.LAYER_EFFECT)
+        game_world.add_object(MuzzleFlash(mx, my, ax, ay), game_world.LAYER_EFFECT)
+        assets.play_sound('shot')
+
+    def ring_burst(self):
+        """v7 진화 '탄막 회피': 대시가 끝난 자리에서 사방으로 총알."""
+        import mutations
+        p = self.owner
+        cx, cy = p.center
+        n, mult = mutations.DSHOT_RING
+        dmg = self._damage(mult)
+        for i in range(n):
+            a = math.tau * i / n
+            game_world.add_object(Bullet(self, cx, cy, math.cos(a), math.sin(a), dmg, False, self._fx(False), 1 if i % 2 else -1),
+                                  game_world.LAYER_EFFECT)
+        effects.spawn_ring(cx, cy, mutations.FAMILIES['pistol_dash']['color'], radius_max=160, life=0.22)
+        effects.spawn_bloom(cx, cy, mutations.FAMILIES['pistol_dash']['color'], big=True, life=0.18, strength=0.6)
+        assets.play_sound('shot_critical')
+
+    def _cooldown(self, slow):
+        """이번 발 뒤 다음 발까지 (v7 연사·대시 사격 갈래가 줄인다)."""
+        import mutations
+        p = self.owner
+        cd = config.PISTOL_FADE_COOLDOWN if slow else config.PISTOL_COOLDOWN
+        if mutations.has(p, 'rapid_speed'):
+            cd *= mutations.RAPID_SPEED
+        if mutations.has(p, 'rapid_still') and p.on_ground and abs(p.vx) < mutations.RAPID_STILL_VX:
+            cd *= mutations.RAPID_STILL
+        if mutations.has(p, 'dshot_after') and self.after_dash > 0:
+            cd *= mutations.DSHOT_AFTER[1]
+        if mutations.has(p, 'rapid_evo') and p.attack_held:
+            cd *= mutations.RAPID_EVO[0]
+        return cd
 
     def current_kind(self):
         """대시 중·직후 = 대시 사격, 공중 = 공중 사격, 그 밖 = 기본 사격."""
@@ -870,6 +929,9 @@ class Pistols(Pipe):
         if kind == 'pistol_dash':
             return config.PISTOL_DASH_COUNT, config.PISTOL_DASH_SPREAD, True
         count, spread = config.PISTOL_ZONE[p.gauge.zone]
+        import mutations
+        if mutations.has(p, 'rapid_extra'):              # v7 '덧탄': 한 발 더 (부채꼴)
+            count, spread = count + 1, spread + mutations.RAPID_EXTRA_SPREAD
         return count, spread, False
 
     def try_attack(self):
@@ -880,16 +942,25 @@ class Pistols(Pipe):
         p = self.owner
         kind = self.current_kind()
         enhanced = self._take_level()
-        self.last_kind, self.last_enhanced = kind, enhanced
-        count, spread, pierce = self.volley(enhanced, kind)
+        loaded = self.loaded and not enhanced            # v7 '장전 회피': 강화 비용 없이 큰 한 발
+        if loaded:
+            self.loaded = False
+            self.level = 1
+        self.last_kind, self.last_enhanced = kind, enhanced or loaded
+        count, spread, pierce = self.volley(enhanced or loaded, kind)
+        import mutations
+        barrage = mutations.has(p, 'rapid_evo') and p.attack_held and not (enhanced or loaded)
         ax, ay = p.aim_vector()
         base = math.degrees(math.atan2(ay, ax))
+        if barrage:                                      # v7 진화 '난사': 끊김 없는 탄막은 조금씩 흩어진다
+            import random
+            base += random.uniform(-mutations.RAPID_EVO[1], mutations.RAPID_EVO[1])
         cx, cy = p.center
         self.side = -self.side
         mx = cx + ax * config.PISTOL_MUZZLE
         my = cy + 8 + ay * config.PISTOL_MUZZLE + self.side * 6
-        fx = self._fx(enhanced)
-        if enhanced:                                     # 두 총을 모아 큰 한 발
+        fx = self._fx(enhanced or loaded)
+        if enhanced or loaded:                           # 두 총을 모아 큰 한 발
             damage = self._damage(config.PISTOL_BIG_MULT * self._stack())
             game_world.add_object(Bullet(self, mx, my, ax, ay, damage, True, fx, self.side, big=True,
                                          burst=self.level >= 2), game_world.LAYER_EFFECT)
@@ -906,12 +977,13 @@ class Pistols(Pipe):
                 game_world.add_object(Bullet(self, mx, my, math.cos(a), math.sin(a), damage, pierce, fx, self.side),
                                       game_world.LAYER_EFFECT)
             p.start_punch('shoot')
-        game_world.add_object(MuzzleFlash(mx, my, ax, ay, enhanced), game_world.LAYER_EFFECT)
+        game_world.add_object(MuzzleFlash(mx, my, ax, ay, enhanced or loaded), game_world.LAYER_EFFECT)
+        if barrage:                                      # 탄피가 뒤로 튄다
+            game_world.add_object(ShellCasing(cx - ax * 10, cy + 10, -(1 if ax >= 0 else -1)), game_world.LAYER_EFFECT)
         import drama
-        assets.play_sound(drama.pistol_sound(p.gauge.zone, enhanced))
+        assets.play_sound(drama.pistol_sound(p.gauge.zone, enhanced or loaded))
         slow = p.gauge.zone in ('FADE', 'DEAD')
-        self.cooldown = self.cooldown_max = (config.ENHANCE_STRIKE_COOLDOWN if enhanced else
-                                             config.PISTOL_FADE_COOLDOWN if slow else config.PISTOL_COOLDOWN)
+        self.cooldown = self.cooldown_max = (config.ENHANCE_STRIKE_COOLDOWN if enhanced or loaded else self._cooldown(slow))
         self._finish(enhanced)
         return True
 
@@ -930,6 +1002,12 @@ class Bullet:
         self.reach = reach or (config.PISTOL_SHRAPNEL_RANGE if shrapnel else config.PISTOL_RANGE)
         self.travel = 0.0
         self.hit = set(id(e) for e in skip)
+        import mutations
+        p = weapon.owner
+        self.bounces = 0 if shrapnel else int(mutations.has(p, 'ric_bounce')) + int(mutations.has(p, 'ric_more'))   # v7 도탄
+        self.bounced = 0
+        self.ric_power = mutations.has(p, 'ric_power')
+        self.chains = 0 if shrapnel else (mutations.RIC_CHAIN[0] if mutations.has(p, 'ric_evo') else 0)          # v7 도탄 사슬
 
     def rect(self):
         h = config.PISTOL_HB * (2.0 if self.big else 0.5 if self.shrapnel else 1.0) / 2
@@ -941,7 +1019,10 @@ class Bullet:
         self.y += self.dy * step
         self.travel += step
         room = self.weapon.owner.room
-        if self.travel > self.reach or (room is not None and room.tile_at_world(self.x, self.y) == '#'):
+        wall = room is not None and room.tile_at_world(self.x, self.y) == '#'
+        if wall and self.bounces > 0 and self.travel <= self.reach:     # v7 도탄: 벽에서 튕긴다
+            self._bounce(room, step)
+        elif self.travel > self.reach or wall:
             effects.spawn_bloom(self.x, self.y, BULLET_COLORS[self.big][2], life=0.08, strength=0.4)
             game_world.remove_object(self)
             return
@@ -956,9 +1037,52 @@ class Bullet:
                                  shake=0.9 if self.big else 0.3, stop=1.2 if self.big else 0.25, blast=self.big, extra=False)
                 if self.burst:
                     self._shrapnel(enemy)
+                if self.chains > 0 and self._chain_to_next(enemy):    # v7 도탄 사슬: 가까운 적으로 튕긴다
+                    return
                 if not self.pierce:
                     game_world.remove_object(self)
                     return
+
+    def _bounce(self, room, step):
+        """벽에 닿았다: 한 걸음 물러나 가로·세로 중 막힌 쪽 방향을 뒤집는다."""
+        px, py = self.x - self.dx * step, self.y - self.dy * step
+        if room.tile_at_world(self.x, py) == '#':       # 가로로만 움직여도 막힌다 = 옆벽
+            self.dx = -self.dx
+        if room.tile_at_world(px, self.y) == '#':       # 세로로만 움직여도 막힌다 = 바닥·천장
+            self.dy = -self.dy
+        if room.tile_at_world(self.x, py) != '#' and room.tile_at_world(px, self.y) != '#':
+            self.dx, self.dy = -self.dx, -self.dy       # 모서리
+        self.x, self.y = px, py
+        self.bounces -= 1
+        self.bounced += 1
+        if self.ric_power and self.bounced == 1:
+            import mutations
+            self.damage *= mutations.RIC_POWER
+        effects.spawn_bloom(self.x, self.y, (255, 230, 140), life=0.1, strength=0.5)
+        assets.play_sound('impact_pistol')
+
+    def _chain_to_next(self, enemy):
+        """맞힌 적 둘레에서 아직 안 맞힌 가장 가까운 적으로 날아간다. 찾으면 True."""
+        import mutations
+        ex, ey = enemy.center
+        best, best_d = None, mutations.RIC_CHAIN[1]
+        for other in game_world.world[game_world.LAYER_ENEMY]:
+            if other is enemy or not other.alive or id(other) in self.hit:
+                continue
+            ox, oy = other.center
+            d = math.hypot(ox - ex, oy - ey)
+            if d < best_d:
+                best, best_d = other, d
+        if best is None:
+            return False
+        ox, oy = best.center
+        self.dx, self.dy = (ox - ex) / best_d, (oy - ey) / best_d
+        self.x, self.y = ex, ey
+        self.travel = 0.0
+        self.reach = best_d + 120
+        self.chains -= 1
+        game_world.add_object(ChainTrail(ex, ey, ox, oy), game_world.LAYER_EFFECT)
+        return True
 
     def _shrapnel(self, enemy):
         """강화 2단계: 처음 맞힌 자리에서 사방으로 파편 (맞힌 적은 다시 맞지 않는다)."""
@@ -981,6 +1105,54 @@ class Bullet:
             x = int(round(self.x - self.dx * k)) // 2 * 2
             y = int(round(self.y - self.dy * k)) // 2 * 2
             assets.draw_rect_color(x - w // 2, y - w // 2, w, w, c)
+
+
+class ChainTrail:
+    """도탄 사슬: 튕긴 두 적 사이에 잠깐 남는 빛줄기 잔상."""
+    LIFE = 0.18
+
+    def __init__(self, x0, y0, x1, y1):
+        self.x0, self.y0, self.x1, self.y1 = x0, y0, x1, y1
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        k = 1.0 - self.time / self.LIFE
+        length = math.hypot(self.x1 - self.x0, self.y1 - self.y0) or 1.0
+        w = max(2, int(6 * k) // 2 * 2)
+        for s in range(0, int(length), 4):
+            t = s / length
+            x = int(self.x0 + (self.x1 - self.x0) * t) // 2 * 2
+            y = int(self.y0 + (self.y1 - self.y0) * t) // 2 * 2
+            assets.draw_rect_color(x - w // 2, y - w // 2, w, w, (255, 240, 170) if s % 8 else (255, 255, 255))
+
+
+class ShellCasing:
+    """난사의 탄피: 작은 놋쇠 조각이 뒤로 튀었다가 떨어진다."""
+    GRAVITY = -1900.0
+
+    def __init__(self, x, y, back):
+        import random
+        self.x, self.y = x, y
+        self.vx, self.vy = back * random.uniform(160, 300), random.uniform(260, 420)
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        self.vy += self.GRAVITY * dt
+        self.x += self.vx * dt
+        self.y += self.vy * dt
+        if self.time >= 0.45:
+            game_world.remove_object(self)
+
+    def draw(self):
+        x, y = int(self.x) // 2 * 2, int(self.y) // 2 * 2
+        flip = int(self.time * 30) % 2
+        assets.draw_rect_color(x, y, 4 if flip else 2, 2 if flip else 4, (235, 200, 110))
 
 
 class MuzzleFlash:

@@ -58,7 +58,7 @@ def test_pistol_dash_shot_is_a_tight_piercing_line():
 
 
 # ----- 건틀릿 -----
-def test_gauntlet_dash_and_air_fire_at_once_for_a_little_gauge():
+def test_gauntlet_dash_and_air_rush_at_once_for_a_little_gauge():
     for setup in ('dash', 'air'):
         room, p = world('gauntlet', gauge=50)
         if setup == 'dash':
@@ -67,12 +67,12 @@ def test_gauntlet_dash_and_air_fire_at_once_for_a_little_gauge():
             airborne(p)
         p.attack_held = True
         assert p.request_attack()
-        assert not p.weapon.charging and objects('Blast'), setup        # 충전 없이 바로
+        assert not p.weapon.charging and p.weapon.rushing, setup        # 충전 없이 바로 짧은 돌진 (11/24)
         assert abs(p.gauge.value - (50 - config.GAUNTLET_QUICK_COST)) < 1e-6, setup
     room, p = world('gauntlet', gauge=50)
     p.attack_held = True
     p.request_attack()
-    assert p.weapon.charging and not objects('Blast')                    # 땅 위 기본은 그대로 충전
+    assert p.weapon.charging and not p.weapon.rushing                    # 땅 위 기본은 그대로 충전
 
 
 # ----- 사슬 -----

@@ -325,3 +325,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 
 2026-11-24 [Gemini] G05(1·2차) `assets/sprites/gemini/ui_concepts_v1/ui_{A,B,C}_{hud,pause}.png` 6장(1920×1080, 960×540 기준 2× 최근접 PNG). 기존 게임 캡처를 바탕으로 Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 UI 시안 편집 생성(B안 HUD 우상단 중복 사각형은 원본 캡처 배경 픽셀로 복원). 증강 카드 3장은 429 할당량 소진으로 미생성. 검토 대기(게임 미적용). docs/gemini/reports/G05.md.
 - 2026-11-24: 쌍권총 — 겨눔 자세 `assets/sprites/unified/hero6_pistol_1.png`(PixelLab edit_image_pro_flash로 만든 base_pistols를 apply_pixellab_hero.py로), 아이콘 `assets/ui/icon_w_pistol.png`(make_weapons.py, code-drawn), 궁극기 폭발 `assets/effects/ult-nova-pistol`(make_fx.py)·빛(make_glow.py), 총알·총구 섬광은 실행 중 코드로 그림, 소리 shot·shot_*·impact_pistol·ult_final_pistol(make_sfx_v2.py: 합성 + Kenney CC0).
+- 2026-11-24: 사슬 고리·작살 갈고리(`weapon.draw_chain`·`draw_hook`)와 건틀릿 돌진 궤적(`weapon.RushTrail`)은 실행 중 코드로 그린다(code-drawn, 새 파일 없음, 빛은 기존 `assets/light/dot_48.png`).

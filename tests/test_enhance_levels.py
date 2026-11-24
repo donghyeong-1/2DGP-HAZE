@@ -1,7 +1,8 @@
 """강화 단계별 공격·색, 피해 숫자, 타격 이펙트, 궁극기 이펙트 테스트 (창 없이). 실행: python tests/test_enhance_levels.py
 
 2026-11-21 사용자 요청:
-- 강화 단계마다 다른 공격: 2단계는 식칼이 사방으로 한 바퀴 더(칼 8자루), 건틀릿이 부채꼴 세 갈래, 사슬은 돌아올 때
+- 강화 단계마다 다른 공격: 2단계는 식칼이 사방으로 한 바퀴 더(칼 8자루), 건틀릿이 부채꼴 세 갈래(11/24 돌진 강타로 바뀌어
+  부딪힌 자리에서 양옆 충격파), 사슬은 돌아올 때
   주인공 둘레에 충격(가까운 적 모두). 철파이프 2단계(올려베기 -> 내려찍기)는 그대로.
 - 강화 단계마다 다른 색: 1단계 보라, 2단계 금, 3단계(궁극기 준비) 진홍. 이펙트 시트(<이름>2·3), 오라, 화면 색, 숫자 색.
 - 피해 숫자: 맞을 때 하나만(예전에는 무기 숫자와 겹쳐 두 개), 전용 픽셀 숫자 그림(assets/ui/dmg_small·dmg_big),
@@ -46,15 +47,19 @@ def armed(wid, level, gauge=60, gaps=(300,)):
 
 
 # ----- 단계별 다른 공격 -----
-def test_gauntlet_level2_fires_a_three_way_fan():
-    for level, want in ((1, 1), (2, 3)):
+def test_gauntlet_level2_impact_sends_shockwaves_both_ways():
+    """11/24 돌진 강타: 2단계는 부딪힌 자리에서 양옆으로 땅을 타는 충격파 둘 (예전 부채꼴 세 갈래 대신)."""
+    for level, want in ((1, 0), (2, 2)):
         room, p, foes = armed('gauntlet', level)
         p.attack_held = True
         assert p.request_attack()
         tc.step(int(config.GAUNTLET_CHARGE_TIME['CRITICAL'] * 60) + 3)
         p.attack_held = False
-        tc.step(1)
-        assert len(objs('Blast')) == want, (level, len(objs('Blast')))
+        most = 0
+        for _ in range(20):
+            tc.step(1)
+            most = max(most, len(objs('Blast')))
+        assert foes[0].hp < foes[0].max_hp and most == want, (level, most)
 
 
 def test_chain_level2_shocks_around_the_player_when_it_returns():

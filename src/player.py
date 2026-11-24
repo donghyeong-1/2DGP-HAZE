@@ -705,6 +705,13 @@ class Player(TileBody):
         """땅 위에서 휘두르는 동안은 거의 멈추고, 조준 쪽으로 한 발 내딛는다 (선 자세로 미끄러지는 것을 막는다)."""
         if self.on_ground:
             self.air_combo = 0
+        rush = self.weapon.rush_velocity() if hasattr(self.weapon, 'rush_velocity') else None
+        if rush is not None:                                        # 건틀릿 돌진 강타: 곧게 날아간다 (땅 위 수평이면 바닥을 따라)
+            self.vx = rush[0]
+            if rush[1] is not None:
+                self.vy = rush[1]
+                self.hang_left = max(self.hang_left, dt * 1.5)          # 비스듬한·공중 돌진은 중력 없이 곧게
+            return
         if self.lunge_vx:
             self.lunge_vx *= max(0.0, 1.0 - config.SWING_LUNGE_DECAY * dt)
             if abs(self.lunge_vx) < 5:

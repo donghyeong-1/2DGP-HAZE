@@ -1213,11 +1213,15 @@ class Tracer:
 
 # =====================================================================================================
 # 헤이즈 건틀릿 (특수, 소모형): 좌클릭을 누르는 동안 게이지를 초당 10%씩 태워(5% 아래로는 안 내려감) 충전하고,
-# 떼면 조준 방향으로 충격파를 쏜다. 충전이 많을수록 세다. 게이지가 너무 오를 때 일부러 쓰는 "배출" 무기다.
-# 노멀: 충전 1.2초 / 각성: 0.8초, 충격파 x1.3 / 위험: 충전 없이 즉시 발사, 게이지 -15% 고정, 충격파 x1.6.
-# E 강화: 충전 시간 절반, 충격파 크기·피해 x1.5.
+# 떼면 조준 방향으로 몸째 돌진해 처음 닿은 적에 주먹을 박는다 (2026-11-24 충격파 발사 -> 돌진 강타). 충전이 많을수록
+# 멀리·세게. 게이지가 너무 오를 때 일부러 쓰는 "배출" 무기다.
+# 노멀: 충전 0.9초 / 각성: 0.65초, 크기 x1.3 / 위험: 충전 없이 즉시 끝까지 돌진, 게이지 -15% 고정, 크기 x1.6.
+# E 강화: 충전 시간 절반, 크기·피해 x1.5, 둘레 충격 x2. 2단계는 부딪힌 자리에서 양옆 충격파.
 # =====================================================================================================
 class Gauntlet(Pipe):
+    """헤이즈 건틀릿 (2026-11-24 돌진 강타로 개편): 누르는 동안 게이지를 태워 충전하고, 떼면 조준 쪽으로 몸째 돌진해
+    처음 닿은 적에게 주먹을 박는다. 충전할수록 멀리·세게. 맞은 적은 크게 날아가고 둘레 적은 충격으로 조금 맞는다.
+    공격 간격은 느리다. 대시·공중은 충전 없이 짧은 돌진, 공중에서 아래로는 내리꽂기(땅에 닿으면 둘레를 친다)."""
     IMPACT = 'impact_gauntlet'
     name = '건틀릿'
     weapon_id = 'gauntlet'
@@ -1228,12 +1232,21 @@ class Gauntlet(Pipe):
         self.charging = False
         self.charge = 0.0
         self.warned_empty = False      # 이번 충전에서 '게이지 부족'을 이미 알렸는지
+        self.rush = None               # 돌진 중이면 그 정보 (dict), 아니면 None
+
+    @property
+    def rushing(self):
+        return self.rush is not None
+
+    @property
+    def ready(self):
+        return self.cooldown <= 0 and self.rush is None
 
     def current_kind(self):
         if self.charging:
             return 'charge'
         kind = self.ult_kind()
-        if kind in ('dash', 'jump'):                 # 대시·점프: 충전 없이 바로 작은 충격파
+        if kind in ('dash', 'jump'):                 # 대시·점프: 충전 없이 바로 짧은 돌진
             return 'gauntlet_dash' if kind == 'dash' else 'gauntlet_air'
         g = self.owner.gauge
         return 'gauntlet_instant' if g.zone == 'CRITICAL' and not g.enhanced else 'gauntlet'
@@ -1254,6 +1267,9 @@ class Gauntlet(Pipe):
     def charge_ratio(self):
         return min(1.0, self.charge / max(self.charge_need(), 0.01)) if self.charging else 0.0
 
+    def _size(self, enhanced):
+        return config.GAUNTLET_SIZE.get(self.owner.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
+
     def try_attack(self):
         if not self.ready or self.charging:
             return False
@@ -1261,20 +1277,17 @@ class Gauntlet(Pipe):
             return True
         p = self.owner
         kind = self.current_kind()
-        if kind in ('gauntlet_dash', 'gauntlet_air'):               # 대시·점프: 게이지 조금 내고 바로 쏜다
+        if kind in ('gauntlet_dash', 'gauntlet_air'):               # 대시·점프: 게이지 조금 내고 바로 짧게 돌진
             p.gauge.add(-min(config.GAUNTLET_QUICK_COST, max(0.0, p.gauge.value - config.GAUNTLET_FLOOR)), 'gauntlet')
             enhanced = self._take_level()
-            size = config.GAUNTLET_SIZE.get(p.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
-            self._fire(config.GAUNTLET_QUICK_RATIO, enhanced, size)
-            self.last_kind = kind
             ax, ay = p.aim_vector()
-            if kind == 'gauntlet_air' and ay < -0.5:                 # 공중에서 아래로 쏘면 반동으로 떠오른다
-                p.vy = max(p.vy, config.GAUNTLET_AIR_RECOIL)
-                p.start_punch('blast_down')                          # 팔을 아래로 뻗은 공중 자세 (T26)
+            dive = kind == 'gauntlet_air' and ay < -0.5              # 공중에서 아래로: 내리꽂기
+            self._start_rush(config.GAUNTLET_QUICK_RATIO, enhanced, self._size(enhanced), config.GAUNTLET_RUSH_QUICK, dive)
+            self.last_kind = kind
             return True
-        if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 즉시, 게이지를 크게 비운다
+        if p.gauge.zone == 'CRITICAL' and not p.gauge.enhanced:     # 위험: 충전 없이 바로 끝까지, 게이지를 크게 비운다
             p.gauge.add(-config.GAUNTLET_CRIT_COST, 'gauntlet')
-            self._fire(1.0, enhanced=False, size=config.GAUNTLET_SIZE['CRITICAL'])
+            self._start_rush(1.0, False, config.GAUNTLET_SIZE['CRITICAL'], config.GAUNTLET_RUSH_MAX)
             return True
         self.charging, self.charge, self.warned_empty = True, 0.0, False
         self.last_kind = 'charge'
@@ -1283,6 +1296,9 @@ class Gauntlet(Pipe):
 
     def update(self, dt):
         super().update(dt)
+        if self.rush is not None:
+            self._update_rush(dt)
+            return
         if not self.charging:
             return
         p = self.owner
@@ -1314,41 +1330,222 @@ class Gauntlet(Pipe):
             effects.spawn('puff', *self.owner.center, duration=0.25)
             return
         enhanced = self._take_level()
-        size = config.GAUNTLET_SIZE.get(self.owner.gauge.zone, 1.0) * (config.GAUNTLET_ENHANCED_MULT if enhanced else 1.0)
-        self._fire(ratio, enhanced, size)
+        k = (ratio - config.GAUNTLET_MIN_RATIO) / (1.0 - config.GAUNTLET_MIN_RATIO)
+        dist = config.GAUNTLET_RUSH_MIN + (config.GAUNTLET_RUSH_MAX - config.GAUNTLET_RUSH_MIN) * k
+        self._start_rush(ratio, enhanced, self._size(enhanced), dist)
 
-    def _fire(self, ratio, enhanced, size):
+    # ----- 돌진 -----
+    def _start_rush(self, ratio, enhanced, size, dist, dive=False):
+        import mutations
         p = self.owner
         ax, ay = p.aim_vector()
-        cx, cy = p.center
+        if dive:
+            ay = min(ay, -0.5)
+            p.vy = 0.0
+        elif p.on_ground and ay < 0.2:                               # 땅 위: 바닥으로는 못 파고드니 수평으로
+            ax, ay = (math.copysign(1.0, ax) if abs(ax) > 0.05 else float(p.face_dir)), 0.0
+        n = math.hypot(ax, ay) or 1.0
+        dx, dy = ax / n, ay / n
         fx = self._fx(enhanced)
         damage = self._damage(0.4 + 0.6 * ratio) * (config.GAUNTLET_ENHANCED_MULT * self._stack() if enhanced else 1.0)
-        import mutations
         full = ratio >= 1.0
         if full and mutations.has(p, 'charge_power'):    # v7 '꽉 쥔 주먹'
             damage *= mutations.CHARGE_POWER
-        main = Blast(self, cx + ax * 40, cy + ay * 40, ax, ay, damage, size, fx, enhanced)
-        main.collapse = full and mutations.has(p, 'charge_evo')   # v7 진화 '헤이즈 붕괴'
-        game_world.add_object(main, game_world.LAYER_EFFECT)
-        if enhanced and self.level >= 2:                 # 2단계: 부채꼴 세 갈래 (양옆은 조금 작고 약하게)
-            for side in (-1, 1):
-                a = math.atan2(ay, ax) + math.radians(config.GAUNTLET_FAN_DEG * side)
-                bx, by = math.cos(a), math.sin(a)
-                game_world.add_object(Blast(self, cx + bx * 40, cy + by * 40, bx, by, damage * 0.6, size * 0.75, fx, enhanced),
-                                      game_world.LAYER_EFFECT)
+        speed = config.GAUNTLET_RUSH_SPEED * (1.15 if dive else 1.0)
+        self.rush = dict(dx=dx, dy=dy, speed=speed, left=(config.GAUNTLET_DIVE_TIME if dive else dist / speed),
+                         damage=damage, size=size, enhanced=enhanced, full=full, fx=fx, dive=dive,
+                         collapse=full and mutations.has(p, 'charge_evo'),            # v7 진화 '헤이즈 붕괴'
+                         px=None, py=None, last_dt=0.0, trail=0.0)
         self.last_kind, self.last_enhanced = 'gauntlet', enhanced
-        p.start_punch('blast')
+        p.start_punch('blast_down' if dive else 'blast')
+        if dy != 0.0:
+            p.vy = 0.0
+        assets.play_sound('dash')
         assets.play_sound('overload_zap' if size >= 1.5 else fx['sound'])
-        effects.add_trauma(0.25 + 0.25 * size)
-        if size >= 1.5 and p.on_ground:                               # v7 완충 강타: 발밑이 울린다
-            effects.ground_slam(p.x, p.y, power=0.8, color=(255, 190, 120))
-        p.lunge_vx = -ax * 260 * size                                 # 반동으로 살짝 밀린다
+        effects.add_trauma(0.15 + 0.12 * size)
+        cx, cy = p.center
+        effects.spawn_bloom(cx + dx * 30, cy + dy * 30, fx['damage_color'], life=0.12, strength=0.7)
+        if p.on_ground:
+            effects.spawn('dust-land', p.x, p.y, duration=0.3)                  # 박차고 나간 발밑 먼지
+        game_world.add_object(RushTrail(self, fx['damage_color'], size), game_world.LAYER_EFFECT)
         self.cooldown = self.cooldown_max = config.GAUNTLET_COOLDOWN
         self._finish(enhanced)
 
+    def rush_velocity(self):
+        """돌진하는 동안 주인공 속도 (Player._apply_swing_motion이 쓴다). 돌진 중이 아니면 None.
+        땅 위 수평 돌진은 vy가 None: 중력을 그대로 받아 바닥을 따라간다 (발판 끝에서는 떨어진다)."""
+        r = self.rush
+        if r is None:
+            return None
+        return r['dx'] * r['speed'], (None if r['dy'] == 0.0 else r['dy'] * r['speed'])
+
+    def _update_rush(self, dt):
+        r, p = self.rush, self.owner
+        if p.state in ('HIT', 'DEAD') or p.stunned:
+            self.rush = None
+            return
+        if r['px'] is not None:                                      # 지난 프레임에 얼마나 갔나 (벽·바닥에 막혔나)
+            if r['dive'] and p.on_ground:
+                self._dive_land()
+                return
+            went = math.hypot(p.x - r['px'], p.y - r['py'])
+            if went < r['speed'] * r['last_dt'] * 0.3:
+                self._end_rush(wall=True)
+                return
+        r['px'], r['py'], r['last_dt'] = p.x, p.y, dt
+        cx, cy = p.center
+        hx, hy = cx + r['dx'] * config.GAUNTLET_RUSH_REACH, cy + r['dy'] * config.GAUNTLET_RUSH_REACH
+        reach = config.GAUNTLET_RUSH_HIT * min(1.4, r['size'])
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if enemy.alive and Pipe._within(enemy, hx, hy, reach):
+                self._impact(enemy)
+                return
+        r['left'] -= dt
+        if r['left'] <= 0:
+            self._end_rush()
+            return
+        p.punch_left = max(p.punch_left, p.punch_total * 0.7)          # 주먹을 뻗은 자세로 날아간다
+        p.invuln_left = max(p.invuln_left, dt * 2)                     # 돌진 중에는 맞지 않는다 (짧다)
+        p.steady_left = max(p.steady_left, dt * 2)
+        r['trail'] -= dt
+        if r['trail'] <= 0:                                            # 잔상
+            r['trail'] = 0.022
+            p.afterimages.append([p.x, p.y, p.face_dir, config.AFTERIMAGE_LIFE, p._body_frame()])
+
+    def _end_rush(self, wall=False):
+        """아무도 못 맞히고 끝났다 (끝까지 갔거나 벽에 막혔다)."""
+        r, p = self.rush, self.owner
+        self.rush = None
+        p.lunge_vx = r['dx'] * 260 if p.on_ground else 0.0              # 조금 미끄러지며 선다
+        p.punch_left = min(p.punch_left, p.punch_total * 0.5)            # 회수 자세로
+        cx, cy = p.center
+        if wall:
+            effects.spawn_impact(cx + r['dx'] * 30, cy + r['dy'] * 30, -r['dx'], -r['dy'], 6, (220, 220, 230))
+            effects.add_trauma(config.SHAKE_HIT)
+            assets.play_sound('land')
+        else:
+            effects.spawn('puff', cx + r['dx'] * 30, cy, duration=0.25)
+
+    def _impact(self, enemy):
+        """처음 닿은 적에 주먹이 박혔다: 큰 일격 + 날려 보내기 + 둘레 충격."""
+        import mutations
+        r, p = self.rush, self.owner
+        self.rush = None
+        damage = r['damage']
+        counter = _in_windup(enemy) and any(mutations.has(p, m) for m in
+                                            ('counter_power', 'counter_guard', 'counter_gain', 'counter_evo'))
+        if counter:                                      # v7 반격: 예고 중인 적을 쳤다
+            damage *= mutations.COUNTER_POWER if mutations.has(p, 'counter_power') else 1.0
+            _counter_success(p, enemy, self)
+        size = r['size']
+        killed = self._hit(enemy, damage, config.GAIN_HIT, r['fx'], big=True, shake=1.4 + 0.5 * size,
+                           stop=1.6 + 0.4 * size, blast=r['enhanced'], extra=False)
+        ex, ey = enemy.center
+        side = (1 if r['dx'] > 0 else -1) if abs(r['dx']) > 0.2 else (1 if ex >= p.x else -1)
+        if not killed and enemy.alive and not getattr(enemy, 'BOSS', False):   # 크게 날아간다 (충돌 갈래는 Fling이 벽·기절·연쇄)
+            weight = config.ENEMY_WEIGHT.get(getattr(enemy, 'kind', ''), 1.0)
+            speed = config.GAUNTLET_KNOCK * min(1.3, size) * self.knock_mult() / weight
+            game_world.add_object(Fling(self, enemy, damage, side * speed), game_world.LAYER_EFFECT)
+        self._impact_burst(ex, ey, damage, r, exclude={id(enemy)})
+        if r['collapse']:
+            _collapse_burst(self, (ex, ey), damage, r['fx'])
+        p.vx = 0.0
+        p.lunge_vx = -side * 220 if p.on_ground else 0.0                 # 반동으로 살짝 튕겨 선다
+        if not p.on_ground:
+            p.vy = max(p.vy, 320.0)
+        p.punch_left = p.punch_total * 0.5
+
+    def _dive_land(self):
+        """내리꽂기가 땅에 닿았다: 발밑 둘레를 친다."""
+        r, p = self.rush, self.owner
+        self.rush = None
+        effects.ground_slam(p.x, p.y, power=0.9 + 0.3 * r['size'], color=r['fx']['damage_color'])
+        self._impact_burst(p.x, p.y + config.PLAYER_HB_H / 2, r['damage'], r, exclude=set(), mult=1.0)
+        p.punch_left = p.punch_total * 0.5
+
+    def _impact_burst(self, x, y, damage, r, exclude, mult=None):
+        """부딪힌 자리의 충격: 둘레 적에게 약한 피해, 빛·고리·방사선·흔들림. 강화 2단계면 양옆으로 충격파가 퍼진다."""
+        p = self.owner
+        size, enhanced, fx = r['size'], r['enhanced'], r['fx']
+        color = fx['damage_color']
+        radius = config.GAUNTLET_IMPACT_RADIUS * size * (1.4 if enhanced else 1.0)
+        if mult is None:
+            mult = config.GAUNTLET_SPLASH * (2.0 if enhanced else 1.0)
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            if e.alive and id(e) not in exclude and Pipe._within(e, x, y, radius):
+                self._hit(e, damage * mult, config.GAIN_HIT, fx, big=mult >= 1.0, shake=0.5, stop=0.4, extra=False)
+        effects.spawn('haze-blast', x, y - 40, duration=0.35)
+        effects.spawn_ring(x, y, color, radius_max=int(radius * 1.3), life=0.22)
+        effects.spawn_ring(x, y, (255, 255, 255), radius_max=int(radius * 0.7), life=0.14)
+        effects.spawn_bloom(x, y, color, big=True, life=0.22, strength=1.0)
+        effects.spawn_impact(x, y, r['dx'], r['dy'], 14, color, big=True)
+        effects.add_trauma(0.3 + 0.2 * size)
+        if r['full'] or size >= 1.5:
+            effects.request_flash(0.035)
+        if p.on_ground:
+            effects.ground_slam(x, p.y, power=0.5 + 0.3 * size, color=color)
+        if enhanced and self.level >= 2:                 # 2단계: 부딪힌 자리에서 양옆으로 땅을 타는 충격파
+            for side in (-1, 1):
+                game_world.add_object(Blast(self, x + side * 30, y, side, 0.0, damage * 0.6, 0.9, fx, enhanced),
+                                      game_world.LAYER_EFFECT)
+
+
+class RushTrail:
+    """돌진 강타 궤적: 지나온 자리에 굵은 빛줄기(앞이 굵고 밝다) + 위아래 속도선 + 주먹 앞 빛. 돌진이 끝나면 짧게 옅어진다.
+    모두 정수 좌표의 사각형과 빛 층(light/dot_48)으로 그린다 (회전 없음)."""
+    FADE = 0.18
+
+    def __init__(self, weapon, color, size):
+        self.weapon, self.color, self.size = weapon, color, size
+        self.points = []
+        self.fade = 0.0
+        self.age = 0.0
+        self.dir = (1.0, 0.0)
+
+    def update(self, dt):
+        self.age += dt
+        w = self.weapon
+        if w.rush is not None and self.fade == 0.0:
+            self.points.append(w.owner.center)
+            del self.points[:-9]
+            self.dir = (w.rush['dx'], w.rush['dy'])
+        else:
+            self.fade += dt
+            if self.fade >= self.FADE:
+                game_world.remove_object(self)
+
+    def draw(self):
+        if len(self.points) < 2:
+            return
+        a = 1.0 - self.fade / self.FADE
+        dx, dy = self.dir
+        nx, ny = -dy, dx
+        n = len(self.points)
+        for i, ((x0, y0), (x1, y1)) in enumerate(zip(self.points, self.points[1:])):
+            k = (i + 1) / n                               # 앞(최근)일수록 굵고 밝다
+            thick = 2 + 2 * int(k * 5 * min(1.4, self.size))
+            length = math.hypot(x1 - x0, y1 - y0)
+            s = 0.0
+            while s <= length:
+                t = s / max(length, 1.0)
+                x, y = _snap(x0 + (x1 - x0) * t), _snap(y0 + (y1 - y0) * t)
+                assets.draw_rect_color(x - thick // 2, y - thick // 2, thick, thick, self.color, alpha=0.35 * a * k)
+                assets.draw_rect_color(x - 2, y - 2, 4, 4, (255, 255, 255), alpha=0.8 * a * k)
+                if i % 2 == 0:                            # 위아래 속도선
+                    for off in (-22, 22):
+                        assets.draw_rect_color(_snap(x + nx * off), _snap(y + ny * off), 6, 2, (230, 240, 255), alpha=0.5 * a * k)
+                s += 4
+        if self.fade == 0.0:                              # 주먹 앞 빛 (빛 층)
+            x, y = self.points[-1]
+            img = assets.image('light/dot_48.png')
+            img.opacify(0.8)
+            assets.draw_image_added(img, int(x + dx * 34), int(y + dy * 34) - img.h // 2, color=self.color, times=1)
+            img.opacify(1.0)
+
 
 class Blast:
-    """건틀릿 충격파. 조준 방향으로 날아가며 닿는 적을 모두 친다(관통). 벽에 닿으면 터진다."""
+    """건틀릿 충격파 (11/24부터 기본 공격은 돌진 강타): 강화 2단계 양옆 충격파·'역류'가 되돌린 투사체.
+    날아가며 닿는 적을 모두 친다(관통). 벽에 닿으면 터진다."""
 
     def __init__(self, weapon, x, y, dx, dy, damage, size, fx, enhanced):
         self.weapon, self.x, self.y, self.dx, self.dy = weapon, x, y, dx, dy
@@ -1393,7 +1590,7 @@ class Blast:
                 if (not killed and not getattr(enemy, 'BOSS', False) and
                         any(mutations.has(p, m) for m in ('crash_wall', 'crash_stun', 'crash_evo'))):   # v7 충돌 갈래: 날아간다
                     side = 1 if self.dx >= 0 else -1
-                    speed = mutations.CRASH_FLING[0] * min(1.0, self.size) * self.weapon.knock_mult()
+                    speed = config.GAUNTLET_KNOCK * 0.7 * min(1.0, self.size) * self.weapon.knock_mult()
                     game_world.add_object(Fling(self.weapon, enemy, damage, side * speed), game_world.LAYER_EFFECT)
                 if self.collapse:
                     self.collapse = False
@@ -1596,7 +1793,7 @@ class Chain(Pipe):
 
 class ChainHook:
     """사슬 갈고리 하나. out(날아감) -> pull(걸린 적을 끌어옴) 또는 back(빈 갈고리가 돌아옴) -> 끝."""
-    LINK = 12                          # 고리 사이 간격(px)
+    LINK = 10                          # 고리 사이 간격(px)
 
     def __init__(self, weapon, dx, dy, damage, count, reach, stun, fx, enhanced):
         self.weapon, self.dx, self.dy = weapon, dx, dy
@@ -1617,6 +1814,8 @@ class ChainHook:
         self.bounces = mutations.PIERCE_BOUNCES if mutations.has(p, 'pierce_evo') else 0   # v7 진화 '반사 사슬'
         self.bends = []                # 벽에 꺾인 점들 (반사 사슬)
         self.seg_dist = 0.0            # 마지막 꺾인 점(없으면 손)에서 갈고리 끝까지
+        self.age = 0.0                 # v7 이펙트: 흐르는 빛 마디·떨림 시계
+        self.trail = []                # v7 이펙트: 날아가는 갈고리 뒤 잔상 (최근 위치)
 
     def origin(self):
         p = self.weapon.owner
@@ -1625,6 +1824,12 @@ class ChainHook:
 
     # ----- 갱신 -----
     def update(self, dt):
+        self.age += dt
+        if self.phase == 'out':
+            self.trail.append(self.tip)
+            del self.trail[:-6]
+        else:
+            self.trail = []
         getattr(self, '_update_' + self.phase)(dt)
 
     def _seg_origin(self):
@@ -1659,6 +1864,11 @@ class ChainHook:
                 import drama
                 assets.play_sound(drama.latch_sound(self.weapon.owner.gauge.zone, self.enhanced))   # 위험·강화는 묵직하게
                 damage = self.damage * ramp * (1.0 if enemy.pullable else config.CHAIN_ANCHOR_MULT)   # 보스에게는 박혀서 더 아프다
+                ex, ey = enemy.center                                              # v7 이펙트: 박히는 순간 빛·고리·방사선
+                glow = self.fx['damage_color'] if self.enhanced or self.stun else CHAIN_CORE
+                effects.spawn_bloom(ex, ey, glow, big=True, life=0.16, strength=0.8)
+                effects.spawn_ring(ex, ey, glow, radius_max=70, life=0.18)
+                effects.spawn_impact(ex, ey, self.dx, self.dy, 8, CHAIN_HI)
                 killed = self.weapon._hit(enemy, damage, config.CHAIN_GAIN, self.fx, big=self.enhanced,
                                           shake=0.7, stop=0.5, blast=self.enhanced, extra=False)
                 if not killed and enemy.pullable and len(self.pulled) < self.count:
@@ -1730,6 +1940,12 @@ class ChainHook:
     def _arrive(self, alive):
         """다 끌어왔다: 위험 구간·강화면 기절과 충돌, 아니면 짧은 경직."""
         p = self.weapon.owner
+        for e in alive:                                             # v7 이펙트: 끌려와 멈추는 순간 쾅
+            ex, ey = e.center
+            effects.spawn_bloom(ex, ey, CHAIN_PULSE, life=0.14, strength=0.6)
+            effects.spawn_impact(ex, ey, p.x - ex, 0.0, 6, CHAIN_CORE)
+        if alive:
+            effects.add_trauma(config.SHAKE_HIT)
         import mutations
         stun_time = config.CHAIN_STUN if self.stun else 0.18
         if mutations.has(p, 'gather_stun'):                         # v7 '목줄'
@@ -1772,6 +1988,8 @@ class ChainHook:
 
     def _done(self):
         w = self.weapon
+        hx, hy = self.origin()                                      # v7 이펙트: 손에 감기는 작은 빛
+        effects.spawn_bloom(hx, hy, CHAIN_CORE, life=0.12, strength=0.45)
         if self.level >= 2:
             self._shock()
         if w.hook is self:
@@ -1793,25 +2011,18 @@ class ChainHook:
                 w._hit(e, self.damage * config.CHAIN_SHOCK_MULT, config.CHAIN_GAIN, self.fx, big=True, shake=0.5,
                        stop=0.4, extra=False)
 
-    # ----- 그리기: 손에서 갈고리까지 고리 칸을 늘어놓는다 -----
+    # ----- 그리기 (v7 이펙트 개편): 빛나는 심줄 위 고리 + 작살 갈고리 + 던질 때 잔상, 당길 때 팽팽한 떨림 -----
     def draw(self):
         tx, ty = self.tip
-        glow = self.fx['damage_color'] if self.enhanced or self.stun else (186, 196, 210)
+        glow = self.fx['damage_color'] if self.enhanced or self.stun else CHAIN_CORE
         points = [self.origin()] + list(self.bends) + [self.tip]        # 반사 사슬이면 꺾인 점마다 한 토막
-        for (ox, oy), (ex, ey) in zip(points, points[1:]):
-            length = math.hypot(ex - ox, ey - oy)
-            for i in range(int(length // self.LINK) + 1):
-                k = i * self.LINK / max(length, 1.0)
-                x, y = int(ox + (ex - ox) * k), int(oy + (ey - oy) * k)
-                assets.draw_rect_color(x - 4, y - 4, 8, 8, (12, 14, 22))                 # 외곽선
-                if i % 2:
-                    assets.draw_rect_color(x - 3, y - 1, 6, 2, glow)                    # 눕힌 고리
-                else:
-                    assets.draw_rect_color(x - 1, y - 3, 2, 6, glow)                    # 세운 고리
-        x, y = int(tx), int(ty)
-        assets.draw_rect_color(x - 8, y - 8, 16, 16, (12, 14, 22))                      # 갈고리 머리
-        assets.draw_rect_color(x - 6, y - 6, 12, 12, (186, 196, 210))
-        assets.draw_rect_color(x - 3, y - 3, 6, 6, (90, 210, 240))                      # 헤이즈 빛
+        pulling = self.phase == 'pull'
+        for i, (px, py) in enumerate(self.trail[:-1]):                  # 날아가는 갈고리 뒤 잔상
+            s = 2 + 2 * (i * 3 // max(1, len(self.trail)))
+            assets.draw_rect_color(_snap(px) - s // 2, _snap(py) - s // 2, s, s, glow, alpha=0.3 + 0.1 * i)
+        draw_chain(points, glow, age=self.age, flow=-1 if pulling else 1, shake=2.5 if pulling else 0.0, link=self.LINK)
+        ox, oy = points[-2]
+        draw_hook(tx, ty, tx - ox, ty - oy, glow)
 
 
 # =====================================================================================================
@@ -1862,17 +2073,90 @@ class Decor:
         assets.draw_image(img, self.x, self.y - img.h // 2)
 
 
+# ----- v7 사슬 그리기 (2026-11-24 이펙트 개편): 빛나는 헤이즈 심줄 위에 쇠고리, 끝에 작살 갈고리 -----
+CHAIN_INK = (10, 12, 20)
+CHAIN_METAL = (128, 142, 164)
+CHAIN_HI = (236, 244, 252)
+CHAIN_CORE = (46, 230, 214)          # 고리 사이를 잇는 헤이즈 심줄
+CHAIN_PULSE = (210, 255, 248)        # 심줄을 따라 흐르는 밝은 마디
+
+
+def _snap(v):
+    return int(round(v)) // 2 * 2
+
+
+def draw_chain(points, glow=CHAIN_CORE, age=0.0, flow=1, shake=0.0, link=10, light=True):
+    """점들(손 -> 꺾인 점 -> 끝)을 잇는 사슬. 아래에 빛나는 심줄(흐르는 밝은 마디), 위에 눕힌 고리·세운 고리를 번갈아.
+    flow: 밝은 마디가 흐르는 쪽 (+1 끝으로 = 던질 때, -1 손으로 = 당길 때). shake: 팽팽할 때 옆으로 떨리는 정도(px).
+    모두 정수 좌표의 2px 사각형으로 그린다 (회전 없음)."""
+    segs = list(zip(points, points[1:]))
+    total = 0.0
+    for (ox, oy), (ex, ey) in segs:
+        length = math.hypot(ex - ox, ey - oy) or 1.0
+        nx, ny = -(ey - oy) / length, (ex - ox) / length          # 옆 방향 (떨림)
+        steep = abs(ey - oy) > abs(ex - ox)
+        s = 0.0
+        while s <= length:                                        # 심줄
+            k = s / length
+            wob = shake * math.sin(age * 55 + (total + s) * 0.12)
+            x, y = _snap(ox + (ex - ox) * k + nx * wob), _snap(oy + (ey - oy) * k + ny * wob)
+            hot = ((total + s) - flow * age * 700) % 70 < 14
+            assets.draw_rect_color(x - 1, y - 1, 2, 2, CHAIN_PULSE if hot else glow)
+            s += 2
+        i = 0
+        s = link * 0.5
+        while s < length:                                         # 고리
+            k = s / length
+            wob = shake * math.sin(age * 55 + (total + s) * 0.12)
+            x, y = _snap(ox + (ex - ox) * k + nx * wob), _snap(oy + (ey - oy) * k + ny * wob)
+            flat = (i % 2 == 0) != steep
+            w, h = (10, 6) if flat else (4, 8)
+            assets.draw_rect_color(x - w // 2 - 2, y - h // 2 - 2, w + 4, h + 4, CHAIN_INK)
+            assets.draw_rect_color(x - w // 2, y - h // 2, w, h, CHAIN_METAL)
+            if flat:
+                assets.draw_rect_color(x - w // 2 + 2, y - 1, w - 4, 2, CHAIN_INK)        # 고리 구멍
+                assets.draw_rect_color(x - w // 2, y - h // 2, 4, 2, CHAIN_HI)             # 빛 받은 윗변
+            else:
+                assets.draw_rect_color(x - w // 2, y - h // 2, 2, 4, CHAIN_HI)
+            if light and i % 4 == 0:                              # 고리 몇 개마다 부드러운 빛 (빛 층)
+                img = assets.image('light/dot_48.png')
+                img.opacify(0.35)
+                assets.draw_image_added(img, x, y - img.h // 2, color=glow, times=1)
+                img.opacify(1.0)
+            i += 1
+            s += link
+        total += length
+
+
+# 작살 갈고리 모양 (2px 칸 단위, 앞 = +x). 가운데 날 + 뒤로 휜 미늘 둘
+HOOK_SHAPE = ([(x, 0) for x in range(-3, 8)] + [(x, y) for x in range(-3, 5) for y in (-1, 1)] +
+              [(3, 2), (2, 3), (1, 4), (0, 4), (3, -2), (2, -3), (1, -4), (0, -4)])
+HOOK_EDGE = {(7, 0), (6, 0), (5, 0)}                             # 날 끝 (흰색)
+
+
+def draw_hook(x, y, dx, dy, glow=CHAIN_CORE):
+    """작살 갈고리 머리: 진행 방향 (dx, dy)으로 돌린 칸 모양을 정수 좌표로 찍는다. 검은 테두리 -> 쇠 -> 날 끝 흰색 -> 헤이즈 심."""
+    n = math.hypot(dx, dy) or 1.0
+    ux, uy = dx / n, dy / n
+    pts = []
+    for (a, b) in HOOK_SHAPE:                                     # 칸 하나 = 3px (빈틈 없게 4px 사각으로 찍는다)
+        px = x + (a * ux - b * uy) * 3
+        py = y + (a * uy + b * ux) * 3
+        pts.append((_snap(px), _snap(py), (a, b)))
+    img = assets.image('light/dot_48.png')
+    img.opacify(0.7)
+    assets.draw_image_added(img, int(x), int(y) - img.h // 2, color=glow, times=1)
+    img.opacify(1.0)
+    for px, py, _ in pts:
+        assets.draw_rect_color(px - 4, py - 4, 8, 8, CHAIN_INK)
+    for px, py, key in pts:
+        color = CHAIN_HI if key in HOOK_EDGE else glow if key[1] == 0 and key[0] < 3 else CHAIN_METAL
+        assets.draw_rect_color(px - 2, py - 2, 4, 4, color)
+
+
 def draw_chain_line(x0, y0, x1, y1, glow, link=12):
-    """(x0, y0)에서 (x1, y1)까지 고리 칸을 늘어놓는다 (사슬 갈고리와 같은 모양, 회전 없음)."""
-    length = math.hypot(x1 - x0, y1 - y0)
-    for i in range(int(length // link) + 1):
-        k = i * link / max(length, 1.0)
-        x, y = int(x0 + (x1 - x0) * k), int(y0 + (y1 - y0) * k)
-        assets.draw_rect_color(x - 4, y - 4, 8, 8, (12, 14, 22))
-        if i % 2:
-            assets.draw_rect_color(x - 3, y - 1, 6, 2, glow)
-        else:
-            assets.draw_rect_color(x - 1, y - 3, 2, 6, glow)
+    """(x0, y0)에서 (x1, y1)까지 사슬 (헤이즈 그물·궁극기 사슬 줄). 갈고리 사슬과 같은 그림."""
+    draw_chain([(x0, y0), (x1, y1)], glow, link=link, light=False)
 
 
 class Ultimate:

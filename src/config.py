@@ -123,7 +123,6 @@ ENHANCE_LEVELS = {1: dict(damage=2.5, reach=1.5, extra=3, blast=190, half=115, p
                   2: dict(damage=4.0, reach=1.9, extra=5, blast=260, half=150, plunge=1.7)}
 ENHANCE_STACK_MULT = {1: 1.0, 2: 1.6}
 # 강화 2단계 전용 공격 (11/21): 쌍권총 파편(사방 8발, v7), 건틀릿 부채꼴(양옆 ±각도), 사슬 귀환 충격(주인공 둘레)
-GAUNTLET_FAN_DEG = 22
 CHAIN_SHOCK_RADIUS = 260
 CHAIN_SHOCK_MULT = 0.8          # 식칼·건틀릿·사슬의 강화 피해에 곱한다 (2단계)
 # 철파이프 2단계 (11/20 사용자: 1단계와 다른 동작): 올려베기(피해 x RISE) -> SLAM_DELAY초 뒤 앞 아래로 내려찍기(x SLAM, 바닥 충격)
@@ -205,7 +204,18 @@ GAUNTLET_MIN_RATIO = 0.25    # 이만큼은 충전해야 나간다
 GAUNTLET_RADIUS = 34         # 충격파 반지름(px, 크기 1.0)
 GAUNTLET_SPEED = 1050.0
 GAUNTLET_LIFE = 0.45
-GAUNTLET_COOLDOWN = 0.45
+GAUNTLET_COOLDOWN = 0.85      # 11/24 돌진 강타: 0.45 -> 0.85 (세게 박는 대신 공속이 느리다)
+# 돌진 강타 (2026-11-24 사용자 요청 "기를 날리는 게 아니라 돌진해서 박는 강력한 공격"): 떼면 몸째 조준 쪽으로 돌진
+GAUNTLET_RUSH_MIN = 130.0     # 최소 충전(GAUNTLET_MIN_RATIO)일 때 돌진 거리(px)
+GAUNTLET_RUSH_MAX = 380.0     # 완충·위험 구간 즉시 돌진 거리(px)
+GAUNTLET_RUSH_QUICK = 210.0   # 대시·공중 짧은 돌진 거리(px)
+GAUNTLET_RUSH_SPEED = 1500.0  # 돌진 속도(px/s). 내리꽂기는 x1.15
+GAUNTLET_DIVE_TIME = 0.6      # 내리꽂기는 땅에 닿을 때까지, 길어도 이만큼(초)
+GAUNTLET_RUSH_REACH = 30      # 몸 중심에서 주먹까지(px): 여기서 닿은 적에 박힌다
+GAUNTLET_RUSH_HIT = 40        # 주먹 판정 반지름(px, 크기 1.0)
+GAUNTLET_KNOCK = 900.0        # 맞은 적이 날아가는 처음 속도(px/s, 무게 1·크기 1). 천천히 줄어든다 (weapon.Fling)
+GAUNTLET_IMPACT_RADIUS = 110  # 부딪힌 자리 둘레 충격 반지름(px, 크기 1.0)
+GAUNTLET_SPLASH = 0.4         # 둘레 충격 피해 = 일격 x (강화면 x2)
 # 정비방 업그레이드 (기획서 3.4 표, 0단계 -> 3단계). 게이지 용량·흡수·결핍 방지·대시는 단계마다 일정하게 늘어 items.py에서 계산한다
 ENHANCE_COST_LEVELS = (25, 20, 17, 15)              # E 강화 비용(%)
 OVERLOAD_RESIST_LEVELS = (0.20, 0.15, 0.10, 0.05)   # 오버로드 폭발 피해(최대 체력 비율)
@@ -241,9 +251,8 @@ CHAIN_STUN = 1.0             # 위험 구간·E 강화: 끌려온 적 기절 시
 CHAIN_CLASH_DAMAGE = 15      # 위험 구간: 함께 끌려온 적끼리 부딪쳐 받는 피해
 CHAIN_COOLDOWN = 0.35        # 사슬이 돌아온 뒤 다음 던지기까지
 # 무기별 대시·점프 공격 (11/19): 대시 중·직후 = 대시 공격, 공중 = 점프 공격 (철파이프와 같은 규칙)
-GAUNTLET_QUICK_COST = 6      # 건틀릿 대시·점프: 충전 없이 바로 쏘는 작은 충격파의 게이지 값(%)
-GAUNTLET_QUICK_RATIO = 0.7   # 그 충격파의 세기 (충전 비율로 친다)
-GAUNTLET_AIR_RECOIL = 650.0  # 공중에서 아래로 쏘면 반동으로 떠오른다
+GAUNTLET_QUICK_COST = 6      # 건틀릿 대시·점프: 충전 없이 바로 나가는 짧은 돌진의 게이지 값(%)
+GAUNTLET_QUICK_RATIO = 0.7   # 그 돌진의 세기 (충전 비율로 친다)
 CHAIN_DASH_REACH = 1.3       # 사슬 대시: 사거리 x1.3, 한 마리 더
 CHAIN_DASH_EXTRA = 1
 CHAIN_AIR_MULT = 1.3         # 사슬 점프: 피해 x1.3

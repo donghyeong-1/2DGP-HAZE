@@ -1407,7 +1407,7 @@ def test_gauntlet_charges_by_burning_gauge_and_fires_on_release():
     assert p._body_frame() == ('n09_gauntlet', 1)                        # 건틀릿 팔을 허리 뒤로 당긴 충전 자세 (T26)
     p.attack_held = False
     run_frames(1)
-    assert not p.weapon.charging and any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])
+    assert not p.weapon.charging and p.weapon.rushing                    # 11/24: 떼면 돌진 강타 (tests/test_gauntlet_rush.py)
     run_frames(30)
     assert e.hp < 1000
 
@@ -1429,7 +1429,7 @@ def test_gauntlet_drain_stops_at_floor_and_short_tap_does_nothing():
     run_frames(3)
     q.attack_held = False
     run_frames(1)
-    assert not any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])   # 너무 짧으면 헛손질
+    assert not q.weapon.rushing                                           # 너무 짧으면 헛손질
 
 
 def test_gauntlet_floor_survives_one_boss_shockwave():
@@ -1447,8 +1447,8 @@ def test_gauntlet_cannot_charge_without_gauge_to_burn():
     run_frames(120)
     assert p.weapon.charge_ratio < config.GAUNTLET_MIN_RATIO              # 공짜로 차지 않는다
     p.attack_held = False
-    run_frames(2)
-    assert not any(type(o).__name__ == 'Blast' for o in game_world.world[game_world.LAYER_EFFECT])
+    run_frames(1)
+    assert not p.weapon.rushing
     room, p = make_world()
     p.give_weapon('gauntlet')
     set_gauge(p, config.GAUNTLET_FLOOR + 6)                               # 조금 남았으면 그만큼만 찬다
@@ -1466,8 +1466,7 @@ def test_gauntlet_fires_instantly_in_critical_zone_and_vents_gauge():
     p.attack_held = True
     assert p.request_attack()
     assert not p.weapon.charging and p.gauge.value <= 95 - config.GAUNTLET_CRIT_COST + 0.01
-    blasts = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'Blast']
-    assert blasts and blasts[0].size == config.GAUNTLET_SIZE['CRITICAL']
+    assert p.weapon.rushing and p.weapon.rush['size'] == config.GAUNTLET_SIZE['CRITICAL']   # 바로 큰 돌진
 
 
 def test_weapon_slots_swap_with_q_and_numbers():

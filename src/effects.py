@@ -213,6 +213,7 @@ class PathSlash:
         self.enhanced = enhanced
         self.life, self.time = life, 0.0
         self.name = 'path-slash'
+        self.streak = None
 
     def update(self, dt):
         self.time += dt
@@ -220,25 +221,13 @@ class PathSlash:
             game_world.remove_object(self)
 
     def draw(self):
-        (x0, y0), (x1, y1) = self.p0, self.p1
-        length = math.hypot(x1 - x0, y1 - y0)
-        if length < 1:
-            return
-        t = self.time / self.life
-        base = (44 if self.enhanced else 30) * (1.0 - t) ** 0.8 + 2
-        colors = PATH_COLORS[(enh_level if enh_level >= 2 else True) if self.enhanced else False]
-        # 바깥(어두움) -> 코어(흰색) 순서로 점점 가늘게 덧그린다
-        for layer, (color, scale) in enumerate(zip(reversed(colors), (1.0, 0.72, 0.46, 0.22))):
-            step = 5
-            n = max(2, int(length // step))
-            for i in range(n + 1):
-                s = i / n
-                taper = math.sin(math.pi * min(1.0, max(0.0, s))) ** 0.6          # 양 끝은 가늘다
-                size = int(base * scale * max(0.18, taper))
-                if size < 2:
-                    continue
-                cx, cy = x0 + (x1 - x0) * s, y0 + (y1 - y0) * s
-                assets.draw_rect_color(int(round(cx - size / 2)), int(round(cy - size / 2)), size, size, color)
+        # v8: 대시 궤적과 같은 그림(흰 속도 줄기 + 일렁이는 색 띠 + 번지는 빛)을 강화 단계 색으로
+        import weapon
+        if self.streak is None:
+            colors = PATH_COLORS[(enh_level if enh_level >= 2 else True) if self.enhanced else False]
+            self.streak = weapon.DashStreak((*self.p0, *self.p1), life=self.life, width=34 if self.enhanced else 26, color=colors[2])
+        self.streak.t = self.time
+        self.streak.draw()
 
 
 class FloatText:
@@ -516,17 +505,9 @@ class KillSlash:
             game_world.remove_object(self)
 
     def draw(self):
-        p = self.time / self.life
-        half = self.length * (0.5 + 0.5 * min(1.0, p * 4))          # 처음 1/4 동안 양쪽으로 뻗는다
-        thick = max(2, int(round(10 * (1 - p))) // 2 * 2)            # 2배 픽셀 격자: 짝수 두께
-        step = 2                                                      # 촘촘히 (끊긴 점선처럼 보이지 않게)
-        t = -half
-        while t <= half:
-            x = int(round(self.x + self.dx * t)) // 2 * 2
-            y = int(round(self.y + self.dy * t)) // 2 * 2
-            edge = abs(t) > half * 0.7
-            assets.draw_rect_color(x - thick // 2, y - thick // 2, thick, thick, self.color if edge else (255, 255, 255))
-            t += step
+        # v8: 구운 큰 베기 자국(8각도 두 겹 시트)에 색을 입힌다
+        variant = int(round((math.degrees(math.atan2(self.dy, self.dx)) % 180.0) / 22.5)) % 8
+        draw_tint_sheet('cut-mark-big', self.x, self.y, self.time / self.life, self.color, variant)
 
 
 class TintFx:
@@ -680,12 +661,7 @@ def ground_slam(x, floor_y, power=1.0, color=(255, 200, 140)):
     add_trauma(config.SHAKE_SLAM * power)
     for side in (-1, 1):
         spawn('dust-land', x + side * 60 * power, floor_y, flip=side < 0, duration=0.35)
-    rng = random.Random(int(x) * 31 + int(floor_y))
-    for k in range(int(10 * power)):
-        vx = rng.uniform(-420, 420) * power
-        vy = rng.uniform(380, 760) * (0.7 + 0.3 * power)
-        game_world.add_object(SlamChip(x + rng.uniform(-30, 30), floor_y + 4, vx, vy, SLAM_DEBRIS[k % 3],
-                                     rng.choice((4, 4, 6)), rng.uniform(0.35, 0.6)), game_world.LAYER_EFFECT)
+    spawn('quake-blast', x, floor_y, duration=0.46)                    # v8: 사각 파편 대신 구운 바닥 충격 (가시·누운 고리·도는 돌 조각)
     spawn_bloom(x, floor_y + 20, color, big=power >= 1.2, life=0.22, strength=0.7)
 
 

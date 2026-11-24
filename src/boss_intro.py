@@ -63,7 +63,7 @@ SHORT = dict(wait=0.12, pan=0.45, hold=0.9, card=1.0, back=0.4, out=0.25)    # �
 TYPE_CPS = 30.0         # 대사 글자가 찍히는 빠르기(초당 글자)
 ADVANCE_GUARD = 0.3     # 등장씬이 시작되고 이 시간 안의 누름은 무시한다 (들어오며 누르던 점프로 넘어가지 않게)
 FROZEN = ('wait', 'pan', 'lines', 'card', 'back')
-BAR_H = 150             # 위아래 검은 띠 높이(px, 짝수)
+BAR_H = 112             # 위아래 검은 띠 높이(px, 짝수). 보스방 바닥(2칸 = 128px)과 보스 발이 가려지지 않게
 BAR_COLOR = (3, 5, 10)
 
 freezing = False        # 등장씬이 게임을 멈추고 있는가 (play_mode, gamepad)
@@ -327,11 +327,11 @@ class BossIntro:
             assets.draw_rect_color(0, h - bar, w, bar, BAR_COLOR)
         if self.step == 'lines' and bar >= BAR_H:
             info = LINES[self.boss.kind]
-            kit.text(w // 2, BAR_H - 42, info['speaker'], info['color'], small=True, center=True)
-            kit.text(w // 2, 58, self.line()[:self.typed()], (236, 240, 248), center=True)
+            kit.text(w // 2, BAR_H - 26, info['speaker'], info['color'], small=True, center=True)
+            kit.text(w // 2, 44, self.line()[:self.typed()], (236, 240, 248), center=True)
             done = self.typed() >= len(self.line())
-            kw = kit.keycap(w - 300, 24, 'Enter', hot=done)
-            kit.text(w - 300 + kw + 10, 39, '넘기기', kit.FAINT, small=True)
+            kw = kit.keycap(w - 300, 30, 'Enter', hot=done)
+            kit.text(w - 300 + kw + 10, 45, '넘기기', kit.FAINT, small=True)
         elif self.step is None:
             self._draw_bark()
 

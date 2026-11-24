@@ -308,18 +308,20 @@ def ring_create(o):
     return Ring()
 
 
-FLARE_META = dict(size=[208, 208], origin=[104, 104], duration=0.4, fps=30, options=dict(seed=5))
+FLARE_META = dict(size=[208, 208], origin=[104, 104], duration=0.4, fps=30, options=dict(seed=5, k=1.0))
+FLARE_S_META = dict(size=[112, 112], origin=[56, 56], duration=0.3, fps=30, options=dict(seed=8, k=0.5))   # 보통 타격용 작은 별
 
 
 def flare_create(o):
     """별 섬광 (사용자가 준 INARI 그림): 크고 진한 색 빛 원반 한가운데에 흰 여덟 갈래 별, 둘레에 작은 반짝임과 불티.
     색 층 = 별의 색 가장자리·반짝임, 흰 심 = 별 가운데. 큰 빛 원반은 빛 층이 맡는다(게임이 색을 곱한다)."""
     core = o['layer'] == 'core'
+    z = o['k']                                               # 크기 (1 = 큰 별, 0.5 = 작은 별)
     rng = Rng(o['seed'])
     ps = Particles(rng, G)
-    ps.burst(SPARK, 0, 0, 16, (260, 760), (0.2, 0.42), up=60)
-    ps.burst(MOTE, 0, 0, 14, (120, 420), (0.22, 0.4), size=(0.8, 1.8))
-    twinkles = [(rng.range(-80, 80), rng.range(-70, 70), rng.range(0.02, 0.2), rng.range(3, 7)) for _ in range(12)]
+    ps.burst(SPARK, 0, 0, int(16 * z), (260 * z, 760 * z), (0.2, 0.42), up=60 * z)
+    ps.burst(MOTE, 0, 0, int(14 * z), (120 * z, 420 * z), (0.22, 0.4), size=(0.8, 1.8))
+    twinkles = [(rng.range(-80, 80) * z, rng.range(-70, 70) * z, rng.range(0.02, 0.2), rng.range(3, 7)) for _ in range(int(12 * z))]
     t = [0.0]
 
     class Flare:
@@ -333,15 +335,15 @@ def flare_create(o):
             if k > 0.05:
                 for i in range(8):
                     ang = TAU * i / 8
-                    ln = (86 if i % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if i % 4 == 0 else 1.0)
-                    w = (9 if i % 2 == 0 else 6) * k
+                    ln = (86 if i % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if i % 4 == 0 else 1.0) * z
+                    w = (9 if i % 2 == 0 else 6) * k * (0.5 + 0.5 * z)
                     c, s_ = math.cos(ang), math.sin(ang)
                     if core:
                         p.needle(0, 0, c * ln, s_ * ln, WHITE, max(1.0, w))
                     else:
                         p.needle(0, 0, c * ln * 1.06, s_ * ln * 1.06, G[2], w + 3.5)
                 if core:
-                    p.disc(0, 0, 9 * k + 1, WHITE)
+                    p.disc(0, 0, (9 * k + 1) * (0.4 + 0.6 * z), WHITE)
             for x, y, t0, arm in twinkles:                             # 둘레의 작은 십자 반짝임
                 v = (u - t0) / 0.16
                 if 0 <= v < 1 and core:
@@ -351,9 +353,9 @@ def flare_create(o):
             if not core:
                 ps.draw(p)
                 g = 1.0 if u < 0.1 else max(0.0, 1.0 - (u - 0.1) / 0.3)
-                p.glow(0, 0, 100, WHITE, 150 * g)                     # 큰 빛 원반 (진하게: 이 이펙트의 주인공)
-                p.glow(0, 0, 58, WHITE, 130 * g)
-                p.glow_ring(0, 0, 60 + 30 * out_expo(u / 0.3), 9, WHITE, 70 * g)
+                p.glow(0, 0, 100 * z, WHITE, 150 * g)                 # 큰 빛 원반 (진하게: 이 이펙트의 주인공)
+                p.glow(0, 0, 58 * z, WHITE, 130 * g)
+                p.glow_ring(0, 0, (60 + 30 * out_expo(u / 0.3)) * z, 9 * z, WHITE, 70 * g)
     return Flare()
 
 
@@ -368,6 +370,7 @@ TINTS = {
     'shock-ring-m': [(ring_meta(78), ring_create)],
     'shock-ring-l': [(ring_meta(150), ring_create)],
     'flare': [(FLARE_META, flare_create)],
+    'flare-s': [(FLARE_S_META, flare_create)],
 }
 
 

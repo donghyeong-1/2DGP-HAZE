@@ -576,8 +576,60 @@ class ScreenLine:
                 assets.draw_rect_color(int(self.x - reach), int(self.y - ww // 2), int(reach * 2), ww, color)
 
 
-def spawn_flare(x, y, color, big=False, line=False):
+class BlurSmear:
+    """블러 느낌 (사용자 요청: 처형·궁극기): 가로로 길게 번지는 빛 띠 여러 겹 + 흰 속도선 + 주인공 잔상이 양옆으로 번졌다 모인다.
+    화면을 읽어 흐리는 것이 아니라 빛 층을 가로로 늘어놓아 만든다 (pico2d에는 흐림 효과가 없다)."""
+
+    def __init__(self, x, y, color, player=None, life=0.32, reach=620):
+        self.x, self.y, self.color, self.player, self.life, self.reach = x, y, color, player, life, reach
+        self.time = 0.0
+        self.lines = [(random.uniform(-reach, reach), random.uniform(-150, 150), random.uniform(60, 260)) for _ in range(26)]
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        t = self.time / self.life
+        k = (1.0 - t) ** 1.3 * (0.5 if options.reduce_flash else 1.0)
+        img = assets.image('light/bloom_256.png')
+        img.opacify(0.22 * k)
+        for row in (-70, 0, 70):                                       # 가로로 번지는 빛 띠
+            for off in range(-self.reach, self.reach + 1, 70):
+                assets.draw_image_added(img, int(self.x + off), int(self.y + row - img.h // 2), color=self.color, times=1)
+        img.opacify(1.0)
+        for lx, ly, ln in self.lines:                                   # 흰 속도선: 바깥으로 밀려나며 가늘어진다
+            x = self.x + lx * (1.0 + 0.5 * t)
+            w = int(ln * (1.0 - t))
+            if w >= 4:
+                assets.draw_rect_color(int(x - w / 2), int(self.y + ly) // 2 * 2, w, 2, (255, 255, 255), 0.75 * k)
+        p = self.player
+        if p is not None:                                               # 주인공 잔상이 양옆으로 번진다
+            for i, d in enumerate((22, 46, 74)):
+                for side in (-1, 1):
+                    sprites.draw_silhouette(*p._body_frame(), p.x + side * d * (1.0 - t), p.y, p.draw_face(), self.color,
+                                            max(0.0, 0.34 - 0.09 * i) * k)
+
+
+def spawn_blur(x, y, color, player=None):
+    game_world.add_object(BlurSmear(x, y, color, player), game_world.LAYER_EFFECT)
+
+
+def zone_glow(player):
+    """지금 주인공의 이펙트 색: 강화 중이면 강화 단계 색, 아니면 게이지 구간 색 (위험 90%+는 레드)."""
+    g = player.gauge
+    if g.enhanced:
+        return config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))]
+    return config.ZONE_GLOW.get(g.zone, config.ZONE_GLOW['NORMAL'])
+
+
+def spawn_flare(x, y, color, big=False, line=False, small=False):
     """별 섬광: 큰 색 빛 원반 + 흰 여덟 갈래 별 + 불티. big은 1.5배가 아니라 정수 3배, line이면 화면을 가르는 빛줄기도."""
+    if small:                                                         # 보통 타격: 작은 별 하나와 옅은 빛
+        game_world.add_object(TintFx('flare-s', x, y, color), game_world.LAYER_EFFECT)
+        game_world.add_object(Bloom(x, y, color, False, 0.2, 0.9), game_world.LAYER_EFFECT)
+        return
     game_world.add_object(TintFx('flare', x, y, color, scale=3 if big else 2), game_world.LAYER_EFFECT)
     for _ in range(3 if big else 2):                                  # 진한 색 빛 원반 (겹쳐서 진하게)
         game_world.add_object(Bloom(x, y, color, True, 0.34, 1.0), game_world.LAYER_EFFECT)

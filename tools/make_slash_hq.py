@@ -50,7 +50,7 @@ def ramp(*cols):
 BLUE = ramp("#ffffff", "#e6fffb", "#2ee6d6", "#0b6a74")      # v7 A안: 흰 주 + 고대비 청록 (예전 파스텔 #cdf0ff·#78d2eb·#3c8cb4)
 DIM = ramp("#d9b4c4", "#a8657f", "#7a3a52", "#4a2238")
 TEAL = ramp("#ffffff", "#e8fff4", "#33e39e", "#0d6b55")      # v7: 각성 (흰 주 + 초록빛 청록)
-FIRE = ramp("#fff4d6", "#ffb347", "#ff5a2e", "#a3262a")
+FIRE = ramp("#ffffff", "#ffb4b4", "#ec3a48", "#a81430")       # 11/24 사용자: 위험(90%+)은 레드 (예전 주황 #ffb347·#ff5a2e)
 GOLD = ramp("#fffbe8", "#ffe08c", "#ff9a4a", "#b8502e")
 VIOLET = ramp("#ffffff", "#e6ccff", "#a46bff", "#5a2fb8")
 YELLOW = ramp("#ffffff", "#fff1b8", "#ffd35a", "#c98a1e")

@@ -105,7 +105,7 @@ STYLES = {
                       amp=0.8, bias=0.1, rising=-1, embers=10, ember_rise=-46, ember_size=1, ground=0.5, gain=1.0, seed=11),
     "aura-awake": dict(kind="flame", ramp=["#f4fff9", "#a2f7d2", "#3fd6a4", "#1f8a78"], ember="#f4fff9", r0=26, vscale=0.42, stretch=2.4,
                        amp=0.95, bias=0.45, rising=1, embers=16, ember_rise=120, ember_size=1, ground=0.7, gain=1.0, seed=23),
-    "aura-critical": dict(kind="flame", ramp=["#fff4d6", "#ffb347", "#ff5a2e", "#a3262a"], ember="#ffe9a8", r0=30, vscale=0.52, stretch=2.6,
+    "aura-critical": dict(kind="flame", ramp=["#ffffff", "#ffb4b4", "#ec3a48", "#a81430"], ember="#ffd0d0", r0=30, vscale=0.52, stretch=2.6,
                           amp=1.15, bias=0.7, rising=1, embers=34, ember_rise=170, ember_size=2, ground=1.0, gain=1.15, seed=37),
     "aura-enhanced": dict(kind="spiral", ramp=["#ffffff", "#e6ccff", "#a46bff", "#5a2fb8"], ember="#ffffff", r0=40, vscale=0.62, stretch=1.5,
                           amp=0.9, bias=0.35, rising=1, embers=26, ember_rise=-110, ember_size=1, ground=0.6, gain=1.15, seed=51),

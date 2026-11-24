@@ -329,3 +329,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-24: 이펙트 v8 1차 — `assets/effects/hit-(fade·normal·awake·critical·enhanced·enhanced2·enhanced3).png`, `haze-blast.png`와 빛 시트 `assets/light/glow_<같은 이름>.png`를 `tools/make_fx2.py` + `tools/fxkit.py`로 다시 만듦(code-drawn, numpy, 이미지 모델 없음, 방식 참고는 `docs/REFERENCES.md`). 예전 시트는 git 기록에 있다.
 - 2026-11-24: 이펙트 v8 2차 — `assets/effects/cut-mark(-big)`, `impact-rays(-big)`, `shock-ring-(s·m·l)`와 빛 시트(`assets/light/glow_<같은 이름>.png`): `tools/make_fx2.py` + `tools/fxkit.py`(code-drawn). 회색조로 굽고 게임이 색을 곱한다.
 - 2026-11-24: 이펙트 v8 3차 — `assets/effects/flare.png`(별 섬광)과 `assets/light/glow_flare.png`: `tools/make_fx2.py`(code-drawn). 화풍 참고는 사용자가 준 INARI 화면(그림은 쓰지 않음).
+- 2026-11-24: 이펙트 v8 4차 — `flare-s`(작은 별 섬광) 추가, 위험 구간을 레드로 다시 구움: `hit-critical`(make_fx2.py), `pipe-slash-critical(-flat)`(make_slash_hq.py), `aura-critical`(make_aura.py)와 그 빛 시트. 모두 code-drawn.

@@ -163,7 +163,7 @@ class Dash(_State):
             p.last_dash_path = (ox, oy, cx, cy)        # 지나온 직선
             if p.armed_dash == p.dash_count:           # 대시 중에 대시 공격을 걸었다: 지나온 자리에 붉은 궤적 (대시 v2)
                 import weapon
-                game_world.add_object(weapon.DashStreak(p.last_dash_path), game_world.LAYER_EFFECT)
+                game_world.add_object(weapon.DashStreak(p.last_dash_path, color=effects.zone_glow(p)), game_world.LAYER_EFFECT)
             p.dash_end()
             import mutations
             mutations.on_dash_end(p)                   # 변이 '포자 폭발'
@@ -466,7 +466,7 @@ class Player(TileBody):
         self.dash_refunded = False
         if self.state != 'DASH' and self.last_dash_path is not None:   # 대시 직후: 지나온 자리에 붉은 궤적
             import weapon
-            game_world.add_object(weapon.DashStreak(self.last_dash_path), game_world.LAYER_EFFECT)
+            game_world.add_object(weapon.DashStreak(self.last_dash_path, color=effects.zone_glow(self)), game_world.LAYER_EFFECT)
 
     # ----- 무기 -----
     def has_weapon(self, weapon_id):

@@ -539,7 +539,7 @@ ZONE_FX = {
     'AWAKE':    dict(slash='pipe-slash-awake', spark='hit-awake', spark_time=0.28, shake=1.3, stop=1.2, sound='swing_awake',
                      damage_color=(160, 255, 210)),
     'CRITICAL': dict(slash='pipe-slash-critical', spark='hit-critical', spark_time=0.32, shake=1.7, stop=1.5, sound='swing_critical',
-                     damage_color=(255, 150, 90)),
+                     damage_color=(255, 84, 92)),      # 11/24 사용자: 90% 이상은 레드
 }
 ZONE_FX['OVERLOAD'] = ZONE_FX['CRITICAL']
 ZONE_FX['DEAD'] = ZONE_FX['FADE']
@@ -556,6 +556,9 @@ ENHANCED_FX_BY_LEVEL = {
 # 충격 방사선 개수 (맞은 자리에서 퍼지는 선): 구간이 높을수록, 강화는 가장 많다. 추가 타격은 작게
 IMPACT_RAYS = {'FADE': 4, 'NORMAL': 6, 'AWAKE': 8, 'CRITICAL': 10, 'OVERLOAD': 10, 'DEAD': 0, 'enhanced': 12}
 IMPACT_RAYS_EXTRA = 3
+# 대시 공격·별 섬광의 색: 게이지 구간을 따른다 (강화 중이면 ENHANCE_LEVEL_COLOR). 11/24 사용자 요청
+ZONE_GLOW = {'DEAD': (143, 176, 216), 'FADE': (143, 176, 216), 'NORMAL': (46, 230, 214), 'AWAKE': (92, 220, 255),
+             'CRITICAL': (255, 64, 78), 'OVERLOAD': (255, 64, 78)}
 FINISHER_SLASH = 'pipe-slash-finisher'     # 3타는 구간과 상관없이 금색 큰 궤적
 # 주인공 몸 주위 오라 (반복 재생). 노멀(20~49%)은 없다. E 강화 중에는 구간 오라 위에 겹친다
 AURA_BY_ZONE = {'FADE': 'aura-fade', 'AWAKE': 'aura-awake', 'CRITICAL': 'aura-critical'}

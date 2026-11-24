@@ -395,6 +395,7 @@ class DashExecution:
         effects.spawn_ring(ex, ey, EXEC_COLOR, radius_max=190, life=0.3)
         effects.spawn_impact(ex, ey, 1.0, 0.0, 18, EXEC_COLOR, big=True)
         effects.spawn_flare(ex, ey, EXEC_COLOR, big=True, line=True)            # v8: 큰 별 섬광 + 화면을 가르는 붉은 빛줄기
+        effects.spawn_blur(ex, ey, EXEC_COLOR, p)                               # 가로로 번지는 블러
         effects.add_trauma(config.SHAKE_FINISHER * 1.5)
         effects.float_text(ex, ey + 120, '처형!', EXEC_COLOR, big=True, life=0.7)
         game_world.add_object(DashStreak((ex - 300, ey, ex + 300, ey), life=0.45, width=22), game_world.LAYER_EFFECT)
@@ -620,9 +621,10 @@ class Pipe:
         if big:                                          # 강한 공격: X자 베기 자국 두 개 + 퍼지는 고리 + 별 섬광(v8)
             effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'], big=True, count=2)
             effects.spawn_ring(ex, ey, fx['damage_color'])
-            effects.spawn_flare(ex, ey, color or fx['damage_color'])
+            effects.spawn_flare(ex, ey, color or effects.zone_glow(p))
         else:                                            # 맞을 때마다 적을 가로지르는 베기 자국 (다단 히트가 하나하나 보이게)
             effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])
+            effects.spawn_flare(ex, ey, color or effects.zone_glow(p), small=True)      # v8: 작은 별 섬광 (대시 화풍)
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
         effects.spawn_bloom(ex, ey, fx['damage_color'], big=big, strength=0.9 if big else 0.6)   # v7 빛 번짐
         p.swing_connected = True                         # 이번 휘두르기가 맞았다: 몸은 젖힘으로 되돌아가지 않는다
@@ -915,6 +917,13 @@ class Pipe:
         self.pass_hit = set()
         self.resolve_dash_strike(enhanced)               # 막 끝난 직후: 지나온 길을 한 번에 벤다
 
+    @property
+    def dash_color(self):
+        """이번 대시 공격의 색: 강화 일격이면 강화 단계 색, 아니면 게이지 구간 색."""
+        if self.owner.dash_strike_enhanced or self.owner.gauge.enhanced:
+            return config.ENHANCE_LEVEL_COLOR[max(1, min(3, self.level or self.owner.gauge.enhance_level))]
+        return config.ZONE_GLOW.get(self.owner.gauge.zone, config.ZONE_GLOW['NORMAL'])
+
     def _dash_strike_stats(self, enhanced):
         """대시 평타의 (반폭, 피해, 이펙트)."""
         import mutations
@@ -936,8 +945,11 @@ class Pipe:
                   shake=1.8 if enhanced else 1.2, blast=enhanced)
         effects.spawn_slash_marks(ex, ey, dx, dy, (255, 255, 255), big=True)   # 지나가며 긋는 큰 베기 자국
         variant, flip = effects.slash_variant(dx, dy)
-        effects.spawn('pipe-slash-enhanced3', ex - dx * 40, ey - dy * 40, flip=flip, duration=0.26, variant=variant)   # 적을 감싸는 큰 진홍 초승달
-        effects.spawn_flare(ex, ey, EXEC_COLOR)                                 # 별 섬광 + 큰 붉은 빛 (v8)
+        sheet = (('pipe-slash-enhanced' + effects.enh_suffix()) if enhanced else
+                 {'NORMAL': 'pipe-slash-awake', 'DEAD': 'pipe-slash-fade', 'OVERLOAD': 'pipe-slash-critical'}.get(
+                     self.owner.gauge.zone, config.ZONE_FX[self.owner.gauge.zone]['slash']))
+        effects.spawn(sheet, ex - dx * 40, ey - dy * 40, flip=flip, duration=0.26, variant=variant)   # 적을 감싸는 큰 초승달 (구간·강화 색)
+        effects.spawn_flare(ex, ey, self.dash_color)                           # 별 섬광 + 큰 빛 (구간·강화 색, 위험은 레드)
         return True
 
     def _dash_pass(self):
@@ -2411,6 +2423,7 @@ class Ultimate:
         p.invuln_left = max(p.invuln_left, config.ULT_INVULN)
         p.steady_left = max(p.steady_left, config.ULT_INVULN)   # 무적이지만 깜빡이지 않는다
         assets.play_sound('ult_cast')
+        effects.spawn_blur(*p.center, self.color, p)                            # 시전 순간에도 블러
         effects.float_text(p.x, p.y + config.PLAYER_HB_H + 70, self.name, self.color, big=True, life=0.9)
         game_world.add_object(ExecDim(color=(6, 8, 26), strength=config.ULT_DIM * 2, life=0.7), game_world.LAYER_TILES)
         self._nova(*p.center, duration=0.4)
@@ -2454,6 +2467,7 @@ class Ultimate:
         effects.request_flash(0.06)
         effects.add_trauma(0.8)
         effects.spawn_flare(cx, cy, self.color, big=True, line=True)            # v8: 큰 별 섬광 + 화면을 가르는 빛줄기
+        effects.spawn_blur(cx, cy, self.color, self.weapon.owner)               # 가로로 번지는 블러
         self._nova(cx, cy)
         assets.play_sound(f'ult_final_{self.weapon.weapon_id}')
 

@@ -38,7 +38,7 @@ RAMPS = {
     'haze': [hexc(c) for c in ('#0b3f52', '#0e7f93', '#2ee6d6', '#a8fff4', '#ffffff')],      # 기본 청록
     'fade': [hexc(c) for c in ('#27314a', '#4a6288', '#8fb0d8', '#d4e6ff', '#ffffff')],      # 페이드 (힘 빠진 회청)
     'awake': [hexc(c) for c in ('#0a4a6a', '#1496c8', '#5cdcff', '#c4f6ff', '#ffffff')],     # 각성 (밝은 하늘)
-    'critical': [hexc(c) for c in ('#5a1a08', '#c8501c', '#ffa23c', '#ffe6a8', '#ffffff')],  # 위험 (주황)
+    'critical': [hexc(c) for c in ('#4a0a1c', '#a81430', '#ec3a48', '#ffb4b4', '#ffffff')],  # 위험 (레드, 11/24 사용자)
     'violet': [hexc(c) for c in ('#2e1a6e', '#6a3fd0', '#a46bff', '#e6ccff', '#ffffff')],    # 강화 1 / 사슬
     'gold': [hexc(c) for c in ('#5a3608', '#b87a14', '#f0b432', '#ffecaa', '#ffffff')],      # 강화 2
     'crimson': [hexc(c) for c in ('#4a0a1c', '#a81430', '#ec3a48', '#ffb4b4', '#ffffff')],   # 강화 3·표식·처형

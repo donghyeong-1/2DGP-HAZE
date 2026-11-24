@@ -829,7 +829,9 @@ class Player(TileBody):
             if done >= 0.45:
                 return 'n09_gauntlet', 3                          # 회수
             return self._gauntlet_punch()
-        return 'n09_chain', 1 if done < 0.25 else 2 if done < 0.75 else 3
+        if done < 0.25:
+            return 'n09_chain', 1                                 # 돌리기
+        return self._chain_throw() if done < 0.75 else ('n09_chain', 3)
 
     def _gauntlet_punch(self):
         """건틀릿 강타 자세 (2026-11-24 PixelLab): 조준 쪽으로 주먹을 뻗는다. 땅: 앞·앞 위·앞 아래, 공중: 앞·앞 위·아래."""
@@ -845,6 +847,17 @@ class Player(TileBody):
         if name and name in sprites.SKIN:
             return name, 1
         return 'n09_gauntlet', 2
+
+    def _chain_throw(self):
+        """사슬 던지기 자세 (2026-11-24 PixelLab): 조준 쪽으로 팔을 뻗는다. 땅: 앞·앞 위·앞 아래, 공중: 앞·앞 위·아래."""
+        ax, ay = self.aim_vector()
+        up, down = ay > 0.35, ay < -0.35
+        if not self.on_ground and 'n09_chain_air' in sprites.SKIN:
+            return 'n09_chain_air', 2 if up else 3 if down else 1
+        name = 'n09_chain_upfwd' if up else 'n09_chain_downfwd' if down else None
+        if name and name in sprites.SKIN:
+            return name, 1
+        return 'n09_chain', 2
 
     def _pistol_pose(self):
         """쌍권총 겨눔 자세 (2026-11-24 PixelLab): 공중이면 앞·앞 위·앞 아래 3장, 앞으로 달리며 쏘면 달리며 쏘기 8장,

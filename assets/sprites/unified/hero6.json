@@ -149,6 +149,26 @@
   103,
   186
  ],
+ "hero6_chain": [
+  3,
+  103,
+  186
+ ],
+ "hero6_chain_upfwd": [
+  1,
+  103,
+  186
+ ],
+ "hero6_chain_downfwd": [
+  1,
+  103,
+  186
+ ],
+ "hero6_chain_air": [
+  3,
+  103,
+  186
+ ],
  "hero6_hurt": [
   2,
   103,

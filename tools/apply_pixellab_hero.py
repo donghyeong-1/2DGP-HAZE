@@ -69,6 +69,11 @@ SETS = {
     'hero6_gauntlet_downfwd': (_f('v3_gauntlet_ground', [4]), 'none'),
     'hero6_gauntlet_air': (_f('v3_gauntlet_air', [1, 2]), 'air'),       # 공중 앞·앞 위 (발을 발 줄에 맞춘다)
     'hero6_gauntlet_airdown': (_f('v3_gauntlet_air', [0]), 'air'),      # 공중에서 아래로
+    # 사슬 자세 (2026-11-24, raw/v3_kp/gen_chain.py): 예전 n09_chain 순서(돌리기·던지기·당기기) 그대로 3장
+    'hero6_chain': (_f('v3_chain_ground', [0, 1, 2]), 'none'),
+    'hero6_chain_upfwd': (_f('v3_chain_ground', [3]), 'none'),
+    'hero6_chain_downfwd': (_f('v3_chain_ground', [4]), 'none'),
+    'hero6_chain_air': (_f('v3_chain_air', [0, 1, 2]), 'air'),          # 공중 앞·앞 위·아래
     'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
     'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }
@@ -132,10 +137,20 @@ def remove_grey_behind(a, x_cut):
     grey = (out[:, :, 3] == 255) & (rgb.max(axis=2) - rgb.min(axis=2) < 40) & (rgb.max(axis=2) > 95)
     grey[:, x_cut:] = False
     out[grey] = 0
+    from scipy import ndimage                     # 회색을 지운 뒤 흩어져 남은 작은 조각 (몸 뒤쪽만)
+    lab, n = ndimage.label(out[:, :, 3] == 255, structure=np.ones((3, 3)))
+    if n > 1:
+        sizes = ndimage.sum(out[:, :, 3] == 255, lab, range(1, n + 1))
+        body = int(np.argmax(sizes)) + 1
+        for k in range(1, n + 1):
+            comp = lab == k
+            if k != body and sizes[k - 1] < 30 and np.nonzero(comp.any(axis=0))[0].max() < x_cut + 6:
+                out[comp] = 0
     return out
 
 
-GREY_CUT = {'hero6_gauntlet_downfwd': {0: 34}}   # 세트 -> {번호: 원본 x}: 몸 뒤 회색 궤적 (v3_gauntlet_ground 4번)
+GREY_CUT = {'hero6_gauntlet_downfwd': {0: 34},  # 세트 -> {번호: 원본 x}: 몸 뒤 회색 궤적 (v3_gauntlet_ground 4번)
+            'hero6_chain': {2: 40}, 'hero6_chain_upfwd': {0: 40}, 'hero6_chain_air': {0: 40}}   # 사슬: 목도리 끝 회색 궤적
 
 
 # 세트 -> {세트 안 번호(0부터): 자를 원본 x}. 섬광이 그려진 장만 (raw/v3_pistol_run의 2·4·6번, 4번은 총열이 짧아 80)

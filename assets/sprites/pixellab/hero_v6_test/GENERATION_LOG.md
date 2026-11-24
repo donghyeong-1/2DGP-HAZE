@@ -225,3 +225,15 @@ with glowing teal lines on his front fist ... no effects, no shockwave, no trail
 | `raw/v3_gauntlet_air/` (아래·앞·앞 위) | 3 | 좋음. 이번엔 무릎을 접음. 아래 강타는 주먹이 허리 옆이라 약함 |
 확인 시트 `shots/pixellab_test/v3_gauntlet_poses.png`. 게임 적용 `hero6_gauntlet`(예전 n09_gauntlet 4장 순서)·`_upfwd`·`_downfwd`·`_air`·`_airdown`.
 
+## 사슬 자세 (2026-11-24, 메인 세션)
+약 5.1회 사용 (뼈대 추정 0.1 + skeleton v3 3 + 2) → 남은 약 1613회.
+`estimate_skeleton`(base_chain) + 점프 뼈대 → `raw/v3_kp/gen_chain.py`(gen_gauntlet.pose 재사용)가 땅 5장·공중 3장.
+`animate_with_skeleton_v3`(first_frame=base_chain upload, side/east, seed 5), description "... holding a glowing teal haze chain wrapped
+around his front hand ... no effects, no trails".
+
+| 결과 | 장 | 평가 |
+|---|---|---|
+| `raw/v3_chain_ground/` (돌리기·앞 던지기·당기기·앞 위·앞 아래) | 5 | 좋음. 당기기·앞 위는 목도리 끝 회색 궤적(GREY_CUT로 지움) |
+| `raw/v3_chain_air/` (앞·앞 위·아래) | 3 | 보통. 앞은 목도리 회색 궤적(지움), 아래는 사슬이 머리 위로 크게 돎 |
+확인 시트 `shots/pixellab_test/v3_chain_poses.png`. 게임 적용 `hero6_chain`(예전 n09_chain 3장 순서)·`_upfwd`·`_downfwd`·`_air`.
+

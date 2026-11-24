@@ -163,6 +163,24 @@ def test_gauntlet_punch_follows_aim_and_air():
     assert p._body_frame() == ('n09_gauntlet_air', 1)                     # 공중 앞 강타
 
 
+def test_chain_throw_follows_aim_and_air():
+    import sprites
+    if 'n09_chain_upfwd' not in sprites.SKIN:
+        return
+    room, p = tc.make_world()
+    p.give_weapon('chain')
+    p.punch_kind, p.punch_total = 'throw', 1.0
+    for dy, name in ((300, 'n09_chain_upfwd'), (-300, 'n09_chain_downfwd'), (0, 'n09_chain')):
+        p.mouse_x, p.mouse_y = p.x + 400, p.center[1] + dy
+        p.punch_left = 0.5                                                # 던지는 중간
+        assert p._body_frame()[0] == name, (dy, p._body_frame())
+    p.request_jump()
+    tc.step(8)
+    p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    p.punch_left = 0.5
+    assert p._body_frame() == ('n09_chain_air', 1)                        # 공중 앞 던지기
+
+
 def test_chain_throw_then_pull_poses():
     room, p = tc.make_world()
     p.give_weapon('chain')

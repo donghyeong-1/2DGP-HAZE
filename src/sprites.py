@@ -154,6 +154,9 @@ SKIN_PAIRS = (
     ('n09_gauntlet', 'hero6_gauntlet'), ('n09_gauntlet_upfwd', 'hero6_gauntlet_upfwd'),
     ('n09_gauntlet_downfwd', 'hero6_gauntlet_downfwd'), ('n09_gauntlet_air', 'hero6_gauntlet_air'),
     ('n09_gauntlet_airdown', 'hero6_gauntlet_airdown'),
+    # v7 사슬 (2026-11-24 PixelLab): 돌리기·던지기·당기기 3장은 예전 n09_chain과 같은 순서
+    ('n09_chain', 'hero6_chain'), ('n09_chain_upfwd', 'hero6_chain_upfwd'), ('n09_chain_downfwd', 'hero6_chain_downfwd'),
+    ('n09_chain_air', 'hero6_chain_air'),
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 

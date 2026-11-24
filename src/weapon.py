@@ -2038,7 +2038,6 @@ def _counter_success(p, enemy, weapon):
     cx, cy = p.center
     effects.float_text(cx, cy + 130, '반격!', mutations.FAMILIES['gauntlet_counter']['color'], big=True, life=0.7)
     effects.spawn_bloom(*enemy.center, (255, 255, 255), big=True, life=0.2, strength=0.9)
-    effects.spawn_glint(*enemy.center, mutations.FAMILIES['gauntlet_counter']['color'])   # 맞부딪친 자리의 십자 반짝임 (haze-inari)
     if mutations.has(p, 'counter_guard'):
         p.invuln_left = max(p.invuln_left, mutations.COUNTER_GUARD)
         p.steady_left = max(getattr(p, 'steady_left', 0.0), mutations.COUNTER_GUARD)   # 무적이어도 깜빡이지 않는다

@@ -50,8 +50,8 @@ Claude Code는 스킬로 불러 쓰고, 다른 도구는 같은 파일을 절차
 - **verify**: 커밋 전 점검. `python tools/verify.py` (테스트, PROGRESS 갱신, Codex 영역·진행 중 파일 보호, 원본·큰 파일).
 - **balance-sim**: 전투 수치를 바꾸기 전후 비교. `python tools/balance_sim.py --save/--compare tools/balance_base.json`.
 - **playtest-capture**: 실제 창 화면 캡처, 봇이 싸우는 장면 촬영. `python tools/capture.py --help`.
-- **haze-inari**: 전투 연출의 문법(공격 등급별로 넣을 것, 큰 마무리의 순서, 화면 왜곡, 참고 영상 재는 법). 새 공격·새 이펙트를 만들기 전에 먼저 본다.
-- **haze-fx**: 이펙트를 굽는 절차. `python tools/make_fx2.py --look <이름>`으로 모아 보기를 세 번 이상 고친 뒤 굽는다. 실행 중 사각형으로 이펙트를 그리지 않는다.
+- **haze-fx**: 이펙트를 만드는 절차. `python tools/make_fx2.py --look <이름>`으로 모아 보기를 세 번 이상 고친 뒤 굽는다. 실행 중 사각형으로 이펙트를 그리지 않는다.
+- **haze-inari**: 보류 (2026-11-24 사용자 결정). 저장소에 두지만 사용자가 이름으로 부를 때만 쓴다. 이펙트·연출은 haze-fx로 만든다.
 
 ## 폴더 구조
 - `docs/` 기획서, 진행상황, 결정, 에셋 출처

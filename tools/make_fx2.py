@@ -565,6 +565,7 @@ LOOK_COLOR = [236, 30, 52]          # 모아 보기에서 색 층에 입혀 볼 
 
 # =====================================================================================================
 # haze-inari 스킬의 본보기 (2026-11-24): INARI 영상에서 읽어 낸 기법을 fxkit으로 옮긴 것.
+# 보류: 사용자가 결과를 보고 쓰지 않기로 했다. 아래 둘(glint, inari-smear)은 보기 전용 시안이고 게임 파일로 굽지 않는다.
 # =====================================================================================================
 # ----- 반짝임 glint: 칼이 맞부딪치거나 강하게 스친 자리의 가는 빛. 색은 게임이 입힌다 -----
 # 한 줄: 가로로 길고 세로는 짧은 네 갈래 별(가운데가 굵고 끝이 바늘처럼 가늘다)이 한 장 번쩍 -> 가운데가 비며 빛줄기가 양옆으로
@@ -714,6 +715,9 @@ def smear_create(o):
 
 
 LOOK_ONLY = {'inari-smear': (SMEAR_META, smear_create)}      # --look으로만 굽는 시안
+# haze-inari 시안은 게임에 쓰지 않는다 (2026-11-24 사용자: 'INARI와 퀄리티 차이가 너무 난다. 스킬은 두되 쓰지 말자').
+# 두 겹 시트 시안도 이름을 주고 --look일 때만 모아 보기를 만든다.
+LOOK_ONLY_TINTS = {'glint'}
 
 
 def build_tint(name, look):
@@ -1151,10 +1155,13 @@ def main(argv):
     look = '--look' in argv
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
-    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + list(TINTS)
+    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS]
     for name in names:
         if name in SLASHES or name in SPINS:
             build_slash(name, look)
+            continue
+        if name in LOOK_ONLY_TINTS and not look:
+            print('보기 전용 시안이라 굽지 않는다 (--look):', name)
             continue
         if name in TINTS:
             build_tint(name, look)

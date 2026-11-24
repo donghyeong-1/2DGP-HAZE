@@ -22,13 +22,23 @@ FAMILIES = {
              'set': 'E 강화 준비 시간 +50%'},
     # v7 무기 갈래 (docs/plan_v7.md 2절). weapon: 그 무기를 들고 있을 때 잘 나온다. set: 같은 갈래 2개면 열리는 진화
     'pipe_combo': {'name': '연타', 'zone': None, 'weapon': 'pipe', 'color': (240, 248, 255), 'icon': 'ui/mut_bloom.png',
-                   'set': '진화: 난타 (준비 중)'},
+                   'set': '진화: 난타'},
     'pipe_air': {'name': '공중', 'zone': None, 'weapon': 'pipe', 'color': (150, 210, 255), 'icon': 'ui/mut_hollow.png',
-                 'set': '진화: 낙뢰 내려찍기 (준비 중)'},
+                 'set': '진화: 낙뢰 내려찍기'},
     'pipe_dash': {'name': '이동 베기', 'zone': None, 'weapon': 'pipe', 'color': (120, 240, 230), 'icon': 'ui/mut_tide.png',
-                  'set': '진화: 섬광 베기 (준비 중)'},
+                  'set': '진화: 섬광 베기'},
     'dash': {'name': '대시', 'zone': None, 'weapon': None, 'color': (190, 215, 255), 'icon': 'ui/mut_hollow.png',
-             'set': '진화: 잔영 대시 (준비 중)'},
+             'set': '진화: 잔영 대시'},
+    # v7 사슬 갈래 (두 번째 무기: 사슬을 들고 있을 때만 효과가 있다)
+    'chain_gather': {'name': '모으기', 'zone': None, 'weapon': 'chain', 'color': (200, 160, 255), 'icon': 'ui/mut_tide.png',
+                     'set': '진화: 소용돌이'},
+    'chain_pierce': {'name': '관통', 'zone': None, 'weapon': 'chain', 'color': (170, 190, 255), 'icon': 'ui/mut_hollow.png',
+                     'set': '진화: 반사 사슬'},
+    'chain_link': {'name': '연결', 'zone': None, 'weapon': 'chain', 'color': (235, 150, 235), 'icon': 'ui/mut_bloom.png',
+                   'set': '진화: 헤이즈 그물'},
+    # 합성: 서로 다른 진화 둘이 만나면 나온다 (전설 카드)
+    'duo': {'name': '합성', 'zone': None, 'weapon': None, 'color': (255, 214, 120), 'icon': 'ui/mut_ember.png',
+            'set': '진화 둘이 합쳐진 기술'},
 }
 GAUGE_FAMILIES = ('bloom', 'ember', 'hollow', 'tide')   # 공통 갈래 '게이지' (v5 변이 12종)
 COMBO_SPEED = 0.85        # 연타: 공격 쿨다운 배율 (공속 +15%)
@@ -42,6 +52,22 @@ DASH_IFRAME = 0.1         # 대시 무적 추가(초)
 DASHCUT_WIDE = 1.5        # 대시 공격 판정 폭 배율
 LIFT_VY = 620.0           # '띄우기': 위로 친 적이 뜨는 속도
 DASH_RECHARGE = 0.75      # 대시 충전 시간 배율
+# 진화
+FRENZY_REACH = 1.2        # 난타 5타 회전 베기 반경 (철파이프 사거리 배율)
+FRENZY_MULT = (1.0, 1.8)  # 난타 4타 / 5타 피해 배율
+BOLT = (190, 1.4, 640.0)  # 낙뢰 내려찍기 착지: (반경 px, 피해 배율, 띄우는 속도)
+FLASH = (0.3, 0.6, 1.6)   # 섬광 베기: (지연 초, 피해 배율, 판정 폭 배율)
+ECHO = (0.1, 0.6)         # 잔영 대시 분신: (나타나서 휘두르기까지 초, 피해 배율)
+# 사슬 갈래
+GATHER_STUN = 0.6         # 끌려온 적 기절(초)
+VORTEX = (260, 0.5, 1.5, 0.5)   # 소용돌이: (반경, 끌어오는 시간, 묶는 시간, 피해 배율)
+PIERCE_RAMP = 0.15        # 관통할 때마다 피해 +
+PIERCE_REACH = 1.3        # 사거리 배율
+PIERCE_BOUNCES = 2        # 반사 사슬: 벽에 꺾이는 횟수
+LINK_SHARE = (0.25, 0.5)  # 묶인 적 하나를 치면 다른 쪽에 (묶기만 / '공명') 비율
+LINK_TIME = 6.0           # 묶이는 시간(초)
+LINK_BURST = (170, 30)    # 묶인 적이 죽으면 폭발 (반경, 피해)
+NET_SIZE = 6              # 헤이즈 그물: 한 번에 묶는 수 (기본은 2)
 OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0, 'other': 0.2}
 
 BLOOM_CRIT = 1.2          # 각성 구간 공격 배율
@@ -77,19 +103,40 @@ MUTATIONS = {
     'combo_speed': {'family': 'pipe_combo', 'name': '손목 풀기', 'desc': f'철파이프 공격 속도 +{round((1 / COMBO_SPEED - 1) * 100)}%'},
     'combo_third': {'family': 'pipe_combo', 'name': '마무리', 'desc': f'3타 피해 +{round((COMBO_THIRD - 1) * 100)}%'},
     'combo_reach': {'family': 'pipe_combo', 'name': '긴 손잡이', 'desc': f'철파이프 사거리 +{round((COMBO_REACH - 1) * 100)}%'},
-    'combo_evo': {'family': 'pipe_combo', 'tier': 'evo', 'ready': False, 'name': '난타', 'desc': '4·5타가 생기고 마지막은 회전 베기'},
+    'combo_evo': {'family': 'pipe_combo', 'tier': 'evo', 'ready': True, 'name': '난타', 'desc': '4·5타가 생기고 마지막은 회전 베기'},
     'air_power': {'family': 'pipe_air', 'name': '낙차', 'desc': f'공중 공격 피해 +{round((AIR_POWER - 1) * 100)}%'},
     'air_hang': {'family': 'pipe_air', 'name': '체공', 'desc': '공중에서 맞히면 잠깐 떨어지지 않는다'},
     'air_lift': {'family': 'pipe_air', 'name': '띄우기', 'desc': '땅에서 위로 친 적이 크게 뜬다'},
-    'air_evo': {'family': 'pipe_air', 'tier': 'evo', 'ready': False, 'name': '낙뢰 내려찍기', 'desc': '내려찍기 착지에 번개 기둥과 충격파'},
+    'air_evo': {'family': 'pipe_air', 'tier': 'evo', 'ready': True, 'name': '낙뢰 내려찍기', 'desc': '내려찍기 착지에 번개 기둥과 충격파'},
     'dashcut_power': {'family': 'pipe_dash', 'name': '돌진 베기', 'desc': f'대시 공격 피해 +{round((DASHCUT_POWER - 1) * 100)}%'},
     'dashcut_refund': {'family': 'pipe_dash', 'name': '흐름', 'desc': f'대시 공격이 맞으면 대시 충전 {round(DASHCUT_REFUND * 100)}%'},
     'dashcut_wide': {'family': 'pipe_dash', 'name': '넓은 궤적', 'desc': '대시 공격 판정이 두꺼워진다'},
-    'dashcut_evo': {'family': 'pipe_dash', 'tier': 'evo', 'ready': False, 'name': '섬광 베기', 'desc': '지나간 자리에 0.3초 뒤 번쩍이며 다시 벤다'},
+    'dashcut_evo': {'family': 'pipe_dash', 'tier': 'evo', 'ready': True, 'name': '섬광 베기', 'desc': '지나간 자리에 0.3초 뒤 번쩍이며 다시 벤다'},
     'dash_extra': {'family': 'dash', 'name': '여분의 숨', 'desc': '대시 +1칸'},
     'dash_iframe': {'family': 'dash', 'name': '미끄러짐', 'desc': f'대시 무적 +{DASH_IFRAME}초'},
     'dash_recharge': {'family': 'dash', 'name': '가쁜 숨', 'desc': f'대시 충전 시간 -{round((1 - DASH_RECHARGE) * 100)}%'},
-    'dash_evo': {'family': 'dash', 'tier': 'evo', 'ready': False, 'name': '잔영 대시', 'desc': '대시 경로의 분신이 한 번 더 공격'},
+    'dash_evo': {'family': 'dash', 'tier': 'evo', 'ready': True, 'name': '잔영 대시', 'desc': '대시 경로의 분신이 한 번 더 공격'},
+    # v7 사슬 갈래
+    'gather_more': {'family': 'chain_gather', 'name': '한 마리 더', 'desc': '사슬로 끌어오는 적 +1'},
+    'gather_stun': {'family': 'chain_gather', 'name': '목줄', 'desc': f'끌려온 적 {GATHER_STUN}초 기절'},
+    'gather_clash': {'family': 'chain_gather', 'name': '박치기', 'desc': '끌려온 적끼리 부딪혀 피해 (어느 구간이든)'},
+    'gather_evo': {'family': 'chain_gather', 'tier': 'evo', 'ready': True, 'name': '소용돌이',
+                   'desc': f'끌어온 자리에 보라 소용돌이: 둘레 적을 모아 {VORTEX[2]}초 묶는다'},
+    'pierce_through': {'family': 'chain_pierce', 'name': '꿰뚫기', 'desc': '사슬이 적을 관통해 모두 맞힌다'},
+    'pierce_ramp': {'family': 'chain_pierce', 'name': '가속 고리', 'desc': f'관통할 때마다 피해 +{round(PIERCE_RAMP * 100)}%'},
+    'pierce_reach': {'family': 'chain_pierce', 'name': '긴 사슬', 'desc': f'사슬 사거리 +{round((PIERCE_REACH - 1) * 100)}%'},
+    'pierce_evo': {'family': 'chain_pierce', 'tier': 'evo', 'ready': True, 'name': '반사 사슬',
+                   'desc': f'사슬이 벽에 {PIERCE_BOUNCES}번 꺾여 튕긴다'},
+    'link_bind': {'family': 'chain_link', 'name': '사슬 묶기', 'desc': f'함께 걸린 적 둘을 묶는다: 하나를 치면 다른 쪽 {round(LINK_SHARE[0] * 100)}%'},
+    'link_share': {'family': 'chain_link', 'name': '공명', 'desc': f'묶인 적이 나눠 받는 피해 {round(LINK_SHARE[1] * 100)}% (묶기 포함)'},
+    'link_burst': {'family': 'chain_link', 'name': '연쇄 폭발', 'desc': f'묶인 적이 죽으면 폭발해 피해 {LINK_BURST[1]} (묶기 포함)'},
+    'link_evo': {'family': 'chain_link', 'tier': 'evo', 'ready': True, 'name': '헤이즈 그물',
+                 'desc': f'걸린 적을 모두 그물로 묶고 {round(LINK_SHARE[1] * 100)}%씩 나눠 받는다'},
+    # v7 합성 (진화 둘)
+    'duo_echo_combo': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('combo_evo', 'dash_evo'),
+                       'name': '분신 연타', 'desc': '잔영 분신이 난타 회전 베기를 한다'},
+    'duo_flash_net': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('dashcut_evo', 'link_evo'),
+                      'name': '그물 베기', 'desc': '섬광 베기에 맞은 적이 모두 그물로 묶인다'},
 }
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.
@@ -195,14 +242,21 @@ def offer(player, rng, n=3):
         out.append(rng.choice(special))
     base = [m for m in pool if tier(m) == 'base']
     owned_fams = {MUTATIONS[m]['family'] for m in owned(player)}
-    fresh = [m for m in base if MUTATIONS[m]['family'] not in owned_fams]
-    if fresh and not any(MUTATIONS[m]['family'] not in owned_fams for m in out):
-        out.append(_pick(player, fresh, rng, out))
     while len(out) < n:
         m = _pick(player, base, rng, out)
         if m is None:
             break
         out.append(m)
+    # 갈래 무게로 먼저 뽑고, 새 갈래가 하나도 없을 때만 마지막 기본 카드를 새 갈래로 바꾼다
+    # (새 갈래 카드를 먼저 뽑으면 가진 갈래가 나올 자리가 줄어든다)
+    fresh = [m for m in base if MUTATIONS[m]['family'] not in owned_fams and m not in out]
+    if fresh and not any(MUTATIONS[m]['family'] not in owned_fams for m in out):
+        last = max(i for i, m in enumerate(out) if tier(m) == 'base') if any(tier(m) == 'base' for m in out) else None
+        pick = _pick(player, fresh, rng, [m for i, m in enumerate(out) if i != last])
+        if last is None:
+            out.append(pick)
+        else:
+            out[last] = pick
     rng.shuffle(out)
     return out
 
@@ -360,11 +414,122 @@ def _blast(player, x, y, radius, damage, skip=None, color=(255, 255, 255)):
 
 
 def on_dash_end(player):
-    """포자 폭발: 각성 구간 대시가 끝난 자리에 충격파."""
+    """포자 폭발: 각성 구간 대시가 끝난 자리에 충격파. 잔영 대시: 시작 자리에 분신이 남아 한 번 휘두른다."""
     if has(player, 'bloom_dash') and _zone(player) == 'AWAKE':
         cx, cy = player.center
         effects.spawn_ring(cx, cy, FAMILIES['bloom']['color'])
         _blast(player, cx, cy, BLOOM_DASH[0], BLOOM_DASH[1], color=FAMILIES['bloom']['color'])
+    path = getattr(player, 'last_dash_path', None)
+    if has(player, 'dash_evo') and path is not None:
+        import weapon
+        game_world.add_object(weapon.DashEcho(player, path, has(player, 'duo_echo_combo')), game_world.LAYER_EFFECT)
+
+
+def on_plunge_land(player):
+    """낙뢰 내려찍기: 내려찍기 뒤 땅에 닿았다 (player.on_landing이 부른다)."""
+    w = player.weapons[0] if getattr(player, 'weapons', None) else player.weapon
+    w.bolt_strike()
+
+
+# ----- 연결 갈래: 묶인 적 -----
+def bind(player, enemies, size=2):
+    """적 여럿(앞에서부터 size마리)을 사슬로 묶는다."""
+    members = [e for e in enemies if e.alive][:size]
+    if len(members) < 2:
+        return None
+    import weapon
+    net = weapon.LinkNet(members)
+    game_world.add_object(net, game_world.LAYER_EFFECT)
+    return net
+
+
+def linked(enemy):
+    """이 적과 함께 묶인 (살아 있는) 적들."""
+    net = getattr(enemy, 'haze_link', None)
+    if net is None or not net.active:
+        return []
+    return [e for e in net.members if e is not enemy and e.alive]
+
+
+def on_linked_hit(player, enemy, damage, killed):
+    """묶인 적을 쳤다: 나머지가 피해를 나눠 받는다 ('공명'·'헤이즈 그물'은 더 많이). 죽었으면 '연쇄 폭발'."""
+    others = linked(enemy)
+    if not others:
+        return
+    import drama
+    share = LINK_SHARE[1] if has(player, 'link_share') or has(player, 'link_evo') else LINK_SHARE[0]
+    color = FAMILIES['chain_link']['color']
+    for other in others:
+        with drama.hit_style(color=color):
+            if other.take_damage(damage * share):
+                player.gauge.add(player.kill_gain(), 'kill')
+        ox, oy = other.center
+        effects.spawn_slash_marks(ox, oy, 1, 0, color)
+    if killed and has(player, 'link_burst'):
+        ex, ey = enemy.center
+        effects.spawn_ring(ex, ey, color, radius_max=LINK_BURST[0])
+        effects.spawn_bloom(ex, ey, color, big=True)
+        _blast(player, ex, ey, LINK_BURST[0], LINK_BURST[1], skip=enemy, color=color)
+
+
+# ----- 카드·일시정지 화면에 보일 정보 -----
+WEAPON_NAMES = {'pipe': '철파이프', 'knife': '식칼', 'gauntlet': '건틀릿', 'chain': '사슬'}
+RARITY = {'base': 'common', 'evo': 'rare', 'duo': 'legendary'}
+
+
+def evolution_of(family):
+    for mid, m in MUTATIONS.items():
+        if m['family'] == family and tier(mid) == 'evo':
+            return mid
+    return None
+
+
+def active(player, mid):
+    """지금 효과가 있는가: 두 번째 무기 갈래는 그 무기를 들고 있을 때만."""
+    weapon = FAMILIES[MUTATIONS[mid]['family']].get('weapon')
+    return weapon is None or weapon in _held_weapons(player)
+
+
+def card_info(player, mid):
+    """카드 한 장: 테두리 등급(rarity), 아래 안내(note), 안내가 금색인가(hot)."""
+    m = MUTATIONS[mid]
+    t = tier(mid)
+    fam_id = m['family']
+    fam = FAMILIES[fam_id]
+    hot = False
+    if t == 'duo':
+        note, hot = '합성: ' + ' + '.join(MUTATIONS[r]['name'] for r in m['requires']), True
+    elif t == 'evo':
+        note, hot = f'{fam["name"]} 갈래 진화', True
+    elif fam_id in GAUGE_FAMILIES:
+        hot = family_count(player, fam_id) + 1 >= 2
+        note = ('계열 효과 켜짐: ' if hot else '같은 계열 2개면: ') + fam['set']
+    else:
+        evo = evolution_of(fam_id)
+        left = 2 - (base_count(player, fam_id) + 1)
+        name = MUTATIONS[evo]['name'] if evo else ''
+        if evo is None or has(player, evo):
+            note = f'{fam["name"]} 갈래'
+        elif left <= 0:
+            note, hot = f'진화 열림: {name}', True
+        else:
+            note = f'진화까지 {left}개: {name}'
+    weapon = fam.get('weapon')
+    if weapon and weapon not in _held_weapons(player):
+        note = f'{WEAPON_NAMES.get(weapon, weapon)}을 들면 켜짐. ' + note
+    return {'rarity': RARITY[t], 'note': note, 'hot': hot}
+
+
+def grouped(player):
+    """가진 증강을 갈래별로 [(갈래, [증강...]), ...] (처음 얻은 순서)."""
+    out, index = [], {}
+    for mid in owned(player):
+        fam = MUTATIONS[mid]['family']
+        if fam not in index:
+            index[fam] = len(out)
+            out.append((fam, []))
+        out[index[fam]][1].append(mid)
+    return out
 
 
 def on_overload(player):

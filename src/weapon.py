@@ -28,6 +28,223 @@ def _enemy_points(enemy):
     return [(x, bottom + 12), (x, (bottom + top) / 2), (x, top - 12)]
 
 
+# ----- v7 증강 v2 진화·합성의 색과 장면 물체 (판정은 무기 메서드가 한다) -----
+FRENZY_COLOR = (240, 248, 255)     # 난타: 흰 회전 궤적
+BOLT_COLOR = (110, 240, 230)       # 낙뢰 내려찍기: 청록 번개
+FLASH_COLOR = (150, 255, 245)      # 섬광 베기
+ECHO_COLOR = (170, 205, 255)       # 잔영 대시 분신
+VORTEX_COLOR = (190, 140, 255)     # 소용돌이 (보라)
+NET_COLOR = (235, 150, 235)        # 사슬 묶기·헤이즈 그물
+
+
+class DelayedFlash:
+    """섬광 베기: 대시 공격이 지난 직선에 가는 빛줄이 남았다가, delay 뒤 번쩍이며 다시 벤다."""
+
+    def __init__(self, weapon, path, half, damage, delay, net):
+        self.weapon, self.path, self.half, self.damage, self.net = weapon, path, half, damage, net
+        self.delay = self.left = delay
+
+    def update(self, dt):
+        self.left -= dt
+        if self.left <= 0:
+            game_world.remove_object(self)
+            self.weapon.flash_strike(self.path, self.half, self.damage, self.net)
+
+    def draw(self):
+        x0, y0, x1, y1 = self.path
+        k = 1.0 - max(0.0, self.left) / self.delay      # 터질 때가 가까울수록 진해진다
+        length = math.hypot(x1 - x0, y1 - y0)
+        for i in range(int(length // 10) + 1):
+            t = i * 10 / max(length, 1.0)
+            x, y = int(x0 + (x1 - x0) * t), int(y0 + (y1 - y0) * t)
+            assets.draw_rect_color(x - 3, y - 1, 6, 2, FLASH_COLOR, 0.25 + 0.6 * k)
+
+
+class BoltPillar:
+    """낙뢰 내려찍기: 착지 지점에 화면 위에서 내리꽂는 청록 번개 기둥 (지그재그 사각형, 회전 없음)."""
+    LIFE = 0.32
+    HEIGHT = 520
+
+    def __init__(self, x, y):
+        self.x, self.y = int(x), int(y)
+        self.life = self.LIFE
+        rng = random.Random(int(x) * 31 + int(y))
+        self.offsets = [rng.randint(-14, 14) for _ in range(self.HEIGHT // 26 + 1)]
+
+    def update(self, dt):
+        self.life -= dt
+        if self.life <= 0:
+            game_world.remove_object(self)
+
+    def draw(self):
+        k = max(0.0, self.life / self.LIFE)
+        width = int(10 + 14 * k)
+        for i, ox in enumerate(self.offsets):
+            y = self.y + i * 26
+            assets.draw_rect_color(self.x + ox - width // 2 - 4, y, width + 8, 26, BOLT_COLOR, 0.35 * k)    # 번짐
+            assets.draw_rect_color(self.x + ox - width // 2, y, width, 26, BOLT_COLOR, 0.85 * k)
+            assets.draw_rect_color(self.x + ox - 3, y, 6, 26, (250, 255, 255), k)                           # 흰 심
+
+
+class DashEcho:
+    """잔영 대시: 대시를 시작한 자리에 분신이 남아, 잠시 뒤 대시 방향으로 기본 공격을 한 번 휘두른다.
+    합성 '분신 연타'면 대신 난타 회전 베기 (몸 둘레)."""
+
+    def __init__(self, player, path, spin):
+        import mutations
+        x0, y0, x1, y1 = path
+        length = math.hypot(x1 - x0, y1 - y0)
+        self.aim = ((x1 - x0) / length, (y1 - y0) / length) if length > 1 else (float(player.face_dir), 0.0)
+        self.player, self.spin = player, spin
+        self.cx, self.cy = x0, y0
+        self.foot_y = y0 - (player.center[1] - player.y)
+        self.face = 1 if self.aim[0] >= 0 else -1
+        self.left = mutations.ECHO[0]
+        game_world.add_object(effects.BodyGhost(('n09_dash', 1), x0, self.foot_y, self.face, ECHO_COLOR, 0.55, life=0.22),
+                              game_world.LAYER_EFFECT)
+
+    def update(self, dt):
+        self.left -= dt
+        if self.left <= 0:
+            game_world.remove_object(self)
+            self._swing()
+
+    def _swing(self):
+        import mutations
+        p = self.player
+        w = p.weapons[0] if getattr(p, 'weapons', None) else p.weapon        # 분신은 늘 철파이프를 휘두른다
+        cx, cy = self.cx, self.cy
+        ax, ay = self.aim
+        fx = w._fx(False)
+        game_world.add_object(effects.BodyGhost(('n09_swing_side', 2), cx, self.foot_y, self.face, ECHO_COLOR, 0.6, life=0.24),
+                              game_world.LAYER_EFFECT)
+        assets.play_sound('swing_2')
+        if self.spin:
+            reach = config.PIPE_REACH * mutations.FRENZY_REACH
+            effects.spawn(effects.special_sheet('spin', False)[0], cx, cy, duration=0.26)
+            effects.spawn_ring(cx, cy, FRENZY_COLOR, radius_max=int(reach), life=0.24)
+            damage = w._damage(mutations.FRENZY_MULT[1] * mutations.ECHO[1])
+
+            def test(e):
+                return Pipe._within(e, cx, cy, reach)
+        else:
+            variant, flip = effects.slash_variant(ax, ay)
+            effects.spawn(effects.slash_sheet(p.gauge.zone, False), cx, cy, flip=flip, duration=0.22, variant=variant)
+            damage = w._damage(mutations.ECHO[1])
+
+            def test(e):
+                return Pipe._in_arc(e, cx, cy, ax, ay)
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if enemy.alive and test(enemy) and w._visible(enemy, cx, cy):
+                w._hit(enemy, damage, config.GAIN_HIT, fx, big=self.spin, color=ECHO_COLOR, extra=False)
+
+    def draw(self):
+        pass
+
+
+class Vortex:
+    """소용돌이 (사슬 진화): 끌어온 자리(플레이어 둘레)에 보라 소용돌이. 둘레 적을 pull초 동안 빨아들이고,
+    끝나는 순간 작은 피해와 함께 hold_time초 묶는다. 보스는 끌려오지 않는다."""
+
+    def __init__(self, weapon, damage):
+        import mutations
+        self.weapon = weapon
+        self.radius, self.pull, self.hold_time, mult = mutations.VORTEX
+        self.damage = damage * mult
+        self.age = 0.0
+        self.caught = []
+        p = weapon.owner
+        for e in list(game_world.world[game_world.LAYER_ENEMY]):
+            ex, ey = e.center
+            if e.alive and getattr(e, 'pullable', True) and math.hypot(ex - p.x, ey - p.center[1]) <= self.radius:
+                self.caught.append(e)
+                e.hold(self.pull + 0.1)
+        assets.play_sound('chain_clash')
+
+    def update(self, dt):
+        p = self.weapon.owner
+        self.age += dt
+        for e in self.caught:
+            if not e.alive:
+                continue
+            want = p.x + (60 if e.x >= p.x else -60) - e.x
+            if abs(want) > 1.0:
+                e.pull_step(max(-700.0 * dt, min(700.0 * dt, want)))
+        if self.age >= self.pull:
+            for e in self.caught:
+                if e.alive:
+                    self.weapon._hit(e, self.damage, config.CHAIN_GAIN * 0.5, self.weapon._fx(False), color=VORTEX_COLOR,
+                                     shake=0.6, stop=0.4, extra=False)
+                    e.hold(self.hold_time)
+            effects.spawn_ring(p.x, p.center[1], VORTEX_COLOR, radius_max=self.radius, life=0.3)
+            effects.add_trauma(config.SHAKE_FINISHER * 0.5)
+            game_world.remove_object(self)
+
+    def draw(self):
+        p = self.weapon.owner
+        cx, cy = p.x, p.center[1]
+        k = min(1.0, self.age / self.pull)
+        for ring in range(3):
+            r = self.radius * (1.0 - k) * (1.0 - ring * 0.28) + 24
+            size = 8 - ring * 2
+            for i in range(14):
+                a = self.age * (9 + ring * 3) + i * math.tau / 14 + ring
+                x, y = int(cx + math.cos(a) * r), int(cy + math.sin(a) * r * 0.55)
+                assets.draw_rect_color(x - size // 2, y - size // 2, size, size, VORTEX_COLOR, 0.8 - ring * 0.2)
+
+
+class LinkNet:
+    """사슬 묶기 / 헤이즈 그물: 묶인 적들 사이에 사슬이 이어진다. 하나를 치면 나머지가 피해를 나눠 받는다
+    (mutations.on_linked_hit). LINK_TIME이 지나거나 묶인 적이 하나만 남으면 풀린다."""
+
+    def __init__(self, members):
+        import mutations
+        self.members = list(members)
+        self.life = mutations.LINK_TIME
+        self.active = True
+        for e in self.members:
+            old = getattr(e, 'haze_link', None)
+            if old is not None and old is not self:
+                old.release(e)
+            e.haze_link = self
+
+    def release(self, enemy):
+        if enemy in self.members:
+            self.members.remove(enemy)
+        if getattr(enemy, 'haze_link', None) is self:
+            enemy.haze_link = None
+
+    def alive_members(self):
+        return [e for e in self.members if e.alive]
+
+    def update(self, dt):
+        self.life -= dt
+        if self.life <= 0 or len(self.alive_members()) < 2:
+            self.active = False
+            for e in list(self.members):
+                self.release(e)
+            game_world.remove_object(self)
+
+    def draw(self):
+        alive = self.alive_members()
+        if self.life < 1.0 and int(self.life * 10) % 2:      # 풀리기 직전 깜빡인다
+            return
+        for a, b in zip(alive, alive[1:]):
+            (ax, ay), (bx, by) = a.center, b.center
+            length = math.hypot(bx - ax, by - ay)
+            for i in range(int(length // 6) + 1):                  # 적 몸 위에서도 보이게 옅은 빛 띠를 먼저 깐다
+                t = i * 6 / max(length, 1.0)
+                x, y = int(ax + (bx - ax) * t), int(ay + (by - ay) * t)
+                assets.draw_rect_color(x - 4, y - 4, 8, 8, NET_COLOR, 0.35)
+            draw_chain_line(int(ax), int(ay), int(bx), int(by), (255, 210, 255), link=14)
+        for e in alive:                                            # 묶인 적 머리 위 고리 표시 (붙어 서 있어도 보이게)
+            left, _bottom, right, top = e.rect()
+            mx, my = int((left + right) / 2), int(top) + 50          # 체력 바 위
+            assets.draw_rect_color(mx - 9, my - 9, 18, 18, (12, 14, 22))
+            assets.draw_rect_color(mx - 7, my - 7, 14, 14, NET_COLOR)
+            assets.draw_rect_color(mx - 3, my - 3, 6, 6, (12, 14, 22))
+
+
 class ExtraHits:
     """첫 타격 뒤에 같은 적에게 이어지는 추가 타격 (게이지 구간·강화로 타수가 늘어난다). 짧은 간격으로 작은 불꽃과 숫자가 튄다."""
 
@@ -219,6 +436,7 @@ class Pipe:
             effects.add_trauma(config.SHAKE_KILL)
             effects.spawn_kill(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])   # v7 처치 연출
         import mutations
+        mutations.on_linked_hit(p, enemy, damage, killed)   # v7 연결 갈래: 묶인 적이 나눠 받고, 죽으면 터진다
         mutations.on_hit(p)                              # 변이 '굶주림'
         if fx.get('enhanced'):
             mutations.on_enhanced_hit(p, enemy, damage)  # 변이 '파문'
@@ -311,13 +529,18 @@ class Pipe:
                 self._hit(enemy, damage, config.PIPE_FINISHER_GAIN, fx, big=True, shake=2.0, stop=2, blast=True)
             self._finish(True)
             return
-        self.combo = self.combo % 3 + 1
-        finisher = self.combo == 3
-        self.hit_kind = 'finisher' if finisher else 'normal'
-        self._swing_sound(f'swing_{self.combo}', False)
-        p.set_swing_style(self.combo, ax)                # 1타·2타·3타마다 자세 시간과 내딛기가 다르다
         import mutations
-        self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[self.combo - 1] * mutations.attack_speed_mult(p)   # v7 '손목 풀기'
+        frenzy = mutations.has(p, 'combo_evo') and self.weapon_id == 'pipe'    # v7 진화 '난타': 4·5타가 생긴다
+        self.combo = self.combo % (5 if frenzy else 3) + 1
+        if self.combo == 5:
+            self._frenzy_spin(fx)
+            return
+        finisher = self.combo == 3
+        style = 2 if self.combo == 4 else self.combo     # 4타는 2타처럼 빠른 사선
+        self.hit_kind = 'finisher' if finisher else 'normal'
+        self._swing_sound(f'swing_{style}', False)
+        p.set_swing_style(style, ax)                     # 1타·2타·3타마다 자세 시간과 내딛기가 다르다
+        self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[style - 1] * mutations.attack_speed_mult(p)   # v7 '손목 풀기'
         self.combo_left = self.cooldown + config.PIPE_COMBO_WINDOW
         shape = None                                     # 공격 v3: 그림에 맞춘 모양 (1타 가로 = 납작한 호, 3타 올려베기 = 올라가는 호)
         if p.swing_dir == 'side' and self.combo == 1:
@@ -327,8 +550,8 @@ class Pipe:
         lift_y = config.FLAT_SLASH_LIFT if shape == 'flat' else 0     # 납작한 호는 아래 반쪽이라 허리 높이로 올린다
         effects.spawn(effects.slash_sheet(p.gauge.zone, finisher, shape=shape), cx, cy + lift_y, flip=flip, duration=0.22,
                       variant=variant)
-        damage = self._damage(config.PIPE_FINISHER_MULT if finisher else 1.0) * mutations.pipe_damage_mult(
-            p, finisher=finisher, air=not p.on_ground)                                    # v7 '마무리'·'낙차'
+        mult = config.PIPE_FINISHER_MULT if finisher else (mutations.FRENZY_MULT[0] if self.combo == 4 else 1.0)
+        damage = self._damage(mult) * mutations.pipe_damage_mult(p, finisher=finisher, air=not p.on_ground)   # v7 '마무리'·'낙차'
         gain = config.PIPE_FINISHER_GAIN if finisher else config.GAIN_HIT
         lift = p.on_ground and p.swing_dir in ('up', 'upfwd') and mutations.has(p, 'air_lift')
         color = config.DAMAGE_COLOR_FINISHER if finisher else None
@@ -339,6 +562,72 @@ class Pipe:
                 enemy.vy = max(getattr(enemy, 'vy', 0.0), mutations.LIFT_VY)         # v7 '띄우기'
             if not p.on_ground:
                 mutations.on_air_hit(p)                                              # v7 '체공'
+
+    # ----- v7 진화 '난타' 5타: 몸 둘레를 한 바퀴 도는 회전 베기 (흰 원형 궤적) -----
+    def _frenzy_spin(self, fx):
+        import mutations
+        p = self.owner
+        cx, cy = p.center
+        ax, _ay = p.aim_vector()
+        self.hit_kind = 'finisher'
+        self._swing_sound('swing_3', False)
+        p.set_swing_style(3, ax)
+        p.swing_anim = 'n09_air2'                        # 반원 휘두르기 그림을 땅에서도 쓴다
+        p.lunge_vx = 0.0                                 # 제자리에서 돈다
+        self.cooldown = self.cooldown_max = config.PIPE_COOLDOWN[2] * mutations.attack_speed_mult(p)
+        self.combo_left = self.cooldown + config.PIPE_COMBO_WINDOW
+        reach = config.PIPE_REACH * mutations.FRENZY_REACH * self._reach()
+        effects.spawn(effects.special_sheet('spin', False)[0], cx, cy, duration=0.26)
+        effects.spawn_ring(cx, cy, FRENZY_COLOR, radius_max=int(reach), life=0.24)
+        effects.add_trauma(config.SHAKE_FINISHER)
+        damage = self._damage(mutations.FRENZY_MULT[1])
+        for enemy in self._targets(lambda e: self._within(e, cx, cy, reach)):
+            self._hit(enemy, damage, config.PIPE_FINISHER_GAIN, fx, big=True, color=FRENZY_COLOR,
+                      shake=config.SHAKE_FINISHER / config.SHAKE_HIT, stop=2)
+
+    # ----- v7 진화 '낙뢰 내려찍기': 내려찍고 땅에 닿는 순간 번개 기둥과 충격파 -----
+    def bolt_strike(self):
+        import mutations
+        p = self.owner
+        radius, mult, lift = mutations.BOLT
+        cx, cy = p.center
+        fx = self._fx(False)
+        game_world.add_object(BoltPillar(p.x, p.y), game_world.LAYER_EFFECT)
+        effects.ground_slam(p.x, p.y, power=1.1, color=BOLT_COLOR)
+        effects.spawn_ring(p.x, p.y + 20, BOLT_COLOR, radius_max=radius, life=0.3)
+        effects.add_trauma(config.SHAKE_FINISHER)
+        assets.play_sound('impact_pipe_plunge')
+        damage = self._damage(mult) * mutations.pipe_damage_mult(p, air=True)
+        for enemy in self._targets(lambda e: self._within(e, p.x, cy, radius)):
+            self._hit(enemy, damage, config.GAIN_HIT, fx, big=True, color=BOLT_COLOR, shake=1.2, extra=False)
+            if getattr(enemy, 'alive', False) and not getattr(enemy, 'BOSS', False):
+                enemy.vy = max(getattr(enemy, 'vy', 0.0), lift)
+
+    # ----- v7 진화 '섬광 베기': 대시 공격이 지난 직선을 잠시 뒤 번쩍이며 다시 벤다 -----
+    def flash_strike(self, path, half, damage, net=False):
+        import mutations
+        x0, y0, x1, y1 = path
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 8:
+            return
+        dx, dy = (x1 - x0) / length, (y1 - y0) / length
+        fx = self._fx(False)
+        effects.spawn_path_slash(x0, y0, x1, y1, True)
+        effects.spawn_bloom((x0 + x1) / 2, (y0 + y1) / 2, FLASH_COLOR, big=True)
+        effects.add_trauma(config.SHAKE_FINISHER * 0.6)
+        assets.play_sound('swing_dash')
+        hit = []
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if not enemy.alive or not self._segment_hit(enemy, x0, y0, dx, dy, length, half):
+                continue
+            ex, ey = enemy.center
+            t = max(0.0, min(length, (ex - x0) * dx + (ey - y0) * dy))
+            if not self._visible(enemy, x0 + dx * t, y0 + dy * t):
+                continue
+            self._hit(enemy, damage, config.GAIN_HIT, fx, big=True, color=FLASH_COLOR, shake=1.0, extra=False)
+            hit.append(enemy)
+        if net and len(hit) >= 2:                        # 합성 '그물 베기': 벤 적을 모두 그물로 묶는다
+            mutations.bind(self.owner, hit, mutations.NET_SIZE)
 
     # ----- 철파이프 2단계: 올려베기 -> 내려찍기 (11/20) -----
     def _stage2_rise(self, ax, ay):
@@ -455,6 +744,10 @@ class Pipe:
             mutations.on_dash_strike_hit(self.owner)                                  # v7 '흐름'
         if enhanced:
             effects.add_trauma(config.SHAKE_FINISHER)
+        if mutations.has(self.owner, 'dashcut_evo') and self.weapon_id == 'pipe':    # v7 진화 '섬광 베기'
+            delay, mult, wide = mutations.FLASH
+            game_world.add_object(DelayedFlash(self, (x0, y0, x1, y1), half * wide, damage * mult, delay,
+                                               mutations.has(self.owner, 'duo_flash_net')), game_world.LAYER_EFFECT)
         self._finish(enhanced)
 
     # ----- 점프 평타: 회전 베기 / 내려찍기 -----
@@ -512,6 +805,9 @@ class Pipe:
         if targets:                                                        # 맞으면 튕겨 올라 다시 뛸 수 있다
             p.vy = config.PLUNGE_BOUNCE
             p.jump_count = min(p.jump_count, 1)
+        import mutations
+        if mutations.has(p, 'air_evo') and self.weapon_id == 'pipe':
+            p.bolt_armed = True                                            # v7 진화 '낙뢰 내려찍기': 착지할 때 터진다
         self._finish(enhanced)
 
     # ----- 판정 도형 -----
@@ -844,6 +1140,11 @@ class Chain(Pipe):
             count, reach_mult = count + config.CHAIN_DASH_EXTRA, reach_mult * config.CHAIN_DASH_REACH
         if enhanced:
             count, stun = 99, True                                  # 관통: 닿는 적 모두
+        import mutations
+        if mutations.has(p, 'gather_more'):                         # v7 '한 마리 더'
+            count += 1
+        if mutations.has(p, 'pierce_reach'):                        # v7 '긴 사슬'
+            reach_mult *= mutations.PIERCE_REACH
         return count, config.CHAIN_RANGE * reach_mult, stun
 
     def try_attack(self):
@@ -888,6 +1189,13 @@ class ChainHook:
         self.pulled = []               # 그중 끌려오는 적
         self.pull_time = 0.0
         self.tip = self.origin()
+        import mutations
+        p = weapon.owner
+        self.pierce = mutations.has(p, 'pierce_through')            # v7 '꿰뚫기': 끌어오는 수를 넘어도 계속 날아가며 맞힌다
+        self.ramp = mutations.PIERCE_RAMP if mutations.has(p, 'pierce_ramp') else 0.0
+        self.bounces = mutations.PIERCE_BOUNCES if mutations.has(p, 'pierce_evo') else 0   # v7 진화 '반사 사슬'
+        self.bends = []                # 벽에 꺾인 점들 (반사 사슬)
+        self.seg_dist = 0.0            # 마지막 꺾인 점(없으면 손)에서 갈고리 끝까지
 
     def origin(self):
         p = self.weapon.owner
@@ -898,14 +1206,23 @@ class ChainHook:
     def update(self, dt):
         getattr(self, '_update_' + self.phase)(dt)
 
+    def _seg_origin(self):
+        return self.bends[-1] if self.bends else self.origin()
+
     def _update_out(self, dt):
         p = self.weapon.owner
-        self.dist = min(self.reach, self.dist + config.CHAIN_SPEED * dt)
-        ox, oy = self.origin()
-        self.tip = (ox + self.dx * self.dist, oy + self.dy * self.dist)
+        step = min(self.reach, self.dist + config.CHAIN_SPEED * dt) - self.dist
+        self.dist += step
+        self.seg_dist += step
+        ox, oy = self._seg_origin()
+        prev = self.tip
+        self.tip = (ox + self.dx * self.seg_dist, oy + self.dy * self.seg_dist)
         room = p.room
         if room is not None and room.tile_at_world(*self.tip) == '#':
             effects.spawn('puff', self.tip[0], self.tip[1] - 20, duration=0.2)
+            if self.bounces > 0 and self.dist < self.reach:
+                self._bounce(room, prev)
+                return
             self._end_out()
             return
         h = config.CHAIN_HOOK_HB / 2
@@ -916,22 +1233,50 @@ class ChainHook:
             el, eb, er, et = enemy.rect()
             if tx - h < er and el < tx + h and ty - h < et and eb < ty + h:
                 self.hit.add(id(enemy))
+                ramp = 1.0 + self.ramp * len(self.hooked)                       # v7 '가속 고리': 관통할수록 세진다
                 self.hooked.append(enemy)
                 import drama
                 assets.play_sound(drama.latch_sound(self.weapon.owner.gauge.zone, self.enhanced))   # 위험·강화는 묵직하게
-                damage = self.damage * (1.0 if enemy.pullable else config.CHAIN_ANCHOR_MULT)   # 보스에게는 박혀서 더 아프다
+                damage = self.damage * ramp * (1.0 if enemy.pullable else config.CHAIN_ANCHOR_MULT)   # 보스에게는 박혀서 더 아프다
                 killed = self.weapon._hit(enemy, damage, config.CHAIN_GAIN, self.fx, big=self.enhanced,
                                           shake=0.7, stop=0.5, blast=self.enhanced, extra=False)
-                if not killed and enemy.pullable:
+                if not killed and enemy.pullable and len(self.pulled) < self.count:
                     self.pulled.append(enemy)
                     enemy.hold(0.2)
-                if len(self.hooked) >= self.count:
+                if len(self.hooked) >= self.count and not self.pierce:
                     self._end_out()
                     return
         if self.dist >= self.reach:
             self._end_out()
 
+    def _bounce(self, room, prev):
+        """반사 사슬: 벽에 닿기 직전 점에서 방향을 꺾는다. 가로로 막혔으면 dx, 세로로 막혔으면 dy를 뒤집는다."""
+        px, py = prev
+        tx, ty = self.tip
+        flip_x = room.tile_at_world(tx, py) == '#'
+        flip_y = room.tile_at_world(px, ty) == '#'
+        if not flip_x and not flip_y:                               # 모서리: 둘 다 뒤집는다
+            flip_x = flip_y = True
+        if flip_x:
+            self.dx = -self.dx
+        if flip_y:
+            self.dy = -self.dy
+        self.bounces -= 1
+        self.bends.append(prev)
+        self.seg_dist = 0.0
+        self.tip = prev
+        assets.play_sound('chain_clash')
+        effects.spawn_ring(px, py, NET_COLOR, radius_max=60, life=0.18)
+
     def _end_out(self):
+        import mutations
+        p = self.weapon.owner
+        if mutations.family_count(p, 'chain_link') >= 1:            # v7 연결 갈래: 함께 걸린 적을 묶는다
+            alive = [e for e in self.hooked if e.alive]
+            if len(alive) >= 2:
+                mutations.bind(p, alive, mutations.NET_SIZE if mutations.has(p, 'link_evo') else 2)
+        if self.pulled:
+            self.bends = []                                         # 끌어올 때는 손에서 적까지 곧게
         self.phase = 'pull' if self.pulled else 'back'
 
     def _stop_x(self, index, enemy):
@@ -964,9 +1309,16 @@ class ChainHook:
     def _arrive(self, alive):
         """다 끌어왔다: 위험 구간·강화면 기절과 충돌, 아니면 짧은 경직."""
         p = self.weapon.owner
+        import mutations
+        stun_time = config.CHAIN_STUN if self.stun else 0.18
+        if mutations.has(p, 'gather_stun'):                         # v7 '목줄'
+            stun_time = max(stun_time, mutations.GATHER_STUN)
         for e in alive:
-            e.hold(config.CHAIN_STUN if self.stun else 0.18)
-        if self.stun and len(alive) >= 2:                           # 함께 끌려온 적끼리 부딪친다
+            e.hold(stun_time)
+        if mutations.has(p, 'gather_evo'):                          # v7 진화 '소용돌이'
+            game_world.add_object(Vortex(self.weapon, self.damage), game_world.LAYER_EFFECT)
+        clash = self.stun or mutations.has(p, 'gather_clash')       # v7 '박치기': 어느 구간이든 부딪친다
+        if clash and len(alive) >= 2:                               # 함께 끌려온 적끼리 부딪친다
             for e in alive:
                 killed = e.take_damage(config.CHAIN_CLASH_DAMAGE, from_x=p.x)
                 ex, ey = e.center
@@ -975,17 +1327,27 @@ class ChainHook:
                 if killed:
                     p.gauge.add(p.kill_gain(), 'kill')
                 else:
-                    e.hold(config.CHAIN_STUN)                       # 충돌 경직이 기절을 줄이지 않게 다시 건다
+                    e.hold(max(stun_time, config.CHAIN_STUN if self.stun else 0.0))   # 충돌 경직이 기절을 줄이지 않게 다시 건다
             effects.add_trauma(config.SHAKE_FINISHER * 0.6)
             assets.play_sound('chain_clash')
         self._done()
 
     def _update_back(self, dt):
-        self.dist -= config.CHAIN_RETURN_SPEED * dt
-        ox, oy = self.origin()
-        self.tip = (ox + self.dx * max(0.0, self.dist), oy + self.dy * max(0.0, self.dist))
-        if self.dist <= 0:
-            self._done()
+        """빈 갈고리가 돌아온다: 꺾인 점을 거꾸로 따라 손까지."""
+        move = config.CHAIN_RETURN_SPEED * dt
+        while move > 0:
+            gx, gy = self.bends[-1] if self.bends else self.origin()
+            tx, ty = self.tip
+            gap = math.hypot(gx - tx, gy - ty)
+            if gap > move:
+                self.tip = (tx + (gx - tx) * move / gap, ty + (gy - ty) * move / gap)
+                return
+            self.tip = (gx, gy)
+            move -= gap
+            if not self.bends:
+                self._done()
+                return
+            self.bends.pop()
 
     def _done(self):
         w = self.weapon
@@ -1012,18 +1374,19 @@ class ChainHook:
 
     # ----- 그리기: 손에서 갈고리까지 고리 칸을 늘어놓는다 -----
     def draw(self):
-        ox, oy = self.origin()
         tx, ty = self.tip
-        length = math.hypot(tx - ox, ty - oy)
         glow = self.fx['damage_color'] if self.enhanced or self.stun else (186, 196, 210)
-        for i in range(int(length // self.LINK) + 1):
-            k = i * self.LINK / max(length, 1.0)
-            x, y = int(ox + (tx - ox) * k), int(oy + (ty - oy) * k)
-            assets.draw_rect_color(x - 4, y - 4, 8, 8, (12, 14, 22))                     # 외곽선
-            if i % 2:
-                assets.draw_rect_color(x - 3, y - 1, 6, 2, glow)                        # 눕힌 고리
-            else:
-                assets.draw_rect_color(x - 1, y - 3, 2, 6, glow)                        # 세운 고리
+        points = [self.origin()] + list(self.bends) + [self.tip]        # 반사 사슬이면 꺾인 점마다 한 토막
+        for (ox, oy), (ex, ey) in zip(points, points[1:]):
+            length = math.hypot(ex - ox, ey - oy)
+            for i in range(int(length // self.LINK) + 1):
+                k = i * self.LINK / max(length, 1.0)
+                x, y = int(ox + (ex - ox) * k), int(oy + (ey - oy) * k)
+                assets.draw_rect_color(x - 4, y - 4, 8, 8, (12, 14, 22))                 # 외곽선
+                if i % 2:
+                    assets.draw_rect_color(x - 3, y - 1, 6, 2, glow)                    # 눕힌 고리
+                else:
+                    assets.draw_rect_color(x - 1, y - 3, 2, 6, glow)                    # 세운 고리
         x, y = int(tx), int(ty)
         assets.draw_rect_color(x - 8, y - 8, 16, 16, (12, 14, 22))                      # 갈고리 머리
         assets.draw_rect_color(x - 6, y - 6, 12, 12, (186, 196, 210))

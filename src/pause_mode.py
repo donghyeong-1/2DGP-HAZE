@@ -155,13 +155,27 @@ def _draw_build(x, y, w, h):
         kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', kit.FAINT, small=True)
         kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', kit.FAINT, small=True)
         return
-    for mid in muts:
-        m = mu.MUTATIONS[mid]
-        color = mu.FAMILIES[m['family']]['color']
-        assets.draw_rect_color(x + 28, ty + 4, 14, 22, color)
-        kit.text(x + 54, ty + 15, m['name'], (235, 242, 252), small=True)
-        kit.text(x + w - 28, ty + 15, mu.FAMILIES[m['family']]['name'], color, small=True, right=True)
-        ty -= 40
+    for fam_id, mids in (mu.grouped(p) if p is not None else []):     # v7: 갈래별로 묶어 보인다
+        if ty < y + 60:
+            break
+        fam = mu.FAMILIES[fam_id]
+        on = mu.active(p, mids[0])
+        color = fam['color'] if on else (96, 104, 124)                  # 안 든 무기의 갈래는 흐리게
+        assets.draw_rect_color(x + 28, ty + 2, w - 56, 2, color, 0.5)
+        head = fam['name'] + (f' {sum(1 for m in mids if mu.tier(m) == "base")}/2' if fam_id != 'duo' else '')
+        kit.text(x + 28, ty + 20, head, color, small=True)
+        if not on:
+            weapon = mu.WEAPON_NAMES.get(fam.get('weapon'), '')
+            kit.text(x + w - 28, ty + 20, f'{weapon} 없음', kit.FAINT, small=True, right=True)
+        ty -= 34
+        for mid in mids:
+            if ty < y + 40:
+                break
+            star = {'evo': '진화 ', 'duo': '합성 '}.get(mu.tier(mid), '')
+            kit.text(x + 48, ty + 15, star + mu.MUTATIONS[mid]['name'],
+                     ((255, 225, 140) if star else (235, 242, 252)) if on else kit.FAINT, small=True)
+            ty -= 34
+        ty -= 8
     if muts:
         ty -= 10
     counts = {}

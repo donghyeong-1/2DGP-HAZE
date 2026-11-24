@@ -155,19 +155,32 @@ def _draw_card(i, mid):
     if hot:                                               # 고른 카드: 계열 색 테두리
         assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
     assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))      # 카드 속
-    draw_frame(x, y, CARD_W, CARD_H, 'rare' if _completes_synergy(m) else 'common')
+    info = mu.card_info(player, mid) if player is not None else {'rarity': 'common', 'note': fam['set'], 'hot': False}
+    tier = mu.tier(mid)
+    draw_frame(x, y, CARD_W, CARD_H, info['rarity'])      # v7: 기본 = 보통 / 진화 = 희귀 / 합성 = 전설 테두리
     img = assets.image(fam['icon'])
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
+    if tier != 'base':                                    # 진화·합성 띠
+        label, band = ('진화', color) if tier == 'evo' else ('합성', (255, 214, 120))
+        kit.text(x + CARD_W // 2, y + CARD_H - 54, label, band, center=True, small=True)
     kit.text(x + CARD_W // 2, y + CARD_H - 200, m['name'], (240, 244, 252), center=True, big=True)
-    kit.text(x + CARD_W // 2, y + CARD_H - 250, fam['name'] + ' 계열', color, center=True, small=True)
+    weapon = fam.get('weapon')
+    sub = fam['name'] + (' 계열' if m['family'] in mu.GAUGE_FAMILIES else ' 갈래')
+    if weapon:
+        sub = mu.WEAPON_NAMES.get(weapon, '') + ' · ' + sub
+    kit.text(x + CARD_W // 2, y + CARD_H - 250, sub, color, center=True, small=True)
     for j, line in enumerate(_wrap(m['desc'], 13)):
         kit.text(x + CARD_W // 2, y + CARD_H - 310 - j * 34, line, (205, 215, 235), center=True, small=True)
-    have = mu.family_count(player, m['family']) if player is not None else 0
-    pips = min(2, have + 1)                               # 이걸 고르면 몇 개가 되는가
-    kit.text(x + CARD_W // 2, y + 118, f'{fam["name"]} {pips}/2', color if pips >= 2 else kit.FAINT, small=True, center=True)
-    note = ('계열 효과 켜짐: ' if pips >= 2 else '같은 계열 2개면: ') + fam['set']
-    for j, line in enumerate(_wrap(note, 16)):
-        kit.text(x + CARD_W // 2, y + 84 - j * 26, line, (255, 225, 140) if pips >= 2 else (130, 145, 170), center=True,
+    if tier == 'base':                                    # 이걸 고르면 같은 갈래가 몇 개가 되는가 (진화까지 2개)
+        have = (mu.family_count(player, m['family']) if m['family'] in mu.GAUGE_FAMILIES
+                else mu.base_count(player, m['family'])) if player is not None else 0
+        pips = min(2, have + 1)
+        for k in range(2):                                # 칸 두 개: 찬 칸은 갈래 색
+            px = x + CARD_W // 2 - 26 + k * 32
+            assets.draw_rect_color(px - 2, y + 112, 24, 16, (12, 14, 22))
+            assets.draw_rect_color(px, y + 114, 20, 12, color if k < pips else (54, 62, 82))
+    for j, line in enumerate(_wrap(info['note'], 16)):
+        kit.text(x + CARD_W // 2, y + 84 - j * 26, line, (255, 225, 140) if info['hot'] else (130, 145, 170), center=True,
                  small=True)
 
 

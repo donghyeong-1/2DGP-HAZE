@@ -408,6 +408,10 @@ class Player(TileBody):
             assets.play_sound('land')
             effects.spawn('dust-land', self.x, self.y, duration=0.3)     # 착지 먼지
         self.air_time = 0.0
+        if getattr(self, 'bolt_armed', False):                          # v7 진화 '낙뢰 내려찍기'
+            self.bolt_armed = False
+            import mutations
+            mutations.on_plunge_land(self)
 
     def request_enhance(self):
         """E: 게이지를 쓰고 무기를 잠시 강화한다. 게이지가 모자라거나 이미 강화 중이면 아무 일도 없다."""

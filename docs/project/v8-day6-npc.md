@@ -76,3 +76,32 @@
 
 ### 테스트 (5번 뒤)
 - 전체 62개 파일 689개 통과, 픽셀 규칙 8개 통과(글자만 바꿔 테스트 수는 같다).
+
+## 이어서 한 일: 대기열 4번 (작은 기능, 같은 브랜치)
+조정자와 나눠 이 스레드가 맡았다. 문지기, stage.py의 보스·관문 부분, 변이·일시정지·설정·키 설정 파일은 건드리지 않았다. 임팩트 프레임 확장은 보스 스레드, 일시정지 화면의 형태 목록은 버그 정리 스레드가 맡는다.
+
+### 큰 방 화면 밖 적 표시
+- `src/offscreen.py`(새 파일), `src/play_mode.py`(HUD 층에 하나 넣음), `tools/make_offscreen_marker.py`, `assets/ui/hud_offscreen_*.png` 8장, `tests/test_offscreen.py` 8개.
+- 잠긴 방이 큰 방이거나 남은 적이 3 이하일 때, 화면 밖 적 쪽 가장자리에 빨간 화살표. 위쪽은 HUD 아래(150px)에서 멈추고, 겹치는 화살표는 하나로, 6개까지.
+
+### 황금방 형태 진열대
+- `src/items.py`: 형태 아이템 `f_<무기>` 넷(이름 '철파이프 · 중량 타격' 식, 금색), `can_take`(들고 있고 아직 없는 형태만), `apply`(forms.give), `roll_gold`(무기 + 형태 + 업그레이드).
+- `tools/make_form_icons.py`, `assets/ui/icon_f_*.png` 4장(무기 아이콘 + 왼쪽 위 금색 별).
+- `src/stage.py`: 이미 얻은 형태를 고르면 '이미 얻은 형태입니다'(한 줄, 보스·관문 부분 아님).
+- `tests/test_gold_forms.py` 6개. `tests/test_stage.py`의 황금방 테스트 셋은 '무기가 아닌 진열대'를 '업그레이드 진열대'로 바꿨다(이제 형태 진열대가 있어서).
+
+### 화면 확인 (xvfb 캡처, `/mnt/project-files/npc-dialogue/`의 gold_form.png, gold_crop.png, event_door.png)
+- 형태 진열대 아이콘·이름·설명과 얻었을 때 화면 아래 띠: 정상.
+- 고친 것 1: 방 끝 진열대의 긴 설명(형태·무기)이 화면 오른쪽 밖으로 나갔다. `src/pedestal.py`에서 이름·설명을 화면 안쪽으로 옮겨 그린다.
+- 고친 것 2: 이벤트방 문 이름('헤이즈 샘')은 이미 나오지만, 오른쪽 문 이름이 오른쪽 아래 무기 HUD 글자와 겹쳤다. `src/room.py`에서 옆문 이름을 문 위(보상 판보다 위)로 올렸다.
+
+### 추천안으로 정한 것 (4번)
+- 형태 진열대는 업그레이드 자리 하나를 대신한다(진열 셋은 그대로).
+- 형태 아이콘은 무기 아이콘에 금색 별을 얹은 코드 그림(Codex 작업 없음).
+- 옆문 이름은 왼쪽·오른쪽 모두 문 위로(오른쪽만 옮기면 짝이 안 맞아서).
+
+### PROGRESS.md 작업 로그에 넣을 줄 (4번)
+`2026-11-25 [Claude 프로젝트] 대기열 4번: 큰 방 화면 밖 적 화살표, 황금방 형태 진열대, 방 끝 진열대 글자·옆문 이름 겹침 수정 / src/(offscreen, items, pedestal, room, stage, play_mode).py, tools/(make_offscreen_marker, make_form_icons).py, assets/ui/(hud_offscreen_*, icon_f_*).png, tests/(test_offscreen, test_gold_forms, test_stage).py`
+
+### 테스트 (4번 뒤)
+- 전체 64개 파일 703개 통과, 픽셀 규칙 8개 통과.

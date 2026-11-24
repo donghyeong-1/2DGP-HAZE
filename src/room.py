@@ -442,7 +442,8 @@ class Room:
             label = self.door_texts.get(ch, DOOR_LABEL[hint])
             half = assets.text_width(label, True) // 2 + 40          # 긴 글자(잠긴 황금방·균열 대가)도 화면 밖으로 나가지 않게
             dx = max(70, half) if ch == 'L' else -max(70, half) if ch == 'R' else 0
-            dy = 0 if ch in 'LR' else (-200 if ch == 'U' else 70)   # 위 문 글자는 화면 위쪽 HUD·안내 띠 아래로
+            # 위 문 글자는 화면 위쪽 HUD·안내 띠 아래로. 옆문 글자는 문 위(보상 판보다 위)로: 오른쪽 아래 무기 HUD와 겹치지 않게
+            dy = 170 if ch in 'LR' else (-200 if ch == 'U' else 70)
             assets.draw_text(cx + dx, bottom + t // 2 + dy, label, DOOR_TINT[hint], small=True, center=True)
         reward = self.door_rewards.get(ch)
         if reward and cells and (col, row) == cells[len(cells) // 2]:

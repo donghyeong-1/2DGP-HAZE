@@ -7,6 +7,7 @@
 단계는 player.items에 얻은 횟수로 남는다. pico2d와 무관한 순수 로직이다.
 """
 import config
+import forms
 
 # id -> 이름, 한 글자 표시, 설명(단계 없는 것), 1단계 값(정비방, 헤이즈 조각), 색(화면 표시)
 ITEMS = {
@@ -30,6 +31,11 @@ ITEMS = {
     'w_chain':    dict(name='사슬', glyph='사', desc='사슬을 날려 멀리 있는 적을 칩니다 (증강을 얻으면 끌어옵니다)', price=9,
                      color=(170, 160, 255), weapon='chain'),
 }
+# 형태(v8, 2026-11-25): 황금방 진열대 하나가 들고 있는 무기의 새 형태일 수 있다. 아이템 목록에는 들어가지 않는다
+for _wid, _form in forms.FORMS.items():
+    ITEMS['f_' + _wid] = dict(name=f"{ITEMS['w_' + _wid]['name']} · {_form['name']}", glyph='형', desc=_form['desc'],
+                              price=0, color=forms.COLOR, form=_wid)
+FORM_ITEMS = ['f_' + w for w in forms.FORMS]
 UPGRADES = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 단계가 있는 것 (7종, 기본 성장은 둘)
 TRACK = {'power': 'growth', 'vigor': 'growth'}   # 같은 단계를 함께 쓰는 것 (기본 성장 택1)
 MAX_LEVEL = 3
@@ -83,6 +89,8 @@ def can_take(player, item_id):
     """더 얻을 수 있는가 (이미 3단계거나 의미가 없으면 못 얻는다)."""
     if 'weapon' in ITEMS[item_id]:
         return not player.has_weapon(ITEMS[item_id]['weapon'])
+    if 'form' in ITEMS[item_id]:                   # 형태: 들고 있는 무기의 것이고 아직 없을 때만
+        return ITEMS[item_id]['form'] in forms.offer(player)
     if item_id == 'heal':                          # v7: 물약 한 병 (가득하면 못 산다)
         return player.potions < config.POTION_MAX
     if item_id == 'fury':
@@ -91,7 +99,7 @@ def can_take(player, item_id):
 
 
 def icon_path(item_id):
-    """아이템 아이콘 그림 경로 (assets/ 기준). 무기는 무기 아이콘."""
+    """아이템 아이콘 그림 경로 (assets/ 기준). 무기는 무기 아이콘, 형태는 무기 아이콘 + 형태 표시(icon_f_<무기>)."""
     info = ITEMS[item_id]
     return f'ui/icon_w_{info["weapon"]}.png' if 'weapon' in info else f'ui/icon_{item_id}.png'
 
@@ -101,6 +109,9 @@ def apply(player, item_id):
     g = player.gauge
     if 'weapon' in ITEMS[item_id]:                 # 무기는 소지 아이템 목록이 아니라 무기 칸에 들어간다
         player.give_weapon(ITEMS[item_id]['weapon'])
+        return
+    if 'form' in ITEMS[item_id]:                   # 형태는 무기에 붙는다 (forms.give)
+        forms.give(player, ITEMS[item_id]['form'])
         return
     if item_id == 'heal':
         player.potions = min(config.POTION_MAX, player.potions + 1)
@@ -142,9 +153,13 @@ def roll(rng, pool, count, player=None):
 
 
 def roll_gold(rng, count, player=None):
-    """황금방 진열: 하나는 무기(가진 것은 빼고), 나머지는 업그레이드. 무기를 모두 가졌으면 업그레이드만."""
+    """황금방 진열: 하나는 무기(가진 것은 빼고), 하나는 들고 있는 무기의 형태(아직 없는 것이 있을 때),
+    나머지는 업그레이드. 무기를 모두 가졌거나 형태를 모두 얻었으면 그 자리도 업그레이드."""
     weapons = [w for w in WEAPON_ITEMS if player is None or can_take(player, w)]
     picked = [rng.choice(weapons)] if weapons and count > 0 else []
+    shapes = [f for f in FORM_ITEMS if player is not None and can_take(player, f)]
+    if shapes and count - len(picked) > 1:          # 업그레이드 자리를 하나는 남긴다
+        picked.append(rng.choice(shapes))
     picked += roll(rng, GOLD_POOL, count - len(picked), player)
     rng.shuffle(picked)
     return picked

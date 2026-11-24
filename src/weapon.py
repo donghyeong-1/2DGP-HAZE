@@ -285,6 +285,172 @@ class ExtraHits:
         pass
 
 
+# ----- 대시 공격 v2 (2026-11-24 사용자 요청 "이나리 같은 대시 공격"): 표식 3개 -> 처형, 맞히면 대시 회복, 붉은 궤적 -----
+EXEC_COLOR = (255, 64, 78)           # 표식·처형·대시 궤적 (진홍)
+MARK_INK = (14, 6, 10)
+X_SHAPE = [(i, i) for i in range(5)] + [(i, 4 - i) for i in range(5) if i != 2]   # 2px 칸 5x5 X
+
+
+def dash_mark(weapon, enemy, killed):
+    """대시 공격이 적을 맞혔다 (Pipe._hit이 부른다): 이 대시의 첫 적중이면 대시 한 칸 회복, 적마다 표식 하나(같은 대시로는 하나),
+    표식이 DASH_MARKS개면 처형. 대시 공격이 아니면 아무것도 안 한다."""
+    p = weapon.owner
+    if getattr(p, 'dash_attack_left', 0.0) <= 0 or id(enemy) in p.dash_marked:
+        return
+    p.dash_marked.add(id(enemy))
+    if not p.dash_refunded:
+        p.dash_refunded = True
+        if p.dash_slots < p.dash_max:
+            p.dash_slots += 1                                        # 대시 -> 베기 -> 대시
+        effects.spawn_bloom(*p.center, (150, 230, 255), life=0.12, strength=0.5)
+    if killed or not enemy.alive:
+        return
+    import mutations
+    add = 2 if mutations.has(p, 'dashcut_refund') else 1          # v7 '깊은 낙인' (11/24 '흐름'을 바꿈)
+    enemy.dash_marks = min(config.DASH_MARKS, getattr(enemy, 'dash_marks', 0) + add)
+    enemy.dash_mark_left = config.DASH_MARK_TIME
+    tag = getattr(enemy, 'mark_tag', None)
+    if tag is None or tag.gone:
+        enemy.mark_tag = MarkTag(enemy)
+        game_world.add_object(enemy.mark_tag, game_world.LAYER_EFFECT)
+    enemy.mark_tag.pop = 0.12
+    if enemy.dash_marks >= config.DASH_MARKS:
+        enemy.dash_marks = 0
+        game_world.add_object(DashExecution(weapon, enemy), game_world.LAYER_EFFECT)
+
+
+class MarkTag:
+    """적 머리 위 표식(붉은 X 1~3개). 쌓일 때 잠깐 크게 번쩍인다. 시간이 다 되거나 적이 죽으면 사라진다."""
+
+    def __init__(self, enemy):
+        self.enemy = enemy
+        self.pop = 0.0
+        self.gone = False
+
+    def update(self, dt):
+        e = self.enemy
+        self.pop = max(0.0, self.pop - dt)
+        e.dash_mark_left = getattr(e, 'dash_mark_left', 0.0) - dt
+        if e.dash_mark_left <= 0:
+            e.dash_marks = 0
+        if not e.alive or getattr(e, 'dash_marks', 0) <= 0:
+            self.gone = True
+            game_world.remove_object(self)
+
+    def draw(self):
+        e = self.enemy
+        n = e.dash_marks
+        left, bottom, right, top = e.rect()
+        cx = _snap((left + right) / 2)
+        y0 = _snap(top + 44)                                          # 체력 막대보다 위
+        for k in range(n):
+            x0 = cx - (n * 26 - 6) // 2 + k * 26
+            big = self.pop > 0 and k == n - 1
+            u = 5 if big else 4                                       # 막 쌓인 표식은 칸이 크다 (정수 칸 크기만 바꾼다)
+            for (a, b) in X_SHAPE:
+                assets.draw_rect_color(x0 + a * u - 2, y0 + b * u - 2, u + 4, u + 4, MARK_INK)
+            img = assets.image('light/dot_48.png')                    # 표식 뒤 붉은 빛
+            img.opacify(0.5)
+            assets.draw_image_added(img, x0 + 2 * u, y0 + 2 * u - img.h // 2, color=EXEC_COLOR, times=1)
+            img.opacify(1.0)
+            for (a, b) in X_SHAPE:
+                assets.draw_rect_color(x0 + a * u, y0 + b * u, u, u, (255, 255, 255) if big else EXEC_COLOR)
+        if n >= config.DASH_MARKS - 1:                                # 하나만 더: 몸에 금빛 마름모 (처형 예고)
+            mx, my = cx, _snap((bottom + top) / 2)
+            for r in (10, 8):
+                c = MARK_INK if r == 10 else (255, 214, 110)
+                for i in range(-r, r + 1, 2):
+                    h = r - abs(i)
+                    assets.draw_rect_color(mx + i, my + h, 2, 2, c)
+                    assets.draw_rect_color(mx + i, my - h, 2, 2, c)
+
+
+class DashExecution:
+    """표식 3개 처형: 화면이 어두워지고 시간이 느려진 뒤, 잠깐 뒤 큰 X 베기 일격."""
+
+    def __init__(self, weapon, enemy):
+        self.weapon, self.enemy = weapon, enemy
+        self.t = 0.0
+        effects.request_slow_motion(0.3, 0.35)
+        game_world.add_object(ExecDim(), game_world.LAYER_TILES)
+        assets.play_sound('swing_critical')
+        effects.spawn_bloom(*enemy.center, EXEC_COLOR, big=True, life=0.2, strength=0.8)
+
+    def update(self, dt):
+        self.t += dt
+        if self.t < config.DASH_EXEC_DELAY:
+            return
+        game_world.remove_object(self)
+        e, w = self.enemy, self.weapon
+        if not e.alive:
+            return
+        p = w.owner
+        import mutations
+        damage = (config.DASH_EXEC_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mutations.damage_mult(p)
+                  * (config.DASH_EXEC_BOSS if getattr(e, 'BOSS', False) else 1.0))
+        ex, ey = e.center
+        w._hit(e, damage, config.GAIN_HIT * 2, w._fx(False), big=True, color=EXEC_COLOR, shake=2.5, stop=2.5, extra=False)
+        effects.spawn_slash_marks(ex, ey, 1.0, 0.0, EXEC_COLOR, big=True, count=2)
+        effects.spawn_slash_marks(ex, ey, 1.0, 0.0, (255, 255, 255), big=True, count=2)
+        effects.spawn_ring(ex, ey, EXEC_COLOR, radius_max=190, life=0.3)
+        effects.spawn_impact(ex, ey, 1.0, 0.0, 18, EXEC_COLOR, big=True)
+        effects.add_trauma(config.SHAKE_FINISHER * 1.5)
+        effects.float_text(ex, ey + 120, '처형!', EXEC_COLOR, big=True, life=0.7)
+        game_world.add_object(DashStreak((ex - 300, ey, ex + 300, ey), life=0.45, width=22), game_world.LAYER_EFFECT)
+        assets.play_sound('impact_enh2')
+
+    def draw(self):
+        pass
+
+
+class ExecDim:
+    """처형 순간 배경을 어둡고 붉게 (타일 층에 그려서 적·주인공·이펙트는 밝게 남는다)."""
+    LIFE = 0.45
+
+    def __init__(self):
+        self.t = 0.0
+
+    def update(self, dt):
+        self.t += dt
+        if self.t >= self.LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        import camera
+        k = self.t / self.LIFE
+        a = 0.8 * (min(1.0, k * 6) if k < 0.2 else 1.0 - (k - 0.2) / 0.8)
+        left, bottom = camera.to_world(0, 0)
+        assets.draw_rect_color(left - 16, bottom - 16, config.SCREEN_W + 32, config.SCREEN_H + 32, (34, 0, 8), a)
+
+
+class DashStreak:
+    """대시가 지나간 자리에 남는 붉은 궤적: 굵은 빛줄기 + 흰 심, 시간이 지나며 가늘어진다 (2px 칸, 회전 없음)."""
+
+    def __init__(self, path, life=0.6, width=26, color=EXEC_COLOR):
+        self.path, self.life, self.width, self.color = path, life, width, color
+        self.t = 0.0
+
+    def update(self, dt):
+        self.t += dt
+        if self.t >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        x0, y0, x1, y1 = self.path
+        k = 1.0 - self.t / self.life
+        w = self.width * (k ** 0.6)
+        length = math.hypot(x1 - x0, y1 - y0)
+        steps = max(1, int(length // 4))
+        for i in range(steps + 1):
+            t = i / steps
+            x, y = _snap(x0 + (x1 - x0) * t), _snap(y0 + (y1 - y0) * t)
+            taper = 0.3 + 0.7 * t                                     # 끝(도착 쪽)이 굵다
+            ww = max(2, int(w * taper) // 2 * 2)
+            glow = ww * 2 // 2 * 2 + 4
+            assets.draw_rect_color(x - 2, y - glow // 2, 4, glow, self.color, 0.22 * k)      # 바깥 번짐
+            assets.draw_rect_color(x - 2, y - ww // 2, 4, ww, self.color, 0.85 * k)          # 몸통
+            assets.draw_rect_color(x - 2, y - max(2, ww // 4), 4, max(2, ww // 4) * 2, (255, 200, 200), 0.9 * k)   # 밝은 심
+
 class Pipe:
     IMPACT = 'impact_pipe'          # 명중할 때 적 피격음 위에 겹치는 무기 소리 (11/21 계획 1-7). 사슬은 갈고리 소리가 따로 있다
     # v7 효과음 v3: 철파이프는 공격 종류마다 다른 타격음 (hit_kind)
@@ -305,9 +471,13 @@ class Pipe:
         self.last_enhanced = False   # 그 공격이 강화 일격이었는가
         self.level = 0               # 지금 나가는 공격에 쓰인 강화 단계 (0 = 강화 없음, 1~2, 3은 궁극기)
         self.followup = None         # (남은 시간, 할 일): 이어지는 둘째 타 (철파이프 2단계 내려찍기)
+        self.pass_hit = set()        # 대시 v2: 이번 대시 베기로 지나가며 이미 벤 적
 
     def update(self, dt):
         self.cooldown = max(0.0, self.cooldown - dt)
+        p = self.owner
+        if p.state == 'DASH' and p.dash_strike_queued:      # 대시 v2: 대시 중 눌렀으면 지나가는 순간 벤다
+            self._dash_pass()
         if self.followup is not None:
             left, action = self.followup
             left -= dt
@@ -438,6 +608,7 @@ class Pipe:
         import mutations
         mutations.on_linked_hit(p, enemy, damage, killed)   # v7 연결 갈래: 묶인 적이 나눠 받고, 죽으면 터진다
         mutations.on_hit(p)                              # 변이 '굶주림'
+        dash_mark(self, enemy, killed)                   # 대시 v2: 대시 공격이면 표식·대시 회복
         if fx.get('enhanced'):
             mutations.on_enhanced_hit(p, enemy, damage)  # 변이 '파문'
         if blast:
@@ -706,13 +877,53 @@ class Pipe:
         self.cooldown = config.ENHANCE_STRIKE_COOLDOWN if enhanced else config.DASH_STRIKE_COOLDOWN
         self.hit_kind = 'dash'
         self._swing_sound('swing_dash', enhanced)
-        if p.state == 'DASH':                            # 대시 중: 끝나는 순간 지나온 경로를 벤다
+        if p.state == 'DASH':                            # 대시 중: 지금부터 지나가는 적을 그 순간 벤다 (대시 v2)
             p.dash_strike_queued = True
             p.dash_strike_enhanced = enhanced
+            self.pass_hit = set()
+            p.start_dash_cut()
+            self._dash_pass()
             if enhanced:
                 p.gauge.consume_enhance()                # 강화는 이 대시 평타에 쓰인다
             return
-        self.resolve_dash_strike(enhanced)               # 막 끝난 직후: 바로 벤다
+        self.pass_hit = set()
+        self.resolve_dash_strike(enhanced)               # 막 끝난 직후: 지나온 길을 한 번에 벤다
+
+    def _dash_strike_stats(self, enhanced):
+        """대시 평타의 (반폭, 피해, 이펙트)."""
+        import mutations
+        half = (self._enh('half') if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
+        if mutations.has(self.owner, 'dashcut_wide'):
+            half *= mutations.DASHCUT_WIDE                                       # v7 '넓은 궤적'
+        damage = self._damage(self._enh('damage') if enhanced else self._special(config.DASH_STRIKE_MULT))
+        damage *= mutations.pipe_damage_mult(self.owner, dash=True)               # v7 '돌진 베기'
+        return half, damage, self._fx(enhanced)
+
+    def _dash_cut_one(self, enemy, x0, y0, dx, dy, length, damage, fx, enhanced):
+        """대시 경로 위 적 하나를 벤다 (벽 너머는 제외). 벴으면 True."""
+        ex, ey = enemy.center
+        t = max(0.0, min(length, (ex - x0) * dx + (ey - y0) * dy))       # 경로에서 이 적에 가장 가까운 지점
+        if not self._visible(enemy, x0 + dx * t, y0 + dy * t):
+            return False
+        self.pass_hit.add(id(enemy))
+        self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
+                  shake=1.8 if enhanced else 1.2, blast=enhanced)
+        effects.spawn_slash_marks(ex, ey, dx, dy, (255, 255, 255), big=True)   # 지나가며 긋는 큰 초승달
+        return True
+
+    def _dash_pass(self):
+        """대시하는 동안: 출발점에서 지금까지 지나온 길에 들어온 적을 그 순간 벤다 (한 적에 한 번)."""
+        p = self.owner
+        x0, y0 = p.dash_origin
+        x1, y1 = p.center
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 8:
+            return
+        dx, dy = (x1 - x0) / length, (y1 - y0) / length
+        half, damage, fx = self._dash_strike_stats(p.dash_strike_enhanced)
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+            if enemy.alive and id(enemy) not in self.pass_hit and self._segment_hit(enemy, x0, y0, dx, dy, length, half):
+                self._dash_cut_one(enemy, x0, y0, dx, dy, length, damage, fx, p.dash_strike_enhanced)
 
     def resolve_dash_strike(self, enhanced, path=None):
         """대시가 지나온 직선(시작 -> 끝)에 있는 적을 모두 벤다. 시야가 벽에 막힌 적은 제외한다."""
@@ -727,25 +938,17 @@ class Pipe:
             self._finish(enhanced)
             return
         dx, dy = (x1 - x0) / length, (y1 - y0) / length
-        fx = self._fx(enhanced)
-        self.owner.start_dash_cut()                                       # 공격 v3: 낮은 돌진 가로 베기 자세
+        if self.owner.state != 'DASH':
+            self.owner.start_dash_cut()                                   # 공격 v3: 낮은 돌진 가로 베기 자세
         import mutations
-        half = (self._enh('half') if enhanced else config.DASH_STRIKE_HALF_WIDTH) * self._reach()
-        if mutations.has(self.owner, 'dashcut_wide'):
-            half *= mutations.DASHCUT_WIDE                                       # v7 '넓은 궤적'
-        effects.spawn_path_slash(x0, y0, x1, y1, enhanced)
-        damage = self._damage(self._enh('damage') if enhanced else self._special(config.DASH_STRIKE_MULT))
-        damage *= mutations.pipe_damage_mult(self.owner, dash=True)               # v7 '돌진 베기'
-        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
-            if not enemy.alive or not self._segment_hit(enemy, x0, y0, dx, dy, length, half):
-                continue
-            ex, ey = enemy.center
-            t = max(0.0, min(length, (ex - x0) * dx + (ey - y0) * dy))       # 경로에서 이 적에 가장 가까운 지점
-            if not self._visible(enemy, x0 + dx * t, y0 + dy * t):
-                continue
-            self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
-                      shake=1.8 if enhanced else 1.2, blast=enhanced)
-            mutations.on_dash_strike_hit(self.owner)                                  # v7 '흐름'
+        half, damage, fx = self._dash_strike_stats(enhanced)
+        if enhanced:                                                      # 강화만 단계 색 궤적 (보통은 붉은 DashStreak, 대시 v2)
+            effects.spawn_path_slash(x0, y0, x1, y1, enhanced)
+        for enemy in list(game_world.world[game_world.LAYER_ENEMY]):       # 지나가며 아직 못 벤 적 (대시 v2)
+            if (enemy.alive and id(enemy) not in self.pass_hit and
+                    self._segment_hit(enemy, x0, y0, dx, dy, length, half)):
+                self._dash_cut_one(enemy, x0, y0, dx, dy, length, damage, fx, enhanced)
+        self.pass_hit = set()
         if enhanced:
             effects.add_trauma(config.SHAKE_FINISHER)
         if mutations.has(self.owner, 'dashcut_evo') and self.weapon_id == 'pipe':    # v7 진화 '섬광 베기'

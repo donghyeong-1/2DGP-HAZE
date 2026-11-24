@@ -61,7 +61,6 @@ COMBO_REACH = 1.15        # 사거리
 AIR_POWER = 1.25          # 공중 공격 피해
 AIR_HANG = 0.18           # 공중에서 맞히면 이 시간 동안 떨어지지 않는다(초)
 DASHCUT_POWER = 1.3       # 대시 공격 피해
-DASHCUT_REFUND = 0.3      # 대시 공격이 맞으면 대시 충전이 이만큼(비율) 찬다
 DASH_IFRAME = 0.1         # 대시 무적 추가(초)
 DASHCUT_WIDE = 1.5        # 대시 공격 판정 폭 배율
 LIFT_VY = 620.0           # '띄우기': 위로 친 적이 뜨는 속도
@@ -149,7 +148,7 @@ MUTATIONS = {
     'air_lift': {'family': 'pipe_air', 'name': '띄우기', 'desc': '땅에서 위로 친 적이 크게 뜬다'},
     'air_evo': {'family': 'pipe_air', 'tier': 'evo', 'ready': True, 'name': '낙뢰 내려찍기', 'desc': '내려찍기 착지에 번개 기둥과 충격파'},
     'dashcut_power': {'family': 'pipe_dash', 'name': '돌진 베기', 'desc': f'대시 공격 피해 +{round((DASHCUT_POWER - 1) * 100)}%'},
-    'dashcut_refund': {'family': 'pipe_dash', 'name': '흐름', 'desc': f'대시 공격이 맞으면 대시 충전 {round(DASHCUT_REFUND * 100)}%'},
+    'dashcut_refund': {'family': 'pipe_dash', 'name': '깊은 낙인', 'desc': '대시 공격 표식이 한 번에 2개 쌓인다'},   # 11/24 '흐름'(대시 충전)은 기본이 됐다
     'dashcut_wide': {'family': 'pipe_dash', 'name': '넓은 궤적', 'desc': '대시 공격 판정이 두꺼워진다'},
     'dashcut_evo': {'family': 'pipe_dash', 'tier': 'evo', 'ready': True, 'name': '섬광 베기', 'desc': '지나간 자리에 0.3초 뒤 번쩍이며 다시 벤다'},
     'dash_extra': {'family': 'dash', 'name': '여분의 숨', 'desc': '대시 +1칸'},
@@ -428,11 +427,6 @@ def on_air_hit(player):
         player.vy = max(player.vy, 0.0)
         player.hang_left = AIR_HANG
 
-
-def on_dash_strike_hit(player):
-    """대시 공격이 맞았다: '흐름'이면 대시 충전이 찬다."""
-    if has(player, 'dashcut_refund') and player.dash_slots < player.dash_max:
-        player.dash_charge += player.dash_recharge * DASHCUT_REFUND
 
 def damage_mult(player):
     return BLOOM_CRIT if has(player, 'bloom_crit') and _zone(player) == 'AWAKE' else 1.0

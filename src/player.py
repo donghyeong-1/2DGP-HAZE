@@ -11,6 +11,7 @@ import assets
 import camera
 import config
 import effects
+import game_world
 import room as room_module
 import sprites
 from body import EPS, TileBody
@@ -120,6 +121,7 @@ class Dash(_State):
     def enter(self):
         p = self.p
         p.dash_slots -= 1
+        p.dash_count += 1
         assets.play_sound('dash')
         p.dash_left = config.DASH_TIME
         import mutations
@@ -159,6 +161,9 @@ class Dash(_State):
             ox, oy = p.dash_origin
             cx, cy = p.center
             p.last_dash_path = (ox, oy, cx, cy)        # 지나온 직선
+            if p.armed_dash == p.dash_count:           # 대시 중에 대시 공격을 걸었다: 지나온 자리에 붉은 궤적 (대시 v2)
+                import weapon
+                game_world.add_object(weapon.DashStreak(p.last_dash_path), game_world.LAYER_EFFECT)
             p.dash_end()
             import mutations
             mutations.on_dash_end(p)                   # 변이 '포자 폭발'
@@ -282,6 +287,11 @@ class Player(TileBody):
         self.last_dash_path = None       # 마지막 대시가 지나온 직선 (x0, y0, x1, y1). 대시 평타가 이 경로를 벤다
         self.dash_strike_queued = False  # 대시 중에 평타를 눌렀다: 대시가 끝나면 지나온 경로를 벤다
         self.dash_strike_enhanced = False
+        self.dash_count = 0              # 대시 v2: 지금까지 한 대시 수 (한 대시에 대시 공격 표식은 한 번)
+        self.armed_dash = -1             # 대시 공격을 건 대시 번호
+        self.dash_attack_left = 0.0      # 이 시간 동안의 적중이 대시 공격(표식·대시 회복)이다
+        self.dash_marked = set()         # 이번 대시 공격으로 표식을 받은 적
+        self.dash_refunded = False       # 이번 대시 공격으로 대시를 돌려받았나
         self.shards = 0                  # 헤이즈 조각(재화). 죽으면 처음부터이므로 이번 플레이 동안만 유지
 
         # 상태 객체와 transitions 상태 머신 (Player 객체에 self.state 속성이 생긴다)
@@ -436,7 +446,26 @@ class Player(TileBody):
     def _try_attack(self):
         if self.state in ('HIT', 'DEAD') or self.stunned:   # 대시 중에는 대시 평타를 칠 수 있다
             return False
-        return self.weapon.try_attack()
+        dash = self.state == 'DASH' or self.dash_window > 0
+        saved = (self.armed_dash, self.dash_attack_left, self.dash_marked, self.dash_refunded)
+        if dash:
+            self.arm_dash_attack()                       # 먼저 건다: 철파이프는 누르는 순간 벨 수 있다
+        ok = self.weapon.try_attack()
+        if dash and (not ok or self.ult_pose_left >= config.ULT_POSE_TIME - 1e-6):   # 못 쳤거나 궁극기: 되돌린다
+            self.armed_dash, self.dash_attack_left, self.dash_marked, self.dash_refunded = saved
+        return ok
+
+    def arm_dash_attack(self):
+        """대시 공격이 나갔다 (무기 4종 공통, 대시 v2): 잠깐 동안의 적중이 표식을 남기고 대시를 돌려준다. 한 대시에 한 번."""
+        if self.armed_dash == self.dash_count:
+            return
+        self.armed_dash = self.dash_count
+        self.dash_attack_left = config.DASH_MARK_WINDOW
+        self.dash_marked = set()
+        self.dash_refunded = False
+        if self.state != 'DASH' and self.last_dash_path is not None:   # 대시 직후: 지나온 자리에 붉은 궤적
+            import weapon
+            game_world.add_object(weapon.DashStreak(self.last_dash_path), game_world.LAYER_EFFECT)
 
     # ----- 무기 -----
     def has_weapon(self, weapon_id):
@@ -646,6 +675,7 @@ class Player(TileBody):
         if self.dash_buffer_left > 0:                       # 미리 누른 대시
             self.dash_buffer_left = 0.0 if self._try_dash() else self.dash_buffer_left - dt
         self.invuln_left = max(0.0, self.invuln_left - dt)
+        self.dash_attack_left = max(0.0, self.dash_attack_left - dt)
         self.steady_left = max(0.0, self.steady_left - dt)
         if self.gauge.zone == DEAD and self.state != 'DEAD':
             import killers

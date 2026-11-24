@@ -450,6 +450,13 @@ DASH_STRIKE_MULT = 1.4          # 대미지 배율
 DASH_STRIKE_HALF_WIDTH = 70     # 대시로 지나온 경로(직선) 양옆으로 이 반폭(px) 안의 적을 모두 벤다 (관통)
 DASH_STRIKE_ENHANCED_HALF_WIDTH = 115   # 강화된 대시 평타는 경로 양옆이 더 넓다
 DASH_STRIKE_COOLDOWN = 0.40
+# 대시 공격 v2 (2026-11-24 사용자 요청 "이나리 같은 대시 공격"): 무기 4종 공통. weapon.dash_mark
+DASH_MARK_WINDOW = 0.7          # 대시 공격을 누른 뒤 이 시간 안의 적중이 표식을 남긴다 (총알·사슬이 늦게 닿아도)
+DASH_MARKS = 3                  # 표식이 이만큼 쌓이면 처형
+DASH_MARK_TIME = 4.0            # 표식은 이 시간 동안 새로 안 쌓이면 사라진다(초)
+DASH_EXEC_DAMAGE = 60           # 처형 일격 피해 (구간·강화 배율은 곱한다)
+DASH_EXEC_BOSS = 0.5            # 보스는 처형 피해 x
+DASH_EXEC_DELAY = 0.08          # 표식이 다 찬 뒤 처형 일격까지(초, 느려진 시간)
 AIR_SPIN_MULT = 1.2             # 점프 평타(회전 베기) 대미지 배율
 AIR_SPIN_REACH = 170            # 몸 둘레 360도 사거리(px)
 AIR_HOP = 380.0                 # 회전 베기를 하면 살짝 떠오른다(px/s)

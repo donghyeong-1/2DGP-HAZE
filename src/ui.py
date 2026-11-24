@@ -378,7 +378,7 @@ class GameUI:
             return f'즉시 돌진 (-{config.GAUNTLET_CRIT_COST}%)', (255, 150, 120)
         if kind == 'gauntlet':
             return '누르고 떼면 돌진 강타', DIM
-        names = {'pipe': ('기본 3연타', DIM), 'dash': ('대시 평타: 지나온 길 베기', (255, 225, 120)),
+        names = {'pipe': ('기본 3연타', DIM), 'dash': ('대시 평타: 관통 베기 · 표식 3개 처형', (255, 225, 120)),
                  'spin': ('점프 평타: 회전 베기', (170, 225, 255)), 'plunge': ('내려찍기', (170, 225, 255))}
         return names[kind]
 

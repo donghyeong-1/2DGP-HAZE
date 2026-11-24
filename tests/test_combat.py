@@ -483,7 +483,7 @@ def dash_until_done(p, attack=True):
     assert p.state != 'DASH'
 
 
-def test_dash_strike_cuts_the_whole_path_travelled_when_the_dash_ends():
+def test_dash_strike_cuts_the_whole_path_travelled_by_the_time_the_dash_ends():
     room, p = make_world()
     a = freeze(add_enemy('slum', p.x + 110, room, p))
     b = freeze(add_enemy('slum', p.x + 300, room, p))                       # 대시가 지나온 경로 위 (기본 사거리 150 밖)
@@ -492,14 +492,13 @@ def test_dash_strike_cuts_the_whole_path_travelled_when_the_dash_ends():
     p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
     p.request_dash()
     assert p.request_attack() and p.weapon.last_kind == 'dash'
-    assert a.hp == a.max_hp and b.hp == b.max_hp                           # 대시 중에는 아직 베지 않는다
     for _ in range(60):
         game_world.update(DT)
         if p.state != 'DASH':
             break
-    assert a.hp < a.max_hp and b.hp < b.max_hp                              # 대시가 끝나는 순간 지나온 경로를 한 번에 벤다
+    assert a.hp < a.max_hp and b.hp < b.max_hp                              # 대시가 끝날 때까지 지나온 경로의 적을 모두 벴다 (11/24 지나가는 순간)
     assert c.hp == c.max_hp and d.hp == d.max_hp                            # 경로 밖은 맞지 않는다
-    assert 'path-slash' in spawned_names()                                  # 지나온 직선을 긋는 효과
+    assert any(type(o).__name__ == 'DashStreak' for o in game_world.world[game_world.LAYER_EFFECT])   # 지나온 자리의 붉은 궤적 (대시 v2)
 
 
 def test_dash_strike_path_is_a_straight_line_from_start_to_end():
@@ -578,9 +577,12 @@ def test_special_attacks_use_zone_damage_and_attack_bonus():
     p.attack_bonus = 1.5
     set_gauge(p, 60)
     p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    first = []                                                                # 첫 베기만 (추가 타격은 따로)
+    real = e.take_damage
+    e.take_damage = lambda d, *a, **k: (first.append(d), real(d, *a, **k))[1]
     dash_until_done(p)
     expected = config.PIPE_DAMAGE * config.MULT_AWAKE[0] * 1.5 * config.DASH_STRIKE_MULT
-    assert abs((e.max_hp - e.hp) - expected) < 1e-6
+    assert abs(first[0] - expected) < 1e-6
 
 
 def test_enhanced_applies_to_the_dash_strike_and_is_consumed():
@@ -591,10 +593,13 @@ def test_enhanced_applies_to_the_dash_strike_and_is_consumed():
     assert p.request_enhance()
     mult = p.gauge.zone_multipliers()['attack']                               # 강화 비용을 쓴 뒤의 구간 배율
     p.mouse_x, p.mouse_y = p.x + 400, p.center[1]
+    first = []                                                                # 11/24 대시 v2: 지나가는 순간 베어 추가 타격도 대시 중에 들어온다
+    real = e.take_damage
+    e.take_damage = lambda d, *a, **k: (first.append(d), real(d, *a, **k))[1]
     dash_until_done(p)
     assert p.weapon.last_kind == 'dash' and p.weapon.last_enhanced              # 강화가 대시 평타에 얹혔다
     assert not p.gauge.enhanced                                               # 쓰고 나면 사라진다
-    assert abs((e.max_hp - e.hp) - config.PIPE_DAMAGE * mult * config.ENHANCE_DAMAGE_MULT) < 1e-6
+    assert abs(first[0] - config.PIPE_DAMAGE * mult * config.ENHANCE_DAMAGE_MULT) < 1e-6
     enhanced_lines = [o for o in game_world.world[game_world.LAYER_EFFECT] if getattr(o, 'name', '') == 'path-slash']
     assert enhanced_lines and all(o.enhanced for o in enhanced_lines)          # 보라색 강화 직선
 

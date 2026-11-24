@@ -12,6 +12,7 @@ import assets
 import config
 import game_framework
 import hud_kit as kit
+import events
 import forms
 import mutations as mu
 
@@ -36,6 +37,16 @@ def setup(p, ids):
 def choose():
     """고른 카드의 변이를 준다. 시너지가 켜졌으면 알려 준다."""
     mid = choices[selected]
+    if mid.startswith(events.CARD):                       # v8 이벤트 방 카드: 이어서 고를 카드가 있으면 돌려준다
+        got = events.take(player, mid)
+        if got is None:
+            return None
+        text, color, follow = got
+        assets.play_sound('enhance')
+        import effects
+        cx, cy = player.center
+        effects.float_text(cx, cy + 110, text, color, big=True, life=1.2)
+        return follow
     if mid.startswith(forms.CARD):                        # v8 무기 형태 카드
         name, color = forms.take_card(player, mid)
         assets.play_sound('enhance')
@@ -77,10 +88,23 @@ def resume():
     pass
 
 
+def can_pick(i):
+    """고를 수 있는 카드인가 (이벤트 카드는 체력·조각이 모자라면 못 고른다)."""
+    mid = choices[i]
+    return not mid.startswith(events.CARD) or events.card_info(player, mid)['ok']
+
+
 def _pick(i):
     global selected
     selected = i
-    choose()
+    if not can_pick(i):
+        assets.play_sound('ui_move')
+        return
+    assets.play_sound('ui_select')
+    follow = choose()
+    if follow:                                            # 거래로 얻은 증강 선택처럼 카드가 이어진다
+        setup(player, follow)
+        return
     game_framework.pop_mode()
 
 
@@ -97,7 +121,6 @@ def handle_events():
             for i in range(len(choices)):
                 if card_x(i) <= mx < card_x(i) + CARD_W and CARD_Y <= my < CARD_Y + CARD_H:
                     if event.type == SDL_MOUSEBUTTONDOWN:
-                        assets.play_sound('ui_select')
                         _pick(i)
                         return
                     if i != selected:
@@ -113,7 +136,6 @@ def handle_events():
             assets.play_sound('ui_move')
             continue
         if event.type == SDL_KEYDOWN and event.key in (SDLK_RETURN, SDLK_SPACE):
-            assets.play_sound('ui_select')
             _pick(selected)
             return
 
@@ -179,7 +201,34 @@ def _draw_form_card(i, mid):
         kit.text(x + CARD_W // 2, y + CARD_H - 330 - j * 30, line, (205, 215, 235), center=True, small=True)
 
 
+def _draw_event_card(i, mid):
+    """이벤트 방 카드(헤이즈 샘·떠돌이 죄수): 아이콘, 이름, 대가(또는 구간), 설명. 고를 수 없으면 어둡게."""
+    info = events.card_info(player, mid)
+    hot = i == selected
+    k = min(1.0, age / OPEN_TIME)
+    x = card_x(i)
+    y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
+    ok = info['ok']
+    color = info['color'] if ok else (96, 104, 124)
+    if hot:
+        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))
+    draw_frame(x, y, CARD_W, CARD_H, 'rare' if ok and info['icon'] else 'common')
+    if info['icon']:
+        img = assets.image(info['icon'])
+        assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
+    kit.text(x + CARD_W // 2, y + CARD_H - 200, info['name'], (240, 244, 252) if ok else (130, 140, 160), center=True, big=True)
+    kit.text(x + CARD_W // 2, y + CARD_H - 250, info['sub'], color, center=True, small=True)
+    for j, line in enumerate(_wrap(info['desc'], 13)):
+        kit.text(x + CARD_W // 2, y + CARD_H - 300 - j * 30, line, (205, 215, 235) if ok else (110, 120, 140), center=True, small=True)
+    if not ok:
+        kit.text(x + CARD_W // 2, y + 84, info.get('why', '선택할 수 없습니다'), (255, 150, 150), center=True, small=True)
+
+
 def _draw_card(i, mid):
+    if mid.startswith(events.CARD):
+        _draw_event_card(i, mid)
+        return
     if mid.startswith(forms.CARD):
         _draw_form_card(i, mid)
         return
@@ -242,8 +291,12 @@ def draw():
         _under.draw_frozen()
     assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.66)
     form = any(c.startswith(forms.CARD) for c in choices)
-    kit.text(W // 2, CARD_Y + CARD_H + 110, '무기 형태' if form else '증강 선택', (244, 236, 214), center=True, big=True)
-    kit.text(W // 2, CARD_Y + CARD_H + 66, ('무기 하나의 기본 공격이 달라집니다. ' if form else '하나를 선택하세요. ') + '이번 판이 끝날 때까지 유지됩니다', (150, 165, 190), center=True, small=True)
+    title = '무기 형태' if form else '증강 선택'
+    sub = ('무기 하나의 기본 공격이 달라집니다. ' if form else '하나를 선택하세요. ') + '이번 판이 끝날 때까지 유지됩니다'
+    if choices and choices[0].startswith(events.CARD):    # v8 이벤트 방: 헤이즈 샘·떠돌이 죄수
+        title, sub = events.TITLES['spring' if ':spring:' in choices[0] else 'drifter']
+    kit.text(W // 2, CARD_Y + CARD_H + 110, title, (244, 236, 214), center=True, big=True)
+    kit.text(W // 2, CARD_Y + CARD_H + 66, sub, (150, 165, 190), center=True, small=True)
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
     kit.footer([('A D', '선택'), ('Enter', '확인')], y=CARD_Y - 80)

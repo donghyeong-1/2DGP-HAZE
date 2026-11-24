@@ -18,8 +18,9 @@ EMPTY = '.'
 SPAWN_KINDS = {'s': 'slum', 't': 'thrower', 'h': 'hound', 'g': 'guard'}  # 방 텍스트의 적 스폰 표시
 DOOR_CHARS = 'LRUD'
 DOOR_TINT = {'gold': (255, 215, 90), 'boss': (255, 90, 100), 'shop': (120, 215, 255), 'gate': (255, 160, 70),
-             'rift': (200, 130, 255), 'depart': (120, 235, 200)}   # 문 너머 방 종류 표시 색
-DOOR_LABEL = {'gold': '황금방', 'boss': '보스', 'shop': '정비방', 'gate': '관문', 'rift': '균열', 'depart': '출발'}
+             'rift': (200, 130, 255), 'depart': (120, 235, 200), 'event': (140, 235, 170), 'challenge': (255, 120, 80)}   # 문 너머 방 종류 표시 색
+DOOR_LABEL = {'gold': '황금방', 'boss': '보스', 'shop': '정비방', 'gate': '관문', 'rift': '균열', 'depart': '출발',
+              'event': '이벤트', 'challenge': '도전방'}   # v8: 이벤트 방(이름은 stage가 바꿔 적는다), 도전방
 
 
 # 타일 세트(assets/tiles/tile_set_<테마>.png)의 칸 위치 (tools/make_world.py의 build_atlas와 같다). 16열 x 9줄, 칸 60x60, 줄 0이 맨 위

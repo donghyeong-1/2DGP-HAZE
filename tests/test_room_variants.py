@@ -66,8 +66,8 @@ def test_variant_room_keeps_the_same_enemies():
         game_world.add_object(p, game_world.LAYER_PLAYER)
         st = Stage(p, seed=seed)
         for coord, info in st.layout.items():
-            if st.type_of(coord) != 'combat' or st.template_of(coord) == info['template']:
-                continue
+            if st.type_of(coord) != 'combat' or st.template_of(coord) == info['template'] or st.is_big(coord):
+                continue                                   # v8 큰 방은 적을 더 넣는다 (test_big_rooms)
             st.enter_room(coord, 'L')
             got = kinds_in_world(st)
             want = collections.Counter()

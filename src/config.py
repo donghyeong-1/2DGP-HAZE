@@ -483,6 +483,36 @@ SWAP_CHAIN_MULT = 0.8         # 사슬 '낚아채기': 피해 배율
 SWAP_CHAIN_RANGE = 520        #   끌어올 수 있는 거리(px)
 SWAP_CHAIN_TIME = 0.2         #   끌려오는 시간(초)
 # ----- 물결 전투 (v8 5-2, src/stage.py): 전투방의 적이 물결로 나온다 -----
+# v8 이벤트 방 (2026-11-25, 계획 5-4, src/events.py)
+SPRING_NORMAL = 35            # 헤이즈 샘 '가라앉히기': 게이지를 이 값으로 (노멀 구간)
+SPRING_AWAKE = 65             # '끌어올리기' (각성 구간)
+SPRING_CRITICAL_BELOW = 5     # '들이붓기': 한계보다 이만큼 아래 (위험 구간)
+DEAL_BLOOD_HP = 30            # 떠돌이 죄수 '증강 거래': 체력을 내고 증강 선택
+DEAL_HEAL_SHARDS, DEAL_HEAL_HP = 12, 40       # '치료 거래': 조각을 내고 체력 회복
+DEAL_SHARDS_HP, DEAL_SHARDS_GAIN = 20, 16     # '조각 거래': 체력을 내고 조각
+# 도전방: 구역마다 전투방 하나. 시간 안에 모두 쓰러뜨리면 보상이 CHALLENGE_MULT배 (증강 보상은 조각을 더 준다)
+CHALLENGE_ZONES = ('stage1', 'stage2', 'stage3')
+CHALLENGE_BASE = 12.0         # 제한 시간(초) = 이 값 + 적 하나마다 CHALLENGE_PER_ENEMY
+CHALLENGE_PER_ENEMY = 4.5
+CHALLENGE_MULT = 2
+CHALLENGE_BONUS_SHARDS = 8
+# v8 구역별 장치 (2026-11-25, 계획 5-5, src/devices.py): 구역마다 한 가지
+DEVICE_ROOM_CHANCE = 0.75     # 전투방에 장치가 놓일 확률
+DEVICE_COUNT = {'crate': (2, 3), 'vent': (1, 2), 'laser': (1, 1)}     # 방 하나에 놓이는 수
+CRATE_SHARDS = (1, 2)         # 슬럼 상자: 부서지면 나오는 조각
+CRATE_REACH, CRATE_REACH_FAR = 170, 620       # 공격이 닿는 거리(px): 근접 / 쌍권총
+VENT_IDLE, VENT_WARN, VENT_JET = 2.6, 0.7, 0.9    # 공장 증기 분출구: 쉼 / 예고 / 분출 (초)
+VENT_HALF_WIDTH, VENT_HEIGHT = 40, 260        # 분출 기둥의 반폭·높이(px)
+VENT_DAMAGE = 10              # 주인공이 닿으면 받는 피해
+VENT_LAUNCH = 900.0           # 적이 닿으면 떠오르는 속도(px/s)
+LASER_SPAN = 4                # 탑 감시 레이저: 좌우로 오가는 폭(칸, 한쪽)
+LASER_SPEED = 0.9             # 오가는 빠르기(rad/s)
+LASER_HALF_WIDTH = 22         # 빛줄기에 닿는 반폭(px)
+LASER_DAMAGE, LASER_GAUGE = 8, 6              # 닿으면 받는 피해와 오르는 게이지
+LASER_COOL = 1.0              # 한 번 닿은 뒤 다시 닿기까지(초)
+# v8 큰 방 (2026-11-25, 계획 5-3): 구역마다 두 화면짜리 전투방 수, 그 방의 적 무리 수 (세 물결로 나온다)
+BIG_ROOMS_PER_ZONE = {'stage1': 2, 'stage2': 2, 'stage3': 1}
+BIG_ROOM_PACKS = 8
 WAVE_MIN_PACKS = 4            # 적 무리가 이만큼 이상이면 2물결
 WAVE_THREE_PACKS = 6          # 이만큼 이상이면 3물결
 WAVE_WARN = 0.6               # 다음 물결이 나오기 전 예고 시간(초)

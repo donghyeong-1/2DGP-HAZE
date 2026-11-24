@@ -405,7 +405,7 @@ class GameUI:
         base_x, base_y = px + 18 + gap // 2, py + 18 + gap // 2
         colors = {'current': (235, 245, 255), 'cleared': (63, 177, 207), 'visited': (60, 90, 150), 'unknown': (44, 54, 80)}
         borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60),
-                   'rift': (200, 130, 255)}
+                   'rift': (200, 130, 255), 'event': (140, 235, 170)}
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
@@ -413,7 +413,7 @@ class GameUI:
             assets.draw_rect_color(x - 3, y - 3, cell_w + 6, cell_h + 6, (11, 16, 32))
             assets.draw_rect_color(x - 2, y - 2, cell_w + 4, cell_h + 4, border)
             assets.draw_rect_color(x, y, cell_w, cell_h, colors[state])
-            mark = ({'gate': 'boss', 'rift': 'haze'}.get(kind, kind)) if kind in borders else 'haze' if high else None
+            mark = ({'gate': 'boss', 'rift': 'haze'}.get(kind, kind)) if kind in borders else 'haze' if high else None   # event: hud_map_event
             if mark:                                             # 방 종류는 색 테두리와 함께 아이콘으로도 알려 준다
                 kit.icon('hud_map_' + mark, x + cell_w // 2 - 10, y + cell_h // 2 - 8)
         self._draw_chips(py - 12)
@@ -438,6 +438,11 @@ class GameUI:
             st = self.stage
             wave = f'물결 {st.wave_index}/{st.wave_total} · ' if getattr(st, 'wave_total', 1) > 1 else ''     # v8 물결 전투
             top = self._chip(right, top, f'{wave}남은 적 {st.enemy_count()}', RED)
+            ch = getattr(st, 'challenge', None)
+            if ch is not None:                                   # v8 도전방: 남은 시간 (다 쓰면 회색)
+                left = ch['left']
+                text = f'도전 {int(left) // 60}:{int(left) % 60:02d}' if left > 0 else '도전 실패'
+                top = self._chip(right, top, text, (255, 214, 120) if left > 10 else RED if left > 0 else (130, 140, 160))
         if room.is_high_haze:
             top = self._chip(right, top, '고농도', (150, 240, 230))
         n = len(getattr(self.player, 'mutations', []))

@@ -19,10 +19,10 @@ COMBAT = {
 }
 # 구역 규모·특수방·적. pool: E 칸에 넣는 적과 무게(손으로 짠 배치의 등장 비율), swap: s·t 칸을 바꿀 후보
 SPECS = {
-    'stage1': dict(combat=8, specials=('gold', 'shop', 'rift'), end='gate', main=(5, 6), fork=True,
+    'stage1': dict(combat=8, specials=('gold', 'shop', 'rift'), end='gate', main=(5, 6), fork=True, event=True,
                    pool={'slum': 5, 'thrower': 4, 'guard': 2, 'rat': 2, 'shaman': 1, 'hound': 1},
                    swap={}, high_haze=(1, 2)),
-    'stage2': dict(combat=8, specials=('gold', 'shop', 'rift'), end='boss', boss='crasher', main=(5, 6), fork=True,
+    'stage2': dict(combat=8, specials=('gold', 'shop', 'rift'), end='boss', boss='crasher', main=(5, 6), fork=True, event=True,
                    pool={'thrower': 3, 'hound': 3, 'guard': 3, 'drone': 2, 'cart': 2, 'slum': 1},
                    swap={'slum': ('hound', 'guard', 'cart'), 'thrower': ('thrower', 'drone')}, high_haze=(1, 3)),
     'stage3': dict(combat=5, specials=('shop', 'rift'), end='boss', boss='ark', final='heart', main=(3, 4),
@@ -55,7 +55,8 @@ def _fork_shape(rng, spec):
     ... - F  -   (f+1,0)  -  M - ... - 끝      본 경로 (가운데가 짧은 길)
 
     황금방은 갈림길 밖의 본 경로 방 위에, 정비방은 본 경로 방 아래에 붙인다: 어느 길을 골라도 갈 수 있다.
-    균열방은 긴 길 끝에 붙는다(긴 길을 고른 보상). (rooms, edges, lanes, marks)를 돌려준다."""
+    균열방은 긴 길 끝에 붙는다(긴 길을 고른 보상). (rooms, edges, lanes, marks)를 돌려준다.
+    이벤트 방(v8 5-4, spec event=True)은 본 경로의 갈림길 밖 한 칸에 끼워 넣는다: 어느 길을 골라도 지난다."""
     n_main = spec['combat'] - FORK_LONG
     rooms = {(0, 0): 'start'}
     edges = set()
@@ -64,16 +65,27 @@ def _fork_shape(rng, spec):
         edges.add((a, b))
         edges.add((b, a))
 
+    f = rng.randint(1, n_main - 2)                       # 갈림 방은 본 경로의 f번째 전투방
+    pos = None                                           # 이벤트 방 앞에 있는 본 경로 전투방 수 (첫 방 뒤, 갈림길 밖)
+    if spec.get('event'):
+        pos = rng.choice([k for k in range(1, n_main + 1) if k < f or k >= f + 2])
+
+    def at(i):
+        """본 경로의 i번째 전투방의 x (이벤트 방이 앞에 끼어 있으면 한 칸 밀린다)."""
+        return i + (1 if pos is not None and i > pos else 0)
+
+    xs = [at(i) for i in range(1, n_main + 1)]
+    last = n_main + (1 if pos is not None else 0)
     prev = (0, 0)
-    for x in range(1, n_main + 1):
-        rooms[(x, 0)] = 'combat'
+    for x in range(1, last + 1):
+        rooms[(x, 0)] = 'combat' if x in xs else 'event'
         link(prev, (x, 0))
         prev = (x, 0)
-    end = (n_main + 1, 0)
+    end = (last + 1, 0)
     rooms[end] = spec['end']
     link(prev, end)
-    f = rng.randint(1, n_main - 2)
-    fork, short, merge = (f, 0), (f + 1, 0), (f + 2, 0)
+    fork, short, merge = (at(f), 0), (at(f + 1), 0), (at(f + 2), 0)
+    f = at(f)
     upper = [(f + k, 1) for k in range(FORK_LONG)]
     prev = fork
     for c in upper:
@@ -89,12 +101,12 @@ def _fork_shape(rng, spec):
         link(upper[-1], rift)
         lanes[rift] = 'long'
     if 'gold' in spec['specials']:                      # 갈림길 밖의 본 경로 방 위 (위 칸이 비어 있는 곳)
-        free = [x for x in range(1, n_main + 1) if (x, 1) not in rooms and (x, 0) not in (fork, short, merge)]
-        x = rng.choice(free or [x for x in range(1, n_main + 1) if (x, 1) not in rooms])
+        free = [x for x in xs if (x, 1) not in rooms and (x, 0) not in (fork, short, merge)]
+        x = rng.choice(free or [x for x in xs if (x, 1) not in rooms])
         rooms[(x, 1)] = 'gold'
         link((x, 0), (x, 1))
     if 'shop' in spec['specials']:
-        x = rng.choice([x for x in range(1, n_main) if (x, 0) != short] or [f])      # 짧은 길의 방 아래는 피한다 (긴 길로 가면 못 간다)
+        x = rng.choice([x for x in xs[:-1] if (x, 0) != short] or [f])      # 짧은 길의 방 아래는 피한다 (긴 길로 가면 못 간다)
         rooms[(x, -1)] = 'shop'
         link((x, 0), (x, -1))
     return rooms, edges, lanes, {fork: 'fork', merge: 'merge'}
@@ -169,6 +181,8 @@ def _template(rng, c, kind, spec, edges, rooms, chosen):
         return 'shop_room'
     if kind == 'rift':
         return 'rift_room'
+    if kind == 'event':
+        return 'event_room'
     if kind == 'boss':
         return 'boss_arena'
     if kind == 'gate':

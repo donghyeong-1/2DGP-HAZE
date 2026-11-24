@@ -1,0 +1,18 @@
+{
+ "id": "fx/steam-jet",
+ "frames": 14,
+ "frameSize": [
+  80,
+  160
+ ],
+ "columns": 14,
+ "fps": 30,
+ "loop": false,
+ "pivot": [
+  40,
+  154
+ ],
+ "scale": 2,
+ "duration": 0.46,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

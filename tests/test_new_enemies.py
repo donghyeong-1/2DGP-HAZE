@@ -278,7 +278,7 @@ def test_stages_spawn_new_kinds():
             st.start()
             for c, info in st.layout.items():
                 if info.get('type') == 'combat':
-                    st.enter_room(c, 'L')
+                    st.enter_room(c)                 # 문 방향 없이 (왼쪽 문이 없는 방 모양도 있다)
                     found |= {o.kind for o in game_world.world[game_world.LAYER_ENEMY]}
                     found |= {o.kind for w in st.waves for o in w}      # v8 물결 전투: 아직 나오지 않은 물결의 적
         assert want <= found, (name, found)

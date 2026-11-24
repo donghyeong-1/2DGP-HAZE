@@ -38,6 +38,31 @@ def test_coming_back_reads_the_keys_that_are_really_down():
     assert not p.left and not p.right and p.attack_held
 
 
+def test_an_empty_second_key_slot_does_not_break_coming_back():
+    """키 설정의 둘째 칸은 비어 있을 수 있다(None). 2026-11-25 사용자 보고: 증강을 고르거나 일시정지를 닫으면 튕겼다
+    (빈 칸을 SDL에 그대로 물어봐서 예외가 났다). 빈 칸은 건너뛰고, 키를 읽다 문제가 생기면 모두 뗀 것으로 한다."""
+    room, p = tc.make_world()
+    assert None in keybinds.keys('left') or None in keybinds.keys('right')   # 기본 설정에 빈 칸이 있다
+    asked = []
+
+    def strict(key):                                                     # SDL처럼 숫자가 아닌 키에는 예외를 낸다
+        asked.append(key)
+        return int(key) == keybinds.keys('right')[0]
+
+    p.sync_inputs(strict, mouse_left=False)
+    assert p.right and not p.left and None not in asked
+    p.right = True
+    p.sync_inputs()                                                      # 창 없이 SDL에서 직접 읽는 길도 예외 없이
+    assert p.right in (True, False)
+
+    def broken(key):
+        raise RuntimeError('키 상태를 읽지 못했다')
+
+    p.right = p.attack_held = True
+    p.sync_inputs(broken, mouse_left=True)
+    assert not p.right and not p.attack_held
+
+
 def test_play_mode_releases_on_pause_and_syncs_on_resume():
     import play_mode
     room, p = tc.make_world()

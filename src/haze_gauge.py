@@ -89,6 +89,17 @@ class HazeGauge:
             zone = self._zone_of(self.value)
         self._set_zone(zone)
 
+    def set_value(self, value, reason='set'):
+        """값을 바로 맞춘다 (v8 헤이즈 샘). 변이 필터를 거치지 않고, 사망·오버로드가 되지 않는 범위(1 ~ 한계-1) 안에서만."""
+        if self.zone == DEAD:
+            return
+        value = max(1.0, min(self.cap - 1.0, float(value)))
+        delta = value - self.value
+        self.value = value
+        for f in self.change_listeners:
+            f(delta, reason)
+        self._set_zone(self._zone_of(self.value))
+
     def drain(self, amount, floor=config.GAUNTLET_FLOOR):
         """건틀릿 충전용 감소. floor 아래로는 내려가지 않는다."""
         room = self.value - floor

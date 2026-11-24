@@ -25,7 +25,7 @@ from room import Room
 
 OPPOSITE = {'L': 'R', 'R': 'L', 'U': 'D', 'D': 'U'}
 STEP = {'L': (-1, 0), 'R': (1, 0), 'U': (0, 1), 'D': (0, -1)}
-SPECIAL_TYPES = ('gold', 'shop', 'boss', 'gate', 'rift')   # 문에 미리 알려 주는 방 종류
+SPECIAL_TYPES = ('gold', 'shop', 'boss', 'gate', 'rift', 'event')   # 문에 미리 알려 주는 방 종류
 END_TYPES = ('boss', 'gate')                        # 클리어하면 구역이 끝나는 방
 STAGE_ORDER = ('stage1', 'stage2', 'stage3')        # 기획서 2.3: 슬럼 -> 공장 -> 코어(탑)
 
@@ -94,6 +94,8 @@ def next_stage(stage):
 # 판마다 전투 방이 될 수 있는 새 모양 (2026-11-21 계획 2-4). 칸에 필요한 문을 모두 가진 것만 고른다.
 # 앞 셋은 좌우 문만(33x18), 뒤 셋은 사방 문(48x22). 스폰은 모두 종류 없는 E 6칸 이상이다.
 COMBAT_VARIANTS = ('bridge_06', 'stairs_07', 'pillars_08', 'shaft_09', 'terrace_10', 'twin_11')
+# v8 큰 방 (2026-11-25, 계획 5-3): 두 화면짜리 전투방. 무작위 새 모양(COMBAT_VARIANTS)과 따로, 구역마다 정해진 수만 넣는다.
+BIG_ROOMS = ('causeway_12', 'plaza_13', 'foundry_14', 'ascent_15', 'descent_16', 'atrium_17')
 _spawn_cache = {}
 
 
@@ -142,6 +144,10 @@ class Stage:
         self.room = None
         self.pedestals = []
         self.npcs = []              # 은신처 NPC (정비사·보관인·기록관)
+        self.event = None           # v8 이벤트 방에 놓인 것 (events.Spot: 헤이즈 샘·떠돌이 죄수)
+        self.devices = []           # v8 구역별 장치 (devices.py: 상자·증기 분출구·감시 레이저)
+        self.challenges = set()     # v8 도전방 좌표 (구역마다 하나)
+        self.challenge = None       # 지금 방의 도전: {'limit': 초, 'left': 남은 초} (도전방이 아니면 None)
         self.on_npc = None          # NPC 앞에서 F: f(npc) (play_mode가 창을 연다)
         self.on_practice = None     # 연습장에서 F: 연습 메뉴 (play_mode가 연다)
         self.boss = None
@@ -152,8 +158,10 @@ class Stage:
         self.on_pickup = None       # 아이템을 얻었을 때: f(아이템 id, 효과 글) (play_mode가 화면 아래 띠로 보여 준다)
         self.on_mutation = None     # 변이 보상: f([변이 id 셋]) (play_mode가 카드 창을 연다). 없으면 첫 번째를 준다
         self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
+        self._place_big_rooms()
         self.rewards = {c: self._roll_reward(c) for c in self.layout if self.type_of(c) == 'combat'}   # 방 보상 (11/22)
         self._split_lane_rewards()
+        self._place_challenge()
         if self.rewards:                             # v8 무기 형태: 출발 방에서 가장 가까운 전투방의 보상은 늘 형태 카드
             first = min(sorted(self.rewards), key=lambda c: abs(c[0] - start[0]) + abs(c[1] - start[1]))
             self.rewards[first] = 'form'
@@ -184,28 +192,50 @@ class Stage:
         self.sealed = {c for c, i in self.layout.items() if i.get('lane') and i['lane'] != lane}
         return bool(self.sealed)
 
+    def _place_challenge(self):
+        """v8 도전방: 구역마다 전투방 하나를 고른다 (판의 시드로). 큰 방과 출발 방 옆(형태 카드 방)은 빼고,
+        되도록 갈림길 밖에서(어느 길을 골라도 만나게)."""
+        if self.name not in config.CHALLENGE_ZONES:
+            return
+        sx, sy = self.start_coord
+        spots = sorted(c for c in self.rewards if not self.is_big(c) and abs(c[0] - sx) + abs(c[1] - sy) > 1)
+        free = [c for c in spots if not self.layout[c].get('lane')]
+        if free or spots:
+            self.challenges = {random.Random(f'{self.seed}:challenge').choice(free or spots)}
+
+    def challenge_limit(self):
+        """이 방의 도전 제한 시간(초): 적이 많을수록 길다."""
+        return config.CHALLENGE_BASE + config.CHALLENGE_PER_ENEMY * self.wave_enemies
+
     def reward_of(self, coord):
         """이 방을 깨면 받을 보상 (전투방만, 아니면 None)."""
         return self.rewards.get(coord)
 
-    def grant_reward(self, kind):
-        """방 보상을 준다. 변이면 셋을 골라 on_mutation(카드 창)으로 넘긴다."""
+    def grant_reward(self, kind, boost=False):
+        """방 보상을 준다. 변이면 셋을 골라 on_mutation(카드 창)으로 넘긴다.
+        boost(v8 도전 성공): 조각·회복·결정은 CHALLENGE_MULT배, 증강·형태는 조각을 더 준다."""
         import mutations
         p = self.player
         rng = random.Random(f'{self.seed}:{self.coord}:grant')
         cx, cy = p.center
+        mult = config.CHALLENGE_MULT if boost else 1
         if kind == 'shards':
-            n = rng.randint(*mutations.REWARD_SHARDS)
+            n = rng.randint(*mutations.REWARD_SHARDS) * mult
             p.shards += n
             effects.float_text(cx, cy + 90, f'조각 +{n}', mutations.REWARDS[kind][2])
         elif kind == 'heal':
-            p.hp = min(p.max_hp, p.hp + mutations.REWARD_HEAL)
-            effects.float_text(cx, cy + 90, f'체력 +{mutations.REWARD_HEAL}', mutations.REWARDS[kind][2])
+            n = mutations.REWARD_HEAL * mult
+            p.hp = min(p.max_hp, p.hp + n)
+            effects.float_text(cx, cy + 90, f'체력 +{n}', mutations.REWARDS[kind][2])
         elif kind == 'crystal':
-            p.bonus_crystals += mutations.REWARD_CRYSTALS
-            effects.float_text(cx, cy + 90, f'헤이즈 결정 +{mutations.REWARD_CRYSTALS}', mutations.REWARDS[kind][2])
+            n = mutations.REWARD_CRYSTALS * mult
+            p.bonus_crystals += n
+            effects.float_text(cx, cy + 90, f'헤이즈 결정 +{n}', mutations.REWARDS[kind][2])
         elif kind in ('mutation', 'form'):
             import forms
+            if boost:
+                p.shards += config.CHALLENGE_BONUS_SHARDS
+                effects.float_text(cx, cy + 90, f'조각 +{config.CHALLENGE_BONUS_SHARDS}', mutations.REWARDS['shards'][2])
             choices = forms.cards(p) if kind == 'form' else []          # 형태 카드: 들고 있는 무기의 새 형태 + 넘기기
             if choices:
                 if self.on_mutation:
@@ -229,6 +259,39 @@ class Stage:
         need = self.links_of(coord)
         options = [original] + [v for v in COMBAT_VARIANTS if need <= template_exits(v)]
         return random.Random(f'{self.seed}:{coord}:shape').choice(options)
+
+    def _place_big_rooms(self):
+        """v8 큰 방: 좌우 문만 쓰는 전투방 가운데 구역마다 BIG_ROOMS_PER_ZONE개를 두 화면짜리 방으로 바꾼다 (판의 시드로).
+        출발 방 바로 옆 방은 뺀다(첫 전투는 짧게). 첫 번째는 갈림길 밖에서, 없으면 두 길에 하나씩 고른다(어느 길을 골라도 하나는 만난다).
+        한 구역에 같은 모양이 두 번 나오지 않는다."""
+        n = config.BIG_ROOMS_PER_ZONE.get(self.name, 0)
+        sx, sy = self.start_coord
+        spots = sorted(c for c in self.layout if self.type_of(c) == 'combat' and self.links_of(c) <= {'L', 'R'}
+                       and abs(c[0] - sx) + abs(c[1] - sy) > 1)
+        if not n or not spots:
+            return
+        rng = random.Random(f'{self.seed}:big')
+        rng.shuffle(spots)
+        lane = {k: [c for c in spots if self.layout[c].get('lane') == k] for k in (None, 'short', 'long')}
+        if lane[None]:                                   # 갈림길 밖의 방 하나를 먼저
+            order = lane[None][:1] + [c for c in spots if c != lane[None][0]]
+        else:                                            # 없으면 두 길에 하나씩
+            order = lane['short'][:1] + lane['long'][:1]
+            order += [c for c in spots if c not in order]
+        for c, shape in zip(order, rng.sample(BIG_ROOMS, min(n, len(order)))):
+            self.templates[c] = shape
+
+    def is_big(self, coord):
+        return self.template_of(coord) in BIG_ROOMS
+
+    def _big_room_extras(self, have):
+        """큰 방은 적 무리가 BIG_ROOM_PACKS가 되게 구역의 적 목록에서 더 뽑는다 (판의 시드로)."""
+        import mapgen
+        pool = mapgen.SPECS.get(self.name, {}).get('pool')
+        if not pool:
+            return []
+        rng = random.Random(f'{self.seed}:{self.coord}:big')
+        return [mapgen._weighted(rng, pool) for _ in range(max(0, config.BIG_ROOM_PACKS - have))]
 
     def template_of(self, coord):
         return self.templates.get(coord, self.layout[coord]['template'])
@@ -289,6 +352,8 @@ class Stage:
             for obj in list(game_world.world[layer]):
                 game_world.remove_object(obj)
         self.pedestals, self.boss, self.npcs = [], None, []
+        self.event, self.challenge = None, None
+        self.devices = []
         self.waves, self.wave_timer = [], None
         self.wave_total, self.wave_index, self.wave_packs, self.wave_enemies = 1, 1, 0, 0
         import transition
@@ -301,6 +366,8 @@ class Stage:
             if kind in SPECIAL_TYPES:
                 self.room.door_hints[d] = kind
             target = self.neighbour(coord, d)
+            if target in self.challenges and target not in self.cleared:      # v8 도전방: 문에 알린다
+                self.room.door_hints[d] = 'challenge'
             if self.reward_of(target) and target not in self.cleared:      # 깨면 받을 보상을 문에 미리 보인다
                 self.room.door_rewards[d] = self.reward_of(target)
         if self.type_of(coord) == 'hideout':
@@ -312,6 +379,15 @@ class Stage:
         kind = self.type_of(coord)
         if kind in ('combat', 'gate') and coord not in self.cleared:
             self._spawn_enemies(info)
+            if coord in self.challenges:                 # v8 도전방: 제한 시간 시작
+                limit = self.challenge_limit()
+                self.challenge = {'limit': limit, 'left': limit}
+                self._say(f'도전방 · {int(limit)}초 안에 모두 처치하면 보상이 커집니다')
+        elif kind == 'event':
+            self._spawn_event(coord)
+        if kind == 'combat':                             # v8 구역별 장치 (깬 방에도 그대로 있다)
+            import devices
+            self.devices = devices.place(self)
         elif kind == 'boss' and coord not in self.cleared:
             x, y = self.room.boss_spawn or (self.room.width * 0.7, config.TILE * 2)
             self.boss = self._make_boss(info.get('boss', 'crasher'), x, y)
@@ -344,6 +420,15 @@ class Stage:
             return 'haze'
         return 'haze' if info.get('high_haze') else self.default_theme
 
+    def _spawn_event(self, coord):
+        """v8 이벤트 방: 가운데 단 위(I 칸)에 헤이즈 샘 또는 떠돌이 죄수를 놓는다. 쓴 것은 다시 들어와도 그대로다."""
+        import events
+        saved = self.state.setdefault(coord, {})
+        x, y = self.room.pedestals[0] if self.room.pedestals else (self.room.width / 2, config.TILE * 2)
+        self.event = events.Spot(events.kind_of(self), x, y, saved)
+        self.event.player = self.player
+        game_world.add_object(self.event, game_world.LAYER_TILES)
+
     def _spawn_npcs(self):
         from npc import NPC
         for kind, col in self.npc_spots:
@@ -367,7 +452,10 @@ class Stage:
         left = self.gold_rooms_left()
         for d, kind in self.room.door_hints.items():
             target = self.neighbour(self.coord, d)
-            if kind == 'gold' and left > 0:
+            if kind == 'event':                          # v8 이벤트 방: 무엇이 있는지 이름으로
+                import events
+                texts[d] = events.NAMES[events.kind_of(self)]
+            elif kind == 'gold' and left > 0:
                 texts[d] = f'황금방 잠김 · 남은 방 {left}'
             elif kind == 'rift' and target not in self.paid_rifts:
                 texts[d] = f'균열 · 체력 -{self.rift_cost()}'
@@ -408,6 +496,8 @@ class Stage:
         p.vx = p.vy = 0.0
         t = config.TILE
         door = room.door_center(from_dir) if from_dir else None
+        if door is None:                     # 그쪽 문이 없는 방 모양: 방의 시작 자리로
+            from_dir = None
         if from_dir == 'L':
             p.x, p.y = config.PLAYER_HB_W / 2 + t * 1.6, door[1]
         elif from_dir == 'R':
@@ -436,6 +526,8 @@ class Stage:
         swap = info.get('swap', {})
         if self.template_of(self.coord) != info['template']:      # 새 모양: 원래 방의 적 구성을 새 스폰 칸에 차례로
             kinds = self.original_kinds(info)
+            if self.is_big(self.coord):                           # v8 큰 방: 적 무리를 늘린다 (세 물결)
+                kinds = kinds + self._big_room_extras(len(kinds))
             spawns = [(x, y, kinds[i]) for i, (x, y, _k) in enumerate(self.room.enemy_spawns[:len(kinds)])]
             generic, swap = [], {}
         else:
@@ -549,6 +641,16 @@ class Stage:
             if self.on_npc:
                 self.on_npc(min(talk, key=lambda n: abs(n.x - p.x)))
             return True
+        ev = self.event
+        if ev is not None and not ev.used and ev.near(p):          # v8 이벤트 방: 카드 창을 연다
+            import events
+            events.current = ev
+            cards = events.cards(ev.kind)
+            if self.on_mutation:
+                self.on_mutation(cards)
+            else:
+                events.take(p, cards[0])
+            return True
         near = [ped for ped in self.pedestals if not ped.gone and ped.near(p)]
         if not near:
             return False
@@ -606,6 +708,12 @@ class Stage:
             self.interact()
         self.block_left = max(0.0, self.block_left - 1 / 60)
         self._summon_heart()
+        ch = self.challenge
+        if ch is not None and self.room.locked and ch['left'] > 0:      # v8 도전방: 시간이 간다
+            ch['left'] -= 1 / 60
+            if ch['left'] <= 0:
+                ch['left'] = 0.0
+                self._say('도전 실패 · 보상은 그대로입니다')
         if self.room.locked and self.enemy_count() == 0 and (self.waves or self.wave_timer is not None):
             self._advance_wave()                   # v8 물결 전투: 아직 나올 물결이 있다 (방은 잠긴 채)
         elif self.room.locked and self.enemy_count() == 0:
@@ -618,8 +726,12 @@ class Stage:
                     self.player.run_ends += 1
             if self.on_clear:
                 self.on_clear(self)
+            won = ch is not None and ch['left'] > 0                 # v8 도전 성공: 보상이 커진다
+            if won:
+                self._say('도전 성공 · 보상이 커집니다')
             if self.reward_of(self.coord) and p is not None:
-                self.grant_reward(self.reward_of(self.coord))
+                self.grant_reward(self.reward_of(self.coord), boost=won)
+            self.challenge = None
             if before > 0 and self.gold_rooms_left() == 0 and any(self.type_of(c) == 'gold' for c in self.layout):
                 self._say('모든 전투방을 클리어했습니다. 황금방이 열렸습니다')
             self._update_door_texts()
@@ -691,7 +803,7 @@ class Stage:
         for c in shown:
             if c == self.coord:
                 state = 'current'
-            elif c in self.cleared or (self.type_of(c) in ('gold', 'shop', 'start', 'rift') and c in self.visited):
+            elif c in self.cleared or (self.type_of(c) in ('gold', 'shop', 'start', 'rift', 'event') and c in self.visited):
                 state = 'cleared'
             elif c in self.visited:
                 state = 'visited'

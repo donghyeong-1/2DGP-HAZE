@@ -986,6 +986,35 @@ def _surge_draw(p, u, R, o, x):
                 p.needle(bx, bot, bx, top, R[3] if w > 0.08 else WHITE, 2.4, tip=WHITE)
 
 
+# 증기 분출 (v8 5-5 공장 장치): 바닥 틈에서 흰 줄기 다발이 솟구치고 -> 줄기가 끊어지며 위로 빠지고 -> 김 덩이가 옆으로 퍼지며 사라진다
+def _steam_setup(ps, lights, rng, R, o):
+    light = [R[2], R[3], R[4], R[4], WHITE]             # 김은 밝게 (어두운 공처럼 보이지 않게)
+    for i in range(12):                                 # 작은 김 덩이 여럿: 줄기를 따라 위로 빠르게, 위에서 옆으로 퍼진다
+        ps.spawn(PUFF, rng.range(-4, 4), -8, rng.range(-46, 46), -rng.range(300, 620), rng.range(0.2, 0.36), rng.range(0.28, 0.5),
+                 delay=i * 0.022, ramp=light)
+    ps.burst(MOTE, 0, -6, 14, (200, 560), (0.16, 0.34), spread=0.45, aim=-math.pi / 2)
+    lights.add(0, -30, 30, R[3], 80, 0.32)
+    lights.add(0, -80, 24, R[3], 50, 0.36)
+    return dict(beams=[((i - 3) * 2.6 + rng.range(-1, 1), rng.range(0.7, 1.2), rng.range(0, 0.1)) for i in range(7)])
+
+
+def _steam_draw(p, u, R, o, x):
+    if u < 0.07:                                        # 주인공 프레임: 틈에서 솟는 굵은 흰 줄기
+        p.needle(0, -2, 0, -46, WHITE, 7.0, tip=WHITE)
+        p.needle(-5, -2, -7, -26, WHITE, 3.0, tip=WHITE)
+        p.needle(5, -2, 7, -26, WHITE, 3.0, tip=WHITE)
+    for bx, k, d in x['beams']:
+        w = u - d
+        if 0 < w < 0.3:
+            top = -8 - 118 * k * out_expo(w / 0.16)
+            bot = -4 - 118 * k * out_cubic(max(0.0, (w - 0.1) / 0.2))      # 처음 0.1초는 바닥에 붙어 있다 (분출구에서 이어지게)
+            if bot - top > 2:
+                p.needle(bx * (1 + w * 2.5), bot, bx * (1 + w * 4), top, R[4] if w > 0.1 else WHITE, 3.0 if w < 0.12 else 2.0, tip=WHITE)
+    v = u / 0.22
+    if v < 1:                                           # 바닥에 누운 끊어진 고리
+        p.ring(0, -2, 5 + 15 * out_expo(v), 1.8 * (1 - v) + 0.6, R[4], sy=0.3, a=1.0 if v < 0.5 else 2 - 2 * v, gaps=4, phase=o['seed'])
+
+
 # 바닥 충격: 땅에서 위로 터지는 반원 가시 + 바닥에 누운 고리 + 튀는 돌 조각
 def _quake_setup(ps, lights, rng, R, o):
     ps.burst(SPARK, 0, -4, 16, (200, 560), (0.2, 0.42), spread=2.4, aim=-math.pi / 2)
@@ -1038,6 +1067,7 @@ MISC = {
     'dust-land': (dict(size=[96, 36], origin=[48, 34], duration=0.28, fps=30, glow=False, options=dict(ramp='dust', seed=61)), _simple(_dust_setup, _dust_draw)),
     'puff': (dict(size=[72, 72], origin=[36, 41], duration=0.34, fps=30, glow=False, options=dict(ramp='dust', seed=62)), _simple(_puff_setup, _puff_draw)),
     'surge': (dict(size=[64, 88], origin=[32, 80], duration=0.36, fps=30, options=dict(ramp='haze', seed=63)), _simple(_surge_setup, _surge_draw)),
+    'steam-jet': (dict(size=[80, 160], origin=[40, 154], duration=0.46, fps=30, options=dict(ramp='dust', seed=66)), _simple(_steam_setup, _steam_draw)),
     'quake-blast': (dict(size=[220, 120], origin=[110, 116], duration=0.46, fps=30, options=dict(ramp='ember', seed=64, ground=0)),
                     _simple(_quake_setup, _quake_draw)),
     'death-burst': (dict(size=[110, 110], origin=[55, 55], duration=0.46, fps=30, options=dict(ramp='haze', seed=65)),

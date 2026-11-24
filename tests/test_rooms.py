@@ -12,6 +12,7 @@ import room_check  # noqa: E402
 from room import Room  # noqa: E402
 from room_check import RoomGraph, analyze  # noqa: E402
 from stage import COMBAT_VARIANTS, OPPOSITE, STAGE_ORDER, STEP, Stage, load_layout, template_exits  # noqa: E402
+from stage import BIG_ROOMS  # noqa: E402
 
 
 def read_room(name):
@@ -38,6 +39,8 @@ def as_rows(grid):
 
 def used_templates():
     used = set(COMBAT_VARIANTS)                                     # 판마다 전투 방이 될 수 있는 새 모양 (11/21)
+    used |= set(BIG_ROOMS)                                          # v8 큰 방 (구역마다 정해진 수만 들어간다)
+    used.add('event_room')                                          # v8 이벤트 방 (mapgen이 본 경로에 끼워 넣는다)
     for name in STAGE_ORDER + ('hideout', 'practice'):              # 은신처(로비)·연습장도 방 파일을 쓴다
         start, layout = load_layout(name)
         used |= {info['template'] for info in layout.values()}

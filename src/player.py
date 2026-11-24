@@ -388,15 +388,20 @@ class Player(TileBody):
                 state = sdl2.SDL_GetKeyboardState(None)
                 if pressed is None:
                     def pressed(key):
-                        return bool(state[sdl2.SDL_GetScancodeFromKey(key)])
+                        return bool(state[sdl2.SDL_GetScancodeFromKey(int(key))])
                 if mouse_left is None:
                     x, y = ctypes.c_int(0), ctypes.c_int(0)
                     mouse_left = bool(sdl2.SDL_GetMouseState(ctypes.byref(x), ctypes.byref(y)) & sdl2.SDL_BUTTON_LMASK)
             except Exception:
                 self.release_inputs()
                 return
-        for action in ('left', 'right', 'down'):
-            setattr(self, action, any(pressed(k) for k in keybinds.keys(action)))
+        try:                                                 # 비어 있는 둘째 키 칸(None)은 건너뛴다 (2026-11-25: 여기서 튕겼다)
+            held = {a: any(k is not None and pressed(k) for k in keybinds.keys(a)) for a in ('left', 'right', 'down')}
+        except Exception:
+            self.release_inputs()
+            return
+        for action, down in held.items():
+            setattr(self, action, down)
         self.attack_held = bool(mouse_left)
 
     def handle_event(self, event):

@@ -10,13 +10,14 @@ import config
 import sprites
 
 INTERACT_RANGE = 120
-NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관', 'armory': '무기 걸이', 'practice': '연습장'}
+NAMES = {'mechanic': '정비사', 'keeper': '보관인', 'archivist': '기록관', 'armory': '무기 걸이', 'practice': '연습장',
+         'drifter': '떠돌이 죄수'}     # v8 이벤트 방 (events.py)
 ROLES = {'mechanic': '기본 능력 영구 강화', 'keeper': '물건 하나 맡기기', 'archivist': '이야기·기록',
-         'armory': '시작 무기 선택', 'practice': '연습장 들어가기'}
+         'armory': '시작 무기 선택', 'practice': '연습장 들어가기', 'drifter': '거래'}
 COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (120, 215, 255), 'armory': (230, 210, 150),
-          'practice': (140, 235, 170)}
+          'practice': (140, 235, 170), 'drifter': (240, 190, 120)}
 # 임시 모습: (몸 폭, 키, 소품 색)
-SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None), 'practice': (60, 120, None)}
+SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None), 'practice': (60, 120, None), 'drifter': (44, 117, (150, 110, 70))}
 
 
 class NPC:

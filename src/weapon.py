@@ -367,6 +367,49 @@ class MarkTag:
                     assets.draw_rect_color(mx + i, my - h, 2, 2, c)
 
 
+class Shatter:
+    """조각나는 처치 (v8 4-3): 큰 공격으로 죽은 적의 그림을 몇 칸으로 잘라 공격 방향으로 흩뿌린다 (새 그림 없이 그 자리의 그림을 자른다).
+    조각은 돌지 않고(픽셀 규칙: 회전 없음) 포물선으로 날아가다 깜빡이며 사라진다."""
+
+    def __init__(self, frame, x, y, face, side):
+        self.frame, self.x, self.y, self.face, self.side = frame, x, y, face, side
+        self.t = 0.0
+        cols, rows = config.SHATTER_PIECES
+        rng = random.Random(int(x) * 31 + int(y))
+        self.pieces = []                      # (칸 x, 칸 y, 속도 x, 속도 y)
+        for r in range(rows):
+            for c in range(cols):
+                up = 200 + 300 * (r + 1) / rows + rng.uniform(-90, 90)       # 위쪽 조각일수록 높이 튄다
+                out = (c - (cols - 1) / 2) * 260                             # 가운데에서 바깥으로 벌어진다
+                self.pieces.append((c, r, side * rng.uniform(140, 380) + out + rng.uniform(-60, 60), up))
+
+    def update(self, dt):
+        self.t += dt
+        if self.t >= config.SHATTER_LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        name, n = sprites.resolve(*self.frame)
+        img = assets.image(sprites.path(name, n))
+        dx, foot = sprites.place(name, n, img.w, img.h, self.face)
+        flip = 'h' if self.face < 0 else ''
+        k = self.t / config.SHATTER_LIFE
+        if k > 0.6 and int(self.t * 30) % 2 == 0:                       # 끝에는 깜빡이며 사라진다
+            return
+        cols, rows = config.SHATTER_PIECES
+        pw, ph = img.w // cols, img.h // rows
+        bx, by = self.x + dx, self.y - foot
+        for c, r, vx, vy in self.pieces:
+            ox = vx * self.t
+            oy = vy * self.t - 0.5 * config.GRAVITY * 0.55 * self.t * self.t
+            src_c = (cols - 1 - c) if self.face < 0 else c              # 좌우 반전된 그림은 칸도 뒤집힌 자리에 놓인다
+            assets.draw_clip(img, src_c * pw, r * ph, pw, ph, int(bx + c * pw + ox), int(max(self.y - 4, by + r * ph + oy)), flip)
+        if k < 0.18:                                                    # 갈라지는 순간의 흰 금
+            a = 1.0 - k / 0.18
+            assets.draw_rect_color(int(bx), int(by + img.h // 2) - 2, img.w, 4, (255, 255, 255), a)
+            assets.draw_rect_color(int(bx + img.w // 2) - 2, int(by), 4, img.h, (255, 255, 255), a)
+
+
 class CutHalves:
     """처형으로 쓰러진 적이 두 동강 난다: 그림을 위아래로 잘라 위쪽은 베인 방향으로 미끄러져 올라가고 아래쪽은 주저앉으며 사라진다."""
     LIFE = 0.7
@@ -826,9 +869,22 @@ class Pipe:
     def _hit(self, enemy, damage, gain, fx, big=False, color=None, shake=1.0, stop=1.0, blast=False, extra=True):
         """적 하나에게 피해와 모든 맞는 반응(게이지, 불꽃, 숫자, 흔들림, 멈춤)을 준다. 죽였으면 True."""
         p = self.owner
+        import combo
         import drama
+        snap = _enemy_snap(enemy) if big else None                  # v8 조각 처치: 죽기 직전의 모습
+        before = set(id(o) for o in game_world.world[game_world.LAYER_EFFECT]) if big else ()
         with drama.hit_style(big=big or None, color=color or fx['damage_color']):   # 피해 숫자 모양 (픽셀 글꼴, 하나만)
             killed = enemy.take_damage(damage, from_x=p.x, knock=(config.KNOCK_BIG if big else 1.0) * self.knock_mult())
+        combo.juggle(enemy)                                          # v8 공중 연타: 떠 있는 적은 맞으면 조금 다시 뜬다
+        if big:
+            ecx, ecy = enemy.center
+            effects.add_kick(ecx - p.x, ecy - p.center[1], config.KICK_BIG)     # v8 카메라 킥: 공격 방향으로 한 번 밀린다
+            if killed and snap is not None and not getattr(enemy, 'BOSS', False):   # v8 조각 처치: 쓰러지는 그림 대신 흩어진다
+                for o in list(game_world.world[game_world.LAYER_EFFECT]):
+                    if id(o) not in before and type(o).__name__ == 'Corpse':
+                        game_world.remove_object(o)
+                frame, fx_, fy_, face = snap
+                game_world.add_object(Shatter(frame, fx_, fy_, face, 1 if ecx >= p.x else -1), game_world.LAYER_EFFECT)
         if self.IMPACT:
             assets.play_sound(self._impact_sound(fx))
         p.gauge.add(gain, 'hit')
@@ -982,7 +1038,11 @@ class Pipe:
             self._hit(enemy, damage, gain, fx, big=finisher, color=color,
                       shake=config.SHAKE_FINISHER / config.SHAKE_HIT if finisher else 1.0, stop=2 if finisher else 1)
             if lift and getattr(enemy, 'alive', False) and not getattr(enemy, 'BOSS', False):
-                enemy.vy = max(getattr(enemy, 'vy', 0.0), mutations.LIFT_VY)         # v7 '띄우기'
+                import combo
+                combo.launch(enemy, mutations.LIFT_VY)                               # v7 '띄우기': 높이
+            elif finisher and shape == 'rise' and p.on_ground:
+                import combo
+                combo.launch(enemy, config.JUGGLE_RISE)                              # v8: 3타 올려베기는 적을 띄운다 (공중 연타의 시작)
             if not p.on_ground:
                 mutations.on_air_hit(p)                                              # v7 '체공'
 

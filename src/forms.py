@@ -89,9 +89,8 @@ def cancel(weapon):
 
 
 def _launch(e, speed):
-    if e.alive and getattr(e, 'pullable', True):
-        e.vy = max(e.vy, speed)
-        e.hold(config.DETONATE_LAUNCH_HOLD)
+    import combo
+    combo.launch(e, speed)
 
 
 # ----- 철파이프: 중량 타격 -----

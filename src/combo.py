@@ -63,6 +63,29 @@ def _tag(enemy):
     return tag
 
 
+def launch(enemy, speed):
+    """적을 띄운다 (v8 4-1). 떠 있는 동안 움직이지 못하고, 맞으면 조금씩 다시 뜬다(juggle). 보스는 뜨지 않는다."""
+    if not enemy.alive or not getattr(enemy, 'pullable', True):
+        return False
+    enemy.vy = max(enemy.vy, speed)
+    enemy.on_ground = False
+    enemy.launched = True
+    enemy.air_hits = 0
+    enemy.hold(config.JUGGLE_HOLD)
+    return True
+
+
+def juggle(enemy):
+    """떠 있는 적이 맞았다: JUGGLE_MAX번까지 조금 다시 뜬다 (Pipe._hit이 부른다)."""
+    if (not enemy.alive or not getattr(enemy, 'launched', False) or enemy.on_ground
+            or getattr(enemy, 'air_hits', 0) >= config.JUGGLE_MAX):
+        return False
+    enemy.air_hits += 1
+    enemy.vy = max(enemy.vy, config.JUGGLE_POP)
+    enemy.hold(config.JUGGLE_HOLD)
+    return True
+
+
 def _enemies():
     return [e for e in list(game_world.world[game_world.LAYER_ENEMY]) if e.alive]
 
@@ -102,9 +125,7 @@ def _detonate(weapon, enemy):
     effects.spawn_flare(ex, ey, color)
     if wid == 'gauntlet':                                 # 분쇄: 피해 큼 + 띄움
         _strike(p, enemy, damage * config.DETONATE_CRUSH, color, knock=config.KNOCK_BIG)
-        if enemy.alive and getattr(enemy, 'pullable', True):
-            enemy.vy = config.DETONATE_LAUNCH
-            enemy.hold(config.DETONATE_LAUNCH_HOLD)
+        launch(enemy, config.DETONATE_LAUNCH)
         return
     _strike(p, enemy, damage, color)
     if wid == 'pipe':                                     # 번지는 베기: 다른 각인 적 모두에게 베기가 튄다 (그 각인은 남는다)
@@ -193,9 +214,7 @@ def _strike_gauntlet(p, w):
     damage = w._damage(config.SWAP_GAUNTLET_MULT)
     for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_GAUNTLET_REACH)):
         w._hit(e, damage, config.GAIN_HIT, fx, big=True, extra=False)
-        if e.alive and getattr(e, 'pullable', True):
-            e.vy = max(e.vy, config.SWAP_LAUNCH)
-            e.hold(config.DETONATE_LAUNCH_HOLD)
+        launch(e, config.SWAP_LAUNCH)
 
 
 def _strike_chain(p, w):

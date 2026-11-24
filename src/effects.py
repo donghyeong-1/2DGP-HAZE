@@ -18,6 +18,7 @@ _meta = {}
 flash_left = 0.0     # 화면 전체 섬광이 남은 시간 (오버로드 순간)
 hit_stop_left = 0.0  # 남은 타격 멈춤 시간. play_mode가 이 동안 world 갱신을 건너뛴다
 trauma = 0.0         # 화면 흔들림 세기 0~1
+_kick = [0.0, 0.0]   # 카메라 킥 (v8): 큰 타격이 공격 방향으로 화면을 민 거리(px). 곧 0으로 돌아온다
 _shake_time = 0.0
 
 
@@ -61,6 +62,7 @@ def tick_hit_stop(dt):
 
 def reset():
     global hit_stop_left, trauma, flash_left, slow_left, slow_scale
+    _kick[0] = _kick[1] = 0.0
     hit_stop_left = 0.0
     slow_left, slow_scale = 0.0, 1.0
     trauma = 0.0
@@ -86,15 +88,36 @@ def tick_shake(real_dt):
     if trauma > 0:
         _shake_time += real_dt
         trauma = max(0.0, trauma - config.SHAKE_DECAY * real_dt)
+    if _kick[0] or _kick[1]:                                 # 킥은 빠르게 돌아온다
+        k = math.exp(-config.KICK_DECAY * real_dt)
+        _kick[0], _kick[1] = _kick[0] * k, _kick[1] * k
+        if abs(_kick[0]) < 0.5 and abs(_kick[1]) < 0.5:
+            _kick[0] = _kick[1] = 0.0
 
 
 def shake_offset():
     """이번 프레임의 화면 흔들림 (x, y) 정수 픽셀. 서로 다른 속도의 사인파를 더해 지직거리지 않고 부드럽게 흔든다."""
+    kx, ky = kick_offset()
     if trauma <= 0:
-        return (0, 0)
+        return (kx, ky)
     amp = config.SHAKE_MAX_OFFSET * trauma * trauma * options.shake_mult()     # 접근성: 흔들림 끔·약하게·보통
     t = _shake_time * 38.0
-    return (int(round(amp * math.sin(t * 1.7))), int(round(amp * math.sin(t * 2.3 + 1.3))))
+    return (int(round(amp * math.sin(t * 1.7))) + kx, int(round(amp * math.sin(t * 2.3 + 1.3))) + ky)
+
+
+def add_kick(dx, dy, px):
+    """카메라 킥 (v8): (dx, dy) 방향으로 화면을 px만큼 민다. 흔들림과 달리 방향이 있고 한 번 밀렸다 돌아온다."""
+    n = math.hypot(dx, dy)
+    if n < 1e-6:
+        return
+    k = px * options.shake_mult()
+    _kick[0] = max(-24.0, min(24.0, _kick[0] + dx / n * k))
+    _kick[1] = max(-24.0, min(24.0, _kick[1] + dy / n * k))
+
+
+def kick_offset():
+    """지금의 킥 (x, y) 정수 픽셀. 화면에 보이는 것은 반대로 움직인다(카메라가 그쪽으로 간 것처럼)."""
+    return (int(round(_kick[0])), int(round(_kick[1])))
 
 
 def sheet_info(name):

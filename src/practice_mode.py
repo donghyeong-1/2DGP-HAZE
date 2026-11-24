@@ -12,10 +12,10 @@ import hud_kit as kit
 import practice
 
 W, H = config.SCREEN_W, config.SCREEN_H
-ROWS = ('enemy', 'reset', 'weapon', 'gauge', 'augment', 'clear', 'hideout', 'close')
+ROWS = ('enemy', 'reset', 'weapon', 'gauge', 'augment', 'clear', 'sfx', 'hideout', 'close')
 NAMES = {'enemy': '적 불러내기', 'reset': '적 정리·허수아비 다시 세우기', 'weapon': '무기 받기',
          'gauge': '헤이즈 게이지', 'augment': '증강 넣기·빼기', 'clear': '증강 모두 빼기',
-         'hideout': '은신처로 돌아가기', 'close': '닫기'}
+         'sfx': '효과음 듣기', 'hideout': '은신처로 돌아가기', 'close': '닫기'}     # v8: 효과음을 들어 보고 좋음·바꿔를 표시한다 (sfx_mode)
 CHOICE = ('enemy', 'weapon', 'augment')          # A/D로 고르고 Enter로 실행하는 줄
 GAUGE_STEP = 10
 PANEL_X, PANEL_W = 460, 1000
@@ -85,6 +85,9 @@ def run(item):
         practice.toggle_augment(player, augment_ids()[index['augment']])
     elif item == 'clear':
         practice.clear_augments(player)
+    elif item == 'sfx':
+        import sfx_mode
+        game_framework.push_mode(sfx_mode)
     elif item == 'hideout':
         import play_mode
         game_framework.pop_mode()

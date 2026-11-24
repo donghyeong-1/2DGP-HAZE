@@ -46,6 +46,8 @@ POUNCE_MAX_VX = 1000.0
 
 class Enemy(TileBody):
     pullable = True                # 사슬로 끌어올 수 있는가 (보스는 False: 맞기만 한다)
+    launched = False               # v8 띄우기: 띄워져 떠 있는 중 (combo.launch). 땅에 닿으면 풀린다
+    air_hits = 0                   # 떠 있는 동안 맞아 다시 뜬 횟수 (JUGGLE_MAX까지)
 
     def __init__(self, kind, x, y, room, player):
         self.kind = kind
@@ -243,6 +245,10 @@ class Enemy(TileBody):
         getattr(self, '_do_' + self.state.lower())(dt)
         self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
         self.move_with_tiles(dt)
+        if self.launched and self.on_ground and self.vy <= 0:        # v8 띄우기: 떨어져 땅에 닿았다
+            self.launched, self.air_hits = False, 0
+            effects.spawn('dust-land', self.x, self.y, duration=0.28)
+            self.hold(config.JUGGLE_LAND)
         # 걸어가려는데 거의 못 움직였으면 막힌 것이다 (기둥, 벽)
         if self.state == 'CHASE' and self.vx != 0 and abs(self.x - before_x) < 0.5 and self.on_ground:
             self.blocked_time += dt

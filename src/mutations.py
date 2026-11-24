@@ -507,8 +507,10 @@ def on_just_dash(player):
 
 def on_plunge_land(player):
     """낙뢰 내려찍기: 내려찍기 뒤 땅에 닿았다 (player.on_landing이 부른다)."""
-    w = player.weapons[0] if getattr(player, 'weapons', None) else player.weapon
-    w.bolt_strike()
+    for w in (getattr(player, 'weapons', None) or [player.weapon]):     # 철파이프 갈래: 철파이프를 들고 있지 않으면 아무 일도 없다 (v8 두 칸 자유)
+        if w is not None and w.weapon_id == 'pipe':
+            w.bolt_strike()
+            return
 
 
 # ----- 연결 갈래: 묶인 적 -----

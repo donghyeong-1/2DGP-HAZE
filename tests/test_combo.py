@@ -236,6 +236,36 @@ def test_the_swap_cooldown_runs_down_and_the_strike_returns():
     assert e.hp < hp
 
 
+# ----- 두 칸 자유 (docs/plan_v8.md 1-1): 철파이프 고정 해제 -----
+def test_a_found_weapon_fills_the_empty_slot_then_replaces_the_one_not_in_hand():
+    room, p = world(second=None)
+    p.give_weapon('gauntlet')
+    assert [w.weapon_id for w in p.weapons] == ['pipe', 'gauntlet'] and p.weapon.weapon_id == 'gauntlet'   # 빈 칸에 넣고 든다
+    p.give_weapon('chain')                                               # 두 칸이 찼다: 들고 있지 않은 철파이프와 바뀐다
+    assert [w.weapon_id for w in p.weapons] == ['chain', 'gauntlet'] and p.weapon.weapon_id == 'chain'
+    p.swap_weapon(1)
+    p.give_weapon('pistol')                                              # 건틀릿을 들고 있다: 사슬과 바뀐다
+    assert [w.weapon_id for w in p.weapons] == ['pistol', 'gauntlet'] and p.weapon.weapon_id == 'pistol'
+    p.give_weapon('gauntlet')                                            # 이미 가진 무기: 그것을 들 뿐
+    assert [w.weapon_id for w in p.weapons] == ['pistol', 'gauntlet'] and p.weapon.weapon_id == 'gauntlet'
+
+
+def test_a_run_without_the_pipe_fights_and_combos_normally():
+    import mutations
+    room, p = tc.make_world(player_x=300.0)
+    p.set_loadout('gauntlet', 'chain')
+    assert [w.weapon_id for w in p.weapons] == ['gauntlet', 'chain']
+    tc.set_gauge(p, 50)
+    e = enemy(room, p, 120)
+    p.swap_weapon(0)
+    hit(p, e)
+    assert combo.imprint_of(e) == 'gauntlet'
+    p.swap_weapon(1)
+    hit(p, e)
+    assert combo.imprint_of(e) is None                                   # 사슬로 격발
+    mutations.on_plunge_land(p)                                          # 철파이프 전용 낙뢰는 철파이프가 없으면 아무 일도 없다 (오류 없이)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

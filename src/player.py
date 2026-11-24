@@ -473,11 +473,34 @@ class Player(TileBody):
     def has_weapon(self, weapon_id):
         return any(w is not None and w.weapon_id == weapon_id for w in self.weapons)
 
-    def give_weapon(self, weapon_id):
-        """두 번째 칸에 무기를 넣고 바로 든다. 이미 다른 무기가 있으면 바꾼다 (철파이프는 늘 첫 칸)."""
+    def give_weapon(self, weapon_id, slot=None):
+        """무기를 얻어 바로 든다 (v8 두 칸 자유). 이미 가진 무기면 그것을 들 뿐이다. 빈 칸이 있으면 거기에 넣고,
+        두 칸이 다 찼으면 **들고 있지 않은** 칸의 무기와 바꾼다 (남길 무기를 들고 주우면 된다). slot을 주면 그 칸에 넣는다."""
         from weapon import WEAPONS
-        self.weapons[1] = WEAPONS[weapon_id](self)
-        self.swap_weapon(1)
+        for i, w in enumerate(self.weapons):
+            if w is not None and w.weapon_id == weapon_id:
+                self.swap_weapon(i)
+                return i
+        if slot is None:
+            slot = 1 if self.weapons[1] is None else 0 if self.weapons[0] is None else 1 - self.slot
+        if slot == self.slot and hasattr(self.weapon, 'on_put_away'):
+            self.weapon.on_put_away()                # 들고 있던 무기를 바꾼다: 충전·돌진을 끊는다
+        self.weapons[slot] = WEAPONS[weapon_id](self)
+        if slot == self.slot:
+            self.weapon = self.weapons[slot]
+            assets.play_sound('pickup')
+        else:
+            self.swap_weapon(slot)
+        return slot
+
+    def set_loadout(self, first, second=None):
+        """두 칸을 통째로 정한다 (판 시작, 은신처 무기 걸이). 둘째 칸이 있으면 그것을, 없으면 첫 칸을 든다."""
+        from weapon import WEAPONS
+        if hasattr(self.weapon, 'on_put_away'):
+            self.weapon.on_put_away()
+        self.weapons = [WEAPONS[first](self), WEAPONS[second](self) if second and second != first else None]
+        self.slot = 1 if self.weapons[1] is not None else 0
+        self.weapon = self.weapons[self.slot]
 
     def drink_potion(self):
         """물약을 마신다 (Q). 체력 POTION_HEAL 회복. 마셨으면 True."""

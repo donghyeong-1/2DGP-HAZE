@@ -289,7 +289,8 @@ def test_weapon_rack_window_changes_the_weapon_now():
     p = new_player()
     npc_mode.kind, npc_mode.player, npc_mode.selected, npc_mode.note = 'armory', p, 0, ''
     keys = [r[3] for r in npc_mode.rows()]
-    assert keys == ['w_none', 'w_pistol', 'w_gauntlet', 'w_chain']
+    # v8 두 칸 자유: 첫 칸 넷 + 둘째 칸(비움 + 넷)
+    assert keys == ['f_pipe', 'f_pistol', 'f_gauntlet', 'f_chain', 'w_none', 'w_pipe', 'w_pistol', 'w_gauntlet', 'w_chain']
     npc_mode.act('w_pistol')
     assert p.weapons[1].weapon_id == 'pistol' and p.weapon is p.weapons[1]   # 은신처에서 바로 바뀐다
     assert meta.state['start_weapon'] == 'pistol'
@@ -305,6 +306,44 @@ def test_hideout_has_a_weapon_rack():
     st = stage_mod.Stage(p, name='hideout')
     st.start()
     assert 'armory' in [n.kind for n in st.npcs]
+
+def test_both_slots_are_free_and_saved():
+    """v8 1-1 (2026-11-24): 철파이프 고정을 풀었다. 무기 넷 중 아무 둘. 처음에는 지금처럼 철파이프 + 빈 칸."""
+    path = fresh()
+    assert meta.state['start_first'] == 'pipe'
+    assert meta.set_start_first('gauntlet') and meta.set_start_weapon('chain')
+    meta.load()
+    assert (meta.state['start_first'], meta.state['start_weapon']) == ('gauntlet', 'chain')
+    p = new_player()
+    meta.apply_to_player(p)
+    assert [w.weapon_id for w in p.weapons] == ['gauntlet', 'chain']
+    assert meta.set_start_weapon('pipe')                            # 첫 칸이 철파이프가 아니면 둘째 칸에 철파이프도 된다
+    assert not meta.set_start_weapon('gauntlet')                    # 두 칸에 같은 무기는 안 된다
+    assert not meta.set_start_first('laser')
+    with open(path, 'w', encoding='utf-8') as f:                    # 이상한 값은 기본값
+        f.write('{"start_first": 7, "start_weapon": "pipe"}')
+    meta.load()
+    assert (meta.state['start_first'], meta.state['start_weapon']) == ('pipe', None)
+
+
+def test_picking_the_second_slots_weapon_for_the_first_slot_swaps_them():
+    fresh()
+    meta.set_start_weapon('chain')                                  # 철파이프 + 사슬
+    assert meta.set_start_first('chain')                            # 첫 칸에 사슬을 고르면 둘이 자리를 바꾼다
+    assert (meta.state['start_first'], meta.state['start_weapon']) == ('chain', 'pipe')
+
+
+def test_weapon_rack_window_sets_the_first_slot_now():
+    import npc_mode
+    fresh()
+    p = new_player()
+    npc_mode.kind, npc_mode.player, npc_mode.selected, npc_mode.note = 'armory', p, 0, ''
+    npc_mode.act('f_pistol')
+    assert p.weapons[0].weapon_id == 'pistol' and p.weapons[1] is None and p.weapon is p.weapons[0]
+    npc_mode.act('w_pipe')
+    assert [w.weapon_id for w in p.weapons] == ['pistol', 'pipe']
+    assert (meta.state['start_first'], meta.state['start_weapon']) == ('pistol', 'pipe')
+
 
 
 if __name__ == '__main__':

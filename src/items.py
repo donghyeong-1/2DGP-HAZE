@@ -21,6 +21,8 @@ ITEMS = {
     'heal':    dict(name='물약', glyph='약', desc='물약 한 병 채우기 (Q로 마심, 정비방 전용)', price=3, color=(120, 235, 150)),
     'fury':    dict(name='균열의 분노', glyph='분', desc='이번 판 공격력 +30% (균열방 전용)', price=0, color=(200, 130, 255)),
     # 무기: 두 번째 칸에 들어가고 바로 든다 (Q·1·2로 철파이프와 바꾼다). 이미 다른 무기가 있으면 바뀐다
+    'w_pipe':     dict(name='철파이프', glyph='봉', desc='빠른 3연타, 공중 베기와 내려찍기', price=9,
+                     color=(200, 235, 245), weapon='pipe'),          # v8 두 칸 자유: 철파이프 없이 시작한 판에서만 황금방에 나온다
     'w_pistol':   dict(name='쌍권총', glyph='총', desc='좌우 번갈아 연사, 누르고 있으면 이어서 (구간이 오를수록 여러 발)', price=9,
                      color=(150, 245, 235), weapon='pistol'),
     'w_gauntlet': dict(name='헤이즈 건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 돌진해 박는 강타', price=9,
@@ -32,7 +34,7 @@ UPGRADES = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vi
 TRACK = {'power': 'growth', 'vigor': 'growth'}   # 같은 단계를 함께 쓰는 것 (기본 성장 택1)
 MAX_LEVEL = 3
 GOLD_POOL = list(UPGRADES)                 # 황금방에서 나오는 것 (+ 무기 하나)
-WEAPON_ITEMS = ['w_pistol', 'w_gauntlet', 'w_chain']   # 황금방 진열대 하나는 늘 무기다 (가진 무기는 빼고)
+WEAPON_ITEMS = ['w_pistol', 'w_gauntlet', 'w_chain', 'w_pipe']   # 황금방 진열대 하나는 늘 무기다 (가진 무기는 빼고)
 SHOP_UPGRADES = 3                          # 정비방 진열대 4개 = 업그레이드 3개 + 응급 치료
 
 

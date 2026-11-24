@@ -27,6 +27,7 @@ UPGRADES = {
 }
 ORDER = ('hp', 'attack', 'gauge', 'dash')
 START_WEAPONS = ('pistol', 'gauntlet', 'chain')
+ALL_WEAPONS = ('pipe', 'pistol', 'gauntlet', 'chain')      # v8 두 칸 자유: 두 칸 모두 이 넷 중에서 (서로 달라야 한다)
 LEGACY_WEAPONS = {'knife': 'pistol'}             # v7 (2026-11-24): 식칼이 쌍권총으로 바뀌었다 (예전 저장을 그대로 읽는다)
 
 
@@ -38,6 +39,7 @@ state = {}
 
 def _default():
     return {'crystals': 0, 'levels': {k: 0 for k in UPGRADES}, 'keeper': False, 'keepsake': None, 'start_weapon': None,
+            'start_first': 'pipe',
             'runs': 0, 'escapes': 0, 'best': '', 'hints': []}
 
 
@@ -69,8 +71,10 @@ def load():
     state['keeper'] = bool(data.get('keeper', False))
     keep = data.get('keepsake')
     state['keepsake'] = keep if isinstance(keep, str) and keep in items.ITEMS else None
+    first = migrate_weapon(data.get('start_first'))                 # v8 두 칸 자유: 첫 칸도 고른다 (기본 철파이프)
+    state['start_first'] = first if isinstance(first, str) and first in ALL_WEAPONS else 'pipe'
     start = migrate_weapon(data.get('start_weapon'))
-    state['start_weapon'] = start if isinstance(start, str) and start in START_WEAPONS else None
+    state['start_weapon'] = start if isinstance(start, str) and start in ALL_WEAPONS and start != state['start_first'] else None
     state['runs'] = max(0, _int(data.get('runs', 0)))
     state['escapes'] = max(0, _int(data.get('escapes', 0)))
     state['best'] = str(data.get('best', '') or '')
@@ -171,25 +175,35 @@ def set_keepsake(item_id):
 
 # ----- 무기 걸이 -----
 def set_start_weapon(weapon_id):
-    """판을 시작할 두 번째 칸 무기 (None = 철파이프만). 저장한다."""
+    """판을 시작할 둘째 칸 무기 (None = 비움). 첫 칸과 같은 무기는 안 된다. 저장한다."""
     ensure_loaded()
-    if weapon_id is not None and weapon_id not in START_WEAPONS:
+    if weapon_id is not None and (weapon_id not in ALL_WEAPONS or weapon_id == state['start_first']):
         return False
     state['start_weapon'] = weapon_id
     save()
     return True
 
 
-def equip_start_weapon(player, weapon_id):
-    """플레이어의 두 번째 칸을 이 무기로 (None이면 비우고 철파이프를 든다)."""
-    if weapon_id is None:
-        if player.slot == 1:
-            player.swap_weapon(0)
-        player.weapons[1] = None
-    elif not player.has_weapon(weapon_id):
-        player.give_weapon(weapon_id)
-    else:
-        player.swap_weapon(1)                      # 이미 두 번째 칸에 있다: 그것을 든다
+def set_start_first(weapon_id):
+    """판을 시작할 첫 칸 무기 (v8 두 칸 자유). 둘째 칸의 무기를 고르면 둘이 자리를 바꾼다. 저장한다."""
+    ensure_loaded()
+    if weapon_id not in ALL_WEAPONS:
+        return False
+    if weapon_id == state['start_weapon']:
+        state['start_weapon'] = state['start_first']
+    state['start_first'] = weapon_id
+    save()
+    return True
+
+
+def equip_loadout(player):
+    """플레이어의 두 칸을 지금 저장된 시작 무기로 (은신처 무기 걸이에서 고른 즉시)."""
+    player.set_loadout(state['start_first'], state['start_weapon'])
+
+
+def equip_start_weapon(player, weapon_id=None):
+    """예전 이름 (무기 걸이): 저장된 두 칸을 그대로 입힌다."""
+    equip_loadout(player)
 
 
 # ----- 새 판에 적용 -----
@@ -197,11 +211,14 @@ def apply_to_player(player):
     """새 판을 시작하는 플레이어에게 영구 강화와 맡긴 물건을 준다."""
     ensure_loaded()
     apply_levels(player, state['levels'])
-    if state['start_weapon']:
-        player.give_weapon(state['start_weapon'])  # 무기 걸이에서 고른 무기 (맡겨 둔 무기가 있으면 아래에서 바뀐다)
+    if (state['start_first'], state['start_weapon']) != ('pipe', None):
+        player.set_loadout(state['start_first'], state['start_weapon'])   # 무기 걸이에서 고른 두 칸 (맡겨 둔 무기가 있으면 아래에서 바뀐다)
     keep = state['keepsake']
+    if keep and 'weapon' in items.ITEMS[keep]:
+        player.give_weapon(items.ITEMS[keep]['weapon'], slot=1)           # 맡겨 둔 무기는 둘째 칸에 (시작 무기를 이긴다)
+    elif keep:
+        items.apply(player, keep)                  # 업그레이드는 1단계(한 번 적용)
     if keep:
-        items.apply(player, keep)                  # 업그레이드는 1단계(한 번 적용), 무기는 두 번째 칸에
         state['keepsake'] = None                   # 한 번 받으면 사라진다
         save()
     return keep

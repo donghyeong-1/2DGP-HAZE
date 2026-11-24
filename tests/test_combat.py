@@ -1490,8 +1490,11 @@ def test_weapon_slots_swap_with_q_and_numbers():
     assert p.weapon.weapon_id == 'pipe'
     p.swap_weapon(1)
     assert p.weapon.weapon_id == 'pistol'
-    p.give_weapon('gauntlet')                                            # 두 번째 칸은 바뀐다 (철파이프는 그대로)
+    p.swap_weapon(0)                                                     # 철파이프를 든 채로 줍는다
+    p.give_weapon('gauntlet')                                            # v8 두 칸 자유: 들고 있지 않은 칸(쌍권총)이 바뀐다
     assert p.weapons[0].weapon_id == 'pipe' and p.weapon.weapon_id == 'gauntlet' and not p.has_weapon('pistol')
+    p.give_weapon('chain')                                               # 건틀릿을 들고 있다: 이번에는 철파이프가 바뀐다
+    assert [w.weapon_id for w in p.weapons] == ['chain', 'gauntlet'] and p.weapon.weapon_id == 'chain'
 
 # ----- 페이드(약해진 상태)에서는 모든 공격이 똑같이 약해진다 (대시·점프 공격만 강하게 나가던 버그) -----
 def _fade_world(gap):

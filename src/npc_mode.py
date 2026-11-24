@@ -76,11 +76,16 @@ def rows():
         return [('맡긴 물건', name, '다음 판 시작 때 받습니다 (업그레이드는 1단계로, 무기는 그대로)', None),
                 ('맡기는 법', '', '판이 끝나면 사망·탈출 화면에서 맡길 물건을 고릅니다', None)]
     if kind == 'armory':
-        now = meta.state['start_weapon']
-        out = [('철파이프만', '고름' if now is None else '', '두 번째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none')]
-        for wid in meta.START_WEAPONS:
+        first, now = meta.state['start_first'], meta.state['start_weapon']   # v8 두 칸 자유: 첫 칸 넷 + 둘째 칸(비움 + 넷)
+        out = []
+        for wid in meta.ALL_WEAPONS:
             info = items.ITEMS['w_' + wid]
-            out.append((info['name'], '고름' if now == wid else '', info['desc'], 'w_' + wid))
+            out.append(('첫 칸 · ' + info['name'], '고름' if first == wid else '', info['desc'], 'f_' + wid))
+        out.append(('둘째 칸 · 비움', '고름' if now is None else '', '둘째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none'))
+        for wid in meta.ALL_WEAPONS:
+            info = items.ITEMS['w_' + wid]
+            desc = '첫 칸의 무기입니다 (첫 칸을 먼저 바꾸세요)' if wid == first else info['desc']
+            out.append(('둘째 칸 · ' + info['name'], '고름' if now == wid else '', desc, 'w_' + wid))
         return out
     s = meta.state
     return [(line, '', '', None) for line in STORY['archivist']] + [
@@ -92,13 +97,16 @@ def act(key):
     global note, result
     if key is None:
         return
-    if kind == 'armory' and key.startswith('w_'):
+    if kind == 'armory' and key[:2] in ('w_', 'f_'):
         wid = None if key == 'w_none' else key[2:]
-        meta.set_start_weapon(wid)
+        ok = meta.set_start_first(wid) if key.startswith('f_') else meta.set_start_weapon(wid)
+        if not ok:
+            note, result = '두 칸에 같은 무기를 걸 수 없습니다', 'fail'
+            return
         if player is not None:
-            meta.equip_start_weapon(player, wid)
-        name = '철파이프만' if wid is None else items.ITEMS[key]['name']
-        note, result = f'{name}{_ro(name)} 시작합니다', 'ok'
+            meta.equip_loadout(player)
+        names = [items.ITEMS['w_' + w]['name'] for w in (meta.state['start_first'], meta.state['start_weapon']) if w]
+        note, result = ' + '.join(names) + f'{_ro(names[-1])} 시작합니다', 'ok'
         return
     if key == 'unlock':
         ok = meta.unlock_keeper()
@@ -145,7 +153,12 @@ def portrait_spots():
 def _buttons():
     rs = rows()
     top = PANEL_Y + PANEL_H - 170
-    out = [kit.Button(str(i), r[0], PANEL_X + 40, top - i * ROW_H - 40, PANEL_W - 80, ROW_H - 12) for i, r in enumerate(rs)]
+    if kind == 'armory':                         # v8 두 칸 자유: 줄이 아홉이라 두 열로 (왼쪽 = 첫 칸 넷, 오른쪽 = 둘째 칸 다섯)
+        cw, rh = (PANEL_W - 100) // 2, 80
+        out = [kit.Button(str(i), r[0], PANEL_X + 40 + (0 if i < 4 else cw + 20), top - (i if i < 4 else i - 4) * rh - 28, cw, rh - 12)
+               for i, r in enumerate(rs)]
+    else:
+        out = [kit.Button(str(i), r[0], PANEL_X + 40, top - i * ROW_H - 40, PANEL_W - 80, ROW_H - 12) for i, r in enumerate(rs)]
     out.append(kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 36, 360, 60))
     return out
 
@@ -187,17 +200,22 @@ def draw():
         b = buttons[i]
         hot = i == selected
         kit.row(b.x, b.y, b.w, b.h, hot)
-        kit.text(b.x + 34, b.y + b.h - 30, title, (240, 248, 255) if hot or key else (190, 202, 225),
-                 small=key is None and kind == 'archivist')
-        if desc:
-            kit.text(b.x + 34, b.y + 22, desc, (140, 155, 182) if hot else kit.FAINT, small=True)
-        if kind == 'armory':                                       # 무기 그림 (1배)
-            img = assets.image(f'ui/icon_{"w_pipe" if key == "w_none" else key}.png')
-            assets.draw_image(img, b.x + b.w - 200, b.y + (b.h - img.h) // 2)
+        if kind == 'armory':                                       # 두 열: 한 줄에 이름·무기 그림·고름만, 설명은 고른 줄 것만 아래에
+            kit.text(b.x + 28, b.y + b.h // 2, title, (240, 248, 255) if hot else (190, 202, 225))
+            if key != 'w_none':
+                img = assets.image(f'ui/icon_w_{key[2:]}.png')     # 무기 그림 (1배)
+                assets.draw_image(img, b.x + b.w - 116, b.y + (b.h - img.h) // 2)
+            if hot and desc:
+                kit.text(W // 2, PANEL_Y + 152, desc, (170, 185, 210), small=True, center=True)
+        else:
+            kit.text(b.x + 34, b.y + b.h - 30, title, (240, 248, 255) if hot or key else (190, 202, 225),
+                     small=key is None and kind == 'archivist')
+            if desc:
+                kit.text(b.x + 34, b.y + 22, desc, (140, 155, 182) if hot else kit.FAINT, small=True)
         if value:
             ok = key is None or kind == 'armory' or key == 'unlock' and meta.state['crystals'] >= config.META_KEEPER_PRICE or (
                 key in meta.UPGRADES and meta.can_buy(key))
-            kit.text(b.x + b.w - 30, b.y + b.h // 2, value, (255, 225, 140) if ok else (130, 140, 160), right=True)
+            kit.text(b.x + b.w - (16 if kind == 'armory' else 30), b.y + b.h // 2, value, (255, 225, 140) if ok else (130, 140, 160), right=True)
     buttons[-1].draw(selected == len(buttons) - 1)
     for (x, y), name in zip(portrait_spots(), faces()):          # 대화 초상화 (1배)
         if name is None:

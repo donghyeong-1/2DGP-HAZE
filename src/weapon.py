@@ -431,16 +431,19 @@ class FinisherCut:
     색은 부르는 쪽이 준다 (처형 = 게이지 구간·강화 단계 색, 궁극기 = 무기 색). 시간은 실제 시간으로 흐른다
     (느려진 dt를 시간 배율로 나눈다). 화면을 완전히 멈추지 않는다. start를 주면 그 시점부터(궁극기는 예고 없이 0.14부터)."""
     T1, T2, END = 0.14, 0.24, 0.68
+    MAX_VICTIMS = 6
     CLEAR = ('TintFx', 'Bloom', 'SheetEffect', 'SlashMark', 'ImpactBurst', 'ImpactRing', 'DashStreak', 'PathSlash', 'BlurSmear',
              'ExtraHits', 'BodyGhost', 'LightPillar')
 
     def __init__(self, x, y, color, player, enemy=None, start=0.0, slow=(0.42, 0.12), clear=True, victims=()):
         self.ex, self.ey, self.color, self.player, self.enemy = x, y, color, player, enemy
-        self.victims = {}                          # 맞은 적 {id: [적, (그림, 발 x, 발 y, 보는 쪽)]}: 끝의 블러가 이들도 번지게 한다
-        for v in ([enemy] if enemy is not None else []) + list(victims):
+        # 맞은 적 {id: [적, (그림, 발 x, 발 y, 보는 쪽), (가운데 x, y)]}: 폭발이 적마다 터지고, 끝의 블러가 이들도 번지게 한다
+        self.victims = {}
+        near = sorted(victims, key=lambda v: abs(v.x - x))[:self.MAX_VICTIMS]      # 많으면 가운데에서 가까운 적부터
+        for v in ([enemy] if enemy is not None else []) + list(near):
             snap = _enemy_snap(v)
             if snap:
-                self.victims[id(v)] = [v, snap]
+                self.victims[id(v)] = [v, snap, v.center]
         self.deep = _deep(color)
         self.rt = start
         self.fresh = True
@@ -472,6 +475,7 @@ class FinisherCut:
         for pair in self.victims.values():                             # 살아 있는 동안은 지금 자리·그림을 따라간다 (죽으면 마지막 모습)
             if pair[0].alive:
                 pair[1] = _enemy_snap(pair[0]) or pair[1]
+                pair[2] = pair[0].center
         if self.step == 0 and self.rt >= self.T1:
             self.step = 1
             effects.add_trauma(config.SHAKE_FINISHER)
@@ -484,7 +488,8 @@ class FinisherCut:
             effects.add_trauma(config.SHAKE_FINISHER * 1.6)
         if self.step == 2 and self.rt >= 0.45:                         # 원반이 사라진 뒤에 가로로 번지는 블러 (영상의 순서)
             self.step = 3
-            effects.spawn_blur(self.ex, self.ey, self.deep, self.player, victims=[snap for _, snap in self.victims.values()])
+            effects.spawn_blur(self.ex, self.ey, self.deep, self.player, victims=[v[1] for v in self.victims.values()],
+                               centers=[v[2] for v in self.victims.values()])
         if self.rt >= self.END:
             game_world.remove_object(self)
 
@@ -517,6 +522,18 @@ class FinisherCut:
         n = effects.sheet_info(name)['columns']
         effects.draw_tint_sheet(name, self.ex, self.ey, (i + 0.5) / n, color)
 
+    def _spots(self):
+        """폭발이 터지는 자리들: 맞은 적이 있으면 그 적들의 가운데(처형은 그 적 하나, 궁극기는 맞은 적마다), 없으면 연출의 중심."""
+        return [v[2] for v in self.victims.values()] or [(self.ex, self.ey)]
+
+    def _rows(self):
+        """빛줄기가 지나는 높이들: 폭발 자리의 높이를 가까운 것끼리 묶는다 (같은 바닥의 적들은 한 줄)."""
+        rows = []
+        for _, y in sorted(self._spots(), key=lambda s: s[1]):
+            if not rows or y - rows[-1] > 60:
+                rows.append(y)
+        return rows[:3]
+
     def draw(self):
         rt, ex, ey = self.rt, self.ex, self.ey
         p, e = self.player, self.enemy
@@ -525,36 +542,41 @@ class FinisherCut:
             i = min(4, int(rt / (self.T1 / 5)))
             self._stamp('exec-crescent', i, (150, 150, 162) if i == 0 else white if i == 1 else self.color)
             return
-        if e is not None and e.alive and self.frame is not None and rt < 0.34:     # 적은 검은 실루엣
-            sprites.draw_silhouette(*self.frame, e.x, e.y, e.face_dir, (10, 6, 12), 0.9)
+        if rt < 0.34:                                                  # 맞은 적은 검은 실루엣 (처형의 적, 궁극기에 맞은 적들)
+            for v, (frame, vx, vy, face), _ in self.victims.values():
+                if v.alive:
+                    sprites.draw_silhouette(*frame, vx, vy, face, (10, 6, 12), 0.9)
         if rt < 0.52:                                                  # 주인공은 흰 실루엣 (끝에서 색이 돌아온다). 별·원반보다 아래에
             a = 1.0 if rt < 0.42 else 1.0 - (rt - 0.42) / 0.1
             sprites.draw_silhouette(*p._body_frame(), p.x, p.y, p.draw_face(), white, a)
         # 가운데 폭발은 구운 시트 fin-burst 한 장이 흐른다 (haze-fx 스킬로 제작: 가시 -> 작은 원반 -> 큰 별 -> 진한 원반 -> 고리 -> 토막)
         # 화면 전체를 가르는 빛줄기와 검은 띠만 여기서 그린다
-        if rt < 0.173:                                                 # 첫 일격의 흰 빛줄기 (위아래 색 가장자리)
-            self._glow_row(ey, self.color, 0.5)
-            self._band(ey, 22, self.color)
-            self._band(ey - 12, 4, (90, 130, 255))
-            self._band(ey, 14, white)
-        elif 0.207 <= rt < self.T2:                                    # 검은 띠 (빛줄기의 잔상)
-            self._band(ey, 16, (2, 0, 2), 0.9)
-            assets.draw_rect_color(int(ex) - 2, int(ey) - 150, 4, 300, (2, 0, 2), 0.8)
-        elif self.T2 <= rt < 0.273:                                    # 둘째 일격의 흰 빛줄기
-            self._glow_row(ey, self.color, 0.6)
-            self._band(ey, 24, self.color)
-            self._band(ey - 13, 4, (90, 130, 255))
-            self._band(ey, 16, white)
-        elif 0.273 <= rt < 0.373:                                      # 진한 원반 동안: 색 빛줄기
-            self._glow_row(ey, deep, 0.4)
-            self._band(ey, 10, deep)
-            self._band(ey, 2, white, 0.6)
-        elif 0.373 <= rt < 0.43:                                       # 고리로 비워질 때: 검은 선
-            self._band(ey, 6, (2, 0, 2), 0.85)
-        elif rt >= 0.43:                                               # 가는 흰 선이 스러진다
-            k = max(0.0, 1.0 - (rt - 0.43) / (self.END - 0.43))
-            self._band(ey, 4 if k > 0.5 else 2, white, k)
-        effects.draw_tint_sheet('fin-burst', ex, ey, min(0.999, (rt - self.T1) / 0.54), deep)
+        for ey in self._rows():
+            if rt < 0.173:                                             # 첫 일격의 흰 빛줄기 (위아래 색 가장자리)
+                self._glow_row(ey, self.color, 0.5)
+                self._band(ey, 22, self.color)
+                self._band(ey - 12, 4, (90, 130, 255))
+                self._band(ey, 14, white)
+            elif 0.207 <= rt < self.T2:                                # 검은 띠 (빛줄기의 잔상)
+                self._band(ey, 16, (2, 0, 2), 0.9)
+            elif self.T2 <= rt < 0.273:                                # 둘째 일격의 흰 빛줄기
+                self._glow_row(ey, self.color, 0.6)
+                self._band(ey, 24, self.color)
+                self._band(ey - 13, 4, (90, 130, 255))
+                self._band(ey, 16, white)
+            elif 0.273 <= rt < 0.373:                                  # 진한 원반 동안: 색 빛줄기
+                self._glow_row(ey, deep, 0.4)
+                self._band(ey, 10, deep)
+                self._band(ey, 2, white, 0.6)
+            elif 0.373 <= rt < 0.43:                                   # 고리로 비워질 때: 검은 선
+                self._band(ey, 6, (2, 0, 2), 0.85)
+            elif rt >= 0.43:                                           # 가는 흰 선이 스러진다
+                k = max(0.0, 1.0 - (rt - 0.43) / (self.END - 0.43))
+                self._band(ey, 4 if k > 0.5 else 2, white, k)
+        for sx, sy in self._spots():                                   # 폭발은 자리마다 (2026-11-24 사용자: 궁극기도 적마다 대시 마무리처럼)
+            if 0.207 <= rt < self.T2:
+                assets.draw_rect_color(int(sx) - 2, int(sy) - 150, 4, 300, (2, 0, 2), 0.8)
+            effects.draw_tint_sheet('fin-burst', sx, sy, min(0.999, (rt - self.T1) / 0.54), deep)
 
 
 class DashExecution(FinisherCut):

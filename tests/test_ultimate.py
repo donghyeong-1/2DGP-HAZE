@@ -194,6 +194,23 @@ def test_finale_blur_also_smears_the_enemies_that_were_hit():
         assert frame[0] is not None and face in (-1, 1)
 
 
+def test_finale_bursts_on_every_enemy_that_was_hit_not_between_them():
+    """2026-11-24 사용자: 궁극기 마무리가 대시 마무리처럼 적에게 터져야 한다. 예전에는 적들의 가운데(빈 자리)에서 한 번만 터졌다."""
+    room, p, (a, b, far), u = cast('pipe', [220, -380, 900])
+    cut = []
+
+    def watch():
+        for o in game_world.world[game_world.LAYER_EFFECT]:
+            if type(o).__name__ == 'FinisherCut' and o not in cut:
+                cut.append(o)
+    run_out_ultimate(each=watch)
+    assert cut, '마무리 연출이 없다'
+    spots = cut[0]._spots()
+    assert len(spots) == 2, spots                                        # 맞은 둘의 자리에서
+    for e in (a, b):
+        assert any(abs(sx - e.center[0]) < 60 for sx, _ in spots), (spots, e.center)
+
+
 def test_pistol_lockon_shoots_every_enemy_in_sight_and_lets_you_move():
     room, p, (a, b, far), u = cast('pistol', [150, -700, 1250], player_x=1300.0)
     x0 = p.x

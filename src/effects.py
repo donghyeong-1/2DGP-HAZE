@@ -566,9 +566,14 @@ class BlurSmear:
     """블러 느낌 (사용자 요청: 처형·궁극기): 가로로 길게 번지는 빛 띠 여러 겹 + 흰 속도선 + 주인공 잔상이 양옆으로 번졌다 모인다.
     화면을 읽어 흐리는 것이 아니라 빛 층을 가로로 늘어놓아 만든다 (pico2d에는 흐림 효과가 없다)."""
 
-    def __init__(self, x, y, color, player=None, life=0.32, reach=620, victims=None):
+    def __init__(self, x, y, color, player=None, life=0.32, reach=620, victims=None, centers=None):
         self.x, self.y, self.color, self.player, self.life, self.reach = x, y, color, player, life, reach
         self.victims = list(victims or [])        # 맞은 적들 [(그림 (세트, 번호), 발 x, 발 y, 보는 쪽)]: 주인공처럼 양옆으로 번진다
+        self.centers = list(centers or [])        # 맞은 적들의 가운데: 그 자리마다 빛 띠와 속도선이 번진다
+        self.vlines = [(cx + random.uniform(-340, 340), cy + random.uniform(-70, 70), random.uniform(50, 200), cx)
+                       for cx, cy in self.centers for _ in range(12)]
+        if victims:
+            self.life = max(self.life, 0.4)       # 적까지 번질 때는 조금 더 길게 보여 준다
         self.time = 0.0
         self.lines = [(random.uniform(-reach, reach), random.uniform(-150, 150), random.uniform(60, 260)) for _ in range(26)]
 
@@ -597,14 +602,28 @@ class BlurSmear:
                 for side in (-1, 1):
                     sprites.draw_silhouette(*p._body_frame(), p.x + side * d * (1.0 - t), p.y, p.draw_face(), self.color,
                                             max(0.0, 0.34 - 0.09 * i) * k)
-        for frame, vx, vy, face in self.victims:                        # 맞은 적도 같이 번진다 (2026-11-24 사용자 요청)
-            for i, d in enumerate((26, 54, 86)):
+        # 맞은 적도 같이 번진다 (2026-11-24 사용자: '대시 마무리처럼 이펙트가 나가면서 블러가 화려하게 싹 들어가야 한다')
+        # 적마다: 가로 빛 띠가 깔리고, 흰 속도선이 바깥에서 적 쪽으로 빨려들고, 색 잔상 네 겹이 멀리 벌어졌다가 빠르게 모인다
+        pull = (1.0 - t) ** 2                                           # 처음에 넓게, 금방 모인다 (싹 들어가는 느낌)
+        img.opacify(0.2 * k)
+        for cx, cy in self.centers:
+            for off in range(-280, 281, 70):
+                assets.draw_image_added(img, int(cx + off * (0.4 + 0.6 * pull)), int(cy - img.h // 2), color=self.color, times=1)
+        img.opacify(1.0)
+        for lx, ly, ln, cx in self.vlines:
+            x = cx + (lx - cx) * (0.25 + 0.75 * pull)
+            w = int(ln * (0.3 + 0.7 * pull))
+            if w >= 4:
+                assets.draw_rect_color(int(x - w / 2), int(ly) // 2 * 2, w, 2, (255, 255, 255), 0.8 * k)
+        for frame, vx, vy, face in self.victims:
+            for i, d in enumerate((40, 84, 132, 184)):
                 for side in (-1, 1):
-                    sprites.draw_silhouette(*frame, vx + side * d * (1.0 - t), vy, face, self.color, max(0.0, 0.4 - 0.1 * i) * k)
+                    sprites.draw_silhouette(*frame, vx + side * d * pull, vy, face, self.color if i else (255, 255, 255),
+                                            max(0.0, 0.6 - 0.13 * i) * min(1.0, k * 1.6))
 
 
-def spawn_blur(x, y, color, player=None, victims=None):
-    game_world.add_object(BlurSmear(x, y, color, player, victims=victims), game_world.LAYER_EFFECT)
+def spawn_blur(x, y, color, player=None, victims=None, centers=None):
+    game_world.add_object(BlurSmear(x, y, color, player, victims=victims, centers=centers), game_world.LAYER_EFFECT)
 
 
 def zone_glow(player):

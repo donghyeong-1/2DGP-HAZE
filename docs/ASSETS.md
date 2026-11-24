@@ -341,3 +341,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-25: 이벤트 방·장치 소품 `assets/ui/event_spring_1.png`·`event_spring_2.png`·`event_spring_dry.png`(헤이즈 샘), `hud_map_event.png`(미니맵 표시), `device_crate.png`·`device_crate_broken.png`(슬럼 상자), `device_vent.png`·`device_vent_hot.png`(공장 증기 분출구), `device_laser.png`(탑 감시 레이저의 머리): `tools/make_event_props.py`(code-drawn, numpy + Pillow, 이미지 모델 없음).
 - 2026-11-25: `assets/sprites/unified/npc_drifter_idle_1.png`·`npc_drifter_idle_2.png`(떠돌이 죄수): 우리 그림인 보관인(`npc_keeper_idle_1~2.png`, Codex T22)의 색을 `tools/make_event_props.py`로 바꾼 것(청록 옷 -> 바랜 적갈색, 조금 어둡게). 새 출처 없음.
 - 2026-11-25: `assets/effects/steam-jet.png·json`, `assets/light/glow_steam-jet.png`(공장 증기 분출): `tools/make_fx2.py` _steam_setup·_steam_draw(code-drawn, haze-fx 절차로 모아 보기 세 번).
+- 2026-11-25: 화면 밖 적 표시 화살표 `assets/ui/hud_offscreen_l·r·u·d.png`와 `_dim` 4장(깜빡임용): `tools/make_offscreen_marker.py`(code-drawn, numpy + Pillow, 논리 16x16을 정수 2배, 90도 단위로 돌려 네 방향. 이미지 모델 없음).

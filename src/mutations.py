@@ -158,6 +158,7 @@ MUTATIONS = {
     # v7 사슬 갈래
     'gather_more': {'family': 'chain_gather', 'name': '한 마리 더', 'desc': '사슬로 끌어오는 적 +1'},
     'gather_stun': {'family': 'chain_gather', 'name': '목줄', 'desc': f'끌려온 적 {GATHER_STUN}초 기절'},
+    'gather_wall': {'family': 'chain_gather', 'name': '벽 걸기', 'desc': '아무도 걸리지 않은 사슬이 벽에 닿으면 그 벽으로 날아갑니다'},   # v8 (2026-11-25 사용자 요청)
     'gather_clash': {'family': 'chain_gather', 'name': '박치기', 'desc': '끌려온 적끼리 부딪혀 피해를 입습니다 (모든 구간)'},
     'gather_evo': {'family': 'chain_gather', 'tier': 'evo', 'ready': True, 'name': '소용돌이',
                    'desc': f'끌어온 자리에 소용돌이가 생겨 주변 적을 {VORTEX[2]}초 동안 묶습니다'},
@@ -562,6 +563,11 @@ WEAPON_NAMES = {'pipe': '철파이프', 'pistol': '쌍권총', 'gauntlet': '건�
 RARITY = {'base': 'common', 'evo': 'rare', 'duo': 'legendary'}
 
 
+def chain_pulls(player):
+    """사슬이 맞은 적을 끌어오는가 (v8): 모으기 갈래의 증강을 하나라도 가졌을 때. E 강화 일격은 이것과 상관없이 끌어온다."""
+    return family_count(player, 'chain_gather') >= 1
+
+
 def evolution_of(family):
     for mid, m in MUTATIONS.items():
         if m['family'] == family and tier(mid) == 'evo':
@@ -599,6 +605,8 @@ def card_info(player, mid):
             note, hot = f'진화 열림: {name}', True
         else:
             note = f'진화까지 {left}개: {name}'
+    if fam_id == 'chain_gather' and t == 'base' and family_count(player, 'chain_gather') == 0:
+        note = '모으기 갈래를 얻으면 사슬이 적을 끌어옵니다'      # v8: 사슬의 기본은 타격, 당기기는 이 갈래부터
     weapon = fam.get('weapon')
     if weapon and weapon not in _held_weapons(player):
         note = f'{WEAPON_NAMES.get(weapon, weapon)} 장착 시 적용 · ' + note

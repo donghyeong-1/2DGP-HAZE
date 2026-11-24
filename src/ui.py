@@ -367,7 +367,9 @@ class GameUI:
             return f'{prefix}{count}발 {shape}', (255, 225, 120) if prefix else DIM
         if w.weapon_id == 'chain':
             count, _, stun = w.grip()
-            text = prefix + ('관통 끌기' if count > 3 else f'{count}마리 끌기')
+            import mutations
+            pulls = g.enhanced or mutations.chain_pulls(w.owner)     # v8: 기본은 타격, 모으기 갈래 증강이나 강화면 끌기
+            text = prefix + ('관통 ' if count > 3 else f'{count}마리 ') + ('끌기' if pulls else '타격')
             return (text + ' · 기절', (255, 225, 120)) if stun else (text, (255, 225, 120) if prefix else DIM)
         if kind in ('gauntlet_dash', 'gauntlet_air'):
             label = '대시' if kind == 'gauntlet_dash' else '공중'

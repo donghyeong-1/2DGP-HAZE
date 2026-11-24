@@ -2300,6 +2300,10 @@ class ChainHook:
         self.tip = self.origin()
         import mutations
         p = weapon.owner
+        self.pulls = enhanced or mutations.chain_pulls(p)           # v8: 기본은 타격. 끌어오기는 모으기 갈래 증강이나 E 강화일 때만
+        if not self.pulls:
+            self.damage *= config.CHAIN_LASH_MULT                  # 끌어오지 않는 타격은 그만큼 세다
+        self.wall_zip = mutations.has(p, 'gather_wall')             # v8 증강 '벽 걸기'
         self.pierce = mutations.has(p, 'pierce_through')            # v7 '꿰뚫기': 끌어오는 수를 넘어도 계속 날아가며 맞힌다
         self.ramp = mutations.PIERCE_RAMP if mutations.has(p, 'pierce_ramp') else 0.0
         self.bounces = mutations.PIERCE_BOUNCES if mutations.has(p, 'pierce_evo') else 0   # v7 진화 '반사 사슬'
@@ -2340,6 +2344,13 @@ class ChainHook:
             if self.bounces > 0 and self.dist < self.reach:
                 self._bounce(room, prev)
                 return
+            if self.wall_zip and not self.hooked:                   # v8 '벽 걸기': 빈 사슬이 벽에 닿았다 -> 그 벽으로 날아간다
+                import forms
+                self.tip = prev
+                forms.start_wall_zip(self.weapon, prev)
+                self.phase = 'anchor'
+                assets.play_sound('chain_clash')
+                return
             self._end_out()
             return
         h = config.CHAIN_HOOK_HB / 2
@@ -2362,14 +2373,22 @@ class ChainHook:
                 effects.spawn_impact(ex, ey, self.dx, self.dy, 8, CHAIN_HI)
                 killed = self.weapon._hit(enemy, damage, config.CHAIN_GAIN, self.fx, big=self.enhanced,
                                           shake=0.7, stop=0.5, blast=self.enhanced, extra=False)
-                if not killed and enemy.pullable and len(self.pulled) < self.count:
+                if self.pulls and not killed and enemy.pullable and len(self.pulled) < self.count:
                     self.pulled.append(enemy)
                     enemy.hold(0.2)
+                elif not self.pulls and not killed and self.stun:           # 끌어오지 않는 타격: 위험 구간의 기절은 맞은 자리에서
+                    enemy.hold(config.CHAIN_STUN)
                 if len(self.hooked) >= self.count and not self.pierce:
                     self._end_out()
                     return
         if self.dist >= self.reach:
             self._end_out()
+
+    def _update_anchor(self, dt):
+        """벽에 박힌 채 주인공이 날아오기를 기다린다 (v8 '벽 걸기'). 이동이 끝나면 사라진다."""
+        st = getattr(self.weapon, 'form_state', None)
+        if st is None or st.get('kind') != 'zip':
+            self._done()
 
     def _bounce(self, room, prev):
         """반사 사슬: 벽에 닿기 직전 점에서 방향을 꺾는다. 가로로 막혔으면 dx, 세로로 막혔으면 dy를 뒤집는다."""

@@ -20,6 +20,8 @@ def setup(gauge, gaps):
     """플레이어 오른쪽 gaps 거리마다 움직이지 않는 슬럼을 세우고 사슬을 든다. 적은 체력을 크게 해 죽지 않는다."""
     room, p = tc.make_world()
     p.give_weapon('chain')
+    import mutations
+    mutations.give(p, 'gather_wall')        # v8: 끌어오기는 모으기 갈래 증강부터 (이 파일은 끌어오는 사슬의 규칙을 본다)
     tc.set_gauge(p, gauge)
     foes = []
     for gap in gaps:

@@ -252,10 +252,33 @@ def chain_attack(w):
     return True
 
 
+def start_wall_zip(w, point):
+    """증강 '벽 걸기' (v8): 벽에 박힌 사슬을 타고 그 점으로 날아간다. 형태와 상관없이 쓴다."""
+    w.form_state = dict(kind='zip', target=None, point=point, t=0.0, hit=set(), v=None)
+
+
 def _tick_zip(w, st, dt):
     p, e = w.owner, st['target']
     st['t'] += dt
     cx, cy = p.center
+    if e is None:                                                     # 벽으로: 가까워지면(또는 막히면) 멈춘다
+        ex, ey = st['point']
+        d = math.hypot(ex - cx, ey - cy)
+        fx = w._fx(False)
+        for o in w._targets(lambda o: id(o) not in st['hit'] and math.hypot(o.center[0] - cx, o.center[1] - cy) < 80):
+            st['hit'].add(id(o))                                      # 날아가며 스친 적
+            w._hit(o, w._damage(config.FORM_ZIP_MULT * 0.6), config.GAIN_HIT, fx, extra=False)
+        stuck = st.get('last') is not None and math.hypot(cx - st['last'][0], cy - st['last'][1]) < 2.0 and st['t'] > 0.08
+        st['last'] = (cx, cy)
+        if d <= config.CHAIN_WALL_STOP or stuck or st['t'] >= config.FORM_ZIP_TIME or p.state in ('HIT', 'DEAD') or p.stunned:
+            cancel(w)
+            p.vx = 0.0
+            p.vy = max(p.vy, 220.0)                                   # 벽 앞에서 살짝 떠오른다 (이어서 뛰거나 칠 수 있다)
+            return
+        flat = abs(ey - cy) < 40 and p.on_ground
+        st['v'] = ((ex - cx) / d * config.FORM_ZIP_SPEED, None if flat else (ey - cy) / d * config.FORM_ZIP_SPEED)
+        st['line'] = (cx, cy, ex, ey)
+        return
     ex, ey = e.center
     d = math.hypot(ex - cx, ey - cy)
     fx = w._fx(False)

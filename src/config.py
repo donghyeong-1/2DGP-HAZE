@@ -241,6 +241,8 @@ META_KEEPER_PRICE = 25       # 보관인 보관 칸 열기
 RIFT_FURY_ATTACK = 0.30
 # 헤이즈 사슬 (중거리 제어형). CHAIN_ZONE: 구간 -> (끌 수 있는 적 수, 사거리 배율, 끌려온 적 기절·충돌)
 CHAIN_DAMAGE = 20
+CHAIN_LASH_MULT = 1.35       # v8: 끌어오지 않는 기본 타격의 피해 배율 (당기기는 모으기 갈래 증강이나 E 강화로)
+CHAIN_WALL_STOP = 56         # v8 증강 '벽 걸기': 벽 앞 이만큼에서 멈춘다(px)
 CHAIN_RANGE = 420.0          # 노멀 사거리(px). 각성부터 x1.3
 CHAIN_ZONE = {'DEAD': (1, 1.0, False), 'FADE': (1, 1.0, False), 'NORMAL': (1, 1.0, False),
               'AWAKE': (2, 1.3, False), 'CRITICAL': (2, 1.3, True), 'OVERLOAD': (2, 1.3, True)}

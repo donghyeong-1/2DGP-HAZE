@@ -27,7 +27,7 @@ ITEMS = {
                      color=(150, 245, 235), weapon='pistol'),
     'w_gauntlet': dict(name='건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 돌진해 박는 강타', price=9,
                      color=(120, 220, 245), weapon='gauntlet'),
-    'w_chain':    dict(name='사슬', glyph='사', desc='맞은 적을 끌어옴 (끌려온 적마다 게이지 +2%)', price=9,
+    'w_chain':    dict(name='사슬', glyph='사', desc='사슬을 날려 멀리 있는 적을 칩니다 (증강을 얻으면 끌어옵니다)', price=9,
                      color=(170, 160, 255), weapon='chain'),
 }
 UPGRADES = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 단계가 있는 것 (7종, 기본 성장은 둘)

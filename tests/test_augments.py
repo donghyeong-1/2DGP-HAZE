@@ -30,7 +30,7 @@ def test_every_augment_has_a_known_family_and_tier():
     for fam in ('pipe_combo', 'pipe_air', 'pipe_dash', 'dash', 'chain_gather', 'chain_pierce', 'chain_link'):
         base = [m for m in mu.MUTATIONS.values() if m['family'] == fam and m.get('tier', 'base') == 'base']
         evo = [m for m in mu.MUTATIONS.values() if m['family'] == fam and m.get('tier') == 'evo']
-        assert len(base) == 3 and len(evo) == 1, fam
+        assert len(base) == (4 if fam == 'chain_gather' else 3) and len(evo) == 1, fam    # v8: 모으기 갈래에 '벽 걸기'가 더해졌다
         assert evo[0].get('ready'), fam                                   # 진화는 모두 구현됐다
         assert '준비 중' not in mu.FAMILIES[fam]['set'], fam
     for fam in ('chain_gather', 'chain_pierce', 'chain_link'):

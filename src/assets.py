@@ -143,16 +143,29 @@ def draw_clip(img, left, bottom, w, h, x, y, flip='', scale=1):
         img.clip_draw_to_origin(left, bottom, w, h, x, y, dw, dh)
 
 
-def draw_clip_added(img, left, bottom, w, h, x, y, flip='', scale=1, alpha=1.0):
-    """draw_clip을 더하기 섞기로 (빛 층 assets/light 전용: 시트 칸 둘레로 번지는 빛). 끝나면 원래대로."""
-    from sdl2 import SDL_BLENDMODE_ADD, SDL_BLENDMODE_BLEND, SDL_SetTextureBlendMode
+def draw_clip_added(img, left, bottom, w, h, x, y, flip='', scale=1, alpha=1.0, color=None):
+    """draw_clip을 더하기 섞기로 (빛 층 assets/light 전용: 시트 칸 둘레로 번지는 빛). color를 주면 그 색을 곱한다. 끝나면 원래대로."""
+    from sdl2 import SDL_BLENDMODE_ADD, SDL_BLENDMODE_BLEND, SDL_SetTextureBlendMode, SDL_SetTextureColorMod
     SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_ADD)
+    if color is not None:
+        SDL_SetTextureColorMod(img.texture, *color)
     img.opacify(alpha)
     try:
         draw_clip(img, left, bottom, w, h, x, y, flip, scale)
     finally:
         SDL_SetTextureBlendMode(img.texture, SDL_BLENDMODE_BLEND)
+        SDL_SetTextureColorMod(img.texture, 255, 255, 255)
         img.opacify(1.0)
+
+
+def draw_clip_tinted(img, left, bottom, w, h, x, y, color, scale=1):
+    """draw_clip에 색을 곱해서 (회색조로 구운 이펙트 색 층에 공격 색을 입힌다, tools/fxkit.export_tint). 끝나면 원래대로."""
+    from sdl2 import SDL_SetTextureColorMod
+    SDL_SetTextureColorMod(img.texture, *color)
+    try:
+        draw_clip(img, left, bottom, w, h, x, y, '', scale)
+    finally:
+        SDL_SetTextureColorMod(img.texture, 255, 255, 255)
 
 
 def draw_rect_color(left, bottom, w, h, color, alpha=1.0):

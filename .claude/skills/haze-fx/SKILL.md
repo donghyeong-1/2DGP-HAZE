@@ -74,5 +74,7 @@ def create(o):
 
 ## 5. 지금 있는 것
 - v8 시트(`make_fx2.py`): hit-fade·normal·awake·critical·enhanced·enhanced2·enhanced3, haze-blast.
-- 아직 예전 방식: 휘두르기 궤적(`make_slash_hq.py`), `make_fx.py`의 나머지(puff·surge·quake-blast·death-burst·dust-land·ult-nova 등),
-  실행 중 사각형 이펙트(effects.py의 고리·방사선·베기 자국, weapon.py의 DashStreak·RushTrail). 순서대로 옮긴다.
+- v8 두 겹 시트(색을 게임이 입힌다, `fxkit.export_tint` + `effects.draw_tint_sheet`): cut-mark·cut-mark-big(8각도, SlashMark), impact-rays·impact-rays-big(8방향, ImpactBurst), shock-ring-s·m·l(ImpactRing). 색이 공격마다 다른 이펙트는 이 방식으로: create(o)에서 `o['layer']`가 'tint'면 회색조(`fxkit.GRAY`) 몸통·빛, 'core'면 흰 심만 그린다.
+- 휘두르기 궤적(`make_slash_hq.py`)은 v7에서 이미 흰 초승달 + 청록 가장자리로 만들어 그대로 둔다(사용자가 바꾸자고 하면 fxkit의 shade로).
+- 아직 예전 방식: `make_fx.py`의 나머지(puff·surge·quake-blast·death-burst·dust-land·ult-nova·overload-burst 등),
+  실행 중 사각형 이펙트(effects.py의 PathSlash·LightPillar·ground_slam·처치 연출, weapon.py의 DashStreak·RushTrail·표식). 순서대로 옮긴다.

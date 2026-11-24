@@ -70,7 +70,8 @@ def test_effects_within_palette_limit():
         colors = {p for p in img.getdata() if p[3] == 255}
         assert len(colors) <= MAX_COLORS, f'{os.path.basename(path)}: {len(colors)}색'
         meta = json.load(open(path[:-4] + '.json', encoding='utf-8'))
-        assert meta['frames'] <= 60, f"{os.path.basename(path)}: {meta['frames']}프레임"
+        per = meta['frames'] // meta.get('variants', 1)          # 방향 변형이 있으면 한 변형의 길이 (11/24 fxkit 두 겹 시트)
+        assert per <= 60, f"{os.path.basename(path)}: {per}프레임"
     for name in os.listdir(os.path.join(ROOT, 'assets', 'effects')):
         assert 'pixelfx' not in name.lower(), f'외부 이펙트 파일이 남아 있다: {name}'
 

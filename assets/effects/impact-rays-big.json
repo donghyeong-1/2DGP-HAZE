@@ -1,0 +1,20 @@
+{
+ "id": "fx/impact-rays-big",
+ "frames": 112,
+ "frameSize": [
+  168,
+  168
+ ],
+ "columns": 7,
+ "fps": 30,
+ "loop": false,
+ "pivot": [
+  84,
+  84
+ ],
+ "scale": 2,
+ "duration": 0.22,
+ "variants": 16,
+ "tint": 8,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

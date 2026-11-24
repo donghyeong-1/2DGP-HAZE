@@ -444,3 +444,30 @@ def contact(frames, path, zoom=3, cols=8, bg=(9, 14, 24), actor=None, origin=Non
     os.makedirs(os.path.dirname(path), exist_ok=True)
     out.save(path)
     return path
+
+
+# ----- 색을 게임에서 입히는 시트 (베기 자국·방사선·고리처럼 색이 공격마다 다른 것) -----
+GRAY = [(96, 96, 96), (150, 150, 150), (205, 205, 205), (255, 255, 255), (255, 255, 255)]   # 색 층: 밝기만 굽고 게임이 색을 곱한다
+
+
+def export_tint(name, meta, tint_variants, core_variants):
+    """두 겹 시트: 위쪽 줄들 = 색을 입힐 층(회색조), 아래쪽 줄들 = 흰 심(색을 안 입힌다). 변형(각도)마다 한 줄씩.
+    게임은 effects.draw_tint_sheet가 색 층에 공격 색을 곱해 그리고 그 위에 흰 심을 그린다. 빛 시트는 색 층의 빛만 (게임이 색을 곱한다)."""
+    w, h = meta['size']
+    v = len(tint_variants)
+    n = len(tint_variants[0])
+    sheet = Image.new('RGBA', (w * n, h * v * 2), (0, 0, 0, 0))
+    glow = Image.new('RGBA', (w * n, h * v), (0, 0, 0, 0))
+    for r in range(v):
+        for c in range(n):
+            sheet.paste(tint_variants[r][c][0], (c * w, r * h))
+            sheet.paste(core_variants[r][c][0], (c * w, (r + v) * h))
+            glow.paste(tint_variants[r][c][1], (c * w, r * h))
+    sheet.save(os.path.join(ROOT, 'assets', 'effects', name + '.png'))
+    glow.save(os.path.join(ROOT, 'assets', 'light', 'glow_' + name + '.png'))
+    info = {'id': 'fx/' + name, 'frames': n * v * 2, 'frameSize': [w, h], 'columns': n, 'fps': meta.get('fps', 30),
+            'loop': False, 'pivot': list(meta['origin']), 'scale': 2, 'duration': meta['duration'], 'variants': v * 2, 'tint': v,
+            'source': 'tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)'}
+    with open(os.path.join(ROOT, 'assets', 'effects', name + '.json'), 'w', encoding='utf-8') as fp:
+        json.dump(info, fp, indent=1)
+    return info

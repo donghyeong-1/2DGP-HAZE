@@ -8,6 +8,7 @@
 시트 (assets/effects/<이름>.png + .json, 빛은 assets/light/glow_<이름>.png):
   hit-fade / hit-normal / hit-awake / hit-critical / hit-enhanced / hit-enhanced2 / hit-enhanced3   명중 불꽃
   haze-blast                                                                                       헤이즈 폭발
+  cut-mark / cut-mark-big (8각도), impact-rays / impact-rays-big (8방향), shock-ring-s·m·l          색을 게임에서 입히는 두 겹 시트
 """
 import math
 import os
@@ -150,10 +151,207 @@ EFFECTS = {name: (hit_meta(*args), hit_create) for name, args in HITS.items()}
 EFFECTS['haze-blast'] = (BLAST_META, blast_create)
 
 
+# =====================================================================================================
+# 색을 게임에서 입히는 두 겹 시트 (fxkit.export_tint): 베기 자국 / 충격 방사선 / 충격 고리.
+# 예전에는 실행 중 사각형(draw_rect_color)을 늘어놓아 그렸다 (블록처럼 보인다는 사용자 지적, 2026-11-24).
+# create(o)의 o['layer']: 'tint' = 색 층(회색조), 'core' = 흰 심. 같은 seed로 두 번 굽는다.
+# =====================================================================================================
+G = fx.GRAY
+
+
+def cut_meta(big, angle):
+    size = 148 if big else 92
+    return dict(size=[size, size], origin=[size // 2, size // 2], duration=0.28 if big else 0.2, fps=30,
+                options=dict(big=big, angle=angle, seed=21 + int(angle)))
+
+
+def cut_create(o):
+    """베기 자국: 한쪽 끝에서 반대쪽까지 1~2프레임에 그어지고, 가운데가 굵은 방추형이 가늘어지며 끊긴다. 끝에서 불티가 튄다."""
+    big, core = o['big'], o['layer'] == 'core'
+    a = math.radians(o['angle'])
+    dx, dy = math.cos(a), -math.sin(a)                      # 게임 각도(반시계 +) -> 그림 좌표(y 아래)
+    nx, ny = -dy, dx
+    L = 58 if big else 34                                   # 반 길이
+    W = 9.0 if big else 5.5
+    dur = 0.28 if big else 0.2
+    rng = Rng(o['seed'])
+    ps = Particles(rng, G)
+    ps.burst(SPARK, dx * L * 0.7, dy * L * 0.7, 7 if big else 4, (160, 420), (0.12, 0.26), spread=0.9, aim=math.atan2(dy, dx))
+    ps.burst(MOTE, 0, 0, 6 if big else 3, (40, 200), (0.14, 0.26), spread=1.4, aim=math.atan2(dy, dx))
+    lights = Lights()
+    lights.add(0, 0, L * 0.9, WHITE, 90, dur * 0.8)
+    t = [0.0]
+
+    class Cut:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            u = t[0] + 0.025                                 # 첫 장부터 그어져 있게
+            head = -L + 2 * L * out_expo(u / 0.05)           # 긋는 끝
+            thin = 1.0 - fx.smooth(0.07, dur, u)
+            w = W * thin * (0.42 if core else 1.0)
+            fade = 1.0 if u < dur * 0.6 else 1.0 - (u - dur * 0.6) / (dur * 0.4)
+            if w >= 0.6:
+                mid = (head - L) / 2
+                for end in (-L, head):                       # 가운데에서 양 끝으로 가늘어지는 두 가시 = 방추형
+                    p.needle(dx * mid, dy * mid, dx * end, dy * end, WHITE if core else G[2], w, a=fade)
+            if not core:
+                for side in (-1, 1):                         # 옆의 가는 속도선 두 줄 (조금 늦게, 짧게)
+                    if 0.03 < u < dur * 0.7:
+                        off = (W * 0.9 + 2) * side
+                        s0, s1 = -L * 0.55, min(head, L * 0.7)
+                        if s1 - s0 > 4:
+                            p.line(dx * s0 + nx * off, dy * s0 + ny * off, dx * s1 + nx * off, dy * s1 + ny * off, G[1], a=fade)
+                ps.draw(p)
+                lights.draw(p)
+                p.glow_line(-dx * L * 0.8, -dy * L * 0.8, dx * L * 0.8, dy * L * 0.8, 9 if big else 6, WHITE, 70 * thin)
+            elif u < 0.09:                                   # 긋는 끝의 반짝임
+                s = 1.0 if u < 0.05 else 0.6
+                hx, hy = dx * head, dy * head
+                for ang in (0, TAU / 4, TAU / 2, 3 * TAU / 4):
+                    p.needle(hx, hy, hx + math.cos(ang) * 7 * s, hy + math.sin(ang) * 7 * s, WHITE, 2.4)
+    return Cut()
+
+
+def rays_meta(big, angle):
+    size = 168 if big else 128
+    return dict(size=[size, size], origin=[size // 2, size // 2], duration=0.22, fps=30,
+                options=dict(big=big, angle=angle, seed=41 + int(angle)))
+
+
+def rays_create(o):
+    """충격 방사선: 맞은 방향 쪽이 길다. 줄기가 빠르게 튀어 나가 가늘어지고, 끝은 흰색."""
+    big, core = o['big'], o['layer'] == 'core'
+    base = math.radians(o['angle'])
+    rng = Rng(o['seed'])
+    n = 11 if big else 7
+    k = 1.35 if big else 1.0
+    rays = []
+    for i in range(n):
+        ang = base + TAU * i / n + rng.range(-0.22, 0.22)
+        near = abs(((ang - base + math.pi) % TAU) - math.pi) < 0.8
+        rays.append((ang, (58 if near else 32) * k * rng.range(0.8, 1.2), rng.range(0.0, 0.02), near))
+    ps = Particles(rng, G)
+    ps.burst(MOTE, 0, 0, 5 if big else 3, (80, 280), (0.12, 0.22), spread=1.6, aim=-base)
+    t = [0.0]
+
+    class Rays:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+
+        def draw(self, p):
+            u = t[0] + 0.03                                  # 첫 장부터 튀어 나와 있게
+            for ang, ln, delay, near in rays:
+                v = u - delay
+                if v < 0:
+                    continue
+                head = 7 + ln * out_expo(v / 0.1)
+                tail = 5 + ln * out_cubic(v / 0.2)
+                if head - tail < 1.2:
+                    continue
+                c, s_ = math.cos(ang), -math.sin(ang)
+                w = (5.0 if near else 3.6) * (1 - v / 0.27)
+                if core:
+                    cut = tail + (head - tail) * 0.6            # 끝 40%만 흰색
+                    p.needle(c * cut, s_ * cut, c * head, s_ * head, WHITE, max(1.0, w * 0.7))
+                else:
+                    p.needle(c * tail, s_ * tail, c * head, s_ * head, G[2], max(1.0, w))
+            if not core:
+                ps.draw(p)
+                p.glow(0, 0, 26 * k, WHITE, 70 * (1 - u / 0.22))
+    return Rays()
+
+
+def ring_meta(radius):
+    size = int(radius * 2 + 20) // 2 * 2
+    return dict(size=[size, size], origin=[size // 2, size // 2], duration=0.3, fps=30, options=dict(radius=radius, seed=radius))
+
+
+def ring_create(o):
+    """충격 고리: 굵게 시작해 얇아지며 퍼지고, 여러 토막으로 끊어져 사라진다. 한 박자 늦은 안쪽 고리와 가장자리 알갱이."""
+    R_, core = o['radius'], o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    ps = Particles(rng, G)
+    for i in range(int(R_ / 5)):
+        a = rng.range(0, TAU)
+        sp = rng.range(R_ * 1.6, R_ * 3.2)
+        ps.spawn(MOTE, math.cos(a) * 6, math.sin(a) * 6, math.cos(a) * sp, math.sin(a) * sp, rng.range(0.14, 0.28))
+    t = [0.0]
+    dur = 0.3
+
+    class Ring:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            for delay, scale, w0, gaps in ((0.0, 1.0, 3.2, 5), (0.05, 0.62, 2.0, 4)):
+                v = (u - delay) / (dur - delay)
+                if not 0 <= v < 1:
+                    continue
+                r = 6 + (R_ * scale - 6) * out_expo(v * 1.25)
+                w = w0 * (1 - v * 0.7)
+                fade = 1.0 if v < 0.5 else 1.0 - (v - 0.5) / 0.5
+                if core:
+                    if v < 0.28 and delay == 0.0:               # 처음 몇 프레임은 흰 고리
+                        p.ring(0, 0, r, max(1.0, w * 0.6), WHITE, gaps=gaps, phase=o['seed'] * 1.3 + v)
+                else:
+                    p.ring(0, 0, r, w, G[2] if v < 0.6 else G[1], a=fade, gaps=gaps, phase=o['seed'] * 1.3 + v)
+                    p.glow_ring(0, 0, r, 5, WHITE, 55 * (1 - v))
+            if not core:
+                ps.draw(p)
+    return Ring()
+
+
+CUT_ANGLES = [i * 22.5 for i in range(8)]        # 베기 자국은 180도 대칭: 0~157.5도
+RAY_ANGLES = [i * 45.0 for i in range(8)]
+TINTS = {
+    'cut-mark': [(cut_meta(False, a), cut_create) for a in CUT_ANGLES],
+    'cut-mark-big': [(cut_meta(True, a), cut_create) for a in CUT_ANGLES],
+    'impact-rays': [(rays_meta(False, a), rays_create) for a in RAY_ANGLES],
+    'impact-rays-big': [(rays_meta(True, a), rays_create) for a in RAY_ANGLES],
+    'shock-ring-s': [(ring_meta(38), ring_create)],
+    'shock-ring-m': [(ring_meta(78), ring_create)],
+    'shock-ring-l': [(ring_meta(150), ring_create)],
+}
+
+
+def build_tint(name, look):
+    variants = TINTS[name]
+    tint = [fx.render(meta, create, layer='tint') for meta, create in variants]
+    core = [fx.render(meta, create, layer='core') for meta, create in variants]
+    meta = variants[0][0]
+    show = []                                              # 모아 보기: 색 층에 청록을 입히고 흰 심을 얹어서
+    for r in (0, len(variants) // 3, (2 * len(variants)) // 3) if len(variants) > 1 else (0,):
+        for (tc, tl), (cc, _) in zip(tint[r], core[r]):
+            arr = fx.np.asarray(tc, fx.np.float32)
+            arr[..., :3] *= fx.np.array([46, 230, 214], fx.np.float32) / 255.0
+            body = fx.Image.fromarray(arr.astype(fx.np.uint8), 'RGBA')
+            body.paste(cc, (0, 0), cc)
+            la = fx.np.asarray(tl, fx.np.float32)
+            la[..., :3] *= fx.np.array([46, 230, 214], fx.np.float32) / 255.0
+            show.append((body, fx.Image.fromarray(la.astype(fx.np.uint8), 'RGBA')))
+    path = fx.contact(show, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), actor=HERO, origin=meta['origin'],
+                      cols=len(tint[0]), label=f"{name}  {meta['size'][0]}x{meta['size'][1]}  {len(tint[0])}f  variants {len(variants)}")
+    if look:
+        print('본다', path)
+        return
+    info = fx.export_tint(name, meta, tint, core)
+    print('구움', name, info['frames'], '프레임')
+
+
 def main(argv):
     look = '--look' in argv
-    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS)
+    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + list(TINTS)
     for name in names:
+        if name in TINTS:
+            build_tint(name, look)
+            continue
         meta, create = EFFECTS[name]
         frames = fx.render(meta, create)
         path = fx.contact(frames, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), actor=HERO, origin=meta['origin'],

@@ -159,6 +159,23 @@ class SheetEffect:
         assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if self.flip else '', s)
 
 
+def draw_tint_sheet(name, x, y, t, color, variant=0, scale=None):
+    """두 겹 시트(tools/fxkit.export_tint)의 t(0~1) 시점을 (x, y)에 그린다: 빛 -> 색 층(공격 색을 곱함) -> 흰 심."""
+    info = sheet_info(name)
+    fw, fh = info['frameSize']
+    n, v = info['columns'], info['tint']
+    px, py = info['pivot']
+    s = scale or info.get('scale', config.EFFECT_SCALE)
+    i = min(n - 1, max(0, int(t * n)))
+    img = assets.image(f'effects/{name}.png')
+    dx, dy = x - px * s, y - (fh - py) * s
+    g = assets.image(f'light/glow_{name}.png')
+    a = GLOW_ALPHA * (1.0 - t * t) * (0.5 if options.reduce_flash else 1.0)
+    assets.draw_clip_added(g, i * fw, g.h - (variant + 1) * fh, fw, fh, dx, dy, '', s, a, color)
+    assets.draw_clip_tinted(img, i * fw, img.h - (variant + 1) * fh, fw, fh, dx, dy, color, s)
+    assets.draw_clip(img, i * fw, img.h - (variant + v + 1) * fh, fw, fh, dx, dy, '', s)
+
+
 GLOW_ALPHA = 0.85        # 휘두르기·타격 시트 아래 번진 빛의 세기 (처음 값, 끝으로 갈수록 준다)
 _glow_cache = {}
 
@@ -249,9 +266,10 @@ class ImpactBurst:
     맞은 방향 쪽 선이 더 길고, 선은 바깥으로 튀어 나가며 짧아진다. 끝 두 칸은 흰색이다.
     """
 
-    def __init__(self, x, y, angle_deg, count, color, big=False, life=0.17):
+    def __init__(self, x, y, angle_deg, count, color, big=False, life=0.22):
         self.x, self.y = x, y
         self.color = color
+        self.angle_deg, self.big = angle_deg, big
         self.life, self.time = life, 0.0
         self.rays = []
         for k in range(count):
@@ -266,18 +284,9 @@ class ImpactBurst:
             game_world.remove_object(self)
 
     def draw(self):
-        p = self.time / self.life
-        r0 = 12 + 30 * p
-        for ang, length in self.rays:
-            r1 = r0 + length * (1.0 - p) ** 0.7
-            dx, dy = math.cos(ang), math.sin(ang)
-            r = r0
-            while r < r1:
-                tip = r1 - r < 11
-                size = 4 if tip else 5
-                assets.draw_rect_color(int(round(self.x + dx * r - size / 2)), int(round(self.y + dy * r - size / 2)),
-                                       size, size, (255, 255, 255) if tip else self.color)
-                r += 5
+        # v8: 미리 구운 두 겹 시트 (8방향, 색은 여기서 입힌다). 줄 수는 보통/많음 두 가지 그림으로 나타낸다
+        name = 'impact-rays-big' if self.big or len(self.rays) >= 10 else 'impact-rays'
+        draw_tint_sheet(name, self.x, self.y, self.time / self.life, self.color, int(round(self.angle_deg / 45.0)) % 8)
 
 
 class BodyGhost:
@@ -310,7 +319,7 @@ class SlashMark:
         self.ang = math.radians(angle_deg)
         self.color = color
         self.big = big
-        self.life = 0.2 if big else 0.13
+        self.life = 0.28 if big else 0.2
         self.length = (230 if big else 130) * random.uniform(0.85, 1.15)
         self.width = 22 if big else 12
         self.time = 0.0
@@ -321,22 +330,9 @@ class SlashMark:
             game_world.remove_object(self)
 
     def draw(self):
-        t = self.time / self.life
-        grow = min(1.0, t / 0.25)                       # 처음 1/4 동안 한쪽 끝에서 그어진다
-        thin = (1.0 - max(0.0, t - 0.25) / 0.75) ** 0.8
-        dx, dy = math.cos(self.ang), math.sin(self.ang)
-        half = self.length / 2
-        step = 4
-        n = int(self.length * grow / step)
-        for i in range(n + 1):
-            s = -half + i * step
-            taper = math.sin(math.pi * (s + half) / self.length) ** 0.5
-            for color, k in ((self.color, 1.0), ((255, 255, 255), 0.45)):
-                size = int(self.width * k * taper * thin)
-                if size < 2:
-                    continue
-                assets.draw_rect_color(int(round(self.x + dx * s - size / 2)), int(round(self.y + dy * s - size / 2)),
-                                       size, size, color)
+        # v8: 미리 구운 두 겹 시트 (22.5도 간격 8각도, 180도 대칭). 색은 여기서 입힌다
+        variant = int(round((math.degrees(self.ang) % 180.0) / 22.5)) % 8
+        draw_tint_sheet('cut-mark-big' if self.big else 'cut-mark', self.x, self.y, self.time / self.life, self.color, variant)
 
 
 class ImpactRing:
@@ -352,15 +348,11 @@ class ImpactRing:
             game_world.remove_object(self)
 
     def draw(self):
-        t = self.time / self.life
-        r = 16 + (self.radius_max - 16) * (1 - (1 - t) ** 2)
-        size = max(2, int(10 * (1 - t)))
-        count = max(12, int(2 * math.pi * r / 14))
-        for k in range(count):
-            a = 2 * math.pi * k / count
-            color = (255, 255, 255) if k % 3 == 0 and t < 0.5 else self.color
-            assets.draw_rect_color(int(round(self.x + math.cos(a) * r - size / 2)),
-                                   int(round(self.y + math.sin(a) * r - size / 2)), size, size, color)
+        # v8: 미리 구운 고리 세 크기(반지름 76·156·300px) 중 가까운 것, 아주 크면 큰 것을 3배로 (정수 배율만)
+        r = self.radius_max
+        name, scale = (('shock-ring-s', 2) if r <= 110 else ('shock-ring-m', 2) if r <= 230 else
+                       ('shock-ring-l', 2) if r <= 370 else ('shock-ring-l', 3))
+        draw_tint_sheet(name, self.x, self.y, self.time / self.life, self.color, 0, scale)
 
 
 class LightPillar:

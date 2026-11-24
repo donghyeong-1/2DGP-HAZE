@@ -44,6 +44,7 @@
 4. 스테이지 3 보스방 → 아크 등장씬, 페이즈 2·3 한 줄, 처치 뒤 헤이즈 심장이 내려와 등장씬.
 
 ## PROGRESS.md 작업 로그에 넣을 줄
+`2026-11-25 [Claude 프로젝트] v8 4-2 임팩트 프레임을 강화 일격·보스 막타까지(검정 배경 + 흰 실루엣 + 흰 베기 선 2프레임) / src/impact_frame.py, weapon.py, tests/test_impact_frame.py`
 `2026-11-25 [Claude 프로젝트] v8 6일 차 구역 1 중간 보스 문지기(방패 돌진·내려찍기·증원 호출, 간수 그림 1.5배 굽기, 관문 경기장) / src/gatekeeper.py, stage.py, mapgen.py, data/stages/stage1.py, data/rooms/gate_arena.txt, tools/make_gatekeeper.py, tools/build_rooms.py, tests/test_gatekeeper.py`
 `2026-11-25 [Claude 프로젝트] v8 6일 차 보스 등장씬(카메라 이동·대사·이름 띠, Enter·Space 넘기기, 두 번째부터 짧게)과 페이즈·처치 한 줄 대사 / src/boss_intro.py, boss.py, ark.py, heart.py, zone_card.py, camera.py, play_mode.py, gamepad.py, ui.py, config.py, tests/test_boss_intro.py, tests/test_zone_card.py`
 
@@ -67,6 +68,15 @@
 - 캡처: 프로젝트 파일 `shots/day6-boss/gatekeeper.png`(등장씬 → 돌진 예고 → 돌진), `shots/day6-boss/gatekeeper_look.png`(간수와 나란히 1배).
 - 화면으로 확인하지 못한 것: 실제 손맛(돌진 속도 860, 비틀거림 0.9초가 충분한 빈틈인지), 증원 둘이 구역 1 끝에 너무 버거운지, 밸런스 시뮬레이션(밸런스 스레드 영역이라 돌리지 않았다).
 - 로컬에서 볼 순서: 테스트 모드 F6(구역 1) → F9(관문) → 등장씬 → 돌진을 벽으로 유도해 빈틈 → 체력 절반에서 증원 → 처치.
+
+## 대기열 4: 임팩트 프레임 확장 (같은 브랜치)
+- `src/impact_frame.py` 새 파일: 강화 일격(E)과 보스 막타에 2프레임, 배경 검정 + 주인공·맞은 적의 흰 실루엣 + 맞은 자리를 가로지르는 흰 베기 선. 처형·궁극기 마무리는 원래대로 FinisherCut.
+- `src/weapon.py` `_hit`에 세 줄: 강화 타격이거나, 보스(문지기·크래셔·아크·헤이즈 심장)를 쓰러뜨린 타격이면 `impact_frame.trigger`. 궁극기 타격은 `_hit`을 거치지 않아 겹치지 않는다.
+- 강화 일격이 여러 적을 맞혀도 한 장면(맞은 적이 늘어난다, 최대 6). FinisherCut이 돌고 있으면 띄우지 않는다. 설정 '번쩍임 줄이기'면 띄우지 않는다.
+- 추천안으로 정함: 2프레임(1~2 중 큰 쪽), 시간이 아니라 그려진 수로 끝(타격 멈춤 중에는 갱신이 멈추므로 그 순간에 바로 보인다). UI 층의 구간 색(안개·비네트) 바로 뒤 = 세계 이펙트 위, HUD·자막 아래.
+- 캡처: 프로젝트 파일 `shots/day6-boss/impact_frame_boss.png`(문지기 막타: 왼쪽 위는 캡처 도구의 첫 장 점묘, 오른쪽 위가 임팩트 프레임, 아래 둘이 다음 장면). 처음에는 안개 점묘가 실루엣 위에 찍혀서 층 위치를 옮겼다.
+- 테스트 `tests/test_impact_frame.py` 5개. 전체 64개 파일 통과.
+- 발견(고치지 않음, 대기열 2에서 볼 것): `weapon.py`가 `getattr(enemy, 'BOSS', False)`로 보스를 거르는데 어떤 보스도 `BOSS`를 두지 않는다. 그래서 보스를 큰 공격으로 쓰러뜨리면 쓰러지는 그림 대신 조각으로 흩어지고(조각 처치), 띄우기·처형 배율도 보스를 거르지 못한다.
 
 ## 다음에 할 것
 - 조정자와 정한 다음 대기열 항목.

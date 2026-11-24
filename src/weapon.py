@@ -15,6 +15,8 @@ import math
 import random
 import time
 
+import sprites
+
 import assets
 import config
 import effects
@@ -365,6 +367,75 @@ class MarkTag:
                     assets.draw_rect_color(mx + i, my - h, 2, 2, c)
 
 
+class ImpactFrame:
+    """처형의 임팩트 프레임 (사용자 요청 "순간 어두워졌다가 밝아지면서 잘리는"): 화면이 멈춘 동안 실제 시간으로
+    암전 + 흰 실루엣(적·주인공) + 적을 가르는 흰 선 -> 끝에 하얗게 밝아진다. 설정의 번쩍임 줄이기를 따른다."""
+    LIFE = 0.16
+
+    def __init__(self, player, enemy_frame, ex, ey, eface, cut):
+        self.p, self.enemy_frame, self.ex, self.ey, self.eface, self.cut = player, enemy_frame, ex, ey, eface, cut
+        self.pframe, self.px, self.py, self.pface = player._body_frame(), player.x, player.y, player.draw_face()
+        self.born = time.monotonic()
+        effects.request_hit_stop(self.LIFE)
+
+    def update(self, dt):
+        if time.monotonic() - self.born >= self.LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        import camera
+        import options
+        t = min(1.0, (time.monotonic() - self.born) / self.LIFE)
+        left, bottom = camera.to_world(0, 0)
+        soft = 0.6 if options.reduce_flash else 1.0
+        assets.draw_rect_color(left - 16, bottom - 16, config.SCREEN_W + 32, config.SCREEN_H + 32, (4, 2, 6), 0.94 * soft)   # 암전
+        sprites.draw_silhouette(*self.pframe, self.px, self.py, self.pface, (255, 255, 255), 1.0)
+        if self.enemy_frame is not None:
+            sprites.draw_silhouette(*self.enemy_frame, self.ex, self.ey, self.eface, (255, 255, 255), 1.0)
+        (x0, y0), (x1, y1) = self.cut                                   # 적을 가르는 흰 선: 한쪽 끝에서 그어진다
+        grow = min(1.0, t / 0.3)
+        n = 60
+        for i in range(int(n * grow) + 1):
+            u = i / n
+            w = max(2, int(14 * math.sin(math.pi * u) ** 0.6) // 2 * 2)
+            x, y = _snap(x0 + (x1 - x0) * u), _snap(y0 + (y1 - y0) * u)
+            assets.draw_rect_color(x - w // 2 - 2, y - w // 2 - 2, w + 4, w + 4, EXEC_COLOR)
+            assets.draw_rect_color(x - w // 2, y - w // 2, w, w, (255, 255, 255))
+        if t > 0.7:                                                     # 밝아진다
+            assets.draw_rect_color(left - 16, bottom - 16, config.SCREEN_W + 32, config.SCREEN_H + 32, (255, 255, 255),
+                                   (t - 0.7) / 0.3 * 0.85 * soft)
+
+
+class CutHalves:
+    """처형으로 쓰러진 적이 두 동강 난다: 그림을 위아래로 잘라 위쪽은 베인 방향으로 미끄러져 올라가고 아래쪽은 주저앉으며 사라진다."""
+    LIFE = 0.7
+
+    def __init__(self, frame, x, y, face, side):
+        self.frame, self.x, self.y, self.face, self.side = frame, x, y, face, side
+        self.t = 0.0
+
+    def update(self, dt):
+        self.t += dt
+        if self.t >= self.LIFE:
+            game_world.remove_object(self)
+
+    def draw(self):
+        name, n = sprites.resolve(*self.frame)
+        img = assets.image(sprites.path(name, n))
+        dx, foot = sprites.place(name, n, img.w, img.h, self.face)
+        flip = 'h' if self.face < 0 else ''
+        k = self.t / self.LIFE
+        if k > 0.6 and int(self.t * 30) % 2 == 0:                       # 끝에는 깜빡이며 사라진다
+            return
+        half = img.h // 2
+        slide = 1 - (1 - min(1.0, k * 1.6)) ** 2
+        bx, by = self.x + dx, self.y - foot
+        assets.draw_clip(img, 0, 0, img.w, half, bx - self.side * 6 * slide, by - 10 * slide, flip)                  # 아래쪽
+        assets.draw_clip(img, 0, half, img.w, img.h - half, bx + self.side * 46 * slide, by + half + 26 * slide - 60 * k * k, flip)   # 위쪽
+        if k < 0.25:                                                    # 잘린 자리의 흰 선
+            assets.draw_rect_color(int(bx), int(by + half) - 2, img.w, 4, (255, 255, 255), 1.0 - k / 0.25)
+
+
 class DashExecution:
     """표식 3개 처형: 화면이 어두워지고 시간이 느려진 뒤, 잠깐 뒤 큰 X 베기 일격."""
 
@@ -389,7 +460,18 @@ class DashExecution:
         damage = (config.DASH_EXEC_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mutations.damage_mult(p)
                   * (config.DASH_EXEC_BOSS if getattr(e, 'BOSS', False) else 1.0))
         ex, ey = e.center
-        w._hit(e, damage, config.GAIN_HIT * 2, w._fx(False), big=True, color=EXEC_COLOR, shake=2.5, stop=2.5, extra=False)
+        frame = e._body_frame() if hasattr(e, '_body_frame') else None       # 임팩트 프레임·두 동강용: 맞기 전 모습
+        fx0, fy0, face = e.x, e.y, e.face_dir
+        left, bottom, right, top = e.rect()
+        side = 1 if p.x <= e.x else -1
+        before = set(id(o) for o in game_world.world[game_world.LAYER_EFFECT])
+        killed = w._hit(e, damage, config.GAIN_HIT * 2, w._fx(False), big=True, color=EXEC_COLOR, shake=2.5, stop=2.5, extra=False)
+        cut = ((left - 70, (bottom + top) / 2 - 30 * side), (right + 70, (bottom + top) / 2 + 30 * side))
+        if killed and frame is not None and not getattr(e, 'BOSS', False):   # 두 동강: 쓰러지는 그림 대신
+            for o in list(game_world.world[game_world.LAYER_EFFECT]):
+                if id(o) not in before and type(o).__name__ == 'Corpse':
+                    game_world.remove_object(o)
+            game_world.add_object(CutHalves(frame, fx0, fy0, face, side), game_world.LAYER_EFFECT)
         effects.spawn_slash_marks(ex, ey, 1.0, 0.0, EXEC_COLOR, big=True, count=2)
         effects.spawn_slash_marks(ex, ey, 1.0, 0.0, (255, 255, 255), big=True, count=2)
         effects.spawn_ring(ex, ey, EXEC_COLOR, radius_max=190, life=0.3)
@@ -400,6 +482,7 @@ class DashExecution:
         effects.float_text(ex, ey + 120, '처형!', EXEC_COLOR, big=True, life=0.7)
         game_world.add_object(DashStreak((ex - 300, ey, ex + 300, ey), life=0.45, width=22), game_world.LAYER_EFFECT)
         assets.play_sound('impact_enh2')
+        game_world.add_object(ImpactFrame(p, frame, fx0, fy0, face, cut), game_world.LAYER_EFFECT)   # 맨 위에: 암전 -> 흰 실루엣 -> 밝아짐
 
     def draw(self):
         pass

@@ -158,7 +158,9 @@ OVERLOAD_DAMAGE_RATIO = 0.20
 OVERLOAD_STUN = 1.5
 OVERLOAD_RESET = 30
 OVERLOAD_FLASH = 0.35        # 오버로드 순간 화면 전체가 하얗게 번쩍이는 시간(초)
-OVERLOAD_HIT_STOP = 0.16     # 폭발 순간 화면이 멈추는 시간(초)
+OVERLOAD_HIT_STOP = 0.16     # (11/24부터 안 씀: 화면 정지 대신 느려진다)
+OVERLOAD_GATHER = 0.3        # 오버로드: 기운이 주인공에게 모이며 어두워지는 시간(초, 실제 시간). 그 뒤에 터진다
+OVERLOAD_FLASH_POP = 0.12    # 터지는 순간의 짧은 흰 번쩍임 (예전 0.35초 전체 섬광은 폭발 그림을 가렸다)
 
 # 구간별 배율 (공격, 속도)
 MULT_FADE = (0.8, 0.8)

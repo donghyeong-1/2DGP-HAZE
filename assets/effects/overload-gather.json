@@ -1,0 +1,18 @@
+{
+ "id": "fx/overload-gather",
+ "frames": 9,
+ "frameSize": [
+  460,
+  460
+ ],
+ "columns": 9,
+ "fps": 30,
+ "loop": false,
+ "pivot": [
+  230,
+  230
+ ],
+ "scale": 2,
+ "duration": 0.3,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

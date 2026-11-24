@@ -191,6 +191,18 @@ class Painter:
                 mask &= ((ang + phase) * gaps / TAU) % 1.0 < 0.7
         self.put(box, mask, color, a)
 
+    def blob(self, x, y, r, color, seed=0.0, rough=0.28, a=1.0):
+        """울퉁불퉁한 덩이: 각도마다 반지름이 다른 원 (혹 셋·다섯 개를 겹친다). 불덩이·연기처럼 동그라미로 보이면 안 되는 것에 쓴다."""
+        m = r * (1 + rough * 1.6)
+        box = self._box(x - m, y - m, x + m, y + m)
+        if box is None:
+            return
+        X, Y = self.X[box] - x, self.Y[box] - y
+        ang = np.arctan2(Y, X)
+        rr = r * (1 + rough * np.sin(3 * ang + seed * 6.3) + rough * 0.6 * np.sin(5 * ang + seed * 17.1) +
+                  rough * 0.35 * np.sin(8 * ang + seed * 29.7))
+        self.put(box, np.hypot(X, Y) <= rr, color, a)
+
     def poly(self, pts, color, a=1.0):
         """볼록 다각형(삼각 파편·마름모). pts는 시계 방향이든 반대든 상관없다."""
         xs, ys = [p[0] for p in pts], [p[1] for p in pts]
@@ -256,16 +268,38 @@ class Painter:
 
 
 # ----- 입자 -----
-SPARK, MOTE, SHARD, EMBER, PUFF = range(5)
+SPARK, MOTE, SHARD, EMBER, PUFF, FLAME, CHUNK, STREAK = range(8)
+
+
+def heat_ramp(ramp, n=9):
+    """불덩이가 식어 가는 색 띠 (뜨거움 -> 식음): 흰색에서 색 띠를 거꾸로 내려가 가장 어두운 색까지 n단. 사이는 섞는다."""
+    stops = [WHITE] + list(reversed(ramp[:-1])) + [tuple(int(c * 0.55) for c in ramp[0])]
+    out = []
+    for i in range(n):
+        f = i / (n - 1) * (len(stops) - 1)
+        k = min(len(stops) - 2, int(f))
+        t = f - k
+        out.append(tuple(int(stops[k][j] * (1 - t) + stops[k + 1][j] * t) for j in range(3)))
+    return out
+
+
+# 픽셀 조각 모양 (불규칙한 2~4칸 덩어리). CHUNK 입자가 seed로 하나를 고른다
+CHUNKS = [[(0, 0), (1, 0), (0, 1)], [(0, 0), (1, 0), (1, 1), (2, 1)], [(0, 0), (0, 1), (1, 1)], [(0, 0), (1, 0), (2, 0), (1, 1)],
+          [(0, 0), (1, 1)], [(0, 0), (1, 0), (0, 1), (1, 1), (2, 1)], [(1, 0), (0, 1), (1, 1), (1, 2)], [(0, 0), (1, 0)]]
 
 
 class Particles:
     """불티(SPARK: 속도만큼 늘어난 두 색 줄기, 중력, 바닥에서 튄다, 빛남) / 알갱이(MOTE: 끌림이 큰 점, 식으며 사라짐) /
-    파편(SHARD: 돌며 날아가는 삼각 조각) / 잿불(EMBER: 떠오르며 흔들리는 점) / 연기 덩이(PUFF: 부풀다 부서지는 덩이)."""
+    파편(SHARD: 돌며 날아가는 삼각 조각) / 잿불(EMBER: 떠오르며 흔들리는 점) / 연기 덩이(PUFF: 부풀다 부서지는 덩이) /
+    **불덩이(FLAME)**: 어두운 테두리·밝은 심·위로 솟은 혀가 있는 작은 덩이가 식으며 줄어든다. 수십 개가 겹쳐 폭발의 몸통·가시·
+    고리를 만든다(도형을 그리지 않는다) / **픽셀 조각(CHUNK)**: 불규칙한 2~4칸 덩어리가 튀어 떨어진다 /
+    **줄기(STREAK)**: 점점 빨라지는 점선 (한 점으로 빨려드는 기운, target으로 모인다)."""
 
     def __init__(self, rng, ramp, ground=None, sparks=None):
         self.rng, self.ramp, self.ground = rng, ramp, ground
         self.sparks = sparks or ramp
+        self.heat = heat_ramp(ramp)                  # FLAME이 식어 가는 색
+        self.cool_pow = 0.62
         self.items = []
 
     def spawn(self, kind, x, y, vx, vy, life, size=1.0, delay=0.0, ramp=None):
@@ -291,8 +325,9 @@ class Particles:
             if q['age'] >= q['life']:
                 continue
             k = q['k']
-            drag = {SPARK: 2.2, MOTE: 5.5, SHARD: 1.6, EMBER: 2.5, PUFF: 4.5}[k]
-            grav = {SPARK: GRAVITY, MOTE: GRAVITY * 0.15, SHARD: GRAVITY * 0.9, EMBER: -60.0, PUFF: -25.0}[k]
+            drag = {SPARK: 2.2, MOTE: 5.5, SHARD: 1.6, EMBER: 2.5, PUFF: 4.5, FLAME: 5.0, CHUNK: 1.8, STREAK: -3.2}[k]
+            grav = {SPARK: GRAVITY, MOTE: GRAVITY * 0.15, SHARD: GRAVITY * 0.9, EMBER: -60.0, PUFF: -25.0, FLAME: -40.0,
+                    CHUNK: GRAVITY, STREAK: 0.0}[k]
             q['vx'] -= q['vx'] * drag * dt
             q['vy'] += (grav - q['vy'] * drag) * dt
             if k == EMBER:
@@ -300,7 +335,7 @@ class Particles:
             q['x'] += q['vx'] * dt
             q['y'] += q['vy'] * dt
             q['rot'] += q['spin'] * dt
-            if self.ground is not None and k in (SPARK, SHARD) and q['y'] > self.ground and q['vy'] > 0:
+            if self.ground is not None and k in (SPARK, SHARD, CHUNK) and q['y'] > self.ground and q['vy'] > 0:
                 q['y'] = self.ground
                 q['vy'] *= -0.42
                 q['vx'] *= 0.6
@@ -342,6 +377,41 @@ class Particles:
                 if int(q['age'] * 20 + q['seed']) % 3 != 0:
                     p.px(x, y, hot)
                     p.glow(x, y, 3, ramp[-2], 24 * (1 - u))
+            elif q['k'] == FLAME:
+                heat = self.heat if q['ramp'] is None else q['ramp']
+                h = min(0.999, u ** self.cool_pow + (q['seed'] % 1) * 0.1)   # 식어 가는 정도 (cool_pow가 클수록 오래 뜨겁다)
+                i = min(len(heat) - 2, int(h * (len(heat) - 1)))
+                r = s * (0.55 + 0.45 * min(1.0, u * 7)) * (1 - u * 0.6)
+                if r < 0.7:
+                    p.px(x, y, heat[i])
+                else:
+                    sd = q['seed']
+                    p.blob(x, y, r, heat[min(len(heat) - 1, i + 2)], sd)                # 어두운 테두리 (울퉁불퉁)
+                    p.blob(x - r * 0.16, y - r * 0.22, r * 0.76, heat[i], sd + 1.3)     # 몸
+                    if r > 1.6:
+                        p.blob(x + r * 0.1, y - r * 0.9, r * 0.42, heat[i], sd + 2.1)   # 위로 솟은 혀
+                    if i <= 3 and r > 1.8:
+                        p.blob(x - r * 0.28, y - r * 0.34, r * 0.36, heat[max(0, i - 1)], sd + 3.7)   # 밝은 심
+                    if i < 6:
+                        p.glow(x, y, r * 2.4 + 2, heat[i], 26 * (1 - u))
+            elif q['k'] == CHUNK:
+                shape = CHUNKS[int(q['seed']) % len(CHUNKS)]
+                for cx_, cy_ in shape[:max(1, int(len(shape) * (1 - u * 0.7) + 0.5))]:  # 날아가며 칸이 떨어져 나간다
+                    for ax in range(int(max(1, s))):
+                        for ay in range(int(max(1, s))):
+                            p.px(x + cx_ * max(1, s) + ax, y + cy_ * max(1, s) + ay, hot if (cx_ + cy_) % 2 == 0 else cool)
+            elif q['k'] == STREAK:
+                sp = math.hypot(q['vx'], q['vy'])
+                if sp > 1:
+                    dx, dy = q['vx'] / sp, q['vy'] / sp
+                    ln = min(22.0, sp * 0.035) * s
+                    n_ = max(2, int(ln / 2))
+                    for j in range(n_):                                                 # 머리는 이어지고 꼬리는 점선
+                        if j < n_ * 0.5 or j % 2 == 0:
+                            if s >= 1.5:                                                # 굵은 줄기
+                                p.disc(x - dx * j * 2, y - dy * j * 2, s * 0.62, hot if j < 3 else cool)
+                            else:
+                                p.px(x - dx * j * 2, y - dy * j * 2, hot if j < 2 else cool)
             elif q['k'] == PUFF:
                 grow = out_cubic(min(1.0, u * 2.6))
                 shrink = 1.0 if u < 0.4 else 1.0 - ((u - 0.4) / 0.6) ** 1.5   # 점무늬로 흩지 않고 줄어들며 사라진다

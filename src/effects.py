@@ -605,6 +605,74 @@ def zone_glow(player):
     return config.ZONE_GLOW.get(g.zone, config.ZONE_GLOW['NORMAL'])
 
 
+def draw_sheet_at(name, x, y, t):
+    """시트(effects/<name>)의 t(0~1) 시점 한 장을 (x, y)에 그린다 (빛 시트 포함). 느려진 게임 시간과 상관없이 연출 객체가 직접 재생할 때."""
+    info = sheet_info(name)
+    fw, fh = info['frameSize']
+    cols, px, py = info['columns'], *info['pivot']
+    s = info.get('scale', config.EFFECT_SCALE)
+    n = info['frames'] // info.get('variants', 1)
+    i = min(n - 1, max(0, int(t * n)))
+    img = assets.image(f'effects/{name}.png')
+    left, bottom = (i % cols) * fw, img.h - (i // cols + 1) * fh
+    dx, dy = x - px * s, y - (fh - py) * s
+    glow = glow_of(name)
+    if glow is not None:
+        g = assets.image(glow)
+        assets.draw_clip_added(g, left, bottom, fw, fh, dx, dy, '', s, GLOW_ALPHA * (0.5 if options.reduce_flash else 1.0))
+    assets.draw_clip(img, left, bottom, fw, fh, dx, dy, '', s)
+
+
+class OverloadPop:
+    """오버로드 연출 (2026-11-24 사용자 요청): 기운이 주인공에게 빨려들며 화면이 어두워지고(OVERLOAD_GATHER) -> 팡 터지며 빛과 블러,
+    공간이 일렁인다(postfx). 실제 시간으로 흐른다(느려진 dt를 시간 배율로 나눈다). 화면은 멈추지 않고 느려진다."""
+    BURST = 0.8
+
+    def __init__(self, player):
+        self.p = player
+        self.name = 'overload-burst'
+        self.rt = 0.0
+        self.fresh = True
+        self.popped = False
+        self.x, self.y = player.center
+        request_slow_motion(config.OVERLOAD_GATHER + 0.12, 0.1)
+        assets.play_sound('ult_cast')
+        import camera
+        import postfx
+        sx, sy = camera.to_screen(self.x, self.y)
+        g = config.OVERLOAD_GATHER
+        postfx.play([(0.0, 1.0, 0.0, 0.0), (g * 0.93, 1.08, 0.5, 3.0), (g + 0.03, 1.02, 1.0, 18.0), (g + 0.22, 1.0, 0.55, 9.0),
+                     (g + 0.6, 1.0, 0.0, 0.0)], sx, sy)
+
+    def update(self, dt):
+        if self.fresh:
+            self.fresh = False
+        else:
+            self.rt += dt / max(0.05, time_scale())
+        if not self.popped and self.rt >= config.OVERLOAD_GATHER:
+            self.popped = True
+            self.x, self.y = self.p.center
+            add_trauma(config.SHAKE_OVERLOAD)
+            request_flash(config.OVERLOAD_FLASH_POP)
+            assets.play_sound('overload_zap')
+            spawn_blur(self.x, self.y, config.ZONE_GLOW['OVERLOAD'], self.p)
+        if self.rt >= config.OVERLOAD_GATHER + self.BURST:
+            game_world.remove_object(self)
+
+    def draw(self):
+        g = config.OVERLOAD_GATHER
+        if self.rt < g:                                               # 모이는 동안: 어두워지고 기운이 빨려든다
+            import camera
+            k = self.rt / g
+            left, bottom = camera.to_world(0, 0)
+            assets.draw_rect_color(left - 16, bottom - 16, config.SCREEN_W + 32, config.SCREEN_H + 32, (6, 0, 4),
+                                   0.72 * min(1.0, k * 2.5) * (0.6 if options.reduce_flash else 1.0))
+            self.p.draw()                                             # 주인공은 어둠 위로
+            draw_sheet_at('overload-gather', *self.p.center, k)
+        else:
+            draw_sheet_at('overload-burst', self.x, self.y, (self.rt - g) / self.BURST)
+
+
 def spawn_flare(x, y, color, big=False, line=False, small=False):
     """별 섬광: 큰 색 빛 원반 + 흰 여덟 갈래 별 + 불티. big은 1.5배가 아니라 정수 3배, line이면 화면을 가르는 빛줄기도."""
     if small:                                                         # 보통 타격: 작은 별 하나와 옅은 빛

@@ -273,8 +273,11 @@ def _test_jump(target):
 
 
 def draw():
+    import postfx
     clear_canvas()
+    postfx.begin()                                 # 연출 중이면 세계 층을 그림판에 그린다 (당김·블러·왜곡, 11/24)
     game_world.render(_apply_shake)
+    postfx.end()                                   # UI 층이 없을 때를 대비 (이미 끝냈으면 아무 일도 없다)
     assets.draw_offset = (0, 0)
     import transition
     transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
@@ -285,6 +288,9 @@ def _apply_shake(layer):
     """세계 레이어에는 카메라 이동과 화면 흔들림을 걸고 UI는 제자리에 둔다. 둘 다 정수 픽셀이다."""
     if layer == game_world.LAYER_ENEMY and room is not None:
         room.draw_foreground()                     # 전경 실루엣: 타일 위, 적·보스·주인공 아래 (캐릭터가 가장 위, 11/22)
+    if layer == game_world.LAYER_UI:
+        import postfx
+        postfx.end()                               # 세계 층까지만 왜곡한다: UI는 화면에 그대로
     if layer < game_world.LAYER_UI:
         sx, sy = effects.shake_offset()
         cx, cy = camera.offset()

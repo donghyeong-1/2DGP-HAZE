@@ -332,3 +332,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-24: 이펙트 v8 4차 — `flare-s`(작은 별 섬광) 추가, 위험 구간을 레드로 다시 구움: `hit-critical`(make_fx2.py), `pipe-slash-critical(-flat)`(make_slash_hq.py), `aura-critical`(make_aura.py)와 그 빛 시트. 모두 code-drawn.
 - 2026-11-24: 큰 마무리 연출 시트 `assets/effects/fin-burst.png`·`exec-crescent.png`와 빛 시트: `tools/make_fx2.py`(code-drawn, haze-fx 절차). 구성은 INARI 영상의 장면 순서를 참고(그림은 쓰지 않음). 처음 만든 도장 시트 exec-disc·exec-star는 삭제.
 - 2026-11-24: 이펙트 v8 5차 — `assets/effects/pipe-slash*`(13종), `air-spin*`(4종), `puff`·`surge`·`dust-land`·`quake-blast`·`death-burst`, `ult-nova-*`(5종), `overload-burst`와 빛 시트를 `tools/make_fx2.py`(code-drawn, haze-fx 절차)로 다시 만듦.
+- 2026-11-24: `assets/effects/overload-burst.png`(입자로만 만든 폭발)·`overload-gather.png`(모이는 기운)와 빛 시트: `tools/make_fx2.py`(code-drawn). 구성 방식은 pixelfx의 불덩이 입자를 참고(코드·결과물은 쓰지 않음).

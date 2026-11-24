@@ -692,9 +692,14 @@ def test_overload_triggers_screen_flash_hit_stop_and_zap():
     effects.reset()
     assert effects.flash_left == 0
     p.gauge.add(80)                                                       # 오버로드
-    assert effects.flash_left >= config.OVERLOAD_FLASH - 1e-9             # 화면 전체 섬광
-    assert effects.hit_stop_left >= config.OVERLOAD_HIT_STOP - 1e-9       # 폭발 순간 멈춤
-    assert 'overload-burst' in spawned_names()
+    # 2026-11-24 사용자: 기운이 모이며 어두워졌다가(OVERLOAD_GATHER) 팡 터진다. 화면 정지 대신 느려진다
+    assert 'overload-burst' in spawned_names()                            # 연출이 시작됐다
+    assert effects.flash_left == 0 and effects.time_scale() < 0.5         # 아직 터지지 않았고, 시간이 느려졌다
+    seq = [o for o in game_world.world[game_world.LAYER_EFFECT] if getattr(o, 'name', '') == 'overload-burst'][0]
+    seq.update(0.0)                                                       # 만든 프레임
+    assert not seq.popped
+    seq.update(config.OVERLOAD_GATHER * effects.time_scale() * 1.1)       # 모으는 시간이 (실제 시간으로) 지나면
+    assert seq.popped and effects.flash_left > 0                          # 터지며 화면이 번쩍인다
     effects.tick_shake(config.OVERLOAD_FLASH + 0.1)
     assert effects.flash_left == 0                                        # 섬광은 실제 시간으로 가라앉는다
 
@@ -708,7 +713,8 @@ def test_stun_aura_replaces_other_auras_and_exists():
     meta = json.load(open(os.path.join(root, 'aura-stun.json'), encoding='utf-8'))
     assert meta['loop'] is True and meta['frames'] == 16
     burst = json.load(open(os.path.join(root, 'overload-burst.json'), encoding='utf-8'))
-    assert burst['scale'] == 2                                            # 화면을 가로지르는 큰 충격 링(정수 2배)
+    assert burst['scale'] == 2                                            # 화면을 덮는 큰 폭발(정수 2배)
+    assert os.path.exists(os.path.join(root, 'overload-gather.json'))     # 터지기 전 기운이 모이는 그림
 
 
 def test_waking_up_from_stun_spawns_puff_once():

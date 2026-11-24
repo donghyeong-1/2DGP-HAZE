@@ -16,7 +16,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fxkit as fx  # noqa: E402
-from fxkit import EMBER, MOTE, PUFF, RAMPS, SHARD, SPARK, TAU, WHITE, Lights, Particles, Rng, clamp, out_cubic, out_expo  # noqa: E402
+from fxkit import (CHUNK, EMBER, FLAME, MOTE, PUFF, RAMPS, SHARD, SPARK, STREAK, TAU, WHITE, Lights, Particles, Rng, clamp,  # noqa: E402
+                   out_cubic, out_expo)
 
 HERO = os.path.join(fx.ROOT, 'assets', 'sprites', 'unified', 'hero6_idle_1.png')
 
@@ -892,10 +893,11 @@ for _wid, _ramp, _seed in (('pipe', 'awake', 71), ('knife', 'fade', 72), ('pisto
                                    blast_create)
 
 
-# ----- 오버로드 폭발 (2026-11-24 사용자: "팡 하고 터진다는 느낌이 없다"): 가는 선의 큰 고리가 아니라 꽉 찬 덩어리가 터져 나간다 -----
-# 한 줄: 큰 흰 별 덩어리 두 장 -> 진한 붉은 원반이 순식간에 부풀고(밝은 충격 테두리) -> 가운데부터 비워져 굵은 고리로 화면 밖까지 밀려나며
-#        토막 난다. 굵은 가시, 빠른 불티·큰 조각이 사방으로.
-OVER_META = dict(size=[460, 460], origin=[230, 230], duration=0.7, fps=30, options=dict(ramp='critical', seed=81))
+# ----- 오버로드 폭발 v3 (2026-11-24 사용자: "뾰족뾰족·동그라미 같은 단순한 도형 느낌을 지워라"): 도형을 그리지 않고 입자로만 만든다 -----
+# 한 줄: 흰 불덩이 무더기가 팡 터지고 -> 식어 가는 붉은 불덩이들이 사방으로 밀려나며 몸통을 이루고 -> 작은 불덩이 띠가 고리처럼
+#        화면 밖까지 번지고 -> 불덩이 줄기가 혀처럼 뻗고, 불티·픽셀 조각·잿불이 남는다.
+OVER_META = dict(size=[460, 460], origin=[230, 230], duration=0.8, fps=30, options=dict(ramp='critical', seed=81))
+WHITE_HEAT = [WHITE] * 5 + [(255, 236, 236), (255, 200, 200), (255, 150, 150), (236, 58, 72)]     # 처음 터지는 흰 덩어리
 
 
 def over_create(o):
@@ -903,16 +905,33 @@ def over_create(o):
     rng = Rng(o['seed'])
     ps = Particles(rng, R)
     lights = Lights()
-    lights.add(0, 0, 225, R[2], 150, 0.5)
-    lights.add(0, 0, 120, WHITE, 190, 0.22)
-    lights.add(0, 0, 60, WHITE, 200, 0.14)
-    ps.burst(SPARK, 0, 0, 46, (500, 1500), (0.25, 0.55), up=60, size=(1.6, 2.6))
-    ps.burst(SHARD, 0, 0, 24, (360, 1000), (0.35, 0.6), up=140, size=(2.0, 4.0))
-    ps.burst(MOTE, 0, 0, 34, (200, 800), (0.3, 0.6), size=(1.0, 2.0))
-    ps.burst(EMBER, 0, 0, 16, (60, 240), (0.4, 0.62), delay=(0.12, 0.3))
-    n = 16
-    rays = [(TAU * i / n + rng.range(-0.14, 0.14), rng.range(0.65, 1.25), rng.range(0.0, 0.03)) for i in range(n)]
-    arcs = [(TAU * i / 9 + rng.range(-0.12, 0.12), rng.range(0.42, 0.62), rng.range(0.7, 1.4), rng.range(0.0, 0.08)) for i in range(9)]
+    ps.cool_pow = 1.0                                           # 오래 뜨겁게 (금방 검붉어지면 탁하다)
+    lights.add(0, 0, 225, R[2], 160, 0.6)
+    lights.add(0, 0, 150, R[3], 150, 0.4)
+    lights.add(0, 0, 130, WHITE, 200, 0.24)
+    for _ in range(14):                                         # 팡: 가운데 흰 불덩이 무더기 (금방 식는다)
+        ps.spawn(FLAME, rng.range(-30, 30), rng.range(-30, 30), rng.range(-260, 260), rng.range(-260, 260), rng.range(0.12, 0.22),
+                 rng.range(70, 115), ramp=WHITE_HEAT)
+    for _ in range(46):                                         # 몸통: 식어 가는 불덩이들이 밀려난다 (크기·속도·수명 제각각)
+        a = rng.range(0, TAU)
+        sp = rng.range(160, 1150)
+        ps.spawn(FLAME, math.cos(a) * 10, math.sin(a) * 10, math.cos(a) * sp, math.sin(a) * sp, rng.range(0.22, 0.5),
+                 rng.range(18, 52), rng.range(0.0, 0.05))
+    for i in range(150):                                        # 충격 띠: 작은 불덩이가 비슷한 속도로 퍼져 들쭉날쭉한 띠가 된다 (구슬처럼 고르면 안 된다)
+        a = rng.range(0, TAU)
+        sp = rng.range(1450, 2050)
+        ps.spawn(FLAME, math.cos(a) * 24, math.sin(a) * 24, math.cos(a) * sp, math.sin(a) * sp, rng.range(0.2, 0.42),
+                 rng.range(4, 17), rng.range(0.02, 0.05))
+    for j in range(11):                                         # 혀: 한 방향으로 불덩이를 줄지어 쏜다 (뒤로 갈수록 작고 빠르다)
+        a = TAU * j / 11 + rng.range(-0.2, 0.2)
+        reach = rng.range(0.7, 1.3)
+        for k in range(16):                                     # 촘촘히 겹쳐서 한 줄기로 (구슬처럼 떨어지면 안 된다)
+            sp = (620 + 105 * k + rng.range(-40, 40)) * reach
+            b = a + rng.range(-0.05, 0.05)
+            ps.spawn(FLAME, 0, 0, math.cos(b) * sp, math.sin(b) * sp, rng.range(0.24, 0.42), max(3.0, 30 - 1.7 * k) * reach, 0.004 * k)
+    ps.burst(SPARK, 0, 0, 50, (600, 1700), (0.3, 0.6), up=60, size=(1.4, 2.4))
+    ps.burst(CHUNK, 0, 0, 40, (300, 1100), (0.4, 0.75), up=160, size=(2.0, 3.0))
+    ps.burst(EMBER, 0, 0, 26, (80, 320), (0.45, 0.75), delay=(0.15, 0.35))
     t = [0.0]
 
     class Over:
@@ -922,55 +941,57 @@ def over_create(o):
             lights.update(dt)
 
         def draw(self, p):
-            u = t[0]
-            i = int(u * 30 + 0.01)
-            if i >= 2:                                         # 진한 원반 -> 굵은 고리 -> 토막
-                v = u - 2 / 30
-                r = 104 + 106 * out_expo(v / 0.16)           # 흰 별 크기에서 이어서 부푼다
-                hole = 0.0 if v < 0.07 else (r - 10) * out_cubic((v - 0.07) / 0.1)
-                late = max(0.0, v - 0.17)
-                if hole < 1:
-                    p.disc(0, 0, r, R[2])
-                    p.ring(0, 0, r - 3, 8, R[3])                # 밝은 충격 테두리
-                    p.ring(0, 0, r - 1, 2.5, WHITE)
-                    p.ring(0, 0, r * 0.7, 2.5, R[1], gaps=7, phase=u * 9)
-                    p.ring(0, 0, r * 0.42, 2.0, R[1], gaps=4, phase=-u * 7)
-                elif late < 0.04:
-                    w = max(3.0, r - hole)
-                    p.ring(0, 0, r - w / 2, w, R[2])
-                    p.ring(0, 0, r - 1, 3.0, R[3])
-                else:
-                    for a0, span, speed, stay in arcs:
-                        life = 0.26 + stay
-                        if late >= life:
-                            continue
-                        kk = late / life
-                        p.ring(0, 0, r + 22 * speed * out_cubic(kk), max(1.5, 14.0 * (1 - kk) ** 1.4), R[3] if kk < 0.3 else R[2],
-                               a=1.0 if kk < 0.7 else 1.0 - (kk - 0.7) / 0.3, a0=a0, a1=a0 + span * (1 - kk * 0.4))
-                p.glow_ring(0, 0, r, 26, R[2], 120 * max(0.0, 1.0 - v / 0.4))
-            for ang, ln, delay in rays:                         # 굵은 가시: 원반보다 먼저 튀어 나간다
-                v = u - delay
-                if v < 0 or v > 0.3:
-                    continue
-                head = (70 + 150 * out_expo(v / 0.12)) * ln
-                tail = 30 + 170 * out_cubic(v / 0.3) * ln
-                if head - tail < 3:
-                    continue
-                c, s_ = math.cos(ang), math.sin(ang)
-                p.needle(c * tail, s_ * tail, c * head, s_ * head, R[3] if v > 0.08 else WHITE, 13 * (1 - v / 0.32) + 2, tip=WHITE)
-            if i < 3:                                           # 주인공 프레임: 큰 흰 별 덩어리 ("팡")
-                s = (1.0, 0.86, 0.5)[i]
-                for j in range(14):
-                    ang = TAU * j / 14 + 0.17
-                    ln = (150 if j % 2 == 0 else 96) * s
-                    p.needle(0, 0, math.cos(ang) * ln, math.sin(ang) * ln, WHITE, 46 * s)
-                p.disc(0, 0, 62 * s, WHITE)
             ps.draw(p)
-            lights.draw(p)
+            lights.draw(p)                                    # 빛은 번지는 둥근 빛뿐 (또렷한 원 모양 고리는 그리지 않는다)
     return Over()
 
 
 EFFECTS['overload-burst'] = (OVER_META, over_create)
+
+# ----- 오버로드 직전: 기운이 주인공에게 빨려든다 -----
+# 한 줄: 사방에서 줄기와 픽셀 조각이 점점 빨라지며 한 점으로 모이고, 가운데 빛이 커지다가 마지막 장에 흰 점으로 오므라든다.
+GATHER_META = dict(size=[460, 460], origin=[230, 230], duration=0.3, fps=30, options=dict(ramp='critical', seed=83))
+
+
+def gather_create(o):
+    R = RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    ps = Particles(rng, R)
+    for _ in range(120):
+        a = rng.range(0, TAU)
+        d = rng.range(90, 228)
+        delay = rng.range(0.0, 0.12)
+        life = 0.3 - delay - rng.range(0.0, 0.03)
+        v0 = d / max(0.05, life) * 0.36                         # 느리게 출발해 빨라져서 (STREAK) 수명 끝에 가운데에 닿는다
+        ps.spawn(STREAK if rng.chance(0.7) else MOTE, math.cos(a) * d, math.sin(a) * d, -math.cos(a) * v0, -math.sin(a) * v0,
+                 life, rng.range(1.2, 3.2), delay)
+    t = [0.0]
+
+    class Gather:
+        def update(self, dt):
+            t[0] += dt
+            for q in ps.items:                                  # 알갱이(MOTE)도 가운데로 끌려간다
+                if q['k'] == MOTE and q['age'] > 0:
+                    d = math.hypot(q['x'], q['y']) or 1.0
+                    q['vx'] -= q['x'] / d * 2600 * dt
+                    q['vy'] -= q['y'] / d * 2600 * dt
+            ps.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            ps.draw(p)
+            k = u / 0.3
+            p.glow(0, 0, 40 + 150 * k, R[2], 70 + 110 * k)      # 가운데 빛이 커진다
+            p.glow(0, 0, 16 + 30 * k, WHITE, 150 * k)
+            if k > 0.55:                                        # 오므라드는 흰 심 (불규칙한 작은 불덩이 몇 개)
+                for i in range(4):
+                    a = i * 1.7 + u * 20
+                    r = 7 * (k - 0.5) * 2
+                    p.disc(math.cos(a) * 3, math.sin(a) * 3, r * (0.6 + 0.2 * (i % 2)), WHITE)
+    return Gather()
+
+
+EFFECTS['overload-gather'] = (GATHER_META, gather_create)
 
 
 def main(argv):

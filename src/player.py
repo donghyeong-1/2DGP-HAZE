@@ -614,12 +614,8 @@ class Player(TileBody):
 
     def _on_gauge_event(self, name, gauge):
         if name == 'overload':
-            effects.add_trauma(config.SHAKE_OVERLOAD)
-            effects.spawn('overload-burst', *self.center, duration=0.6)   # 오버로드 폭발 (큰 흰 별 -> 꽉 찬 붉은 원반 -> 굵은 고리)
-            effects.spawn_blur(*self.center, config.ZONE_GLOW['OVERLOAD'], self)   # 가로로 번지는 블러
-            effects.request_flash(config.OVERLOAD_FLASH)                  # 화면 전체 섬광
-            effects.request_hit_stop(config.OVERLOAD_HIT_STOP)            # 폭발 순간 멈춤
-            assets.play_sound('overload_zap')
+            # 11/24 사용자: 기운이 모이며 어두워졌다가 팡 터지고, 빛·블러와 함께 공간이 일렁인다 (effects.OverloadPop)
+            game_world.add_object(effects.OverloadPop(self), game_world.LAYER_EFFECT)
             # 오버로드: 최대 체력의 일부 피해 (기절은 게이지가 stun_timer로 건다)
             import mutations
             mutations.on_overload(self)                                   # 변이 '불씨 폭주'

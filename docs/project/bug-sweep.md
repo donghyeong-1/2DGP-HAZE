@@ -19,6 +19,7 @@
 | 효과음 듣기에서 G·B·X를 누르면 저장 폴더를 쓸 수 없을 때 **게임이 꺼진다** (`FileNotFoundError`/`PermissionError`) | `sfx_mode.save`만 저장 실패를 잡지 않았다 (다른 저장은 `safe_io`가 잡는다) | `sfx_mode.save`: 실패하면 기록만 남기고 표시는 이번 실행 동안 유지 |
 | 키 설정의 빈 보조 칸(None)을 물으면 '왼쪽 이동'이 나온다 | `keybinds.action_for(None)`이 `None in [A, None]`을 참으로 봤다. 11/25 `sync_inputs` 튕김과 같은 종류. 지금 부르는 곳은 없지만 같은 실수를 막는다 | `keybinds.action_for` |
 | 카드가 0장인 증강 창에서 A·D·Enter를 누르면 튕긴다 (`ZeroDivisionError`/`IndexError`) | 지금은 여는 쪽이 빈 목록을 거르지만, 창 자체는 빈 목록을 가정하지 않았다 | `mutation_mode.handle_events`·`update`: 카드가 없으면 닫는다 |
+| **최종 보스 아크가 2페이즈 '농도 띠'·'결정 벽'을 쓰는 순간 게임이 꺼진다** (main에도 있음) | 두 패턴의 몸 그림과 예고 빛 색이 없다. 병합 연습의 한 판 흐름에서 찾았다(`docs/project/merge-plan.md`) | `ark.py`: 비슷한 자세를 빌리고 색 둘 추가, `tests/test_ark_frames.py` |
 
 ## 무작위 입력 결과
 - 1차(시드 1, 장면당 300프레임): 튕김 0.

@@ -397,40 +397,45 @@ class CutHalves:
             assets.draw_rect_color(int(bx), int(by + half) - 2, img.w, 4, (255, 255, 255), 1.0 - k / 0.25)
 
 
-class DashExecution:
-    """표식 3개 처형 (v3, 2026-11-24 사용자가 준 INARI 영상을 프레임별로 분석해 같은 순서로):
-      0.00  예고 초승달이 적을 감싼다: 회색 -> 흰색 -> 진한 자홍 -> 가늘어진다. 배경이 어두워지고 시간이 느려진다
-      0.14  첫 일격: 화면을 가르는 흰 빛줄기(위아래 붉고 푸른 가장자리) + 위아래로 긴 붉은 가시. 주인공은 흰 실루엣, 적은 검은 실루엣
+def _deep(color, k=1.6):
+    """그 색의 진한 면 색: 가장 밝은 성분은 두고 나머지를 더 낮춰 채도를 올린다 (옅은 색이 원반에서 뿌옇게 보이지 않게)."""
+    top = max(color)
+    return tuple(max(0, int(top - (top - c) * k)) for c in color)
+
+
+class FinisherCut:
+    """큰 마무리 연출 (v3, 2026-11-24 사용자가 준 INARI 영상을 프레임별로 분석해 같은 순서로). 처형과 궁극기 마무리가 쓴다.
+      0.00  예고 초승달이 적을 감싼다: 회색 -> 흰색 -> 진한 색 -> 가늘어진다. 배경이 어두워지고 시간이 느려진다
+      0.14  첫 일격: 화면을 가르는 흰 빛줄기 + 위아래로 긴 색 가시. 주인공은 흰 실루엣, 적은 검은 실루엣
       0.17  작은 진한 원반 -> 0.20 빛줄기 자리에 **검은 띠** (잔상)
-      0.24  둘째 일격(피해): 흰 빛줄기 + 큰 붉은 네 갈래 별
-      0.27  붉은 빛줄기 + **크고 진한 붉은 원반**(흰 부분은 가운데 작은 별과 불티뿐) -> 0.34 원반이 고리로 비워지고 검은 선
-      0.40  가는 흰 선과 고리가 스러지고, 조각이 흩어진다. 주인공은 0.5초쯤 색이 돌아온다
-    시간은 느려진 게임 시간이 아니라 실제 시간으로 흐른다(dt를 시간 배율로 나눈다). 화면을 완전히 멈추지 않는다."""
+      0.24  둘째 일격(on_hit): 흰 빛줄기 + 큰 색 네 갈래 별
+      0.27  색 빛줄기 + **크고 진한 원반**(흰 부분은 가운데 작은 별과 불티뿐) -> 0.34 원반이 고리로 비워지고 검은 선
+      0.40  가는 흰 선과 고리가 스러지고 조각이 흩어진다 -> 0.45 가로로 번지는 블러. 주인공은 0.5초쯤 색이 돌아온다
+    색은 부르는 쪽이 준다 (처형 = 게이지 구간·강화 단계 색, 궁극기 = 무기 색). 시간은 실제 시간으로 흐른다
+    (느려진 dt를 시간 배율로 나눈다). 화면을 완전히 멈추지 않는다. start를 주면 그 시점부터(궁극기는 예고 없이 0.14부터)."""
     T1, T2, END = 0.14, 0.24, 0.68
-    DEEP = (236, 26, 48)               # 진한 원래 색 (면)
-    MAGENTA = (255, 36, 122)
-
-    def __init__(self, weapon, enemy):
-        self.weapon, self.enemy = weapon, enemy
-        self.rt = 0.0
-        self.fresh = True
-        self.step = 0
-        self.ex, self.ey = enemy.center
-        self.frame = enemy._body_frame() if hasattr(enemy, '_body_frame') else None
-        self.debris = []
-        effects.request_slow_motion(0.42, 0.12)
-        game_world.add_object(ExecDim(color=(18, 2, 8), strength=0.72, life=0.14), game_world.LAYER_TILES)
-        assets.play_sound('swing_critical')
-
     CLEAR = ('TintFx', 'Bloom', 'SheetEffect', 'SlashMark', 'ImpactBurst', 'ImpactRing', 'DashStreak', 'PathSlash', 'BlurSmear',
-             'ExtraHits', 'BodyGhost')
+             'ExtraHits', 'BodyGhost', 'LightPillar')
+
+    def __init__(self, x, y, color, player, enemy=None, start=0.0, slow=(0.42, 0.12), clear=True):
+        self.ex, self.ey, self.color, self.player, self.enemy = x, y, color, player, enemy
+        self.deep = _deep(color)
+        self.rt = start
+        self.fresh = True
+        self.clear = clear
+        self.step = 0 if start < self.T1 else 1
+        self.frame = enemy._body_frame() if enemy is not None and hasattr(enemy, '_body_frame') else None
+        self.efoot, self.eface = ((enemy.x, enemy.y), enemy.face_dir) if enemy is not None else ((x, y), 1)
+        self.debris = []
+        effects.request_slow_motion(*slow)
+        game_world.add_object(ExecDim(color=(8, 4, 12), strength=0.72, life=0.14), game_world.LAYER_TILES)
 
     def update(self, dt):
         if self.fresh:                                                 # 만든 프레임의 dt는 느려지기 전 값이라 건너뛴다
             self.fresh = False
         else:
             self.rt += dt / max(0.05, effects.time_scale())
-        if self.rt < 0.45:                                             # 연출 동안은 다른 타격 이펙트를 걷어 낸다 (느려진 시간에 남아 그림을 덮는다)
+        if self.clear and self.rt < 0.45:                              # 연출 동안은 다른 타격 이펙트를 걷어 낸다 (느려진 시간에 남아 그림을 덮는다)
             layer = game_world.world[game_world.LAYER_EFFECT]
             for o in list(layer):
                 if type(o).__name__ in self.CLEAR:
@@ -439,7 +444,7 @@ class DashExecution:
                 layer.remove(self)
                 layer.append(self)
         e = self.enemy
-        if e.alive:
+        if e is not None and e.alive:
             self.ex, self.ey = e.center
             if hasattr(e, '_body_frame'):
                 self.frame = e._body_frame()
@@ -450,10 +455,16 @@ class DashExecution:
             assets.play_sound('ult_hit')
         if self.step == 1 and self.rt >= self.T2:
             self.step = 2
-            self._finish()
+            self.on_hit()
+            for _ in range(22):                                        # 흩어지는 조각 (흰색·진한 색)
+                a = random.uniform(0, math.tau)
+                sp = random.uniform(260, 900)
+                self.debris.append([self.ex, self.ey, math.cos(a) * sp, math.sin(a) * sp + 260,
+                                    random.choice(((255, 255, 255), (255, 255, 255), self.deep)), random.choice((4, 6, 8))])
+            effects.add_trauma(config.SHAKE_FINISHER * 1.6)
         if self.step == 2 and self.rt >= 0.45:                         # 원반이 사라진 뒤에 가로로 번지는 블러 (영상의 순서)
             self.step = 3
-            effects.spawn_blur(self.ex, self.ey, self.DEEP, self.weapon.owner)
+            effects.spawn_blur(self.ex, self.ey, self.deep, self.player)
         for d in self.debris:
             d[0] += d[2] * dt
             d[1] += d[3] * dt
@@ -461,35 +472,8 @@ class DashExecution:
         if self.rt >= self.END:
             game_world.remove_object(self)
 
-    def _finish(self):
-        e, w = self.enemy, self.weapon
-        if not e.alive:
-            return
-        p = w.owner
-        import drama
-        import mutations
-        damage = (config.DASH_EXEC_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mutations.damage_mult(p)
-                  * (config.DASH_EXEC_BOSS if getattr(e, 'BOSS', False) else 1.0))
-        side = 1 if p.x <= e.x else -1
-        before = set(id(o) for o in game_world.world[game_world.LAYER_EFFECT])
-        with drama.hit_style(big=True, color=EXEC_COLOR):
-            killed = e.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG)
-        p.gauge.add(config.GAIN_HIT * 2, 'hit')
-        if killed:
-            p.gauge.add(p.kill_gain(False), 'kill')
-            if self.frame is not None and not getattr(e, 'BOSS', False):       # 쓰러지는 그림 대신 두 동강
-                for o in list(game_world.world[game_world.LAYER_EFFECT]):
-                    if id(o) not in before and type(o).__name__ == 'Corpse':
-                        game_world.remove_object(o)
-                game_world.add_object(CutHalves(self.frame, *self.efoot, self.eface, side), game_world.LAYER_EFFECT)
-        for _ in range(22):                                                    # 흩어지는 조각 (흰색·붉은색)
-            a = random.uniform(0, math.tau)
-            sp = random.uniform(260, 900)
-            self.debris.append([self.ex, self.ey, math.cos(a) * sp, math.sin(a) * sp + 260,
-                                random.choice(((255, 255, 255), (255, 255, 255), self.DEEP)), random.choice((4, 6, 8))])
-        effects.add_trauma(config.SHAKE_FINISHER * 1.6)
-        effects.float_text(self.ex, self.ey + 150, '처형!', EXEC_COLOR, big=True, life=0.7)
-        assets.play_sound('impact_enh2')
+    def on_hit(self):
+        """둘째 일격 순간에 할 일 (처형은 여기서 피해를 준다)."""
 
     # ----- 그리기 -----
     def _band(self, y, h, color, alpha=1.0):
@@ -503,21 +487,19 @@ class DashExecution:
 
     def draw(self):
         rt, ex, ey = self.rt, self.ex, self.ey
-        p = self.weapon.owner
-        e = self.enemy
-        white, deep = (255, 255, 255), self.DEEP
+        p, e = self.player, self.enemy
+        white, deep = (255, 255, 255), self.deep
         if rt < self.T1:                                               # 예고 초승달
             i = min(4, int(rt / (self.T1 / 5)))
-            color = (150, 150, 162) if i == 0 else white if i == 1 else self.MAGENTA
-            self._stamp('exec-crescent', i, color)
+            self._stamp('exec-crescent', i, (150, 150, 162) if i == 0 else white if i == 1 else self.color)
             return
-        if e.alive and self.frame is not None and rt < 0.34:           # 적은 검은 실루엣
-            sprites.draw_silhouette(*self.frame, e.x, e.y, e.face_dir, (14, 4, 8), 0.9)
+        if e is not None and e.alive and self.frame is not None and rt < 0.34:     # 적은 검은 실루엣
+            sprites.draw_silhouette(*self.frame, e.x, e.y, e.face_dir, (10, 6, 12), 0.9)
         if rt < 0.52:                                                  # 주인공은 흰 실루엣 (끝에서 색이 돌아온다). 별·원반보다 아래에
             a = 1.0 if rt < 0.42 else 1.0 - (rt - 0.42) / 0.1
             sprites.draw_silhouette(*p._body_frame(), p.x, p.y, p.draw_face(), white, a)
-        if rt < 0.17:                                                  # 첫 일격: 흰 빛줄기 + 긴 붉은 가시
-            self._band(ey, 22, (255, 60, 80))
+        if rt < 0.17:                                                  # 첫 일격: 흰 빛줄기 + 긴 색 가시
+            self._band(ey, 22, self.color)
             self._band(ey - 12, 4, (90, 130, 255))
             self._band(ey, 14, white)
             self._stamp('exec-star', 0, deep)
@@ -526,14 +508,14 @@ class DashExecution:
         elif rt < self.T2:                                             # 검은 띠 (빛줄기의 잔상)
             self._band(ey, 16, (2, 0, 2), 0.9)
             assets.draw_rect_color(int(ex) - 2, int(ey) - 150, 4, 300, (2, 0, 2), 0.8)
-        elif rt < 0.27:                                                # 둘째 일격: 흰 빛줄기 + 큰 붉은 네 갈래 별
-            self._band(ey, 24, (255, 60, 80))
+        elif rt < 0.27:                                                # 둘째 일격: 흰 빛줄기 + 큰 색 네 갈래 별
+            self._band(ey, 24, self.color)
             self._band(ey - 13, 4, (90, 130, 255))
             self._band(ey, 16, white)
             self._stamp('exec-star', 1, deep)
-        elif rt < 0.34:                                                # 붉은 빛줄기 + 크고 진한 원반 + 작은 흰 별
+        elif rt < 0.34:                                                # 색 빛줄기 + 크고 진한 원반 + 작은 흰 별
             self._band(ey, 10, deep)
-            self._band(ey, 2, (255, 150, 160))
+            self._band(ey, 2, white, 0.6)
             self._stamp('exec-disc', 1 if rt < 0.305 else 2, deep)
         elif rt < 0.40:                                                # 고리로 비워지고 검은 선
             self._band(ey, 6, (2, 0, 2), 0.85)
@@ -545,6 +527,41 @@ class DashExecution:
                 self._stamp('exec-disc', 4 if rt < 0.48 else 5, deep)
         for x, y, _, _, color, size in self.debris:
             assets.draw_rect_color(int(x) // 2 * 2, int(y) // 2 * 2, size, size, color)
+
+
+class DashExecution(FinisherCut):
+    """표식 3개 처형: FinisherCut 연출을 처음(예고 초승달)부터. 둘째 일격에서 피해가 들어가고, 쓰러지면 두 동강.
+    색은 그 순간 주인공의 게이지 구간·강화 단계 색 (11/24 사용자: 색만 게이지에 맞게)."""
+
+    def __init__(self, weapon, enemy):
+        p = weapon.owner
+        super().__init__(*enemy.center, effects.zone_glow(p), p, enemy)
+        self.weapon = weapon
+        assets.play_sound('swing_critical')
+
+    def on_hit(self):
+        e, w = self.enemy, self.weapon
+        if not e.alive:
+            return
+        p = w.owner
+        import drama
+        import mutations
+        damage = (config.DASH_EXEC_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus * mutations.damage_mult(p)
+                  * (config.DASH_EXEC_BOSS if getattr(e, 'BOSS', False) else 1.0))
+        side = 1 if p.x <= e.x else -1
+        before = set(id(o) for o in game_world.world[game_world.LAYER_EFFECT])
+        with drama.hit_style(big=True, color=self.color):
+            killed = e.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG)
+        p.gauge.add(config.GAIN_HIT * 2, 'hit')
+        if killed:
+            p.gauge.add(p.kill_gain(False), 'kill')
+            if self.frame is not None and not getattr(e, 'BOSS', False):       # 쓰러지는 그림 대신 두 동강
+                for o in list(game_world.world[game_world.LAYER_EFFECT]):
+                    if id(o) not in before and type(o).__name__ == 'Corpse':
+                        game_world.remove_object(o)
+                game_world.add_object(CutHalves(self.frame, *self.efoot, self.eface, side), game_world.LAYER_EFFECT)
+        effects.float_text(self.ex, self.ey + 150, '처형!', self.color, big=True, life=0.7)
+        assets.play_sound('impact_enh2')
 
 
 class ExecDim:
@@ -2431,6 +2448,7 @@ class ChainHook:
 # 궁극기 v2 (2026-11-24): 무기마다 기술 하나, 구성이 서로 다르다 (아래 Ultimate와 무기별 클래스)
 ULT_NAMES = {'pipe': '안개 난무', 'pistol': '록온 난사', 'gauntlet': '유성 돌진', 'chain': '사슬 감옥'}
 ULT_COLORS = {'pipe': (150, 235, 255), 'pistol': (180, 250, 240), 'gauntlet': (120, 220, 245), 'chain': (200, 160, 255)}
+ULT_DEEP = {'pipe': (40, 190, 255), 'pistol': (40, 235, 180), 'gauntlet': (255, 130, 40), 'chain': (160, 90, 255)}   # 마무리 연출의 진한 면 색
 
 
 class Decor:
@@ -2602,15 +2620,12 @@ class Ultimate:
         return killed
 
     def _finale(self, cx, cy):
-        """마지막 일격: 빛기둥 + 큰 고리 + 광역 폭발 + 무기별 마무리 소리 (화면은 멈추지 않는다)."""
-        game_world.add_object(effects.LightPillar(cx, self.floor_y, self.color), game_world.LAYER_EFFECT)
-        effects.spawn_ring(cx, cy, self.color, radius_max=440, life=0.45)
-        effects.spawn_ring(cx, cy, (255, 255, 255), radius_max=300, life=0.32)
-        effects.request_flash(0.06)
+        """마지막 일격: 광역 폭발 + 큰 마무리 연출(FinisherCut) + 무기별 마무리 소리 (화면은 멈추지 않고 잠깐 느려진다)."""
         effects.add_trauma(0.8)
-        effects.spawn_flare(cx, cy, self.color, big=True, line=True)            # v8: 큰 별 섬광 + 화면을 가르는 빛줄기
-        effects.spawn_blur(cx, cy, self.color, self.weapon.owner)               # 가로로 번지는 블러
         self._nova(cx, cy)
+        # 11/24 사용자: 처형과 같은 마무리 연출 (예고 초승달 없이 첫 일격부터). 빛기둥·큰 고리·별 섬광은 이것으로 대신한다
+        game_world.add_object(FinisherCut(cx, cy, ULT_DEEP[self.weapon.weapon_id], self.weapon.owner, start=FinisherCut.T1, slow=(0.36, 0.2)),
+                              game_world.LAYER_EFFECT)
         assets.play_sound(f'ult_final_{self.weapon.weapon_id}')
 
     def _in_reach(self, radius, sight=True):

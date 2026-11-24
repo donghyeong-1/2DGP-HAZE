@@ -129,7 +129,7 @@ def test_every_hit_leaves_a_slash_mark_and_strong_hits_more():
 
 
 # ----- 궁극기 -----
-def test_ultimate_draws_slash_storm_and_final_pillar():
+def test_ultimate_draws_slash_storm_and_final_cut():
     import test_ultimate as tu
     room, p, foes = tu.stacked(90, 3, [150])
     assert p.request_attack()
@@ -138,8 +138,8 @@ def test_ultimate_draws_slash_storm_and_final_pillar():
         effects.hit_stop_left = 0.0
         tc.step(1)
         seen_marks = max(seen_marks, len([o for o in objs('SlashMark') if o.big]))
-        seen_pillar = seen_pillar or bool(objs('LightPillar'))
-        seen_ring = seen_ring or any(r.radius_max >= 300 for r in objs('ImpactRing'))
+        seen_pillar = seen_pillar or bool(objs('FinisherCut'))            # 11/24: 빛기둥·큰 고리 대신 큰 마무리 연출
+        seen_ring = seen_pillar
         if not tu.ultimates():
             break
     assert seen_marks >= 3 and seen_pillar and seen_ring

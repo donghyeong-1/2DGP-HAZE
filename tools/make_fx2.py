@@ -410,14 +410,14 @@ def exec_disc_create(o):
     def draw(p, i):
         if i == 0:
             if not core:
-                p.disc(0, 0, 22, G[2])
+                p.disc(0, 0, 22, G[3])
                 p.ring(0, 0, 22, 2.5, G[3])
                 p.glow(0, 0, 44, WHITE, 120)
         elif i in (1, 2):
             r = 45 if i == 1 else 48
             if not core:
-                p.disc(0, 0, r, G[2])                                  # 진한 색 면 (주인공)
-                p.ring(0, 0, r, 3.5, G[3])                             # 밝은 테두리
+                p.disc(0, 0, r, G[3])                                  # 진한 색 면 (주인공): 색을 그대로 받는다
+                p.ring(0, 0, r, 3.5, G[1])                             # 조금 어두운 테두리 (면이 더 밝다)
                 p.ring(0, 0, r * 0.72, 1.5, G[3], gaps=6, phase=i)
                 p.glow(0, 0, r * 2.1, WHITE, 150)
                 p.glow(0, 0, r * 1.3, WHITE, 110)
@@ -431,7 +431,7 @@ def exec_disc_create(o):
                     p.needle(c * d0, s_ * d0, c * (d0 + ln), s_ * (d0 + ln), WHITE, 2.4)
         elif i == 3:
             if not core:
-                p.ring(0, 0, 50, 7, G[2])
+                p.ring(0, 0, 50, 7, G[3])
                 p.ring(0, 0, 53, 1.5, G[3])
                 p.glow_ring(0, 0, 50, 16, WHITE, 110)
             else:

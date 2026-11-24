@@ -403,6 +403,12 @@ def _deep(color, k=1.6):
     return tuple(max(0, int(top - (top - c) * k)) for c in color)
 
 
+def _enemy_snap(e):
+    """적의 지금 모습 (그림, 발 x, 발 y, 보는 쪽). 그림을 알 수 없으면 None."""
+    frame = enemy_frame(e)
+    return (frame, e.x, e.y, e.face_dir) if frame else None
+
+
 def enemy_frame(e):
     """적이 지금 그리는 그림 (세트, 번호). 동작 그림이 없는 순간((None, 0))은 Enemy.draw처럼 정지 그림 한 장으로 바꾼다.
     그림을 알 수 없으면 None (실루엣·두 동강을 건너뛴다)."""
@@ -428,8 +434,13 @@ class FinisherCut:
     CLEAR = ('TintFx', 'Bloom', 'SheetEffect', 'SlashMark', 'ImpactBurst', 'ImpactRing', 'DashStreak', 'PathSlash', 'BlurSmear',
              'ExtraHits', 'BodyGhost', 'LightPillar')
 
-    def __init__(self, x, y, color, player, enemy=None, start=0.0, slow=(0.42, 0.12), clear=True):
+    def __init__(self, x, y, color, player, enemy=None, start=0.0, slow=(0.42, 0.12), clear=True, victims=()):
         self.ex, self.ey, self.color, self.player, self.enemy = x, y, color, player, enemy
+        self.victims = {}                          # 맞은 적 {id: [적, (그림, 발 x, 발 y, 보는 쪽)]}: 끝의 블러가 이들도 번지게 한다
+        for v in ([enemy] if enemy is not None else []) + list(victims):
+            snap = _enemy_snap(v)
+            if snap:
+                self.victims[id(v)] = [v, snap]
         self.deep = _deep(color)
         self.rt = start
         self.fresh = True
@@ -458,6 +469,9 @@ class FinisherCut:
             self.ex, self.ey = e.center
             self.frame = enemy_frame(e) or self.frame
             self.efoot, self.eface = (e.x, e.y), e.face_dir
+        for pair in self.victims.values():                             # 살아 있는 동안은 지금 자리·그림을 따라간다 (죽으면 마지막 모습)
+            if pair[0].alive:
+                pair[1] = _enemy_snap(pair[0]) or pair[1]
         if self.step == 0 and self.rt >= self.T1:
             self.step = 1
             effects.add_trauma(config.SHAKE_FINISHER)
@@ -470,7 +484,7 @@ class FinisherCut:
             effects.add_trauma(config.SHAKE_FINISHER * 1.6)
         if self.step == 2 and self.rt >= 0.45:                         # 원반이 사라진 뒤에 가로로 번지는 블러 (영상의 순서)
             self.step = 3
-            effects.spawn_blur(self.ex, self.ey, self.deep, self.player)
+            effects.spawn_blur(self.ex, self.ey, self.deep, self.player, victims=[snap for _, snap in self.victims.values()])
         if self.rt >= self.END:
             game_world.remove_object(self)
 
@@ -2591,6 +2605,7 @@ class Ultimate:
         self.time = 0.0
         self.hits_done = 0
         self.dealt = {}
+        self.struck = {}
         self.targets = []
         self.started = False
         effects.add_trauma(0.6)
@@ -2621,6 +2636,7 @@ class Ultimate:
         with drama.hit_style(big=last, color=self.color):
             killed = e.take_damage(damage, from_x=p.x)
         self.dealt[id(e)] = self.dealt.get(id(e), 0.0) + damage
+        self.struck[id(e)] = e                         # 마무리의 블러가 맞은 적들도 번지게 한다
         ex, ey = e.center
         effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
         effects.spawn_impact(ex, ey, ex - p.x, ey - p.center[1], config.IMPACT_RAYS['enhanced'], self.color, big=last)
@@ -2638,8 +2654,8 @@ class Ultimate:
         effects.add_trauma(0.8)
         self._nova(cx, cy)
         # 11/24 사용자: 처형과 같은 마무리 연출 (예고 초승달 없이 첫 일격부터). 빛기둥·큰 고리·별 섬광은 이것으로 대신한다
-        game_world.add_object(FinisherCut(cx, cy, ULT_DEEP[self.weapon.weapon_id], self.weapon.owner, start=FinisherCut.T1, slow=(0.36, 0.2)),
-                              game_world.LAYER_EFFECT)
+        game_world.add_object(FinisherCut(cx, cy, ULT_DEEP[self.weapon.weapon_id], self.weapon.owner, start=FinisherCut.T1, slow=(0.36, 0.2),
+                                          victims=list(self.struck.values())), game_world.LAYER_EFFECT)
         assets.play_sound(f'ult_final_{self.weapon.weapon_id}')
 
     def _in_reach(self, radius, sight=True):

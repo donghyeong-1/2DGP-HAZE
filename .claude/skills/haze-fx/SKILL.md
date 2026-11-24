@@ -109,7 +109,11 @@ def create(o):
   `src/postfx.py`가 **배경까지 화면 전체를** 렌즈처럼 휘고(볼록 렌즈·퍼지는 굴절 고리) 빨강·초록·파랑을 갈라 그린다(색 번짐). 큰 연출에는
   `postfx.pulse(화면x, 화면y, 세기)`(처형·궁극기 마무리가 쓴다)나 `postfx.play(keys, 화면x, 화면y, ring=)`. 사용자가 말하는 '블러·공간 왜곡'은 이것이다
   (빛 띠를 겹치는 BlurSmear는 그 뜻이 아니었다).
-- **도형으로 만든 채 남아 있는 것(입자 구성으로 다시 만들 대상)**: 타격 불꽃 hit-*(십자·가시·고리), haze-blast·ult-nova(가시·고리), 충격 방사선·고리·베기 자국,
-  바닥 충격·소멸, 처형 fin-burst(원반·네 갈래 별), 별 섬광 flare.
+- **입자 구성으로 바꾼 것 (2026-11-24, `pb_create`)**: 타격 불꽃 hit-*, haze-blast, ult-nova 5종, death-burst, quake-blast, 충격 방사선 impact-rays(-big)(맞은 방향으로 쏠린 분출,
+  `cone` 옵션), 충격 고리 shock-ring-s/m/l(`pring_create`: 반지름을 지키는 입자 띠). 옵션 표는 `pb_create` 위 주석. 새 폭발·불꽃은 이것에 크기 `r`과 개수만 주어 만든다.
+  타격처럼 작은 것은 덩이(`body`)를 줄이고 불티·조각을 늘린다(덩이가 많으면 솜처럼 보인다). 두 겹 시트로 쓰려면 TINTS에 등록하면 된다(`layer`를 알아서 처리).
+- 반복 오라: `LOOPS`·`build_loop`(aura-stun = 오버로드 기절의 붉은 불길). 같은 뿌리기 일정을 주기마다 되풀이하고 한 주기를 먼저 돌린 뒤 굽는다. 불길은 뿌리에서 끝으로 가늘어지는
+  덩이의 줄(혀)로 그린다: 불덩이 입자를 흩뿌리면 솜뭉치처럼 보였다. 빛 시트가 있으면 `effects.draw_loop`가 같이 그린다.
+- **그대로 둔 것**: 별 섬광 flare·flare-s, 베기 자국 cut-mark, 처형 fin-burst·exec-crescent, 대시 궤적 DashStreak (사용자가 마음에 들어 한 대시 화풍). 바꾸려면 먼저 묻는다.
 - 아직 예전 방식: dash-strike(창 모양)·shockwave(보스 충격파, 반복)·오라(make_aura.py),
   실행 중 사각형 이펙트(effects.py의 PathSlash·LightPillar·ground_slam·처치 연출 KillSlash, weapon.py의 RushTrail·표식·사슬). DashStreak는 사용자가 마음에 들어 해 그대로.

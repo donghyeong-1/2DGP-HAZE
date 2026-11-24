@@ -173,6 +173,27 @@ def test_pipe_flurry_blinks_to_each_enemy_then_returns():
     assert p.gauge.value <= g0 + 0.01                                    # 궁극기 타격은 게이지를 올리지 않는다
 
 
+def test_finale_blur_also_smears_the_enemies_that_were_hit():
+    """2026-11-24 사용자: 궁극기가 끝나며 번지는 블러가 주인공에게만 있다 -> 맞은 적들도 같이 번져야 한다."""
+    room, p, (a, b, far), u = cast('pipe', [220, -380, 900])
+    seen = []
+
+    def watch():
+        for o in game_world.world[game_world.LAYER_EFFECT]:
+            if type(o).__name__ == 'BlurSmear' and o.victims and o not in seen:
+                seen.append(o)
+    run_out_ultimate(each=watch)
+    for _ in range(90):
+        effects.hit_stop_left = 0.0
+        tc.step(1)
+        watch()
+    assert seen, '맞은 적을 담은 블러가 없다'
+    blur = seen[-1]
+    assert len(blur.victims) == 2, blur.victims                          # 맞은 둘만 (범위 밖의 적은 아니다)
+    for frame, x, y, face in blur.victims:
+        assert frame[0] is not None and face in (-1, 1)
+
+
 def test_pistol_lockon_shoots_every_enemy_in_sight_and_lets_you_move():
     room, p, (a, b, far), u = cast('pistol', [150, -700, 1250], player_x=1300.0)
     x0 = p.x

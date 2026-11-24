@@ -1151,12 +1151,319 @@ def gather_create(o):
 EFFECTS['overload-gather'] = (GATHER_META, gather_create)
 
 
+# =====================================================================================================
+# 입자 폭발 pb_create (2026-11-24 사용자: '이제 haze-fx로 모두 개편'): 타격 불꽃·헤이즈 폭발·궁극기 폭발·소멸·바닥 충격을
+# 선·고리·가시 도형에서 **불규칙한 입자 무더기**로. 사용자가 받아들인 오버로드 폭발(over_create)과 같은 구성을 크기 r로 줄여 쓴다.
+# 한 줄: 흰 불덩이 무더기가 한두 장 번쩍 -> 식어 가는 불덩이들이 밀려나며 몸통이 되고, 작은 불덩이의 들쭉날쭉한 띠가 퍼지고,
+#        몇 줄기 혀가 뻗고 -> 불티·조각·잿불이 남아 흩어진다.
+# 옵션: r 반지름(논리 px), tl 수명 배율, white·body·band·tongues(개수), tongue_n(혀 하나의 불덩이 수), sparks·chunks·embers,
+#       half=True면 위쪽 반원(바닥에서 솟는다), dust=양옆으로 깔리는 먼지 덩이 수
+# 이전 판(hit_create·blast_create·_quake·_death)은 되돌릴 때를 위해 남겨 둔다.
+# =====================================================================================================
+def pb_create(o):
+    layer = o.get('layer')                                      # None = 색 시트 / 'tint'·'core' = 게임이 색을 입히는 두 겹 시트
+    R = G if layer else RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    ps = Particles(rng, R, ground=o.get('ground'))
+    pc = Particles(Rng(o['seed'] + 9), WHITES)                  # 흰 심 층 (두 겹 시트의 'core'): 흰 불덩이와 불티 몇 개
+    lights = Lights()
+    ps.cool_pow = o.get('cool', 1.0)
+    r = float(o['r'])
+    k = r / 230.0
+    tl = o.get('tl', 1.0)
+    half = o.get('half', False)
+    cone = o.get('cone')                                        # (방향 rad(그림 좌표), 벌어짐, 그쪽으로 가는 비율): 맞은 방향으로 쏠린다
+    hot = [WHITE] * 5 + [R[3], R[3], R[2], R[2]]                 # 처음 터지는 흰 덩어리가 식는 색
+
+    def ang():
+        if cone and rng.chance(cone[2]):
+            return cone[0] + rng.range(-cone[1] / 2, cone[1] / 2)
+        return rng.range(-math.pi + 0.15, -0.15) if half else rng.range(0, TAU)
+
+    lights.add(0, 0, r * 0.98, R[2], 150, 0.6 * tl)
+    lights.add(0, 0, r * 0.65, R[3], 140, 0.4 * tl)
+    lights.add(0, 0, r * 0.56, WHITE, 190, 0.24 * tl)
+    ws = o.get('ws', 1.0)
+    for _ in range(o.get('white', 12)):                         # 팡: 가운데 흰 불덩이 무더기 (금방 식는다)
+        x, y = rng.range(-30, 30) * k, rng.range(-30, 30 if not half else 0) * k
+        vx, vy = rng.range(-260, 260) * k, rng.range(-260, 260 if not half else 0) * k
+        life, size = rng.range(0.1, 0.18) * max(0.75, tl), rng.range(70, 115) * k * ws
+        ps.spawn(FLAME, x, y, vx, vy, life, size, ramp=hot)
+        pc.spawn(FLAME, x, y, vx, vy, life * 0.8, size * 0.8, ramp=[WHITE] * 4)
+    for _ in range(o.get('body', 40)):                          # 몸통: 식어 가는 불덩이들이 밀려난다
+        a_ = ang()
+        sp = rng.range(160, 1150) * k
+        ps.spawn(FLAME, math.cos(a_) * 10 * k, math.sin(a_) * 10 * k, math.cos(a_) * sp, math.sin(a_) * sp, rng.range(0.22, 0.5) * tl,
+                 max(2.0, rng.range(18, 52) * k), rng.range(0.0, 0.05))
+    for _ in range(o.get('band', 130)):                         # 띠: 작은 불덩이가 비슷한 속도로 퍼진다 (각도는 무작위)
+        a_ = ang()
+        sp = rng.range(1450, 2050) * k
+        ps.spawn(FLAME, math.cos(a_) * 24 * k, math.sin(a_) * 24 * k, math.cos(a_) * sp, math.sin(a_) * sp, rng.range(0.2, 0.42) * tl,
+                 max(1.0, rng.range(4, 17) * k), rng.range(0.02, 0.05))
+    nt, tn = o.get('tongues', 9), o.get('tongue_n', 14)
+    for j in range(nt):                                         # 혀: 한 방향으로 불덩이를 줄지어 쏜다
+        if cone:
+            a_ = cone[0] + cone[1] * ((j + 0.5) / nt - 0.5) + rng.range(-0.1, 0.1)
+        else:
+            a_ = (-math.pi + math.pi * (j + 0.5) / nt if half else TAU * j / nt) + rng.range(-0.22, 0.22)
+        reach = rng.range(0.7, 1.3)
+        for m in range(tn):
+            sp = (620 + 105 * m * 16 / tn + rng.range(-40, 40)) * reach * k * o.get('tongue_k', 1.0)
+            b_ = a_ + rng.range(-0.05, 0.05)
+            size = max(1.2, (30 - 1.7 * m * 16 / tn) * reach * k)
+            ps.spawn(FLAME, 0, 0, math.cos(b_) * sp, math.sin(b_) * sp, rng.range(0.24, 0.42) * tl, size, 0.004 * m)
+            if m >= tn - 3:                                     # 혀끝은 흰 심으로도 (두 겹 시트)
+                pc.spawn(FLAME, 0, 0, math.cos(b_) * sp, math.sin(b_) * sp, 0.16 * tl, size, 0.004 * m, ramp=[WHITE] * 4)
+    sk = o.get('spark_k', k)
+    aim, spread = (-math.pi / 2, math.pi * 0.9) if half else (cone[0], cone[1] * 1.5) if cone else (0.0, TAU)
+    n_sp = o.get('sparks', 30)
+    ps.burst(SPARK, 0, 0, n_sp, (600 * sk, 1700 * sk), (0.3 * tl, 0.6 * tl), spread=spread, aim=aim, up=60 * sk,
+             size=o.get('spark_size', (1.0, 1.8)))
+    pc.burst(SPARK, 0, 0, n_sp // 3, (600 * sk, 1700 * sk), (0.2 * tl, 0.4 * tl), spread=spread, aim=aim, up=60 * sk,
+             size=o.get('spark_size', (1.0, 1.8)))
+    ps.burst(CHUNK, 0, 0, o.get('chunks', 20), (300 * sk, 1100 * sk), (0.4 * tl, 0.75 * tl), spread=spread, aim=aim, up=160 * sk,
+             size=o.get('chunk_size', (1.2, 2.2)))
+    ps.burst(EMBER, 0, 0, o.get('embers', 14), (80 * sk, 320 * sk), (0.45 * tl, 0.75 * tl), spread=spread, aim=aim, delay=(0.12 * tl, 0.3 * tl))
+    for side in (-1, 1):                                        # 바닥을 따라 깔리는 먼지 (바닥 충격)
+        for _ in range(o.get('dust', 0)):
+            ps.spawn(PUFF, side * rng.range(6, 20), -3, side * rng.range(120, 300), -rng.range(10, 50), rng.range(0.24, 0.4),
+                     rng.range(0.8, 1.4), ramp=RAMPS['dust'])
+    t = [0.0]
+
+    class Burst:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+            pc.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            if layer == 'core':
+                pc.draw(p)
+                return
+            ps.draw(p)
+            lights.draw(p)
+    return Burst()
+
+
+# 충격 고리 (두 겹 시트): 또렷한 원 대신 작은 불덩이들이 비슷한 속도로 퍼져 만드는 들쭉날쭉한 띠. 반지름은 그대로(범위를 알려 주는 고리다).
+def pring_create(o):
+    R_, core = float(o['radius']), o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    ps = Particles(rng, G)
+    pc = Particles(Rng(o['seed'] + 9), WHITES)
+    lights = Lights()
+    ps.cool_pow = 1.1
+    lights.add(0, 0, R_ * 0.95, WHITE, 70, 0.26)
+    for i in range(int(R_ * 1.5) + 24):
+        a_ = rng.range(0, TAU)
+        life = rng.range(0.2, 0.3)
+        sp = R_ * 0.72 * 5.0 / (1 - math.exp(-5.0 * life)) * rng.range(0.92, 1.05)      # 0.28R에서 출발해 R 언저리에 닿는다
+        size = max(1.2, R_ * rng.range(0.02, 0.05))
+        x, y = math.cos(a_) * R_ * 0.28, math.sin(a_) * R_ * 0.28
+        delay = rng.range(0.0, 0.03)
+        ps.spawn(FLAME, x, y, math.cos(a_) * sp, math.sin(a_) * sp, life, size, delay)
+        if i % 4 == 0:                                          # 흰 심도 같은 박자로 (먼저 나오면 첫 장에 흰 점선 원이 보인다)
+            pc.spawn(FLAME, x, y, math.cos(a_) * sp, math.sin(a_) * sp, life * 0.5, size * 0.8, delay, ramp=[WHITE] * 4)
+    ps.burst(CHUNK, 0, 0, int(R_ / 7) + 3, (R_ * 3.2, R_ * 5.2), (0.18, 0.3), size=(1.0, 1.6))
+
+    class Ring:
+        def update(self, dt):
+            ps.update(dt)
+            pc.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            if core:
+                pc.draw(p)
+                return
+            ps.draw(p)
+            lights.draw(p)
+    return Ring()
+
+
+def _prays(meta):
+    """충격 방사선 시트의 크기·각도는 그대로 두고, 가시 대신 맞은 방향으로 쏠린 입자 분출로."""
+    o = meta['options']
+    big = o['big']
+    meta = dict(meta, options=dict(seed=o['seed'] + 200, r=(64 if big else 48), tl=0.5, cone=(-math.radians(o['angle']), 1.5, 0.8),
+                                   white=2, ws=0.45, body=3, band=22 if big else 14, tongues=4 if big else 3, tongue_n=9, tongue_k=1.5,
+                                   sparks=12 if big else 8, chunks=6 if big else 4, embers=0, spark_k=0.42 if big else 0.32,
+                                   spark_size=(1.0, 1.8), chunk_size=(1.0, 1.6)))
+    return (meta, pb_create)
+
+
+TINTS['impact-rays'] = [_prays(rays_meta(False, a)) for a in RAY_ANGLES]
+TINTS['impact-rays-big'] = [_prays(rays_meta(True, a)) for a in RAY_ANGLES]
+for _nm, _rad in (('shock-ring-s', 38), ('shock-ring-m', 78), ('shock-ring-l', 150)):
+    TINTS[_nm] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), pring_create)]
+
+
+def _pb(size, origin, duration, **opt):
+    return (dict(size=list(size), origin=list(origin), duration=duration, fps=30, options=opt), pb_create)
+
+
+for _name, (_ramp, _power, _seed) in HITS.items():              # 타격 불꽃 7종: 작고 빠르게
+    _size = 88 if _power < 1.2 else 112
+    EFFECTS[_name] = _pb((_size, _size), (_size // 2, _size // 2), 0.42 if _power < 1.2 else 0.5, ramp=_ramp, seed=_seed + 100,
+                         r=34 * _power, tl=0.62, white=3, ws=0.62, body=int(5 * _power), band=int(26 * _power), tongues=5, tongue_n=8,
+                         tongue_k=1.35, sparks=int(15 * _power), chunks=int(8 * _power), embers=3, spark_k=0.3 * _power,
+                         spark_size=(1.0, 1.9), chunk_size=(1.0, 1.8))        # 타격은 덩이보다 튀는 불티·조각이 주인공 (뭉치면 솜처럼 보인다)
+EFFECTS['haze-blast'] = _pb((176, 160), (88, 96), 0.8, ramp='haze', seed=104, r=74, white=9, body=28, band=90, tongues=8, tongue_n=11,
+                            sparks=22, chunks=14, embers=12, spark_k=0.3)
+for _wid, _ramp, _seed in (('pipe', 'awake', 171), ('knife', 'fade', 172), ('pistol', 'mint', 173), ('gauntlet', 'ember', 174), ('chain', 'violet', 175)):
+    EFFECTS['ult-nova-' + _wid] = _pb((230, 230), (115, 115), 0.66, ramp=_ramp, seed=_seed, r=106, tl=0.85, white=11, body=36, band=120,
+                                      tongues=10, tongue_n=13, sparks=30, chunks=18, embers=14, spark_k=0.36)
+EFFECTS['death-burst'] = _pb((110, 110), (55, 55), 0.46, ramp='haze', seed=165, r=46, tl=0.62, white=4, ws=0.7, body=12, band=34, tongues=0,
+                             sparks=8, chunks=16, embers=10, spark_k=0.24, chunk_size=(1.2, 2.2))
+EFFECTS['quake-blast'] = _pb((220, 120), (110, 116), 0.46, ramp='ember', seed=164, ground=0, half=True, r=92, tl=0.6, white=6, ws=0.6, body=16,
+                             band=46, tongues=9, tongue_n=12, tongue_k=1.5, sparks=14, chunks=18, embers=4, spark_k=0.4, dust=4, chunk_size=(1.4, 2.6))
+
+
+# =====================================================================================================
+# 오버로드 기절 오라 aura-stun v2 (2026-11-24 사용자: '감전되는 효과가 너무 별로'): 전기 아크 대신 **과열**.
+# 한 줄: 몸에서 붉은 불길이 새어 올라가 식고(불덩이 입자), 잿불이 떠오르고, 발밑에 붉은 빛이 숨 쉬듯 번진다. 반복(0.8초, 16장).
+# 반복이 이어지게: 같은 뿌리기 일정을 주기마다 되풀이하고(난수도 주기마다 같은 값), 한 주기를 먼저 돌린 뒤부터 굽는다.
+# =====================================================================================================
+STUN_T = 0.8
+STUN_META = dict(size=[120, 170], origin=[60, 158], duration=STUN_T, fps=20, options=dict(ramp='critical', seed=91))
+
+
+def stun_create(o):
+    R = RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    # 불길 혀: 몸 윤곽(양옆·어깨·머리 위)에서 솟는다. (뿌리 x, y, 높이, 굵기, 흔들림 위상, 한 주기에 일렁이는 횟수, 기울기)
+    tongues = []
+    for side in (-1, 1):
+        for y in (-6, -22, -38, -51):
+            tongues.append((side * (rng.range(8, 12) - 2 * (y < -45)), y + rng.range(-4, 4), rng.range(16, 40), rng.range(5.0, 7.0),
+                            rng.range(0, TAU), rng.pick((1, 2)), side * rng.range(0.25, 0.6)))
+    for x in (-7, 1, 8):
+        tongues.append((x + rng.range(-2, 2), -56 + rng.range(-3, 3), rng.range(22, 44), rng.range(5.0, 7.0), rng.range(0, TAU), rng.pick((1, 2)), rng.range(-0.3, 0.3)))
+    events = []                                                 # (시각, 종류, x, y, vx, vy, 수명, 크기)
+    for _ in range(18):                                         # 잿불
+        events.append((rng.range(0, STUN_T), EMBER, rng.range(-22, 22), -rng.range(10, 70), rng.range(-12, 12), -rng.range(30, 80),
+                       rng.range(0.4, 0.7), rng.range(0.8, 1.4)))
+    for _ in range(8):                                          # 튀는 조각
+        a_ = rng.range(-2.6, -0.5)
+        sp = rng.range(70, 170)
+        events.append((rng.range(0, STUN_T), CHUNK, rng.range(-10, 10), -rng.range(20, 50), math.cos(a_) * sp, math.sin(a_) * sp,
+                       rng.range(0.25, 0.4), rng.range(1.0, 1.6)))
+    events.sort(key=lambda e: e[0])
+    state = dict(t=0.0, i=0, ps=None)
+
+    def new_cycle():
+        old = state['ps'].items if state['ps'] else []
+        state['ps'] = Particles(Rng(o['seed'] + 5), R)          # 주기마다 같은 난수 -> 같은 모양이 되풀이된다
+        state['ps'].items = old
+        state['i'] = 0
+
+    def step(dt):
+        state['t'] += dt
+        while state['t'] >= STUN_T - 1e-9:
+            state['t'] -= STUN_T
+            new_cycle()
+        ps = state['ps']
+        while state['i'] < len(events) and events[state['i']][0] <= state['t']:
+            _, kind, x, y, vx, vy, life, size = events[state['i']]
+            ps.spawn(kind, x, y, vx, vy, life, size)
+            state['i'] += 1
+        ps.update(dt)
+
+    new_cycle()
+    for _ in range(int(STUN_T * 120)):                          # 한 주기를 먼저 돌려 둔다
+        step(1 / 120)
+
+    def tongue(p, tg, ph, layer, n):
+        """혀 하나: 뿌리에서 끝으로 갈수록 가늘어지는 울퉁불퉁한 덩이의 줄. 끝은 흔들리고, 맨 끝 한두 덩이는 떨어져 나간다."""
+        bx, by, hgt, r0, phase, cyc, lean = tg
+        beat = 0.5 + 0.5 * math.sin(TAU * cyc * ph + phase)       # 높이가 일렁인다
+        hgt = hgt * (0.62 + 0.38 * beat)
+        steps = 9
+        for m in range(steps + 2):
+            f = m / steps
+            if f > 1.0 and beat < 0.55:                           # 떨어져 나간 불씨는 혀가 높이 솟은 때만
+                continue
+            wob = math.sin(TAU * (cyc * ph * 2 + f * 1.3) + phase * 1.7) * 5.5 * f
+            x = bx + lean * hgt * f + wob
+            y = by - hgt * f * (1.0 if f <= 1.0 else 1.12)
+            r = r0 * max(0.0, 1.0 - f) ** 1.05 if f <= 1.0 else 1.1
+            sd = phase * 7 + m * 3.1 + n * 0.37                   # 장마다 모양이 조금씩 달라 타오르는 것처럼 보인다
+            if layer == 0 and r + 1.2 >= 0.8:
+                p.blob(x, y, r + 1.3, R[1] if f < 0.75 else R[0], sd, rough=0.22)       # 어두운 테두리
+            elif layer == 1 and r >= 0.8:
+                p.blob(x, y, r, R[2] if f < 0.6 else R[1], sd + 1.0, rough=0.2)          # 몸 (끝으로 갈수록 식어 어둡다)
+            elif layer == 2 and f < 0.34 and int(phase * 10) % 2 == 0 and r * 0.42 >= 0.8:
+                p.blob(x - lean * 1.5, y + 1, r * 0.42, R[3], sd + 2.0, rough=0.3)       # 뜨거운 심 (몇 줄기의 뿌리 쪽만)
+
+    class Stun:
+        def update(self, dt):
+            step(dt)
+
+        def draw(self, p):
+            ph = state['t'] / STUN_T
+            n = int(round(ph * 16)) % 16
+            k = 0.5 + 0.5 * math.sin(TAU * ph)                    # 숨 쉬듯 번지는 빛 (한 주기에 한 번)
+            p.glow(0, -34, 50, R[1], 80 + 40 * k)
+            p.glow(0, -40, 28, R[2], 60 + 50 * k)
+            p.glow(0, -2, 30, R[2], 50 + 30 * k)
+            for layer in (0, 1, 2):
+                for tg in tongues:
+                    tongue(p, tg, ph, layer, n)
+            state['ps'].draw(p)
+    return Stun()
+
+
+LOOPS = {'aura-stun': (STUN_META, stun_create)}
+
+
+def build_loop(name, look):
+    """반복 오라: 주인공을 기준점(발)에 세워 놓고 본다. json은 반복(loop)으로 고쳐 쓴다."""
+    import json
+    meta, create = LOOPS[name]
+    frames = fx.render(meta, create)
+    w, h = meta['size']
+    ox, oy = meta['origin']
+    hero = fx.Image.open(HERO).convert('RGBA')
+    hero = hero.crop(hero.getbbox())
+    hero = hero.resize((hero.width // 2, hero.height // 2), fx.Image.NEAREST)
+    cols = 8
+    out = fx.Image.new('RGB', (cols * w * 2, ((len(frames) + cols - 1) // cols) * h * 2), (9, 14, 24))
+    for i, (color, light) in enumerate(frames):
+        cell = fx.Image.new('RGB', (w, h), (9, 14, 24))
+        la = fx.np.asarray(light, fx.np.float32)
+        base = fx.np.clip(fx.np.asarray(cell, fx.np.float32) + la[..., :3] * (la[..., 3:4] / 255.0) * 0.85, 0, 255)
+        cell = fx.Image.fromarray(base.astype(fx.np.uint8), 'RGB')
+        behind = i % 2 == 0                                      # 짝수 칸: 게임처럼 오라가 몸 뒤, 홀수 칸: 오라만
+        if behind:
+            cell.paste(color, (0, 0), color)
+            cell.paste(hero, (ox - hero.width // 2, oy - hero.height), hero)
+        else:
+            cell.paste(color, (0, 0), color)
+        out.paste(cell.resize((w * 2, h * 2), fx.Image.NEAREST), ((i % cols) * w * 2, (i // cols) * h * 2))
+    path = os.path.join(fx.ROOT, 'shots', 'fx', name + '.png')
+    out.save(path)
+    if look:
+        print('본다', path)
+        return
+    info = fx.export(name, dict(meta), [frames])
+    jp = os.path.join(fx.ROOT, 'assets', 'effects', name + '.json')
+    data = json.load(open(jp, encoding='utf-8'))
+    data.update(id='aura/' + name, loop=True)
+    data.pop('duration', None)
+    json.dump(data, open(jp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print('구움', name, info['frames'], '프레임 (반복)')
+
+
 def main(argv):
     look = '--look' in argv
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
-    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS]
+    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS)
     for name in names:
+        if name in LOOPS:
+            build_loop(name, look)
+            continue
         if name in SLASHES or name in SPINS:
             build_slash(name, look)
             continue

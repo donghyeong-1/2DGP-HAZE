@@ -565,7 +565,7 @@ FINISHER_SLASH = 'pipe-slash-finisher'     # 3타는 구간과 상관없이 금�
 # 주인공 몸 주위 오라 (반복 재생). 노멀(20~49%)은 없다. E 강화 중에는 구간 오라 위에 겹친다
 AURA_BY_ZONE = {'FADE': 'aura-fade', 'AWAKE': 'aura-awake', 'CRITICAL': 'aura-critical'}
 AURA_ENHANCED = 'aura-enhanced'
-AURA_STUN = 'aura-stun'      # 오버로드 기절 중: 몸을 감싸고 튀는 전기 아크와 머리 위를 도는 별
+AURA_STUN = 'aura-stun'      # 오버로드 기절 중: 몸에서 새어 올라 타는 붉은 불길 (과열, tools/make_fx2.py)
 
 # 소리
 SOUND_ENABLED = False      # main이 오디오를 켠 뒤 True로 바꾼다 (테스트·창 없는 실행에서는 꺼져 있다)

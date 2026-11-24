@@ -127,6 +127,24 @@ def test_every_weapon_dash_attack_marks_once_per_dash():
         assert e.dash_marks == 1, (wid, e.dash_marks)                    # 한 대시에는 하나
 
 
+def test_execution_blur_smears_the_executed_enemy_too():
+    """2026-11-24 사용자: 마무리의 블러가 맞은 적에게도 번진다 (주인공만 번지면 한쪽만 움직인 것처럼 보인다)."""
+    room, p = _world()
+    e = _enemy(room, p, 120)
+    _dash_attack(p, 1)
+    _dash_attack(p, -1)
+    _dash_attack(p, 1, frames=3)
+    found = None
+    for _ in range(120):
+        tc.run_frames(1)
+        for o in game_world.world[game_world.LAYER_EFFECT]:
+            if type(o).__name__ == 'BlurSmear' and o.victims:
+                found = o
+        if found:
+            break
+    assert found is not None and len(found.victims) == 1
+
+
 def test_execution_uses_a_real_picture_even_when_the_enemy_has_no_motion_frame():
     """2026-11-24 버그: 적이 동작 그림 없이 서 있으면 _body_frame이 (None, 0)을 준다(정지 그림 한 장을 쓰라는 뜻).
     처형 연출이 그 이름으로 실루엣을 그리다 None.png를 찾지 못해 게임이 종료됐다."""

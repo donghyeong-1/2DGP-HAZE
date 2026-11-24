@@ -438,7 +438,7 @@ def spawn_path_slash(x0, y0, x1, y1, enhanced=False):
 def aura_names(zone, enhanced=False, stunned=False, level=1):
     """지금 게이지 구간과 강화 상태에서 주인공 주위에 그릴 오라 시트들. 강화 준비 중에는 보라색 강화 오라가 구간 오라를
     대체한다 (두 오라는 모두 실루엣을 감싸는 큰 불꽃이라 겹치면 지저분하다)."""
-    if stunned:                                            # 오버로드 기절: 전기 아크가 모든 오라를 대체한다
+    if stunned:                                            # 오버로드 기절: 과열의 붉은 불길이 모든 오라를 대체한다
         return [config.AURA_STUN]
     if enhanced:                                           # 강화 단계마다 다른 색 (1 보라·2 금·3 진홍)
         return [config.AURA_ENHANCED + ('' if level <= 1 else str(min(3, level)))]
@@ -455,7 +455,12 @@ def draw_loop(name, x, y, t, flip=False):
     img = assets.image(f'effects/{name}.png')
     s = info.get('scale', 1)
     left, bottom = (i % cols) * fw, img.h - (i // cols + 1) * fh
-    assets.draw_clip(img, left, bottom, fw, fh, x - ((fw - px) if flip else px) * s, y - (fh - py) * s, 'h' if flip else '', s)
+    dx, dy = x - ((fw - px) if flip else px) * s, y - (fh - py) * s
+    glow = glow_of(name)
+    if glow is not None:                                                   # 빛 시트가 있는 오라(기절의 과열)는 빛부터 깐다
+        assets.draw_clip_added(assets.image(glow), left, bottom, fw, fh, dx, dy, 'h' if flip else '', s,
+                               GLOW_ALPHA * (0.5 if options.reduce_flash else 1.0))
+    assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if flip else '', s)
 
 
 def slash_variant(ax, ay, angles=(0, 45, 90, -45, -90)):
@@ -561,8 +566,9 @@ class BlurSmear:
     """블러 느낌 (사용자 요청: 처형·궁극기): 가로로 길게 번지는 빛 띠 여러 겹 + 흰 속도선 + 주인공 잔상이 양옆으로 번졌다 모인다.
     화면을 읽어 흐리는 것이 아니라 빛 층을 가로로 늘어놓아 만든다 (pico2d에는 흐림 효과가 없다)."""
 
-    def __init__(self, x, y, color, player=None, life=0.32, reach=620):
+    def __init__(self, x, y, color, player=None, life=0.32, reach=620, victims=None):
         self.x, self.y, self.color, self.player, self.life, self.reach = x, y, color, player, life, reach
+        self.victims = list(victims or [])        # 맞은 적들 [(그림 (세트, 번호), 발 x, 발 y, 보는 쪽)]: 주인공처럼 양옆으로 번진다
         self.time = 0.0
         self.lines = [(random.uniform(-reach, reach), random.uniform(-150, 150), random.uniform(60, 260)) for _ in range(26)]
 
@@ -591,10 +597,14 @@ class BlurSmear:
                 for side in (-1, 1):
                     sprites.draw_silhouette(*p._body_frame(), p.x + side * d * (1.0 - t), p.y, p.draw_face(), self.color,
                                             max(0.0, 0.34 - 0.09 * i) * k)
+        for frame, vx, vy, face in self.victims:                        # 맞은 적도 같이 번진다 (2026-11-24 사용자 요청)
+            for i, d in enumerate((26, 54, 86)):
+                for side in (-1, 1):
+                    sprites.draw_silhouette(*frame, vx + side * d * (1.0 - t), vy, face, self.color, max(0.0, 0.4 - 0.1 * i) * k)
 
 
-def spawn_blur(x, y, color, player=None):
-    game_world.add_object(BlurSmear(x, y, color, player), game_world.LAYER_EFFECT)
+def spawn_blur(x, y, color, player=None, victims=None):
+    game_world.add_object(BlurSmear(x, y, color, player, victims=victims), game_world.LAYER_EFFECT)
 
 
 def zone_glow(player):

@@ -155,26 +155,18 @@ class GameUI:
         if not p.stunned:
             return
         t = p.aura_time
-        pulse = 0.5 + 0.5 * math.sin(t * 14)                    # 맥동
-        assets.draw_rect_color(0, 0, W, H, (255, 150, 60), 0.06 + 0.05 * pulse)      # 화면 전체 주황 틴트
-        for i in range(6):                                      # 가장자리 붉은 비네트: 안쪽으로 갈수록 옅다 (계단식)
-            inset, thick = i * 26, 26
-            a = 0.34 * (1 - i / 6) * (0.65 + 0.35 * pulse)
-            c = (255, 70, 50)
-            assets.draw_rect_color(0, H - inset - thick, W, thick, c, a)                  # 위
-            assets.draw_rect_color(0, inset, W, thick, c, a)                              # 아래
-            assets.draw_rect_color(inset, 0, thick, H, c, a)                              # 왼쪽
-            assets.draw_rect_color(W - inset - thick, 0, thick, H, c, a)                  # 오른쪽
-        seed = int(t * 20)                                      # 전기 노이즈 줄: 20Hz로 자리가 바뀌는 얇은 가로줄
-        for k in range(0 if options.reduce_flash else 7):       # 번쩍임 줄이기면 깜빡이는 줄을 그리지 않는다
-            y = (seed * 97 + k * 163) % H
-            assets.draw_rect_color(0, y, W, 3 + ((seed + k) % 3) * 2, (255, 242, 170), 0.15)
-        shake = int(round(4 * math.sin(t * 70)))
-        kit.text(W // 2 + shake, TOAST_Y + 60, '오버로드!', (255, 235, 120), center=True, big=True)
+        # 2026-11-24 사용자: '지지직 화면 전체에 나오는 줄이 너무 별로' -> 주황 틴트·계단 비네트·깜빡이는 가로줄을 없애고,
+        # 부드러운 붉은 가장자리가 심장 박자로 조여 왔다 풀리게만 한다 (체력 낮음 경고와 같은 그림, 더 진하게)
+        beat = max(0.0, math.sin(t * 7.85)) ** 2                # 약 0.8초에 한 번 뛴다 (오라의 숨과 같은 박자)
+        img = assets.image('ui/vignette_red.png')
+        img.opacify(min(1.0, 0.5 + 0.4 * beat) * (0.6 if options.reduce_flash else 1.0))
+        assets.draw_image(img, W // 2, 0)
+        img.opacify(1.0)
+        kit.text(W // 2, TOAST_Y + 60, '오버로드!', (255, 120, 128), center=True, big=True)
         bw = 420                                                # 기절 남은 시간
         bx, by = (W - bw) // 2, TOAST_Y - 10
-        kit.bar('yellow', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
-        kit.text(W // 2, by - 22, f'기절 {p.gauge.stun_timer:.1f}s', (255, 240, 150), small=True, center=True)
+        kit.bar('red', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
+        kit.text(W // 2, by - 22, f'기절 {p.gauge.stun_timer:.1f}s', (255, 190, 190), small=True, center=True)
 
     # ----- 가운데 위: 헤이즈 게이지 -----
     def _x_of(self, value):

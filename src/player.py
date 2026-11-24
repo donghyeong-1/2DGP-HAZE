@@ -935,8 +935,8 @@ class Player(TileBody):
             return 'n09_death', 1 if self.dead_time < t1 else 2 if self.dead_time < t2 else 3
         if self.state == 'DASH':
             return 'n09_dash', int(self.aura_time / config.DASH_FRAME_TIME) % 2 + 1
-        if self.stunned:
-            return 'n09_idle', 0
+        if self.stunned:                                # 기절: 몸을 가누지 못하고 휘청인 자세
+            return 'n09_hurt', 2
         if self.swing_left > 0 and self.swing_dir == 's2rise':     # 철파이프 2단계 올려베기 (T24): 3장을 고르게
             done = 1.0 - self.swing_left / self.swing_total
             k = sprites.count('n09_s2rise')
@@ -1002,11 +1002,10 @@ class Player(TileBody):
         if not blink:                                   # 피격 무적 중에는 깜빡인다
             name, n = self._body_frame()
             x, tint = self.x, None
-            if stunned:                                 # 기절: 몸이 덜덜 떨리고 노랗게 번쩍인다
-                x += int(round(3 * math.sin(self.aura_time * 95)))
-                if int(self.aura_time * 18) % 2 == 0:
-                    tint = (255, 240, 140)
             sprites.draw(name, n, x, self.y, self.draw_face(), tint)
+            if stunned:                                 # 기절(과열, 2026-11-24 감전 연출을 대신): 몸이 붉게 달아올랐다 식기를 되풀이한다
+                heat = 0.3 + 0.22 * math.sin(self.aura_time * 7.85)
+                sprites.draw_silhouette(name, n, x, self.y, self.draw_face(), (255, 64, 78), heat)
             if self.absorb_glow > 0:                    # v7 흡수: 입자가 닿으면 몸이 청록·흰 빛으로 번쩍
                 k = self.absorb_glow / effects.ABSORB_GLOW
                 sprites.draw_silhouette(name, n, x, self.y, self.draw_face(), (190, 255, 245), 0.6 * k)

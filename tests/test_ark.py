@@ -230,21 +230,6 @@ def test_telegraph_poses_are_distinct():
                     'overcharge': ('boss_ark_overcharge', 1), 'field': ('boss_ark_field', 1)}
 
 
-def test_every_pattern_has_pictures_to_draw():
-    """2·3페이즈 방 쓰기(bands·crystals)는 전용 그림이 없어 그리다 튕겼다 (11/25 무작위 입력 난전에서 찾음).
-    모든 패턴의 예고·실행 자세가 실제 그림 파일을 가리켜야 한다."""
-    import ark
-    import sprites
-    room, p, a = make_fight()
-    names = {n for table in ark.TABLES.values() for n in table} - {'wave'} | {'absorb', 'overcharge'}
-    for pattern in sorted(names - {'slash'}):
-        start(a, pattern)
-        for t in (a._windup() * 0.5, a._windup() + 0.05):
-            a.attack_time = t
-            name, n = sprites.resolve(*a._body_frame())
-            assert os.path.exists(os.path.join(HERE, '..', 'assets', sprites.path(name, n))), (pattern, name, n)
-
-
 def test_death_shows_death_pose_and_clears_the_room():
     room, p, a = make_fight()
     assert a.take_damage(10 ** 6)

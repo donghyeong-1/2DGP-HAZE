@@ -127,6 +127,25 @@ def test_every_weapon_dash_attack_marks_once_per_dash():
         assert e.dash_marks == 1, (wid, e.dash_marks)                    # 한 대시에는 하나
 
 
+def test_execution_uses_a_real_picture_even_when_the_enemy_has_no_motion_frame():
+    """2026-11-24 버그: 적이 동작 그림 없이 서 있으면 _body_frame이 (None, 0)을 준다(정지 그림 한 장을 쓰라는 뜻).
+    처형 연출이 그 이름으로 실루엣을 그리다 None.png를 찾지 못해 게임이 종료됐다."""
+    import sprites
+    room, p = _world()
+    e = _enemy(room, p, 120)
+    e._body_frame = lambda: (None, 0)                                    # 동작 그림이 없는 순간
+    _dash_attack(p, 1)
+    _dash_attack(p, -1)
+    _dash_attack(p, 1, frames=3)
+    ex = next(o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__name__ == 'DashExecution')
+    for _ in range(3):
+        tc.run_frames(1)
+        name, n = ex.frame
+        assert name is not None, ex.frame
+        root = os.path.join(HERE, '..', 'assets')
+        assert os.path.exists(os.path.join(root, sprites.path(*sprites.resolve(name, n)))), ex.frame
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

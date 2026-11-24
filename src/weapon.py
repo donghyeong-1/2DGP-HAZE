@@ -403,6 +403,17 @@ def _deep(color, k=1.6):
     return tuple(max(0, int(top - (top - c) * k)) for c in color)
 
 
+def enemy_frame(e):
+    """적이 지금 그리는 그림 (세트, 번호). 동작 그림이 없는 순간((None, 0))은 Enemy.draw처럼 정지 그림 한 장으로 바꾼다.
+    그림을 알 수 없으면 None (실루엣·두 동강을 건너뛴다)."""
+    if e is None or not hasattr(e, '_body_frame'):
+        return None
+    name, n = e._body_frame()
+    if name is None:
+        name = (getattr(e, 'stats', None) or {}).get('sprite')
+    return (name, n) if name else None
+
+
 class FinisherCut:
     """큰 마무리 연출 (v3, 2026-11-24 사용자가 준 INARI 영상을 프레임별로 분석해 같은 순서로). 처형과 궁극기 마무리가 쓴다.
       0.00  예고 초승달이 적을 감싼다: 회색 -> 흰색 -> 진한 색 -> 가늘어진다. 배경이 어두워지고 시간이 느려진다
@@ -424,7 +435,7 @@ class FinisherCut:
         self.fresh = True
         self.clear = clear
         self.step = 0 if start < self.T1 else 1
-        self.frame = enemy._body_frame() if enemy is not None and hasattr(enemy, '_body_frame') else None
+        self.frame = enemy_frame(enemy)
         self.efoot, self.eface = ((enemy.x, enemy.y), enemy.face_dir) if enemy is not None else ((x, y), 1)
         effects.request_slow_motion(*slow)
         game_world.add_object(ExecDim(color=(8, 4, 12), strength=0.72, life=0.14), game_world.LAYER_TILES)
@@ -445,8 +456,7 @@ class FinisherCut:
         e = self.enemy
         if e is not None and e.alive:
             self.ex, self.ey = e.center
-            if hasattr(e, '_body_frame'):
-                self.frame = e._body_frame()
+            self.frame = enemy_frame(e) or self.frame
             self.efoot, self.eface = (e.x, e.y), e.face_dir
         if self.step == 0 and self.rt >= self.T1:
             self.step = 1

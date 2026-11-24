@@ -152,10 +152,14 @@ def exit():
 
 def pause():
     show_cursor()
+    if player is not None:
+        player.release_inputs()                    # 다른 화면이 뜬다: 누르고 있던 키를 뗀 것으로 (떼는 신호가 그 화면으로 간다)
 
 
 def resume():
     hide_cursor()
+    if player is not None:
+        player.sync_inputs()                       # 돌아왔다: 실제로 눌려 있는 키만 다시 누른 것으로
 
 
 def handle_events():

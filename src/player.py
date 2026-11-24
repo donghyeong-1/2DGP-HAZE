@@ -369,6 +369,35 @@ class Player(TileBody):
         if stage_name not in ('hideout', 'practice'):
             self.run_clock += dt
 
+    def release_inputs(self):
+        """누르고 있던 이동·아래·공격을 모두 뗀 것으로 한다. 다른 화면(증강 선택·NPC·일시정지)이 위에 뜨면 키를 떼는 신호가
+        그 화면으로 가서 여기에 닿지 않는다: 그대로 두면 화면이 닫힌 뒤에도 그쪽으로 계속 걸어간다 (2026-11-25 사용자 보고)."""
+        self.left = self.right = self.down = False
+        self.attack_held = False
+
+    def sync_inputs(self, pressed=None, mouse_left=None):
+        """다른 화면이 닫혔다: 실제로 지금 눌려 있는 키만 다시 누른 것으로 한다 (누른 채 돌아오면 그대로 걷는다).
+        pressed(키) -> 눌렸는가, mouse_left = 마우스 왼쪽이 눌렸는가. 주지 않으면 SDL에서 읽는다 (읽지 못하면 모두 뗀 것으로)."""
+        import keybinds
+        if pressed is None or mouse_left is None:
+            try:
+                import ctypes
+
+                import sdl2
+                state = sdl2.SDL_GetKeyboardState(None)
+                if pressed is None:
+                    def pressed(key):
+                        return bool(state[sdl2.SDL_GetScancodeFromKey(key)])
+                if mouse_left is None:
+                    x, y = ctypes.c_int(0), ctypes.c_int(0)
+                    mouse_left = bool(sdl2.SDL_GetMouseState(ctypes.byref(x), ctypes.byref(y)) & sdl2.SDL_BUTTON_LMASK)
+            except Exception:
+                self.release_inputs()
+                return
+        for action in ('left', 'right', 'down'):
+            setattr(self, action, any(pressed(k) for k in keybinds.keys(action)))
+        self.attack_held = bool(mouse_left)
+
     def handle_event(self, event):
         from pico2d import (SDL_BUTTON_LEFT, SDL_BUTTON_RIGHT, SDL_KEYDOWN, SDL_KEYUP, SDL_MOUSEBUTTONDOWN,
                             SDL_MOUSEBUTTONUP, SDL_MOUSEMOTION, get_canvas_height)

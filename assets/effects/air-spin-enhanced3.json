@@ -1,23 +1,18 @@
 {
  "id": "fx/air-spin-enhanced3",
- "frames": 6,
- "variants": 1,
- "variantAngles": [
-  0
- ],
+ "frames": 9,
  "frameSize": [
   290,
   290
  ],
- "columns": 6,
- "fps": 25,
+ "columns": 9,
+ "fps": 30,
  "loop": false,
  "pivot": [
   145,
   145
  ],
  "scale": 2,
- "impactMs": 120,
- "durationMs": 240,
- "source": "tools/recolor_fx.py (air-spin-enhanced 다시 칠함, 강화 3단계)"
+ "duration": 0.3,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
 }

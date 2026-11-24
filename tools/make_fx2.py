@@ -90,16 +90,17 @@ def blast_create(o):
     R = RAMPS[o['ramp']]
     D = RAMPS['dust']
     rng = Rng(o['seed'])
-    ps = Particles(rng, R, ground=46)
+    z = o.get('k', 1.0)                                      # 크기 배율 (궁극기 폭발 1.25, 오버로드 2.4)
+    ps = Particles(rng, R, ground=46 * z)
     smoke = Particles(rng, [R[0], R[0], R[1], R[2], R[3]])     # 연기는 색 띠의 어두운 쪽
     lights = Lights()
-    lights.add(0, 0, 74, R[2], 110, 0.55)
-    lights.add(0, 0, 30, WHITE, 170, 0.2)
-    ps.burst(SPARK, 0, 0, 22, (220, 620), (0.25, 0.6), up=90)
-    ps.burst(SHARD, 0, 0, 7, (160, 420), (0.35, 0.6), up=130, size=(0.8, 1.6))
-    ps.burst(MOTE, 0, 0, 16, (80, 340), (0.3, 0.6), size=(0.8, 1.8))
-    ps.burst(EMBER, 0, 0, 10, (30, 120), (0.5, 0.78), delay=(0.15, 0.3))
-    smoke.burst(SHARD, 0, 0, 9, (90, 260), (0.4, 0.7), up=60, size=(1.4, 2.4), delay=(0.03, 0.08))   # 연기 대신 어두운 큰 조각 (공 모양 연기는 어색했다)
+    lights.add(0, 0, 74 * z, R[2], 110, 0.55)
+    lights.add(0, 0, 30 * z, WHITE, 170, 0.2)
+    ps.burst(SPARK, 0, 0, int(22 * z), (220 * z, 620 * z), (0.25, 0.6), up=90 * z)
+    ps.burst(SHARD, 0, 0, int(7 * z), (160 * z, 420 * z), (0.35, 0.6), up=130 * z, size=(0.8 * z, 1.6 * z))
+    ps.burst(MOTE, 0, 0, int(16 * z), (80 * z, 340 * z), (0.3, 0.6), size=(0.8, 1.8))
+    ps.burst(EMBER, 0, 0, int(10 * z), (30 * z, 120 * z), (0.5, 0.78), delay=(0.15, 0.3))
+    smoke.burst(SHARD, 0, 0, int(9 * z), (90 * z, 260 * z), (0.4, 0.7), up=60 * z, size=(1.4 * z, 2.4 * z), delay=(0.03, 0.08))   # 연기 대신 어두운 큰 조각 (공 모양 연기는 어색했다)
     n = 11
     spikes = [(TAU * i / n + rng.range(-0.2, 0.2), rng.range(0.6, 1.3)) for i in range(n)]
     t = [0.0]
@@ -118,24 +119,24 @@ def blast_create(o):
                 s = 1.0 if u < 0.034 else 0.8 if u < 0.067 else 0.45
                 for i in range(12):
                     ang = TAU * i / 12 + 0.2
-                    ln = (34 if i % 2 == 0 else 22) * s
-                    p.needle(0, 0, math.cos(ang) * ln, math.sin(ang) * ln, WHITE, 16 * s)
-                p.disc(0, 0, 15 * s, WHITE)
-                p.ring(0, 0, 16 * s, 1.5, R[3])
+                    ln = (34 if i % 2 == 0 else 22) * s * z
+                    p.needle(0, 0, math.cos(ang) * ln, math.sin(ang) * ln, WHITE, 16 * s * z)
+                p.disc(0, 0, 15 * s * z, WHITE)
+                p.ring(0, 0, 16 * s * z, 1.5, R[3])
             if u < 0.3:                                            # 빛 가시: 안쪽이 굵고 끝이 흰 삼각 줄기
                 v = u / 0.3
                 for ang, ln in spikes:
-                    head = (20 + 52 * out_expo(v * 1.4)) * ln
-                    tail = 6 + 46 * out_cubic(v) * ln
+                    head = (20 + 52 * out_expo(v * 1.4)) * ln * z
+                    tail = (6 + 46 * out_cubic(v) * ln) * z
                     if head - tail < 2:
                         continue
                     c, s_ = math.cos(ang), math.sin(ang)
-                    p.needle(c * tail, s_ * tail, c * head, s_ * head, R[3] if v < 0.4 else R[2], 6 * (1 - v) + 1.5, tip=WHITE)
+                    p.needle(c * tail, s_ * tail, c * head, s_ * head, R[3] if v < 0.4 else R[2], (6 * (1 - v) + 1.5) * (0.6 + 0.4 * z), tip=WHITE)
             if 0.04 < u < 0.5:                                     # 충격 고리 둘: 큰 것과 한 박자 늦은 작은 것
                 for delay, rmax, w in ((0.04, 66, 3.0), (0.1, 44, 2.0)):
                     v = (u - delay) / 0.36
                     if 0 < v < 1:
-                        r = 10 + rmax * out_expo(v)
+                        r = (10 + rmax * out_expo(v)) * z
                         p.ring(0, 0, r, w * (1 - v * 0.6) + 0.5, WHITE if v < 0.25 else R[3], a=1.0 if v < 0.5 else 1.0 - (v - 0.5) / 0.5,
                                gaps=4 if delay < 0.05 else 3, phase=o['seed'] + delay * 30 + v * 1.5)
                         p.glow_ring(0, 0, r, 5, R[2], 50 * (1 - v))
@@ -585,10 +586,321 @@ def build_tint(name, look):
     print('구움', name, info['frames'], '프레임')
 
 
+# =====================================================================================================
+# 휘두르기 초승달 v8 (2026-11-24, haze-fx 절차): 대시 베기와 같은 구성.
+# 한 줄: 흰 초승달이 두 장 만에 휘둘러지고 -> 진한 구간 색 면(바깥 테두리가 밝다)이 되어 -> 꼬리가 따라잡으며 가늘어지고,
+#        끝에서 불티가 튀고 호를 따라 알갱이가 떨어진다. 안쪽에 한 박자 늦은 가는 호.
+# 5방향(동·북동·북·남동·남)을 미리 굽는다(왼쪽은 좌우 반전). 시트 크기·기준점은 예전과 같다 (게임의 위치·판정 그대로).
+# =====================================================================================================
+SLASH_AIMS = [0, 45, 90, -45, -90]          # 게임 각도(반시계 +). 그림에서는 y가 아래라 부호를 뒤집는다
+SLASH_DUR = 0.3
+
+
+def slash_meta(grid, **opt):
+    return dict(size=[grid, grid], origin=[grid // 2, grid // 2], duration=SLASH_DUR, fps=30, options=opt)
+
+
+def _arc_shader(R_, W, a0, a1, head, tail, rot, sy, white, hot=3, body=2, edge=1):
+    """초승달 한 겹: 각도 a0->a1 구간 중 tail~head(0~1)만. 가운데가 굵고 양 끝이 가늘다. 바깥 22%는 밝은 테두리.
+    rot = 조준 방향(그림 좌표), sy < 1이면 납작한 타원(가로 베기)."""
+    c, s_ = math.cos(rot), math.sin(rot)
+    span = a1 - a0
+
+    def fn(X, Y):
+        lx = X * c + Y * s_
+        ly = (-X * s_ + Y * c) / sy
+        r = fx.np.hypot(lx, ly)
+        th = fx.np.arctan2(ly, lx)
+        u = (th - a0) / span
+        u = fx.np.where(u < -0.3, u + TAU / abs(span), u)             # 한 바퀴 넘는 회전 베기
+        v = (u - tail) / max(1e-4, head - tail)
+        ok = (v >= 0) & (v <= 1)
+        w = W * fx.np.sin(math.pi * fx.np.clip(v, 0, 1) ** 1.25) ** 0.65
+        q = (R_ - r) / fx.np.maximum(w, 0.3)
+        ok &= (w >= 0.6) & (q >= 0) & (q <= 1)
+        idx = fx.np.where(q < 0.24, hot, fx.np.where(q > 0.86, edge, body))
+        if white:
+            idx = fx.np.full(X.shape, 4)
+        return fx.np.where(ok, idx, -1)
+    return fn
+
+
+def slash_create(o):
+    R = RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    rot = -math.radians(o['aim'])
+    # [(반지름, 두께, a0도, a1도, 늦게, 뒤집기)]. 각도는 게임 기준(반시계 +, 위가 +)으로 적고 여기서 그림 좌표(y 아래)로 뒤집는다
+    layers = [(r, w, -a0, -a1, d, rev) for (r, w, a0, a1, d, rev) in o['layers']]
+    sy = o.get('flat', 1.0)
+    ps = Particles(rng, R)
+    lights = Lights()
+    t = [0.0]
+    landed = [False]
+    main = layers[0]
+
+    def tip(layer, k):
+        r_, w, a0, a1, delay, rev = layer
+        a = math.radians(a1 if not rev else a0)
+        a = math.radians(a0) + (math.radians(a1) - math.radians(a0)) * (k if not rev else 1 - k)
+        lx, ly = math.cos(a) * (r_ - w * 0.3), math.sin(a) * (r_ - w * 0.3) * sy
+        return lx * math.cos(rot) - ly * math.sin(rot), lx * math.sin(rot) + ly * math.cos(rot)
+
+    class Slash:
+        def update(self, dt):
+            t[0] += dt
+            if not landed[0] and t[0] >= 0.06:                       # 다 휘두른 순간: 끝에서 불티, 호에서 알갱이
+                landed[0] = True
+                x, y = tip(main, 1.0)
+                x2, y2 = tip(main, 0.93)
+                aim = math.atan2(y - y2, x - x2)
+                n = o.get('sparks', 6)
+                ps.burst(SPARK, x, y, n, (160, 420), (0.12, 0.28), spread=0.9, aim=aim)
+                for _ in range(n + 4):
+                    k = rng.range(0.25, 1.0)
+                    mx, my = tip(main, k)
+                    d = math.hypot(mx, my) or 1.0
+                    sp = rng.range(30, 110)
+                    ps.spawn(MOTE, mx, my, mx / d * sp, my / d * sp, rng.range(0.14, 0.26), rng.range(0.8, 1.6))
+                lights.add(x, y, 26, R[3], 110, 0.14)
+            ps.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            u = t[0] + 0.03                                  # 첫 장부터 휘둘러져 있게
+            g = o['grid'] / 2
+            for li, (r_, w, a0, a1, delay, rev) in enumerate(layers):
+                v = u - delay
+                if v < 0:
+                    continue
+                head = out_expo(v / 0.055)
+                tail = fx.smooth(0.085, 0.25 - delay * 0.5, v)
+                if tail >= head - 0.01:
+                    continue
+                b0, b1 = (math.radians(a0), math.radians(a1)) if not rev else (math.radians(a1), math.radians(a0))
+                white = v < 0.04 and li == 0                            # 주인공 프레임: 흰 초승달
+                thin = 1.0 - 0.45 * fx.smooth(0.1, 0.27, v)
+                p.shade(-g, -g, g, g, _arc_shader(r_, w * thin, b0, b1, head, tail, rot, sy, white,
+                                                  hot=3, body=2 if li == 0 else 3, edge=1), R)
+                if li == 0:
+                    for k in (0.3, 0.55, 0.8):                         # 호를 따라 빛
+                        if tail <= k <= head:
+                            x, y = tip(layers[0], k)
+                            p.glow(x, y, 16 + w * 0.5, R[2], 70 * (1 - v / 0.28))
+            if u < 0.1:                                               # 끝의 반짝임
+                x, y = tip(main, min(1.0, out_expo(u / 0.055)))
+                s = 1.0 if u < 0.065 else 0.55
+                for ang in (0, TAU / 4, TAU / 2, 3 * TAU / 4):
+                    p.needle(x, y, x + math.cos(ang) * 9 * s, y + math.sin(ang) * 9 * s, WHITE, 2.6)
+            ps.draw(p)
+            lights.draw(p)
+    return Slash()
+
+
+def _L(r, w, a0=-95, a1=95, delay=0.0, rev=False):
+    return (r, w, a0, a1, delay, rev)
+
+
+def _flat(layers):
+    """가로 베기: 몸 뒤에서 앞 아래를 지나 앞으로 도는 납작한 타원 호 (예전 make_slash_hq._flat과 같은 각도)."""
+    return [(r * 1.25, w * 2.3, -185 + (a0 + 95) * 0.5, 10 + (a1 - 95) * 0.5, d, True) for (r, w, a0, a1, d, rev) in layers]
+
+
+_N = [_L(60, 30), _L(44, 6, -52, 48, 0.03)]
+_F = [_L(50, 15, -40, 40)]
+_A = [_L(68, 32), _L(48, 9, -55, 50, 0.03), _L(34, 4, -48, 44, 0.05)]
+_C = [_L(80, 34), _L(62, 12, -58, 54, 0.025), _L(46, 6, -50, 46, 0.045), _L(90, 4, -40, 60, 0.015)]
+_G = [_L(73, 34), _L(55, 8, -52, 50, 0.03)]
+_E = [_L(95, 30), _L(87, 22, rev=True, delay=0.03), _L(70, 6, -52, 50, 0.05)]
+SLASHES = {
+    'pipe-slash': dict(grid=190, ramp='haze', layers=_N, sparks=6, seed=31),
+    'pipe-slash-fade': dict(grid=170, ramp='fade', layers=_F, sparks=2, seed=32),
+    'pipe-slash-awake': dict(grid=220, ramp='awake', layers=_A, sparks=8, seed=33),
+    'pipe-slash-critical': dict(grid=250, ramp='critical', layers=_C, sparks=12, seed=34),
+    'pipe-slash-finisher': dict(grid=220, ramp='gold', layers=_G, sparks=9, seed=35),
+    'pipe-slash-finisher-rise': dict(grid=220, ramp='gold', layers=[(r, w, a0, a1, d, True) for (r, w, a0, a1, d, _) in _G], sparks=9, seed=36),
+    'pipe-slash-enhanced': dict(grid=280, ramp='violet', layers=_E, sparks=12, seed=37),
+    'pipe-slash-enhanced2': dict(grid=280, ramp='gold', layers=_E, sparks=12, seed=38),
+    'pipe-slash-enhanced3': dict(grid=280, ramp='crimson', layers=_E, sparks=12, seed=39),
+    'pipe-slash-flat': dict(grid=236, ramp='haze', layers=_flat(_N), flat=0.42, sparks=6, seed=41),
+    'pipe-slash-fade-flat': dict(grid=212, ramp='fade', layers=_flat(_F), flat=0.42, sparks=2, seed=42),
+    'pipe-slash-awake-flat': dict(grid=274, ramp='awake', layers=_flat(_A), flat=0.42, sparks=8, seed=43),
+    'pipe-slash-critical-flat': dict(grid=312, ramp='critical', layers=_flat(_C), flat=0.42, sparks=12, seed=44),
+}
+_SPIN = [_L(62, 26, -200, 160), _L(46, 10, 340, -20, 0.03)]
+_SPIN_E = [_L(88, 36, -200, 160), _L(66, 16, 340, -20, 0.03), _L(100, 5, -200, 160, 0.015)]
+SPINS = {
+    'air-spin': dict(grid=210, ramp='haze', layers=_SPIN, sparks=8, seed=51),
+    'air-spin-enhanced': dict(grid=290, ramp='violet', layers=_SPIN_E, sparks=12, seed=52),
+    'air-spin-enhanced2': dict(grid=290, ramp='gold', layers=_SPIN_E, sparks=12, seed=53),
+    'air-spin-enhanced3': dict(grid=290, ramp='crimson', layers=_SPIN_E, sparks=12, seed=54),
+}
+
+
+def build_slash(name, look):
+    cfg = SLASHES.get(name) or SPINS[name]
+    aims = SLASH_AIMS if name in SLASHES else [0]
+    meta = dict(size=[cfg['grid']] * 2, origin=[cfg['grid'] // 2] * 2, duration=SLASH_DUR, fps=30, options=dict(cfg))
+    variants = [fx.render(meta, slash_create, aim=a) for a in aims]
+    show = variants[0] + (variants[1] + variants[4] if len(variants) > 1 else [])
+    path = fx.contact(show, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), actor=HERO, origin=meta['origin'],
+                      cols=len(variants[0]), zoom=2, label=f"{name}  {cfg['grid']}  {len(variants[0])}f  variants {len(variants)}")
+    if look:
+        print('본다', path)
+        return
+    info = fx.export(name, meta, variants)
+    print('구움', name, info['frames'], '프레임')
+
+
+# =====================================================================================================
+# 나머지 시트 v8 (2026-11-24, haze-fx 절차): 먼지·연기·솟는 기운·바닥 충격·소멸·궁극기 폭발·오버로드 폭발.
+# 이름·크기·기준점은 예전(tools/make_fx.py)과 같다 (게임의 위치 그대로).
+# =====================================================================================================
+def _simple(setup, draw_fn):
+    """setup(ps, lights, rng) 뒤에 draw_fn(p, u)를 그리는 이펙트 틀."""
+    def create(o):
+        R = RAMPS[o['ramp']]
+        rng = Rng(o['seed'])
+        ps = Particles(rng, R, ground=o.get('ground'))
+        lights = Lights()
+        extra = setup(ps, lights, rng, R, o) or {}
+        t = [0.0]
+
+        class F:
+            def update(self, dt):
+                t[0] += dt
+                ps.update(dt)
+                lights.update(dt)
+
+            def draw(self, p):
+                draw_fn(p, t[0] + 0.02, R, o, extra)
+                ps.draw(p)
+                lights.draw(p)
+        return F()
+    return create
+
+
+# 착지·출발 먼지: 발밑에서 양옆으로 낮게 깔리는 덩이와 튀는 알갱이
+def _dust_setup(ps, lights, rng, R, o):
+    for side in (-1, 1):
+        for _ in range(3):
+            ps.spawn(PUFF, side * rng.range(2, 8), -3, side * rng.range(70, 190), -rng.range(5, 40), rng.range(0.16, 0.26), rng.range(0.55, 0.95))
+        ps.burst(MOTE, side * 6, -3, 4, (60, 200), (0.1, 0.2), spread=0.7, aim=0 if side > 0 else math.pi, up=30)
+
+
+def _dust_draw(p, u, R, o, x):
+    if u < 0.1:
+        w = 10 + 30 * out_expo(u / 0.08)
+        p.line(-w, -1, w, -1, R[4])
+
+
+# 연기 한 줌: 끊어진 고리가 퍼지고 작은 덩이가 흩어진다
+def _puff_setup(ps, lights, rng, R, o):
+    ps.burst(PUFF, 0, 0, 6, (40, 150), (0.2, 0.32), size=(0.6, 1.1), up=20)
+    ps.burst(MOTE, 0, 0, 8, (60, 220), (0.14, 0.28))
+    lights.add(0, 0, 26, R[3], 70, 0.2)
+
+
+def _puff_draw(p, u, R, o, x):
+    if u < 0.06:
+        p.disc(0, 0, 7, R[4])
+    v = u / 0.26
+    if v < 1:
+        p.ring(0, 0, 6 + 22 * out_expo(v), 2.0 * (1 - v) + 0.6, R[3], a=1.0 if v < 0.5 else 2 - 2 * v, gaps=5, phase=o['seed'])
+
+
+# 솟는 기운: 발밑의 누운 고리에서 가는 빛줄기들이 올라가고 잿불이 뜬다
+def _surge_setup(ps, lights, rng, R, o):
+    ps.burst(EMBER, 0, -4, 10, (20, 90), (0.25, 0.34), spread=math.pi, aim=-math.pi / 2)
+    lights.add(0, -10, 34, R[2], 100, 0.3)
+    return dict(beams=[(rng.range(-20, 20), rng.range(0.6, 1.2), rng.range(0, 0.08)) for _ in range(8)])
+
+
+def _surge_draw(p, u, R, o, x):
+    v = u / 0.3
+    if v < 1:
+        p.ring(0, -2, 6 + 20 * out_expo(v), 2.2 * (1 - v) + 0.6, R[3], sy=0.3, a=1.0 if v < 0.6 else 1 - (v - 0.6) / 0.4)
+    for bx, k, d in x['beams']:
+        w = u - d
+        if 0 < w < 0.24:
+            top = -6 - 62 * k * out_expo(w / 0.14)
+            bot = -4 - 62 * k * out_cubic(w / 0.24)
+            if bot - top > 2:
+                p.needle(bx, bot, bx, top, R[3] if w > 0.08 else WHITE, 2.4, tip=WHITE)
+
+
+# 바닥 충격: 땅에서 위로 터지는 반원 가시 + 바닥에 누운 고리 + 튀는 돌 조각
+def _quake_setup(ps, lights, rng, R, o):
+    ps.burst(SPARK, 0, -4, 16, (200, 560), (0.2, 0.42), spread=2.4, aim=-math.pi / 2)
+    ps.burst(SHARD, 0, -4, 9, (180, 430), (0.3, 0.42), spread=2.2, aim=-math.pi / 2, size=(1.0, 2.2))
+    for side in (-1, 1):
+        for _ in range(4):
+            ps.spawn(PUFF, side * rng.range(6, 20), -4, side * rng.range(120, 300), -rng.range(10, 50), rng.range(0.24, 0.4), rng.range(0.8, 1.4), ramp=RAMPS['dust'])
+    lights.add(0, -10, 80, R[2], 120, 0.3)
+    n = 9
+    return dict(spikes=[(-math.pi + math.pi * (i + 0.5) / n + rng.range(-0.1, 0.1), rng.range(0.6, 1.25)) for i in range(n)])
+
+
+def _quake_draw(p, u, R, o, x):
+    if u < 0.07:
+        p.disc(0, -6, 18 if u < 0.045 else 11, WHITE)
+    v = u / 0.26
+    if v < 1:
+        for ang, ln in x['spikes']:
+            head = (18 + 62 * out_expo(v * 1.4)) * ln
+            tail = 6 + 56 * out_cubic(v) * ln
+            if head - tail > 2:
+                c, s_ = math.cos(ang), math.sin(ang)
+                p.needle(c * tail, -4 + s_ * tail, c * head, -4 + s_ * head, R[3] if v < 0.4 else R[2], 6 * (1 - v) + 1.5, tip=WHITE)
+    v = u / 0.36
+    if v < 1:
+        p.ring(0, -3, 12 + 88 * out_expo(v), 3 * (1 - v) + 0.8, WHITE if v < 0.2 else R[3], sy=0.2, a=1.0 if v < 0.5 else 2 - 2 * v, gaps=6)
+
+
+# 소멸: 작은 흰 별 -> 헤이즈 조각이 사방으로 흩어지고 잿불이 떠오른다
+def _death_setup(ps, lights, rng, R, o):
+    ps.burst(SHARD, 0, 0, 12, (120, 360), (0.3, 0.44), up=60, size=(1.0, 2.2))
+    ps.burst(SPARK, 0, 0, 10, (160, 420), (0.16, 0.34))
+    ps.burst(EMBER, 0, 0, 10, (20, 110), (0.3, 0.44), delay=(0.05, 0.16))
+    lights.add(0, 0, 44, R[2], 120, 0.3)
+
+
+def _death_draw(p, u, R, o, x):
+    if u < 0.09:
+        s = 1.0 if u < 0.055 else 0.6
+        for i in range(8):
+            a = TAU * i / 8
+            p.needle(0, 0, math.cos(a) * (26 if i % 2 == 0 else 13) * s, math.sin(a) * (26 if i % 2 == 0 else 13) * s, WHITE, 4.5 * s)
+        p.disc(0, 0, 5 * s, WHITE)
+    v = (u - 0.03) / 0.3
+    if 0 < v < 1:
+        p.ring(0, 0, 8 + 38 * out_expo(v), 2.4 * (1 - v) + 0.6, R[3] if v < 0.5 else R[2], a=1.0 if v < 0.5 else 2 - 2 * v, gaps=5, phase=o['seed'] + v)
+
+
+MISC = {
+    'dust-land': (dict(size=[96, 36], origin=[48, 34], duration=0.28, fps=30, glow=False, options=dict(ramp='dust', seed=61)), _simple(_dust_setup, _dust_draw)),
+    'puff': (dict(size=[72, 72], origin=[36, 41], duration=0.34, fps=30, glow=False, options=dict(ramp='dust', seed=62)), _simple(_puff_setup, _puff_draw)),
+    'surge': (dict(size=[64, 88], origin=[32, 80], duration=0.36, fps=30, options=dict(ramp='haze', seed=63)), _simple(_surge_setup, _surge_draw)),
+    'quake-blast': (dict(size=[220, 120], origin=[110, 116], duration=0.46, fps=30, options=dict(ramp='ember', seed=64, ground=0)),
+                    _simple(_quake_setup, _quake_draw)),
+    'death-burst': (dict(size=[110, 110], origin=[55, 55], duration=0.46, fps=30, options=dict(ramp='haze', seed=65)),
+                    _simple(_death_setup, _death_draw)),
+}
+EFFECTS.update(MISC)
+# 궁극기 광역 폭발과 오버로드 폭발: 헤이즈 폭발(blast_create)을 무기 색·크기로
+for _wid, _ramp, _seed in (('pipe', 'awake', 71), ('knife', 'fade', 72), ('pistol', 'mint', 73), ('gauntlet', 'ember', 74), ('chain', 'violet', 75)):
+    EFFECTS['ult-nova-' + _wid] = (dict(size=[230, 230], origin=[115, 115], duration=0.66, fps=30, options=dict(ramp=_ramp, seed=_seed, k=1.25)),
+                                   blast_create)
+EFFECTS['overload-burst'] = (dict(size=[460, 460], origin=[230, 230], duration=0.8, fps=30, options=dict(ramp='critical', seed=81, k=2.4)),
+                             blast_create)
+
+
 def main(argv):
     look = '--look' in argv
-    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + list(TINTS)
+    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + list(TINTS) + list(SLASHES) + list(SPINS)
     for name in names:
+        if name in SLASHES or name in SPINS:
+            build_slash(name, look)
+            continue
         if name in TINTS:
             build_tint(name, look)
             continue

@@ -1,27 +1,19 @@
 {
- "id": "melee/pipe-slash",
- "frames": 30,
- "variants": 5,
- "variantAngles": [
-  0,
-  45,
-  90,
-  -45,
-  -90
- ],
+ "id": "fx/pipe-slash",
+ "frames": 45,
  "frameSize": [
   190,
   190
  ],
- "columns": 6,
- "fps": 25,
+ "columns": 9,
+ "fps": 30,
  "loop": false,
  "pivot": [
   95,
   95
  ],
  "scale": 2,
- "impactMs": 120,
- "durationMs": 240,
- "source": "tools/make_slash_hq.py (code-drawn, numpy, no image model)"
+ "duration": 0.3,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)",
+ "variants": 5
 }

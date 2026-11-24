@@ -412,7 +412,9 @@ def save(name, frames, pivot):
     print('saved', name, sheet.size, len(frames), 'frames')
 
 
-V8 = ('hit-fade', 'hit-normal', 'hit-awake', 'hit-critical', 'hit-enhanced', 'hit-enhanced2', 'hit-enhanced3', 'haze-blast')
+V8 = ('hit-fade', 'hit-normal', 'hit-awake', 'hit-critical', 'hit-enhanced', 'hit-enhanced2', 'hit-enhanced3', 'haze-blast',
+      'puff', 'surge', 'quake-blast', 'death-burst', 'dust-land', 'overload-burst',
+      'ult-nova-pipe', 'ult-nova-knife', 'ult-nova-pistol', 'ult-nova-gauntlet', 'ult-nova-chain')
 
 
 def main():

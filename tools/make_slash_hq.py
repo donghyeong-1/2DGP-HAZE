@@ -329,7 +329,8 @@ def build(name):
 
 
 def main():
-    for name in (sys.argv[1:] or list(SHEETS)):
+    """2026-11-24: 초승달·회전 베기는 tools/make_fx2.py(fxkit)가 만든다. 여기서는 dash-strike만 (이름을 직접 주면 예전 모양으로 덮어쓴다)."""
+    for name in (sys.argv[1:] or ['dash-strike']):
         build(name)
 
 

@@ -404,7 +404,11 @@ def export(name, meta, variants):
             sheet.paste(color, (c * w, r * h))
             glow.paste(light, (c * w, r * h))
     sheet.save(os.path.join(ROOT, 'assets', 'effects', name + '.png'))
-    glow.save(os.path.join(ROOT, 'assets', 'light', 'glow_' + name + '.png'))
+    gpath = os.path.join(ROOT, 'assets', 'light', 'glow_' + name + '.png')
+    if meta.get('glow', True):
+        glow.save(gpath)
+    elif os.path.exists(gpath):                  # 먼지·연기는 빛나지 않는다 (meta glow=False)
+        os.remove(gpath)
     info = {'id': 'fx/' + name, 'frames': n * len(variants), 'frameSize': [w, h], 'columns': n, 'fps': meta.get('fps', 30),
             'loop': False, 'pivot': list(meta['origin']), 'scale': 2, 'duration': meta['duration'],
             'source': 'tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)'}

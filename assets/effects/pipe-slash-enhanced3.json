@@ -1,27 +1,19 @@
 {
  "id": "fx/pipe-slash-enhanced3",
- "frames": 30,
- "variants": 5,
- "variantAngles": [
-  0,
-  45,
-  90,
-  -45,
-  -90
- ],
+ "frames": 45,
  "frameSize": [
   280,
   280
  ],
- "columns": 6,
- "fps": 25,
+ "columns": 9,
+ "fps": 30,
  "loop": false,
  "pivot": [
   140,
   140
  ],
  "scale": 2,
- "impactMs": 120,
- "durationMs": 240,
- "source": "tools/recolor_fx.py (pipe-slash-enhanced 다시 칠함, 강화 3단계)"
+ "duration": 0.3,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)",
+ "variants": 5
 }

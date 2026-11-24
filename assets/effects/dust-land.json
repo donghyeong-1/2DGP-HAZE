@@ -1,17 +1,18 @@
 {
  "id": "fx/dust-land",
- "frames": 6,
+ "frames": 8,
  "frameSize": [
   96,
   36
  ],
- "columns": 6,
- "fps": 20,
+ "columns": 8,
+ "fps": 30,
  "loop": false,
  "pivot": [
   48,
   34
  ],
  "scale": 2,
- "source": "tools/make_fx.py (code-drawn, numpy, no image model)"
+ "duration": 0.28,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
 }

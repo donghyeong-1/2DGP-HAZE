@@ -1,23 +1,18 @@
 {
- "id": "melee/air-spin",
- "frames": 6,
- "variants": 1,
- "variantAngles": [
-  0
- ],
+ "id": "fx/air-spin",
+ "frames": 9,
  "frameSize": [
   210,
   210
  ],
- "columns": 6,
- "fps": 25,
+ "columns": 9,
+ "fps": 30,
  "loop": false,
  "pivot": [
   105,
   105
  ],
  "scale": 2,
- "impactMs": 120,
- "durationMs": 240,
- "source": "tools/make_slash_hq.py (code-drawn, numpy, no image model)"
+ "duration": 0.3,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
 }

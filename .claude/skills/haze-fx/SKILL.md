@@ -79,8 +79,9 @@ def create(o):
 ## 5. 지금 있는 것
 - v8 시트(`make_fx2.py`): hit-fade·normal·awake·critical·enhanced·enhanced2·enhanced3, haze-blast.
 - v8 두 겹 시트(색을 게임이 입힌다, `fxkit.export_tint` + `effects.draw_tint_sheet`): cut-mark·cut-mark-big(8각도, SlashMark), impact-rays·impact-rays-big(8방향, ImpactBurst), shock-ring-s·m·l(ImpactRing). 색이 공격마다 다른 이펙트는 이 방식으로: create(o)에서 `o['layer']`가 'tint'면 회색조(`fxkit.GRAY`) 몸통·빛, 'core'면 흰 심만 그린다.
-- 휘두르기 궤적(`make_slash_hq.py`)은 v7에서 이미 흰 초승달 + 청록 가장자리로 만들어 그대로 둔다(사용자가 바꾸자고 하면 fxkit의 shade로).
+- 휘두르기 초승달(`make_fx2.py`의 SLASHES 13종 x 5방향, SPINS 4종): 흰 초승달 두 장 -> 진한 구간 색 면(밝은 테두리) -> 꼬리가 가늘어짐, 끝 불티. 각도는 게임 기준으로 적는다.
+- 먼지·연기·솟는 기운·바닥 충격·소멸(`MISC`), 궁극기 광역 폭발 ult-nova 5종과 오버로드 폭발(헤이즈 폭발을 색·크기 `k`로).
 - 큰 마무리(처형·궁극기, `weapon.FinisherCut`): `fin-burst`(가시 -> 작은 원반 -> 큰 별 -> 진한 원반 -> 고리 -> 토막, 0.54초 16장)와
   `exec-crescent`(예고 초승달 5장). 화면 전체를 가르는 빛줄기·검은 띠·실루엣만 게임이 그린다. 별 섬광 `flare`·`flare-s`.
-- 아직 예전 방식: `make_fx.py`의 나머지(puff·surge·quake-blast·death-burst·dust-land·ult-nova·overload-burst 등),
-  실행 중 사각형 이펙트(effects.py의 PathSlash·LightPillar·ground_slam·처치 연출, weapon.py의 DashStreak·RushTrail·표식). 순서대로 옮긴다.
+- 아직 예전 방식: dash-strike(창 모양)·shockwave(보스 충격파, 반복)·오라(make_aura.py),
+  실행 중 사각형 이펙트(effects.py의 PathSlash·LightPillar·ground_slam·처치 연출 KillSlash, weapon.py의 RushTrail·표식·사슬). DashStreak는 사용자가 마음에 들어 해 그대로.

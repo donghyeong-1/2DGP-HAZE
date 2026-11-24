@@ -308,6 +308,55 @@ def ring_create(o):
     return Ring()
 
 
+FLARE_META = dict(size=[208, 208], origin=[104, 104], duration=0.4, fps=30, options=dict(seed=5))
+
+
+def flare_create(o):
+    """별 섬광 (사용자가 준 INARI 그림): 크고 진한 색 빛 원반 한가운데에 흰 여덟 갈래 별, 둘레에 작은 반짝임과 불티.
+    색 층 = 별의 색 가장자리·반짝임, 흰 심 = 별 가운데. 큰 빛 원반은 빛 층이 맡는다(게임이 색을 곱한다)."""
+    core = o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    ps = Particles(rng, G)
+    ps.burst(SPARK, 0, 0, 16, (260, 760), (0.2, 0.42), up=60)
+    ps.burst(MOTE, 0, 0, 14, (120, 420), (0.22, 0.4), size=(0.8, 1.8))
+    twinkles = [(rng.range(-80, 80), rng.range(-70, 70), rng.range(0.02, 0.2), rng.range(3, 7)) for _ in range(12)]
+    t = [0.0]
+
+    class Flare:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            k = 1.0 if u < 0.07 else max(0.0, 1.0 - (u - 0.07) / 0.2)       # 별: 두 장 꽉 찼다가 빠르게 준다
+            if k > 0.05:
+                for i in range(8):
+                    ang = TAU * i / 8
+                    ln = (86 if i % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if i % 4 == 0 else 1.0)
+                    w = (9 if i % 2 == 0 else 6) * k
+                    c, s_ = math.cos(ang), math.sin(ang)
+                    if core:
+                        p.needle(0, 0, c * ln, s_ * ln, WHITE, max(1.0, w))
+                    else:
+                        p.needle(0, 0, c * ln * 1.06, s_ * ln * 1.06, G[2], w + 3.5)
+                if core:
+                    p.disc(0, 0, 9 * k + 1, WHITE)
+            for x, y, t0, arm in twinkles:                             # 둘레의 작은 십자 반짝임
+                v = (u - t0) / 0.16
+                if 0 <= v < 1 and core:
+                    a_ = arm * math.sin(math.pi * v)
+                    p.line(x - a_, y, x + a_, y, WHITE)
+                    p.line(x, y - a_, x, y + a_, WHITE)
+            if not core:
+                ps.draw(p)
+                g = 1.0 if u < 0.1 else max(0.0, 1.0 - (u - 0.1) / 0.3)
+                p.glow(0, 0, 100, WHITE, 150 * g)                     # 큰 빛 원반 (진하게: 이 이펙트의 주인공)
+                p.glow(0, 0, 58, WHITE, 130 * g)
+                p.glow_ring(0, 0, 60 + 30 * out_expo(u / 0.3), 9, WHITE, 70 * g)
+    return Flare()
+
+
 CUT_ANGLES = [i * 22.5 for i in range(8)]        # 베기 자국은 180도 대칭: 0~157.5도
 RAY_ANGLES = [i * 45.0 for i in range(8)]
 TINTS = {
@@ -318,6 +367,7 @@ TINTS = {
     'shock-ring-s': [(ring_meta(38), ring_create)],
     'shock-ring-m': [(ring_meta(78), ring_create)],
     'shock-ring-l': [(ring_meta(150), ring_create)],
+    'flare': [(FLARE_META, flare_create)],
 }
 
 

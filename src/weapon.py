@@ -394,6 +394,7 @@ class DashExecution:
         effects.spawn_slash_marks(ex, ey, 1.0, 0.0, (255, 255, 255), big=True, count=2)
         effects.spawn_ring(ex, ey, EXEC_COLOR, radius_max=190, life=0.3)
         effects.spawn_impact(ex, ey, 1.0, 0.0, 18, EXEC_COLOR, big=True)
+        effects.spawn_flare(ex, ey, EXEC_COLOR, big=True, line=True)            # v8: 큰 별 섬광 + 화면을 가르는 붉은 빛줄기
         effects.add_trauma(config.SHAKE_FINISHER * 1.5)
         effects.float_text(ex, ey + 120, '처형!', EXEC_COLOR, big=True, life=0.7)
         game_world.add_object(DashStreak((ex - 300, ey, ex + 300, ey), life=0.45, width=22), game_world.LAYER_EFFECT)
@@ -430,6 +431,7 @@ class DashStreak:
     def __init__(self, path, life=0.6, width=26, color=EXEC_COLOR):
         self.path, self.life, self.width, self.color = path, life, width, color
         self.t = 0.0
+        self.seed = random.randint(0, 999)
 
     def update(self, dt):
         self.t += dt
@@ -437,20 +439,44 @@ class DashStreak:
             game_world.remove_object(self)
 
     def draw(self):
+        """v8 (사용자가 준 INARI 그림): 굵은 흰 속도 줄기 몇 가닥 + 아래로 불꽃처럼 일렁이는 색 띠 + 길을 따라 번지는 빛."""
         x0, y0, x1, y1 = self.path
         k = 1.0 - self.t / self.life
-        w = self.width * (k ** 0.6)
         length = math.hypot(x1 - x0, y1 - y0)
+        if length < 4:
+            return
+        dx, dy = (x1 - x0) / length, (y1 - y0) / length
+        nx, ny = -dy, dx
+        img = assets.image('light/bloom_256.png')                      # 번지는 빛 (빛 층)
+        img.opacify(0.5 * k)
+        for s_ in range(0, int(length) + 1, 110):
+            assets.draw_image_added(img, int(x0 + dx * s_), int(y0 + dy * s_) - img.h // 2, color=self.color, times=1)
+        img.opacify(1.0)
+        w = self.width * (k ** 0.6)
         steps = max(1, int(length // 4))
-        for i in range(steps + 1):
+        for i in range(steps + 1):                                      # 색 띠: 뒤쪽일수록 낮고, 가장자리가 일렁인다
             t = i / steps
-            x, y = _snap(x0 + (x1 - x0) * t), _snap(y0 + (y1 - y0) * t)
-            taper = 0.3 + 0.7 * t                                     # 끝(도착 쪽)이 굵다
-            ww = max(2, int(w * taper) // 2 * 2)
-            glow = ww * 2 // 2 * 2 + 4
-            assets.draw_rect_color(x - 2, y - glow // 2, 4, glow, self.color, 0.22 * k)      # 바깥 번짐
-            assets.draw_rect_color(x - 2, y - ww // 2, 4, ww, self.color, 0.85 * k)          # 몸통
-            assets.draw_rect_color(x - 2, y - max(2, ww // 4), 4, max(2, ww // 4) * 2, (255, 200, 200), 0.9 * k)   # 밝은 심
+            x, y = _snap(x0 + dx * length * t), _snap(y0 + dy * length * t)
+            wob = 0.55 + 0.45 * math.sin(i * 0.9 + self.seed + self.t * 26) * math.sin(i * 0.37 + self.seed)
+            hh = max(2, int(w * (0.35 + 0.65 * t) * (0.7 + 0.5 * wob)) // 2 * 2)
+            lift = int(hh * 0.35 * wob) // 2 * 2
+            assets.draw_rect_color(x - 2 + int(nx * lift), y - hh // 2 + int(ny * lift), 4, hh, self.color, 0.9 * k)
+        for band, (off, a0, a1, th) in enumerate(((0, 0.0, 1.0, 0.34), (-0.42, 0.25, 0.95, 0.16), (0.4, 0.1, 0.8, 0.14),
+                                                  (-0.8, 0.45, 1.0, 0.08), (0.78, 0.4, 0.9, 0.08))):   # 흰 속도 줄기
+            grow = min(1.0, self.t / 0.05 + 0.3)
+            s0, s1 = length * (a0 + (1 - k) * 0.5 * (a1 - a0)), length * a1 * grow
+            if s1 - s0 < 6:
+                continue
+            ww = max(2, int(w * th * 2) // 2 * 2)
+            ox, oy = nx * off * w * 0.6, ny * off * w * 0.6
+            n = max(1, int((s1 - s0) // 6))
+            for q in range(n + 1):
+                u = q / n
+                taper = math.sin(math.pi * u) ** 0.5
+                hw = max(2, int(ww * taper) // 2 * 2)
+                x, y = _snap(x0 + dx * (s0 + (s1 - s0) * u) + ox), _snap(y0 + dy * (s0 + (s1 - s0) * u) + oy)
+                assets.draw_rect_color(x - 3, y - hw // 2, 6, hw, (255, 255, 255), min(1.0, 1.2 * k))
+
 
 class Pipe:
     IMPACT = 'impact_pipe'          # 명중할 때 적 피격음 위에 겹치는 무기 소리 (11/21 계획 1-7). 사슬은 갈고리 소리가 따로 있다
@@ -591,9 +617,10 @@ class Pipe:
         effects.spawn(fx['spark'], ex, ey, duration=fx['spark_time'])
         rays = config.IMPACT_RAYS['enhanced' if fx.get('enhanced') else p.gauge.zone]
         effects.spawn_impact(ex, ey, ex - p.x, ey - p.center[1], rays, fx['damage_color'], big=big)       # 충격 방사선
-        if big:                                          # 강한 공격: X자 베기 자국 두 개 + 퍼지는 고리
+        if big:                                          # 강한 공격: X자 베기 자국 두 개 + 퍼지는 고리 + 별 섬광(v8)
             effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'], big=True, count=2)
             effects.spawn_ring(ex, ey, fx['damage_color'])
+            effects.spawn_flare(ex, ey, color or fx['damage_color'])
         else:                                            # 맞을 때마다 적을 가로지르는 베기 자국 (다단 히트가 하나하나 보이게)
             effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
@@ -907,7 +934,10 @@ class Pipe:
         self.pass_hit.add(id(enemy))
         self._hit(enemy, damage, config.PIPE_FINISHER_GAIN if enhanced else config.GAIN_HIT, fx, big=enhanced,
                   shake=1.8 if enhanced else 1.2, blast=enhanced)
-        effects.spawn_slash_marks(ex, ey, dx, dy, (255, 255, 255), big=True)   # 지나가며 긋는 큰 초승달
+        effects.spawn_slash_marks(ex, ey, dx, dy, (255, 255, 255), big=True)   # 지나가며 긋는 큰 베기 자국
+        variant, flip = effects.slash_variant(dx, dy)
+        effects.spawn('pipe-slash-enhanced3', ex - dx * 40, ey - dy * 40, flip=flip, duration=0.26, variant=variant)   # 적을 감싸는 큰 진홍 초승달
+        effects.spawn_flare(ex, ey, EXEC_COLOR)                                 # 별 섬광 + 큰 붉은 빛 (v8)
         return True
 
     def _dash_pass(self):
@@ -2413,6 +2443,7 @@ class Ultimate:
             p.gauge.add(p.kill_gain(), 'kill')
         if last:
             effects.spawn('haze-blast', ex, ey - 40, duration=0.45)
+            effects.spawn_flare(ex, ey, self.color)
         return killed
 
     def _finale(self, cx, cy):
@@ -2422,6 +2453,7 @@ class Ultimate:
         effects.spawn_ring(cx, cy, (255, 255, 255), radius_max=300, life=0.32)
         effects.request_flash(0.06)
         effects.add_trauma(0.8)
+        effects.spawn_flare(cx, cy, self.color, big=True, line=True)            # v8: 큰 별 섬광 + 화면을 가르는 빛줄기
         self._nova(cx, cy)
         assets.play_sound(f'ult_final_{self.weapon.weapon_id}')
 

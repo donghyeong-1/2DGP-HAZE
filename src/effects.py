@@ -529,6 +529,62 @@ class KillSlash:
             t += step
 
 
+class TintFx:
+    """두 겹 시트 하나를 색을 입혀 한 번 재생한다 (별 섬광 등). scale은 정수 배율(기본 시트 값)."""
+
+    def __init__(self, name, x, y, color, life=None, scale=None):
+        self.name, self.x, self.y, self.color, self.scale = name, x, y, color, scale
+        self.life = life or sheet_info(name).get('duration', 0.3)
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        draw_tint_sheet(self.name, self.x, self.y, self.time / self.life, self.color, 0, self.scale)
+
+
+class ScreenLine:
+    """화면을 가로지르는 빛줄기 (INARI의 큰 일격): 흰 심 + 색 가장자리가 순식간에 뻗었다가 가늘어진다. 가로 또는 세로."""
+
+    def __init__(self, x, y, color, life=0.3, vertical=False, width=14):
+        self.x, self.y, self.color, self.life, self.vertical, self.width = x, y, color, life, vertical, width
+        self.time = 0.0
+
+    def update(self, dt):
+        self.time += dt
+        if self.time >= self.life:
+            game_world.remove_object(self)
+
+    def draw(self):
+        t = self.time / self.life
+        reach = 2400 * min(1.0, t / 0.12)                              # 가운데에서 양쪽으로 뻗는다
+        w = max(2, int(self.width * (1.0 - t) ** 1.4) // 2 * 2)
+        img = assets.image('light/bloom_256.png')                     # 줄기를 따라 번지는 빛
+        img.opacify(0.3 * (1.0 - t) * (0.5 if options.reduce_flash else 1.0))
+        for off in range(-int(reach), int(reach) + 1, 80):
+            gx, gy = (self.x, self.y + off) if self.vertical else (self.x + off, self.y)
+            assets.draw_image_added(img, int(gx), int(gy - img.h // 2), color=self.color, times=1)
+        img.opacify(1.0)
+        for color, k in ((self.color, 1.0), ((255, 255, 255), 0.4)):
+            ww = max(2, int(w * k) // 2 * 2)
+            if self.vertical:
+                assets.draw_rect_color(int(self.x - ww // 2), int(self.y - reach), ww, int(reach * 2), color)
+            else:
+                assets.draw_rect_color(int(self.x - reach), int(self.y - ww // 2), int(reach * 2), ww, color)
+
+
+def spawn_flare(x, y, color, big=False, line=False):
+    """별 섬광: 큰 색 빛 원반 + 흰 여덟 갈래 별 + 불티. big은 1.5배가 아니라 정수 3배, line이면 화면을 가르는 빛줄기도."""
+    game_world.add_object(TintFx('flare', x, y, color, scale=3 if big else 2), game_world.LAYER_EFFECT)
+    for _ in range(3 if big else 2):                                  # 진한 색 빛 원반 (겹쳐서 진하게)
+        game_world.add_object(Bloom(x, y, color, True, 0.34, 1.0), game_world.LAYER_EFFECT)
+    if line:
+        game_world.add_object(ScreenLine(x, y, color), game_world.LAYER_EFFECT)
+
+
 def spawn_bloom(x, y, color, big=False, life=0.16, strength=1.0):
     game_world.add_object(Bloom(x, y, color, big, life, strength), game_world.LAYER_EFFECT)
 

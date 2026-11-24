@@ -39,11 +39,23 @@ def test_melee_bot_jumps_to_reach_a_hovering_drone():
         assert r['result'] == 'win', (weapon_id, r)
 
 
+def test_zone_run_carries_hp_between_fights_and_is_deterministic():
+    a = balance_sim.zone_run('stage3', 'chain', 'dodge', 1)
+    assert a == balance_sim.zone_run('stage3', 'chain', 'dodge', 1)
+    result, reached, hp = a
+    n_room, n_big, _end = balance_sim.RUN_ORDER['stage3']
+    assert result in ('clear', 'dead', 'timeout') and 0 <= reached <= n_room + n_big + 1
+    assert (result == 'clear') == (reached == n_room + n_big + 1) and (hp > 0) == (result == 'clear')
+    r = balance_sim.run_one('slum', 'pipe', 'stand', 0, hp=40)
+    assert r['hp_end'] <= 40                                          # 남은 체력으로 시작한다
+
+
 def test_zone_table_markdown_has_every_zone():
     table = balance_sim.zone_table(['pipe'], ['dodge'], 1)
     text = balance_sim.zone_markdown(table, ['pipe'], ['dodge'])
-    for title in ('구역 1', '구역 2', '구역 3', '관문', '크래셔', '아크'):
+    for title in ('구역 1', '구역 2', '구역 3', '크래셔', '아크'):
         assert title in text
+    assert ('문지기' if balance_sim.HAS_GATEKEEPER else '관문') in text          # 문지기(v8 6일 차)가 들어오면 관문 싸움이 문지기
 
 
 if __name__ == '__main__':

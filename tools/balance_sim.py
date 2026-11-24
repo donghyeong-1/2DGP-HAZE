@@ -71,6 +71,15 @@ ZONE_TABLE = {
     'stage2': [('z2_room', '전투방'), ('z2_big', '큰 방'), ('boss', '크래셔')],
     'stage3': [('z3_room', '전투방'), ('z3_big', '큰 방'), ('ark', '아크')],
 }
+# 문지기(v8 6일 차)가 들어온 뒤에는 관문 싸움이 문지기다: 모듈이 있으면 시나리오를 더하고 구역 1 끝 싸움을 바꾼다
+try:
+    import importlib.util as _ilu
+    HAS_GATEKEEPER = _ilu.find_spec('gatekeeper') is not None
+except (ImportError, ValueError):
+    HAS_GATEKEEPER = False
+if HAS_GATEKEEPER:
+    SCENARIOS['gatekeeper'] = ([('gatekeeper', 900)], 120)
+    ZONE_TABLE['stage1'][2] = ('gatekeeper', '문지기')
 ALL_SCENARIOS = list(SCENARIOS) + list(ZONE_SCENARIOS)
 WEAPONS = ('pipe', 'pistol', 'gauntlet', 'chain')
 BOTS = ('stand', 'dodge')
@@ -102,6 +111,9 @@ def spawn(kind, x, room, player):
     elif kind == 'ark':
         from ark import Ark
         e = Ark(x, FLOOR_Y, room, player)
+    elif kind == 'gatekeeper':                           # 구역 1 중간 보스 (v8 6일 차, src/gatekeeper.py가 있을 때)
+        from gatekeeper import Gatekeeper
+        e = Gatekeeper(x, 2 * config.TILE, room, player)     # 키가 커서 FLOOR_Y에 세우면 천장에 박혀 방 밖으로 밀려 나간다: 바닥에 바로
     else:
         import enemy_kinds
         y = 2 * config.TILE if kind in ('eye', 'wraith', 'drone') else FLOOR_Y   # 벽·공중 적(중력 없음)은 실제 바닥(아래 두 줄 위)에서 올린다
@@ -221,7 +233,7 @@ def spawn_wave(wave, room, p, rng):
     return count
 
 
-def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
+def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None, hp=None):
     random.seed(seed)
     game_world.clear()
     effects.reset()
@@ -237,6 +249,8 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
     if weapon_id != 'pipe':
         p.give_weapon(weapon_id)
     p.attack_held = False
+    if hp is not None:                                   # 구역 통판(--run): 앞 싸움에서 남은 체력으로 시작
+        p.hp = max(1, min(p.max_hp, int(hp)))
     if gauge is not None:                                # 시작 게이지를 정한다 (기본은 게임 시작값)
         p.gauge.value = float(gauge)
         p.gauge.zone = p.gauge._zone_of(float(gauge))
@@ -254,7 +268,7 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
             before = len(game_world.world[game_world.LAYER_ENEMY])
             e = spawn(kind, x, room, p)
             foe_count += len(game_world.world[game_world.LAYER_ENEMY]) - before
-            if kind in ('boss', 'ark'):
+            if kind in ('boss', 'ark', 'gatekeeper') and hasattr(e, 'rng'):
                 e.rng = random.Random(seed)          # 보스 패턴 순서도 시드마다 다르게 (게임에서는 고정 Random(7))
     wave_wait = None
 
@@ -285,7 +299,7 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
             if wave_wait <= 0:
                 foe_count += spawn_wave(waves.pop(0), room, p, rng)
                 wave_wait = None
-    return dict(result=result, time=round(t, 2), foes=foe_count, max_hp=p.max_hp, hp_lost=round(hp0 - max(0, p.hp), 1),
+    return dict(result=result, time=round(t, 2), foes=foe_count, max_hp=p.max_hp, hp_end=max(0, p.hp), hp_lost=round(hp0 - max(0, p.hp), 1),
                 gauge_end=round(p.gauge.value, 1), gauge_min=round(gmin, 1), gauge_max=round(gmax, 1),
                 overloads=events.count('overload'), zones={k: round(v / t, 3) for k, v in zone_time.items()})
 
@@ -344,6 +358,39 @@ def print_economy():
     print(f'정비사 강화 전부 + 보관 칸 = {total} 결정')
 
 
+# 구역 통판 (--run): 싸움 사이에 체력·게이지가 이어진다. 구역마다 (보통 전투방 수, 큰 방 수, 끝 싸움)
+RUN_ORDER = {'stage1': (6, 2, 'gatekeeper' if HAS_GATEKEEPER else 'z1_gate'), 'stage2': (6, 2, 'boss'), 'stage3': (4, 1, 'ark')}
+RUN_POTION_AT = 45            # 봇은 체력이 이 아래로 내려간 채 싸움이 끝나면 물약을 마신다
+
+
+def zone_run(zone, weapon_id, bot, seed, potions=None, heal=None, meta_levels=None):
+    """한 구역을 처음부터 끝 싸움까지 이어서 싸운다. 방 순서는 시드로 섞고, 전투방 보상 중 회복은 mutations.REWARD_WEIGHTS 비율로.
+    (결과, 끝난 싸움 번호, 남은 체력)을 돌려준다. 정비방 물약 구입·증강·E 강화는 치지 않는다."""
+    import mutations
+    potions = config.POTION_START if potions is None else potions
+    heal = mutations.REWARD_HEAL if heal is None else heal
+    w = mutations.REWARD_WEIGHTS
+    heal_p = w['heal'] / sum(w.values())
+    n_room, n_big, end = RUN_ORDER[zone]
+    z = zone[-1]
+    rng = random.Random(f'run:{zone}:{seed}')
+    fights = [f'z{z}_room'] * n_room + [f'z{z}_big'] * n_big
+    rng.shuffle(fights)
+    fights.append(end)
+    hp, gauge = None, None
+    for i, sc in enumerate(fights):
+        r = run_one(sc, weapon_id, bot, seed * 100 + i, gauge, meta_levels, hp)
+        if r['result'] != 'win':
+            return 'dead' if r['result'] == 'dead' else 'timeout', i, 0
+        hp, gauge = r['hp_end'], max(20.0, min(80.0, r['gauge_end']))   # 다음 방 입구까지 게이지는 조금 움직인다: 20~80으로 묶는다
+        if i < len(fights) - 1 and rng.random() < heal_p:
+            hp = min(r['max_hp'], hp + heal)
+        while potions > 0 and hp < RUN_POTION_AT:
+            potions -= 1
+            hp = min(r['max_hp'], hp + config.POTION_HEAL)
+    return 'clear', len(fights), hp
+
+
 def zone_table(weapons, bots, seeds, gauge=None, meta_levels=None):
     """무기 × 구역 표: {(구역, 시나리오, 무기, 봇): 요약}. 구역 끝 싸움(관문·크래셔·아크)까지 한 번에."""
     out = {}
@@ -396,9 +443,29 @@ def main():
     ap.add_argument('--zones', action='store_true', help='무기 × 구역 표 (전투방·큰 방·구역 끝 싸움)')
     ap.add_argument('--md', help='--zones 표를 마크다운 파일로도 쓴다')
     ap.add_argument('--easy', action='store_true', help='설정의 초보자 모드를 켜고 싸운다 (config.EASY_*)')
+    ap.add_argument('--run', nargs='*', choices=list(RUN_ORDER), help='구역 통판: 체력·게이지를 이어 끝 싸움까지 (구역 생략 시 모두)')
+    ap.add_argument('--potions', type=int, help='--run 시작 물약 수 (기본 config.POTION_START)')
+    ap.add_argument('--heal', type=int, help='--run 회복 보상 양 (기본 mutations.REWARD_HEAL)')
     a = ap.parse_args()
     import options
     options.easy_mode = bool(a.easy)                     # 저장 파일은 건드리지 않는다
+    if a.run is not None:
+        started = time.time()
+        zones = a.run or list(RUN_ORDER)
+        print(f"{'구역':<8}{'무기':<10}{'봇':<7}{'통과':>6}  평균 남은 체력  죽은 곳(싸움 번호별)")
+        for zone in zones:
+            for w in a.weapon:
+                for b in a.bot:
+                    res = [zone_run(zone, w, b, seed, a.potions, a.heal, a.meta) for seed in range(a.seeds)]
+                    ok = [r for r in res if r[0] == 'clear']
+                    where = {}
+                    for r in res:
+                        if r[0] != 'clear':
+                            where[r[1]] = where.get(r[1], 0) + 1
+                    left = round(sum(r[2] for r in ok) / len(ok)) if ok else '-'
+                    print(f"{zone:<10}{w:<11}{b:<8}{len(ok) / len(res):>6.0%}  {str(left):>8}       {dict(sorted(where.items()))}", flush=True)
+        print(f'시드 {a.seeds}개, {time.time() - started:.0f}초')
+        return
     if a.zones:
         started = time.time()
         table = zone_table(a.weapon, a.bot, a.seeds, a.gauge, a.meta)

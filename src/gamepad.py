@@ -90,7 +90,7 @@ def apply_play(player, actions, origin):
     if 'enhance' in press:
         player.request_enhance()
     if 'swap' in press:
-        player.swap_weapon()
+        player.swap_weapon(strike=True)
     if 'interact' in press:
         player.interact_pressed = True
     if 'attack' in press:

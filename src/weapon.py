@@ -846,6 +846,8 @@ class Pipe:
         mutations.on_linked_hit(p, enemy, damage, killed)   # v7 연결 갈래: 묶인 적이 나눠 받고, 죽으면 터진다
         mutations.on_hit(p)                              # 변이 '굶주림'
         dash_mark(self, enemy, killed)                   # 대시 v2: 대시 공격이면 표식·대시 회복
+        import combo
+        combo.on_hit(self, enemy, killed)                # v8 두 무기 조합: 각인을 남기거나, 다른 무기의 각인을 격발
         if fx.get('enhanced'):
             mutations.on_enhanced_hit(p, enemy, damage)  # 변이 '파문'
         if blast:

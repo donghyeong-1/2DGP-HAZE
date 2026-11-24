@@ -1,0 +1,321 @@
+"""두 무기 조합 (v8 계획 1절, 2026-11-24): 각인과 격발.
+
+한 무기가 묻히고 다른 무기가 터뜨린다. 무기 둘을 들고 있을 때만 일한다(섞을 것이 있어야 한다).
+- 무기로 맞힌 적에게 그 무기의 **각인**이 IMPRINT_TIME 동안 남는다 (적마다 하나, 발밑에 그 무기 색 빛).
+- **다른 무기**로 각인된 적을 치면 **격발**: 추가 피해 + 터뜨린 무기에 따른 효과. 각인은 사라지고 IMPRINT_LOCK 동안 다시 묻지 않는다.
+- 격발하면 게이지 +DETONATE_GAUGE, 교체기 쿨다운 -DETONATE_SWAP_REFUND (바꿔 가며 싸울수록 빨라진다).
+대시 표식(붉은 X, 3개 처형)과는 따로 간다: 표식은 대시 공격, 각인은 무기 섞어 쓰기.
+Pipe._hit이 on_hit을 부른다(무기 넷 모두 그 함수를 거친다). 궁극기의 피해는 거치지 않으므로 각인·격발과 무관하다.
+"""
+import math
+
+import assets
+import config
+import effects
+import game_world
+
+COLORS = {'pipe': (40, 190, 255), 'pistol': (40, 235, 180), 'gauntlet': (255, 130, 40), 'chain': (160, 90, 255)}   # 무기의 색 (각인 빛)
+NAMES = {'pipe': '번지는 베기', 'pistol': '폭발탄', 'gauntlet': '분쇄', 'chain': '일망타진'}                        # 터뜨리는 무기별 격발
+_busy = False          # 격발이 주는 피해가 다시 각인·격발을 부르지 않게
+
+
+def imprint_of(enemy):
+    """그 적에게 남아 있는 각인의 무기 이름. 없으면 None."""
+    return getattr(enemy, 'imprint', None) if getattr(enemy, 'imprint_left', 0.0) > 0 else None
+
+
+def detonate_damage(player):
+    """격발의 기본 추가 피해 (게이지 구간·공격 보너스·변이를 따른다)."""
+    import mutations
+    return config.DETONATE_DAMAGE * player.gauge.zone_multipliers()['attack'] * player.attack_bonus * mutations.damage_mult(player)
+
+
+def active(player):
+    return sum(1 for w in player.weapons if w is not None) >= 2
+
+
+def on_hit(weapon, enemy, killed):
+    """무기가 적을 맞혔다: 다른 무기의 각인이 있으면 격발, 없으면 이 무기의 각인을 남긴다."""
+    p = weapon.owner
+    if _busy or not active(p):
+        return
+    wid = weapon.weapon_id
+    mark = imprint_of(enemy)
+    if mark is not None and mark != wid:
+        _detonate(weapon, enemy)
+        return
+    if killed or not enemy.alive or getattr(enemy, 'imprint_lock', 0.0) > 0:
+        return
+    imprint(enemy, wid)
+
+
+def imprint(enemy, wid):
+    enemy.imprint = wid
+    enemy.imprint_left = config.IMPRINT_TIME
+    _tag(enemy).pop = 0.14
+
+
+def _tag(enemy):
+    tag = getattr(enemy, 'imprint_tag', None)
+    if tag is None or tag.gone:
+        tag = enemy.imprint_tag = ImprintTag(enemy)
+        game_world.add_object(tag, game_world.LAYER_EFFECT)
+    return tag
+
+
+def _enemies():
+    return [e for e in list(game_world.world[game_world.LAYER_ENEMY]) if e.alive]
+
+
+def _strike(player, enemy, damage, color, knock=1.0):
+    """격발이 주는 피해 한 번 (각인·격발을 다시 부르지 않는다). 죽였으면 처치 게이지와 연출까지."""
+    global _busy
+    import drama
+    _busy = True
+    try:
+        with drama.hit_style(big=True, color=color):
+            killed = enemy.take_damage(damage, from_x=player.x, knock=knock)
+    finally:
+        _busy = False
+    if killed:
+        ex, ey = enemy.center
+        player.gauge.add(player.kill_gain(False), 'kill')
+        effects.spawn_kill(ex, ey, ex - player.x, ey - player.center[1], color)
+    return killed
+
+
+def _detonate(weapon, enemy):
+    p = weapon.owner
+    wid = weapon.weapon_id
+    color = COLORS[wid]
+    ex, ey = enemy.center
+    enemy.imprint, enemy.imprint_left = None, 0.0
+    enemy.imprint_lock = config.IMPRINT_LOCK
+    _tag(enemy)                                           # 잠금 시간을 세어 줄 것이 있어야 한다
+    damage = detonate_damage(p)
+    p.gauge.add(config.DETONATE_GAUGE, 'hit')
+    p.swap_cool = max(0.0, getattr(p, 'swap_cool', 0.0) - config.DETONATE_SWAP_REFUND)
+    assets.play_sound('ult_hit')
+    effects.add_trauma(config.SHAKE_HIT * 1.6)
+    effects.float_text(ex, ey + 150, '격발 · ' + NAMES[wid], color, big=True, life=0.7)
+    effects.spawn('haze-blast', ex, ey, duration=0.5)
+    effects.spawn_flare(ex, ey, color)
+    if wid == 'gauntlet':                                 # 분쇄: 피해 큼 + 띄움
+        _strike(p, enemy, damage * config.DETONATE_CRUSH, color, knock=config.KNOCK_BIG)
+        if enemy.alive and getattr(enemy, 'pullable', True):
+            enemy.vy = config.DETONATE_LAUNCH
+            enemy.hold(config.DETONATE_LAUNCH_HOLD)
+        return
+    _strike(p, enemy, damage, color)
+    if wid == 'pipe':                                     # 번지는 베기: 다른 각인 적 모두에게 베기가 튄다 (그 각인은 남는다)
+        for o in _enemies():
+            if o is not enemy and imprint_of(o) is not None:
+                ox, oy = o.center
+                effects.spawn_slash_marks(ox, oy, ox - ex, oy - ey or 0.1, color, big=True, count=2)
+                effects.spawn_flare(ox, oy, color, small=True)
+                _strike(p, o, damage, color)
+    elif wid == 'pistol':                                 # 폭발탄: 둘레의 적에게 폭발 피해, 각인을 옮긴다
+        effects.spawn_ring(ex, ey, color, radius_max=config.DETONATE_BURST_RADIUS, life=0.24)
+        for o in _enemies():
+            ox, oy = o.center
+            if o is not enemy and math.hypot(ox - ex, oy - ey) <= config.DETONATE_BURST_RADIUS:
+                if not _strike(p, o, damage * config.DETONATE_BURST_RATIO, color) and getattr(o, 'imprint_lock', 0.0) <= 0:
+                    imprint(o, 'pistol')
+    elif wid == 'chain':                                  # 일망타진: 각인된 적 모두를 터뜨린 적 쪽으로 끌어모은다
+        pulled = [o for o in _enemies() if o is not enemy and imprint_of(o) is not None and getattr(o, 'pullable', True)]
+        if pulled:
+            game_world.add_object(Gather(enemy, pulled, color), game_world.LAYER_EFFECT)
+
+
+# =====================================================================================================
+# 교체기 (v8 1-2): 무기를 바꾸는 순간 들어오는 무기의 기술이 나간다. 조준 방향을 따르고, 직전 공격의 후딜을 끊는다.
+# 맞히는 것은 Pipe._hit을 거치므로, 나가는 무기가 남긴 각인을 바로 격발한다 (묻히고 -> 바꾸며 터뜨린다).
+# =====================================================================================================
+STRIKE_NAMES = {'pipe': '발도 베기', 'pistol': '물러나 쏘기', 'gauntlet': '올려치기', 'chain': '낚아채기'}
+
+
+def swap_strike(player):
+    """방금 든 무기의 교체기. 나갔으면 True (쿨 중·무기 하나·기절 중이면 False)."""
+    p = player
+    if p.state in ('DEAD', 'HIT') or p.stunned or p.swap_cool > 0 or not active(p):
+        return False
+    w = p.weapon
+    p.swap_cool = config.SWAP_COOLDOWN
+    p.swing_left = 0.0                                    # 직전 공격의 남은 자세를 끊는다
+    w.cooldown = min(getattr(w, 'cooldown', 0.0), config.SWAP_FOLLOW)
+    cx, cy = p.center
+    effects.float_text(cx, cy - 70, STRIKE_NAMES[w.weapon_id], COLORS[w.weapon_id], life=0.5)     # 발밑 쪽에 (피해 숫자·격발 글자와 겹치지 않게)
+    _STRIKES[w.weapon_id](p, w)
+    return True
+
+
+def _strike_pipe(p, w):
+    """발도 베기: 한 발 내디디며 넓은 가로 베기."""
+    ax, ay = p.aim_vector()
+    cx, cy = p.center
+    fx = w._fx(False)
+    p.set_swing_style(1, ax)
+    if p.on_ground:
+        p.lunge_vx = (1 if ax >= 0 else -1) * config.SWAP_PIPE_LUNGE
+    variant, flip = effects.slash_variant(ax, ay)
+    effects.spawn(fx['slash'], cx, cy, flip=flip, duration=0.24, variant=variant)
+    w._swing_sound('swing_3', False)
+    effects.add_trauma(config.SHAKE_HIT)
+    damage = w._damage(config.SWAP_PIPE_MULT)
+    for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_PIPE_REACH)):
+        w._hit(e, damage, config.GAIN_HIT, fx, big=True)
+
+
+def _strike_pistol(p, w):
+    """물러나 쏘기: 조준 반대쪽으로 물러나며 3발."""
+    import weapon as wp
+    ax, ay = p.aim_vector()
+    p.lunge_vx = (-1 if ax >= 0 else 1) * config.SWAP_PISTOL_HOP
+    mx, my = p.pistol_muzzle()
+    base = math.atan2(ay, ax)
+    damage = w._damage(config.SWAP_PISTOL_MULT)
+    for k in (-1, 0, 1):
+        a = base + k * 0.06
+        game_world.add_object(wp.Bullet(w, mx, my + k * 3, math.cos(a), math.sin(a), damage, False, w._fx(False), k or 1),
+                              game_world.LAYER_EFFECT)
+    game_world.add_object(wp.MuzzleFlash(mx, my, ax, ay), game_world.LAYER_EFFECT)
+    assets.play_sound('shot')
+
+
+def _strike_gauntlet(p, w):
+    """올려치기: 앞의 적을 띄운다."""
+    ax, ay = p.aim_vector()
+    cx, cy = p.center
+    fx = w._fx(False)
+    p.start_punch('blast')
+    w._swing_sound('swing_3', False)
+    effects.spawn('surge', cx + (1 if ax >= 0 else -1) * 70, p.y, duration=0.36)
+    damage = w._damage(config.SWAP_GAUNTLET_MULT)
+    for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_GAUNTLET_REACH)):
+        w._hit(e, damage, config.GAIN_HIT, fx, big=True, extra=False)
+        if e.alive and getattr(e, 'pullable', True):
+            e.vy = max(e.vy, config.SWAP_LAUNCH)
+            e.hold(config.DETONATE_LAUNCH_HOLD)
+
+
+def _strike_chain(p, w):
+    """낚아채기: 가장 가까운 적 하나를 바로 끌어온다."""
+    cx, cy = p.center
+
+    def reach(e):
+        ex, ey = e.center
+        return getattr(e, 'pullable', True) and math.hypot(ex - cx, ey - cy) <= config.SWAP_CHAIN_RANGE
+    found = w._targets(reach)
+    p.start_punch('throw')
+    assets.play_sound('pickup')
+    if not found:
+        return
+    target = min(found, key=lambda e: math.hypot(e.center[0] - cx, e.center[1] - cy))
+    game_world.add_object(Yank(p, w, target), game_world.LAYER_EFFECT)
+
+
+_STRIKES = {'pipe': _strike_pipe, 'pistol': _strike_pistol, 'gauntlet': _strike_gauntlet, 'chain': _strike_chain}
+
+
+class Yank:
+    """사슬 교체기: 적 하나가 주인공 앞으로 끌려와(SWAP_CHAIN_TIME) 맞는다."""
+
+    def __init__(self, player, weapon, enemy):
+        self.p, self.w, self.e = player, weapon, enemy
+        self.time = 0.0
+        enemy.hold(config.SWAP_CHAIN_TIME + 0.45)
+
+    def update(self, dt):
+        p, e = self.p, self.e
+        self.time += dt
+        if not e.alive:
+            game_world.remove_object(self)
+            return
+        left = max(dt, config.SWAP_CHAIN_TIME - self.time + dt)
+        stop = p.x + (1 if e.x >= p.x else -1) * 84
+        e.pull_step((stop - e.x) * min(1.0, dt / left))
+        if self.time >= config.SWAP_CHAIN_TIME:
+            self.w._hit(e, self.w._damage(config.SWAP_CHAIN_MULT), config.GAIN_HIT, self.w._fx(False), extra=False)
+            game_world.remove_object(self)
+
+    def draw(self):
+        (x0, y0), (x1, y1) = self.p.center, self.e.center
+        n = max(1, int(math.hypot(x1 - x0, y1 - y0) / 12))
+        for i in range(n + 1):                              # 사슬 고리: 4px 칸을 12px마다
+            x, y = x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n
+            assets.draw_rect_color(int(x) // 2 * 2 - 2, int(y) // 2 * 2 - 2, 4, 4, COLORS['chain'] if i % 2 else (235, 225, 255))
+
+
+class Gather:
+    """사슬 격발: 각인된 적들이 한 점으로 끌려온다 (GATHER_TIME 동안, 벽에 막히면 거기까지)."""
+    TIME = 0.28
+
+    def __init__(self, anchor, enemies, color):
+        self.x = anchor.x
+        self.enemies, self.color = enemies, color
+        self.time = 0.0
+        for e in enemies:
+            e.hold(self.TIME + 0.25)
+
+    def update(self, dt):
+        self.time += dt
+        left = max(dt, self.TIME - self.time + dt)
+        for k, e in enumerate(self.enemies):
+            if not e.alive:
+                continue
+            stop = self.x + (1 if e.x >= self.x else -1) * (44 + 22 * (k % 3))   # 한 점에 겹치지 않게 조금씩 벌려 세운다
+            e.pull_step((stop - e.x) * min(1.0, dt / left))
+        if self.time >= self.TIME:
+            game_world.remove_object(self)
+
+    def draw(self):
+        k = max(0.0, 1.0 - self.time / self.TIME)
+        for e in self.enemies:                              # 끌려오는 적과 모이는 자리를 잇는 빛 (2px 선)
+            if e.alive:
+                ex, ey = e.center
+                x0, x1 = sorted((int(self.x), int(ex)))
+                assets.draw_rect_color(x0 // 2 * 2, int(ey) // 2 * 2, max(2, (x1 - x0) // 2 * 2), 2, self.color, 0.7 * k)
+
+
+class ImprintTag:
+    """적 발밑의 각인 빛 (무기 색). 시간을 세고, 각인도 잠금도 끝났거나 적이 죽으면 사라진다."""
+
+    def __init__(self, enemy):
+        self.enemy = enemy
+        self.pop = 0.0
+        self.time = 0.0
+        self.gone = False
+
+    def update(self, dt):
+        e = self.enemy
+        self.time += dt
+        self.pop = max(0.0, self.pop - dt)
+        e.imprint_left = max(0.0, getattr(e, 'imprint_left', 0.0) - dt)
+        e.imprint_lock = max(0.0, getattr(e, 'imprint_lock', 0.0) - dt)
+        if e.imprint_left <= 0:
+            e.imprint = None
+        if not e.alive or (e.imprint_left <= 0 and e.imprint_lock <= 0):
+            self.gone = True
+            game_world.remove_object(self)
+
+    def draw(self):
+        e = self.enemy
+        wid = imprint_of(e)
+        if wid is None:
+            return
+        color = COLORS[wid]
+        img = assets.image('light/dot_48.png')
+        beat = 0.5 + 0.5 * math.sin(self.time * 9.0)
+        fading = min(1.0, e.imprint_left / 0.8)                 # 사라지기 직전에는 옅어진다
+        img.opacify((0.55 + 0.25 * beat + (0.3 if self.pop > 0 else 0.0)) * fading)
+        x, y = int(e.x) // 2 * 2, int(e.y) // 2 * 2
+        for dx in (-22, 0, 22):                                 # 발밑에 가로로 깔린 빛
+            assets.draw_image_added(img, x + dx, y - img.h // 2 + 6, color=color, times=1)
+        img.opacify(1.0)
+        left, bottom, right, top = e.rect()
+        w = 6 if self.pop > 0 else 4                            # 머리 위의 작은 마름모 (어느 무기의 각인인지 색으로)
+        cx, cy = int((left + right) / 2) // 2 * 2, int(top + 24) // 2 * 2
+        assets.draw_rect_color(cx - w - 2, cy - 2, 2 * w + 4, 4, (10, 12, 20))
+        assets.draw_rect_color(cx - 2, cy - w - 2, 4, 2 * w + 4, (10, 12, 20))
+        assets.draw_rect_color(cx - w, cy - 1, 2 * w, 2, color)
+        assets.draw_rect_color(cx - 1, cy - w, 2, 2 * w, color)

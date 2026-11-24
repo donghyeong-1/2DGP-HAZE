@@ -78,7 +78,7 @@ class FakePlayer:
 
     def __getattr__(self, name):
         if name.startswith('request_') or name in ('release_jump', 'swap_weapon', '_sync_mouse'):
-            return lambda *a: self.calls.append(name)
+            return lambda *a, **k: self.calls.append(name)      # 교체는 strike=True를 같이 받는다 (v8 교체기)
         raise AttributeError(name)
 
 

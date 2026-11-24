@@ -291,6 +291,11 @@ class GameUI:
                 assets.draw_image_tinted(img, x + SLOT // 2, y + (SLOT - img.h) // 2, '', (120, 130, 150), 0.7)
             import keybinds
             keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active)
+            if not active and p.weapons[p.slot] is not None:               # v8 교체기: 이 칸으로 바꾸면 기술이 나간다. 칸 위쪽 막대 = 쿨다운(다 차면 그 무기 색)
+                import combo
+                ratio = max(0.0, 1.0 - p.swap_cool / config.SWAP_COOLDOWN)
+                assets.draw_rect_color(x + 6, y + 2, int((SLOT - 12) * ratio) // 2 * 2, 4,
+                                       combo.COLORS[wp.weapon_id] if ratio >= 1.0 else (96, 108, 130))
         # E 강화 칸
         ex = xs[0] - SLOT - 26
         ready = g.can_enhance()

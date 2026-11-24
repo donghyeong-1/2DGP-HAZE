@@ -243,6 +243,7 @@ class Player(TileBody):
         self.swing_anim = None         # v7 공격 v3: 이번 휘두르기 전용 그림 세트 (없으면 n09_swing_<방향>)
         self.air_combo = 0             # 이번 체공에서 친 공중 공격 수 (1타 가로 -> 2타 반원, 땅에 닿으면 0)
         self.lunge_vx = 0.0            # 휘두를 때 한 발 내딛는 속도 (빠르게 줄어든다)
+        self.swap_cool = 0.0           # v8 교체기 쿨다운 (0이면 바꾸는 순간 기술이 나간다)
         self.swing_connected = False
         self._was_stunned = False      # 지난 프레임에 기절 중이었나 (회복하는 순간을 알아챈다)
         self.mouse_screen = None       # 마우스의 화면 좌표. 카메라가 움직여도 같은 곳을 겨누도록 월드 좌표를 매 프레임 다시 구한다
@@ -388,11 +389,11 @@ class Player(TileBody):
             elif action == 'interact':
                 self.interact_pressed = True   # 진열대 앞에서 상호작용: stage가 처리한다
             elif action == 'swap':
-                self.swap_weapon()
+                self.swap_weapon(strike=True)
             elif action == 'potion':
                 self.drink_potion()
             elif action in ('weapon1', 'weapon2'):
-                self.swap_weapon(0 if action == 'weapon1' else 1)
+                self.swap_weapon(0 if action == 'weapon1' else 1, strike=True)
         elif event.type == SDL_MOUSEMOTION:
             self.mouse_screen = (event.x, get_canvas_height() - 1 - event.y)
             self._sync_mouse()
@@ -494,8 +495,9 @@ class Player(TileBody):
         effects.float_text(cx, cy + 90, f'+{int(healed)}', (130, 255, 170), big=True)
         return True
 
-    def swap_weapon(self, index=None):
-        """Q: 다른 칸으로, 1·2: 그 칸으로. 빈 칸이면 바꾸지 않는다. 건틀릿 충전은 풀린다."""
+    def swap_weapon(self, index=None, strike=False):
+        """Q: 다른 칸으로, 1·2: 그 칸으로. 빈 칸이면 바꾸지 않는다. 건틀릿 충전은 풀린다.
+        strike=True(플레이어가 직접 바꿈)면 들어오는 무기의 교체기가 나간다 (v8, combo.swap_strike. 쿨 중이면 그냥 바뀐다)."""
         if index is None:
             index = 1 - self.slot
         if self.weapons[index] is None or index == self.slot and self.weapon is self.weapons[index]:
@@ -505,6 +507,9 @@ class Player(TileBody):
         self.slot = index
         self.weapon = self.weapons[index]
         assets.play_sound('pickup')
+        if strike:
+            import combo
+            combo.swap_strike(self)
         return True
 
     def start_punch(self, kind):
@@ -647,6 +652,7 @@ class Player(TileBody):
         self.punch_left = max(0.0, self.punch_left - dt)
         self.ult_pose_left = max(0.0, self.ult_pose_left - dt)
         self.potion_cool = max(0.0, self.potion_cool - dt)
+        self.swap_cool = max(0.0, self.swap_cool - dt)       # v8 교체기 쿨다운
         import options
         if (options.test_mode or self.no_death) and self.state != 'DEAD':   # 테스트 모드·연습장: 게이지가 사망·오버로드에 닿지 않게
             self.gauge.value = min(max(self.gauge.value, 5.0), self.gauge.cap - 1.0)

@@ -455,6 +455,31 @@ DASH_STRIKE_HALF_WIDTH = 70     # 대시로 지나온 경로(직선) 양옆으�
 DASH_STRIKE_ENHANCED_HALF_WIDTH = 115   # 강화된 대시 평타는 경로 양옆이 더 넓다
 DASH_STRIKE_COOLDOWN = 0.40
 # 대시 공격 v2 (2026-11-24 사용자 요청 "이나리 같은 대시 공격"): 무기 4종 공통. weapon.dash_mark
+# ----- 두 무기 조합 (v8 1절, src/combo.py): 각인과 격발 -----
+IMPRINT_TIME = 4.0            # 각인이 남는 시간(초)
+IMPRINT_LOCK = 2.0            # 격발된 적이 다시 각인되지 않는 시간(초)
+DETONATE_DAMAGE = 14.0        # 격발의 추가 피해 (게이지 구간 배율을 따른다)
+DETONATE_GAUGE = 2.0          # 격발하면 오르는 게이지(%)
+DETONATE_SWAP_REFUND = 1.0    # 격발하면 줄어드는 교체기 쿨다운(초)
+DETONATE_CRUSH = 2.0          # 건틀릿 격발 '분쇄'의 피해 배율
+DETONATE_LAUNCH = 640.0       # 분쇄가 적을 띄우는 속도(px/s)
+DETONATE_LAUNCH_HOLD = 0.6    # 뜬 동안 움직이지 못하는 시간(초)
+DETONATE_BURST_RADIUS = 170   # 쌍권총 격발 '폭발탄'의 반지름(px)
+DETONATE_BURST_RATIO = 0.6    # 폭발탄이 둘레 적에게 주는 피해 비율
+# 교체기: 무기를 바꾸는 순간(Tab·1·2) 들어오는 무기의 기술이 나간다. 쿨 중이면 그냥 바뀐다
+SWAP_COOLDOWN = 3.0           # 교체기 쿨다운(초)
+SWAP_FOLLOW = 0.12            # 교체기 뒤 바로 이어 칠 수 있게 남기는 공격 쿨다운(초)
+SWAP_PIPE_MULT = 1.3          # 철파이프 '발도 베기': 피해 배율
+SWAP_PIPE_REACH = 1.45        #   사거리 배율 (넓게 벤다)
+SWAP_PIPE_LUNGE = 460.0       #   한 발 내딛는 속도(px/s)
+SWAP_PISTOL_MULT = 0.8        # 쌍권총 '물러나 쏘기': 한 발의 피해 배율 (3발)
+SWAP_PISTOL_HOP = 620.0       #   뒤로 물러나는 속도(px/s)
+SWAP_GAUNTLET_MULT = 1.2      # 건틀릿 '올려치기': 피해 배율
+SWAP_GAUNTLET_REACH = 1.15    #   사거리 배율
+SWAP_LAUNCH = 600.0           #   적을 띄우는 속도(px/s)
+SWAP_CHAIN_MULT = 0.8         # 사슬 '낚아채기': 피해 배율
+SWAP_CHAIN_RANGE = 520        #   끌어올 수 있는 거리(px)
+SWAP_CHAIN_TIME = 0.2         #   끌려오는 시간(초)
 DASH_MARK_WINDOW = 0.7          # 대시 공격을 누른 뒤 이 시간 안의 적중이 표식을 남긴다 (총알·사슬이 늦게 닿아도)
 DASH_MARKS = 3                  # 표식이 이만큼 쌓이면 처형
 DASH_MARK_TIME = 4.0            # 표식은 이 시간 동안 새로 안 쌓이면 사라진다(초)

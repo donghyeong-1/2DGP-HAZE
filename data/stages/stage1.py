@@ -26,7 +26,7 @@ STAGE1 = {
     (3, 0): {"template": "cover_04", "type": "combat", "theme": "foundry"},
     (4, 0): {"template": "tower_03", "type": "combat", "theme": "haze"},
     # 관문: 아레나 모양에 간수·사냥개 정예 (템플릿의 슬럼·투척병 자리를 바꾼다)
-    (5, 0): {"template": "arena_05", "type": "gate", "theme": "foundry", "swap": {"slum": "guard", "thrower": "hound"}},
+    (5, 0): {"template": "gate_arena", "type": "gate", "theme": "foundry", "swap": {"slum": "guard", "thrower": "hound"}},
     (0, 1): {"template": "well_room", "type": "combat",
              "enemies": ["thrower", "slum", "shaman", "guard", "slum", "rat"]},
     (1, 1): {"template": "crossing", "type": "combat",

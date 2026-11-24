@@ -681,3 +681,23 @@ DEBUG = False
 # ----- v8 6일 차: 보스 등장씬 (스레드 v8/day6-boss, src/boss_intro.py) -----
 # 보스방에 들어서면 카메라 이동 -> 대사 2~3줄 -> 이름 띠. False면 예전처럼 이름 띠(zone_card 보스 카드)만 바로 뜬다.
 BOSS_INTRO = True
+
+# ----- v8 6일 차: 구역 1 중간 보스 문지기 (스레드 v8/day6-boss, src/gatekeeper.py) -----
+# 관문 방(gate)에서 정예 전투 대신 문지기와 싸운다. False면 예전 관문 정예 전투(간수·사냥개).
+GATEKEEPER = True
+# 간수 그림을 1.5배로 구운 몸(tools/make_gatekeeper.py). 패턴: 방패 돌진(charge) / 내려찍기(slam) / 증원 호출(call).
+# gain_on_hit 15: 맞으면 게이지 +15 (간수 규칙). 수치는 플레이 없이 정한 첫 값이다(크래셔 체력 700의 약 2/3)
+ENEMY_STATS['gatekeeper'] = dict(
+    hp=480, hb=(80, 190), speed=140.0, sight=2400, sight_dy=700, attack_range=170, reach_dy=260, damage=24,
+    windup=0.75, attack_time=0.3, cooldown=1.2, gain_on_hit=15, sprite='boss_gatekeeper_idle', leap=0.0,
+    moves=[('slam', 3), ('charge', 3), ('call', 1)], walk_px=40.0,
+    charge_speed=860.0, charge_damage=20, wave_speed=480.0, wave_damage=10, slam_reach=70, wall_stun=0.9,
+    frames=dict(walk='boss_gatekeeper_walk', attack='boss_gatekeeper_swing', slam='boss_gatekeeper_heavy',
+                charge='boss_gatekeeper_bash', call='boss_gatekeeper_swing', hurt='boss_gatekeeper_hurt'))
+GATEKEEPER_CALL = dict(kinds=('slum', 'hound'), count=2, max_adds=3, every=8.0)   # 증원: 한 번에 count, 살아 있는 증원 최대 max_adds, 다시 부르기까지 every초
+SHARDS_PER_KILL['gatekeeper'] = 6
+HIT_MATERIAL['gatekeeper'] = 'armor'
+ENEMY_WEIGHT['gatekeeper'] = 3.0
+ENEMY_WINDUP_SOUND['gatekeeper'] = 'windup_guard'
+STRONG_MOVES = STRONG_MOVES + ('slam', 'charge')     # 머리 위 '!' 예고
+RUSH_MOVES['charge'] = 560                            # 방패 돌진 바닥 표시 길이(px)

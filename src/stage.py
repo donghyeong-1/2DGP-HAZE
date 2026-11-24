@@ -377,7 +377,9 @@ class Stage:
         self._place_player(from_dir)
         self.visited.add(coord)
         kind = self.type_of(coord)
-        if kind in ('combat', 'gate') and coord not in self.cleared:
+        if kind == 'gate' and coord not in self.cleared and config.GATEKEEPER:   # v8 구역 1 중간 보스 문지기
+            self._spawn_gatekeeper()
+        elif kind in ('combat', 'gate') and coord not in self.cleared:
             self._spawn_enemies(info)
             if coord in self.challenges:                 # v8 도전방: 제한 시간 시작
                 limit = self.challenge_limit()
@@ -400,6 +402,13 @@ class Stage:
             import practice
             practice.spawn_dummies(self)
         self.room.locked = self.enemy_count() > 0 and kind != 'practice'   # 연습장은 잠그지 않는다 (남은 적 칩도 안 뜬다)
+
+    def _spawn_gatekeeper(self):
+        """관문 방: 정예 전투 대신 문지기가 보스로 선다 (B 칸, 없으면 방 오른쪽)."""
+        from gatekeeper import Gatekeeper
+        x, y = self.room.boss_spawn or (self.room.width * 0.75, config.TILE * 2)
+        self.boss = Gatekeeper(x, y, self.room, self.player)
+        game_world.add_object(self.boss, game_world.LAYER_ENEMY)
 
     def _make_boss(self, kind, x, y):
         """보스 종류별 객체: 크래셔(스테이지 2), 아크(스테이지 3)."""

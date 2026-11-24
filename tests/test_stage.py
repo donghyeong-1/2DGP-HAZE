@@ -572,14 +572,18 @@ def test_three_stages_in_order_with_titles():
 
 
 def test_stage1_ends_at_gate_fight_without_boss():
-    """기획서: 크래셔는 스테이지 2 보스, 아크는 스테이지 3 보스. 스테이지 1은 관문 방의 정예 전투를 이기면 다음 구역으로."""
+    """기획서: 크래셔는 스테이지 2 보스, 아크는 스테이지 3 보스. 스테이지 1은 관문 방(v8: 중간 보스 문지기)을 이기면 다음 구역으로."""
     stage, p = make_stage()
     kinds = [info.get('type') for info in stage.layout.values()]
     assert 'boss' not in kinds and kinds.count('gate') == 1
     goto(stage, p, ['R', 'R', 'R', 'R', 'R'])
-    assert stage.type_of(stage.coord) == 'gate' and stage.boss is None
-    assert stage.room.locked and stage.enemy_count() >= 4                   # 정예 무리
-    assert {e.kind for e in game_world.world[game_world.LAYER_ENEMY]} & {'guard', 'hound'}
+    assert stage.type_of(stage.coord) == 'gate'
+    if config.GATEKEEPER:                                                   # v8: 관문은 중간 보스 문지기 (tests/test_gatekeeper.py)
+        assert stage.boss is not None and stage.boss.kind == 'gatekeeper' and stage.room.locked
+    else:
+        assert stage.boss is None
+        assert stage.room.locked and stage.enemy_count() >= 4               # 정예 무리
+        assert {e.kind for e in game_world.world[game_world.LAYER_ENEMY]} & {'guard', 'hound'}
     clear_here(stage)
     for _ in range(200):
         stage.update()

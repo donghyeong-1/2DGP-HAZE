@@ -114,6 +114,9 @@ def create(o):
   타격처럼 작은 것은 덩이(`body`)를 줄이고 불티·조각을 늘린다(덩이가 많으면 솜처럼 보인다). 두 겹 시트로 쓰려면 TINTS에 등록하면 된다(`layer`를 알아서 처리).
 - 반복 오라: `LOOPS`·`build_loop`(aura-stun = 오버로드 기절의 붉은 불길). 같은 뿌리기 일정을 주기마다 되풀이하고 한 주기를 먼저 돌린 뒤 굽는다. 불길은 뿌리에서 끝으로 가늘어지는
   덩이의 줄(혀)로 그린다: 불덩이 입자를 흩뿌리면 솜뭉치처럼 보였다. 빛 시트가 있으면 `effects.draw_loop`가 같이 그린다.
-- **그대로 둔 것**: 별 섬광 flare·flare-s, 베기 자국 cut-mark, 처형 fin-burst·exec-crescent, 대시 궤적 DashStreak (사용자가 마음에 들어 한 대시 화풍). 바꾸려면 먼저 묻는다.
+- 별 섬광 flare·flare-s (v2, 사용자가 준 INARI 화면): **진한 색 원반**(G[2] 면, 밝은 테두리, 테두리 안쪽의 조금 밝은 띠) + 흰 여덟 갈래 별 + 빛 층의 **주변광**
+  (원반 반지름의 2.5배·1.7배 둥근 빛, 테두리를 감싸는 `glow_ring`). 색 층은 알파 0/255라 가장자리가 딱딱하다: 부드러운 느낌은 테두리를 감싸는 빛으로 낸다.
+  원반이 비워진 고리와 빛의 원은 오래 두지 않는다(0.14초): 남으면 동그라미 도형으로 보인다. 별은 입자로 바꾸지 않는다(미리 보기에서 뭉툭한 흰 덩이가 됐다).
+- **그대로 둔 것**: 베기 자국 cut-mark, 처형 fin-burst·exec-crescent, 대시 궤적 DashStreak (사용자가 마음에 들어 한 대시 화풍). 바꾸려면 먼저 묻는다.
 - 아직 예전 방식: dash-strike(창 모양)·shockwave(보스 충격파, 반복)·오라(make_aura.py),
   실행 중 사각형 이펙트(effects.py의 PathSlash·LightPillar·ground_slam·처치 연출 KillSlash, weapon.py의 RushTrail·표식·사슬). DashStreak는 사용자가 마음에 들어 해 그대로.

@@ -335,3 +335,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-24: `assets/effects/overload-burst.png`(입자로만 만든 폭발)·`overload-gather.png`(모이는 기운)와 빛 시트: `tools/make_fx2.py`(code-drawn). 구성 방식은 pixelfx의 불덩이 입자를 참고(코드·결과물은 쓰지 않음).
 - 2026-11-24: `glint`(맞부딪침 반짝임)는 만들었다가 같은 날 삭제(`assets/effects/glint.*`, `assets/light/glow_glint.png`): haze-inari 보류. 레시피는 `tools/make_fx2.py`에 보기 전용 시안으로 남아 있다(`--look glint`, `--look inari-smear`).
 - 2026-11-24: 이펙트 v8 7차 — 입자 구성으로 다시 구움(`tools/make_fx2.py` pb_create·pring_create, code-drawn): `hit-*`(7종), `haze-blast`, `ult-nova-*`(5종), `death-burst`, `quake-blast`, 두 겹 시트 `impact-rays(-big)`·`shock-ring-s/m/l`와 그 빛 시트. `aura-stun`(오버로드 기절)은 전기 아크(make_aura.py)에서 붉은 불길 반복 시트로 (make_fx2.py stun_create, 빛 시트 `assets/light/glow_aura-stun.png` 추가).
+- 2026-11-24: `assets/effects/flare.png`·`flare-s.png`와 빛 시트를 별 섬광 v2(진한 원반 + 주변광)로 다시 구움: `tools/make_fx2.py` flare_create(code-drawn). 구성은 사용자가 준 INARI 화면을 참고(그림은 쓰지 않음).

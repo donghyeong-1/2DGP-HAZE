@@ -315,8 +315,9 @@ FLARE_S_META = dict(size=[112, 112], origin=[56, 56], duration=0.3, fps=30, opti
 
 
 def flare_create(o):
-    """별 섬광 (사용자가 준 INARI 그림): 크고 진한 색 빛 원반 한가운데에 흰 여덟 갈래 별, 둘레에 작은 반짝임과 불티.
-    색 층 = 별의 색 가장자리·반짝임, 흰 심 = 별 가운데. 큰 빛 원반은 빛 층이 맡는다(게임이 색을 곱한다)."""
+    """별 섬광 v2 (2026-11-24 사용자가 준 INARI 화면): **진한 색 원반**(밝은 테두리, 안쪽의 옅은 겹) 한가운데에 흰 여덟 갈래 별,
+    원반 둘레로 넓게 번지는 같은 색 주변광, 불티. 원반은 두세 장 꽉 찼다가 가운데부터 비워져 고리가 되고 토막 나 사라진다.
+    색 층 = 원반·별의 색 가장자리·불티(게임이 색을 곱한다), 흰 심 = 별·반짝임, 빛 층 = 주변광."""
     core = o['layer'] == 'core'
     z = o['k']                                               # 크기 (1 = 큰 별, 0.5 = 작은 별)
     rng = Rng(o['seed'])
@@ -324,6 +325,8 @@ def flare_create(o):
     ps.burst(SPARK, 0, 0, int(16 * z), (260 * z, 760 * z), (0.2, 0.42), up=60 * z)
     ps.burst(MOTE, 0, 0, int(14 * z), (120 * z, 420 * z), (0.22, 0.4), size=(0.8, 1.8))
     twinkles = [(rng.range(-80, 80) * z, rng.range(-70, 70) * z, rng.range(0.02, 0.2), rng.range(3, 7)) for _ in range(int(12 * z))]
+    RD = (58 if z >= 1 else 52) * z                           # 원반 반지름 (별의 긴 팔보다 조금 짧다: 별 끝이 원반 밖으로 나온다)
+    hold = 0.1 if z >= 1 else 0.067                           # 원반이 꽉 찬 시간 (큰 별 세 장, 작은 별 두 장)
     t = [0.0]
 
     class Flare:
@@ -333,31 +336,51 @@ def flare_create(o):
 
         def draw(self, p):
             u = t[0]
-            k = 1.0 if u < 0.07 else max(0.0, 1.0 - (u - 0.07) / 0.2)       # 별: 두 장 꽉 찼다가 빠르게 준다
+            # ----- 원반 -> 고리 (색 층) -----
+            v = (u - hold) / 0.14                              # 0 -> 1: 비워지며 퍼지고 토막 난다 (고리는 짧게: 오래 남으면 동그라미 도형으로 보인다)
+            r = RD * (0.72 if u < 0.03 else 1.0) * (1.0 + 0.22 * out_cubic(max(0.0, min(1.0, v))))
+            if not core and v < 1:
+                if v <= 0:
+                    p.disc(0, 0, r, G[2])                                          # 진한 색 면
+                    p.ring(0, 0, r * 0.87, r * 0.12, (232, 232, 232))               # 테두리 안쪽의 조금 밝은 띠 (면이 민짜로 보이지 않게)
+                    p.ring(0, 0, r * 0.62, max(1.5, 2.2 * z), G[3], gaps=5, phase=o['seed'])    # 안쪽의 옅은 겹 (끊어진 가는 고리)
+                    p.ring(0, 0, r - 1.2, max(2.0, 3.6 * z), G[3])                  # 밝은 테두리
+                else:
+                    hole = (r - 3) * out_expo(min(1.0, v * 2.2))                    # 가운데부터 빠르게 비워진다
+                    w = max(1.2, r - hole)
+                    fade = 1.0 if v < 0.45 else max(0.0, 1.0 - (v - 0.45) / 0.55)
+                    p.ring(0, 0, (r + hole) / 2, w, G[2] if w > 4 else G[3], a=fade, gaps=0 if v < 0.3 else 5, phase=o['seed'] + v * 2)
+                    if w > 4:
+                        p.ring(0, 0, r - 1.2, max(1.5, 2.6 * z), G[3], a=fade)
+            # ----- 별 -----
+            k = 1.0 if u < 0.07 else max(0.0, 1.0 - (u - 0.07) / 0.2)       # 두 장 꽉 찼다가 빠르게 준다
             if k > 0.05:
-                for i in range(8):
-                    ang = TAU * i / 8
-                    ln = (86 if i % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if i % 4 == 0 else 1.0) * z
-                    w = (9 if i % 2 == 0 else 6) * k * (0.5 + 0.5 * z)
+                for n in range(8):
+                    ang = TAU * n / 8
+                    ln = (86 if n % 2 == 0 else 46) * (0.55 + 0.45 * k) * (1.15 if n % 4 == 0 else 1.0) * z
+                    w = (9 if n % 2 == 0 else 6) * k * (0.5 + 0.5 * z)
                     c, s_ = math.cos(ang), math.sin(ang)
                     if core:
                         p.needle(0, 0, c * ln, s_ * ln, WHITE, max(1.0, w))
                     else:
-                        p.needle(0, 0, c * ln * 1.06, s_ * ln * 1.06, G[2], w + 3.5)
+                        p.needle(0, 0, c * ln * 1.06, s_ * ln * 1.06, G[3], w + 3.5)
                 if core:
                     p.disc(0, 0, (9 * k + 1) * (0.4 + 0.6 * z), WHITE)
             for x, y, t0, arm in twinkles:                             # 둘레의 작은 십자 반짝임
-                v = (u - t0) / 0.16
-                if 0 <= v < 1 and core:
-                    a_ = arm * math.sin(math.pi * v)
+                tv = (u - t0) / 0.16
+                if 0 <= tv < 1 and core:
+                    a_ = arm * math.sin(math.pi * tv)
                     p.line(x - a_, y, x + a_, y, WHITE)
                     p.line(x, y - a_, x, y + a_, WHITE)
             if not core:
                 ps.draw(p)
-                g = 1.0 if u < 0.1 else max(0.0, 1.0 - (u - 0.1) / 0.3)
-                p.glow(0, 0, 100 * z, WHITE, 150 * g)                 # 큰 빛 원반 (진하게: 이 이펙트의 주인공)
-                p.glow(0, 0, 58 * z, WHITE, 130 * g)
-                p.glow_ring(0, 0, (60 + 30 * out_expo(u / 0.3)) * z, 9 * z, WHITE, 70 * g)
+                # ----- 주변광 (빛 층): 원반 밖으로 넓게 번지는 같은 색 빛. 원반이 있는 동안 가장 진하다 -----
+                g = 1.0 if u < hold + 0.03 else max(0.0, 1.0 - (u - hold - 0.03) / 0.26)
+                p.glow(0, 0, RD * 2.5, WHITE, 150 * g)                 # 넓은 주변광
+                p.glow(0, 0, RD * 1.7, WHITE, 170 * g)                 # 원반 둘레의 진한 빛
+                if v < 1:                                              # 테두리를 감싸는 빛: 원반·고리가 있는 동안만 (남으면 빛의 원이 도형처럼 보인다)
+                    p.glow_ring(0, 0, r, RD * 0.6, WHITE, 170 * (1.0 if v <= 0 else (1.0 - v) ** 2))
+                p.glow(0, 0, RD * 0.7, WHITE, 90 * g)                  # 가운데를 달군다
     return Flare()
 
 

@@ -7,7 +7,8 @@
 ## 1. 사용자가 정할 것
 - [ ] **(사용자)** 3차 발표 날짜와 형식. 1·2차는 "영상 1분 30초 + PPT 10쪽 이내, YouTube 링크와 GitHub 주소를 e-class에 제출, 마감은 발표 당일 0시 1분"이었다. 3차 발표 초안(`docs/project/presentation_3rd_draft.md`)은 같은 형식이라고 가정했다.
 - [ ] **(사용자)** 주인공 이름. 게임과 대사는 'N-09'로만 부른다. '화이트'는 임시 이름이라 화면에 쓰지 않았다.
-- [ ] **(사용자)** 열린 PR 병합 순서. 이 문서를 쓸 때 열린 브랜치는 넷이다(NPC 대사·글 정리·작은 기능, 보스·문지기, 증강·버그 훑기, 밸런스·초보자 모드). 모두 `docs/ASSETS.md`·`docs/DECISIONS.md` 맨 끝에 줄을 덧붙여서, 뒤에 병합하는 PR은 그 두 파일에서 충돌이 난다. 충돌은 양쪽 줄을 모두 남기면 된다.
+- [ ] **(사용자)** 열린 PR 넷 병합. 순서와 충돌 해결법은 `docs/project/merge-plan.md`(#2 → #4 → #1 → #3). 충돌은 `docs/ASSETS.md`·`src/config.py`·`docs/changes_from_plan.md`의 맨 끝 블록뿐이고 양쪽을 모두 남기면 된다. 네 PR을 합친 상태에서 테스트 약 790개 통과가 확인됐다(보스·증강 스레드가 로컬 병합으로 확인).
+- [ ] **(사용자)** 밸런스 제안 결정(`docs/project/balance.md` 끝): 직접 해 보고 구역 1이 어렵다면 처음 안내판에 초보자 모드 한 줄, 그래도 어려우면 시작 물약 2 → 3.
 
 ## 2. 에셋 출처·라이선스 (제출 전 필수)
 - [ ] **(사용자)** `docs/ASSETS.md` 맨 끝 표 "이미지 생성 도구·모델과 이용 조건"의 빈칸 채우기. 확인할 것:
@@ -34,11 +35,12 @@
 - [ ] 각 스레드 보고서의 "화면으로 확인하지 못한 것"을 모아 직접 본다:
   - `docs/project/v8-day6-npc.md`: 무기 설명 칸 길이, 일시정지 조작 목록, 화면 밖 화살표 깜빡임
   - `docs/project/day6-boss.md`, `docs/project/day7-augments.md`, `docs/project/bug-sweep.md`, `docs/project/balance.md`: 각 문서의 같은 절
+  - 한 번에 보는 순서는 `docs/project/playtest-guide.md`(25분 안팎)
 - [ ] 대화 초상화 `assets/portraits/n09_1~2.png`는 v6 전의 주인공 그림(Codex T32)이다. 지금 주인공(흰 머리, PixelLab)과 다르면 Gemini G04 초상화로 바꿀지 정한다.
 - [x] 저장 파일 위치(`~/.haze_save.json`, `~/.haze_options.json`, 오류 기록 `~/.haze_log.txt`)는 README에 있다.
 
 ## 5. 발표 자료
-- [ ] 3차 발표 초안(`docs/project/presentation_3rd_draft.md`)에 마지막 기능까지 반영됐는지 본다(2026-11-25 문지기·초보자 모드·증기 이펙트·버그 수정 반영).
+- [ ] 3차 발표 초안(`docs/project/presentation_3rd_draft.md`)에 마지막 기능까지 반영됐는지 본다(2026-11-25 07시 50분까지의 문지기·등장씬·적 다듬기·합성 증강·초보자 모드·통판 시뮬레이션·증기 이펙트·버그 훑기 반영). 병합 뒤 테스트 수만 다시 센다.
 - [ ] PPT 10쪽 만들기. 2차 때 도구는 `tools/make_presentation_2nd.py`였다.
 - [ ] 데모 영상 촬영. 순서는 초안의 대본, 촬영 방법은 `docs/demo_2nd.md`와 같다. 테스트 모드(F6~F9 바로가기)로 보스까지 빨리 간다.
 - [ ] YouTube 업로드(공개 또는 일부 공개, 비공개는 안 된다), 시크릿 창에서 열리는지 확인.

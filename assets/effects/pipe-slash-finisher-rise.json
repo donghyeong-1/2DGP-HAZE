@@ -1,19 +1,27 @@
 {
- "id": "fx/pipe-slash-finisher-rise",
- "frames": 45,
+ "id": "melee/pipe-slash-finisher-rise",
+ "frames": 30,
+ "variants": 5,
+ "variantAngles": [
+  0,
+  45,
+  90,
+  -45,
+  -90
+ ],
  "frameSize": [
   220,
   220
  ],
- "columns": 9,
- "fps": 30,
+ "columns": 6,
+ "fps": 25,
  "loop": false,
  "pivot": [
   110,
   110
  ],
  "scale": 2,
- "duration": 0.3,
- "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)",
- "variants": 5
+ "impactMs": 120,
+ "durationMs": 240,
+ "source": "tools/make_slash_hq.py (code-drawn, numpy, no image model)"
 }

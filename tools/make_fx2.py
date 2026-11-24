@@ -886,17 +886,98 @@ MISC = {
                     _simple(_death_setup, _death_draw)),
 }
 EFFECTS.update(MISC)
-# 궁극기 광역 폭발과 오버로드 폭발: 헤이즈 폭발(blast_create)을 무기 색·크기로
+# 궁극기 광역 폭발: 헤이즈 폭발(blast_create)을 무기 색·크기로 (오버로드 폭발은 아래 over_create)
 for _wid, _ramp, _seed in (('pipe', 'awake', 71), ('knife', 'fade', 72), ('pistol', 'mint', 73), ('gauntlet', 'ember', 74), ('chain', 'violet', 75)):
     EFFECTS['ult-nova-' + _wid] = (dict(size=[230, 230], origin=[115, 115], duration=0.66, fps=30, options=dict(ramp=_ramp, seed=_seed, k=1.25)),
                                    blast_create)
-EFFECTS['overload-burst'] = (dict(size=[460, 460], origin=[230, 230], duration=0.8, fps=30, options=dict(ramp='critical', seed=81, k=2.4)),
-                             blast_create)
+
+
+# ----- 오버로드 폭발 (2026-11-24 사용자: "팡 하고 터진다는 느낌이 없다"): 가는 선의 큰 고리가 아니라 꽉 찬 덩어리가 터져 나간다 -----
+# 한 줄: 큰 흰 별 덩어리 두 장 -> 진한 붉은 원반이 순식간에 부풀고(밝은 충격 테두리) -> 가운데부터 비워져 굵은 고리로 화면 밖까지 밀려나며
+#        토막 난다. 굵은 가시, 빠른 불티·큰 조각이 사방으로.
+OVER_META = dict(size=[460, 460], origin=[230, 230], duration=0.7, fps=30, options=dict(ramp='critical', seed=81))
+
+
+def over_create(o):
+    R = RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    ps = Particles(rng, R)
+    lights = Lights()
+    lights.add(0, 0, 225, R[2], 150, 0.5)
+    lights.add(0, 0, 120, WHITE, 190, 0.22)
+    lights.add(0, 0, 60, WHITE, 200, 0.14)
+    ps.burst(SPARK, 0, 0, 46, (500, 1500), (0.25, 0.55), up=60, size=(1.6, 2.6))
+    ps.burst(SHARD, 0, 0, 24, (360, 1000), (0.35, 0.6), up=140, size=(2.0, 4.0))
+    ps.burst(MOTE, 0, 0, 34, (200, 800), (0.3, 0.6), size=(1.0, 2.0))
+    ps.burst(EMBER, 0, 0, 16, (60, 240), (0.4, 0.62), delay=(0.12, 0.3))
+    n = 16
+    rays = [(TAU * i / n + rng.range(-0.14, 0.14), rng.range(0.65, 1.25), rng.range(0.0, 0.03)) for i in range(n)]
+    arcs = [(TAU * i / 9 + rng.range(-0.12, 0.12), rng.range(0.42, 0.62), rng.range(0.7, 1.4), rng.range(0.0, 0.08)) for i in range(9)]
+    t = [0.0]
+
+    class Over:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            i = int(u * 30 + 0.01)
+            if i >= 2:                                         # 진한 원반 -> 굵은 고리 -> 토막
+                v = u - 2 / 30
+                r = 104 + 106 * out_expo(v / 0.16)           # 흰 별 크기에서 이어서 부푼다
+                hole = 0.0 if v < 0.07 else (r - 10) * out_cubic((v - 0.07) / 0.1)
+                late = max(0.0, v - 0.17)
+                if hole < 1:
+                    p.disc(0, 0, r, R[2])
+                    p.ring(0, 0, r - 3, 8, R[3])                # 밝은 충격 테두리
+                    p.ring(0, 0, r - 1, 2.5, WHITE)
+                    p.ring(0, 0, r * 0.7, 2.5, R[1], gaps=7, phase=u * 9)
+                    p.ring(0, 0, r * 0.42, 2.0, R[1], gaps=4, phase=-u * 7)
+                elif late < 0.04:
+                    w = max(3.0, r - hole)
+                    p.ring(0, 0, r - w / 2, w, R[2])
+                    p.ring(0, 0, r - 1, 3.0, R[3])
+                else:
+                    for a0, span, speed, stay in arcs:
+                        life = 0.26 + stay
+                        if late >= life:
+                            continue
+                        kk = late / life
+                        p.ring(0, 0, r + 22 * speed * out_cubic(kk), max(1.5, 14.0 * (1 - kk) ** 1.4), R[3] if kk < 0.3 else R[2],
+                               a=1.0 if kk < 0.7 else 1.0 - (kk - 0.7) / 0.3, a0=a0, a1=a0 + span * (1 - kk * 0.4))
+                p.glow_ring(0, 0, r, 26, R[2], 120 * max(0.0, 1.0 - v / 0.4))
+            for ang, ln, delay in rays:                         # 굵은 가시: 원반보다 먼저 튀어 나간다
+                v = u - delay
+                if v < 0 or v > 0.3:
+                    continue
+                head = (70 + 150 * out_expo(v / 0.12)) * ln
+                tail = 30 + 170 * out_cubic(v / 0.3) * ln
+                if head - tail < 3:
+                    continue
+                c, s_ = math.cos(ang), math.sin(ang)
+                p.needle(c * tail, s_ * tail, c * head, s_ * head, R[3] if v > 0.08 else WHITE, 13 * (1 - v / 0.32) + 2, tip=WHITE)
+            if i < 3:                                           # 주인공 프레임: 큰 흰 별 덩어리 ("팡")
+                s = (1.0, 0.86, 0.5)[i]
+                for j in range(14):
+                    ang = TAU * j / 14 + 0.17
+                    ln = (150 if j % 2 == 0 else 96) * s
+                    p.needle(0, 0, math.cos(ang) * ln, math.sin(ang) * ln, WHITE, 46 * s)
+                p.disc(0, 0, 62 * s, WHITE)
+            ps.draw(p)
+            lights.draw(p)
+    return Over()
+
+
+EFFECTS['overload-burst'] = (OVER_META, over_create)
 
 
 def main(argv):
     look = '--look' in argv
-    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + list(TINTS) + list(SLASHES) + list(SPINS)
+    # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
+    # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
+    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + list(TINTS)
     for name in names:
         if name in SLASHES or name in SPINS:
             build_slash(name, look)

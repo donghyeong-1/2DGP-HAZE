@@ -31,7 +31,8 @@ description: 헤이즈의 전투 이펙트(타격 불꽃, 폭발, 베기 궤적,
 2. **한 줄로 말한다.** "흰 십자 섬광 → 가는 줄기 8개와 끊어진 고리 → 불티가 떨어지며 식는다"처럼. 이 문장이 create 함수의 주석이 된다.
 3. **`tools/make_fx2.py`에 meta + create를 쓴다** (아래 3절).
 4. **굽고 본다**: `python tools/make_fx2.py --look <이름>` → `shots/fx/<이름>.png` (게임 파일은 그대로). Read로 그림을 본다.
-5. **가장 어색한 것 하나를 고치고 다시 본다. 세 번 이상.** 자주 나오는 것: 빛이 원반처럼 뭉침(glow k 합이 255를 넘음),
+5. **가장 어색한 것 하나를 고치고 다시 본다. 세 번 이상.** 큰 폭발은 가는 선의 고리만으로는 "터진다"는 느낌이 없다(오버로드 반려):
+   첫 두세 장에 꽉 찬 흰 덩어리, 이어서 꽉 찬 색 면이 부풀어야 한다. 자주 나오는 것: 빛이 원반처럼 뭉침(glow k 합이 255를 넘음),
    공 같은 연기, 너무 고른 원, 가는 선만 있어 힘이 없음(첫 2프레임에 굵은 흰 덩어리가 필요), 끝이 갑자기 끊김.
 6. **게임 파일로 굽는다**: `python tools/make_fx2.py <이름>` → `assets/effects/<이름>.png·json`, `assets/light/glow_<이름>.png`.
    json의 `duration`이 있으면 게임이 부르는 쪽 시간 대신 그 시간으로 재생한다(`effects.SheetEffect`).
@@ -79,7 +80,9 @@ def create(o):
 ## 5. 지금 있는 것
 - v8 시트(`make_fx2.py`): hit-fade·normal·awake·critical·enhanced·enhanced2·enhanced3, haze-blast.
 - v8 두 겹 시트(색을 게임이 입힌다, `fxkit.export_tint` + `effects.draw_tint_sheet`): cut-mark·cut-mark-big(8각도, SlashMark), impact-rays·impact-rays-big(8방향, ImpactBurst), shock-ring-s·m·l(ImpactRing). 색이 공격마다 다른 이펙트는 이 방식으로: create(o)에서 `o['layer']`가 'tint'면 회색조(`fxkit.GRAY`) 몸통·빛, 'core'면 흰 심만 그린다.
-- 휘두르기 초승달(`make_fx2.py`의 SLASHES 13종 x 5방향, SPINS 4종): 흰 초승달 두 장 -> 진한 구간 색 면(밝은 테두리) -> 꼬리가 가늘어짐, 끝 불티. 각도는 게임 기준으로 적는다.
+- **휘두르기 초승달·가로 베기·회전 베기는 `tools/make_slash_hq.py`의 예전 그림을 쓴다.** fxkit으로 다시 구운 판(`make_fx2.py`의 SLASHES·SPINS)은
+  사용자가 반려했다(2026-11-24: "초승달이 아니라 찌그러지고, 빛나는 효과가 사라져 밋밋하다"). 교훈: 잘 되어 있던 것을 화풍을 맞춘다고 통째로
+  바꾸지 않는다. 바꾸려면 예전 그림과 나란히 놓고 모양·빛이 더 나은지 먼저 본다(기준 6의 '주인공 옆'처럼 '예전 것 옆').
 - 먼지·연기·솟는 기운·바닥 충격·소멸(`MISC`), 궁극기 광역 폭발 ult-nova 5종과 오버로드 폭발(헤이즈 폭발을 색·크기 `k`로).
 - 큰 마무리(처형·궁극기, `weapon.FinisherCut`): `fin-burst`(가시 -> 작은 원반 -> 큰 별 -> 진한 원반 -> 고리 -> 토막, 0.54초 16장)와
   `exec-crescent`(예고 초승달 5장). 화면 전체를 가르는 빛줄기·검은 띠·실루엣만 게임이 그린다. 별 섬광 `flare`·`flare-s`.

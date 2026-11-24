@@ -285,6 +285,16 @@ class Painter:
             t = i / n
             self.glow(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, r, color, k / 1.6)
 
+    def light_disc(self, x, y, r, color, k=1.0, edge=1.5):
+        """빛 층의 **반투명 원**: 안쪽은 고른 밝기 k(0~255, 불투명도처럼 쓴다), 가장자리 edge px만 부드럽다.
+        glow(가운데가 밝고 바깥으로 스러지는 빛)와 달리 면이 고르다. 불투명도가 다른 원을 여러 겹 겹쳐 유리판 같은 원을 만든다."""
+        box = self._box(x - r - 1, y - r - 1, x + r + 1, y + r + 1)
+        if box is None or k <= 0 or r <= 0.5:
+            return
+        d = np.hypot(self.X[box] - x, self.Y[box] - y)
+        f = np.clip((r - d) / max(0.5, edge), 0, 1) * k
+        self.light[box] += f[..., None] * np.array(color, np.float32) / 255.0
+
     def glow_ring(self, x, y, r, w, color, k=1.0, sy=1.0):
         box = self._box(x - r - w, y - (r + w) * sy, x + r + w, y + (r + w) * sy)
         if box is None or k <= 0:

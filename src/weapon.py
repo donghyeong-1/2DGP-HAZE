@@ -835,7 +835,7 @@ class Pipe:
             effects.spawn_slash_marks(ex, ey, ex - p.x, ey - p.center[1], fx['damage_color'])
             effects.spawn_flare(ex, ey, color or effects.zone_glow(p), small=True)      # v8: 작은 별 섬광 (대시 화풍)
         effects.request_hit_stop(config.HIT_STOP * stop * fx['stop'])
-        effects.spawn_bloom(ex, ey, fx['damage_color'], big=big, strength=0.9 if big else 0.6)   # v7 빛 번짐
+        # 빛 번짐(v7 Bloom)은 여기서 더하지 않는다: 별 섬광 v4의 반투명 원·주변광이 그 역할을 하고, 겹치면 가운데가 하얗게 날아가 별이 묻힌다
         p.swing_connected = True                         # 이번 휘두르기가 맞았다: 몸은 젖힘으로 되돌아가지 않는다
         effects.add_trauma(config.SHAKE_HIT * shake * fx['shake'])
         if killed:

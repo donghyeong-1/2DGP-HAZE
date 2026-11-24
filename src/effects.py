@@ -705,13 +705,11 @@ class OverloadPop:
 
 def spawn_flare(x, y, color, big=False, line=False, small=False):
     """별 섬광: 큰 색 빛 원반 + 흰 여덟 갈래 별 + 불티. big은 1.5배가 아니라 정수 3배, line이면 화면을 가르는 빛줄기도."""
-    if small:                                                         # 보통 타격: 작은 별 하나와 옅은 빛
+    # 별 섬광 v4부터 반투명 원과 주변광이 시트의 빛 층에 들어 있다: 빛 번짐(Bloom)을 따로 더하면 가운데가 하얗게 날아가 별이 묻힌다
+    if small:                                                         # 보통 타격: 작은 별
         game_world.add_object(TintFx('flare-s', x, y, color), game_world.LAYER_EFFECT)
-        game_world.add_object(Bloom(x, y, color, False, 0.2, 0.9), game_world.LAYER_EFFECT)
         return
     game_world.add_object(TintFx('flare', x, y, color, scale=3 if big else 2), game_world.LAYER_EFFECT)
-    for _ in range(3 if big else 2):                                  # 진한 색 빛 원반 (겹쳐서 진하게)
-        game_world.add_object(Bloom(x, y, color, True, 0.34, 1.0), game_world.LAYER_EFFECT)
     if line:
         game_world.add_object(ScreenLine(x, y, color), game_world.LAYER_EFFECT)
 

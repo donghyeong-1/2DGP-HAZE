@@ -315,9 +315,12 @@ FLARE_S_META = dict(size=[112, 112], origin=[56, 56], duration=0.3, fps=30, opti
 
 
 def flare_create(o):
-    """별 섬광 v2 (2026-11-24 사용자가 준 INARI 화면): **진한 색 원반**(밝은 테두리, 안쪽의 옅은 겹) 한가운데에 흰 여덟 갈래 별,
-    원반 둘레로 넓게 번지는 같은 색 주변광, 불티. 원반은 두세 장 꽉 찼다가 가운데부터 비워져 고리가 되고 토막 나 사라진다.
-    색 층 = 원반·별의 색 가장자리·불티(게임이 색을 곱한다), 흰 심 = 별·반짝임, 빛 층 = 주변광."""
+    """별 섬광 v4 (2026-11-24 사용자의 INARI 분석: '원에 불투명도가 있고, 불투명도가 다른 원을 여러 개 겹친 느낌. 흰 십자 둘레의
+    붉은 것도 불투명도로 낸 은은한 불빛. 계속 만들던 원을 넣는 게 아니다').
+    한 줄: 흰 여덟 갈래 별이 번쩍 -> 별 뒤로 **반투명한 색 원 세 겹**(바깥은 옅고 안으로 갈수록 진하다)이 펴져 두세 장 머물다
+    조금 커지며 옅어져 사라진다. 별 둘레에는 은은한 빛.
+    색 층(알파 0/255)에는 별과 불티만 둔다. 원은 전부 빛 층(부드러운 알파, 더하기)이라 배경이 비쳐 보인다.
+    꽉 찬 색 원반·테두리 선·입자 고리는 쓰지 않는다 (v2 원반: '파이썬으로 만든 듯한 원', v3 입자 테두리: '너무 별로')."""
     core = o['layer'] == 'core'
     z = o['k']                                               # 크기 (1 = 큰 별, 0.5 = 작은 별)
     rng = Rng(o['seed'])
@@ -325,8 +328,11 @@ def flare_create(o):
     ps.burst(SPARK, 0, 0, int(16 * z), (260 * z, 760 * z), (0.2, 0.42), up=60 * z)
     ps.burst(MOTE, 0, 0, int(14 * z), (120 * z, 420 * z), (0.22, 0.4), size=(0.8, 1.8))
     twinkles = [(rng.range(-80, 80) * z, rng.range(-70, 70) * z, rng.range(0.02, 0.2), rng.range(3, 7)) for _ in range(int(12 * z))]
-    RD = (58 if z >= 1 else 52) * z                           # 원반 반지름 (별의 긴 팔보다 조금 짧다: 별 끝이 원반 밖으로 나온다)
-    hold = 0.1 if z >= 1 else 0.067                           # 원반이 꽉 찬 시간 (큰 별 세 장, 작은 별 두 장)
+    RD = (64 if z >= 1 else 54) * z                           # 가장 바깥 원의 반지름
+    hold = 0.1 if z >= 1 else 0.067                           # 원이 다 펴진 채 머무는 시간 (큰 별 세 장, 작은 별 두 장)
+    # 겹치는 원 (반지름 비율, 더해지는 밝기): 바깥은 옅고, 안쪽 원이 겹칠수록 진해진다
+    # 다 겹친 가운데의 합이 255를 넘지 않게 한다: 넘으면 넓은 면이 한 색으로 꽉 차 반투명한 겹이 사라지고, 밝은 색(금색·청록)은 하얗게 날아간다
+    LAYERS = ((1.0, 72), (0.82, 40), (0.6, 36), (0.36, 30))
     t = [0.0]
 
     class Flare:
@@ -336,22 +342,6 @@ def flare_create(o):
 
         def draw(self, p):
             u = t[0]
-            # ----- 원반 -> 고리 (색 층) -----
-            v = (u - hold) / 0.14                              # 0 -> 1: 비워지며 퍼지고 토막 난다 (고리는 짧게: 오래 남으면 동그라미 도형으로 보인다)
-            r = RD * (0.72 if u < 0.03 else 1.0) * (1.0 + 0.22 * out_cubic(max(0.0, min(1.0, v))))
-            if not core and v < 1:
-                if v <= 0:
-                    p.disc(0, 0, r, G[2])                                          # 진한 색 면
-                    p.ring(0, 0, r * 0.87, r * 0.12, (232, 232, 232))               # 테두리 안쪽의 조금 밝은 띠 (면이 민짜로 보이지 않게)
-                    p.ring(0, 0, r * 0.62, max(1.5, 2.2 * z), G[3], gaps=5, phase=o['seed'])    # 안쪽의 옅은 겹 (끊어진 가는 고리)
-                    p.ring(0, 0, r - 1.2, max(2.0, 3.6 * z), G[3])                  # 밝은 테두리
-                else:
-                    hole = (r - 3) * out_expo(min(1.0, v * 2.2))                    # 가운데부터 빠르게 비워진다
-                    w = max(1.2, r - hole)
-                    fade = 1.0 if v < 0.45 else max(0.0, 1.0 - (v - 0.45) / 0.55)
-                    p.ring(0, 0, (r + hole) / 2, w, G[2] if w > 4 else G[3], a=fade, gaps=0 if v < 0.3 else 5, phase=o['seed'] + v * 2)
-                    if w > 4:
-                        p.ring(0, 0, r - 1.2, max(1.5, 2.6 * z), G[3], a=fade)
             # ----- 별 -----
             k = 1.0 if u < 0.07 else max(0.0, 1.0 - (u - 0.07) / 0.2)       # 두 장 꽉 찼다가 빠르게 준다
             if k > 0.05:
@@ -363,7 +353,7 @@ def flare_create(o):
                     if core:
                         p.needle(0, 0, c * ln, s_ * ln, WHITE, max(1.0, w))
                     else:
-                        p.needle(0, 0, c * ln * 1.06, s_ * ln * 1.06, G[3], w + 3.5)
+                        p.glow_line(0, 0, c * ln * 0.8, s_ * ln * 0.8, (7 if n % 2 == 0 else 5) * (0.6 + 0.4 * z), WHITE, 55 * k)   # 팔을 따라 은은한 빛
                 if core:
                     p.disc(0, 0, (9 * k + 1) * (0.4 + 0.6 * z), WHITE)
             for x, y, t0, arm in twinkles:                             # 둘레의 작은 십자 반짝임
@@ -372,15 +362,24 @@ def flare_create(o):
                     a_ = arm * math.sin(math.pi * tv)
                     p.line(x - a_, y, x + a_, y, WHITE)
                     p.line(x, y - a_, x, y + a_, WHITE)
-            if not core:
-                ps.draw(p)
-                # ----- 주변광 (빛 층): 원반 밖으로 넓게 번지는 같은 색 빛. 원반이 있는 동안 가장 진하다 -----
-                g = 1.0 if u < hold + 0.03 else max(0.0, 1.0 - (u - hold - 0.03) / 0.26)
-                p.glow(0, 0, RD * 2.5, WHITE, 150 * g)                 # 넓은 주변광
-                p.glow(0, 0, RD * 1.7, WHITE, 170 * g)                 # 원반 둘레의 진한 빛
-                if v < 1:                                              # 테두리를 감싸는 빛: 원반·고리가 있는 동안만 (남으면 빛의 원이 도형처럼 보인다)
-                    p.glow_ring(0, 0, r, RD * 0.6, WHITE, 170 * (1.0 if v <= 0 else (1.0 - v) ** 2))
-                p.glow(0, 0, RD * 0.7, WHITE, 90 * g)                  # 가운데를 달군다
+            if core:
+                return
+            ps.draw(p)
+            # ----- 반투명 원 여러 겹 (빛 층) -----
+            grow = (0.6 + 0.4 * out_expo(u / 0.05)) if u < 0.05 else 1.0 + 0.16 * out_cubic(max(0.0, min(1.0, (u - hold) / 0.22)))
+            fade = 1.0 if u < hold else max(0.0, 1.0 - (u - hold) / 0.22)
+            for n, (frac, add) in enumerate(LAYERS):
+                # 안쪽 원일수록 먼저 옅어진다 (가운데부터 비어 가며 사라진다)
+                f = fade ** (1.0 + 0.9 * n)
+                p.light_disc(0, 0, RD * frac * grow, WHITE, add * f, edge=1.6)
+                if n < 3:                                      # 원의 가장자리가 살짝 더 밝다 (겹친 유리판의 테두리처럼, 선이 아니라 빛으로)
+                    p.glow_ring(0, 0, RD * frac * grow - 1.5, 2.6, WHITE, 34 * f)
+            # ----- 은은한 불빛: 원 밖으로 번지는 주변광과 별 둘레의 빛 -----
+            g = 1.0 if u < hold + 0.03 else max(0.0, 1.0 - (u - hold - 0.03) / 0.24)
+            p.glow(0, 0, RD * 2.1, WHITE, 60 * g)
+            p.glow(0, 0, RD * 1.45, WHITE, 50 * g)                 # 바깥 원을 감싸는 빛
+            p.glow(0, 0, RD * 0.75, WHITE, 50 * g)
+            p.glow(0, 0, RD * 0.32, WHITE, 90 * max(g, k))         # 별 바로 둘레의 은은한 빛
     return Flare()
 
 
@@ -1203,9 +1202,10 @@ def pb_create(o):
             return cone[0] + rng.range(-cone[1] / 2, cone[1] / 2)
         return rng.range(-math.pi + 0.15, -0.15) if half else rng.range(0, TAU)
 
-    lights.add(0, 0, r * 0.98, R[2], 150, 0.6 * tl)
-    lights.add(0, 0, r * 0.65, R[3], 140, 0.4 * tl)
-    lights.add(0, 0, r * 0.56, WHITE, 190, 0.24 * tl)
+    gk = o.get('glow', 1.0)                                    # 빛의 세기 배율 (타격처럼 다른 빛과 겹치는 것은 낮춘다)
+    lights.add(0, 0, r * 0.98, R[2], 150 * gk, 0.6 * tl)
+    lights.add(0, 0, r * 0.65, R[3], 140 * gk, 0.4 * tl)
+    lights.add(0, 0, r * 0.56, WHITE, o.get('flash', 190), 0.24 * tl)
     ws = o.get('ws', 1.0)
     for _ in range(o.get('white', 12)):                         # 팡: 가운데 흰 불덩이 무더기 (금방 식는다)
         x, y = rng.range(-30, 30) * k, rng.range(-30, 30 if not half else 0) * k
@@ -1310,8 +1310,8 @@ def _prays(meta):
     o = meta['options']
     big = o['big']
     meta = dict(meta, options=dict(seed=o['seed'] + 200, r=(64 if big else 48), tl=0.5, cone=(-math.radians(o['angle']), 1.5, 0.8),
-                                   white=2, ws=0.45, body=3, band=22 if big else 14, tongues=4 if big else 3, tongue_n=9, tongue_k=1.5,
-                                   sparks=12 if big else 8, chunks=6 if big else 4, embers=0, spark_k=0.42 if big else 0.32,
+                                   white=0, body=0, band=10 if big else 6, tongues=3 if big else 2, tongue_n=6, tongue_k=1.5, flash=0, glow=0.15,
+                                   sparks=14 if big else 10, chunks=6 if big else 4, embers=0, spark_k=0.42 if big else 0.32,
                                    spark_size=(1.0, 1.8), chunk_size=(1.0, 1.6)))
     return (meta, pb_create)
 
@@ -1322,6 +1322,40 @@ for _nm, _rad in (('shock-ring-s', 38), ('shock-ring-m', 78), ('shock-ring-l', 1
     TINTS[_nm] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), pring_create)]
 
 
+# 충격 고리 v3 (2026-11-24 사용자: '입자는 너무 별로', '원에 불투명도가 있고 겹친 느낌'): 색 층에는 튀는 알갱이 몇 개뿐이고,
+# 고리는 빛 층의 **반투명한 띠**가 빠르게 퍼지며 옅어진다. 안쪽에는 더 옅은 반투명 면이 잠깐 깔린다(충격이 지나간 자리).
+# 입자 띠(pring_create)는 처음에 한 점에 뭉쳐 흰 덩어리로 보이고, 퍼지면 구슬 꿴 것처럼 보여서 쓰지 않는다.
+def soft_ring_create(o):
+    R_, core = float(o['radius']), o['layer'] == 'core'
+    rng = Rng(o['seed'])
+    ps = Particles(rng, G)
+    ps.burst(MOTE, 0, 0, int(R_ / 12) + 3, (R_ * 3.0, R_ * 5.0), (0.14, 0.26), size=(0.8, 1.4))
+    t = [0.0]
+
+    class Ring:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+
+        def draw(self, p):
+            if core:
+                return
+            u = t[0]
+            v = min(1.0, u / 0.28)
+            r = R_ * (0.32 + 0.68 * out_expo(v * 1.25))             # 빠르게 펴지고 느려진다
+            fade = (1.0 - v) ** 1.4
+            w = max(3.0, R_ * 0.11) * (1.0 - 0.45 * v)
+            p.light_disc(0, 0, r, WHITE, 34 * fade * fade, edge=2.0)   # 안쪽의 옅은 반투명 면
+            p.glow_ring(0, 0, r - w * 0.4, w, WHITE, 150 * fade)       # 반투명한 띠
+            p.glow_ring(0, 0, r, max(1.6, w * 0.3), WHITE, 90 * fade)  # 띠의 바깥 가장자리가 조금 더 밝다
+            ps.draw(p)
+    return Ring()
+
+
+for _nm, _rad in (('shock-ring-s', 38), ('shock-ring-m', 78), ('shock-ring-l', 150)):
+    TINTS[_nm] = [(dict(ring_meta(_rad), options=dict(radius=_rad, seed=_rad + 300)), soft_ring_create)]
+
+
 def _pb(size, origin, duration, **opt):
     return (dict(size=list(size), origin=list(origin), duration=duration, fps=30, options=opt), pb_create)
 
@@ -1329,9 +1363,9 @@ def _pb(size, origin, duration, **opt):
 for _name, (_ramp, _power, _seed) in HITS.items():              # 타격 불꽃 7종: 작고 빠르게
     _size = 88 if _power < 1.2 else 112
     EFFECTS[_name] = _pb((_size, _size), (_size // 2, _size // 2), 0.42 if _power < 1.2 else 0.5, ramp=_ramp, seed=_seed + 100,
-                         r=34 * _power, tl=0.62, white=3, ws=0.62, body=int(5 * _power), band=int(26 * _power), tongues=5, tongue_n=8,
+                         r=34 * _power, tl=0.62, white=0, body=int(2 * _power), band=int(12 * _power), tongues=3, tongue_n=6,
                          tongue_k=1.35, sparks=int(15 * _power), chunks=int(8 * _power), embers=3, spark_k=0.3 * _power,
-                         spark_size=(1.0, 1.9), chunk_size=(1.0, 1.8))        # 타격은 덩이보다 튀는 불티·조각이 주인공 (뭉치면 솜처럼 보인다)
+                         spark_size=(1.0, 1.9), chunk_size=(1.0, 1.8), flash=30, glow=0.3)   # 타격은 튀는 불티·조각이 주인공. 흰 번쩍임은 별 섬광이 맡는다 (겹치면 별이 묻힌다)
 EFFECTS['haze-blast'] = _pb((176, 160), (88, 96), 0.8, ramp='haze', seed=104, r=74, white=9, body=28, band=90, tongues=8, tongue_n=11,
                             sparks=22, chunks=14, embers=12, spark_k=0.3)
 for _wid, _ramp, _seed in (('pipe', 'awake', 171), ('knife', 'fade', 172), ('pistol', 'mint', 173), ('gauntlet', 'ember', 174), ('chain', 'violet', 175)):

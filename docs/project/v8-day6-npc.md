@@ -4,7 +4,8 @@
 
 ## 진행 상태
 - 여기까지 했다: 직전 판 기록, 대사 43줄(정비사 17, 보관인 13, 기록관 13) + 떠돌이 죄수 인사 3 + 엔딩 2, NPC 창·이벤트 방·탈출 화면 연결, 테스트 18개
-- 다음에 할 것: 대기열 다음 항목 (아래 "이어서 한 일"에 적는다)
+- 이어서 대기열 5번(글로 끝나는 일)을 같은 브랜치에서 끝냈다(아래 "이어서 한 일").
+- 다음에 할 것: 없음(조정자가 다음 대기열을 정한다)
 
 ## 한 일
 - `src/meta.py`: 판이 끝날 때 직전 판 기록 `state['last']`와 쓰러뜨린 보스 `state['beaten']`를 남긴다(`record_run`, `finish_run(player, escaped, zone, ark_down)`). 저장을 읽을 때 값이 이상하면 그 값만 기본값.
@@ -50,3 +51,28 @@
 
 ## DECISIONS.md에 넣은 결정
 - 맨 끝에 '2026-11-25 은신처 NPC 대사' 한 줄을 덧붙였다.
+
+## 이어서 한 일: 대기열 5번 (글로 끝나는 일, 같은 브랜치)
+조정자와 나눠 이 스레드가 맡았다. 한 PR에 섞인 것은 이 세션이 브랜치 하나에만 푸시할 수 있어서다.
+- `README.md`: 지금 조작(Tab 교체, Q 물약, E 단계와 궁극기, 패드, 테스트 모드)으로 고쳤다. 판의 흐름, 게이지 표, 무기 조합(각인·격발·교체기·형태·증강), 저장 파일 위치, 문서 위치를 넣었다. 예전 README의 'Q 무기 교체'는 틀린 내용이었다.
+- `docs/project/presentation_3rd_draft.md`: 3차 발표 초안. 변경 사항을 발표 순서로 묶은 정리(그대로 둔 것 → 확장 셋 → 완성도 → 일정), 1분 30초 대본, PPT 10쪽 구성. **형식은 1·2차와 같다고 가정했다(추천안으로 정함).**
+- `docs/changes_from_plan.md`: NPC 대사 한 줄을 맨 끝에 덧붙였다.
+- `docs/project/text_review.md`: 게임 안 글자 전수 검토. 973개 문자열을 규칙으로 걸러 8곳을 고쳤고(`src/npc_mode.py`, `src/pause_mode.py`, `src/items.py`, `src/ui.py`), 다른 스레드 파일(`options_mode.py`, `mutations.py`)은 목록만 남겼다.
+- 그림 작업서 초안: `docs/codex/tasks/T50_gatekeeper.md`(문지기), `T51_drifter.md`(떠돌이 죄수), `T52_haze_spring.md`(헤이즈 샘), `docs/gemini/tasks/G07_gatekeeper_drifter.md`. **`docs/codex/TASKS.md`·`docs/gemini/TASKS.md` 표에는 넣지 않았다**(Codex·Gemini 영역). 로컬 Claude Code가 검토해 표에 넣는다.
+- `docs/기획서.md`: 맨 위에 '읽는 법' 한 줄, 맨 끝에 '6. 현재 기준: v8 반영 요약'을 붙였다(앞 장 본문은 처음 기획을 남겨 두려고 고치지 않았다).
+
+### 화면으로 확인하지 못한 것 (5번)
+- 바꾼 무기 설명 셋이 진열대·무기 걸이 설명 칸에 들어가는지(길이는 전과 같거나 짧다).
+- 일시정지 조작 목록의 '말 걸기·줍기·구매', 무기 패널의 '대시 공격'·'점프 공격'.
+- 무기 걸이에서 고를 때 뜨는 '시작 무기 변경: 철파이프 + 쌍권총'.
+
+### 추천안으로 정한 것 (5번)
+- 3차 발표 형식은 1·2차와 같다고 가정.
+- 기획서는 본문을 고치지 않고 6장을 덧붙이는 방식.
+- 헤이즈 샘 그림(T52)은 코드 그림으로 충분하면 하지 않아도 되는 작업으로 적었다.
+
+### PROGRESS.md 작업 로그에 넣을 줄 (5번)
+`2026-11-25 [Claude 프로젝트] 대기열 5번: README 갱신, 3차 발표 초안, 게임 안 글자 검토(8곳 수정), 그림 작업서 초안 T50~T52·G07, 기획서 6장(v8 요약) / README.md, docs/기획서.md, docs/changes_from_plan.md, docs/project/(presentation_3rd_draft, text_review).md, docs/codex/tasks/T50~T52, docs/gemini/tasks/G07, src/(items, npc_mode, pause_mode, ui).py`
+
+### 테스트 (5번 뒤)
+- 전체 62개 파일 689개 통과, 픽셀 규칙 8개 통과(글자만 바꿔 테스트 수는 같다).

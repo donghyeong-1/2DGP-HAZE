@@ -414,7 +414,7 @@ class Pipe:
         p = self.owner
         import drama
         with drama.hit_style(big=big or None, color=color or fx['damage_color']):   # 피해 숫자 모양 (픽셀 글꼴, 하나만)
-            killed = enemy.take_damage(damage, from_x=p.x, knock=config.KNOCK_BIG if big else 1.0)
+            killed = enemy.take_damage(damage, from_x=p.x, knock=(config.KNOCK_BIG if big else 1.0) * self.knock_mult())
         if self.IMPACT:
             assets.play_sound(self._impact_sound(fx))
         p.gauge.add(gain, 'hit')
@@ -448,6 +448,10 @@ class Pipe:
         if extra and not killed:                         # 타수 증가: 첫 타격 뒤에 작은 추가 타격이 이어진다
             game_world.add_object(ExtraHits(p, enemy, damage * config.EXTRA_HIT_RATIO, fx, extra, big), game_world.LAYER_EFFECT)
         return killed
+
+    def knock_mult(self):
+        """적을 미는 힘 배율 (v7 건틀릿 '밀어내기')."""
+        return 1.0
 
     def _impact_sound(self, fx):
         """무기 쪽 타격음: 강화면 단계 소리, 철파이프는 공격 종류(1·2타·마무리·이동·공중·찍기)마다, 그 밖은 무기 소리."""
@@ -1235,9 +1239,16 @@ class Gauntlet(Pipe):
         return 'gauntlet_instant' if g.zone == 'CRITICAL' and not g.enhanced else 'gauntlet'
 
     def charge_need(self):
+        import mutations
         p = self.owner
         need = config.GAUNTLET_CHARGE_TIME.get(p.gauge.zone, config.GAUNTLET_CHARGE_TIME['NORMAL'])
+        if mutations.has(p, 'charge_fast'):              # v7 '빠른 장전'
+            need *= mutations.CHARGE_FAST
         return need * (0.5 if p.gauge.enhanced else 1.0)
+
+    def knock_mult(self):
+        import mutations
+        return mutations.CRASH_KNOCK if mutations.has(self.owner, 'crash_knock') else 1.0
 
     @property
     def charge_ratio(self):
@@ -1312,8 +1323,13 @@ class Gauntlet(Pipe):
         cx, cy = p.center
         fx = self._fx(enhanced)
         damage = self._damage(0.4 + 0.6 * ratio) * (config.GAUNTLET_ENHANCED_MULT * self._stack() if enhanced else 1.0)
-        game_world.add_object(Blast(self, cx + ax * 40, cy + ay * 40, ax, ay, damage, size, fx, enhanced),
-                              game_world.LAYER_EFFECT)
+        import mutations
+        full = ratio >= 1.0
+        if full and mutations.has(p, 'charge_power'):    # v7 '꽉 쥔 주먹'
+            damage *= mutations.CHARGE_POWER
+        main = Blast(self, cx + ax * 40, cy + ay * 40, ax, ay, damage, size, fx, enhanced)
+        main.collapse = full and mutations.has(p, 'charge_evo')   # v7 진화 '헤이즈 붕괴'
+        game_world.add_object(main, game_world.LAYER_EFFECT)
         if enhanced and self.level >= 2:                 # 2단계: 부채꼴 세 갈래 (양옆은 조금 작고 약하게)
             for side in (-1, 1):
                 a = math.atan2(ay, ax) + math.radians(config.GAUNTLET_FAN_DEG * side)
@@ -1342,6 +1358,8 @@ class Blast:
         self.time = 0.0
         self.hit = set()
         self.sprite = 's' if size < 1.2 else 'm' if size < 1.5 else 'l'
+        self.collapse = False                            # v7 '헤이즈 붕괴': 처음 맞힌 자리에서 폭발
+        self.reflected = False                           # v7 '역류': 적 투사체를 되돌린 충격파
 
     def update(self, dt):
         self.time += dt
@@ -1352,6 +1370,9 @@ class Blast:
         room = self.weapon.owner.room
         if self.life <= 0 or (room is not None and room.tile_at_world(self.x, self.y) == '#'):
             effects.spawn('haze-blast', self.x, self.y - 40, duration=0.35)
+            if self.collapse:                            # 아무도 못 맞혀도 끝난 자리에서 터진다
+                self.collapse = False
+                _collapse_burst(self.weapon, (self.x, self.y), self.damage, self.fx)
             game_world.remove_object(self)
             return
         for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
@@ -1359,12 +1380,150 @@ class Blast:
                 continue
             if Pipe._within(enemy, self.x, self.y, self.radius):
                 self.hit.add(id(enemy))
-                self.weapon._hit(enemy, self.damage, config.GAIN_HIT, self.fx, big=self.size >= 1.5,
-                                 shake=1.0 + 0.5 * self.size, stop=1.2, blast=self.enhanced, extra=False)
+                import mutations
+                p = self.weapon.owner
+                damage = self.damage
+                counter = _in_windup(enemy) and any(mutations.has(p, m) for m in
+                                                    ('counter_power', 'counter_guard', 'counter_gain', 'counter_evo'))
+                if counter:                              # v7 반격: 예고 중인 적을 쳤다
+                    damage *= mutations.COUNTER_POWER if mutations.has(p, 'counter_power') else 1.0
+                    _counter_success(p, enemy, self.weapon)
+                killed = self.weapon._hit(enemy, damage, config.GAIN_HIT, self.fx, big=self.size >= 1.5 or counter,
+                                          shake=1.0 + 0.5 * self.size, stop=1.2, blast=self.enhanced, extra=False)
+                if (not killed and not getattr(enemy, 'BOSS', False) and
+                        any(mutations.has(p, m) for m in ('crash_wall', 'crash_stun', 'crash_evo'))):   # v7 충돌 갈래: 날아간다
+                    side = 1 if self.dx >= 0 else -1
+                    speed = mutations.CRASH_FLING[0] * min(1.0, self.size) * self.weapon.knock_mult()
+                    game_world.add_object(Fling(self.weapon, enemy, damage, side * speed), game_world.LAYER_EFFECT)
+                if self.collapse:
+                    self.collapse = False
+                    _collapse_burst(self.weapon, enemy.center, damage, self.fx)
 
     def draw(self):
         img = assets.image(f'sprites/unified/proj_blast_{self.sprite}_{int(self.time * 16) % 2 + 1}.png')
         assets.draw_image(img, self.x, self.y - img.h // 2, 'h' if self.dx < 0 else '')
+
+
+def _in_windup(enemy):
+    """적이 공격 예고 중인가 (반격 갈래). 기술을 시작했고 아직 판정이 나오기 전."""
+    stats = getattr(enemy, 'stats', {}) or {}
+    return (getattr(enemy, 'state', None) == 'ATTACK' and
+            getattr(enemy, 'attack_time', 99.0) < stats.get('windup', 0.0))
+
+
+def _counter_success(p, enemy, weapon):
+    """반격 성공: 무적·게이지·역류(진화), 흰 번쩍임과 글자."""
+    import mutations
+    cx, cy = p.center
+    effects.float_text(cx, cy + 130, '반격!', mutations.FAMILIES['gauntlet_counter']['color'], big=True, life=0.7)
+    effects.spawn_bloom(*enemy.center, (255, 255, 255), big=True, life=0.2, strength=0.9)
+    if mutations.has(p, 'counter_guard'):
+        p.invuln_left = max(p.invuln_left, mutations.COUNTER_GUARD)
+        p.steady_left = max(getattr(p, 'steady_left', 0.0), mutations.COUNTER_GUARD)   # 무적이어도 깜빡이지 않는다
+    if mutations.has(p, 'counter_gain'):
+        p.gauge.add(mutations.COUNTER_GAIN, 'hit')
+    if mutations.has(p, 'counter_evo'):
+        _backflow(p, weapon)
+
+
+def _backflow(p, weapon):
+    """v7 진화 '역류': 흰 고리 충격파가 둘레의 적 투사체를 되돌린다 (투사체 -> 주인공 반대쪽으로 나는 충격파)."""
+    import mutations
+    radius, mult = mutations.BACKFLOW
+    cx, cy = p.center
+    effects.spawn_ring(cx, cy, (255, 255, 255), radius_max=radius, life=0.25)
+    effects.request_flash(0.04)
+    for o in list(game_world.world[game_world.LAYER_EFFECT]):
+        if getattr(o, 'player', None) is not p or not hasattr(o, 'damage') or not hasattr(o, 'x'):
+            continue                                     # 적 투사체만 (주인공을 노리는 것)
+        dx, dy = o.x - cx, o.y - cy
+        d = math.hypot(dx, dy)
+        if d > radius:
+            continue
+        game_world.remove_object(o)
+        ux, uy = (dx / d, dy / d) if d > 1 else (p.face_dir, 0.0)
+        back = Blast(weapon, o.x, o.y, ux, uy, max(8.0, o.damage * mult), 0.9, weapon._fx(False), False)
+        back.reflected = True
+        game_world.add_object(back, game_world.LAYER_EFFECT)
+
+
+def _collapse_burst(weapon, center, damage, fx):
+    """v7 진화 '헤이즈 붕괴': 폭발 원 + 화면 번쩍 + 큰 빛. 둘레 적 모두에게 피해."""
+    import mutations
+    radius, mult = mutations.COLLAPSE
+    x, y = center
+    effects.spawn('haze-blast', x, y - 40, duration=0.5)
+    effects.spawn_ring(x, y, (255, 200, 120), radius_max=radius, life=0.3)
+    effects.spawn_bloom(x, y, (255, 230, 180), big=True, life=0.3, strength=1.0)
+    effects.request_flash(0.06)
+    effects.add_trauma(config.SHAKE_FINISHER * 1.2)
+    assets.play_sound('impact_enh2')
+    for enemy in list(game_world.world[game_world.LAYER_ENEMY]):
+        if enemy.alive and Pipe._within(enemy, x, y, radius):
+            weapon._hit(enemy, damage * mult, config.GAIN_HIT, fx, big=True, shake=1.0, extra=False)
+
+
+class Fling:
+    """v7 충돌 갈래: 강타로 날아가는 적을 잠깐 지켜본다. 벽에 막히면 '벽꽝' 피해, 멈추면 '뇌진탕' 기절,
+    날아가다 다른 적에 닿으면 '연쇄 충돌'(그 적도 같은 쪽으로 날아간다)."""
+
+    def __init__(self, weapon, enemy, damage, speed, chained=()):
+        self.weapon, self.enemy, self.damage = weapon, enemy, damage
+        self.time = 0.0
+        self.speed = speed                               # 날아가는 속도 (부호 = 방향). 적의 원래 감속보다 천천히 줄인다
+        self.prev_vx = enemy.vx = speed
+        self.done = set(id(e) for e in chained) | {id(enemy)}
+
+    def update(self, dt):
+        import mutations
+        e, p = self.enemy, self.weapon.owner
+        self.time += dt
+        if not e.alive:
+            game_world.remove_object(self)
+            return
+        fast = abs(self.prev_vx) > 150
+        if e.state == 'HIT':
+            e.hit_left = max(e.hit_left, 0.05)
+        if fast and abs(e.vx) < 1.0:                      # 벽에 막혔다 (stop_on_wall)
+            if mutations.has(p, 'crash_wall'):
+                effects.spawn_impact(*e.center, -self.prev_vx, 0, 10, (255, 200, 140), big=True)
+                effects.add_trauma(config.SHAKE_HIT * 2)
+                assets.play_sound('impact_gauntlet')
+                self.weapon._hit(e, self.damage * mutations.CRASH_WALL, config.GAIN_HIT, self.weapon._fx(False), big=True, extra=False)
+            self._end()
+            return
+        if mutations.has(p, 'crash_evo') and fast:      # 날아가다 다른 적에 닿았다: 볼링
+            for other in list(game_world.world[game_world.LAYER_ENEMY]):
+                if not other.alive or id(other) in self.done or not _overlap(e.rect(), other.rect()):
+                    continue
+                self.done.add(id(other))
+                self.weapon._hit(other, self.damage * mutations.CRASH_CHAIN, config.GAIN_HIT, self.weapon._fx(False),
+                                 big=True, extra=False)
+                if other.alive and not getattr(other, 'BOSS', False):
+                    game_world.add_object(Fling(self.weapon, other, self.damage, self.speed * 0.9, self.done),
+                                          game_world.LAYER_EFFECT)
+        self.speed *= max(0.0, 1.0 - mutations.CRASH_FLING[1] * dt)
+        if self.time > mutations.CRASH_FLY or abs(self.speed) < 80:
+            self._end()
+            return
+        e.vx = self.speed                                # 다음 프레임에도 날아간다
+        if e.state == 'HIT':
+            e.hit_left = max(e.hit_left, 0.05)           # 날아가는 동안은 경직이 풀리지 않는다 (날면서 공격하지 않게)
+        self.prev_vx = e.vx
+
+    def _end(self):
+        import mutations
+        e, p = self.enemy, self.weapon.owner
+        if mutations.has(p, 'crash_stun') and e.alive:
+            e.hold(mutations.CRASH_STUN)
+        game_world.remove_object(self)
+
+    def draw(self):
+        pass
+
+
+def _overlap(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
 
 
 # =====================================================================================================

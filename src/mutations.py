@@ -43,6 +43,13 @@ FAMILIES = {
                         'set': '진화: 도탄 사슬'},
     'pistol_dash': {'name': '대시 사격', 'zone': None, 'weapon': 'pistol', 'color': (190, 215, 255), 'icon': 'ui/mut_hollow.png',
                     'set': '진화: 탄막 회피'},
+    # v7 건틀릿 갈래 (2026-11-24, 건틀릿을 들고 있을 때만 효과가 있다)
+    'gauntlet_charge': {'name': '충전', 'zone': None, 'weapon': 'gauntlet', 'color': (255, 200, 120), 'icon': 'ui/mut_ember.png',
+                        'set': '진화: 헤이즈 붕괴'},
+    'gauntlet_crash': {'name': '충돌', 'zone': None, 'weapon': 'gauntlet', 'color': (255, 150, 110), 'icon': 'ui/mut_bloom.png',
+                       'set': '진화: 연쇄 충돌'},
+    'gauntlet_counter': {'name': '반격', 'zone': None, 'weapon': 'gauntlet', 'color': (235, 245, 255), 'icon': 'ui/mut_tide.png',
+                         'set': '진화: 역류'},
     # 합성: 서로 다른 진화 둘이 만나면 나온다 (전설 카드)
     'duo': {'name': '합성', 'zone': None, 'weapon': None, 'color': (255, 214, 120), 'icon': 'ui/mut_ember.png',
             'set': '진화 둘이 합쳐진 기술'},
@@ -86,6 +93,21 @@ RIC_CHAIN = (3, 460.0)    # 도탄 사슬: (튕기는 수, 다음 적을 찾는 
 DSHOT_AUTO = (0.06, 0.7)  # 대시 중 자동 사격: (간격 초, 피해 배율)
 DSHOT_AFTER = (0.5, 0.5)  # 대시 직후 (시간, 쿨다운 배율 = 연사 2배)
 DSHOT_RING = (8, 0.8)     # 탄막 회피: (총알 수, 피해 배율)
+# v7 건틀릿 갈래 수치 (초안)
+CHARGE_FAST = 0.75        # 충전 시간 배율
+CHARGE_POWER = 1.3        # 완충 피해
+CHARGE_GUARD = 0.7        # 충전 중 받는 피해 배율
+COLLAPSE = (220, 0.8)     # 헤이즈 붕괴: (폭발 반지름 px, 피해 배율)
+CRASH_KNOCK = 1.4         # 넉백 배율
+CRASH_WALL = 0.5          # 벽에 부딪힌 적이 받는 피해 (그 강타 피해에 곱한다)
+CRASH_STUN = 0.5          # 날아간 적이 멈추면 기절(초)
+CRASH_FLY = 0.6           # 날아가는 상태를 지켜보는 시간(초)
+CRASH_FLING = (650.0, 2.5)   # 충돌 갈래가 있으면 강타 맞은 적이 날아간다: (처음 속도 px/s, 초당 줄어드는 비율)
+CRASH_CHAIN = 0.6         # 연쇄 충돌: 부딪힌 적이 받는 피해(강타 피해 배율)
+COUNTER_POWER = 2.0       # 예고 중인 적에게 강타 피해 배율
+COUNTER_GUARD = 0.3       # 반격 무적(초)
+COUNTER_GAIN = 5          # 반격 게이지 +%
+BACKFLOW = (300, 2.0)     # 역류: (투사체를 되돌리는 반지름, 되돌린 충격파 피해 = 투사체 피해 x)
 OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0, 'other': 0.2}
 
 BLOOM_CRIT = 1.2          # 각성 구간 공격 배율
@@ -166,6 +188,22 @@ MUTATIONS = {
     'dshot_load': {'family': 'pistol_dash', 'name': '장전 회피', 'desc': '저스트 대시로 피하면 다음 한 발이 강화탄'},
     'dshot_evo': {'family': 'pistol_dash', 'tier': 'evo', 'ready': True, 'name': '탄막 회피',
                   'desc': f'대시가 끝난 자리에 {DSHOT_RING[0]}방향 탄막'},
+    # v7 건틀릿 갈래
+    'charge_fast': {'family': 'gauntlet_charge', 'name': '빠른 장전', 'desc': f'건틀릿 충전 시간 -{round((1 - CHARGE_FAST) * 100)}%'},
+    'charge_power': {'family': 'gauntlet_charge', 'name': '꽉 쥔 주먹', 'desc': f'완충 강타 피해 +{round((CHARGE_POWER - 1) * 100)}%'},
+    'charge_guard': {'family': 'gauntlet_charge', 'name': '버팀 자세', 'desc': f'충전하는 동안 받는 피해 -{round((1 - CHARGE_GUARD) * 100)}%'},
+    'charge_evo': {'family': 'gauntlet_charge', 'tier': 'evo', 'ready': True, 'name': '헤이즈 붕괴',
+                   'desc': '완충 강타가 처음 맞힌 자리에서 폭발한다 (번쩍임)'},
+    'crash_knock': {'family': 'gauntlet_crash', 'name': '밀어내기', 'desc': f'건틀릿 넉백 +{round((CRASH_KNOCK - 1) * 100)}%'},
+    'crash_wall': {'family': 'gauntlet_crash', 'name': '벽꽝', 'desc': '날아간 적이 벽에 부딪히면 피해'},
+    'crash_stun': {'family': 'gauntlet_crash', 'name': '뇌진탕', 'desc': f'날아간 적이 멈추면 {CRASH_STUN}초 기절'},
+    'crash_evo': {'family': 'gauntlet_crash', 'tier': 'evo', 'ready': True, 'name': '연쇄 충돌',
+                  'desc': '날아간 적이 부딪힌 적도 함께 날아간다'},
+    'counter_power': {'family': 'gauntlet_counter', 'name': '맞받아치기', 'desc': '공격 예고 중인 적에게 강타 피해 2배'},
+    'counter_guard': {'family': 'gauntlet_counter', 'name': '흘려 받기', 'desc': f'반격하면 {COUNTER_GUARD}초 무적'},
+    'counter_gain': {'family': 'gauntlet_counter', 'name': '역습의 숨', 'desc': f'반격하면 게이지 +{COUNTER_GAIN}%'},
+    'counter_evo': {'family': 'gauntlet_counter', 'tier': 'evo', 'ready': True, 'name': '역류',
+                    'desc': '반격 순간 고리 충격파가 적 투사체를 되돌려 보낸다'},
     # v7 합성 (진화 둘)
     'duo_echo_combo': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': ('combo_evo', 'dash_evo'),
                        'name': '분신 연타', 'desc': '잔영 분신이 난타 회전 베기를 한다'},
@@ -405,7 +443,10 @@ def overload_mult(player):
 
 
 def taken_mult(player):
-    return EMBER_GUARD if has(player, 'ember_guard') and _zone(player) == 'CRITICAL' else 1.0
+    k = EMBER_GUARD if has(player, 'ember_guard') and _zone(player) == 'CRITICAL' else 1.0
+    if has(player, 'charge_guard') and getattr(getattr(player, 'weapon', None), 'charging', False):
+        k *= CHARGE_GUARD                                  # v7 건틀릿 '버팀 자세'
+    return k
 
 
 def kill_extra(player, enhanced=False):

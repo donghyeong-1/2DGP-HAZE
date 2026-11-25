@@ -70,12 +70,13 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | done |
 | T49 | v6 구역 배경 다시 그리기 (원경·중경 6장, 960x540 픽셀) | [T49_zone_backdrops_v6.md](tasks/T49_zone_backdrops_v6.md) | - | done·게임 적용 2026-11-25 (`tools/apply_backdrops_v6.py`가 2배로 구워 `assets/backgrounds/far_*·mid_*`에. 황금방·정비방·보스방은 같은 판을 테마 색으로) |
 | T50 | 구역 1 중간 보스 문지기 17장 (방패 돌진·내려찍기·증원 호출) | [T50_gatekeeper.md](tasks/T50_gatekeeper.md) | - | done·게임 미사용 (2026-11-25: 그림은 합격이지만 1px 단위 그림이라 v6 캐릭터(도트 2px)와 그림체가 달랐다. 디자인만 참고해 PixelLab v6로 다시 만듦: `assets/sprites/pixellab/gatekeeper_v6/`) |
-| T51 | 떠돌이 죄수 (이벤트 방 NPC) | [T51_drifter.md](tasks/T51_drifter.md) | - | ready |
-| T52 | 헤이즈 샘 (이벤트 방 소품, 선택 작업) | [T52_haze_spring.md](tasks/T52_haze_spring.md) | - | ready |
+| T51 | 떠돌이 죄수 (이벤트 방 NPC) | [T51_drifter.md](tasks/T51_drifter.md) | - | done·게임 미사용 (2026-11-25: 디자인은 좋지만 1px 단위 그림(2px 격자 일치율 0.69)이라 v6 캐릭터와 그림체가 다르다. 사용자 결정으로 PixelLab에서 새로 만듦: `assets/sprites/pixellab/drifter_v6/`) |
+| T52 | 헤이즈 샘 (이벤트 방 소품, 선택 작업) | [T52_haze_spring.md](tasks/T52_haze_spring.md) | - | done·게임 미사용 (2026-11-25: 같은 이유(격자 일치율 0.59). PixelLab에서 새로 만듦: `assets/sprites/pixellab/spring_v6/`) |
 
 - 앞 작업이 `done`이 되면 Claude Code가 뒤 작업을 `ready`로 바꾼다. (Codex는 `blocked` 작업을 시작하지 않는다.)
 - **목표 키(px)**: 화면 1920×1080, 타일 60px 기준 1.5배. 주인공 123, 슬럼 117, 투척병 123, 간수 135, 사냥개 81, 아크 159, 크래셔 195. 값은 `tools/finish_character.py`가 알고 있다.
-- **추천 순서(2026-11-25, v8): T50 → T51 → T52.** T50은 12/2 3차 발표 영상에 나오는 보스라 먼저. T52는 코드 그림으로 충분하면 하지 않아도 된다.
+- **2026-11-25 사용자 결정: 게임 화면에서 캐릭터 옆에 서는 도트 그림(캐릭터·NPC·소품)은 Codex에 새로 맡기지 않고 Claude Code가 PixelLab으로 만든다**(`AGENTS.md` 역할 분담). 지금 `ready`인 작업은 없다. 앞으로 Codex 작업은 배경·일러스트처럼 캐릭터와 도트 크기를 맞출 필요가 없는 그림만 등록한다.
+- (지난 기록) 추천 순서(2026-11-25, v8): T50 → T51 → T52. T50은 12/2 3차 발표 영상에 나오는 보스라 먼저. T52는 코드 그림으로 충분하면 하지 않아도 된다.
 - **추천 순서(2026-11-22, v5 `docs/plan_v5.md`): T36 → T37 → T43 → T38 → T39 → T40 → T41 → T42 → T44 → T45 → T46 → T47 → T48.** 새 적(구역마다 같은 적만 나온다는 사용자 의견)이 먼저, 공장 적과 보스 지형은 1주 차 코드(크래셔 페이즈 패턴)와 맞춘다. T46·T47은 T45(본체)가 끝나야 시작(blocked). 사용자가 순서를 바꾸면 그대로 따른다.
 - (그 전 2026-11-21 저녁: T34 → T35, 모두 완료) 퀄리티 계획 4단계(`docs/quality_plan.md`). 보스 등장 연출이 먼저, 크레딧은 다음.
 - (그 전 2026-11-21: T30 → T31 → T32 → T33, 모두 완료)

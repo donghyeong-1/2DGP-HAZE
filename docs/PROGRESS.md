@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-25 [Claude Code]
 
 ## 진행 중
-- [Codex] T50 구역 1 중간 보스 문지기 / 수정 중인 파일: `assets/sprites/forge/gatekeeper_v1/`, `docs/codex/reports/T50.md`
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -26,7 +26,7 @@
 3. [ ] **(Claude Code) 3차 발표 자료**: 초안 완료(11/25) `docs/presentation_3rd.pptx`(10장), `docs/script_3rd.md`(대본·촬영 순서·제출 체크리스트). 1차와 같은 형식(PPT 10쪽 이내 + 영상 1분 30초)으로 가정했다. 형식이 확인되면 `tools/make_presentation_3rd.py`를 고쳐 다시 만들고, 게임이 바뀌면 화면을 다시 찍는다. **(사용자) 한 번 열어 보고 고칠 곳을 알려 주기.**
 4. [ ] **(사용자) 데모 촬영 → YouTube 업로드 → e-class 제출.** CC-BY 곡을 쓰면 영상 설명란에 곡명·작가·라이선스.
 5. [ ] **(사용자, 제출 전 필수)** `docs/ASSETS.md` 맨 끝 표의 빈칸(이미지 생성 도구의 모델명·이용 조건). **주인공 동작을 PixelLab 체험판 계정으로 만들었다: 체험판 생성물을 공개 영상·저장소에 써도 되는지 확인.** 채워지면 크레딧 문구를 고친다.
-6. [ ] **(Codex) T51 떠돌이 죄수 → T52 헤이즈 샘**(`docs/codex/TASKS.md`). T50 문지기는 11/25 검토·적용 완료. T49 구역 배경은 11/25 검토·적용 완료.
+6. [x] **이벤트 방 그림**: 떠돌이 죄수·헤이즈 샘을 PixelLab v6 그림으로 바꿈(11/25). Codex T51·T52는 격자가 달라 게임에 쓰지 않았다. **앞으로 캐릭터 옆에 서는 도트 그림은 PixelLab으로 만든다(사용자 결정)**. 남은 옛 그림 캐릭터(아크·헤이즈 심장·무당·쥐·감시 눈·망령·수레·은신처 NPC 셋)는 `docs/DECISIONS.md` 11/25 줄.
 7. [ ] **(사용자) 효과음 검토**: 연습장 F 메뉴 → '효과음 듣기'. 표시한 소리부터 Claude Code가 다시 만든다(`sfx_review.json`).
 8. [ ] **(사용자 결정)** 주인공 이름(화면에는 'N-09'만 나온다), 대화 초상화를 지금 주인공 그림에 맞출지.
 9. [ ] **(사용자)** 실행 파일을 파이썬 없는 PC에서 켜 보기, 게임패드가 있으면 몇 방.
@@ -374,5 +374,9 @@
 2026-11-25 [Gemini] G02 보스 3종 새 디자인(크래셔·아크·헤이즈 심장 본체·기계 오른손 원화 4장 + 게임 상대 크기 실루엣·8색 색표 비교 시트 1장) 제작 및 보고서 작성(검토 대기) / assets/sprites/gemini/boss_designs_v1/, docs/gemini/reports/G02.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-25 [Claude Code] Gemini G02(보스 3종 새 디자인 원화 4장 + 비교 시트) 검토: 통과. 실루엣·구역 색·정체성 확인, 크래셔·아크의 얇은 외곽선과 3/4 각도는 받아들임. 게임에 넣는 일(PixelLab 동작)은 3차 발표 뒤로. 줄일 때 볼 것을 작업서 끝에 기록. Gemini 작업 순서를 G06 UI 부품 먼저로 고침. / docs/gemini/TASKS.md, docs/gemini/tasks/G02_boss_designs.md, docs/PROGRESS.md
 2026-11-25 [Codex] T50 문지기 165px 마스터·동작 17장 제작, 앞발 교대·세 가지 예고·1배 크기 비교 확인(검토 대기) / assets/sprites/forge/gatekeeper_v1/, docs/codex/reports/T50.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+
 2026-11-25 [Claude Code] Codex T50 검토·적용: 문지기 그림 합격(키 165px로 간수 134와 크래셔 194 사이, 42색, 반투명 없음, 돌진·내려찍기·호출의 예고 자세가 1배에서 구별). 임시 그림을 새 그림으로 교체(세트 이름을 게임에 맞춤, 대기 2장 숨쉬기, 호출 전용 그림, 벽에 부딪혀 비틀은 한 무릎), 판정 높이 190 -> 160. 실제 창에서 등장씬·걷기·내려찍기·호출·처치 확인(돌진 장면은 캡처에 잡히지 않음). 발표 자료 화면 다시 찍음. / tools/apply_gatekeeper_t50.py(신규), assets/sprites/unified/boss_gatekeeper_*·skin_gatekeeper.json, src/config.py, src/gatekeeper.py, tests/test_gatekeeper.py, docs/codex/TASKS.md, docs/ASSETS.md, docs/presentation_3rd.pptx
+2026-11-25 [Codex] T51 떠돌이 죄수 117px 마스터·대기 2장·거래 2장 제작, 1배 실루엣과 결정 분리 및 접지 검증(검토 대기) / assets/sprites/forge/drifter_v1/, docs/codex/reports/T51.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-25 [Claude Code] 문지기를 PixelLab v6 그림으로 다시 만듦(사용자 지적: Codex T50 그림만 그림체가 다르다). 원인: T50 작업서가 Codex의 옛 1배 방식으로 쓰였고 검토에서 도트 크기를 재지 않았다(T50은 2px 격자 일치 42%, 다른 캐릭터는 100%). 간수를 화풍 기준으로 시안 2장 -> 사용자가 1안 선택 -> 동작 7종(약 34회 사용) -> 적용. 키 208px(간수 128, 크래셔 248), 판정 96x196. 실제 창에서 걷기·내려찍기·호출·처치 확인. v6 세트가 2px 격자인지 보는 테스트 추가. T50 적용 도구 삭제. / assets/sprites/pixellab/gatekeeper_v6/, assets/sprites/unified/boss_gatekeeper_*·skin_gatekeeper.json, tools/apply_pixellab_char.py, tools/apply_gatekeeper_t50.py(삭제), src/config.py, tests/test_gatekeeper.py, tests/test_pixel_assets.py, docs/codex/TASKS.md
+2026-11-25 [Codex] T52 헤이즈 샘 물결 2컷·마른 샘 1컷 제작, 두 구역 1배 비교와 픽셀 규격 검증(검토 대기) / assets/sprites/forge/spring_v1/, docs/codex/reports/T52.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-25 [Claude Code] 사용자 결정 "그림체 문제로 이런 건 PixelLab으로 만들자"를 규칙으로 기록(캐릭터 옆에 서는 도트 그림은 PixelLab, Codex에 새로 맡기지 않음). Codex T51·T52 검토: 2px 격자 일치율 0.69·0.59라 게임 미사용. 떠돌이 죄수(시안 2장 중 1안, 숨쉬기)와 헤이즈 샘(시안 2장 중 1안, 물결 4장, 마른 샘)을 PixelLab으로 새로 만들어 적용(27회 사용, 남은 1,550회), 샘 물결을 2장에서 4장으로, 옛 임시 그림 코드 삭제, 격자 테스트 추가, 발표 그림 1장 다시 찍음. 실제 창에서 슬럼·공장 이벤트 방 확인 / AGENTS.md, tools/(apply_pixellab_event.py 신규, make_event_props.py), src/events.py, tests/test_pixel_assets.py, assets/sprites/pixellab/(drifter_v6, spring_v6)/, assets/sprites/unified/npc_drifter_idle_*.png, assets/ui/event_spring_*.png, assets/presentation_examples/demo3_event_cards.jpg, docs/(PROGRESS, DECISIONS, ASSETS, image_prompts, presentation_3rd.pptx, codex/TASKS).md

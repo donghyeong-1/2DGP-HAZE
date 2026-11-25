@@ -20,9 +20,9 @@
 
 ## 역할 분담 (Claude Code / Codex / Gemini)
 - **Claude Code**: `src/`, `tests/`, `tools/`, `data/`, 문서, 코드로 그리는 에셋(`assets/tiles`, `assets/ui`, `assets/effects`), 결과 검토와 커밋·푸시.
-- **Codex**: 이미지 생성이 필요한 에셋. 작업 목록과 프롬프트는 전부 `docs/codex/`에 있다. 사용자가 "docs/codex/TASKS.md를 읽고 상태가 ready인 첫 작업을 진행해줘"라고 하면 `docs/codex/COMMON.md`와 해당 작업 파일(`docs/codex/tasks/`)을 따른다. Codex는 `assets/sprites/forge/`와 `docs/codex/reports/` 안에서만 쓰고, 커밋은 하지 않는다.
+- **Codex**: 이미지 생성이 필요한 에셋 중 캐릭터와 도트 크기를 맞출 필요가 없는 것(배경·일러스트). 2026-11-25 사용자 결정으로 게임 화면에 놓이는 도트 그림은 새로 맡기지 않는다(아래 PixelLab 줄). 작업 목록과 프롬프트는 전부 `docs/codex/`에 있다. 사용자가 "docs/codex/TASKS.md를 읽고 상태가 ready인 첫 작업을 진행해줘"라고 하면 `docs/codex/COMMON.md`와 해당 작업 파일(`docs/codex/tasks/`)을 따른다. Codex는 `assets/sprites/forge/`와 `docs/codex/reports/` 안에서만 쓰고, 커밋은 하지 않는다.
 - **Gemini** (2026-11-23 추가, v6 `docs/plan_v6.md`): 새 화풍의 원화(캐릭터 디자인 시안·마스터, 고해상도 대화 초상화, 구역 배경 원화). 사용자가 "docs/gemini/TASKS.md를 읽고 상태가 ready인 첫 작업을 진행해줘"라고 하면 `docs/gemini/COMMON.md`와 해당 작업 파일(`docs/gemini/tasks/`)을 따른다. Gemini는 `assets/sprites/gemini/`와 `docs/gemini/reports/` 안에서만 쓰고, 커밋은 하지 않는다.
-- PixelLab(외부 픽셀 동작 생성)은 사용자가 MCP로 연결하면 Claude Code가 부른다. 결과 원본은 `assets/sprites/pixellab/`.
+- **PixelLab** (유료 구독, MCP 연결됨. 2026-11-25 사용자 결정): 게임 화면에 놓이는 도트 그림(주인공·적·보스·NPC, 캐릭터 옆에 서는 소품)은 Claude Code가 PixelLab으로 만든다. 간수 `assets/sprites/pixellab/guard_v6/raw/base.png`를 화풍 기준으로 넣고, 도트 2px(1배 원본을 최근접 2배)로 적용한다(`tools/apply_pixellab_char.py`, `tools/apply_pixellab_event.py`). 다른 도구가 그린 그림은 디자인 참고로만 쓴다. 결과 원본은 `assets/sprites/pixellab/`.
 - 서로의 영역 파일은 건드리지 않는다. 작업 전 `PROGRESS.md`의 "진행 중"을 확인한다.
 
 ## 프로젝트 요약

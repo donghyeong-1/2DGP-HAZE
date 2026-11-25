@@ -311,4 +311,12 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-23 [Codex] T49 슬럼의 남색 비·판자촌·감시탑, 공장의 녹슨 주황 굴뚝·용광로·크레인, 탑의 어두운 청록 공동·결정 기둥·난간·감시 장치를 요청했다. 원경은 아래 전투 영역을 어둡게, 중경은 마젠타 바탕 위 구조물이 좌우에서 이어지게 지정했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/backdrops_v6/provenance.json`.
 
 2026-11-25 [Gemini] G02 보스 3종 새 디자인(`crasher_side.png`, `ark_side.png`, `heart_core.png`, `heart_hand.png`, `bosses_sheet.png`). `hero_A_side.png` 화풍(선 없는 평면 색면·3단계 음영·왼쪽 위 광원·마젠타 배경)과 기존 보스 그림을 참조해 크래셔(공장 주황·녹슨 갈색·거대 유압 건틀릿·등 배기관·왼쪽 향함), 아크(감시탑 검은 금속·청록 안감 분할 코트·챙모자·지휘봉·왼쪽 향함), 헤이즈 심장 본체(정면 대칭·방폭문 틈 청록 핵) 및 기계 오른손(손바닥 청록 마름모 핵) 요청. Antigravity 내장 image-generator(`gemini-3.1-flash-image`), `bosses_sheet.png`는 Pillow 합성. 상세는 docs/gemini/reports/G02.md.
+
 2026-11-25 [Codex] T50 간수와 크래셔를 참조해 오른쪽을 보는 녹슨 중갑, 투구의 청록 눈구멍, 큰 철창 방패와 짧은 몽둥이, 황동 열쇠와 호루라기를 요청했다. 대기·걷기·방패 돌진·내려찍기·증원 호출·피격·처치 17컷을 마젠타 원화 시트로 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/gatekeeper_v1/provenance.json`.
+
+
+2026-11-25 [Codex] T51 은신처 NPC들을 참고해 오른쪽 옆모습의 두건과 목 천, 여러 겹 해진 적갈색 망토, 가슴·허리의 병과 주머니, 내민 손 위 청록 결정 하나를 요청했다. 같은 인물의 대기 호흡과 결정 부유 2컷, 결정을 쥐고 끄덕이는 거래 2컷을 마젠타 시트로 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/drifter_v1/provenance.json`.
+
+2026-11-25 [Codex] T52 기존 샘 폭과 두 구역 타일을 참고해 끊긴 철 배수관, 고철·벽돌 테두리, 청록 웅덩이와 결정을 마젠타 원화로 요청했다. 같은 구조에서 물결과 결정의 밝은 면만 변하는 두 컷, 물이 빠져 균열과 회색 결정만 남은 한 컷을 추가로 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/spring_v1/provenance.json`.
+
+2026-11-25 [Claude Code] PixelLab(v6 방식, 화풍 기준 = 간수 base)으로 이벤트 방의 떠돌이 죄수와 헤이즈 샘을 만듦. 떠돌이: 오른쪽 옆모습, 해진 죄수복 위 누빈 적갈색 망토, 두건과 목 천, 허리·가슴의 주머니와 병, 내민 손바닥 위 청록 결정 하나(결정만 밝게). 샘: 깨진 배수관 아래 고철·벽돌 그릇에 고인 청록 헤이즈와 결정(표면과 결정만 밝게), 마른 그림은 같은 그림을 글로 편집(물과 빛을 없애고 결정을 회색 그루터기로). 영문 프롬프트 전문·seed·시안 비교는 `assets/sprites/pixellab/drifter_v6/GENERATION_LOG.md`, `assets/sprites/pixellab/spring_v6/GENERATION_LOG.md`.

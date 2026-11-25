@@ -19,6 +19,7 @@ COLORS = {'spring': (110, 235, 215), 'drifter': (240, 190, 120)}
 TITLES = {'spring': ('헤이즈 샘', '게이지를 원하는 구간으로 맞춥니다. 한 번만 쓸 수 있습니다'),
           'drifter': ('떠돌이 죄수', '거래는 하나만 할 수 있습니다')}
 PROMPT = {'spring': 'F 사용', 'drifter': 'F 거래'}
+SPRING_FRAMES, SPRING_FRAME = 4, 0.3        # 헤이즈 샘 물결: assets/ui/event_spring_1~4.png, 장당 0.3초
 DONE = {'spring': '말라 버렸습니다', 'drifter': '거래를 마쳤습니다'}
 INTERACT_RANGE = 130
 
@@ -164,9 +165,9 @@ class Spot:
             if p is not None and not self.used and self.npc.near(p) and self.greeting:   # 인사말: 안내('F 거래') 위에
                 assets.draw_text(self.x, top + 106, self.greeting, (235, 220, 190), small=True, center=True)
         else:
-            frame = 'dry' if self.used else str(int(self.time / 0.45) % 2 + 1)
+            frame = 'dry' if self.used else str(int(self.time / SPRING_FRAME) % SPRING_FRAMES + 1)   # 물결 4장 (PixelLab)
             assets.draw_image(assets.image(f'ui/event_spring_{frame}.png'), self.x, self.y)
-            top = self.y + 120
+            top = self.y + 104
             assets.draw_text(self.x, top + 34, NAMES[self.kind], color if not self.used else (130, 140, 160), small=True, center=True)
             if p is not None and not self.used and self.near(p):
                 assets.draw_text(self.x, top + 70, PROMPT[self.kind], (255, 240, 150), small=True, center=True)

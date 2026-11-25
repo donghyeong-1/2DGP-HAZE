@@ -365,3 +365,5 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-25: `assets/ui/device_crack.png`(슬럼 부서지는 발판의 금 간 표시, 60x12): `tools/make_event_props.py`(code-drawn).
 
 2026-11-25 [Gemini] G05(2차) `assets/sprites/gemini/ui_concepts_v1/ui_C2_hud.png`, `ui_C_cards.png` 2장(1920×1080, `NEAREST` 전용 2× 격자 PNG). Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 C안 결정형+A안 크기 HUD와 등급별(전설 금색·희귀 청록 선택·보통 흰 선) 증강 카드 시안을 생성하고, UI·카드 바깥 게임 세계 픽셀은 원본 캡처(`01_battle_hud.png`, `03_augment_cards.png`) 그대로 보존. 검토 대기(게임 미적용). docs/gemini/reports/G05.md 6절.
+
+2026-11-25 [Gemini] G02 `assets/sprites/gemini/boss_designs_v1/` 보스 3종 새 디자인 5장(`crasher_side.png`, `ark_side.png`, `heart_core.png`, `heart_hand.png`, `bosses_sheet.png`). Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 4장 생성 후 PNG 변환, `bosses_sheet.png`는 Pillow로 게임 상대 크기 실루엣 비교 및 보스별 8색 색표 합성. 검토 대기(게임 미적용). docs/gemini/reports/G02.md.

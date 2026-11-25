@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-25 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Codex] T50 구역 1 중간 보스 문지기 / 수정 중인 파일: `assets/sprites/forge/gatekeeper_v1/`, `docs/codex/reports/T50.md`
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -370,3 +370,6 @@
 2026-11-25 [Gemini] G05 2차 UI 시안 남은 2장(C2 HUD: C안 결정형+A안 크기·결정 3곳·원본 세계 보존 / C 카드: 전설 금색·희귀 청록 선택·보통 흰 선·진행 칸 2개, NEAREST 전용 2× 격자) 제작 및 보고서 6절 추가(검토 대기) / assets/sprites/gemini/ui_concepts_v1/(ui_C2_hud, ui_C_cards).png, docs/gemini/reports/G05.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-25 [Claude Code] Gemini G05 2차 결과(C2 HUD·C 카드 2장)를 다른 컴퓨터에서 검토할 수 있게 원격과 합쳐 그대로 커밋(검토 전, TASKS 상태 review 유지) / assets/sprites/gemini/ui_concepts_v1/(ui_C2_hud, ui_C_cards).png, docs/gemini/, docs/(ASSETS, image_prompts, PROGRESS).md
 2026-11-25 [Claude Code] Gemini G05 2차(C2 HUD·C 증강 카드 2장) 검토: 통과(방향 확정). 재 본 것: C2의 체력·미니맵·무기함은 A안 이하 크기(바뀐 영역 520x94 / 220x282 / 372x224, A안 520x112 / 360x296 / 420x240), 게이지 높이는 C안의 84%(요청은 70%쯤, 가장 눈에 띄는 UI라 그대로 둠), 결정 장식 세 곳, 게임 세계는 가운데 영역 97%가 원본 픽셀 그대로, UI 영역은 2px 격자. 지적: 보통 카드 테두리가 두껍고 둥글다, 하트가 조금 크다, 카드 시안에 흰 세로줄, UI 안쪽 색이 수천 가지(JPG). G06 작업서에 적고 G06을 ready로. / docs/gemini/TASKS.md, docs/gemini/tasks/G06_ui_parts.md, docs/PROGRESS.md
+
+2026-11-25 [Gemini] G02 보스 3종 새 디자인(크래셔·아크·헤이즈 심장 본체·기계 오른손 원화 4장 + 게임 상대 크기 실루엣·8색 색표 비교 시트 1장) 제작 및 보고서 작성(검토 대기) / assets/sprites/gemini/boss_designs_v1/, docs/gemini/reports/G02.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-25 [Claude Code] Gemini G02(보스 3종 새 디자인 원화 4장 + 비교 시트) 검토: 통과. 실루엣·구역 색·정체성 확인, 크래셔·아크의 얇은 외곽선과 3/4 각도는 받아들임. 게임에 넣는 일(PixelLab 동작)은 3차 발표 뒤로. 줄일 때 볼 것을 작업서 끝에 기록. Gemini 작업 순서를 G06 UI 부품 먼저로 고침. / docs/gemini/TASKS.md, docs/gemini/tasks/G02_boss_designs.md, docs/PROGRESS.md

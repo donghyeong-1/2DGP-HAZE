@@ -937,6 +937,9 @@ class Pipe:
         with drama.hit_style(big=big or None, color=color or fx['damage_color']):   # 피해 숫자 모양 (픽셀 글꼴, 하나만)
             killed = enemy.take_damage(damage, from_x=p.x, knock=(config.KNOCK_BIG if big else 1.0) * self.knock_mult())
         combo.juggle(enemy)                                          # v8 공중 연타: 떠 있는 적은 맞으면 조금 다시 뜬다
+        import impact_frame
+        if fx.get('enhanced') or (killed and impact_frame.is_boss(enemy)):   # v8 4-2 임팩트 프레임: 강화 일격·보스 막타
+            impact_frame.trigger(p, enemy, p.x, snap)
         if big:
             ecx, ecy = enemy.center
             effects.add_kick(ecx - p.x, ecy - p.center[1], config.KICK_BIG)     # v8 카메라 킥: 공격 방향으로 한 번 밀린다

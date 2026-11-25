@@ -54,6 +54,7 @@ def spawn(room, player):
 
 
 class _Part(Enemy):
+    BOSS, SPREAD = True, False      # 보스 표시 (weapon.py가 조각 처치·날려 보내기·처형 배율에서 거른다), 비켜 서지 않는다
     pullable = False
 
     def hold(self, seconds):           # 사슬에 걸려도 묶이지 않는다
@@ -126,7 +127,8 @@ class HeartCore(_Part):
             if self.intro_left <= 0:
                 assets.play_sound('ark_roar')
                 effects.add_trauma(0.8)
-                effects.float_text(self.x, self.y + 320, '헤이즈 심장', (150, 240, 230), big=True, life=1.4)
+                if not config.BOSS_INTRO:          # 등장씬이 켜져 있으면 이름은 이름 띠가 보여 준다 (boss_intro)
+                    effects.float_text(self.x, self.y + 320, '헤이즈 심장', (150, 240, 230), big=True, life=1.4)
             return
         self._check_phase()
         self._check_open(dt)
@@ -145,10 +147,14 @@ class HeartCore(_Part):
             self.phase = 2
             self._raise_platforms()
             self._announce('맥동', (150, 240, 230))
+            import boss_intro
+            boss_intro.bark(self, 'phase2')        # v8 6일 차: 페이즈 전환 한 줄
         elif self.phase == 2 and self.hp <= self.max_hp * b:
             self.phase = 3
             self.room.is_high_haze = True          # 바닥이 헤이즈로 잠긴다: 게이지가 계속 오른다
             self._announce('범람', (255, 150, 120))
+            import boss_intro
+            boss_intro.bark(self, 'phase3')
 
     def _announce(self, word, color):
         assets.play_sound('ark_roar')
@@ -267,6 +273,8 @@ class HeartCore(_Part):
         effects.add_trauma(1.0)
         effects.request_flash(0.4)
         assets.play_sound('enemy_die')
+        import boss_intro
+        boss_intro.bark(self, 'death')             # v8 6일 차: 쓰러지며 한 줄
         for dx, dy in ((0, 100), (-120, 180), (120, 220), (0, 300)):
             effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.7)
 

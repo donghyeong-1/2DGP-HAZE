@@ -31,6 +31,12 @@ def target_for(player, room):
             max(y0, min(y1, cy + lean_y - config.SCREEN_H / 2)))
 
 
+def look_at(room, wx, wy):
+    """세계 좌표 (wx, wy)를 화면 가운데에 두는 카메라 위치. 방 가장자리를 넘지 않게 자른다 (보스 등장씬, boss_intro)."""
+    (x0, x1), (y0, y1) = _bounds(room)
+    return (max(x0, min(x1, wx - config.SCREEN_W / 2)), max(y0, min(y1, wy - config.SCREEN_H / 2)))
+
+
 def snap(player, room):
     """방에 들어간 직후 카메라를 바로 맞춘다 (부드럽게 날아오지 않는다)."""
     global x, y

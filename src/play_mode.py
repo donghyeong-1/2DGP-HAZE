@@ -57,7 +57,10 @@ def enter():
     game_world.add_object(PracticeHud(stage), game_world.LAYER_UI)          # 연습장 초당 피해 (연습장에서만 그린다)
     game_world.add_object(Tutorial(player, stage), game_world.LAYER_UI)     # 처음 안내판 (HUD 위에)
     from zone_card import ZoneCard
-    game_world.add_object(ZoneCard(stage), game_world.LAYER_UI)             # 구역 제목 카드 (Codex T33, 맨 위)
+    card = ZoneCard(stage)
+    game_world.add_object(card, game_world.LAYER_UI)                        # 구역 제목 카드 (Codex T33, 맨 위)
+    from boss_intro import BossIntro
+    game_world.add_object(BossIntro(stage, player, card), game_world.LAYER_UI)   # v8 보스 등장씬·보스 한 줄 대사 (카드 위)
     assets.play_music(music_for(stage))
 
 
@@ -164,9 +167,15 @@ def resume():
 
 def handle_events():
     import pause_mode
+    import boss_intro
     for event in get_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
+        elif boss_intro.freezing and boss_intro.filter_event(event) != 'pass':   # v8 보스 등장씬: Enter·Space로 넘긴다
+            if boss_intro.filter_event(event) == 'advance':
+                for obj in game_world.world[game_world.LAYER_UI]:
+                    if isinstance(obj, boss_intro.BossIntro):
+                        obj.advance()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.push_mode(pause_mode)
         elif event.type == SDL_KEYDOWN and event.key in TEST_KEYS and options.test_mode:
@@ -192,9 +201,10 @@ def update():
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
         return
     import zone_card
-    if zone_card.freezing:         # 보스 등장 카드가 열려 있는 동안은 카드만 움직이고 싸움은 멈춘다 (Codex T34)
+    import boss_intro
+    if zone_card.freezing or boss_intro.freezing:   # 보스 등장씬·등장 카드 동안은 그것만 움직이고 싸움은 멈춘다 (Codex T34, v8)
         for obj in game_world.world[game_world.LAYER_UI]:
-            if isinstance(obj, zone_card.ZoneCard):
+            if isinstance(obj, (zone_card.ZoneCard, boss_intro.BossIntro)):
                 obj.update(dt)
         return
     scale = effects.time_scale()   # 슬로 모션: 게임 시간만 느려지고, 슬로 모션 자체는 실제 시간으로 줄어든다

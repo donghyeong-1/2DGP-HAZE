@@ -1161,6 +1161,10 @@ def test_hound_retreats_after_attacking():
         step(1)
         if h.attacks >= 1:
             break
+    for _ in range(60):                                                    # v8 적 다듬기: 공격 뒤 빈틈(OPEN)에 잠깐 서 있다가
+        if h.state != 'OPEN':
+            break
+        step(1)
     assert h.retreat_left > 0
     x0 = h.x
     step(15)

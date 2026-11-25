@@ -186,7 +186,7 @@ def _template(rng, c, kind, spec, edges, rooms, chosen):
     if kind == 'boss':
         return 'boss_arena'
     if kind == 'gate':
-        return 'arena_05'
+        return 'gate_arena'                   # v8 문지기 경기장 (평평한 바닥, data/rooms/gate_arena.txt)
     need = _needs(c, edges)
     options = [t for t, ex in sorted(COMBAT.items()) if need <= ex and not _accidental(c, ex, rooms, edges, chosen)]
     options = options or [t for t, ex in sorted(COMBAT.items()) if need <= ex]

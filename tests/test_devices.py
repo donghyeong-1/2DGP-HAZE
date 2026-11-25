@@ -97,9 +97,10 @@ def test_a_laser_hurts_and_raises_the_gauge_then_cools_down():
     laser.time = 0.0
     laser.x = p.x
     laser._x = lambda: p.x
-    hp = p.hp
+    hp, gauge = p.hp, p.gauge.value
     laser.update(DT)
     assert p.hp < hp and laser.cool > 0
+    assert abs(p.gauge.value - (gauge + config.LASER_GAUGE)) < 0.5       # 최종으로 LASER_GAUGE만큼 오른다 (피격 기본 손실을 빼고도)
     hp = p.hp
     p.invuln_left = 0.0
     laser.update(DT)

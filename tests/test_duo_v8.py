@@ -45,7 +45,7 @@ def test_eight_duos_and_the_six_new_ones_are_ready_legendary_cards():
         m = mu.MUTATIONS[mid]
         assert m['family'] == 'duo' and m.get('ready') and m['name'] and m['desc'], mid
         assert mu.card_info(p, mid)['rarity'] == 'legendary'
-        assert '합성' in mu.card_info(p, mid)['note']
+        assert mu.card_info(p, mid)['note'] and '합성' not in mu.card_info(p, mid)['note']   # 조건만 적는다 (카드 위에 '합성' 띠가 따로 있다)
 
 
 def test_fixed_pair_duos_need_both_named_evolutions():
@@ -72,7 +72,7 @@ def test_combo_duos_need_evolutions_of_two_different_weapons():
         assert not mu.available(p, mid)
         mu.give(p, 'rapid_evo')                                           # 철파이프 + 쌍권총
         assert mu.available(p, mid)
-        assert '서로 다른 무기' in mu.card_info(p, mid)['note']
+        assert '다른 무기' in mu.card_info(p, mid)['note']
 
 
 def test_an_open_new_duo_still_takes_a_card():
@@ -231,6 +231,20 @@ def test_swap_mist_shortens_the_swap_cooldown_for_gauge():
     assert abs(spent - mu.DUO_MIST[1]) < 0.5 and again                    # 짧은 쿨다운, 대신 게이지가 준다
     spent, again, p = _mist(True, mu.DUO_MIST[2] - 1)
     assert spent < 0.5 and not again and p.gauge.zone != 'DEAD'           # 게이지가 모자라면 보통 쿨다운
+
+
+def test_every_card_text_fits_the_card():
+    """카드 설명은 13자씩 세 줄까지(그 아래는 갈래 칸·조건 글자), 합성의 조건 글자는 16자 한 줄, 진화는 두 줄까지 들어간다.
+    2026-11-25 화면 확인: 교체 연무의 설명 넷째 줄이 조건 글자와 닿았다."""
+    import mutation_mode
+    p = tc.make_world()[1]
+    for mid, m in mu.MUTATIONS.items():
+        assert len(mutation_mode._wrap(m['desc'], 13)) <= 3, (mid, mutation_mode._wrap(m['desc'], 13))
+        lines = len(mutation_mode._wrap(mu.card_info(p, mid)['note'], 16))
+        if mu.tier(mid) == 'duo':
+            assert lines == 1, (mid, mu.card_info(p, mid)['note'])           # 합성: 조건만 한 줄
+        elif mu.tier(mid) == 'evo':
+            assert lines <= 2, (mid, mu.card_info(p, mid)['note'])           # 진화: '무기 장착 시 적용 · 갈래 진화' 두 줄까지
 
 
 if __name__ == '__main__':

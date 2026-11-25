@@ -1,4 +1,4 @@
-"""구역 1 중간 보스 '문지기' (v8 6일 차, docs/plan_v8.md 6절·docs/NEXT_SESSION.md 4절 대기열 1).
+"""구역 1 중간 보스 '문지기' (v8 6일 차, docs/plan_v8.md 6절).
 
 제9구역(슬럼) 끝 관문을 지키는 간수장. 관문 방(gate)에 들어서면 stage가 보스로 세운다(config.GATEKEEPER).
 일반 적과 같은 몸(Enemy)에 패턴 셋을 얹었다. 그림은 간수 그림을 1.5배로 구운 것(tools/make_gatekeeper.py).

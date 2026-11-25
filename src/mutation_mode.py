@@ -277,8 +277,10 @@ def _draw_card(i, mid):
             px = x + CARD_W // 2 - 26 + k * 32
             assets.draw_rect_color(px - 2, y + 112, 24, 16, (12, 14, 22))
             assets.draw_rect_color(px, y + 114, 20, 12, color if k < pips else (54, 62, 82))
-    for j, line in enumerate(_wrap(info['note'], 16)):
-        kit.text(x + CARD_W // 2, y + 84 - j * 26, line, (255, 225, 140) if info['hot'] else (130, 145, 170), center=True,
+    note = _wrap(info['note'], 16)
+    top = y + 84 + (26 * (len(note) - 1) if tier != 'base' else 0)     # 진화·합성은 칸 표시가 없다: 두 줄이면 위로 올려 테두리에 걸리지 않게
+    for j, line in enumerate(note):
+        kit.text(x + CARD_W // 2, top - j * 26, line, (255, 225, 140) if info['hot'] else (130, 145, 170), center=True,
                  small=True)
 
 

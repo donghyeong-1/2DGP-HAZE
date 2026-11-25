@@ -196,6 +196,13 @@ def test_clearing_a_challenge_in_time_boosts_the_reward():
     assert gains[False] == gains[True] * config.CHALLENGE_MULT > 0, gains
 
 
+def test_challenge_time_is_ten_seconds_plus_three_and_a_half_per_enemy():
+    """2026-11-25 결정: 시뮬레이션에서 이긴 판이 모두 제한의 절반 안에 끝나 12 + 4.5n을 10 + 3.5n으로 줄였다."""
+    stage, p, c = challenge_room(2)
+    stage.enter_room(c, 'L')
+    assert stage.challenge_limit() == 10.0 + 3.5 * stage.wave_enemies
+
+
 def test_ordinary_rooms_have_no_challenge():
     stage, p, c = challenge_room(2)
     other = next(k for k in sorted(stage.layout) if stage.type_of(k) == 'combat' and k not in stage.challenges)

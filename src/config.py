@@ -492,8 +492,8 @@ DEAL_HEAL_SHARDS, DEAL_HEAL_HP = 12, 40       # '치료 거래': 조각을 내�
 DEAL_SHARDS_HP, DEAL_SHARDS_GAIN = 20, 16     # '조각 거래': 체력을 내고 조각
 # 도전방: 구역마다 전투방 하나. 시간 안에 모두 쓰러뜨리면 보상이 CHALLENGE_MULT배 (증강 보상은 조각을 더 준다)
 CHALLENGE_ZONES = ('stage1', 'stage2', 'stage3')
-CHALLENGE_BASE = 12.0         # 제한 시간(초) = 이 값 + 적 하나마다 CHALLENGE_PER_ENEMY
-CHALLENGE_PER_ENEMY = 4.5
+CHALLENGE_BASE = 10.0         # 제한 시간(초) = 이 값 + 적 하나마다 CHALLENGE_PER_ENEMY
+CHALLENGE_PER_ENEMY = 3.5     # 11/25 12 + 4.5n -> 10 + 3.5n: 시뮬레이션에서 이긴 판이 모두 제한의 절반 안에 끝났다 (docs/project/balance.md)
 CHALLENGE_MULT = 2
 CHALLENGE_BONUS_SHARDS = 8
 # v8 구역별 장치 (2026-11-25, 계획 5-5, src/devices.py): 구역마다 한 가지
@@ -508,7 +508,7 @@ VENT_LAUNCH = 900.0           # 적이 닿으면 떠오르는 속도(px/s)
 LASER_SPAN = 4                # 탑 감시 레이저: 좌우로 오가는 폭(칸, 한쪽)
 LASER_SPEED = 0.9             # 오가는 빠르기(rad/s)
 LASER_HALF_WIDTH = 22         # 빛줄기에 닿는 반폭(px)
-LASER_DAMAGE, LASER_GAUGE = 8, 6              # 닿으면 받는 피해와 오르는 게이지
+LASER_DAMAGE, LASER_GAUGE = 8, 6              # 닿으면 받는 피해와 오르는 게이지 (최종 변화: 피격 기본 손실을 빼고도 +6)
 LASER_COOL = 1.0              # 한 번 닿은 뒤 다시 닿기까지(초)
 # v8 큰 방 (2026-11-25, 계획 5-3): 구역마다 두 화면짜리 전투방 수, 그 방의 적 무리 수 (세 물결로 나온다)
 BIG_ROOMS_PER_ZONE = {'stage1': 2, 'stage2': 2, 'stage3': 1}

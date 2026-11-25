@@ -228,7 +228,7 @@ MUTATIONS = {
                           'name': '각인 폭풍', 'desc': '격발이 가장 가까운 다른 적에게 한 번 더 번집니다'},
     'duo_swap_mist': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': (), 'any_evos': 2,
                       'name': '교체 연무',
-                      'desc': f'교체기 쿨다운이 {DUO_MIST[0]}초로 줄어듭니다. 대신 쓸 때마다 게이지 -{int(DUO_MIST[1])}%'},
+                      'desc': f'교체기 쿨다운 {DUO_MIST[0]}초. 쓸 때마다 게이지 {int(DUO_MIST[1])}%를 냅니다'},
 }
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.
@@ -619,9 +619,9 @@ def card_info(player, mid):
     fam = FAMILIES[fam_id]
     hot = False
     if t == 'duo' and m.get('any_evos'):
-        note, hot = '합성: 서로 다른 무기의 진화 둘', True
+        note, hot = '다른 무기의 진화 둘', True          # 카드 위에 '합성' 띠가 있다: 조건만 한 줄로 (16자 안)
     elif t == 'duo':
-        note, hot = '합성: ' + ' + '.join(MUTATIONS[r]['name'] for r in m['requires']), True
+        note, hot = ' + '.join(MUTATIONS[r]['name'] for r in m['requires']), True
     elif t == 'evo':
         note, hot = f'{fam["name"]} 갈래 진화', True
     elif fam_id in GAUGE_FAMILIES:

@@ -221,7 +221,8 @@ class Laser:
         p = self.player
         if p is not None and self.cool <= 0 and p.invuln_left <= 0 and self.touches(p.x, p.center[1]):
             self.cool = config.LASER_COOL
-            p.take_hit(config.LASER_DAMAGE, config.LASER_GAUGE, source=self)
+            import projectile
+            p.take_hit(config.LASER_DAMAGE, projectile._gauge_delta(config.LASER_GAUGE), source=self)   # 최종 +LASER_GAUGE (피격 기본 손실을 메운다)
             effects.spawn_bloom(p.x, p.center[1], (255, 110, 110), big=True, life=0.2, strength=1.0)
             assets.play_sound('overload_zap')
 

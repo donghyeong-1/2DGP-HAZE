@@ -510,6 +510,7 @@ LASER_SPEED = 0.9             # 오가는 빠르기(rad/s)
 LASER_HALF_WIDTH = 22         # 빛줄기에 닿는 반폭(px)
 LASER_DAMAGE, LASER_GAUGE = 8, 6              # 닿으면 받는 피해와 오르는 게이지 (최종 변화: 피격 기본 손실을 빼고도 +6)
 LASER_COOL = 1.0              # 한 번 닿은 뒤 다시 닿기까지(초)
+BOSS_REWARD_DELAY = 1.2       # 구역 보스(문지기·크래셔)를 쓰러뜨린 뒤 증강 선택 창이 뜨기까지(초): 쓰러지는 연출과 대사가 먼저 보이게
 # v8 큰 방 (2026-11-25, 계획 5-3): 구역마다 두 화면짜리 전투방 수, 그 방의 적 무리 수 (세 물결로 나온다)
 BIG_ROOMS_PER_ZONE = {'stage1': 2, 'stage2': 2, 'stage3': 1}
 BIG_ROOM_PACKS = 8

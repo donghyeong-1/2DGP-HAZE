@@ -207,7 +207,8 @@ def test_rewards_seeded_for_combat_rooms():
     assert combat
     assert all(st.reward_of(c) in mu.REWARDS for c in combat)
     assert [st.reward_of(c) for c in combat] == [st2.reward_of(c) for c in combat]
-    assert all(st.reward_of(c) is None for c in st.layout if st.type_of(c) not in ('combat',))
+    assert all(st.reward_of(c) is None for c in st.layout if st.type_of(c) not in ('combat', 'gate', 'boss'))
+    assert all(st.reward_of(c) in (None, 'mutation') for c in st.layout if st.type_of(c) in ('gate', 'boss'))   # 11/25: 구역 보스 보상은 증강
 
 
 def test_reward_shown_on_doors_to_uncleared_combat_rooms():

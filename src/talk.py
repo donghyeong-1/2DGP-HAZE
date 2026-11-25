@@ -105,3 +105,18 @@ def drifter_line(runs):
 def ending_line(escapes):
     """탈출 화면 한 줄: 처음 탈출이면 'first', 아니면 'again'."""
     return data().ENDING['first' if escapes <= 1 else 'again']
+
+
+EASY_HINT_STREAK = 2      # 구역 1에서 이만큼 연달아 쓰러지면 사망 화면에서 초보자 모드를 알린다
+
+
+def easy_hint(last, easy_on):
+    """사망 화면의 초보자 모드 안내 한 줄 (없으면 빈 글). 구역 1에서 연달아 쓰러졌고 아직 켜지 않았을 때만.
+    2026-11-25 밸런스 보고서 제안: 수치를 낮추기 전에 초보자 모드를 먼저 알린다."""
+    import config
+    if easy_on or not isinstance(last, dict) or last.get('escaped'):
+        return ''
+    if last.get('zone') != 'stage1' or last.get('streak', 0) < EASY_HINT_STREAK:
+        return ''
+    cut = round((1 - config.EASY_DAMAGE_MULT) * 100)
+    return f'설정의 초보자 모드를 켜면 받는 피해가 {cut}% 줄어듭니다'

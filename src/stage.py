@@ -160,11 +160,19 @@ class Stage:
         self.templates = {c: self._pick_template(c) for c in self.layout}   # 이번 판의 방 모양
         self._place_big_rooms()
         self.rewards = {c: self._roll_reward(c) for c in self.layout if self.type_of(c) == 'combat'}   # 방 보상 (11/22)
+        for c in self.rewards:                       # 11/25 증강 속도: 큰 방을 깨면 늘 증강 (오래 싸운 방의 보상)
+            if self.is_big(c):
+                self.rewards[c] = 'mutation'
         self._split_lane_rewards()
         self._place_challenge()
         if self.rewards:                             # v8 무기 형태: 출발 방에서 가장 가까운 전투방의 보상은 늘 형태 카드
             first = min(sorted(self.rewards), key=lambda c: abs(c[0] - start[0]) + abs(c[1] - start[1]))
             self.rewards[first] = 'form'
+        # 11/25 증강 속도: 다음 구역이 있는 구역의 끝(문지기·크래셔)을 쓰러뜨리면 증강을 고른다. 마지막 구역은 탈출이라 없다
+        self.end_reward = None                       # 끝 방을 깬 뒤 연출이 지나면 줄 보상 (BOSS_REWARD_DELAY)
+        end = next((c for c in self.layout if self.type_of(c) in END_TYPES), None)
+        if end is not None and self.name in STAGE_ORDER and self.next_name is not None:
+            self.rewards[end] = 'mutation'
 
     def _roll_reward(self, coord):
         import mutations
@@ -739,13 +747,19 @@ class Stage:
             if won:
                 self._say('도전 성공 · 보상이 커집니다')
             if self.reward_of(self.coord) and p is not None:
-                self.grant_reward(self.reward_of(self.coord), boost=won)
+                if self.type_of(self.coord) in END_TYPES:
+                    self.end_reward = self.reward_of(self.coord)      # 보스가 쓰러지는 연출 뒤에 준다 (아래)
+                else:
+                    self.grant_reward(self.reward_of(self.coord), boost=won)
             self.challenge = None
             if before > 0 and self.gold_rooms_left() == 0 and any(self.type_of(c) == 'gold' for c in self.layout):
                 self._say('모든 전투방을 클리어했습니다. 황금방이 열렸습니다')
             self._update_door_texts()
         if self.type_of(self.coord) in END_TYPES and self.coord in self.cleared and not self.finished:
             self.finish_timer += 1 / 60
+            if self.end_reward and self.finish_timer >= config.BOSS_REWARD_DELAY and p is not None:
+                kind, self.end_reward = self.end_reward, None
+                self.grant_reward(kind)                # 구역 보스 보상: 증강 선택
             if self.finish_timer >= 2.5:
                 self.finished = True
             return

@@ -24,7 +24,9 @@ choosing = False     # 지금 맡길 것을 고르는 중인가
 kept = None          # 맡긴 것 (보여 주기용)
 summary = []         # 판 기록 [(이름, 값)]
 ending_line = ''     # 탈출 뒤 한 줄 (v8 6일 차, data/dialogue.py ENDING)
+easy_hint = ''       # 구역 1에서 연달아 쓰러졌을 때의 초보자 모드 안내 (talk.easy_hint)
 SUM_W, SUM_ROW = 760, 54
+SUM_BASE = 504       # 판 기록 카드의 아랫변이 이 높이일 때를 기준으로 아래 글자들을 놓았다 (줄이 많아 더 내려오면 그만큼 함께 내린다)
 
 
 def run_summary(player, zone_title, reward):
@@ -37,7 +39,7 @@ def run_summary(player, zone_title, reward):
 
 
 def enter():
-    global _ignore_input, reward, choices, choice, choosing, kept, summary, ending_line
+    global _ignore_input, reward, choices, choice, choosing, kept, summary, ending_line, easy_hint
     import play_mode
     _ignore_input = 0.6
     import transition
@@ -49,6 +51,8 @@ def enter():
     ark_down = getattr(getattr(st, 'boss', None), 'kind', '') == 'heart'
     reward = meta.finish_run(p, escaped=result == 'clear', zone=zone, ark_down=ark_down) if p is not None else 0
     ending_line = talk.ending_line(meta.state.get('escapes', 0)) if result == 'clear' else ''
+    import options
+    easy_hint = talk.easy_hint(meta.state.get('last'), options.easy_mode) if result != 'clear' else ''
     summary = run_summary(p, getattr(st, 'title', ''), reward) if p is not None else []
     options = meta.keepsake_options(p) if p is not None and meta.keeper_open() else []
     choices = options + [None] if options else []
@@ -112,7 +116,7 @@ FULL_ROWS = ('도달한 구역', '사망 원인')      # 글이 길어 한 줄�
 def _draw_summary(cx):
     """판 기록 판: 도달한 구역·쓰러진 원인은 한 줄씩(넓게), 나머지는 두 칸씩, 맨 아래 보유 결정."""
     if not summary:
-        return
+        return SUM_BASE
     wide = [e for e in summary if e[0] in FULL_ROWS]
     rest = [e for e in summary if e[0] not in FULL_ROWS]
     rows = len(wide) + (len(rest) + 1) // 2
@@ -132,6 +136,7 @@ def _draw_summary(cx):
         kit.text(lx, ty, name, (130, 145, 175), small=True)
         kit.text(lx + half - 60, ty, value, (255, 225, 140) if '결정' in name else (235, 242, 252), right=True)
     kit.text(cx, y + 24, f'보유 헤이즈 결정 {meta.state.get("crystals", 0)}', (130, 235, 225), small=True, center=True)
+    return y
 
 
 def draw():
@@ -146,32 +151,36 @@ def draw():
         assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
         assets.draw_text(cx, 880, '사망', (225, 90, 100), center=True, big=True)
         assets.draw_text(cx, 830, '이번 판은 여기까지입니다. 영구 강화는 그대로 남습니다', (170, 185, 210), center=True)
-    _draw_summary(cx)
+    dy = min(0, _draw_summary(cx) - SUM_BASE)                      # 카드가 길어지면 아래 글자를 그만큼 내린다 (사망 화면은 '사망 원인' 줄이 하나 더 있다)
     if choosing:                                                   # 보관인에게 맡길 것 고르기
-        assets.draw_text(cx, 480, '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)', (200, 210, 230), center=True)
+        assets.draw_text(cx, 480 + dy, '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)', (200, 210, 230), center=True)
         n = len(choices)
         gap = 96
         x0 = cx - (n - 1) * gap // 2
         for i, item_id in enumerate(choices):
             x = x0 + i * gap
             hot = i == choice
-            assets.draw_rect_color(x - 36, 370, 72, 72, kit.ACCENT if hot else kit.EDGE)
-            assets.draw_rect_color(x - 33, 373, 66, 66, kit.ROW_HOT if hot else kit.ROW_BG)
+            assets.draw_rect_color(x - 36, 370 + dy, 72, 72, kit.ACCENT if hot else kit.EDGE)
+            assets.draw_rect_color(x - 33, 373 + dy, 66, 66, kit.ROW_HOT if hot else kit.ROW_BG)
             if item_id is None:
-                assets.draw_text(x, 406, '없음', (200, 210, 230), small=True, center=True)
+                assets.draw_text(x, 406 + dy, '없음', (200, 210, 230), small=True, center=True)
             else:
-                assets.draw_image(assets.image(_icon_of(item_id)), x, 382)
+                assets.draw_image(assets.image(_icon_of(item_id)), x, 382 + dy)
         sel = choices[choice]
         name = '맡기지 않기' if sel is None else items.ITEMS[sel]['name'] + (
             ' (1단계로)' if sel in items.UPGRADES else '')
-        assets.draw_text(cx, 330, name, (255, 225, 140), center=True)
-        kit.footer([('A D', '선택'), ('Enter', '맡기기')], y=256)
+        assets.draw_text(cx, 330 + dy, name, (255, 225, 140), center=True)
+        kit.footer([('A D', '선택'), ('Enter', '맡기기')], y=256 + dy)
+        if easy_hint:                                              # 초보자 모드 안내 (맡길 물건 고르기 아래)
+            kit.text(cx, 206 + dy, easy_hint, (255, 225, 140), center=True, small=True)
     else:
         if kept:
-            assets.draw_text(cx, 470, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
+            assets.draw_text(cx, 470 + dy, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
         if ending_line:                                            # 탈출 뒤 한 줄 (판 기록 아래, 안내 위. 맡긴 물건이 있으면 그 아래)
-            kit.text(cx, 425 if kept else 450, ending_line, (215, 228, 240), center=True)
-        kit.footer([('아무 키', nxt)], y=380)
+            kit.text(cx, (425 if kept else 450) + dy, ending_line, (215, 228, 240), center=True)
+        if easy_hint:                                              # 초보자 모드 안내 (탈출 뒤 한 줄과 같은 자리: 사망 화면에만 나온다)
+            kit.text(cx, (425 if kept else 450) + dy, easy_hint, (255, 225, 140), center=True)
+        kit.footer([('아무 키', nxt)], y=380 + dy)
     import transition
     transition.draw()                              # 화면 전환 점묘 (계획 4-3, 가장 위)
     update_canvas()

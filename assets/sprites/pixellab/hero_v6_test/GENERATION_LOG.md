@@ -237,3 +237,13 @@ around his front hand ... no effects, no trails".
 | `raw/v3_chain_air/` (앞·앞 위·아래) | 3 | 보통. 앞은 목도리 회색 궤적(지움), 아래는 사슬이 머리 위로 크게 돎 |
 확인 시트 `shots/pixellab_test/v3_chain_poses.png`. 게임 적용 `hero6_chain`(예전 n09_chain 3장 순서)·`_upfwd`·`_downfwd`·`_air`.
 
+## 궁극기 시전 자세 (2026-11-25, 1회)
+남아 있던 옛 그림 `n09_ult`(Codex T23)를 바꿨다. 이 자세는 사슬 궁극기가 끝까지 쓰고 다른 무기는 바로 자기 동작으로 넘어가므로 사슬을 든 기준 그림에서 만들었다.
+- `raw/v3_ult/` (8+1장): `animate_image_pixminimax`, first = `base_chain.png`, side/east, seed 5.
+  설명: Ultimate move wind-up and release: he drops into a low, wide crouch and pulls both fists in tight against his chest, head down,
+  gathering power (holds this for three frames), then explodes upward, throwing his front arm straight out forward with an open hand and
+  his back arm flung behind him, chest forward, scarf whipping back (holds this release pose for three frames). + "do not draw any aura ..."
+- 1~3번 낮게 웅크려 사슬을 가슴에 모음, 4번 큰 섬광, 5~6번 고리, 7~8번 두 팔을 벌린 해방 자세. 게임에 쓴 번호: **2(모으기), 8(해방)**.
+- 확인: `shots/pixellab_test/v3_ult.png`, 실제 창 `shots/review/hero_ult_ingame.png`.
+- 맨손 자세 `n09_punch`(거의 안 나옴)는 새로 만들지 않고 건틀릿 그림(`v3_gauntlet_ground` 0·0·1·2)을 `hero6_punch`로 다시 썼다.
+

@@ -134,7 +134,7 @@ def muzzle(name, n):
     return tuple(offs[(n - 1) % len(offs)]) if offs else None
 FRAMES.update(HERO6)
 # 기존 동작 이름 -> 새 세트. 위 대각·아래 대각 휘두르기는 올려치기·내려찍기 그림을 같이 쓴다.
-# 아직 새 그림이 없는 것(식칼·건틀릿·사슬 자세, 맨손, 궁극기)은 기존 그림 그대로.
+# 2026-11-25부터 플레이어 코드가 고르는 세트는 모두 새 그림이 있다 (n09_walk·n09_knife는 코드가 쓰지 않는다).
 SKIN_PAIRS = (
     ('n09_idle', 'hero6_idle'), ('n09_run', 'hero6_run'), ('n09_run_trans', 'hero6_run_trans'),
     ('n09_jump', 'hero6_jump'), ('n09_dash', 'hero6_dash'),
@@ -157,6 +157,8 @@ SKIN_PAIRS = (
     # v7 사슬 (2026-11-24 PixelLab): 돌리기·던지기·당기기 3장은 예전 n09_chain과 같은 순서
     ('n09_chain', 'hero6_chain'), ('n09_chain_upfwd', 'hero6_chain_upfwd'), ('n09_chain_downfwd', 'hero6_chain_downfwd'),
     ('n09_chain_air', 'hero6_chain_air'),
+    # 2026-11-25: 남아 있던 옛 그림 두 세트도 새 그림으로 (궁극기 시전 자세, 맨손 자세)
+    ('n09_ult', 'hero6_ult'), ('n09_punch', 'hero6_punch'),
 )
 SKIN = {old: new for old, new in SKIN_PAIRS if new in HERO6}
 

@@ -74,6 +74,11 @@ SETS = {
     'hero6_chain_upfwd': (_f('v3_chain_ground', [3]), 'none'),
     'hero6_chain_downfwd': (_f('v3_chain_ground', [4]), 'none'),
     'hero6_chain_air': (_f('v3_chain_air', [0, 1, 2]), 'air'),          # 공중 앞·앞 위·아래
+    # 궁극기 시전 자세 (2026-11-25, pixminimax, 첫 장 = base_chain. 사슬 궁극기가 끝까지 쓴다): 낮게 웅크려 모음 -> 두 팔을 벌려 해방.
+    # 4~6번은 섬광·고리가 그려져 뺐다 (shots/pixellab_test/v3_ult.png)
+    'hero6_ult': (_f('v3_ult', [2, 8]), 'none'),
+    # 맨손 자세 (당김·모음·뻗음·회수, 예전 n09_punch 순서): 전용 자세가 없는 무기에서만 쓰여 거의 안 나온다. 건틀릿 그림을 다시 쓴다
+    'hero6_punch': (_f('v3_gauntlet_ground', [0, 0, 1, 2]), 'none'),
     'hero6_hurt': (_f('hurt96', [0, 1]), 'none'),
     'hero6_death': (_f('death96', [2, 4, 7]), 'none'),
 }

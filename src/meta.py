@@ -40,7 +40,7 @@ state = {}
 def _default():
     return {'crystals': 0, 'levels': {k: 0 for k in UPGRADES}, 'keeper': False, 'keepsake': None, 'start_weapon': None,
             'start_first': 'pipe',
-            'runs': 0, 'escapes': 0, 'best': '', 'hints': []}
+            'runs': 0, 'escapes': 0, 'best': '', 'hints': [], 'last': None, 'beaten': []}
 
 
 def reset():
@@ -80,6 +80,9 @@ def load():
     state['best'] = str(data.get('best', '') or '')
     hints = data.get('hints', [])
     state['hints'] = [str(h) for h in hints] if isinstance(hints, list) else []   # 이미 본 처음 안내
+    beaten = data.get('beaten', [])
+    state['beaten'] = [b for b in BOSSES if isinstance(beaten, list) and b in beaten]   # 한 번이라도 쓰러뜨린 보스 (v8 NPC 대사)
+    state['last'] = _read_last(data.get('last'))
 
 
 def save():
@@ -91,13 +94,70 @@ def ensure_loaded():
         load()
 
 
+# ----- 직전 판 기록 (v8 6일 차 NPC 대사, src/talk.py가 읽는다) -----
+BOSSES = ('gate', 'crasher', 'ark', 'heart')                     # 구역 순서대로 쓰러뜨리는 것 (관문은 구역 1 끝의 정예 전투)
+ZONE_ORDER = ('stage1', 'stage2', 'stage3')
+PASSED = {'stage1': (), 'stage2': ('gate',), 'stage3': ('gate', 'crasher')}   # 그 구역에 있었다 = 앞 구역 끝을 넘었다
+
+
+def _read_last(data):
+    """저장된 직전 판 기록을 읽는다. 사전이 아니면 None, 값의 종류가 이상하면 그 값만 기본값."""
+    if not isinstance(data, dict):
+        return None
+    zone = data.get('zone')
+    weapon = migrate_weapon(data.get('weapon'))
+    weapons = data.get('weapons')
+    first = data.get('first')
+    return {'escaped': bool(data.get('escaped', False)),
+            'zone': zone if isinstance(zone, str) and zone in ZONE_ORDER else '',
+            'cause': str(data.get('cause', '') or ''),
+            'weapon': weapon if isinstance(weapon, str) and weapon in ALL_WEAPONS else None,
+            'weapons': [w for w in (migrate_weapon(w) for w in weapons) if w in ALL_WEAPONS] if isinstance(weapons, list) else [],
+            'first': [b for b in BOSSES if isinstance(first, list) and b in first],
+            'rooms': max(0, _int(data.get('rooms', 0))), 'kills': max(0, _int(data.get('kills', 0))),
+            'streak': max(0, _int(data.get('streak', 0))), 'escapes': max(0, _int(data.get('escapes', 0)))}
+
+
+def beaten_in_run(zone, escaped, ark_down=False):
+    """이 판에 쓰러뜨린 보스: 도달한 구역 앞의 것들 + 탑에서 아크를 눕혔으면 아크, 탈출했으면 전부."""
+    if escaped:
+        return list(BOSSES)
+    out = list(PASSED.get(zone, ()))
+    if zone == 'stage3' and ark_down:
+        out.append('ark')
+    return out
+
+
+def record_run(player, escaped, zone, ark_down=False):
+    """판이 끝날 때 직전 판 기록을 남긴다 (저장은 finish_run이 한다). 처음 쓰러뜨린 보스는 first에."""
+    beaten = beaten_in_run(zone, escaped, ark_down)
+    first = [b for b in beaten if b not in state['beaten']]
+    state['beaten'] = [b for b in BOSSES if b in state['beaten'] or b in beaten]
+    prev = state.get('last')
+    if escaped:
+        streak = 0
+    elif isinstance(prev, dict) and not prev.get('escaped') and prev.get('zone') == zone:
+        streak = prev.get('streak', 0) + 1
+    else:
+        streak = 1
+    held = getattr(getattr(player, 'weapon', None), 'weapon_id', None)
+    state['last'] = {'escaped': bool(escaped), 'zone': zone if zone in ZONE_ORDER else '',
+                     'cause': '' if escaped else str(getattr(player, 'death_cause', '') or ''),
+                     'weapon': held if held in ALL_WEAPONS else None,
+                     'weapons': [w.weapon_id for w in getattr(player, 'weapons', []) if w is not None],
+                     'first': first, 'rooms': int(getattr(player, 'run_rooms', 0)), 'kills': int(getattr(player, 'run_kills', 0)),
+                     'streak': streak, 'escapes': state['escapes']}
+    return state['last']
+
+
 # ----- 재화 -----
 def run_reward(rooms, ends, escaped):
     return rooms * config.META_PER_ROOM + ends * config.META_PER_END + (config.META_ESCAPE if escaped else 0)
 
 
-def finish_run(player, escaped):
-    """판이 끝났다: 결정을 주고 저장한다. 같은 판에서 두 번 불러도 한 번만 준다. 받은 결정 수를 돌려준다."""
+def finish_run(player, escaped, zone=None, ark_down=False):
+    """판이 끝났다: 결정을 주고 직전 판 기록을 남겨 저장한다. 같은 판에서 두 번 불러도 한 번만 준다. 받은 결정 수를 돌려준다.
+    zone: 끝난 구역 이름(stage1~3), ark_down: 탑에서 아크를 쓰러뜨린 뒤였나 (NPC 대사가 쓴다)."""
     ensure_loaded()
     if getattr(player, 'run_rewarded', False):
         return 0
@@ -107,6 +167,7 @@ def finish_run(player, escaped):
     state['runs'] += 1
     if escaped:
         state['escapes'] += 1
+    record_run(player, escaped, zone or ('stage3' if escaped else ''), ark_down)
     save()
     return got
 

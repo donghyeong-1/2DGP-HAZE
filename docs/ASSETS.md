@@ -343,3 +343,20 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-25: `assets/effects/steam-jet.png·json`, `assets/light/glow_steam-jet.png`(공장 증기 분출): `tools/make_fx2.py` _steam_setup·_steam_draw(code-drawn, haze-fx 절차로 모아 보기 세 번).
 - 2026-11-25: `assets/sprites/unified/boss_gatekeeper_*.png`(구역 1 중간 보스 문지기, 7동작 22장 + 정지 그림)과 `skin_gatekeeper.json`: 우리 간수 그림(`v6_guard_*`, PixelLab)을 `tools/make_gatekeeper.py`로 원본 도트 3배(화면 기준 1.5배)로 굽고 색을 바꾼 것(푸른 강철 -> 검은 무쇠·황동 테두리, 주황 빛 -> 붉은 빛). 새 출처 없음. 관문 경기장 방 `data/rooms/gate_arena.txt`는 `tools/build_rooms.py`.
 - 2026-11-25 (Claude 프로젝트 스레드 4): `assets/effects/steam-jet.png·json`, `assets/light/glow_steam-jet.png`을 다시 구움(공장 증기 분출, 가늘다는 지적). `tools/make_fx2.py` steam_create(code-drawn): 김 덩이(FLAME) 기둥, 시드가 다른 세 줄(variant_seeds)을 분출구가 차례로 쓴다. haze-fx 절차로 모아 보기 세 번 + 겹쳐 띄운 시간표 + Xvfb 게임 화면 캡처로 확인.
+- 2026-11-25: 화면 밖 적 표시 화살표 `assets/ui/hud_offscreen_l·r·u·d.png`와 `_dim` 4장(깜빡임용): `tools/make_offscreen_marker.py`(code-drawn, numpy + Pillow, 논리 16x16을 정수 2배, 90도 단위로 돌려 네 방향. 이미지 모델 없음).
+- 2026-11-25: 황금방 형태 진열대 아이콘 `assets/ui/icon_f_pipe·pistol·gauntlet·chain.png`: `tools/make_form_icons.py`(code-drawn, numpy + Pillow). 우리 무기 아이콘(`icon_w_<무기>.png`)을 논리 24x24로 되돌려 왼쪽 위에 금색 네 갈래 별을 얹고 정수 2배. 새 출처 없음.
+
+## 이미지 생성 도구·모델과 이용 조건 (최종 제출용 정리, 2026-11-25)
+게임과 발표에 쓴 AI 이미지의 도구·모델·이용 조건을 한곳에 모았다. 위 날짜별 기록에서 옮겨 적은 것이고, **확인하지 못한 칸은 `(빈칸: 확인 필요)`로 둔다**. 추측으로 채우지 않는다. 사용자가 계정 화면·공식 약관에서 확인한 뒤 빈칸을 채우고, 그 날짜와 확인한 곳을 맨 오른쪽 칸에 적는다.
+
+| 도구 | 게임·발표에서 쓰는 곳 | 이미지 모델명 | 모델명 근거 | 생성물 이용 조건 (공개·교육·상업 사용, 생성물 권리) | 확인한 날짜·곳 |
+|---|---|---|---|---|---|
+| Codex(OpenAI) 내장 image_gen, Codex CLI 0.144.4 + agent-sprite-forge(MIT) | 적·보스·NPC 원화와 동작, 원경·전경, 화면 일러스트(타이틀·사망·탈출·크레딧·구역·보스 카드), 초상화, 장식·소품, 변이 카드 UI (T01~T49) | (빈칸: 확인 필요) | 도구가 모델명을 돌려주지 않았다(각 `provenance.json`에 "모델명 미제공"). 대화 모델 설정 `gpt-6.1-sol`은 이미지 모델이 아니다 | (빈칸: 확인 필요) | (빈칸) |
+| PixelLab(pixellab.ai), MCP 도구 `create_image_pixflux`·`animate_image_pixminimax`·`animate_with_skeleton_v3`·`edit_image_pro_flash` | 주인공 N-09(v6)의 모든 동작 `assets/sprites/unified/hero6_*` | 도구 이름만 안다(위 네 개). 그 뒤의 모델명은 (빈칸: 확인 필요) | `assets/sprites/pixellab/hero_v6_test/GENERATION_LOG.md` | (빈칸: 확인 필요). **체험판(trial) 계정으로 만들었다**: 체험판 생성물의 사용 범위를 따로 확인해야 한다 | (빈칸) |
+| Gemini, Antigravity 내장 image-generator | 주인공 v6 디자인 기준 그림(G01 A안, PixelLab에 넣은 기준). G04 주인공 초상화·G05 UI 시안은 아직 게임에 넣지 않았다 | `gemini-3.1-flash-image` (G04·G05). G01은 (빈칸: 확인 필요) | G04·G05 보고서의 429 오류 메시지에 모델명이 나왔다(`docs/gemini/reports/G04.md`, `G05.md`). G01 보고서는 "모델명 미제공" | (빈칸: 확인 필요) | (빈칸) |
+| Gemini (2026-10-31 콘셉트) | 1차 발표 콘셉트 그림(`assets/concept/source/`). 지금 게임에는 쓰지 않는다 | (빈칸: 확인 필요) | 기록 없음 | (빈칸: 확인 필요) | (빈칸) |
+| OpenAI 내장 이미지 생성 (2026-10-31 발표용·시안) | 1차 발표 그림, 옛 스프라이트 시안. 지금 게임에는 쓰지 않는다 | (빈칸: 확인 필요) | 도구가 모델명을 돌려주지 않았다 | (빈칸: 확인 필요) | (빈칸) |
+
+- AI를 쓰지 않은 그림(타일·이펙트·HUD·아이콘 일부·장치 소품)은 모두 `tools/make_*.py`로 코드로 그렸다(code-drawn). 소리·글꼴의 출처와 라이선스는 위 표(Kenney CC0, OpenGameArt CC0·CC-BY 3.0, Galmuri OFL)에 있다.
+- 엔딩 크레딧(`src/credits_mode.py`)의 'AI 도구'에 PixelLab과 Gemini 줄을 더했다(2026-11-25). 빈칸이 채워지면 크레딧의 '이미지 모델명은 도구가 제공하지 않았다' 줄도 함께 고친다.
+- 이 정리는 Claude(프로젝트 스레드)가 기록만 옮긴 것이다. 약관은 읽지 않았다.

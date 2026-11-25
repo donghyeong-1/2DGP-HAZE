@@ -26,6 +26,8 @@ CREDITS = [
     ('line', 'Codex (OpenAI) 내장 이미지 생성 - 캐릭터·적·보스 원화와 동작, 배경판, 화면 일러스트'),
     ('line', '은신처 배경 · NPC 3명 · 궁극기 컷인과 시전 자세 · 아이콘 · 진열대'),
     ('small', '이미지 모델명은 도구가 제공하지 않았다. 생성 기록: docs/image_prompts.md'),
+    ('line', 'PixelLab (pixellab.ai) - 주인공 N-09 동작'),
+    ('line', 'Gemini (Google) - 주인공 디자인 시안 (PixelLab 기준 그림)'),
     ('line', 'agent-sprite-forge (0x0funky, MIT) - 원화 다듬기·픽셀 마무리 도구'),
     ('gap', ''),
     ('head', '그래픽'),

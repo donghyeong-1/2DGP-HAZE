@@ -10,6 +10,15 @@ import items
 
 INTERACT_RANGE = 110   # 가로 거리 (px)
 INTERACT_HEIGHT = 170  # 세로 거리 (px)
+EDGE = 24              # 이름·설명 글자가 화면 가장자리에서 떨어지는 거리 (px)
+
+
+def text_shift(world_x, width):
+    """가운데 정렬 글자(폭 width)가 화면 밖으로 나가지 않게 옮길 가로 거리. 방 끝 진열대의 긴 설명(형태·무기)용."""
+    import camera
+    sx = camera.to_screen(world_x, 0)[0]
+    half = width // 2
+    return min(config.SCREEN_W - EDGE - half, max(EDGE + half, sx)) - sx
 
 
 class Pedestal:
@@ -38,12 +47,13 @@ class Pedestal:
         if not self.gone:                                              # 받침 위 보관함에 아이템 아이콘 (1배)
             assets.draw_image(assets.image(f'ui/icon_{self.item_id}.png'), self.x, self.y + 66)
         if self.player is not None and not self.gone and self.near(self.player):
-            assets.draw_text(self.x, self.y + 190, info['name'], info['color'], center=True)
             desc = items.describe(self.player, self.item_id)
             if self.mode == 'rift' and self.item_id in items.UPGRADES:   # 두 단계를 한꺼번에: 'N단계' -> 'N~N+1단계'
                 n = items.level(self.player, self.item_id) + 1
                 desc = '두 단계 한꺼번에 · ' + desc.replace(f'{n}단계', f'{n}~{n + 1}단계', 1)
-            assets.draw_text(self.x, self.y + 156, desc, (200, 210, 230), small=True, center=True)
+            x = self.x + text_shift(self.x, max(assets.text_width(info['name']), assets.text_width(desc, True)))
+            assets.draw_text(x, self.y + 190, info['name'], info['color'], center=True)
+            assets.draw_text(x, self.y + 156, desc, (200, 210, 230), small=True, center=True)
             prompt = f'F 구매 ({self.price}조각)' if self.mode == 'shop' else 'F 획득'
             assets.draw_text(self.x, self.y + 128, prompt, (255, 240, 150), small=True, center=True)
         elif self.gone and self.mode == 'shop':

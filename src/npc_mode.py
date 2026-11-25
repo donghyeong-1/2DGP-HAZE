@@ -16,6 +16,7 @@ import hud_kit as kit
 import items
 import meta
 import npc as npc_mod
+import talk
 
 W, H = config.SCREEN_W, config.SCREEN_H
 PANEL_W, PANEL_H = 1100, 700
@@ -31,7 +32,7 @@ PORTRAIT = 200           # 초상화 크기(px)
 _under = None
 
 STORY = {
-    'archivist': ['"또 돌아왔군. 기록은 내가 남겨 둘 테니 걱정 마."',
+    'archivist': ['"이 교도소는 운석 구덩이 위에 세웠대. 그래서 안개가 안 걷혀."',   # 인사는 한마디(대사)가 맡는다
                   '"헤이즈는 줄어도 죽고, 넘쳐도 터진다. 그 사이를 걸어."',
                   '"탑 꼭대기의 아크는 게이지를 위아래로 흔든다. 여유를 남겨 둬."'],
 }
@@ -84,7 +85,7 @@ def rows():
         out.append(('둘째 칸 · 비움', '선택' if now is None else '', '둘째 칸을 비우고 시작합니다 (황금방에서 무기를 얻습니다)', 'w_none'))
         for wid in meta.ALL_WEAPONS:
             info = items.ITEMS['w_' + wid]
-            desc = '첫 칸의 무기입니다 (첫 칸을 먼저 바꾸세요)' if wid == first else info['desc']
+            desc = '첫 칸의 무기입니다 (첫 칸을 먼저 변경하세요)' if wid == first else info['desc']
             out.append(('둘째 칸 · ' + info['name'], '선택' if now == wid else '', desc, 'w_' + wid))
         return out
     s = meta.state
@@ -106,7 +107,7 @@ def act(key):
         if player is not None:
             meta.equip_loadout(player)
         names = [items.ITEMS['w_' + w]['name'] for w in (meta.state['start_first'], meta.state['start_weapon']) if w]
-        note, result = ' + '.join(names) + f'{_ro(names[-1])} 시작합니다', 'ok'
+        note, result = '시작 무기 변경: ' + ' + '.join(names), 'ok'      # 말투 규칙: 이름 뒤에 조사를 붙이지 않는다
         return
     if key == 'unlock':
         ok = meta.unlock_keeper()
@@ -123,10 +124,17 @@ def act(key):
     assets.play_sound('pickup')
 
 
-def _ro(word):
-    """조사 '로/으로': 받침이 없거나 ㄹ 받침이면 '로'."""
-    code = ord(word[-1]) - 0xAC00
-    return '로' if not 0 <= code < 11172 or code % 28 in (0, 8) else '으로'
+def speech():
+    """NPC의 한마디 (v8 6일 차): 직전 판 결과에 따라 다르다 (data/dialogue.py, src/talk.py). 무기 걸이는 None."""
+    meta.ensure_loaded()
+    got = talk.speech(kind, meta.state)
+    return got[0] if got else None
+
+
+def _speech_mood():
+    meta.ensure_loaded()
+    got = talk.speech(kind, meta.state)
+    return got[1] if got else 1
 
 
 def faces():
@@ -134,13 +142,13 @@ def faces():
     기록관은 '지금까지' 기록 줄을 고르면 놀란다."""
     hero = 'n09_2' if result == 'ok' else 'n09_1'
     if kind == 'mechanic':
-        mood = 2 if result == 'ok' else 1
+        mood = 2 if result == 'ok' else 1 if result else _speech_mood()      # 아직 아무것도 안 했으면 대사의 표정
     elif kind == 'keeper':
-        mood = 2 if result == 'fail' else 1
+        mood = 2 if result == 'fail' else 1 if result else _speech_mood()
     elif kind == 'armory':
         return hero, None                          # 무기 걸이는 사람이 아니다: 초상화 없음
     else:
-        mood = 2 if selected == len(rows()) - 1 else 1
+        mood = 2 if selected == len(rows()) - 1 else 1 if result else _speech_mood()
     return hero, f'{kind}_{mood}'
 
 
@@ -195,6 +203,9 @@ def draw():
     kit.heading(PANEL_X, PANEL_Y + PANEL_H - 50, npc_mod.NAMES[kind], npc_mod.ROLES[kind], color=color)
     crystals = f'헤이즈 결정 {meta.state["crystals"]}'
     kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 50, crystals, (130, 235, 225), right=True)
+    line = speech()
+    if line:                                                     # 한마디 (v8 6일 차): 제목 오른쪽, 결정 수 아래
+        kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 92, f'"{line}"', (235, 228, 205), right=True)   # 기록관 이야기 줄처럼 따옴표
     buttons = _buttons()
     for i, (title, value, desc, key) in enumerate(rows()):
         b = buttons[i]

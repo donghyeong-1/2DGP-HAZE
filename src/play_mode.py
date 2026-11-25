@@ -53,6 +53,8 @@ def enter():
     game_world.add_object(Ambience(stage), game_world.LAYER_UI)             # 구역 환경음 (그림 없음)
     from tutorial import Tutorial
     game_world.add_object(GameUI(player, stage), game_world.LAYER_UI)
+    from offscreen import OffscreenMarkers
+    game_world.add_object(OffscreenMarkers(player, stage), game_world.LAYER_UI)  # 화면 밖 적 화살표 (큰 방·남은 적이 적을 때)
     from practice import PracticeHud
     game_world.add_object(PracticeHud(stage), game_world.LAYER_UI)          # 연습장 초당 피해 (연습장에서만 그린다)
     game_world.add_object(Tutorial(player, stage), game_world.LAYER_UI)     # 처음 안내판 (HUD 위에)

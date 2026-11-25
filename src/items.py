@@ -7,6 +7,7 @@
 단계는 player.items에 얻은 횟수로 남는다. pico2d와 무관한 순수 로직이다.
 """
 import config
+import forms
 
 # id -> 이름, 한 글자 표시, 설명(단계 없는 것), 1단계 값(정비방, 헤이즈 조각), 색(화면 표시)
 ITEMS = {
@@ -21,15 +22,20 @@ ITEMS = {
     'heal':    dict(name='물약', glyph='약', desc='물약 한 병 채우기 (Q로 마심, 정비방 전용)', price=3, color=(120, 235, 150)),
     'fury':    dict(name='균열의 분노', glyph='분', desc='이번 판 공격력 +30% (균열방 전용)', price=0, color=(200, 130, 255)),
     # 무기: 두 번째 칸에 들어가고 바로 든다 (Q·1·2로 철파이프와 바꾼다). 이미 다른 무기가 있으면 바뀐다
-    'w_pipe':     dict(name='철파이프', glyph='봉', desc='빠른 3연타, 공중 베기와 내려찍기', price=9,
+    'w_pipe':     dict(name='철파이프', glyph='봉', desc='빠른 3연타와 공중 베기·내려찍기를 씁니다', price=9,
                      color=(200, 235, 245), weapon='pipe'),          # v8 두 칸 자유: 철파이프 없이 시작한 판에서만 황금방에 나온다
-    'w_pistol':   dict(name='쌍권총', glyph='총', desc='좌우 번갈아 연사, 누르고 있으면 이어서 (구간이 오를수록 여러 발)', price=9,
+    'w_pistol':   dict(name='쌍권총', glyph='총', desc='좌우 번갈아 연사합니다 (구간이 오를수록 여러 발)', price=9,
                      color=(150, 245, 235), weapon='pistol'),
-    'w_gauntlet': dict(name='건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전, 떼면 돌진해 박는 강타', price=9,
+    'w_gauntlet': dict(name='건틀릿', glyph='권', desc='누르는 동안 게이지를 태워 충전하고, 떼면 돌진합니다', price=9,
                      color=(120, 220, 245), weapon='gauntlet'),
     'w_chain':    dict(name='사슬', glyph='사', desc='사슬을 날려 멀리 있는 적을 칩니다 (증강을 얻으면 끌어옵니다)', price=9,
                      color=(170, 160, 255), weapon='chain'),
 }
+# 형태(v8, 2026-11-25): 황금방 진열대 하나가 들고 있는 무기의 새 형태일 수 있다. 아이템 목록에는 들어가지 않는다
+for _wid, _form in forms.FORMS.items():
+    ITEMS['f_' + _wid] = dict(name=f"{ITEMS['w_' + _wid]['name']} · {_form['name']}", glyph='형', desc=_form['desc'],
+                              price=0, color=forms.COLOR, form=_wid)
+FORM_ITEMS = ['f_' + w for w in forms.FORMS]
 UPGRADES = ['cap', 'absorb', 'steady', 'enhance', 'resist', 'dash', 'power', 'vigor']   # 단계가 있는 것 (7종, 기본 성장은 둘)
 TRACK = {'power': 'growth', 'vigor': 'growth'}   # 같은 단계를 함께 쓰는 것 (기본 성장 택1)
 MAX_LEVEL = 3
@@ -83,6 +89,8 @@ def can_take(player, item_id):
     """더 얻을 수 있는가 (이미 3단계거나 의미가 없으면 못 얻는다)."""
     if 'weapon' in ITEMS[item_id]:
         return not player.has_weapon(ITEMS[item_id]['weapon'])
+    if 'form' in ITEMS[item_id]:                   # 형태: 들고 있는 무기의 것이고 아직 없을 때만
+        return ITEMS[item_id]['form'] in forms.offer(player)
     if item_id == 'heal':                          # v7: 물약 한 병 (가득하면 못 산다)
         return player.potions < config.POTION_MAX
     if item_id == 'fury':
@@ -91,7 +99,7 @@ def can_take(player, item_id):
 
 
 def icon_path(item_id):
-    """아이템 아이콘 그림 경로 (assets/ 기준). 무기는 무기 아이콘."""
+    """아이템 아이콘 그림 경로 (assets/ 기준). 무기는 무기 아이콘, 형태는 무기 아이콘 + 형태 표시(icon_f_<무기>)."""
     info = ITEMS[item_id]
     return f'ui/icon_w_{info["weapon"]}.png' if 'weapon' in info else f'ui/icon_{item_id}.png'
 
@@ -101,6 +109,9 @@ def apply(player, item_id):
     g = player.gauge
     if 'weapon' in ITEMS[item_id]:                 # 무기는 소지 아이템 목록이 아니라 무기 칸에 들어간다
         player.give_weapon(ITEMS[item_id]['weapon'])
+        return
+    if 'form' in ITEMS[item_id]:                   # 형태는 무기에 붙는다 (forms.give)
+        forms.give(player, ITEMS[item_id]['form'])
         return
     if item_id == 'heal':
         player.potions = min(config.POTION_MAX, player.potions + 1)
@@ -142,9 +153,13 @@ def roll(rng, pool, count, player=None):
 
 
 def roll_gold(rng, count, player=None):
-    """황금방 진열: 하나는 무기(가진 것은 빼고), 나머지는 업그레이드. 무기를 모두 가졌으면 업그레이드만."""
+    """황금방 진열: 하나는 무기(가진 것은 빼고), 하나는 들고 있는 무기의 형태(아직 없는 것이 있을 때),
+    나머지는 업그레이드. 무기를 모두 가졌거나 형태를 모두 얻었으면 그 자리도 업그레이드."""
     weapons = [w for w in WEAPON_ITEMS if player is None or can_take(player, w)]
     picked = [rng.choice(weapons)] if weapons and count > 0 else []
+    shapes = [f for f in FORM_ITEMS if player is not None and can_take(player, f)]
+    if shapes and count - len(picked) > 1:          # 업그레이드 자리를 하나는 남긴다
+        picked.append(rng.choice(shapes))
     picked += roll(rng, GOLD_POOL, count - len(picked), player)
     rng.shuffle(picked)
     return picked

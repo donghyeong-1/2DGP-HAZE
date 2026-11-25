@@ -666,7 +666,7 @@ class Stage:
         ped = min(near, key=lambda d: abs(d.x - p.x))
         saved = self.state[self.coord]
         if not items.can_take(p, ped.item_id):
-            self._say('이미 최대 단계입니다')
+            self._say('이미 얻은 형태입니다' if 'form' in items.ITEMS[ped.item_id] else '이미 최대 단계입니다')
             return False
         if ped.mode == 'shop':
             if p.shards < ped.price:

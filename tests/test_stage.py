@@ -261,7 +261,7 @@ def test_gold_room_gives_one_item_free_and_removes_the_others():
     to_gold(stage, p)
     assert len(stage.pedestals) == 3 and not stage.room.locked and stage.enemy_count() == 0
     assert sum(1 for d in stage.pedestals if d.item_id in items.WEAPON_ITEMS) == 1     # 하나는 늘 무기
-    ped = next(d for d in stage.pedestals if d.item_id not in items.WEAPON_ITEMS)
+    ped = next(d for d in stage.pedestals if d.item_id in items.UPGRADES)
     p.x, p.y = ped.x, ped.y
     msgs = []
     stage.on_message = msgs.append
@@ -426,7 +426,7 @@ def test_basic_growth_is_attack_or_health_sharing_three_levels():
 def test_gold_room_item_counts_toward_the_same_level():
     stage, p = make_stage()
     to_gold(stage, p)
-    ped = next(d for d in stage.pedestals if d.item_id not in items.WEAPON_ITEMS)
+    ped = next(d for d in stage.pedestals if d.item_id in items.UPGRADES)
     p.x, p.y = ped.x, ped.y
     assert stage.interact() and items.level(p, ped.item_id) == 1
     assert items.price(p, ped.item_id) == items.price_at(ped.item_id, 2)   # 정비방에서는 2단계 값
@@ -640,7 +640,7 @@ def test_pickup_shows_banner_with_icon_name_and_effect():
     import ui
     stage, p = make_stage()
     to_gold(stage, p)
-    ped = next(d for d in stage.pedestals if d.item_id not in items.WEAPON_ITEMS)
+    ped = next(d for d in stage.pedestals if d.item_id in items.UPGRADES)
     p.x, p.y = ped.x, ped.y
     got = []
     stage.on_pickup = lambda item_id, text: got.append((item_id, text))

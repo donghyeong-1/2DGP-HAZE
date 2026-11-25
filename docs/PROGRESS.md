@@ -26,7 +26,7 @@
 3. [ ] **(Claude Code) 3차 발표 자료**: 초안 완료(11/25) `docs/presentation_3rd.pptx`(10장), `docs/script_3rd.md`(대본·촬영 순서·제출 체크리스트). 1차와 같은 형식(PPT 10쪽 이내 + 영상 1분 30초)으로 가정했다. 형식이 확인되면 `tools/make_presentation_3rd.py`를 고쳐 다시 만들고, 게임이 바뀌면 화면을 다시 찍는다. **(사용자) 한 번 열어 보고 고칠 곳을 알려 주기.**
 4. [ ] **(사용자) 데모 촬영 → YouTube 업로드 → e-class 제출.** CC-BY 곡을 쓰면 영상 설명란에 곡명·작가·라이선스.
 5. [ ] **(사용자, 제출 전 필수)** `docs/ASSETS.md` 맨 끝 표의 빈칸(이미지 생성 도구의 모델명·이용 조건). **주인공 동작을 PixelLab 체험판 계정으로 만들었다: 체험판 생성물을 공개 영상·저장소에 써도 되는지 확인.** 채워지면 크레딧 문구를 고친다.
-6. [ ] **(Codex) T50 문지기 그림 → T51 떠돌이 죄수 → T52 헤이즈 샘**(11/25 등록, `docs/codex/TASKS.md`). T49 구역 배경은 11/25 검토·적용 완료.
+6. [ ] **(Codex) T51 떠돌이 죄수 → T52 헤이즈 샘**(`docs/codex/TASKS.md`). T50 문지기는 11/25 검토·적용 완료. T49 구역 배경은 11/25 검토·적용 완료.
 7. [ ] **(사용자) 효과음 검토**: 연습장 F 메뉴 → '효과음 듣기'. 표시한 소리부터 Claude Code가 다시 만든다(`sfx_review.json`).
 8. [ ] **(사용자 결정)** 주인공 이름(화면에는 'N-09'만 나온다), 대화 초상화를 지금 주인공 그림에 맞출지.
 9. [ ] **(사용자)** 실행 파일을 파이썬 없는 PC에서 켜 보기, 게임패드가 있으면 몇 방.
@@ -373,3 +373,5 @@
 
 2026-11-25 [Gemini] G02 보스 3종 새 디자인(크래셔·아크·헤이즈 심장 본체·기계 오른손 원화 4장 + 게임 상대 크기 실루엣·8색 색표 비교 시트 1장) 제작 및 보고서 작성(검토 대기) / assets/sprites/gemini/boss_designs_v1/, docs/gemini/reports/G02.md, docs/gemini/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
 2026-11-25 [Claude Code] Gemini G02(보스 3종 새 디자인 원화 4장 + 비교 시트) 검토: 통과. 실루엣·구역 색·정체성 확인, 크래셔·아크의 얇은 외곽선과 3/4 각도는 받아들임. 게임에 넣는 일(PixelLab 동작)은 3차 발표 뒤로. 줄일 때 볼 것을 작업서 끝에 기록. Gemini 작업 순서를 G06 UI 부품 먼저로 고침. / docs/gemini/TASKS.md, docs/gemini/tasks/G02_boss_designs.md, docs/PROGRESS.md
+2026-11-25 [Codex] T50 문지기 165px 마스터·동작 17장 제작, 앞발 교대·세 가지 예고·1배 크기 비교 확인(검토 대기) / assets/sprites/forge/gatekeeper_v1/, docs/codex/reports/T50.md, docs/codex/TASKS.md, docs/image_prompts.md, docs/ASSETS.md, docs/PROGRESS.md
+2026-11-25 [Claude Code] Codex T50 검토·적용: 문지기 그림 합격(키 165px로 간수 134와 크래셔 194 사이, 42색, 반투명 없음, 돌진·내려찍기·호출의 예고 자세가 1배에서 구별). 임시 그림을 새 그림으로 교체(세트 이름을 게임에 맞춤, 대기 2장 숨쉬기, 호출 전용 그림, 벽에 부딪혀 비틀은 한 무릎), 판정 높이 190 -> 160. 실제 창에서 등장씬·걷기·내려찍기·호출·처치 확인(돌진 장면은 캡처에 잡히지 않음). 발표 자료 화면 다시 찍음. / tools/apply_gatekeeper_t50.py(신규), assets/sprites/unified/boss_gatekeeper_*·skin_gatekeeper.json, src/config.py, src/gatekeeper.py, tests/test_gatekeeper.py, docs/codex/TASKS.md, docs/ASSETS.md, docs/presentation_3rd.pptx

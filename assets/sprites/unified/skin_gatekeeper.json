@@ -1,39 +1,39 @@
 {
  "frames": {
   "boss_gatekeeper_idle": [
-   1,
-   124,
-   279
+   2,
+   168,
+   250
   ],
   "boss_gatekeeper_walk": [
-   8,
-   129,
-   279
-  ],
-  "boss_gatekeeper_swing": [
-   3,
-   124,
-   279
+   4,
+   168,
+   250
   ],
   "boss_gatekeeper_heavy": [
    3,
-   124,
-   279
+   168,
+   250
   ],
   "boss_gatekeeper_bash": [
+   3,
+   168,
+   250
+  ],
+  "boss_gatekeeper_call": [
    2,
-   124,
-   279
+   168,
+   250
   ],
   "boss_gatekeeper_hurt": [
    2,
-   124,
-   279
+   168,
+   250
   ],
   "boss_gatekeeper_death": [
-   3,
-   124,
-   279
+   2,
+   168,
+   250
   ]
  },
  "skin": {}

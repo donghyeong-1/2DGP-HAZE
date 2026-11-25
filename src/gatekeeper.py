@@ -295,13 +295,13 @@ class Gatekeeper(Enemy):
     def _body_frame(self):
         name, n = super()._body_frame()
         if self.stunned_left > 0:
-            return 'boss_gatekeeper_hurt', 2                  # 벽에 부딪혀 비틀
+            return 'boss_gatekeeper_hurt', 2                  # 벽에 부딪혀 비틀 (한 무릎을 꿇는다)
         if self.roar_left > 0:
-            return 'boss_gatekeeper_swing', 1                 # 몽둥이를 쳐들고 외친다
+            return 'boss_gatekeeper_call', 2                  # 호루라기를 불며 몸을 젖힌다 (비상 호출)
         if self.state == 'HIT' or (name is None and self.flash > 0):
             return 'boss_gatekeeper_hurt', 1
         if name is None:
-            return 'boss_gatekeeper_idle', 1
+            return 'boss_gatekeeper_idle', 1 + int(self.anim_time / 0.6) % 2    # 대기: 방패를 세운 채 숨쉬기 2장
         return name, n
 
     def _tint(self):

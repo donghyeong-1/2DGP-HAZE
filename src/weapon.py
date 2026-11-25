@@ -56,10 +56,9 @@ class DelayedFlash:
         x0, y0, x1, y1 = self.path
         k = 1.0 - max(0.0, self.left) / self.delay      # 터질 때가 가까울수록 진해진다
         length = math.hypot(x1 - x0, y1 - y0)
-        for i in range(int(length // 10) + 1):
-            t = i * 10 / max(length, 1.0)
-            x, y = int(x0 + (x1 - x0) * t), int(y0 + (y1 - y0) * t)
-            assets.draw_rect_color(x - 3, y - 1, 6, 2, FLASH_COLOR, 0.25 + 0.6 * k)
+        for i in range(int(length // 14) + 1):          # 빛나는 둥근 점의 줄: 터질 때가 가까울수록 굵고 밝다
+            t = i * 14 / max(length, 1.0)
+            effects.draw_dot(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, FLASH_COLOR, 0 if k < 0.7 else 1, 0.3 + 0.7 * k, glow=k > 0.4)
 
 
 class DashEcho:
@@ -1701,16 +1700,10 @@ class Bullet:
         effects.spawn('hit-enhanced2', ex, ey, duration=0.3)
 
     def draw(self):
-        cols = BULLET_COLORS[self.big]
-        length = 80 if self.big else 26 if self.shrapnel else 52
-        thick = 12 if self.big else 6
-        for k in range(0, length, 2):                   # 머리(흰)에서 꼬리(짙은 청록)로, 꼬리 쪽이 가늘다
-            t = k / length
-            c = cols[min(3, int(t * 4))]
-            w = max(2, int(thick * (1.0 - 0.6 * t)) // 2 * 2)
-            x = int(round(self.x - self.dx * k)) // 2 * 2
-            y = int(round(self.y - self.dy * k)) // 2 * 2
-            assets.draw_rect_color(x - w // 2, y - w // 2, w, w, c)
+        # 구운 32방향 시트: 흰 머리에서 색 꼬리로 가늘어지는 줄기 + 머리의 빛 (큰 한 발은 보라, 파편은 짧게)
+        name = 'bullet-big' if self.big else 'bullet-s' if self.shrapnel else 'bullet'
+        effects.draw_loop(name, int(round(self.x)) // 2 * 2, int(round(self.y)) // 2 * 2, (abs(self.x) + abs(self.y)) / 480.0,
+                          variant=effects.dir_variant(self.dx, self.dy))
 
 
 class ChainTrail:
@@ -1720,6 +1713,7 @@ class ChainTrail:
     def __init__(self, x0, y0, x1, y1):
         self.x0, self.y0, self.x1, self.y1 = x0, y0, x1, y1
         self.time = 0.0
+        self.streak = None
 
     def update(self, dt):
         self.time += dt
@@ -1727,14 +1721,10 @@ class ChainTrail:
             game_world.remove_object(self)
 
     def draw(self):
-        k = 1.0 - self.time / self.LIFE
-        length = math.hypot(self.x1 - self.x0, self.y1 - self.y0) or 1.0
-        w = max(2, int(6 * k) // 2 * 2)
-        for s in range(0, int(length), 4):
-            t = s / length
-            x = int(self.x0 + (self.x1 - self.x0) * t) // 2 * 2
-            y = int(self.y0 + (self.y1 - self.y0) * t) // 2 * 2
-            assets.draw_rect_color(x - w // 2, y - w // 2, w, w, (255, 240, 170) if s % 8 else (255, 255, 255))
+        if self.streak is None:                          # 대시 궤적과 같은 그림(흰 속도 줄기 + 색 띠 + 번지는 빛)을 가늘게
+            self.streak = DashStreak((self.x0, self.y0, self.x1, self.y1), life=self.LIFE, width=12, color=(255, 240, 170))
+        self.streak.t = self.time
+        self.streak.draw()
 
 
 class ShellCasing:
@@ -1770,6 +1760,8 @@ class MuzzleFlash:
         self.x, self.y, self.dx, self.dy, self.big = x, y, dx / n, dy / n, big
         self.time = 0.0
         effects.spawn_bloom(x, y, BULLET_COLORS[big][1], big=big, life=0.08, strength=0.5)
+        effects.spawn('muzzle-big' if big else 'muzzle', int(x) // 2 * 2, int(y) // 2 * 2,
+                      variant=effects.dir_variant(self.dx, self.dy))      # 구운 32방향 섬광 (세 장)
 
     def update(self, dt):
         self.time += dt
@@ -1777,19 +1769,7 @@ class MuzzleFlash:
             game_world.remove_object(self)
 
     def draw(self):
-        cols = BULLET_COLORS[self.big]
-        k = 1.0 - self.time / self.LIFE
-        core = (14 if self.big else 8)
-        x, y = int(self.x) // 2 * 2, int(self.y) // 2 * 2
-        assets.draw_rect_color(x - core // 2, y - core // 2, core, core, cols[0])
-        for ang in (-28, 0, 28):                         # 앞쪽 부채꼴 빛살
-            a = math.atan2(self.dy, self.dx) + math.radians(ang)
-            ln = int((34 if ang == 0 else 18) * (1.6 if self.big else 1.0) * k)
-            for s in range(0, ln, 2):
-                px = int(round(self.x + math.cos(a) * s)) // 2 * 2
-                py = int(round(self.y + math.sin(a) * s)) // 2 * 2
-                assets.draw_rect_color(px - 1, py - 1, 2 if s > ln // 2 else 4, 2 if s > ln // 2 else 4,
-                                       cols[0] if s < ln // 2 else cols[1])
+        pass                                             # 그림은 만들 때 띄운 시트(muzzle)가 그린다
 
 
 class Tracer:
@@ -2105,8 +2085,7 @@ class Gauntlet(Pipe):
 
 
 class RushTrail:
-    """돌진 강타 궤적: 지나온 자리에 굵은 빛줄기(앞이 굵고 밝다) + 위아래 속도선 + 주먹 앞 빛. 돌진이 끝나면 짧게 옅어진다.
-    모두 정수 좌표의 사각형과 빛 층(light/dot_48)으로 그린다 (회전 없음)."""
+    """돌진 강타 궤적: 지나온 자리에 대시 궤적과 같은 빛줄기(DashStreak) + 주먹 앞 빛. 돌진이 끝나면 짧게 옅어진다."""
     FADE = 0.18
 
     def __init__(self, weapon, color, size):
@@ -2115,6 +2094,7 @@ class RushTrail:
         self.fade = 0.0
         self.age = 0.0
         self.dir = (1.0, 0.0)
+        self.streak = None
 
     def update(self, dt):
         self.age += dt
@@ -2131,29 +2111,18 @@ class RushTrail:
     def draw(self):
         if len(self.points) < 2:
             return
-        a = 1.0 - self.fade / self.FADE
-        dx, dy = self.dir
-        nx, ny = -dy, dx
-        n = len(self.points)
-        for i, ((x0, y0), (x1, y1)) in enumerate(zip(self.points, self.points[1:])):
-            k = (i + 1) / n                               # 앞(최근)일수록 굵고 밝다
-            thick = 2 + 2 * int(k * 5 * min(1.4, self.size))
-            length = math.hypot(x1 - x0, y1 - y0)
-            s = 0.0
-            while s <= length:
-                t = s / max(length, 1.0)
-                x, y = _snap(x0 + (x1 - x0) * t), _snap(y0 + (y1 - y0) * t)
-                assets.draw_rect_color(x - thick // 2, y - thick // 2, thick, thick, self.color, alpha=0.35 * a * k)
-                assets.draw_rect_color(x - 2, y - 2, 4, 4, (255, 255, 255), alpha=0.8 * a * k)
-                if i % 2 == 0:                            # 위아래 속도선
-                    for off in (-22, 22):
-                        assets.draw_rect_color(_snap(x + nx * off), _snap(y + ny * off), 6, 2, (230, 240, 255), alpha=0.5 * a * k)
-                s += 4
+        # 대시 궤적과 같은 그림(굵은 흰 속도 줄기 + 일렁이는 색 띠 + 번지는 빛)을 주먹 뒤에 끌고 간다. 돌진이 끝나면 가늘어지며 사라진다
+        if self.streak is None:
+            self.streak = DashStreak((0, 0, 0, 0), life=0.5, width=int(20 * min(1.6, self.size)) + 10, color=self.color)
+        (x0, y0), (x1, y1) = self.points[0], self.points[-1]
+        self.streak.path = (x0, y0, x1, y1)
+        self.streak.t = min(self.age, 0.1) if self.fade == 0.0 else 0.1 + 0.4 * self.fade / self.FADE
+        self.streak.draw()
         if self.fade == 0.0:                              # 주먹 앞 빛 (빛 층)
-            x, y = self.points[-1]
+            dx, dy = self.dir
             img = assets.image('light/dot_48.png')
             img.opacify(0.8)
-            assets.draw_image_added(img, int(x + dx * 34), int(y + dy * 34) - img.h // 2, color=self.color, times=1)
+            assets.draw_image_added(img, int(x1 + dx * 34), int(y1 + dy * 34) - img.h // 2, color=self.color, times=1)
             img.opacify(1.0)
 
 

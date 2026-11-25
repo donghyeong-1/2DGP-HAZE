@@ -130,6 +130,10 @@ def test_loop_and_tile_effect_sheets_exist():
         assert meta['tile'] == meta['frameSize'][axis], name
     dots = json.load(open(os.path.join(ROOT, 'assets', 'effects', 'dots.json'), encoding='utf-8'))
     assert dots['columns'] == 4 and dots['tint'] == 1                    # 네 크기, 색 층 한 줄 + 흰 심 한 줄
+    for name in ('bullet', 'bullet-big', 'bullet-s', 'muzzle', 'muzzle-big'):   # 쌍권총: 32방향을 한 줄씩
+        meta = json.load(open(os.path.join(ROOT, 'assets', 'effects', name + '.json'), encoding='utf-8'))
+        assert meta['variants'] == meta['directions'] == 32, name
+        assert os.path.exists(os.path.join(ROOT, 'assets', 'light', f'glow_{name}.png')), name
 
 
 def test_tiles_are_multiples_of_tile_size():

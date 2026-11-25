@@ -468,12 +468,14 @@ def aura_names(zone, enhanced=False, stunned=False, level=1):
     return [config.AURA_BY_ZONE[zone]] if zone in config.AURA_BY_ZONE else []
 
 
-def draw_loop(name, x, y, t, flip=False):
-    """반복 재생 시트(오라)를 t초 지점의 프레임으로 (x, y)에 그린다. y는 발 높이, 기준점(pivot)을 거기에 맞춘다."""
+def draw_loop(name, x, y, t, flip=False, variant=0):
+    """반복 재생 시트(오라)를 t초 지점의 프레임으로 (x, y)에 그린다. y는 발 높이, 기준점(pivot)을 거기에 맞춘다.
+    variant: 방향 변형이 있는 시트(탄환 32방향)의 줄 번호."""
     info = sheet_info(name)
     fw, fh = info['frameSize']
     px, py = info['pivot']
-    i = int(t * info['fps']) % info['frames']
+    per = info['frames'] // info.get('variants', 1)
+    i = variant * per + int(t * info['fps']) % per
     cols = info['columns']
     img = assets.image(f'effects/{name}.png')
     s = info.get('scale', 1)
@@ -487,6 +489,11 @@ def draw_loop(name, x, y, t, flip=False):
 
 
 # ----- 2026-11-26: 사각형으로 그리던 것들을 구운 시트로 (tools/make_fx2.py의 반복 시트·둥근 점) -----
+def dir_variant(dx, dy, n=32):
+    """방향 벡터에 가장 가까운 방향 변형 번호 (0 = 오른쪽, 반시계로 360/n도씩). 탄환·총구 섬광 시트가 쓴다."""
+    return int(round(math.degrees(math.atan2(dy, dx)) / (360.0 / n))) % n
+
+
 def draw_dot(x, y, color, size=1, alpha=1.0, glow=True):
     """둥근 점 하나 (구운 'dots' 시트, 색은 여기서 입힌다): 예고 고리·조준선·소용돌이처럼 점을 늘어놓는 것들이 쓴다.
     size 0~3 = 지름 약 6·10·14·20px. 번지는 빛(빛 층)을 먼저 깔고, 큰 점은 흰 심을 얹는다."""

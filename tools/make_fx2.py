@@ -1972,6 +1972,107 @@ def build_dots(look):
     print('구움 dots', len(DOT_SIZES), '크기')
 
 
+# ----- 주인공 쪽 (2026-11-26): 쌍권총 탄환과 총구 섬광. 조준 방향이 실행 중에 정해져 32방향(11.25도 간격)을 미리 굽는다 -----
+DIR_N = 32
+
+
+def _dir(o):
+    """게임 각도(위가 +y)를 그림 좌표(아래가 +y)의 단위 벡터로."""
+    a = TAU * o['variant'] / DIR_N
+    return math.cos(a), -math.sin(a)
+
+
+# 탄환: 흰 머리에서 색 꼬리로 가늘어지는 줄기 + 머리의 빛. 꼬리 끝이 장마다 조금씩 일렁이고 불티가 떨어져 나간다. 기준점 = 머리
+def _bullet_draw(p, ph, R, o):
+    dx, dy = _dir(o)
+    nx, ny = -dy, dx
+    L, Wd = o['length'], o['width']
+    flick = 1.0 + 0.12 * math.sin(TAU * ph)
+    p.glow(0, 0, Wd * 3.2 + 4, R[2], 170)
+    p.glow_line(-dx * L * 0.2, -dy * L * 0.2, -dx * L * 0.85, -dy * L * 0.85, Wd * 2.0 + 2, R[2], 90)
+    p.needle(dx * 1.5, dy * 1.5, -dx * L * flick, -dy * L * flick, R[1], Wd + 2.0)
+    p.needle(dx * 1.5, dy * 1.5, -dx * L * 0.82 * flick, -dy * L * 0.82 * flick, R[2], Wd + 0.8)
+    p.needle(dx * 1.5, dy * 1.5, -dx * L * 0.6, -dy * L * 0.6, R[3], Wd)
+    p.needle(dx * 2.0, dy * 2.0, -dx * L * 0.4, -dy * L * 0.4, WHITE, max(1.6, Wd * 0.62))
+    p.disc(dx * 0.5, dy * 0.5, max(1.2, Wd * 0.55), WHITE)
+    for i in range(3):                                           # 꼬리에서 옆으로 떨어져 나가는 불티
+        s = _frac(ph + i / 3)
+        back = L * (0.45 + 0.5 * s)
+        side = (Wd * 0.6 + 2.5 * s) * (1 if i % 2 else -1)
+        if s < 0.8:
+            p.px(-dx * back + nx * side, -dy * back + ny * side, R[3] if s < 0.4 else R[2])
+
+
+# 총구 섬광: 앞으로 길게 뻗는 흰 가시 + 양옆 짧은 가시 + 옆으로 벌어지는 가는 십자 -> 색으로 식으며 줄어든다 (세 장). 기준점 = 총구
+def _muzzle_create(o):
+    R = RAMPS[o['ramp']]
+    k = o.get('k', 1.0)
+    t = [0.0]
+
+    class M:
+        def update(self, dt):
+            t[0] += dt
+
+        def draw(self, p):
+            dx, dy = _dir(o)
+            nx, ny = -dy, dx
+            u = t[0] / o['life']
+            s = (1.0 if u < 0.34 else 0.66 if u < 0.67 else 0.36) * k
+            hot = WHITE if u < 0.34 else R[3] if u < 0.67 else R[2]
+            p.glow(dx * 4, dy * 4, 20 * k, R[2], 190 * (1 - u))
+            p.glow(dx * 2, dy * 2, 9 * k, R[3], 140 * (1 - u))
+            for ang, ln, w in ((0.0, 24, 5.0), (0.5, 12, 3.2), (-0.5, 12, 3.2), (0.95, 6, 2.2), (-0.95, 6, 2.2)):
+                c, sn = math.cos(ang), math.sin(ang)
+                ex, ey = (dx * c - dy * sn) * ln * s, (dy * c + dx * sn) * ln * s
+                p.needle(0, 0, ex, ey, R[2] if u < 0.67 else R[1], w * s + 1.4)
+                p.needle(0, 0, ex * 0.86, ey * 0.86, hot, w * s, tip=WHITE if u < 0.67 else None)
+            if u < 0.67:                                         # 옆으로 벌어지는 가는 십자
+                side = 7 * s
+                p.line(dx * 1.5 + nx * side, dy * 1.5 + ny * side, dx * 1.5 - nx * side, dy * 1.5 - ny * side, R[3])
+                p.disc(dx * 1.5, dy * 1.5, 3.4 * s, WHITE)
+            else:                                                # 마지막 장: 앞으로 흩어지는 불티
+                for i, (f, sd) in enumerate(((18, 2.5), (13, -3.5), (22, -1.0), (9, 4.0))):
+                    p.px(dx * f * k + nx * sd, dy * f * k + ny * sd, R[3] if i % 2 else WHITE)
+    return M()
+
+
+# 이름 -> (meta, create, 반복인가). 방향 변형 32줄
+DIR_SHEETS = {
+    'bullet': (dict(size=[72, 72], origin=[36, 36], duration=4 / 30, fps=30,
+                    options=dict(ramp='haze', seed=41, period=4 / 30, length=27, width=3.0)), _periodic(_bullet_draw), True),
+    'bullet-big': (dict(size=[104, 104], origin=[52, 52], duration=4 / 30, fps=30,
+                        options=dict(ramp='violet', seed=42, period=4 / 30, length=41, width=5.6)), _periodic(_bullet_draw), True),
+    'bullet-s': (dict(size=[44, 44], origin=[22, 22], duration=4 / 30, fps=30,
+                      options=dict(ramp='haze', seed=43, period=4 / 30, length=14, width=2.0)), _periodic(_bullet_draw), True),
+    'muzzle': (dict(size=[72, 72], origin=[36, 36], duration=0.1, fps=30, options=dict(ramp='haze', seed=44, life=0.1)), _muzzle_create, False),
+    'muzzle-big': (dict(size=[104, 104], origin=[52, 52], duration=0.1, fps=30, options=dict(ramp='violet', seed=45, life=0.1, k=1.5)),
+                   _muzzle_create, False),
+}
+
+
+def build_dir(name, look):
+    """32방향 시트를 굽는다 (한 줄 = 한 방향, 0번 = 오른쪽, 반시계로 11.25도씩). 모아 보기는 여덟 방향만 본다."""
+    import json
+    meta, create, loop = DIR_SHEETS[name]
+    variants = [fx.render(meta, create, variant=v) for v in range(DIR_N)]
+    w, h = meta['size']
+    show = [f for v in (0, 1, 2, 4, 6, 8, 12, 16, 20, 29) for f in variants[v][:3]]
+    path = fx.contact(show, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), cols=6, origin=meta['origin'],
+                      label=f"{name}  {w}x{h}  {len(variants[0])}f x {DIR_N} dirs")
+    if look:
+        print('본다', path)
+        return
+    info = fx.export(name, dict(meta), variants)
+    jp = os.path.join(fx.ROOT, 'assets', 'effects', name + '.json')
+    data = json.load(open(jp, encoding='utf-8'))
+    data['directions'] = DIR_N
+    if loop:
+        data['loop'] = True
+        data.pop('duration', None)
+    json.dump(data, open(jp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print('구움', name, info['frames'], '프레임', DIR_N, '방향')
+
+
 def main(argv):
     look = '--look' in argv
     if '--pb' in argv:                                          # 보류한 입자 구성·반투명 띠 시안: 모아 보기만
@@ -1983,10 +2084,13 @@ def main(argv):
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
     names = ([a for a in argv if not a.startswith('--')]
-             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + ['dots'])
+             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + list(DIR_SHEETS) + ['dots'])
     for name in names:
         if name == 'dots':
             build_dots(look)
+            continue
+        if name in DIR_SHEETS:
+            build_dir(name, look)
             continue
         if name in PLAIN_LOOPS:
             build_plain_loop(name, look)

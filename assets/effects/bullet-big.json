@@ -1,0 +1,19 @@
+{
+ "id": "fx/bullet-big",
+ "frames": 128,
+ "frameSize": [
+  104,
+  104
+ ],
+ "columns": 4,
+ "fps": 30,
+ "loop": true,
+ "pivot": [
+  52,
+  52
+ ],
+ "scale": 2,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)",
+ "variants": 32,
+ "directions": 32
+}

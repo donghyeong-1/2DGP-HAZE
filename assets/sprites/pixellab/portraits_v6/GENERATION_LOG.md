@@ -37,3 +37,30 @@ draw a different person in exactly this style." 세 장 모두 한 번에 통과
 
 적용: `python tools/apply_pixellab_portraits.py` -> `assets/portraits/<인물>_<1|2>.png`(200x200, 최근접 2배, 2px 격자 100%).
 확인: `shots/review/portraits_v6_final.png`(여덟 장 + 주인공 편집 원본), `portraits_v6_ingame.png`(대화창 세 장).
+
+## 주인공 초상화를 PixelLab으로 다시 (2026-11-26, 사용자: "주인공 표정들 pixellab으로 npc 제작한 것처럼 주인공 제작 다시 하자")
+그 전까지 주인공 기본 표정은 Gemini G04 원화를 줄인 것이었다(`raw_gen/n09_1_gemini.png`, 결의는 그 그림의 PixelLab 편집 `n09_2_gemini_edit.png`).
+
+### 기본 표정 시안 7장 (42회: 6회 x 7, `hero_gen/`)
+`create_image_pro_flash`, 100x100, no_background. 설명(공통): Dialogue portrait, head and shoulders bust, three-quarter view facing RIGHT,
+looking slightly down to the right. Prisoner N-09 ...: a lean young man with pale grey-blue skin, wild spiky white hair swept back and up,
+sharp narrow eyes glowing bright teal, calm tired serious expression, mouth closed. ... thick dark charcoal scarf (muffler) ... black padded work
+jacket with chest pockets. A few thin wisps of teal haze rise from the scarf. Muted dark palette ... teal eyes as the only bright colour.
+
+| 파일 | 화풍 기준 | seed | 평가 |
+|---|---|---|---|
+| hero_a_s3 / a_s11 / a_s7 | 정비사 초상화 `raw_gen/mechanic_1.png` | 3 / 11 / 7 | 피부가 갈색·회갈색으로 나와 다른 사람처럼 보임(정비사의 살색이 옮겨 옴). a_s3은 아래에 줄이 생김 |
+| hero_c_s5 / c_s9 | 정비사 초상화, 색 따라 하기 끔(`style_options.color_palette=false`), "very pale bluish-white skin (NOT tanned)" | 5 / 9 | 피부는 희지만 눈빛이 약하고 얼굴이 납작한 선화 느낌 |
+| **hero_b_s3** | 예전 주인공 초상화 `raw/hero_style_100.png`("same character's current portrait. Keep his design ... paint him again with richer pixel-art shading") | 3 | **선택**: 같은 사람으로 보이고(머리 모양·창백한 푸른 피부·빛나는 청록 눈), 머리가 더 크게 잡혀 NPC 초상화와 크기가 맞는다 |
+| hero_b_s11 | 위와 같음 | 11 | 좋음. 머리 왼쪽에 떨어진 점이 있고 얼굴이 더 옆을 봄 (예비) |
+
+배운 것: 다른 인물의 초상화를 화풍 기준으로 넣으면 살색이 따라온다. 같은 인물을 다시 그릴 때는 그 인물의 예전 그림을 기준으로 넣고 "다시 그려라"고 쓴다.
+비교판 `shots/review/hero_portrait_candidates.png`(왼쪽 위가 예전 것), 크게 본 것 `hero_portrait_zoom.png`.
+
+### 결의 표정 (12회: 6회 x 2)
+`edit_image_pro_flash`(method text, 색 고정 끔, 원본 = hero_b_s3): "Change only the facial expression to DETERMINED: he lifts his gaze and looks
+forward instead of down, eyes opened a little wider, eyebrows lowered and drawn together, a faint confident smile ... eyes MUST stay bright glowing teal.
+Keep everything else exactly the same ...". seed 7(**선택**)·seed 3. 두 장 모두 얼굴 밖은 거의 그대로였다(달라진 칸 120·147 중 얼굴 밖 30·34).
+`hero_gen/hero_b_s3_mood_s7.png` -> `raw_gen/n09_2.png`. 얼굴 사각형은 (36,30)-(78,72)로 바꿈(`tools/apply_pixellab_portraits.py`의 FACE).
+확인: 실제 대화창 `shots/review/hero_portrait_ingame.png`(위 기본, 아래 강화를 샀을 때의 결의 + 정비사의 씩 웃음).
+

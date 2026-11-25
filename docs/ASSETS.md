@@ -18,7 +18,7 @@
 | 엔딩 크레딧 장면 3장 | `assets/backgrounds/credits_1~3.png` | Codex T35 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | 2026-11-25부터 PixelLab(NPC 6장 새로 생성 + 주인공 표정 2 편집, 주인공 기본 표정은 Gemini G04 원화를 줄인 것). 아래 11-25 줄. 이전: Codex T32 | AI 생성물 |
+| 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | 2026-11-26부터 여덟 장 모두 PixelLab(주인공 2장도 새로 생성·편집. 화풍·디자인 기준으로 넣은 그림은 우리 것인 Gemini G04 주인공 초상화). 아래 11-25·11-26 줄. 이전: Codex T32 | AI 생성물 |
 | 움직이는 배경 소품 12종 x 4장 | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
 | 스팀 상점 그림 (캡슐 4장·라이브러리 배경·로고) | `assets/store/` | Codex T29 (내장 image_gen, 모델명 미제공) + `tools/make_store_art.py`로 로고 합성 (2026-11-21). 게임 안에서는 쓰지 않는다 | AI 생성물 |
 | 보스 크래셔 걷기 4장·쓰러짐 2장 | `assets/sprites/unified/boss_crasher_walk_1~4.png`, `boss_crasher_death_1~2.png` | Codex T27 (내장 image_gen, `finish_character.py --like boss_crasher_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
@@ -388,3 +388,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 2026-11-25 [Gemini] G04(완료) `assets/sprites/gemini/portraits_v1/` 대화 초상화 추가 5장(`mechanic_portrait.png`, `keeper_portrait.png`, `archivist_portrait.png`, `hero_portrait_angry.png`, `hero_portrait_hurt.png`, 각 1024×1024, 기존 `hero_portrait.png` 포함 총 6장). Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 생성 후 PNG 변환. 검토 대기(게임 미적용). docs/gemini/reports/G04.md.
 - 2026-11-26: 이펙트 시트 추가 `assets/effects/`(orb-haze, beam-flame(+base), beam-haze(+base), wave-absorb, wave-overcharge, pollution, crystal-fall, bolt-pillar, steam-jet-haze, dots)와 빛 시트 `assets/light/glow_<이름>.png`: **code-drawn** (`tools/make_fx2.py` + `tools/fxkit.py`, numpy, 이미지 모델 없음, 전부 자체 제작). 실행 중 사각형으로 그리던 적 탄환·광선·파동·오염 장판·낙뢰·결정 조각·예고 점을 대신한다. 광선(beam-*)과 장판(pollution)은 이어 붙이는 타일, dots는 색을 게임이 입히는 둥근 점 네 크기.
 - 2026-11-26: 이펙트 시트 추가 `assets/effects/`(bullet, bullet-big, bullet-s, muzzle, muzzle-big)와 빛 시트 `assets/light/glow_<이름>.png`: **code-drawn** (`tools/make_fx2.py` + `tools/fxkit.py`, numpy, 이미지 모델 없음, 전부 자체 제작). 쌍권총 탄환(보통·강화 큰 한 발·파편)과 총구 섬광, 32방향(11.25도 간격)을 미리 구운 것.
+- 2026-11-26: 주인공 대화 초상화 `assets/portraits/n09_1~2.png`: **PixelLab**(유료 구독 Tier 1, MCP. `create_image_pro_flash` + `edit_image_pro_flash`)으로 새로 생성. 기준으로 넣은 그림은 우리 그림인 예전 주인공 초상화(Gemini G04 원화를 줄인 것). 이제 게임의 대화 초상화 8장은 모두 PixelLab 생성물이다. 원본·프롬프트·고른 시안은 `assets/sprites/pixellab/portraits_v6/GENERATION_LOG.md`. 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.

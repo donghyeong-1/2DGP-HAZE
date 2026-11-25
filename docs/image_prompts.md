@@ -333,3 +333,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-25 [Claude Code] PixelLab으로 은신처 대화 초상화를 새 몸 그림에 맞춰 다시 만듦(화풍 기준 = 주인공 초상화). 왼쪽을 보는 3/4 흉상: 정비사(올린 머리·이마의 주황 고글·올리브 작업복·회색 의수·어깨 뒤 렌치), 보관인(갈색 두건·회색 수염·등의 자물쇠 궤짝), 기록관(헝클어진 갈색 머리·둥근 안경·귀의 연필·회청색 셔츠·장부). 표정 2는 "표정만 바꾸고 나머지는 그대로"로 글 편집(씩 웃음·걱정·놀람·결의). 전문은 `assets/sprites/pixellab/portraits_v6/GENERATION_LOG.md`.
 
 2026-11-25 [Gemini] G04 대화 초상화 남은 5장 완료(`mechanic_portrait.png`, `keeper_portrait.png`, `archivist_portrait.png`, 추가 표정 `hero_portrait_angry.png`, `hero_portrait_hurt.png`, 각 1024×1024). `hero_portrait.png` 화풍·가슴 위 3/4 구도와 `npc_{mechanic,keeper,archivist}_idle_1.png` 외형을 참조해 애니풍 선화·3단계 셀 음영·마젠타 배경 요청. Antigravity 내장 image-generator(`gemini-3.1-flash-image`). 상세는 docs/gemini/reports/G04.md.
+
+2026-11-26 [Claude Code] PixelLab으로 주인공 대화 초상화를 다시 만듦(사용자 요청: NPC처럼 PixelLab으로). 가슴 위 3/4 오른쪽, 창백한 회청색 피부, 뒤로 솟은 흰 머리, 빛나는 청록 눈, 차분하고 지친 표정, 목을 감싼 짙은 머플러와 검은 작업 재킷, 머플러에서 오르는 청록 기운. 예전 주인공 초상화를 기준 그림으로 넣고 "같은 인물을 다시 그려라". 결의 표정은 얼굴만 글로 편집. 영문 프롬프트·seed·시안 평가는 `assets/sprites/pixellab/portraits_v6/GENERATION_LOG.md`.

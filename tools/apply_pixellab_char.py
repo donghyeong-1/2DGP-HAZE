@@ -8,7 +8,8 @@
    src/sprites.py가 읽어 기존 이름(enemy_guard_walk 등)을 새 그림으로 바꿔 그린다. 게임 코드는 그대로.
 공격처럼 적 코드가 장수로 타이밍을 잡는 동작은 기존과 같은 장수를 고른다 (src/sprites.py FRAMES의 기존 장수).
 선택 옵션 (2026-11-25, 적 5종): 'clean' = 이 세트들은 PixelLab이 그려 넣은 효과(충격 별·불티·피)를 지운다(base 색이 아닌 칸과
-작은 떨어진 조각 제거). 'palette_extra' = base에 없지만 써야 하는 색이 있는 프레임(렌즈가 하얗게 달아오름, 경고등)의 색을 더한다.
+작은 떨어진 조각 제거). 'clean_body' = 같은 일을 하되 가장 큰 덩어리(몸)만 남긴다: 탄환·궤적처럼 큰 효과가 떨어져 그려진 세트에.
+'palette_extra' = base에 없지만 써야 하는 색이 있는 프레임(렌즈가 하얗게 달아오름, 경고등)의 색을 더한다.
 
 실행: python tools/apply_pixellab_char.py [캐릭터 ...]   (없으면 원본이 있는 캐릭터 전부)
 """
@@ -128,6 +129,32 @@ CHARS = {
         },
         'skin': {},
     },
+    # 최종 보스 아크 (2026-11-25, shots/pixellab_test/ark_v6_all.png). 디자인은 Gemini G02 원화(ark_side.png)를 글로 옮긴 것.
+    # 장수는 src/ark.py _body_frame 그대로: 대기 2, 걷기 4, 피격 1, 탄막·흡수·과충전·장판 2(예고 -> 실행), 베기 3(당김 -> 베기 -> 뻗음),
+    # 사라짐 1(조각으로 흩어짐), 나타남 1(낮게 웅크림 = 베기 1번), 페이즈 1(주먹을 치켜듦), 사망 2(무릎 -> 엎어짐).
+    # pixminimax가 탄환·베는 호·충격 별을 그려 넣어 몸만 남긴다(clean_body).
+    'ark': {
+        'prefix': 'v6_ark',
+        'clean_body': ('hurt', 'barrage', 'slash', 'appear', 'overcharge', 'field', 'phase'),
+        'sets': {
+            'idle': (_f('idle', [0, 2]), 'none'),
+            'walk': (_f('walk', [0, 2, 4, 6]), 'loop'),            # 뼈대(skeleton v3) 8장 중 4장
+            'hurt': (_f('hurt', [2]), 'none'),
+            'barrage': (_f('barrage', [2, 6]), 'none'),            # 손을 당김 -> 손바닥을 내지름
+            'slash': (_f('slash', [2, 5, 6]), 'none'),             # 지휘봉을 뒤로 -> 낮게 베며 내디딤 -> 뻗은 채
+            'absorb': (_f('absorb', [3, 5]), 'none'),              # 팔을 활짝 벌림 -> 가슴으로 모음
+            'overcharge': (_f('overcharge', [2, 4]), 'none'),      # 웅크려 팔을 교차 -> 팔을 뒤로 젖히며 가슴을 내밂
+            'field': (_f('field', [2, 5]), 'none'),                # 무릎 꿇고 손을 듦 -> 손바닥을 바닥에
+            'vanish': (_f('vanish', [2]), 'none'),
+            'appear': (_f('slash', [1]), 'none'),
+            'phase': (_f('phase', [3]), 'none'),
+            'death': (_f('death', [3, 7]), 'none'),
+        },
+        'skin': {'boss_ark_idle': 'idle', 'boss_ark_walk': 'walk', 'boss_ark_hurt': 'hurt', 'boss_ark_barrage': 'barrage',
+                 'boss_ark_slash': 'slash', 'boss_ark_absorb': 'absorb', 'boss_ark_overcharge': 'overcharge',
+                 'boss_ark_field': 'field', 'boss_ark_vanish': 'vanish', 'boss_ark_appear': 'appear',
+                 'boss_ark_phase': 'phase', 'boss_ark_death': 'death'},
+    },
     # 남은 일반 적 5종 (2026-11-25, shots/pixellab_test/<이름>_v6_all.png). 모두 pixminimax. 장수는 src/enemy_kinds.py·sprites.FRAMES 그대로.
     # 무당: 숨쉬기 2, 걷기 8(느린 발끌기), 시전 3(지팡이 듦 -> 높이 -> 내림, try1은 몸이 청록으로 물들어 다시 뽑음), 피격 2(별·핏방울을 지움), 사망 3
     'shaman': {
@@ -186,8 +213,9 @@ CHARS = {
 }
 
 
-def clean_effects(a, pal, min_size=10):
-    """PixelLab이 피격·사망에 그려 넣는 효과를 지운다: 기준 색(pal)에 없는 칸을 지우고, 몸에서 떨어진 작은 조각(min_size 칸 미만)도 지운다."""
+def clean_effects(a, pal, min_size=10, body_only=False):
+    """PixelLab이 피격·사망에 그려 넣는 효과를 지운다: 기준 색(pal)에 없는 칸을 지우고, 몸에서 떨어진 작은 조각(min_size 칸 미만)도 지운다.
+    body_only면 가장 큰 덩어리 하나만 남긴다."""
     from scipy import ndimage
     out = a.copy()
     keys = {tuple(int(v) for v in c) for c in pal}
@@ -198,8 +226,9 @@ def clean_effects(a, pal, min_size=10):
             out[y, x] = 0
     lab, n = ndimage.label(out[:, :, 3] == 255, structure=np.ones((3, 3)))
     sizes = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1)) if n else []
+    biggest = max(sizes) if n else 0
     for i, size in enumerate(sizes, 1):
-        if size < min_size:
+        if size < min_size or (body_only and size < biggest):
             out[lab == i] = 0
     return out
 
@@ -233,14 +262,15 @@ def apply(char):
     for src, n in cfg.get('palette_extra', ()):                     # base에 없는 색을 쓰는 프레임 (달아오른 렌즈, 경고등)
         pal = np.unique(np.concatenate([pal, palette_of(load(char, src, n))]), axis=0)
     cleaned = set(cfg.get('clean', ()))
+    body_only = set(cfg.get('clean_body', ()))
     base_x = body_x(base)
     foot = foot_row([base])
     frames_meta, skin = {}, {}
     for tail, (frames_src, align) in cfg['sets'].items():
         name = f"{cfg['prefix']}_{tail}"
         loaded = [load(char, src, n) for src, n in frames_src]
-        if tail in cleaned:
-            loaded = [clean_effects(f, pal) for f in loaded]
+        if tail in cleaned or tail in body_only:
+            loaded = [clean_effects(f, pal, body_only=tail in body_only) for f in loaded]
         frames = [lock_palette(remove_white_arcs(f), pal) for f in loaded]
         anchor_x = base_x
         if align == 'loop':

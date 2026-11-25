@@ -325,3 +325,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-25 [Claude Code] PixelLab(v6 방식, 화풍 기준 = 간수 base)으로 은신처 NPC 셋을 다시 만듦. 정비사: 올린 머리·이마의 주황 고글·올리브색 작업복·회색 의수(청록 불빛)·어깨에 멘 큰 렌치. 보관인: 구부정한 노인·갈색 두건 망토(청록 안감)·등에 진 자물쇠 궤짝·손에 든 등불. 기록관: 헝클어진 갈색 머리·둥근 안경·귀에 꽂은 연필·회청색 셔츠·가슴에 안은 두꺼운 적갈색 장부. 글로 적은 키를 지키지 않아 캔버스를 줄여 키를 맞췄다. 영문 프롬프트 전문·seed·시안 비교는 `assets/sprites/pixellab/(mechanic|keeper|archivist)_v6/GENERATION_LOG.md`.
 
 2026-11-25 [Claude Code] PixelLab(v6 방식)으로 남은 일반 적 5종을 다시 만듦: 누더기 무당(올리브색 누더기·두건·청록 결정 지팡이), 헤이즈 쥐(보랏빛 회색 털·등의 청록 결정), 감시 눈(회청색 강철 몸통·받침대·큰 청록 렌즈), 헤이즈 망령(어두운 청록 안개·긴 팔·빛나는 눈), 자폭 수레(녹슨 광차·고철 돌·청록 통과 붉은 경고등). 캔버스 크기로 몸 크기를 맞췄고 동작은 전부 글로 지시(pixminimax). 영문 프롬프트 전문·seed·고른 프레임은 `assets/sprites/pixellab/(shaman|rat|eye|wraith|cart)_v6/GENERATION_LOG.md`.
+
+2026-11-25 [Claude Code] PixelLab(v6 방식)으로 최종 보스 아크를 다시 만듦. Gemini G02 원화를 글로 옮김: 키 크고 마른 감시탑 총감시관, 발목까지 오는 검은 군용 코트와 청록 안감, 높은 깃, 청록 마름모 배지의 검은 챙모자, 창백한 얼굴과 빛나는 청록 눈, 어깨·팔뚝 장갑의 청록 결정, 가슴·허리의 청록 약병, 앞손의 가는 검은 지휘봉. 동작은 패턴마다 "예고 자세를 잠깐 유지 -> 실행 자세를 유지"로 지시. 영문 프롬프트 전문·seed·고른 프레임은 `assets/sprites/pixellab/ark_v6/GENERATION_LOG.md`.

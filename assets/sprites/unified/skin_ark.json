@@ -1,0 +1,78 @@
+{
+ "frames": {
+  "v6_ark_idle": [
+   2,
+   103,
+   220
+  ],
+  "v6_ark_walk": [
+   4,
+   106,
+   220
+  ],
+  "v6_ark_hurt": [
+   1,
+   103,
+   220
+  ],
+  "v6_ark_barrage": [
+   2,
+   103,
+   220
+  ],
+  "v6_ark_slash": [
+   3,
+   103,
+   220
+  ],
+  "v6_ark_absorb": [
+   2,
+   103,
+   220
+  ],
+  "v6_ark_overcharge": [
+   2,
+   103,
+   220
+  ],
+  "v6_ark_field": [
+   2,
+   103,
+   220
+  ],
+  "v6_ark_vanish": [
+   1,
+   103,
+   220
+  ],
+  "v6_ark_appear": [
+   1,
+   103,
+   220
+  ],
+  "v6_ark_phase": [
+   1,
+   103,
+   220
+  ],
+  "v6_ark_death": [
+   2,
+   103,
+   220
+  ]
+ },
+ "skin": {
+  "boss_ark_idle": "v6_ark_idle",
+  "boss_ark_walk": "v6_ark_walk",
+  "boss_ark_hurt": "v6_ark_hurt",
+  "boss_ark_barrage": "v6_ark_barrage",
+  "boss_ark_slash": "v6_ark_slash",
+  "boss_ark_absorb": "v6_ark_absorb",
+  "boss_ark_overcharge": "v6_ark_overcharge",
+  "boss_ark_field": "v6_ark_field",
+  "boss_ark_vanish": "v6_ark_vanish",
+  "boss_ark_appear": "v6_ark_appear",
+  "boss_ark_phase": "v6_ark_phase",
+  "boss_ark_death": "v6_ark_death"
+ }
+}

@@ -13,7 +13,7 @@
 
 사용: python tools/augment_sim.py [--runs 300] [--zones 3]
       python tools/augment_sim.py --detail [--runs 600]     # 구역별 누적·무기 조합별·합성 카드별 (2026-11-26)
-결과(2026-11-26, 600판 --detail)는 docs/project/balance.md '증강이 열리는 빈도'.
+결과(2026-11-26, 600판 --detail)는 docs/project/balance.md '증강이 열리는 빈도' (카드 뽑기 손질 전후).
 """
 import argparse
 import collections

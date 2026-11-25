@@ -113,7 +113,8 @@ DUO_BOWL = 760.0          # 볼링 내려찍기: 낙뢰에 맞은 적이 옆으�
 DUO_FOCUS = (9.0, 640.0)  # 집중 탄막: (총알이 꺾이는 빠르기 rad/s, 묶인 적을 찾는 거리 px)
 DUO_STORM = (300, 0.6)    # 각인 폭풍: (번지는 거리 px, 번진 격발의 피해 비율)
 DUO_MIST = (0.5, 3.0, 8.0)   # 교체 연무: (교체기 쿨다운 초, 쓸 때마다 게이지 -%, 이 게이지 아래면 보통 쿨다운)
-OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0, 'other': 0.2}
+OFFER_WEIGHTS = {'owned': 3.0, 'held': 2.0, 'common': 1.0}     # 2026-11-26: 안 든 무기의 갈래('other' 0.2)는 아예 나오지 않는다
+OFFER_PARTNER = 3.0       # 진화 하나를 가졌을 때, 그 진화와 짝인 합성의 다른 갈래가 나오는 무게 (가진 갈래 무게에 곱한다)
 
 BLOOM_CRIT = 1.2          # 각성 구간 공격 배율
 BLOOM_GAIN = 4            # 각성 구간 처치 게이지 추가
@@ -307,16 +308,48 @@ def _held_weapons(player):
     return held
 
 
+def _offer_weapons(player):
+    """카드를 낼 때 보는 '든 무기' (실제 두 칸. _held_weapons와 달리 철파이프를 늘 넣지 않는다)."""
+    held = {getattr(w, 'weapon_id', None) for w in (getattr(player, 'weapons', None) or []) if w is not None}
+    return held or {'pipe'}
+
+
+def offerable(player, mid):
+    """든 무기로 쓸 수 있는 카드인가: 공통 갈래이거나 그 무기를 들고 있다. 합성은 재료 진화가 모두 그래야 한다.
+    (2026-11-26 사용자 결정: 안 든 무기의 증강은 카드에 나오지 않는다)"""
+    held = _offer_weapons(player)
+    mids = MUTATIONS[mid].get('requires') or (mid,)
+    return all(FAMILIES[MUTATIONS[m]['family']].get('weapon') in (None, *held) for m in mids)
+
+
+def duo_partner(player, family):
+    """(합성 id, 짝 진화 id): 이 갈래의 진화가 재료인 '짝이 정해진 합성' 가운데 짝 갈래도 든 무기로 쓸 수 있는 것.
+    짝 진화를 이미 가진 것이 먼저다. 없으면 None."""
+    evo = evolution_of(family)
+    found = None
+    for did, d in MUTATIONS.items():
+        req = d.get('requires') or ()
+        if len(req) != 2 or evo not in req or not offerable(player, did):
+            continue
+        other = req[1 - req.index(evo)]
+        if has(player, other):
+            return did, other
+        found = found or (did, other)
+    return found
+
+
 def _weight(player, mid):
     fam = MUTATIONS[mid]['family']
+    pair = duo_partner(player, fam)
+    if pair and has(player, pair[1]) and not has(player, evolution_of(fam)):
+        return OFFER_WEIGHTS['owned'] * OFFER_PARTNER      # 합성까지 진화 하나: 그 갈래를 밀어 준다
     if any(MUTATIONS[m]['family'] == fam for m in owned(player)):
         return OFFER_WEIGHTS['owned']
     weapon = FAMILIES[fam].get('weapon')
     if weapon is None:
         return OFFER_WEIGHTS['common']
     import forms
-    base = OFFER_WEIGHTS['held'] if weapon in _held_weapons(player) else OFFER_WEIGHTS['other']
-    return base * forms.weight_mult(player, fam)       # v8: 얻은 무기 형태와 잘 맞는 갈래는 더 자주
+    return OFFER_WEIGHTS['held'] * forms.weight_mult(player, fam)       # v8: 얻은 무기 형태와 잘 맞는 갈래는 더 자주
 
 
 def _pick(player, cands, rng, taken):
@@ -341,13 +374,14 @@ def _pick(player, cands, rng, taken):
 
 
 def offer(player, rng, n=3):
-    """카드 n장 (v7 증강 v2). 진화·합성이 열려 있으면 한 장을 먼저 차지한다. 나머지는 갈래 무게로 뽑되
-    서로 다른 갈래에서, 그리고 셋 중 하나는 아직 가지지 않은 갈래에서 (빌드를 바꿀 여지)."""
-    pool = [m for m in MUTATIONS if available(player, m)]
+    """카드 n장 (v7 증강 v2). 진화·합성이 열려 있으면 한 장을 먼저 차지한다 (짝이 정해진 합성이 가장 먼저). 나머지는 갈래 무게로
+    뽑되 서로 다른 갈래에서, 그리고 셋 중 하나는 아직 가지지 않은 갈래에서 (빌드를 바꿀 여지). 안 든 무기의 카드는 나오지 않는다."""
+    pool = [m for m in MUTATIONS if available(player, m) and offerable(player, m)]
     out = []
     special = [m for m in pool if tier(m) != 'base']
+    paired = [m for m in special if tier(m) == 'duo' and MUTATIONS[m].get('requires')]
     if special:
-        out.append(rng.choice(special))
+        out.append(rng.choice(paired or special))
     base = [m for m in pool if tier(m) == 'base']
     owned_fams = {MUTATIONS[m]['family'] for m in owned(player)}
     while len(out) < n:
@@ -623,7 +657,8 @@ def card_info(player, mid):
     elif t == 'duo':
         note, hot = ' + '.join(MUTATIONS[r]['name'] for r in m['requires']), True
     elif t == 'evo':
-        note, hot = f'{fam["name"]} 갈래 진화', True
+        pair = duo_partner(player, fam_id)                 # 합성의 짝을 카드에서 알 수 있게 (2026-11-26)
+        note, hot = (f'합성 짝: {MUTATIONS[pair[1]]["name"]}' if pair else f'{fam["name"]} 갈래 진화'), True
     elif fam_id in GAUGE_FAMILIES:
         hot = family_count(player, fam_id) + 1 >= 2
         note = ('계열 효과 켜짐: ' if hot else '같은 계열 2개면: ') + fam['set']
@@ -637,6 +672,8 @@ def card_info(player, mid):
             note, hot = f'진화 열림: {name}', True
         else:
             note = f'진화까지 {left}개: {name}'
+            pair = duo_partner(player, fam_id)
+            hot = bool(pair and has(player, pair[1]))      # 가진 진화의 합성 짝 갈래: 금색으로 눈에 띄게
     if fam_id == 'chain_gather' and t == 'base' and family_count(player, 'chain_gather') == 0:
         note = '모으기 갈래를 얻으면 사슬이 적을 끌어옵니다'      # v8: 사슬의 기본은 타격, 당기기는 이 갈래부터
     weapon = fam.get('weapon')

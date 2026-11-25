@@ -247,6 +247,75 @@ def test_every_card_text_fits_the_card():
             assert lines <= 2, (mid, mu.card_info(p, mid)['note'])           # 진화: '무기 장착 시 적용 · 갈래 진화' 두 줄까지
 
 
+# ===================== 2026-11-26 카드 뽑기: 든 무기만, 짝이 정해진 합성을 더 자주 =====================
+def _loadout(first, second):
+    p = tc.make_world()[1]
+    p.set_loadout(first, second)
+    return p
+
+
+def test_cards_of_weapons_not_held_are_never_offered():
+    """안 든 무기의 증강은 카드에 나오지 않는다 (사용자 결정: 고를 수 없는 카드를 없앤다). 철파이프도 들지 않았으면 나오지 않는다."""
+    for held in (('pipe', 'pistol'), ('pistol', 'gauntlet'), ('gauntlet', 'chain')):
+        p = _loadout(*held)
+        rng = random.Random(7)
+        for _ in range(300):
+            for m in mu.offer(p, rng):
+                weapon = mu.FAMILIES[mu.MUTATIONS[m]['family']].get('weapon')
+                assert weapon is None or weapon in held, (held, m)
+    p = _loadout('pistol', 'gauntlet')                     # 예전에 얻어 둔 다른 무기의 진화·합성도 특별 칸에 나오지 않는다
+    for m in ('gather_more', 'gather_stun'):
+        mu.give(p, m)
+    rng = random.Random(8)
+    assert not any(m == 'gather_evo' for _ in range(100) for m in mu.offer(p, rng))
+
+
+def test_a_paired_duo_takes_the_special_card_before_the_any_two_duos():
+    """짝이 정해진 합성이 열려 있으면 특별 칸은 그것이 먼저 차지한다 ('다른 무기의 진화 둘' 합성 두 종에 밀려 못 보는 일이 없게)."""
+    p = _loadout('pipe', 'pistol')
+    for m in ('combo_evo', 'dash_evo', 'rapid_evo'):       # 분신 연타(짝) + 각인 폭풍·교체 연무(아무 진화 둘)가 모두 열린다
+        mu.give(p, m)
+    assert all(mu.available(p, m) for m in ('duo_echo_combo', 'duo_imprint_storm', 'duo_swap_mist'))
+    rng = random.Random(9)
+    assert all('duo_echo_combo' in mu.offer(p, rng) for _ in range(40))
+
+
+def test_the_partner_family_of_an_owned_evolution_weighs_more():
+    """진화 하나를 가지면, 그 진화와 짝인 합성의 다른 갈래가 OFFER_PARTNER배 무겁게 나온다 (그 무기를 들고 있을 때만, 짝 진화를 얻기 전까지)."""
+    p = _loadout('pipe', 'gauntlet')
+    plain = mu._weight(p, 'crash_stun')
+    mu.give(p, 'air_evo')                                  # 낙뢰 내려찍기 + 연쇄 충돌 = 볼링 내려찍기
+    assert abs(mu._weight(p, 'crash_stun') - mu.OFFER_WEIGHTS['owned'] * mu.OFFER_PARTNER) < 1e-9
+    assert mu._weight(p, 'crash_stun') > plain
+    assert mu._weight(p, 'counter_power') == plain         # 짝이 아닌 갈래는 그대로
+    mu.give(p, 'crash_evo')
+    assert mu._weight(p, 'crash_stun') == mu.OFFER_WEIGHTS['owned']    # 짝 진화를 얻었으면 더 밀어 주지 않는다 (가진 갈래 무게)
+    p = _loadout('pipe', 'gauntlet')
+    mu.give(p, 'air_evo')
+    rng = random.Random(10)
+    boosted = sum(any(mu.MUTATIONS[m]['family'] == 'gauntlet_crash' for m in mu.offer(p, rng)) for _ in range(300))
+    q = _loadout('pipe', 'gauntlet')
+    rng = random.Random(10)
+    normal = sum(any(mu.MUTATIONS[m]['family'] == 'gauntlet_crash' for m in mu.offer(q, rng)) for _ in range(300))
+    assert boosted > normal * 1.5, (boosted, normal)
+
+
+def test_an_evolution_card_names_its_duo_partner():
+    """진화 카드 아래에는 합성의 짝(다른 진화의 이름)이 적힌다: 조합법을 카드에서 알 수 있게. 짝 무기를 들지 않았으면 예전 글 그대로."""
+    p = _loadout('pipe', 'gauntlet')
+    import mutation_mode
+    note = mu.card_info(p, 'air_evo')['note']
+    assert note == '합성 짝: 연쇄 충돌', note
+    assert len(mutation_mode._wrap(note, 16)) == 1
+    p = _loadout('pipe', 'pistol')
+    assert mu.card_info(p, 'air_evo')['note'] == '공중 갈래 진화'           # 건틀릿이 없으면 볼링 내려찍기를 만들 수 없다
+    p = _loadout('gauntlet', 'chain')                       # 소용돌이는 짝이 둘(헤이즈 붕괴·난사): 든 무기 쪽을 적는다
+    assert mu.card_info(p, 'gather_evo')['note'] == '합성 짝: 헤이즈 붕괴'
+    p = _loadout('pipe', 'gauntlet')
+    mu.give(p, 'air_evo')
+    assert mu.card_info(p, 'crash_stun')['hot']             # 짝 갈래의 기본 카드는 금색 안내로 눈에 띈다
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

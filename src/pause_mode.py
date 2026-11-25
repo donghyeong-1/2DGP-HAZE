@@ -142,8 +142,43 @@ def _draw_controls(x, y, w, h):
         kit.text(x + 250, ry + 15, what, (205, 215, 235), small=True)
 
 
+def form_rows(p):
+    """이번 판에 얻은 무기 형태: (형태 이름, 무기 이름, 지금 든 무기인가). 든 무기의 형태가 먼저."""
+    import forms
+    import mutations as mu
+    owned = getattr(p, 'forms', None) if p is not None else None
+    if not owned:
+        return []
+    held = [w.weapon_id for w in getattr(p, 'weapons', ()) if w is not None]
+    order = [wid for wid in held if wid in owned] + [wid for wid in forms.FORMS if wid in owned and wid not in held]
+    return [(forms.FORMS[wid]['name'], mu.WEAPON_NAMES.get(wid, wid), wid in held) for wid in order]
+
+
+def has_build(p):
+    """'이번 판' 카드에 보일 것이 있는가 (형태·증강·아이템)."""
+    if p is None:
+        return False
+    return bool(form_rows(p) or getattr(p, 'mutations', None) or p.items)
+
+
+def _draw_forms(p, x, ty, w):
+    """형태 줄들을 그리고 다음 줄의 y를 돌려준다."""
+    import forms
+    rows = form_rows(p)
+    if not rows:
+        return ty
+    assets.draw_rect_color(x + 28, ty + 2, w - 56, 2, forms.COLOR, 0.5)
+    kit.text(x + 28, ty + 20, '무기 형태', forms.COLOR, small=True)
+    ty -= 34
+    for name, weapon, on in rows:
+        kit.text(x + 48, ty + 15, name, (255, 225, 140) if on else kit.FAINT, small=True)
+        kit.text(x + w - 28, ty + 15, weapon if on else f'{weapon} 미장착', kit.FAINT, small=True, right=True)
+        ty -= 34
+    return ty - 18
+
+
 def _draw_build(x, y, w, h):
-    """이번 판: 변이(계열 색)와 업그레이드."""
+    """이번 판: 무기 형태, 증강(갈래 색), 아이템."""
     import play_mode
     import items
     import mutations as mu
@@ -151,10 +186,11 @@ def _draw_build(x, y, w, h):
     kit.card(x, y, w, h, '이번 판')
     ty = y + h - 110
     muts = list(getattr(p, 'mutations', [])) if p is not None else []
-    if not muts and not (p is not None and p.items):
+    if not has_build(p):
         kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', kit.FAINT, small=True)
         kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', kit.FAINT, small=True)
         return
+    ty = _draw_forms(p, x, ty, w)
     for fam_id, mids in (mu.grouped(p) if p is not None else []):     # v7: 갈래별로 묶어 보인다
         if ty < y + 60:
             break

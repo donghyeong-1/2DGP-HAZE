@@ -56,7 +56,7 @@ def test_three_gauntlet_families_with_three_bases_and_a_ready_evolution():
         assert len(base) == 3 and len(evo) == 1 and mu.MUTATIONS[evo[0]]['ready'], fam
 
 
-def test_charge_faster_harder_and_guarded():
+def test_charge_faster_and_harder():
     room, p = _armed()
     need = p.weapon.charge_need()
     room, p = _armed('charge_fast')
@@ -68,13 +68,7 @@ def test_charge_faster_harder_and_guarded():
         _full_charge(p)
         tc.run_frames(20)
         dealt.append(e.max_hp - e.hp)
-    assert dealt[1] > dealt[0] * 1.2
-    room, p = _armed('charge_guard')
-    assert mu.taken_mult(p) == 1.0
-    p.attack_held = True
-    p.request_attack()
-    tc.run_frames(2)
-    assert p.weapon.charging and mu.taken_mult(p) < 1.0                  # 충전하는 동안만 덜 아프다
+    assert dealt[1] > dealt[0] * 1.2                                     # v8: '버팀 자세'는 '쳐 내기'가 됐다 (test_augment_cleanup_v8)
 
 
 def test_collapse_evolution_bursts_around_the_first_hit():

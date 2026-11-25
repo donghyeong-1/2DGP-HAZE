@@ -125,10 +125,10 @@ def test_hollow_leech_heals_on_hit_in_fade():
 
 
 def test_hollow_dash_faster_recharge():
-    _room, p = world()
-    before = p.dash_recharge
+    _room, p = world(gauge=12.0)                                   # v8: 페이드 구간에서만 (대시 갈래 '가쁜 숨'과 겹치지 않게)
+    before = mu.dash_recharge_time(p)
     mu.give(p, 'hollow_dash')
-    assert abs(p.dash_recharge - before * mu.HOLLOW_DASH) < 1e-6
+    assert abs(mu.dash_recharge_time(p) - before * mu.HOLLOW_DASH) < 1e-6
 
 
 def test_hollow_floor_revives_once():

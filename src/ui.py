@@ -235,7 +235,8 @@ class GameUI:
             x = HP_X + i * 60
             kit.icon('hud_dash_on' if i < p.dash_slots else 'hud_dash_off', x, DASH_Y)
             if i == p.dash_slots and p.dash_slots < p.dash_max:
-                k = p.dash_charge / max(0.01, p.dash_recharge)
+                import mutations
+                k = min(1.0, p.dash_charge / max(0.01, mutations.dash_recharge_time(p)))
                 assets.draw_rect_color(x + 4, DASH_Y - 6, int(46 * k), 4, TEAL)
         self._draw_potions()
         self._draw_items()
@@ -293,7 +294,7 @@ class GameUI:
             keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active)
             if not active and p.weapons[p.slot] is not None:               # v8 교체기: 이 칸으로 바꾸면 기술이 나간다. 칸 위쪽 막대 = 쿨다운(다 차면 그 무기 색)
                 import combo
-                ratio = max(0.0, 1.0 - p.swap_cool / config.SWAP_COOLDOWN)
+                ratio = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))   # v8 교체 연무는 짧다
                 assets.draw_rect_color(x + 6, y + 2, int((SLOT - 12) * ratio) // 2 * 2, 4,
                                        combo.COLORS[wp.weapon_id] if ratio >= 1.0 else (96, 108, 130))
         # E 강화 칸

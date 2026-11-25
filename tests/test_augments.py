@@ -39,6 +39,9 @@ def test_every_augment_has_a_known_family_and_tier():
     assert len(duos) >= 2
     for mid in duos:
         req = mu.MUTATIONS[mid]['requires']
+        if mu.MUTATIONS[mid].get('any_evos'):                              # v8: 서로 다른 무기의 진화 둘이면 열리는 합성
+            assert req == () and mu.MUTATIONS[mid]['any_evos'] == 2, mid
+            continue
         assert len(req) == 2 and all(mu.MUTATIONS[r].get('tier') == 'evo' for r in req), mid
 
 

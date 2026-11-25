@@ -54,7 +54,9 @@ def keys(action):
 
 
 def action_for(key):
-    """이 키가 하는 동작 id. 아무것도 아니면 None."""
+    """이 키가 하는 동작 id. 아무것도 아니면 None. 빈 칸(None)은 어떤 동작의 키도 아니다."""
+    if key is None:
+        return None
     for a in IDS:
         if key in _keys[a]:
             return a

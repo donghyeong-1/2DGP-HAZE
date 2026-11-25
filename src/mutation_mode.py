@@ -8,6 +8,8 @@ from pico2d import (SDL_KEYDOWN, SDL_MOUSEBUTTONDOWN, SDL_MOUSEMOTION, SDL_QUIT,
                     SDLK_a, SDLK_d,
                     clear_canvas, get_events, update_canvas)
 
+import sys
+
 import assets
 import config
 import game_framework
@@ -114,6 +116,9 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
             return
+        if not choices:                                   # 고를 카드가 없다 (내놓을 증강이 바닥남 등): 튕기지 않고 닫는다
+            game_framework.pop_mode()
+            return
         if age < OPEN_TIME:                               # 올라오는 동안 누른 것은 무시 (공격 연타로 잘못 고르지 않게)
             continue
         if event.type in (SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN):
@@ -143,6 +148,12 @@ def handle_events():
 def update():
     global age
     age += game_framework.frame_time if getattr(game_framework, 'frame_time', 0) else 1 / 60
+    if not choices and game_framework.stack and game_framework.stack[-1] is _self():
+        game_framework.pop_mode()                         # 카드 없이 열렸다: 입력을 기다리지 않고 닫는다
+
+
+def _self():
+    return sys.modules[__name__]
 
 
 CORNER = 120               # 카드 테두리 그림(300x420)의 모서리 크기. 가운데 9칸 자르기 (Codex T44)

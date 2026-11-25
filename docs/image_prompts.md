@@ -329,3 +329,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-25 [Claude Code] PixelLab(v6 방식)으로 최종 보스 아크를 다시 만듦. Gemini G02 원화를 글로 옮김: 키 크고 마른 감시탑 총감시관, 발목까지 오는 검은 군용 코트와 청록 안감, 높은 깃, 청록 마름모 배지의 검은 챙모자, 창백한 얼굴과 빛나는 청록 눈, 어깨·팔뚝 장갑의 청록 결정, 가슴·허리의 청록 약병, 앞손의 가는 검은 지휘봉. 동작은 패턴마다 "예고 자세를 잠깐 유지 -> 실행 자세를 유지"로 지시. 영문 프롬프트 전문·seed·고른 프레임은 `assets/sprites/pixellab/ark_v6/GENERATION_LOG.md`.
 
 2026-11-25 [Claude Code] PixelLab(v6 방식)으로 헤이즈 심장을 다시 만듦. 본체: 정면에서 본 좌우 대칭 요새형 기계의 **왼쪽 절반만**(가운데 절단선이 캔버스 오른쪽 끝) 그리게 해 뒤집어 붙임. 가운데 장갑 문과 청록 이음매, 날개 문장, 볼트 기둥, 청록 띠가 있는 날개 블록, 위쪽 굵은 관, 계단형 받침. 문이 열려 결정이 드러나는 동작과 결정이 깨지며 꺼지는 동작. 손: 손바닥이 보이는 거대한 기계 오른손, 통통한 손가락 넷과 엄지, 손바닥의 큰 청록 결정, 손목 고리. 영문 프롬프트 전문·seed·고른 프레임은 `assets/sprites/pixellab/heart_core_v6/GENERATION_LOG.md`, `heart_hand_v6/GENERATION_LOG.md`.
+
+2026-11-25 [Claude Code] PixelLab으로 은신처 대화 초상화를 새 몸 그림에 맞춰 다시 만듦(화풍 기준 = 주인공 초상화). 왼쪽을 보는 3/4 흉상: 정비사(올린 머리·이마의 주황 고글·올리브 작업복·회색 의수·어깨 뒤 렌치), 보관인(갈색 두건·회색 수염·등의 자물쇠 궤짝), 기록관(헝클어진 갈색 머리·둥근 안경·귀의 연필·회청색 셔츠·장부). 표정 2는 "표정만 바꾸고 나머지는 그대로"로 글 편집(씩 웃음·걱정·놀람·결의). 전문은 `assets/sprites/pixellab/portraits_v6/GENERATION_LOG.md`.

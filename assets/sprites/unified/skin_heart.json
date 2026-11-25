@@ -1,0 +1,48 @@
+{
+ "frames": {
+  "v6_heart_core": [
+   3,
+   450,
+   462
+  ],
+  "v6_heart_core_hurt": [
+   1,
+   450,
+   462
+  ],
+  "v6_heart_core_dying": [
+   2,
+   450,
+   462
+  ],
+  "v6_heart_hand_idle": [
+   2,
+   130,
+   185
+  ],
+  "v6_heart_hand_fist": [
+   2,
+   130,
+   185
+  ],
+  "v6_heart_hand_palm": [
+   2,
+   130,
+   130
+  ],
+  "v6_heart_hand_stun": [
+   2,
+   130,
+   250
+  ]
+ },
+ "skin": {
+  "heart_core": "v6_heart_core",
+  "heart_core_hurt": "v6_heart_core_hurt",
+  "heart_core_dying": "v6_heart_core_dying",
+  "heart_hand_idle": "v6_heart_hand_idle",
+  "heart_hand_fist": "v6_heart_hand_fist",
+  "heart_hand_palm": "v6_heart_hand_palm",
+  "heart_hand_stun": "v6_heart_hand_stun"
+ }
+}

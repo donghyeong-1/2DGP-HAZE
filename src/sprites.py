@@ -251,6 +251,7 @@ RIM_COLOR = (110, 140, 185)
 def warm_outlines(names):
     """세트들의 모든 그림의 테두리 판을 미리 만든다 (큰 보스가 처음 그려질 때 멈칫하지 않게)."""
     for name in names:
+        name = SKIN.get(name, name)                    # 새 그림(v6)으로 바뀐 세트는 그 그림의 판을 만든다
         for n in range(1, count(name) + 1):
             assets.outline_image(path(name, n), OUTLINE_WIDTH, OUTLINE_COLOR, RIM_WIDTH, RIM_COLOR)
 

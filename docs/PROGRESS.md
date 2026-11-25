@@ -39,7 +39,7 @@
 - 3차 발표의 형식과 제출 마감 시각(날짜는 12/2).
 - 주인공 이름("화이트"는 임시, 화면에는 'N-09'만).
 - v8에서 넣은 수치는 모두 플레이 전 값이다(문지기, 적 빈틈, 도전방 시간, 큰 방 무리 수, 장치 피해, 합성 증강 배율, 초보자 모드 배율). 시뮬레이션 근거는 `docs/project/balance.md`.
-- 합성 증강(진화 둘이 조건)이 실제 판에서 얼마나 자주 열리는지 재지 않았다.
+- 합성 증강 빈도는 쟀다(11/25 augment_sim, 11/26 자세히: `docs/project/balance.md` '증강이 열리는 빈도'). 갈래를 챙겨 끝까지 깨면 49%가 합성을 보지만 **짝이 정해진 6종은 합쳐 3%**(나오는 것은 교체 연무·각인 폭풍뿐). 짝 갈래를 더 자주 내고 재료를 카드에 보여 줄지 사용자 결정 대기.
 - 음악·효과음을 직접 들어 본 평가가 없다.
 - PixelLab 체험판 생성물의 이용 조건.
 
@@ -396,3 +396,4 @@
 2026-11-26 [Claude Code] G04 적용 여부 결정 기록: 사용자가 지금 초상화 유지를 고름, G04 새 5장은 원화로 보관 / docs/gemini/(TASKS.md, tasks/G04_portraits.md), docs/(DECISIONS, PROGRESS).md
 2026-11-26 [Claude Code] 주인공 대화 초상화 2장을 PixelLab으로 다시 만듦(사용자 요청): 기본 표정 시안 7장 중 b_s3 선택, 결의 표정은 얼굴만 편집, 실제 대화창에서 두 표정 확인. 54회 사용 / assets/portraits/n09_1~2.png, assets/sprites/pixellab/portraits_v6/(hero_gen/, raw_gen/, GENERATION_LOG.md), tools/apply_pixellab_portraits.py, docs/(PROGRESS, DECISIONS, ASSETS, image_prompts).md
 2026-11-26 [Claude Code] 주인공 대화 초상화를 사용자가 고른 시안(c_s5)으로 교체, 결의 표정을 그 그림에서 다시 편집, 실제 대화창 확인. 12회 사용 / assets/portraits/n09_1~2.png, assets/sprites/pixellab/portraits_v6/(hero_gen/, raw_gen/, GENERATION_LOG.md), tools/apply_pixellab_portraits.py, docs/(PROGRESS, DECISIONS).md
+2026-11-26 [Claude Code] 합성 증강 빈도 측정: augment_sim에 --detail(고르는 방식 넷, 구역별 누적, 무기 조합별, 합성별)을 넣어 600판. 합성을 본 판 random 10%·casual 26%·focus 49%, 짝이 정해진 6종은 focus 3%. 뽑기 규칙 실험 셋(A·B·C) 결과도 기록. 게임 규칙은 바꾸지 않음 / tools/augment_sim.py, docs/project/balance.md, docs/PROGRESS.md

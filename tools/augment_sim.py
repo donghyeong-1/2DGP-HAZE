@@ -7,9 +7,13 @@
 
 고르는 방식
   random  아무 카드나
+  casual  두 번에 한 번은 focus처럼, 나머지는 아무 카드나 (갈래를 대충 챙기는 사람. --detail에서만)
   focus   합성 > 진화 > 이미 가진 갈래의 기본 카드(진화에 가까워진다) > 든 무기의 카드 > 아무 카드
+  target  focus와 같되, 든 무기로 만들 수 있는 '짝이 정해진 합성' 하나를 정해 그 두 갈래의 카드를 먼저 고른다 (조합법을 아는 사람. --detail에서만)
 
 사용: python tools/augment_sim.py [--runs 300] [--zones 3]
+      python tools/augment_sim.py --detail [--runs 600]     # 구역별 누적·무기 조합별·합성 카드별 (2026-11-26)
+결과(2026-11-26, 600판 --detail)는 docs/project/balance.md '증강이 열리는 빈도'.
 """
 import argparse
 import collections
@@ -32,16 +36,19 @@ LOADOUTS = [('pipe', 'pistol'), ('pipe', 'gauntlet'), ('pipe', 'chain'), ('pisto
 
 
 def choose(player, cards, policy, rng):
-    if policy == 'random':
+    if policy == 'random' or (policy == 'casual' and rng.random() < 0.5):
         return rng.choice(cards)
     held = {w.weapon_id for w in player.weapons if w is not None}
+    aim = pair_families(held) if policy == 'target' else ()
 
     def score(mid):
         m, t = mu.MUTATIONS[mid], mu.tier(mid)
         fam = m['family']
         if t == 'duo':
-            return 4
+            return 6
         if t == 'evo':
+            return 5 if fam in aim else 4
+        if fam in aim and not mu.has(player, mu.evolution_of(fam)):
             return 3
         weapon = mu.FAMILIES[fam].get('weapon')
         if fam not in mu.GAUGE_FAMILIES and mu.base_count(player, fam) >= 1 and (weapon is None or weapon in held):
@@ -51,6 +58,17 @@ def choose(player, cards, policy, rng):
         return 0
     best = max(score(c) for c in cards)
     return rng.choice([c for c in cards if score(c) == best])
+
+
+def pair_families(held):
+    """든 무기로 만들 수 있는 '짝이 정해진 합성' 가운데 첫 번째의 두 갈래 (없으면 빈 튜플)."""
+    for mid, m in mu.MUTATIONS.items():
+        if mu.tier(mid) != 'duo' or not m.get('requires'):
+            continue
+        fams = [mu.MUTATIONS[r]['family'] for r in m['requires']]
+        if all(mu.FAMILIES[f].get('weapon') in (None, *held) for f in fams):
+            return tuple(fams)
+    return ()
 
 
 def run(seed, loadout, policy, zones):
@@ -76,7 +94,39 @@ def run(seed, loadout, policy, zones):
                     first[t] = (picks, i + 1)
             mu.give(p, choose(p, cards, policy, rng))
     got = collections.Counter(mu.tier(m) for m in mu.owned(p))
+    got['duo_ids'] = [m for m in mu.owned(p) if mu.tier(m) == 'duo']
     return picks, first, got
+
+
+def detail(runs, zones):
+    """고르는 방식마다: 구역을 몇 개 깼을 때까지 합성 카드를 봤는가(누적), 무기 조합별, 어떤 합성을 얻었는가."""
+    names = {'pipe': '파이프', 'pistol': '쌍권총', 'gauntlet': '건틀릿', 'chain': '사슬'}
+    for policy in ('random', 'casual', 'focus', 'target'):
+        seen_zone, evo_zone = collections.Counter(), collections.Counter()
+        by_load = collections.defaultdict(lambda: [0, 0, 0])            # 조합 -> [판 수, 합성 카드를 본 판, 합성을 얻은 판]
+        duo_ids = collections.Counter()
+        for k in range(runs):
+            load = LOADOUTS[k % len(LOADOUTS)]
+            n, first, got = run(1000 + k, load, policy, zones)
+            if 'duo' in first:
+                seen_zone[first['duo'][1]] += 1
+            if 'evo' in first:
+                evo_zone[first['evo'][1]] += 1
+            row = by_load[load]
+            row[0] += 1
+            row[1] += 'duo' in first
+            row[2] += bool(got['duo_ids'])
+            duo_ids.update(got['duo_ids'])
+        print(f'[{policy}]')
+        cum_e = cum_d = 0
+        for z in range(1, zones + 1):
+            cum_e += evo_zone[z]
+            cum_d += seen_zone[z]
+            print(f'  구역 {z}을 깰 때까지: 진화 카드를 본 판 {cum_e / runs:.0%}, 합성 카드를 본 판 {cum_d / runs:.0%}')
+        for load, (n, seen, owned) in by_load.items():
+            print(f'  {names[load[0]]}+{names[load[1]]}: 합성 카드를 본 판 {seen / n:.0%}, 얻은 판 {owned / n:.0%}')
+        top = ', '.join(f"{mu.MUTATIONS[m]['name']} {c / runs:.0%}" for m, c in duo_ids.most_common())
+        print(f'  얻은 합성(판 대비): {top or "없음"}')
 
 
 def main():
@@ -84,9 +134,14 @@ def main():
     ap.add_argument('--runs', type=int, default=300)
     ap.add_argument('--zones', type=int, default=3)
     ap.add_argument('--weight', type=int, default=None, help='실험: 증강 보상의 무게 (지금 값은 mutations.REWARD_WEIGHTS)')
+    ap.add_argument('--detail', action='store_true', help='구역별 누적·무기 조합별·합성 카드별로 본다')
     a = ap.parse_args()
     if a.weight is not None:
         mu.REWARD_WEIGHTS['mutation'] = a.weight
+    if a.detail:
+        print(f'{a.runs}판, 구역 {a.zones}개까지, 무기 조합 {len(LOADOUTS)}가지를 번갈아 (자세히)')
+        detail(a.runs, a.zones)
+        return
     print(f'{a.runs}판, 구역 {a.zones}개까지, 무기 조합 {len(LOADOUTS)}가지를 번갈아')
     for policy in ('random', 'focus'):
         picks, evo, duo, evo_at, duo_at, evos, duos = [], 0, 0, [], [], 0, 0

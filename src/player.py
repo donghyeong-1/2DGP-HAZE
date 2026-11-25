@@ -569,6 +569,10 @@ class Player(TileBody):
             index = 1 - self.slot
         if self.weapons[index] is None or index == self.slot and self.weapon is self.weapons[index]:
             return False
+        import curse
+        if curse.locks_swap(self):                       # 저주 '굳은 손': 교체할 수 없다
+            assets.play_sound('ui_move')
+            return False
         if hasattr(self.weapon, 'on_put_away'):
             self.weapon.on_put_away()                    # 건틀릿: 충전·돌진을 끊는다
         self.slot = index
@@ -694,6 +698,9 @@ class Player(TileBody):
             mutations.on_overload(self)                                   # 변이 '불씨 폭주'
             self.hp = max(0, self.hp - _easy_damage(int(self.max_hp * config.OVERLOAD_DAMAGE_RATIO * self.overload_mult
                                                         * mutations.overload_mult(self))))
+            import curse
+            if curse.kills_on_overload(self):                             # 저주 '시한폭탄'
+                self.hp = 0
             if self.hp <= 0 and self.state != 'DEAD':
                 import killers
                 self.death_cause = killers.OVERLOAD

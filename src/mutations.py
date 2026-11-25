@@ -500,7 +500,8 @@ def on_air_hit(player):
 
 
 def damage_mult(player):
-    return BLOOM_CRIT if has(player, 'bloom_crit') and _zone(player) == 'AWAKE' else 1.0
+    import curse
+    return (BLOOM_CRIT if has(player, 'bloom_crit') and _zone(player) == 'AWAKE' else 1.0) * curse.damage_mult(player)
 
 
 def overload_mult(player):
@@ -508,7 +509,8 @@ def overload_mult(player):
 
 
 def taken_mult(player):
-    return EMBER_GUARD if has(player, 'ember_guard') and _zone(player) == 'CRITICAL' else 1.0
+    import curse
+    return (EMBER_GUARD if has(player, 'ember_guard') and _zone(player) == 'CRITICAL' else 1.0) * curse.taken_mult(player)
 
 
 def kill_extra(player, enhanced=False):

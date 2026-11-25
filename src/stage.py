@@ -254,6 +254,8 @@ class Stage:
             choices = mutations.offer(p, rng)                           # 내놓을 형태가 없으면 증강 셋으로 대신한다
             if not choices:
                 return
+            import curse
+            choices = curse.mix_in(p, choices, rng)                     # 가끔 한 장이 저주 카드 (src/curse.py)
             if self.on_mutation:
                 self.on_mutation(choices)
             else:
@@ -743,6 +745,13 @@ class Stage:
                     self.player.run_ends += 1
             if self.on_clear:
                 self.on_clear(self)
+            if p is not None:                      # 저주 증강: 전투방을 하나 깼다. 풀렸으면 보상을 알린다 (src/curse.py)
+                import curse
+                got = curse.on_room_clear(p, random.Random(f'{self.seed}:{self.coord}:curse'))
+                if got is not None:
+                    self._say(curse.reward_text(got))
+                    assets.play_sound('enhance')
+                    effects.float_text(p.center[0], p.center[1] + 150, curse.reward_text(got), curse.REWARD_COLOR, big=True, life=1.6)
             won = ch is not None and ch['left'] > 0                 # v8 도전 성공: 보상이 커진다
             if won:
                 self._say('도전 성공 · 보상이 커집니다')

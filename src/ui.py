@@ -215,6 +215,13 @@ class GameUI:
         kit.text(x0, LABEL_Y, label, ZONE_COLOR[g.zone])
         if extra:
             kit.text(x0 + lw + 24, LABEL_Y - 1, extra, ecolor, small=True)
+        import curse
+        cid = curse.active(self.player)
+        if cid:                                                    # 저주 증강: 걸린 저주와 남은 전투방 (이름표 띠 아래)
+            text = f'저주 · {curse.CURSES[cid]["short"]} · 전투방 {curse.rooms_left(self.player)}'
+            tw = assets.text_width(text, True)
+            kit.tag(W // 2 - tw // 2 - 30, LABEL_Y - 62, tw + 60)
+            kit.text(W // 2, LABEL_Y - 43, text, curse.COLOR, small=True, center=True)
 
     # ----- 왼쪽 위: 체력·대시·업그레이드 -----
     def _draw_vitals(self):

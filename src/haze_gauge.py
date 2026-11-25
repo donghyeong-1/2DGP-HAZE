@@ -29,6 +29,7 @@ class HazeGauge:
         self.cost_cut = 0          # 변이로 깎인 강화 비용 (mutations 'tide_cost')
         self.enhance_time_mult = 1.0   # 강화 준비 시간 배율 (강화 계열 시너지)
         self.filters = []          # 바뀌는 양을 고치는 함수 목록: f(게이지, 양) -> 양 (변이 시너지)
+        self.gain_mult = 1.0       # 적중·처치로 얻는 양의 배율 (저주 '메마름', src/curse.py)
         self.rescue = None         # 0이 되는 순간 한 번 부르는 함수: f(게이지) -> 버텼으면 True (변이 '마지막 숨')
         self.enhance_timer = 0.0   # 강화 일격 준비가 남은 시간 (0이면 준비 안 됨)
         self.enhance_level = 0     # 쌓인 강화 단계 (0~ENHANCE_MAX_LEVEL). E를 누를 때마다 +1, 공격 한 번에 모두 쓰인다
@@ -70,6 +71,8 @@ class HazeGauge:
         if delta < 0 and reason in config.EASY_GAUGE_LOSS_REASONS:
             import options
             delta *= options.gauge_loss_mult()          # v8 초보자 모드: 피격·시간 경과로 줄어드는 양만 완화
+        if delta > 0 and reason in ('hit', 'kill'):
+            delta *= self.gain_mult
         for f in self.filters:
             delta = f(self, delta)
         self.value += delta

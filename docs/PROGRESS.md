@@ -21,7 +21,7 @@
 - **3차(최종) 발표: 12/2(수)** (11/25 사용자 전달). 형식과 제출 마감은 아직 확인하지 못했다. 1·2차와 같다면 영상 + PPT, YouTube 링크와 GitHub 주소를 e-class에, 마감은 **12/2 0시 1분(12/1 밤)**. 초안은 `docs/project/presentation_3rd_draft.md`, 제출 전 점검표는 `docs/project/submission-checklist.md`.
 
 ## 다음 할 일 (12/2 발표 기준, 위에서부터. 2026-11-25 다시 정리)
-1. [ ] **(사용자) 플레이 확인**: `docs/project/playtest-guide.md`(25분) + 새 저장으로 한 판 끝까지. 볼 것: 문지기(체력 480·증원), 적 빈틈 0.35초, 도전방 시간(10초 + 적 하나당 3.5초), 큰 방·이벤트 방·장치, 합성 증강, 초보자 모드. 의견을 주면 Claude Code가 수치를 고친다.
+1. [ ] **(사용자) 플레이 확인**: `docs/project/playtest-guide.md`(25분) + 새 저장으로 한 판 끝까지. 볼 것: 문지기(체력 480·증원), 적 빈틈 0.35초, 도전방 시간(10초 + 적 하나당 3.5초), 큰 방·이벤트 방·장치, 합성 증강, 초보자 모드. 의견을 주면 Claude Code가 수치를 고친다. **11/26 추가로 볼 것: 저주 증강(증강 카드에 가끔 섞이는 붉은 카드. 고르면 화면 위 게이지 아래에 저주와 남은 전투방이 뜬다), 진화 카드의 '합성 짝' 안내, 새 이펙트(적 탄환·광선·파동, 쌍권총 탄환).**
 2. [ ] **(사용자) 3차 발표 형식 확인**: 영상 길이, PPT 쪽수, 제출 마감 시각.
 3. [ ] **(Claude Code) 3차 발표 자료**: 초안 완료(11/25) `docs/presentation_3rd.pptx`(10장), `docs/script_3rd.md`(대본·촬영 순서·제출 체크리스트). 1차와 같은 형식(PPT 10쪽 이내 + 영상 1분 30초)으로 가정했다. 형식이 확인되면 `tools/make_presentation_3rd.py`를 고쳐 다시 만들고, 게임이 바뀌면 화면을 다시 찍는다. **(사용자) 한 번 열어 보고 고칠 곳을 알려 주기.**
 4. [ ] **(사용자) 데모 촬영 → YouTube 업로드 → e-class 제출.** CC-BY 곡을 쓰면 영상 설명란에 곡명·작가·라이선스.
@@ -38,6 +38,7 @@
 ## 열린 질문
 - 3차 발표의 형식과 제출 마감 시각(날짜는 12/2).
 - 주인공 이름("화이트"는 임시, 화면에는 'N-09'만).
+- **저주 증강(11/26)의 수치도 플레이 전 값**: 나올 확률 30%, 기간 2~3방, 공격력 -20%·흡수 -40%·한계 -30·피해 2배. 등급 3 저주가 실제로 얼마나 위험한지 모른다(`docs/DECISIONS.md` 11/26).
 - v8에서 넣은 수치는 모두 플레이 전 값이다(문지기, 적 빈틈, 도전방 시간, 큰 방 무리 수, 장치 피해, 합성 증강 배율, 초보자 모드 배율). 시뮬레이션 근거는 `docs/project/balance.md`.
 - 합성 증강 빈도는 쟀다(11/25 augment_sim, 11/26 자세히: `docs/project/balance.md` '증강이 열리는 빈도'). 갈래를 챙겨 끝까지 깨면 49%가 합성을 보지만 짝이 정해진 6종이 합쳐 3%였다 -> 11/26 카드 뽑기를 손봐 focus 10%, 카드의 '합성 짝' 안내를 따르면 약 50%. 실제 플레이에서 체감이 어떤지는 아직 모른다.
 - 음악·효과음을 직접 들어 본 평가가 없다.
@@ -398,3 +399,4 @@
 2026-11-26 [Claude Code] 주인공 대화 초상화를 사용자가 고른 시안(c_s5)으로 교체, 결의 표정을 그 그림에서 다시 편집, 실제 대화창 확인. 12회 사용 / assets/portraits/n09_1~2.png, assets/sprites/pixellab/portraits_v6/(hero_gen/, raw_gen/, GENERATION_LOG.md), tools/apply_pixellab_portraits.py, docs/(PROGRESS, DECISIONS).md
 2026-11-26 [Claude Code] 합성 증강 빈도 측정: augment_sim에 --detail(고르는 방식 넷, 구역별 누적, 무기 조합별, 합성별)을 넣어 600판. 합성을 본 판 random 10%·casual 26%·focus 49%, 짝이 정해진 6종은 focus 3%. 뽑기 규칙 실험 셋(A·B·C) 결과도 기록. 게임 규칙은 바꾸지 않음 / tools/augment_sim.py, docs/project/balance.md, docs/PROGRESS.md
 2026-11-26 [Claude Code] 증강 카드 뽑기 손질(사용자 결정): 안 든 무기의 증강 제외, 짝이 정해진 합성 우선, 짝 갈래 3배, 진화 카드에 '합성 짝' 표시. 테스트 4개를 먼저 쓰고 구현, 600판 다시 측정, 실제 창에서 카드 화면 확인 / src/mutations.py, tests/(test_duo_v8, test_augments).py, tools/augment_sim.py, docs/project/balance.md, docs/(PROGRESS, DECISIONS).md
+2026-11-26 [Claude Code] 저주 증강 추가(사용자 제안·설계 확인): src/curse.py에 저주 6종·등급 3·보상, 걸이(공격력·받는 피해·게이지 흡수·게이지 한계·무기 교체·오버로드 사망), 방 보상 카드에 섞기와 전투방 세기(stage), 카드 화면과 HUD 표시. 테스트 12개를 먼저 쓰고 구현, 실제 창에서 카드 -> 선택 -> 방 셋 -> 풀림·보상 확인, 600판 측정(저주를 늘 고르면 합성을 얻는 판 53% -> 75%) / src/(curse, mutations, haze_gauge, items, player, stage, mutation_mode, ui).py, tests/test_curses.py, tools/augment_sim.py, docs/project/balance.md, docs/(PROGRESS, DECISIONS, changes_from_plan).md

@@ -14,6 +14,7 @@ import assets
 import config
 import game_framework
 import hud_kit as kit
+import curse
 import events
 import forms
 import mutations as mu
@@ -49,6 +50,13 @@ def choose():
         cx, cy = player.center
         effects.float_text(cx, cy + 110, text, color, big=True, life=1.2)
         return follow
+    if mid.startswith(curse.CARD):                        # 저주 증강: 저주가 바로 걸린다 (보상은 전투방을 깬 뒤)
+        text, color = curse.take(player, mid)
+        assets.play_sound('warn_high')
+        import effects
+        cx, cy = player.center
+        effects.float_text(cx, cy + 110, text, color, big=True, life=1.4)
+        return
     if mid.startswith(forms.CARD):                        # v8 무기 형태 카드
         name, color = forms.take_card(player, mid)
         assets.play_sound('enhance')
@@ -236,7 +244,35 @@ def _draw_event_card(i, mid):
         kit.text(x + CARD_W // 2, y + 84, info.get('why', '선택할 수 없습니다'), (255, 150, 150), center=True, small=True)
 
 
+def _draw_curse_card(i, mid):
+    """저주 증강 카드: 위에 '저주' 띠, 이름, 기간, 저주의 내용. 아래에 '보상 ???'와 등급(결정 1~3개)."""
+    info = curse.card_info(player, mid)
+    hot = i == selected
+    k = min(1.0, age / OPEN_TIME)
+    x = card_x(i)
+    y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
+    color = info['color']
+    if hot:
+        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))
+    draw_frame(x, y, CARD_W, CARD_H, 'legendary' if info['grade'] >= 3 else 'rare')
+    img = assets.image('ui/mut_ember.png')
+    assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
+    kit.text(x + CARD_W // 2, y + CARD_H - 54, '저주', color, center=True, small=True)
+    kit.text(x + CARD_W // 2, y + CARD_H - 200, info['name'], (240, 244, 252), center=True, big=True)
+    kit.text(x + CARD_W // 2, y + CARD_H - 250, info['sub'], color, center=True, small=True)
+    for j, line in enumerate(_wrap(info['desc'], 13)):
+        kit.text(x + CARD_W // 2, y + CARD_H - 300 - j * 30, line, (205, 215, 235), center=True, small=True)
+    n = info['grade']                                     # 보상의 등급: 결정 아이콘 1~3개
+    for g in range(n):
+        kit.icon('uc_diamond', x + CARD_W // 2 - (n * 26 - 6) // 2 + g * 26, y + 110)
+    kit.text(x + CARD_W // 2, y + 84, info['reward'], curse.REWARD_COLOR, center=True, small=True)
+
+
 def _draw_card(i, mid):
+    if mid.startswith(curse.CARD):
+        _draw_curse_card(i, mid)
+        return
     if mid.startswith(events.CARD):
         _draw_event_card(i, mid)
         return

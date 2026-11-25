@@ -13,6 +13,7 @@
 
 사용: python tools/augment_sim.py [--runs 300] [--zones 3]
       python tools/augment_sim.py --detail [--runs 600]     # 구역별 누적·무기 조합별·합성 카드별 (2026-11-26)
+      python tools/augment_sim.py --curse [--runs 600]      # 저주 증강을 고르는 정도에 따라 (--detail과 기본 출력은 저주 없이 잰다)
 결과(2026-11-26, 600판 --detail)는 docs/project/balance.md '증강이 열리는 빈도' (카드 뽑기 손질 전후).
 """
 import argparse
@@ -71,11 +72,14 @@ def pair_families(held):
     return ()
 
 
-def run(seed, loadout, policy, zones):
+def run(seed, loadout, policy, zones, curses=0.0):
+    """curses: 저주 카드가 나왔을 때 고를 확률 (0이면 저주 카드를 섞지 않는다 = 2026-11-26 이전 규칙)."""
+    import curse
     rng = random.Random(f'augsim:{seed}:{policy}')
     p = Player(0, 0, None)
     p.set_loadout(*loadout)
     picks, first = 0, {}
+    taken = [0]
     for i, name in enumerate(STAGE_ORDER[:zones]):
         start, layout = mapgen.generate(name, seed + i)
         st = Stage(p, layout=layout, start=start, seed=seed + i, name=name)
@@ -83,19 +87,45 @@ def run(seed, loadout, policy, zones):
         st.sealed = {c for c, info in st.layout.items() if info.get('lane') and info['lane'] != lane}
         rooms = [(c, st.rewards[c]) for c in sorted(st.rewards) if c not in st.sealed]     # 큰 방·구역 보스 보상도 들어 있다
         for c, reward in rooms:
+            if curses:
+                curse.on_room_clear(p, random.Random(f'{seed}:{i}:{c}:curse'))      # 전투방 하나를 깼다: 저주가 풀리면 보상
             if reward != 'mutation':
                 continue
             cards = mu.offer(p, random.Random(f'{seed}:{i}:{c}'))
             if not cards:
                 continue
             picks += 1
+            if curses:
+                mixed = curse.mix_in(p, cards, random.Random(f'{seed}:{i}:{c}:mix'))
+                cursed = [m for m in mixed if m.startswith(curse.CARD)]
+                if cursed and rng.random() < curses:
+                    curse.take(p, cursed[0])
+                    taken[0] += 1
+                    continue
+                cards = [m for m in mixed if not m.startswith(curse.CARD)]
             for t in ('evo', 'duo'):
                 if t not in first and any(mu.tier(m) == t for m in cards):
                     first[t] = (picks, i + 1)
             mu.give(p, choose(p, cards, policy, rng))
     got = collections.Counter(mu.tier(m) for m in mu.owned(p))
     got['duo_ids'] = [m for m in mu.owned(p) if mu.tier(m) == 'duo']
+    got['curses'] = taken[0]
     return picks, first, got
+
+
+def curse_report(runs, zones):
+    """저주 카드를 늘 고르는 사람 / 절반만 고르는 사람 / 안 고르는 사람: 한 판에 얻는 진화·합성과 걸린 저주 수."""
+    for policy in ('casual', 'focus'):
+        for take in (0.0, 0.5, 1.0):
+            evo = duo = any_duo = n_curse = 0
+            for k in range(runs):
+                _n, _first, got = run(1000 + k, LOADOUTS[k % len(LOADOUTS)], policy, zones, curses=take or 1e-9)
+                evo += got['evo']
+                duo += got['duo']
+                any_duo += bool(got['duo_ids'])
+                n_curse += got['curses']
+            print(f'[{policy}] 저주 카드를 고를 확률 {take:.0%}: 판마다 저주 {n_curse / runs:.2f}번, 진화 {evo / runs:.2f}개, '
+                  f'합성 {duo / runs:.2f}개, 합성을 하나라도 얻은 판 {any_duo / runs:.0%}')
 
 
 def detail(runs, zones):
@@ -135,9 +165,14 @@ def main():
     ap.add_argument('--zones', type=int, default=3)
     ap.add_argument('--weight', type=int, default=None, help='실험: 증강 보상의 무게 (지금 값은 mutations.REWARD_WEIGHTS)')
     ap.add_argument('--detail', action='store_true', help='구역별 누적·무기 조합별·합성 카드별로 본다')
+    ap.add_argument('--curse', action='store_true', help='저주 증강(src/curse.py)을 고르는 정도에 따라 얻는 진화·합성')
     a = ap.parse_args()
     if a.weight is not None:
         mu.REWARD_WEIGHTS['mutation'] = a.weight
+    if a.curse:
+        print(f'{a.runs}판, 구역 {a.zones}개까지 (저주 증강)')
+        curse_report(a.runs, a.zones)
+        return
     if a.detail:
         print(f'{a.runs}판, 구역 {a.zones}개까지, 무기 조합 {len(LOADOUTS)}가지를 번갈아 (자세히)')
         detail(a.runs, a.zones)

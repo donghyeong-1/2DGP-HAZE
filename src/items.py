@@ -125,7 +125,8 @@ def apply(player, item_id):
     player.items.append(item_id)
     lv = level(player, item_id)
     if item_id == 'cap':
-        g.cap = min(config.GAUGE_CAP_MAX, config.GAUGE_CAP + 20 * lv)
+        import curse
+        g.cap = min(config.GAUGE_CAP_MAX, config.GAUGE_CAP + 20 * lv) - curse.cap_penalty(player)   # 저주 '좁아진 한계' 중이면 그만큼 낮게
     elif item_id == 'absorb':
         player.kill_bonus = 2 * lv
     elif item_id == 'steady':

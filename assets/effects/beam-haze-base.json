@@ -1,0 +1,17 @@
+{
+ "id": "fx/beam-haze-base",
+ "frames": 12,
+ "frameSize": [
+  100,
+  52
+ ],
+ "columns": 12,
+ "fps": 30,
+ "loop": true,
+ "pivot": [
+  50,
+  46
+ ],
+ "scale": 2,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

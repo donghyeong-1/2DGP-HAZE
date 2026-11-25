@@ -350,11 +350,11 @@ class Ark(Enemy):
         super().draw()
         if self.state == 'ATTACK' and self.attack_time < self._windup() and (self.pattern != 'slash' or self.teleported):
             k = min(1.0, self.attack_time / max(self._windup(), 0.01))   # 예고가 끝날수록 커진다
-            size = int(6 + 10 * k) // 2 * 2
-            hx, hy = int(self._hand()[0]), int(self._hand()[1])
+            hx, hy = self._hand()
             color = GLOW[self.pattern]
-            assets.draw_rect_color(hx - size, hy - size, size * 2, size * 2, color, 0.3)
-            assets.draw_rect_color(hx - size // 2, hy - size // 2, size, size, color, 0.85)
+            effects.draw_dot(hx, hy, color, 1 + int(k * 2.99), 0.6 + 0.4 * k)             # 둥근 빛이 점점 커진다
+            if int(self.attack_time * 20) % 2 == 0:
+                effects.draw_dot(hx, hy, color, 3, 0.25 * k)
 
     def _draw_hp_bar(self):
         pass                                                      # 보스 체력은 화면 위 큰 바(UI)

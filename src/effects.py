@@ -486,6 +486,99 @@ def draw_loop(name, x, y, t, flip=False):
     assets.draw_clip(img, left, bottom, fw, fh, dx, dy, 'h' if flip else '', s)
 
 
+# ----- 2026-11-26: 사각형으로 그리던 것들을 구운 시트로 (tools/make_fx2.py의 반복 시트·둥근 점) -----
+def draw_dot(x, y, color, size=1, alpha=1.0, glow=True):
+    """둥근 점 하나 (구운 'dots' 시트, 색은 여기서 입힌다): 예고 고리·조준선·소용돌이처럼 점을 늘어놓는 것들이 쓴다.
+    size 0~3 = 지름 약 6·10·14·20px. 번지는 빛(빛 층)을 먼저 깔고, 큰 점은 흰 심을 얹는다."""
+    info = sheet_info('dots')
+    fw, fh = info['frameSize']
+    s = info.get('scale', config.EFFECT_SCALE)
+    i = max(0, min(info['columns'] - 1, int(size)))
+    img = assets.image('effects/dots.png')
+    dx, dy = int(x) // 2 * 2 - fw * s // 2, int(y) // 2 * 2 - fh * s // 2
+    if glow:
+        assets.draw_clip_added(assets.image('light/glow_dots.png'), i * fw, 0, fw, fh, dx, dy, '', s,
+                               alpha * (0.5 if options.reduce_flash else 1.0), color)
+    img.opacify(alpha)
+    try:
+        assets.draw_clip_tinted(img, i * fw, fh, fw, fh, dx, dy, color, s)
+        assets.draw_clip(img, i * fw, 0, fw, fh, dx, dy, '', s)
+    finally:
+        img.opacify(1.0)
+
+
+def _loop_frame(name, t):
+    info = sheet_info(name)
+    fw, fh = info['frameSize']
+    i = int(t * info['fps']) % info['frames']
+    img = assets.image(f'effects/{name}.png')
+    cols = info['columns']
+    return info, img, fw, fh, (i % cols) * fw, img.h - (i // cols + 1) * fh
+
+
+def draw_beam(name, cx, y_bottom, y_top, t, base=None):
+    """세로 광선: 타일 시트(name)를 y_top에서 y_bottom까지 이어 붙인다 (마지막 칸은 필요한 만큼만 잘라 그린다).
+    base를 주면 바닥에 닿은 자리의 불꽃(반복 시트)을 그 위에 그린다."""
+    info, img, fw, fh, left, bottom = _loop_frame(name, t)
+    s = info.get('scale', config.EFFECT_SCALE)
+    px = info['pivot'][0]
+    glow = glow_of(name)
+    g = assets.image(glow) if glow else None
+    x = int(cx) // 2 * 2 - px * s
+    y = int(y_top) // 2 * 2
+    y_bottom = int(y_bottom) // 2 * 2
+    ga = GLOW_ALPHA * (0.5 if options.reduce_flash else 1.0)
+    while y > y_bottom:
+        rows = min(fh, (y - y_bottom) // s)                 # 이번 칸에서 그릴 줄 수 (타일의 위쪽부터)
+        if rows <= 0:
+            break
+        if g is not None:
+            assets.draw_clip_added(g, left, bottom + fh - rows, fw, rows, x, y - rows * s, '', s, ga)
+        assets.draw_clip(img, left, bottom + fh - rows, fw, rows, x, y - rows * s, '', s)
+        y -= rows * s
+    if base:
+        draw_loop(base, cx, y_bottom, t)
+
+
+def draw_strip(name, x0, y, w, t, alpha=1.0):
+    """바닥에 깔리는 띠: 타일 시트(name)를 x0에서 w만큼 가로로 이어 붙인다 (y = 바닥 윗면). alpha는 깔릴 때·걷힐 때의 옅어짐."""
+    info, img, fw, fh, left, bottom = _loop_frame(name, t)
+    s = info.get('scale', config.EFFECT_SCALE)
+    py = info['pivot'][1]
+    glow = glow_of(name)
+    g = assets.image(glow) if glow else None
+    x, end = int(x0) // 2 * 2, int(x0 + w) // 2 * 2
+    dy = int(y) - (fh - py) * s
+    ga = GLOW_ALPHA * alpha * (0.5 if options.reduce_flash else 1.0)
+    img.opacify(alpha)
+    try:
+        while x < end:
+            cols = min(fw, (end - x) // s)
+            if cols <= 0:
+                break
+            if g is not None:
+                assets.draw_clip_added(g, left, bottom, cols, fh, x, dy, '', s, ga)
+            assets.draw_clip(img, left, bottom, cols, fh, x, dy, '', s)
+            x += cols * s
+    finally:
+        img.opacify(1.0)
+
+
+def draw_warn(x0, y, w, color, alpha=1.0):
+    """바닥 예고 표시: 양 끝이 가늘어지는 얇은 띠(2px 칸) + 흰 심 + 띠를 따라 번지는 빛. 길이가 실행 중에 정해져 코드로 그린다."""
+    x0, y, w = int(x0) // 2 * 2, int(y) // 2 * 2, max(8, int(w) // 2 * 2)
+    img = assets.image('light/dot_48.png')
+    img.opacify(0.55 * alpha * (0.5 if options.reduce_flash else 1.0))
+    for gx in range(x0 + 12, x0 + w, 24):
+        assets.draw_image_added(img, gx, y + 2 - img.h // 2, color=color, times=1)
+    img.opacify(1.0)
+    assets.draw_rect_color(x0, y, w, 2, color, alpha)                                  # 긴 줄 (끝이 가늘다)
+    assets.draw_rect_color(x0 + 6, y, w - 12, 4, color, alpha)
+    assets.draw_rect_color(x0 + 14, y + 4, w - 28, 2, color, alpha)
+    if w > 44:
+        assets.draw_rect_color(x0 + 20, y + 2, w - 40, 2, (255, 255, 255), alpha)      # 흰 심
+
+
 def slash_variant(ax, ay, angles=(0, 45, 90, -45, -90)):
     """조준 벡터에 가장 가까운 휘두르기 방향 변형과 좌우 반전 여부를 돌려준다. 왼쪽 조준은 오른쪽 변형을 반전해 쓴다."""
     flip = ax < -1e-3
@@ -855,15 +948,14 @@ class AbsorbOrb:
         img.opacify(1.0)
         n = len(self.trail)
         for i, (tx, ty) in enumerate(self.trail):       # 꼬리: 뒤로 갈수록 작고 옅다 (2배 픽셀 격자)
-            s = 2 + 2 * (i * 2 // max(1, n))
-            assets.draw_rect_color(int(tx) // 2 * 2 - s // 2, int(ty) // 2 * 2 - s // 2, s, s, color, alpha=0.25 + 0.5 * i / n)
+            draw_dot(tx, ty, color, 0, alpha=0.25 + 0.5 * i / n, glow=False)
         x, y = int(self.x) // 2 * 2, int(self.y) // 2 * 2
         if self.kind == 'shard':                        # 조각: 청록 마름모(사각 2단)
             assets.draw_rect_color(x - 2, y - 8, 4, 16, color)
             assets.draw_rect_color(x - 8, y - 2, 16, 4, color)
             assets.draw_rect_color(x - 4, y - 4, 8, 8, (235, 255, 252))
         else:                                           # 게이지: 흰 빛 알갱이
-            assets.draw_rect_color(x - 5, y - 5, 10, 10, color)
+            draw_dot(x, y, color, 1, glow=False)
 
 
 def spawn_absorb(x, y, player, shards, gauge_orbs=3):

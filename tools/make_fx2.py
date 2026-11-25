@@ -998,7 +998,16 @@ STEAM_HEAT = [WHITE, (242, 247, 251), (226, 235, 242), (208, 220, 230), (186, 20
 STEAM_HOT = [WHITE] * 4 + STEAM_HEAT[1:6]                    # 처음 솟는 흰 심 (금방 식지 않는다)
 
 
+# 보스의 헤이즈 증기 (projectile.SteamVent): 같은 기둥을 청록으로. 흰 심 -> 옅은 청록 -> 짙은 청록
+HAZE_STEAM = [WHITE, (226, 255, 250), (190, 252, 243), (150, 244, 232), (110, 232, 220), (70, 206, 198), (40, 170, 170),
+              (22, 128, 138), (12, 92, 108)]
+
+
 def steam_create(o):
+    haze = o.get('tone') == 'haze'
+    STEAM_HEAT = HAZE_STEAM if haze else globals()['STEAM_HEAT']
+    STEAM_HOT = [WHITE] * 4 + STEAM_HEAT[1:6]
+    glow_color = (120, 240, 228) if haze else (196, 222, 236)
     rng = Rng(o['seed'])
     ps = Particles(rng, RAMPS[o['ramp']])
     ps.cool_pow = 1.8                                           # 오래 희게 (금방 회색이 되면 연기처럼 보인다): 희게 있다가 줄어들며 사라진다
@@ -1033,7 +1042,7 @@ def steam_create(o):
             t[0] += dt
             while later and later[0][0] <= t[0]:
                 _d, x, y, r, k, life = later.pop(0)
-                lights.add(x, y, r, (196, 222, 236), k, life)
+                lights.add(x, y, r, glow_color, k, life)
             ps.update(dt)
             lights.update(dt)
 
@@ -1131,6 +1140,7 @@ MISC = {
                     _simple(_death_setup, _death_draw)),
 }
 EFFECTS.update(MISC)
+EFFECTS['steam-jet-haze'] = (dict(STEAM_META, options=dict(ramp='haze', seed=67, tone='haze'), variant_seeds=[67, 73]), steam_create)
 # 궁극기 광역 폭발: 헤이즈 폭발(blast_create)을 무기 색·크기로 (오버로드 폭발은 아래 over_create)
 for _wid, _ramp, _seed in (('pipe', 'awake', 71), ('knife', 'fade', 72), ('pistol', 'mint', 73), ('gauntlet', 'ember', 74), ('chain', 'violet', 75)):
     EFFECTS['ult-nova-' + _wid] = (dict(size=[230, 230], origin=[115, 115], duration=0.66, fps=30, options=dict(ramp=_ramp, seed=_seed, k=1.25)),
@@ -1582,6 +1592,386 @@ def build_loop(name, look):
     print('구움', name, info['frames'], '프레임 (반복)')
 
 
+# =====================================================================================================
+# 사각형으로 그리던 것들을 시트로 (2026-11-26, haze-fx 절차): 적 탄환·광선·파동·오염 장판·낙뢰·결정 조각·둥근 점.
+# 반복 시트는 한 주기가 꼭 맞게 이어지도록 시간(ph = 0~1)의 주기 함수로만 그린다. 광선·장판은 세로·가로로 이어 붙이는 타일이다
+# (길이가 실행 중에 정해진다: 게임은 effects.draw_beam / draw_strip으로 필요한 만큼 이어 그린다).
+# =====================================================================================================
+RAMPS.setdefault('toxic', [fx.hexc(c) for c in ('#0c4a3a', '#1f9a70', '#46d2a0', '#aaffd2', '#ffffff')])   # 오염 장판 (아크)
+
+
+def _periodic(draw_fn):
+    """한 주기를 그리는 반복 이펙트: draw_fn(p, ph, R, o) (ph = 0~1). 입자 시뮬레이션 없이 주기 함수로만 그려 처음과 끝이 이어진다."""
+    def create(o):
+        R = RAMPS[o['ramp']]
+        t = [0.0]
+
+        class F:
+            def update(self, dt):
+                t[0] += dt
+
+            def draw(self, p):
+                draw_fn(p, (t[0] / o['period']) % 1.0, R, o)
+        return F()
+    return create
+
+
+def _frac(x):
+    return x - math.floor(x)
+
+
+# 헤이즈 탄환 (아크 탄막): 흰 심을 감싼 청록 덩이가 일렁이고, 작은 알갱이 셋이 둘레를 돈다. 방향이 없어 어느 쪽으로 날아도 된다
+def _orb_draw(p, ph, R, o):
+    wob = math.sin(TAU * ph)
+    p.glow(0, 0, 13, R[2], 150)
+    p.glow(0, 0, 6, R[3], 90 + 30 * wob)
+    p.blob(0, 0, 5.6 + 0.4 * wob, R[1], 0.3 + 0.08 * wob, rough=0.16)
+    p.blob(0, 0, 4.4 - 0.3 * wob, R[2], 0.7 + 0.08 * wob, rough=0.14)
+    p.disc(-0.5, -0.5, 2.6 + 0.3 * wob, R[3])
+    p.disc(-0.5, -0.5, 1.6, WHITE)
+    for i in range(3):                                           # 도는 알갱이: 한 주기에 1/3바퀴 (셋이라 이어진다)
+        a = TAU * (ph + i) / 3
+        r = 8.5 + 1.2 * math.sin(TAU * (ph * 2 + i / 3))
+        p.px(math.cos(a) * r, math.sin(a) * r * 0.8, WHITE if i == 0 else R[3])
+        p.px(math.cos(a - 0.35) * r, math.sin(a - 0.35) * r * 0.8, R[2])
+
+
+# 내리쏘는 광선 타일 (용접 드론의 불꽃, 심장 손의 광선): 흰 심 + 색 가장자리가 아래로 흐른다. 위아래로 이어 붙는다
+def _beam_draw(p, ph, R, o):
+    half, H = o['half'], o['tile']
+
+    def fn(X, Y):
+        u = Y / H
+        er = half * (1 + 0.10 * fx.np.sin(TAU * (2 * u - 2 * ph)) + 0.07 * fx.np.sin(TAU * (5 * u - 3 * ph) + 1.0)
+                     + 0.14 * (fx.np.sin(TAU * (9 * u - 5 * ph)) > 0.72))
+        el = half * (1 + 0.10 * fx.np.sin(TAU * (3 * u - 2 * ph) + 2.0) + 0.07 * fx.np.sin(TAU * (4 * u - 3 * ph) + 0.4)
+                     + 0.14 * (fx.np.sin(TAU * (8 * u - 5 * ph) + 1.7) > 0.72))
+        ax = fx.np.where(X >= 0, X / er, -X / el)
+        idx = fx.np.full(X.shape, -1)
+        idx[ax < 1.0] = 1
+        idx[ax < 0.84] = 2
+        idx[ax < 0.64] = 3
+        idx[ax < 0.46] = 4
+        for sx, m, n, off in ((-0.26, 2, 3, 0.0), (0.08, 1, 4, 1.7), (0.3, 2, 5, 3.1)):           # 심 안에서 아래로 흐르는 긴 결 세 줄
+            col = fx.np.abs(X - sx * half) < 0.5
+            idx[col & (ax < 0.46) & (fx.np.sin(TAU * (m * u - n * ph) + off) > 0.35)] = 3
+        return idx
+    p.shade(-half * 2, 0, half * 2, H, fn, R)
+    for i in range(6):                                           # 가장자리에서 떨어져 나와 아래로 흐르는 불티 (타일 위아래로 이어진다)
+        side = -1 if i % 2 else 1
+        y = _frac(i * 0.171 + ph * (1 if i < 3 else 2)) * H
+        x = side * half * (1.18 + 0.2 * math.sin(TAU * (ph + i * 0.3)) + 0.12 * (i % 3))
+        for yy in (y, y - H, y + H):
+            p.line(x, yy - 3, x, yy, R[2])
+            p.px(x, yy, R[3])
+    p.glow_line(0, -half * 3, 0, H + half * 3, half * 2.6, R[2], 150)
+    p.glow_line(0, -half * 3, 0, H + half * 3, half * 1.3, R[3], 90)
+
+
+# 광선이 바닥에 닿은 자리: 흰 불덩이가 일렁이고 불티가 양옆으로 튀며 누운 고리가 퍼진다
+def _beam_base_draw(p, ph, R, o):
+    half = o['half']
+    rng = Rng(o['seed'])
+    p.glow(0, -4, 34, R[2], 150)
+    p.glow(0, -3, 16, R[3], 110)
+    v = _frac(ph * 2)
+    p.ring(0, -2, half * 0.8 + half * 1.5 * out_expo(v), 2.0 * (1 - v) + 0.6, R[3], sy=0.24, a=1.0 if v < 0.5 else 2 - 2 * v, gaps=5,
+           phase=o['seed'])
+    for i in range(9):                                           # 바닥을 따라 낮게 타오르는 덩이
+        bx = (i - 4) * half * 0.36 + rng.range(-1.5, 1.5)
+        beat = 0.5 + 0.5 * math.sin(TAU * (ph * (2 if i % 2 else 3) + rng.range(0, 1)))
+        r = (half * 0.42) * (1 - abs(i - 4) / 6.5) * (0.6 + 0.4 * beat)
+        if r >= 0.9:
+            p.blob(bx, -r * 0.9, r + 1.0, R[1], i + beat * 0.2, rough=0.2)
+            p.blob(bx, -r * 0.9, r, R[2] if abs(i - 4) > 1 else R[3], i + 1.3 + beat * 0.2, rough=0.2)
+    p.blob(0, -half * 0.3, half * 0.34 + 0.6 * math.sin(TAU * ph * 3), WHITE, 0.4, rough=0.16)
+    for i in range(12):                                          # 튀는 불티: 저마다 다른 때에 나가 포물선으로 떨어진다
+        off, cyc = rng.range(0, 1), rng.pick((1, 2))
+        ang = rng.range(0.2, 1.15)
+        side = -1 if i % 2 else 1
+        sp = rng.range(70, 150)
+        s = _frac(ph * cyc + off)
+        life = 0.34
+
+        def pos(q):
+            tt = q * life
+            return side * (half * 0.5 + math.cos(ang) * sp * tt), -(3 + math.sin(ang) * sp * tt - 0.5 * fx.GRAVITY * tt * tt)
+        if s > 0.1:
+            (x0, y0), (x1, y1) = pos(s - 0.1), pos(s)
+            if y1 < 1:
+                p.line(x0, y0, x1, y1, R[2] if s > 0.6 else R[3])
+                p.px(x1, y1, WHITE if s < 0.6 else R[3])
+
+
+# 게이지 파동 (아크): 바닥을 달리는 낮은 불길 벽. 나아가는 쪽으로 기울고 불길이 위로 흐른다. 오른쪽으로 가는 그림 (왼쪽은 게임이 뒤집는다)
+def _wave_draw(p, ph, R, o):
+    Hh, half = o['height'], o['half']
+
+    def fn(X, Y):
+        u = -Y                                                   # 바닥에서 위로
+        best = fx.np.full(X.shape, 9.0)
+        core = fx.np.zeros(X.shape, bool)
+        # 혀 셋 (가운데 x, 높이 비율, 반폭, 흔들림 어긋남): 가운데가 가장 높고 앞뒤로 낮은 혀. 위쪽이 뒤(왼쪽)로 밀린다
+        for cx, hk, hw0, off, m in ((1.0, 1.0, 8.5, 0.0, 2), (-7.5, 0.7, 6.5, 2.1, 3), (7.5, 0.55, 5.5, 4.0, 2), (-13.0, 0.38, 4.0, 1.2, 3)):
+            top = Hh * hk * (0.9 + 0.1 * math.sin(TAU * (ph * m) + off))
+            k = fx.np.clip(u / top, 0, 1)
+            xc = X - cx + (5.0 + 3.0 * hk) * k ** 1.5 + 1.6 * fx.np.sin(TAU * (u / 15 - m * ph) + off) * k
+            hw = hw0 * (1 - k) ** 0.6
+            ax = fx.np.where((u >= 0) & (u <= top), fx.np.abs(xc) / fx.np.maximum(hw, 0.01), 9.0)
+            best = fx.np.minimum(best, ax)
+            core |= (ax < 0.34) & (k < 0.72) & (hk > 0.6)
+        idx = fx.np.full(X.shape, -1)
+        idx[best < 1.0] = 1
+        idx[best < 0.8] = 2
+        idx[best < 0.52] = 3
+        idx[core] = 4
+        return idx
+    p.shade(-half * 2 - 8, -Hh - 2, half * 2, 0, fn, R)
+    for i in range(5):                                           # 뒤로 떨어져 나가는 불씨
+        s = _frac(ph * (1 if i % 2 else 2) + i * 0.23)
+        x = -half * 0.4 - 16 * s - i * 1.5
+        y = -Hh * (0.35 + 0.13 * i) - 6 * s
+        if s < 0.8:
+            p.px(x, y, R[3] if s < 0.4 else R[2])
+            if s < 0.3:
+                p.px(x + 1, y, WHITE)
+    p.glow(0, -Hh * 0.45, Hh * 0.8, R[2], 140)
+    p.glow(0, -Hh * 0.3, Hh * 0.4, R[3], 90)
+    p.glow_ring(0, -1, half * 1.3, 5, R[2], 60, sy=0.25)
+
+
+# 오염 장판 (아크) 타일: 바닥에 깔린 얕은 액체가 출렁이고 거품이 올라와 터진다. 가로로 이어 붙는다 (타일 너비 = 프레임 너비)
+def _pollution_draw(p, ph, R, o):
+    Wt = o['tile']
+
+    def fn(X, Y):
+        u = -Y
+        hs = 6.4 + 1.6 * fx.np.sin(TAU * (X / Wt - ph)) + 0.9 * fx.np.sin(TAU * (2 * X / Wt + ph) + 1.0)
+        idx = fx.np.full(X.shape, -1)
+        ok = (u >= 0) & (u <= hs)
+        idx[ok] = 1
+        idx[ok & (u > hs - 1.2)] = 3                             # 수면의 밝은 선
+        idx[ok & (u < 1.6)] = 0
+        idx[ok & (u > hs - 2.4) & (u <= hs - 1.2)] = 2
+        glint = ok & (u > hs - 1.2) & (fx.np.sin(TAU * (3 * X / Wt - 2 * ph)) > 0.9)
+        idx[glint] = 4
+        return idx
+    p.shade(0, -11, Wt, 0, fn, R)
+    for i, bx in enumerate((6.5, 18.5, 31.5)):                   # 거품: 올라오다 터진다
+        s = _frac(ph + i * 0.37)
+        y = -8 - 14 * s
+        if s < 0.78:
+            r = 1.0 + 1.2 * s
+            p.ring(bx, y, r, 1.0, R[3])
+            p.px(bx - 0.6, y - 0.6, WHITE)
+        elif s < 0.9:
+            for dx, dy in ((-3, -1), (3, -1), (-2, -3), (2, -3)):
+                p.px(bx + dx, y + dy, R[3])
+    p.glow_line(-16, -4, Wt + 16, -4, 16, R[2], 130)
+
+
+# 떨어지는 결정 조각 (헤이즈 심장의 결정 비): 길쭉한 여섯 면 결정, 빛이 면을 타고 내려가고 위로 속도 줄기가 남는다
+def _crystal_draw(p, ph, R, o):
+    p.glow(0, -15, 18, R[2], 130)
+    for i, lx in enumerate((-4, 0, 4)):                          # 위로 남는 속도 줄기
+        ln = 9 + 7 * (0.5 + 0.5 * math.sin(TAU * (ph * 2 + i / 3)))
+        if lx == 0 or int(ph * 12 + i) % 3:                       # 옆 줄기는 짧고 깜빡인다
+            p.line(lx, -31 + abs(lx) * 1.6, lx, -31 + abs(lx) * 1.6 - ln * (1.0 if lx == 0 else 0.45), R[3] if lx == 0 else R[1])
+    body = [(0, -31), (5, -23), (4, -7), (0, 0), (-4, -7), (-5, -23)]
+    p.poly(body, R[0])
+    p.poly([(0, -30), (4, -23), (3, -7.5), (0, -1.5), (-3, -7.5), (-4, -23)], R[1])
+    p.poly([(0, -30), (0, -1.5), (-3, -7.5), (-4, -23)], R[2])   # 빛 받는 왼쪽 면
+    p.line(-0.5, -28, -0.5, -4, R[3])                            # 가운데 모서리
+    y = -27 + 22 * ph                                            # 흘러내리는 흰 빛
+    p.line(-2.5, y, -2.5, min(-5, y + 4), WHITE)
+    p.px(1.5, -23 + 14 * _frac(ph + 0.5), R[3])
+
+
+# 낙뢰 (낙뢰 내려찍기): 하늘에서 꽂히는 굵은 흰 번개 -> 가늘어지며 다른 길로 한 번 더 번쩍 -> 끊어지며 사라진다. 바닥에 섬광과 불티
+BOLT_META = dict(size=[96, 284], origin=[48, 278], duration=0.34, fps=30, options=dict(ramp='haze', seed=17, height=272))
+
+
+def bolt_create(o):
+    R = RAMPS[o['ramp']]
+    rng = Rng(o['seed'])
+    Hh = o['height']
+
+    def path(sway):
+        pts, y, x = [(0.0, 0.0)], 0.0, 0.0
+        while y > -Hh:
+            y -= rng.range(11, 24)
+            x = max(-26.0, min(26.0, x * 0.55 + rng.range(-sway, sway)))
+            pts.append((x, max(y, -Hh - 4)))
+        return pts
+    main, second = path(13), path(16)
+    branches = []
+    for k in (3, 6, 9):                                          # 곁가지: 본줄기의 마디에서 옆으로 짧게
+        if k < len(main):
+            bx, by = main[k]
+            side = rng.pick((-1, 1))
+            pts = [(bx, by)]
+            for _ in range(3):
+                bx, by = bx + side * rng.range(5, 11), by + rng.range(4, 12)
+                pts.append((bx, by))
+            branches.append(pts)
+    ps = Particles(rng, R, ground=0)
+    ps.burst(SPARK, 0, -3, 16, (160, 460), (0.18, 0.34), spread=2.6, aim=-math.pi / 2)
+    ps.burst(MOTE, 0, -6, 10, (60, 200), (0.16, 0.3), spread=3.0, aim=-math.pi / 2)
+    lights = Lights()
+    lights.add(0, -8, 46, R[2], 170, 0.26)
+    lights.add(0, -8, 22, R[3], 150, 0.14)
+    t = [0.0]
+
+    def stroke(p, pts, w, color, skip=None):
+        for i, ((x0, y0), (x1, y1)) in enumerate(zip(pts, pts[1:])):
+            if skip is not None and skip(i):
+                continue
+            p.line(x0, y0, x1, y1, color, w)
+
+    class Bolt:
+        def update(self, dt):
+            t[0] += dt
+            ps.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            u = t[0]
+            if u < 0.07:                                         # 주인공 프레임: 굵은 흰 줄기 + 색 테두리, 바닥의 흰 별
+                stroke(p, main, 9.0, R[2])
+                stroke(p, main, 6.0, R[3])
+                stroke(p, main, 3.6, WHITE)
+                for b in branches:
+                    stroke(p, b, 2.6, R[3])
+                    stroke(p, b, 1.0, WHITE)
+                for i in range(7):
+                    a = -math.pi + math.pi * (i + 0.5) / 7
+                    ln = 30 if i % 2 == 0 else 17
+                    p.needle(0, -3, math.cos(a) * ln, -3 + math.sin(a) * ln, WHITE, 5.0)
+                p.disc(0, -4, 9, WHITE)
+                for (x0, y0), (x1, y1) in zip(main, main[1:]):
+                    p.glow_line(x0, y0, x1, y1, 20, R[2], 190)
+            elif u < 0.14:                                       # 가늘어진다
+                stroke(p, main, 5.0, R[2])
+                stroke(p, main, 2.4, WHITE)
+                for b in branches[:2]:
+                    stroke(p, b, 1.0, R[3])
+                for (x0, y0), (x1, y1) in zip(main, main[1:]):
+                    p.glow_line(x0, y0, x1, y1, 16, R[2], 120)
+            elif u < 0.2:                                        # 다른 길로 한 번 더
+                stroke(p, second, 3.4, R[2])
+                stroke(p, second, 1.4, WHITE)
+                for (x0, y0), (x1, y1) in zip(second, second[1:]):
+                    p.glow_line(x0, y0, x1, y1, 13, R[2], 90)
+            elif u < 0.3:                                        # 끊어지며 사라진다
+                gone = int((u - 0.2) / 0.1 * 3)
+                stroke(p, main, 1.6, R[3] if gone < 2 else R[2], skip=lambda i: (i * 7 + 3) % 4 <= gone)
+                for (x0, y0), (x1, y1) in zip(main[::2], main[1::2]):
+                    p.glow_line(x0, y0, x1, y1, 10, R[2], 40)
+            v = u / 0.26
+            if v < 1:
+                p.ring(0, -2, 8 + 34 * out_expo(v), 2.4 * (1 - v) + 0.6, WHITE if v < 0.25 else R[3], sy=0.24,
+                       a=1.0 if v < 0.5 else 2 - 2 * v, gaps=6, phase=o['seed'])
+            ps.draw(p)
+            lights.draw(p)
+    return Bolt()
+
+
+EFFECTS['bolt-pillar'] = (BOLT_META, bolt_create)
+
+# 반복 시트: 이름 -> (meta, create). period = duration (한 주기). json은 loop로 쓴다
+PLAIN_LOOPS = {
+    'orb-haze': (dict(size=[30, 30], origin=[15, 15], duration=0.4, fps=30, options=dict(ramp='haze', seed=21, period=0.4)), _periodic(_orb_draw)),
+    'beam-flame': (dict(size=[48, 64], origin=[24, 0], duration=0.4, fps=30, options=dict(ramp='ember', seed=22, period=0.4, half=14, tile=64)),
+                   _periodic(_beam_draw)),
+    'beam-haze': (dict(size=[40, 64], origin=[20, 0], duration=0.4, fps=30, options=dict(ramp='haze', seed=23, period=0.4, half=11, tile=64)),
+                  _periodic(_beam_draw)),
+    'beam-flame-base': (dict(size=[100, 52], origin=[50, 46], duration=0.4, fps=30, options=dict(ramp='ember', seed=24, period=0.4, half=14)),
+                        _periodic(_beam_base_draw)),
+    'beam-haze-base': (dict(size=[100, 52], origin=[50, 46], duration=0.4, fps=30, options=dict(ramp='haze', seed=25, period=0.4, half=11)),
+                       _periodic(_beam_base_draw)),
+    'wave-absorb': (dict(size=[60, 56], origin=[32, 52], duration=0.4, fps=30, options=dict(ramp='violet', seed=26, period=0.4, height=42, half=13)),
+                    _periodic(_wave_draw)),
+    'wave-overcharge': (dict(size=[60, 56], origin=[32, 52], duration=0.4, fps=30, options=dict(ramp='haze', seed=27, period=0.4, height=42, half=13)),
+                        _periodic(_wave_draw)),
+    'pollution': (dict(size=[40, 30], origin=[0, 28], duration=0.8, fps=30, options=dict(ramp='toxic', seed=28, period=0.8, tile=40)),
+                  _periodic(_pollution_draw)),
+    'crystal-fall': (dict(size=[28, 60], origin=[14, 54], duration=0.4, fps=30, options=dict(ramp='haze', seed=29, period=0.4)),
+                     _periodic(_crystal_draw)),
+}
+
+
+def build_plain_loop(name, look):
+    """반복 시트를 굽는다. 모아 보기는 한 주기를 3배로, 그 아래에 타일 이음(세로·가로)과 주기 이음을 눈으로 볼 수 있게 붙여 놓는다."""
+    import json
+    meta, create = PLAIN_LOOPS[name]
+    frames = fx.render(meta, create)
+    w, h = meta['size']
+    path = fx.contact(frames, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), cols=12, origin=meta['origin'],
+                      label=f"{name}  {w}x{h}  {len(frames)}f loop @{meta.get('fps', 30)}fps")
+    tile = meta['options'].get('tile')
+    if tile:                                                     # 타일 이음 확인: 같은 프레임을 세 번 이어 붙인다
+        sheet = fx.Image.open(path).convert('RGB')
+        vertical = tile == h
+        strip = fx.Image.new('RGB', ((w if vertical else w * 3) * 3 * 4, (h * 3 if vertical else h) * 3), (9, 14, 24))
+        for k, i in enumerate((0, 3, 6, 9)):
+            color, light = frames[i % len(frames)]
+            cell = fx.Image.new('RGB', (w if vertical else w * 3, h * 3 if vertical else h), (9, 14, 24))
+            for r in range(3):
+                at = (0, r * h) if vertical else (r * w, 0)
+                la = fx.np.asarray(light, fx.np.float32)
+                box = (at[0], at[1], at[0] + w, at[1] + h)
+                base = fx.np.asarray(cell.crop(box), fx.np.float32)
+                lit = fx.np.clip(base + la[..., :3] * (la[..., 3:4] / 255.0) * 0.85, 0, 255).astype(fx.np.uint8)
+                cell.paste(fx.Image.fromarray(lit, 'RGB'), at)
+                cell.paste(color, at, color)
+            strip.paste(cell.resize((cell.width * 3, cell.height * 3), fx.Image.NEAREST), (k * cell.width * 3, 0))
+        out = fx.Image.new('RGB', (max(sheet.width, strip.width), sheet.height + strip.height), (9, 14, 24))
+        out.paste(sheet, (0, 0))
+        out.paste(strip, (0, sheet.height))
+        out.save(path)
+    if look:
+        print('본다', path)
+        return
+    info = fx.export(name, dict(meta), [frames])
+    jp = os.path.join(fx.ROOT, 'assets', 'effects', name + '.json')
+    data = json.load(open(jp, encoding='utf-8'))
+    data.update(loop=True)
+    data.pop('duration', None)
+    if tile:
+        data['tile'] = tile
+    json.dump(data, open(jp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print('구움', name, info['frames'], '프레임 (반복)')
+
+
+# 둥근 점 (색은 게임이 입힌다): 예고 고리·조준선·소용돌이처럼 점을 늘어놓는 것들이 쓴다. 네 크기, 윗줄 = 색 층, 아랫줄 = 흰 심
+DOT_SIZES = (1.6, 2.6, 3.6, 5.0)          # 반지름 (논리 px). 화면에서는 지름 약 6·10·14·20px
+DOT_CELL = 16
+
+
+def build_dots(look):
+    import json
+    w = DOT_CELL
+    tint, core = [], []
+    for r in DOT_SIZES:
+        a = fx.Painter(w, w, w // 2, w // 2)
+        a.disc(0, 0, r, fx.GRAY[2])
+        if r > 2:
+            a.disc(0, 0, r - 1.0, fx.GRAY[3])
+        a.glow(0, 0, r * 2.6 + 2, (255, 255, 255), 150)
+        b = fx.Painter(w, w, w // 2, w // 2)
+        if r > 2:
+            b.disc(-0.3, -0.3, max(0.8, r - 2.0), WHITE)
+        tint.append(a.images())
+        core.append(b.images())
+    meta = dict(size=[w, w], origin=[w // 2, w // 2], duration=0.1, fps=30)
+    if look:
+        path = fx.contact(tint + core, os.path.join(fx.ROOT, 'shots', 'fx', 'dots.png'), zoom=6, cols=4, label='dots (tint / core)')
+        print('본다', path)
+        return
+    fx.export_tint('dots', meta, [tint], [core])
+    print('구움 dots', len(DOT_SIZES), '크기')
+
+
 def main(argv):
     look = '--look' in argv
     if '--pb' in argv:                                          # 보류한 입자 구성·반투명 띠 시안: 모아 보기만
@@ -1592,8 +1982,15 @@ def main(argv):
         TINTS.update(PB_TINTS)
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
-    names = [a for a in argv if not a.startswith('--')] or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS)
+    names = ([a for a in argv if not a.startswith('--')]
+             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + ['dots'])
     for name in names:
+        if name == 'dots':
+            build_dots(look)
+            continue
+        if name in PLAIN_LOOPS:
+            build_plain_loop(name, look)
+            continue
         if name in LOOPS:
             build_loop(name, look)
             continue

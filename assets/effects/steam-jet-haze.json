@@ -1,0 +1,19 @@
+{
+ "id": "fx/steam-jet-haze",
+ "frames": 28,
+ "frameSize": [
+  100,
+  172
+ ],
+ "columns": 14,
+ "fps": 30,
+ "loop": false,
+ "pivot": [
+  50,
+  166
+ ],
+ "scale": 2,
+ "duration": 0.46,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)",
+ "variants": 2
+}

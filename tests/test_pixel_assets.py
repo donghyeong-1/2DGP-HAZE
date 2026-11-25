@@ -114,6 +114,24 @@ def test_effects_within_palette_limit():
         assert 'pixelfx' not in name.lower(), f'외부 이펙트 파일이 남아 있다: {name}'
 
 
+def test_loop_and_tile_effect_sheets_exist():
+    """게임이 이름으로 부르는 반복·타일 이펙트 시트(2026-11-26, 사각형 이펙트 교체)가 모두 있고, 타일은 이어 붙는 길이를 적어 두었다."""
+    import json
+    loops = ['orb-haze', 'wave-absorb', 'wave-overcharge', 'crystal-fall', 'beam-flame-base', 'beam-haze-base']
+    tiles = {'beam-flame': 1, 'beam-haze': 1, 'pollution': 0}            # 이름: 타일 길이가 프레임의 어느 쪽인가 (0 가로, 1 세로)
+    for name in loops + list(tiles) + ['bolt-pillar', 'steam-jet-haze', 'dots']:
+        base = os.path.join(ROOT, 'assets', 'effects', name)
+        assert os.path.exists(base + '.png') and os.path.exists(base + '.json'), name
+        assert os.path.exists(os.path.join(ROOT, 'assets', 'light', f'glow_{name}.png')), name
+    for name in loops + list(tiles):
+        assert json.load(open(os.path.join(ROOT, 'assets', 'effects', name + '.json'), encoding='utf-8'))['loop'], name
+    for name, axis in tiles.items():
+        meta = json.load(open(os.path.join(ROOT, 'assets', 'effects', name + '.json'), encoding='utf-8'))
+        assert meta['tile'] == meta['frameSize'][axis], name
+    dots = json.load(open(os.path.join(ROOT, 'assets', 'effects', 'dots.json'), encoding='utf-8'))
+    assert dots['columns'] == 4 and dots['tint'] == 1                    # 네 크기, 색 층 한 줄 + 흰 심 한 줄
+
+
 def test_tiles_are_multiples_of_tile_size():
     for path in tile_files():
         w, h = Image.open(path).size

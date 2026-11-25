@@ -464,17 +464,13 @@ class HeartHand(_Part):
         if self.mode == 'aim':                                         # 내려칠 자리 그림자
             fy = int(floor_under(self.room, self.x, self.y))
             if int(self.timer * 12) % 2 == 0 or self.timer > H['slam_aim'] - 0.3:
-                assets.draw_rect_color(int(self.x - self.hb_w / 2), fy, int(self.hb_w), 10, (255, 90, 70), 0.8)
+                effects.draw_warn(self.x - self.hb_w / 2, fy, self.hb_w, (255, 90, 70))
         if self.mode == 'warn' and int(self.timer * 14) % 2 == 0:      # 광선 예고: 가는 붉은 선
             x0, y0, x1, y1 = self.beam_box()
             assets.draw_rect_color(int(self.x) - 2, int(y0), 4, int(y1 - y0), (255, 90, 70), 0.9)
         if self.mode == 'sweep':
             x0, y0, x1, y1 = self.beam_box()
-            w = int(x1 - x0)
-            f = int(self.timer * 30) % 2
-            assets.draw_rect_color(int(x0) - 6 + f * 2, int(y0), w + 12 - f * 4, int(y1 - y0), CORE, 0.45)
-            assets.draw_rect_color(int(x0) + 8, int(y0), w - 16, int(y1 - y0), CORE_HOT)
-            assets.draw_rect_color(int(x0) - 30, int(y0), w + 60, 10, CORE, 0.8)
+            effects.draw_beam('beam-haze', (x0 + x1) / 2, y0, y1, self.time, base='beam-haze-base')   # 구운 타일 광선 + 바닥 불꽃
         x, y = int(self.x), int(self.y)
         h = int(self.hb_h)
         name, n = self._frame()
@@ -482,7 +478,7 @@ class HeartHand(_Part):
         if self.flash > 0:
             sprites.draw_white(name, n, x, y, self.side)
         if self.stunned and int(self.timer * 6) % 2 == 0:                                 # 기절: 불똥
-            assets.draw_rect_color(x + 30 * self.side, y + 40, 8, 8, (255, 200, 90))
+            effects.draw_dot(x + 30 * self.side, y + 44, (255, 200, 90), 1)
         if self.hp < self.max_hp and not self.stunned:                                    # 손 체력 (작게, 손 위)
             assets.draw_rect_color(x - 50, y + h + 40, 100, 8, (30, 20, 30))
             assets.draw_rect_color(x - 50, y + h + 40, int(100 * self.hp / self.max_hp), 8, (230, 80, 90))
@@ -514,10 +510,7 @@ class CrystalShard(projectile.Debris):
         if not self.falling:
             super().draw()
             return
-        x, y = int(self.x), int(self.y)
-        assets.draw_rect_color(x - 10, y, 20, 60, (40, 150, 150))
-        assets.draw_rect_color(x - 5, y + 6, 10, 48, CORE)
-        assets.draw_rect_color(x - 2, y + 14, 4, 30, CORE_HOT)
+        effects.draw_loop('crystal-fall', int(self.x) // 2 * 2, int(self.y), self.time)        # 길쭉한 결정 (구운 반복 시트)
 
 
 class HazePulse:

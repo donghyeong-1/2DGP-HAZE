@@ -128,6 +128,7 @@ def floor_below(room, x, y):
 class Debris:
     """보스가 발을 구르면 천장에서 떨어지는 고철 더미. 떨어질 자리 바닥에 먼저 붉은 표시가 깜빡이고(예고), 그다음 떨어진다."""
     WARN = 0.75          # 표시가 깜빡이는 시간(초)
+    WARN_COLOR = (250, 220, 90)
     FALL_FROM = 760      # 바닥 위 이 높이에서 떨어지기 시작한다(px)
     FALL_SPEED = 1500.0
 
@@ -174,10 +175,10 @@ class Debris:
         if not self.falling:                                # 떨어질 자리 표시: 점점 빨리 깜빡인다
             rate = 8 if self.warn > self.WARN / 2 else 16
             # 노란 표시: 붉은 테마 바닥에서도 보이게. 떨어질 길도 옅은 기둥으로 보여 준다
-            assets.draw_rect_color(int(self.x) - 3, int(self.floor_y), 6, self.FALL_FROM - 60, (250, 220, 90), 0.18)
+            assets.draw_rect_color(int(self.x) - 1, int(self.floor_y), 2, self.FALL_FROM - 60, self.WARN_COLOR, 0.3)
             if int(self.time * rate) % 2 == 0:
-                assets.draw_rect_image(assets.image('placeholder/px_yellow.png'), int(self.x) - 36, int(self.floor_y), 72, 6)
-                assets.draw_rect_image(assets.image('placeholder/px_white.png'), int(self.x) - 6, int(self.floor_y) + 10, 12, 12)
+                effects.draw_warn(self.x - 36, self.floor_y, 72, self.WARN_COLOR)
+                effects.draw_dot(self.x, self.floor_y + 16, (255, 255, 255), 1)
             return
         img = assets.image('sprites/unified/proj_scrap.png')
         for ox, oy in ((-14, 0), (12, 16), (0, 30)):        # 고철 세 조각이 뭉쳐 떨어진다
@@ -201,6 +202,7 @@ class SteamVent:
         self.gauge_delta = gauge_delta
         self.room, self.player = room, player
         self.time = 0.0
+        self.tick, self.puffs = 0.0, 0
 
     def rect(self):
         return (self.x - self.W / 2, self.floor_y, self.x + self.W / 2, self.floor_y + self.H)
@@ -218,6 +220,11 @@ class SteamVent:
             effects.spawn('puff', self.x, self.floor_y + 20, duration=0.35)    # 작은 분출 (큰 폭발은 플레이어를 가린다)
             assets.play_sound('enhance')
         self.left -= dt
+        self.tick -= dt
+        if self.tick <= 0 and self.left > 0.25:              # 청록 증기 기둥을 이어 붙인다 (구운 시트, 공장 분출구와 같은 방식)
+            self.tick = 0.2
+            effects.spawn('steam-jet-haze', self.x, self.floor_y + 6, duration=0.46, variant=self.puffs % 2)
+            self.puffs += 1
         p = self.player
         if (not self.used and p.hit_test(self.rect(), self)):
             self.used = True
@@ -233,16 +240,10 @@ class SteamVent:
         assets.draw_image(assets.image(f'props/boss/furnace_vent_{n}.png'), x, y)
         if not self.erupting:                                # 솟을 자리 표시: 점점 빨리 깜빡인다 (고철의 노란 표시와 구분되는 청록)
             rate = 8 if self.warn > self.WARN / 2 else 16
-            assets.draw_rect_color(x - self.W // 2, y, self.W, 40, (90, 230, 230), 0.35)     # 솟을 자리의 옅은 김
-            assets.draw_rect_color(x - 3, y, 6, self.H, (110, 235, 230), 0.15)                # 솟을 높이를 보여 주는 가는 기둥
+            assets.draw_rect_color(x - 1, y, 2, self.H, (110, 235, 230), 0.3)                 # 솟을 높이를 보여 주는 가는 줄
             if int(self.time * rate) % 2 == 0:
-                assets.draw_rect_color(x - 40, y, 80, 8, (140, 255, 245))
-            return
-        k = self.left / self.ERUPT                           # 솟았다가 옅어진다
-        h = int(self.H * min(1.0, (1.0 - k) * 4 + 0.3))
-        for i, (w, a) in enumerate(((self.W, 0.22), (self.W - 24, 0.3), (self.W - 48, 0.4))):
-            sway = int(4 * ((self.time * 9 + i) % 2 > 1)) - 2   # 증기가 좌우로 흔들린다 (정수 좌표)
-            assets.draw_rect_color(x - w // 2 + sway, y, w, h, (110, 235, 230), a * (0.4 + 0.6 * k))
+                effects.draw_warn(x - 40, y, 80, (140, 255, 245))
+            return                                           # 솟는 기둥은 구운 시트(steam-jet-haze)가 그린다 (update에서 이어 띄운다)
 
 
 # ----- 최종 보스 아크의 패턴 (src/ark.py). 그림은 모두 코드로 그린 정수 좌표 사각형 -----
@@ -280,11 +281,7 @@ class HazeBullet:
             game_world.remove_object(self)
 
     def draw(self):
-        x, y = int(self.x), int(self.y)
-        pulse = 2 if int(self.time * 12) % 2 else 0
-        assets.draw_rect_color(x - 9 - pulse, y - 9 - pulse, 18 + pulse * 2, 18 + pulse * 2, (60, 200, 190), 0.35)   # 번짐
-        assets.draw_rect_color(x - 6, y - 6, 12, 12, (150, 250, 235), 0.9)
-        assets.draw_rect_color(x - 2, y - 2, 4, 4, (255, 255, 255))                                         # 심
+        effects.draw_loop('orb-haze', int(self.x) // 2 * 2, int(self.y) // 2 * 2, self.time)   # 흰 심을 감싼 청록 덩이 (구운 반복 시트)
 
 
 WAVE_COLORS = {'absorb': ((120, 80, 210), (200, 170, 255)),       # 흡수: 어두운 보라 (게이지를 빨아들인다)
@@ -323,16 +320,8 @@ class GaugeWave:
             game_world.remove_object(self)
 
     def draw(self):
-        dark, light = WAVE_COLORS[self.kind]
-        x, y, h = int(self.x), int(self.y), config.ARK_WAVE_H
-        flicker = int(self.time * 16) % 2
-        assets.draw_rect_color(x - 26, y, 52, h, dark, 0.35)
-        assets.draw_rect_color(x - 14 + flicker * 2, y, 28, h - 10, light, 0.55)
-        assets.draw_rect_color(x - 4, y, 8, h - 4, (255, 255, 255), 0.7)
-        for i in range(3):                                   # 나아가는 쪽을 가리키는 꺾쇠 (흡수는 안쪽, 과충전은 바깥쪽)
-            cx = x + self.dir * (18 + i * 10)
-            cy = y + 20 + i * 18
-            assets.draw_rect_color(cx - 3, cy, 6, 6, light, 0.8)
+        # 바닥을 달리는 불길 벽 (구운 반복 시트): 나아가는 쪽으로 기운다. 흡수는 보라, 과충전은 청록
+        effects.draw_loop('wave-' + self.kind, int(self.x) // 2 * 2, int(self.y), self.time, flip=self.dir < 0)
 
 
 class PollutionField:
@@ -364,10 +353,4 @@ class PollutionField:
 
     def draw(self):
         fade = min(1.0, self.left / 0.5, self.time / 0.25)   # 깔릴 때와 걷힐 때 옅게
-        x0, y = int(self.x - self.w / 2), int(self.floor_y)
-        assets.draw_rect_color(x0, y, int(self.w), 16, (70, 210, 160), 0.38 * fade)
-        assets.draw_rect_color(x0, y, int(self.w), 4, (170, 255, 210), 0.7 * fade)
-        for i in range(int(self.w // 40)):                   # 거품이 올라온다
-            bx = x0 + 14 + i * 40 + (i * 13) % 17
-            rise = int((self.time * 40 + i * 23) % 46)
-            assets.draw_rect_color(bx, y + 8 + rise, 6, 6, (150, 255, 210), 0.6 * fade * (1 - rise / 46))
+        effects.draw_strip('pollution', self.x - self.w / 2, self.floor_y, self.w, self.time, alpha=fade)   # 출렁이는 얕은 액체와 거품 (타일)

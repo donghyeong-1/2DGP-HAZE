@@ -1,0 +1,17 @@
+{
+ "id": "fx/crystal-fall",
+ "frames": 12,
+ "frameSize": [
+  28,
+  60
+ ],
+ "columns": 12,
+ "fps": 30,
+ "loop": true,
+ "pivot": [
+  14,
+  54
+ ],
+ "scale": 2,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

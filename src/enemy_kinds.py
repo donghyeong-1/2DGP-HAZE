@@ -221,20 +221,14 @@ class Drone(Enemy):
             if self.attack_time < windup:                       # 예고: 바닥에 붉은 표시 (점점 진하게)
                 k = self.attack_time / windup
                 if int(self.attack_time * 14) % 2 == 0 or k > 0.7:
-                    assets.draw_rect_color(int(x0), int(y0), int(x1 - x0), 6, (255, 90, 70), 0.4 + 0.5 * k)
+                    effects.draw_warn(x0 - 8, y0, x1 - x0 + 16, (255, 90, 70), 0.4 + 0.6 * k)
             else:
                 self._draw_flame(x0, y0, x1, y1)
         super().draw()
 
     def _draw_flame(self, x0, y0, x1, y1):
-        """아래로 뿜는 불꽃 (정수 좌표 사각형 세 겹 + 깜빡이는 가장자리)."""
-        w = int(x1 - x0)
-        h = int(y1 - y0)
-        flick = int(self.attack_time * 30) % 2
-        assets.draw_rect_color(int(x0) - 4 + flick * 2, int(y0), w + 8 - flick * 4, h, (255, 110, 40), 0.75)
-        assets.draw_rect_color(int(x0) + 10, int(y0), w - 20, h, (255, 200, 90))
-        assets.draw_rect_color(int(x0) + 20, int(y0), w - 40, h, (255, 250, 220))
-        assets.draw_rect_color(int(x0) - 18, int(y0), w + 36, 10, (255, 140, 60), 0.8)     # 바닥에 튀는 불꽃
+        """아래로 뿜는 불꽃 (구운 타일 시트를 이어 붙인다) + 바닥에 닿은 자리의 불꽃."""
+        effects.draw_beam('beam-flame', (x0 + x1) / 2, y0, y1, self.attack_time, base='beam-flame-base')
 
 
 class FallingWreck(TileBody):
@@ -378,8 +372,7 @@ class CartBlast:
         r = int(self.stats['blast_r'] * (1.0 - 0.7 * k))
         for i in range(16):
             a = i / 16 * math.tau + k * 2
-            x, y = int(self.x + math.cos(a) * r), int(self.y + math.sin(a) * r)
-            assets.draw_rect_color(x - 4, y - 4, 8, 8, (255, 110, 60), 0.5 + 0.5 * k)
+            effects.draw_dot(self.x + math.cos(a) * r, self.y + math.sin(a) * r, (255, 110, 60), 1, 0.5 + 0.5 * k)
 
 
 # ----- 감시 눈 (탑) -----
@@ -528,16 +521,18 @@ class Eye(Enemy):
         locked = self.attack_time >= windup - EYE_LOCK
         for i, (x, y) in enumerate(self.beam_path(self.aim)):
             if i % 3 == 0 and (locked or (i // 3 + int(self.attack_time * 10)) % 2 == 0):
-                assets.draw_rect_color(int(x) - 3, int(y) - 3, 6, 6, (255, 90, 70) if locked else (255, 200, 120), 0.35 + 0.55 * k)
+                effects.draw_dot(x, y, (255, 90, 70) if locked else (255, 200, 120), 0, 0.35 + 0.55 * k, glow=locked)
 
     def _draw_beam(self):
-        """발사: 청록 레이저 (정수 좌표 사각형 세 겹)."""
+        """발사: 청록 레이저. 방향이 실행 중에 정해져, 구운 둥근 점(흰 심 + 번지는 빛)을 길을 따라 촘촘히 놓는다."""
         flick = int(self.attack_time * 30) % 2
-        for x, y in self.beam_path(self._beam_angle()):
-            x, y = int(x), int(y)
-            assets.draw_rect_color(x - 10 + flick, y - 10 + flick, 20 - 2 * flick, 20 - 2 * flick, (60, 220, 200), 0.7)
-            assets.draw_rect_color(x - 6, y - 6, 12, 12, (170, 255, 235))
-            assets.draw_rect_color(x - 2, y - 2, 4, 4, (245, 255, 250))
+        pts = self.beam_path(self._beam_angle())
+        for (x, y), (nx, ny) in zip(pts, pts[1:]):                                    # 사이를 메워 한 줄기로 이어 보이게
+            effects.draw_dot((x + nx) / 2, (y + ny) / 2, (60, 230, 214), 2, glow=False)
+        for i, (x, y) in enumerate(pts):
+            effects.draw_dot(x, y, (60, 230, 214), 3 if (i + flick) % 4 == 0 else 2)
+        if pts:
+            effects.draw_dot(*pts[-1], (190, 255, 245), 3)                            # 닿은 자리
 
 
 # ----- 결정 기사 (탑) -----
@@ -826,6 +821,5 @@ class Shaman(Enemy):
             for i in range(1, 9):                               # 지팡이 끝에서 대상으로 가는 점선 (점점 진하게)
                 f = i / 9
                 if int(f * 9 + self.attack_time * 12) % 2 == 0:
-                    assets.draw_rect_color(int(sx + (tx - sx) * f) - 3, int(sy + (ty - sy) * f) - 3, 6, 6,
-                                           config.SHIELD_COLOR, 0.3 + 0.6 * k)
+                    effects.draw_dot(sx + (tx - sx) * f, sy + (ty - sy) * f, config.SHIELD_COLOR, 0, 0.3 + 0.6 * k)
         super().draw()

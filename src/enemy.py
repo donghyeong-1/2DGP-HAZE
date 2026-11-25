@@ -854,6 +854,5 @@ class EliteBurst:
         color = config.ELITE_MODS['volatile']['color']
         for i in range(16):                                            # 점 16개로 그린 고리 (정수 좌표의 작은 사각형)
             a = i / 16 * math.tau + k * 2
-            x, y = int(self.x + math.cos(a) * r), int(self.y + math.sin(a) * r)
-            assets.draw_rect_color(x - 4, y - 4, 8, 8, color, 0.5 + 0.5 * k)
-        assets.draw_rect_color(int(self.x) - 10, int(self.y) - 10, 20, 20, (255, 230, 180), 0.4 + 0.6 * k)
+            effects.draw_dot(self.x + math.cos(a) * r, self.y + math.sin(a) * r, color, 1, 0.5 + 0.5 * k)
+        effects.draw_dot(self.x, self.y, (255, 230, 180), 3, 0.4 + 0.6 * k)

@@ -62,32 +62,6 @@ class DelayedFlash:
             assets.draw_rect_color(x - 3, y - 1, 6, 2, FLASH_COLOR, 0.25 + 0.6 * k)
 
 
-class BoltPillar:
-    """낙뢰 내려찍기: 착지 지점에 화면 위에서 내리꽂는 청록 번개 기둥 (지그재그 사각형, 회전 없음)."""
-    LIFE = 0.32
-    HEIGHT = 520
-
-    def __init__(self, x, y):
-        self.x, self.y = int(x), int(y)
-        self.life = self.LIFE
-        rng = random.Random(int(x) * 31 + int(y))
-        self.offsets = [rng.randint(-14, 14) for _ in range(self.HEIGHT // 26 + 1)]
-
-    def update(self, dt):
-        self.life -= dt
-        if self.life <= 0:
-            game_world.remove_object(self)
-
-    def draw(self):
-        k = max(0.0, self.life / self.LIFE)
-        width = int(10 + 14 * k)
-        for i, ox in enumerate(self.offsets):
-            y = self.y + i * 26
-            assets.draw_rect_color(self.x + ox - width // 2 - 4, y, width + 8, 26, BOLT_COLOR, 0.35 * k)    # 번짐
-            assets.draw_rect_color(self.x + ox - width // 2, y, width, 26, BOLT_COLOR, 0.85 * k)
-            assets.draw_rect_color(self.x + ox - 3, y, 6, 26, (250, 255, 255), k)                           # 흰 심
-
-
 class DashEcho:
     """잔영 대시: 대시를 시작한 자리에 분신이 남아, 잠시 뒤 대시 방향으로 기본 공격을 한 번 휘두른다.
     합성 '분신 연타'면 대신 난타 회전 베기 (몸 둘레)."""
@@ -249,11 +223,10 @@ class Vortex:
         k = min(1.0, self.age / self.pull)
         for ring in range(3):
             r = self.radius * (1.0 - k) * (1.0 - ring * 0.28) + 24
-            size = 8 - ring * 2
             for i in range(14):
                 a = self.age * (9 + ring * 3) + i * math.tau / 14 + ring
-                x, y = int(cx + math.cos(a) * r), int(cy + math.sin(a) * r * 0.55)
-                assets.draw_rect_color(x - size // 2, y - size // 2, size, size, VORTEX_COLOR, 0.8 - ring * 0.2)
+                effects.draw_dot(cx + math.cos(a) * r, cy + math.sin(a) * r * 0.55, VORTEX_COLOR, 2 - ring, 0.9 - ring * 0.2,
+                                 glow=i % 2 == 0)
 
 
 class LinkNet:
@@ -1141,7 +1114,7 @@ class Pipe:
         radius, mult, lift = mutations.BOLT
         cx, cy = p.center
         fx = self._fx(False)
-        game_world.add_object(BoltPillar(p.x, p.y), game_world.LAYER_EFFECT)
+        effects.spawn('bolt-pillar', p.x, p.y)                 # 하늘에서 꽂히는 번개 (구운 시트)
         effects.ground_slam(p.x, p.y, power=1.1, color=BOLT_COLOR)
         effects.spawn_ring(p.x, p.y + 20, BOLT_COLOR, radius_max=radius, life=0.3)
         effects.add_trauma(config.SHAKE_FINISHER)

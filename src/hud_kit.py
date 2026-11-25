@@ -1,21 +1,22 @@
 """UI 부품 그리기: 9칸 판, 막대, 그림자 글자, 버튼. HUD(ui.py)와 메뉴(타이틀·일시정지·설정)가 함께 쓴다.
 
-판은 tools/make_ui.py가 만든 assets/ui/ui_kit_<종류>.png를 9칸으로 나눠 그린다: 네 모서리는 그대로,
+2026-11-25 UI 개편(C안 결정형): 그림은 Gemini G06 부품 시트를 tools/apply_ui_parts.py가 구운 assets/ui/uc_*.png.
+판은 uc_kit_<종류>.png를 9칸으로 나눠 그린다: 네 모서리는 그대로,
 네 변은 같은 무늬 조각을 길이만큼 이어 붙이고(늘이지 않는다), 가운데는 그 판의 속 색으로 채운다.
-막대 속은 ui_fill_<색>_<높이>.png에서 필요한 너비만큼 잘라 쓴다. 모든 위치는 정수 픽셀이다.
+막대 속은 uc_fill_<색>_<높이>.png에서 필요한 너비만큼 잘라 쓴다. 모든 위치는 정수 픽셀(도트 2px 격자에 맞게 짝수)이다.
 """
 import assets
 
+ART = 'ui/uc_'                 # 부품 그림 접두 (assets/ui/uc_*.png)
 # 판 종류 -> (그림 한 변 크기, 모서리 크기, 속 색)
 KITS = {
-    'panel': (48, 16, (13, 18, 31)),
-    'plate': (24, 8, (17, 24, 40)),
-    'frame': (16, 5, (13, 18, 31)),
-    'button': (36, 12, (24, 32, 52)),
-    'button_hot': (36, 12, (30, 66, 86)),
-    'slot': (36, 12, (16, 22, 36)),
-    'slot_hot': (36, 12, (20, 40, 54)),
-    'banner': (32, 12, (16, 22, 36)),
+    'panel': (96, 24, (13, 18, 31)),          # 큰 판: 사선 모서리, 흰 1점 선
+    'plate': (48, 12, (13, 18, 31)),          # 작은 HUD 틀: 미니맵·칩·아이템 칸
+    'frame': (16, 6, (13, 18, 31)),           # 얇은 막대 틀
+    'slot': (80, 16, (13, 18, 31)),           # 무기 칸
+    'slot_hot': (80, 16, (13, 18, 31)),       # 든 무기 칸: 흰·청록 이중 선 + 모서리 결정
+    'key': (24, 8, (22, 30, 49)),             # 키캡
+    'key_dim': (24, 8, (13, 18, 31)),
 }
 FILL_HEIGHTS = (8, 12, 16, 20, 24)
 SHADOW = (8, 11, 20)
@@ -24,7 +25,7 @@ SHADOW = (8, 11, 20)
 def panel(kind, x, y, w, h):
     """왼쪽 아래 (x, y)부터 w x h 판을 그린다."""
     size, c, well = KITS[kind]
-    img = assets.image(f'ui/ui_kit_{kind}.png')
+    img = assets.image(f'{ART}kit_{kind}.png')
     x, y, w, h = int(x), int(y), max(int(w), 2 * c), max(int(h), 2 * c)
     m = size - 2 * c                                       # 가운데 무늬 조각 길이
     assets.draw_rect_color(x + c, y + c, w - 2 * c, h - 2 * c, well)
@@ -49,13 +50,13 @@ def fill(color, x, y, w, h):
     w = int(w)
     if w <= 0:
         return
-    img = assets.image(f'ui/ui_fill_{color}_{h}.png')
+    img = assets.image(f'{ART}fill_{color}_{h}.png')
     assets.draw_clip(img, 0, 0, min(w, img.w), h, int(x), int(y))
 
 
 def bar(color, x, y, w, h, ratio, empty='empty'):
     """틀이 있는 막대: 틀(frame 판) 안에 빈 칸 무늬를 깔고 ratio만큼 색 무늬를 채운다."""
-    panel('frame', x - 3, y - 3, w + 6, h + 6)
+    panel('frame', x - 4, y - 4, w + 8, h + 8)
     fill(empty, x, y, w, h)
     fill(color, x, y, round(w * max(0.0, min(1.0, ratio))), h)
 
@@ -65,6 +66,29 @@ def icon(name, x, y):
     img = assets.image(f'ui/{name}.png')
     assets.draw_image(img, int(x) + img.w // 2, int(y))
     return img.w, img.h
+
+
+def tag(x, y, w):
+    """이름표 띠(양끝이 육각으로 깎인 판, 높이 40)를 왼쪽 아래 (x, y)에 너비 w로. 양끝 16px은 그대로, 가운데는 이어 붙인다."""
+    img = assets.image(f'{ART}tag.png')
+    cap, x, y, w = 16, int(x) // 2 * 2, int(y), max(int(w) // 2 * 2, 32)
+    mid = img.w - 2 * cap
+    for along in range(0, w - 2 * cap, mid):
+        assets.draw_clip(img, cap, 0, min(mid, w - 2 * cap - along), img.h, x + cap + along, y)
+    assets.draw_clip(img, 0, 0, cap, img.h, x, y)
+    assets.draw_clip(img, img.w - cap, 0, cap, img.h, x + w - cap, y)
+
+
+def strip(x, y, w):
+    """고른 메뉴 띠(높이 44): 흰 윗선·청록 밑선, 오른쪽 아래 청록 모서리, 왼쪽에 결정 덩어리. 왼쪽 아래 (x, y), 너비 w."""
+    img = assets.image(f'{ART}strip_hot.png')
+    left, right, x, y, w = 2, 16, int(x) // 2 * 2, int(y) // 2 * 2, max(int(w) // 2 * 2, 40)
+    mid = 64
+    for along in range(0, w - left - right, mid):
+        assets.draw_clip(img, left, 0, min(mid, w - left - right - along), img.h, x + left + along, y)
+    assets.draw_clip(img, 0, 0, left, img.h, x, y)
+    assets.draw_clip(img, img.w - right, 0, right, img.h, x + w - right, y)
+    icon('uc_crystal', x - 22, y - 6)
 
 
 def text(x, y, s, color, small=False, center=False, big=False, right=False):
@@ -89,18 +113,19 @@ class Button:
         """메뉴 항목 (11/22 메뉴 v3): 상자 없이 글자만. 고른 항목은 밝은 글자 + 앞에 헤이즈 조각 표시
         (게임 안 재화 아이콘을 그대로 써서, 흔한 화살표·테두리 대신 이 게임의 표시로)."""
         s = label or self.label
-        color = (244, 236, 214) if hot else (128, 140, 166)
+        color = (242, 246, 250) if hot else (128, 140, 166)
         cy = self.y + self.h // 2
+        tw = assets.text_width(s, False)
         if left:
             tx = self.x + 40
+            if hot:                                          # 고른 항목: 결정 띠 (2026-11-25 C안)
+                strip(tx - 24, cy - 22, max(tw + 96, 300))
             text(tx, cy, s, color)
-            if hot:
-                marker(self.x + 4, cy)
         else:
-            text(self.x + self.w // 2, cy, s, color, center=True)
             if hot:
-                tw = assets.text_width(s, False)
-                marker(self.x + self.w // 2 - tw // 2 - 40, cy)
+                sw = max(tw + 120, 300)
+                strip(self.x + self.w // 2 - sw // 2, cy - 22, sw)
+            text(self.x + self.w // 2, cy, s, color, center=True)
 
 
 def menu_pick(buttons, selected, event, height):
@@ -171,19 +196,17 @@ def row(x, y, w, h, hot):
 
 
 def marker(x, y):
-    """고른 항목 앞 표시: 헤이즈 조각 아이콘(ui_shard_s, 24px)을 글자 가운데 y에 맞춘다."""
-    img = assets.image('ui/ui_shard_s.png')
-    assets.draw_image(img, int(x) + img.w // 2, int(y) - img.h // 2)
+    """고른 항목 앞 표시: 떠 있는 청록 결정(uc_cursor, 8x24)을 글자 가운데 y에 맞춘다. x는 예전 24px 표시의 왼쪽."""
+    img = assets.image(f'{ART}cursor.png')
+    assets.draw_image(img, int(x) + 12, int(y) - img.h // 2)
 
 
 def keycap(x, y, label, hot=True):
     """키 글자 판 (왼쪽 아래 x, y, 높이 30): 아래가 두꺼운 키보드 키 모양. 폭은 글자에 맞춘다. 돌려주는 값은 폭."""
-    w = max(34, assets.text_width(label, True) + 16)
+    w = max(34, assets.text_width(label, True) + 16) // 2 * 2
     x, y = int(x), int(y)
-    assets.draw_rect_color(x, y, w, 30, (20, 24, 36))                         # 키 옆면(아래)
-    assets.draw_rect_color(x, y + 4, w, 26, (92, 100, 122) if hot else (52, 58, 76))
-    assets.draw_rect_color(x + 2, y + 6, w - 4, 22, (54, 60, 80) if hot else (30, 34, 48))
-    assets.draw_text(x + w // 2, y + 18, label, (236, 238, 244) if hot else FAINT, small=True, center=True)
+    panel('key' if hot else 'key_dim', x, y, w, 30)
+    assets.draw_text(x + w // 2, y + 16, label, (242, 246, 250) if hot else FAINT, small=True, center=True)
     return w
 
 
@@ -204,16 +227,16 @@ def pill(x, y, w, h, label, on, focus=False):
     (밝은 칸 위 어두운 글자 + 그림자가 오히려 읽기 어렵다는 사용자 의견, 11/22)."""
     x, y, w, h = int(x), int(y), int(w), int(h)
     if on:
-        assets.draw_rect_color(x, y, w, h, (38, 50, 74))
-        assets.draw_rect_color(x, y, w, 4, (232, 200, 120))
+        assets.draw_rect_color(x, y, w, h, (34, 44, 69))
+        assets.draw_rect_color(x, y, w, 4, (46, 230, 214))          # 밑줄은 청록 (금색은 전설 카드에만 쓴다, G06)
     assets.draw_text(x + w // 2, y + h // 2 + 2, label,
-                     (250, 244, 226) if on else ((150, 162, 188) if focus else (104, 116, 142)), small=True, center=True)
+                     (242, 246, 250) if on else ((150, 162, 188) if focus else (104, 116, 142)), small=True, center=True)
 
 
 def card(x, y, w, h, title=None):
-    """정보 카드 (불투명): 테두리 + 속, 제목이 있으면 왼쪽 위에 청록 글자와 짧은 선."""
-    x, y, w, h = int(x), int(y), int(w), int(h)
-    assets.draw_rect_color(x, y, w, h, EDGE)
-    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (12, 17, 30))
+    """정보 카드 (불투명): 사선 모서리 큰 판 + 오른쪽 위 모서리의 결정. 제목이 있으면 왼쪽 위에 청록 글자."""
+    x, y, w, h = int(x) // 2 * 2, int(y) // 2 * 2, int(w) // 2 * 2, int(h) // 2 * 2
+    panel('panel', x, y, w, h)
+    icon('uc_crystal', x + w - 24, y + h - 20)
     if title:
-        text(x + 28, y + h - 34, title, (232, 200, 120))
+        text(x + 28, y + h - 34, title, (159, 247, 238))

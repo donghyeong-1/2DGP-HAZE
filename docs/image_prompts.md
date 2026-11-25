@@ -314,6 +314,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 
 2026-11-25 [Codex] T50 간수와 크래셔를 참조해 오른쪽을 보는 녹슨 중갑, 투구의 청록 눈구멍, 큰 철창 방패와 짧은 몽둥이, 황동 열쇠와 호루라기를 요청했다. 대기·걷기·방패 돌진·내려찍기·증원 호출·피격·처치 17컷을 마젠타 원화 시트로 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/gatekeeper_v1/provenance.json`.
 
+2026-11-25 [Gemini] G06 UI 부품 4장(`c_frames.png`, `c_bars.png`, `c_icons.png`, `c_cards.png`, 8× 정합·G06 13색 팔레트·순수 `#FF00FF` 마젠타). G05 `ui_C2_hud.png`·`ui_C_hud.png`·`ui_C_pause.png`·`ui_C_cards.png`를 참조해 판·틀 8종, 막대·첨탑 9종, 아이콘 11묶음을 Antigravity 내장 image-generator(`gemini-3.1-flash-image`)로 생성(`c_cards` 신규 호출은 429 소진으로 G05 `ui_C_cards.png` 모서리 결정 추출) 후 Pillow/numpy로 1× 목표 논리 크기 정합·13색 양자화·8배 NEAREST 마감. 상세는 docs/gemini/reports/G06.md.
 
 2026-11-25 [Codex] T51 은신처 NPC들을 참고해 오른쪽 옆모습의 두건과 목 천, 여러 겹 해진 적갈색 망토, 가슴·허리의 병과 주머니, 내민 손 위 청록 결정 하나를 요청했다. 같은 인물의 대기 호흡과 결정 부유 2컷, 결정을 쥐고 끄덕이는 거래 2컷을 마젠타 시트로 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/drifter_v1/provenance.json`.
 

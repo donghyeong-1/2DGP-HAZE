@@ -79,6 +79,7 @@ Windows에서 한글이 깨지면 `PYTHONUTF8=1`을 붙인다.
 python tools/make_world.py     # 타일 세트·원경·중경
 python tools/make_fx2.py       # 전투 이펙트 (--look <이름>으로 모아 보기)
 python tools/make_hud.py       # HUD 조각
+python tools/apply_ui_parts.py  # UI 부품 (Gemini G06 시트 -> assets/ui/uc_*.png)
 python tools/make_sfx.py       # 효과음
 python tools/make_music.py     # 배경음악
 ```

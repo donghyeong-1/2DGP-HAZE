@@ -156,7 +156,7 @@ def _self():
     return sys.modules[__name__]
 
 
-CORNER = 120               # 카드 테두리 그림(300x420)의 모서리 크기. 가운데 9칸 자르기 (Codex T44)
+CORNER = 80                # 카드 테두리 그림(300x420)의 모서리 크기. 가운데 9칸 자르기 (2026-11-25 Gemini G06: 보통 흰 선·사선 모서리 / 희귀 청록 결정 / 전설 금색 결정)
 
 
 def _completes_synergy(m):
@@ -166,7 +166,7 @@ def _completes_synergy(m):
 
 def draw_frame(x, y, w, h, rarity='common'):
     """카드 테두리를 9칸 자르기로 (x, y) 왼쪽 아래에 w x h로 그린다: 모서리는 그대로, 변은 1배로 이어 붙인다."""
-    img = assets.image(f'ui/card_frame_{rarity}.png')
+    img = assets.image(f'ui/uc_card_{rarity}.png')
     c, mid_w, mid_h = CORNER, img.w - 2 * CORNER, img.h - 2 * CORNER
     sw, sh = img.w, img.h
     for bx, by, dx, dy in ((0, 0, 0, 0), (sw - c, 0, w - c, 0), (0, sh - c, 0, h - c), (sw - c, sh - c, w - c, h - c)):
@@ -196,7 +196,7 @@ def _draw_form_card(i, mid):
     color = (150, 165, 190) if skip else forms.COLOR
     if hot:
         assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))
     draw_frame(x, y, CARD_W, CARD_H, 'common' if skip else 'legendary')
     if skip:
         name, sub, desc = '넘기기', '형태를 얻지 않습니다', f'대신 조각 {forms.SKIP_SHARDS}개를 받습니다'
@@ -223,7 +223,7 @@ def _draw_event_card(i, mid):
     color = info['color'] if ok else (96, 104, 124)
     if hot:
         assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))
     draw_frame(x, y, CARD_W, CARD_H, 'rare' if ok and info['icon'] else 'common')
     if info['icon']:
         img = assets.image(info['icon'])
@@ -252,7 +252,7 @@ def _draw_card(i, mid):
     color = fam['color']
     if hot:                                               # 고른 카드: 계열 색 테두리
         assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (10, 14, 26))      # 카드 속
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))      # 카드 속
     info = mu.card_info(player, mid) if player is not None else {'rarity': 'common', 'note': fam['set'], 'hot': False}
     tier = mu.tier(mid)
     draw_frame(x, y, CARD_W, CARD_H, info['rarity'])      # v7: 기본 = 보통 / 진화 = 희귀 / 합성 = 전설 테두리
@@ -275,8 +275,9 @@ def _draw_card(i, mid):
         pips = min(2, have + 1)
         for k in range(2):                                # 칸 두 개: 찬 칸은 갈래 색
             px = x + CARD_W // 2 - 26 + k * 32
-            assets.draw_rect_color(px - 2, y + 112, 24, 16, (12, 14, 22))
-            assets.draw_rect_color(px, y + 114, 20, 12, color if k < pips else (54, 62, 82))
+            kit.icon('uc_step_off', px - 2, y + 114)        # 진행 칸 (G06 4번). 찬 칸은 갈래 색으로 속을 채운다
+            if k < pips:
+                assets.draw_rect_color(px + 2, y + 116, 16, 8, color)
     note = _wrap(info['note'], 16)
     top = y + 84 + (26 * (len(note) - 1) if tier != 'base' else 0)     # 진화·합성은 칸 표시가 없다: 두 줄이면 위로 올려 테두리에 걸리지 않게
     for j, line in enumerate(note):

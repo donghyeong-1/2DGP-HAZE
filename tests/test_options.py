@@ -172,20 +172,20 @@ def test_pause_menu_can_return_to_hideout_with_confirm():
 
 
 def test_ui_kit_images_exist_for_every_part():
-    """HUD·메뉴가 쓰는 판·막대·칸 그림이 모두 있다 (tools/make_ui.py)."""
+    """HUD·메뉴가 쓰는 판·막대·칸 그림이 모두 있다 (2026-11-25부터 tools/apply_ui_parts.py가 굽는 uc_*)."""
     import re
     from PIL import Image
     import hud_kit
     base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'ui')
     for kind, (size, corner, _) in hud_kit.KITS.items():
-        im = Image.open(os.path.join(base, f'ui_kit_{kind}.png'))
+        im = Image.open(os.path.join(base, f'uc_kit_{kind}.png'))
         assert im.size == (size, size) and size > 2 * corner, kind
     src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'ui.py'), encoding='utf-8').read()
     src += open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'options_mode.py'), encoding='utf-8').read()
-    colors = set(re.findall(r"kit\.(?:bar|fill)\('(\w+)'", src)) | {'red', 'blue', 'cyan', 'orange', 'empty', 'white', 'yellow'}
+    colors = set(re.findall(r"kit\.(?:bar|fill)\('(\w+)'", src)) | {'red', 'gray', 'cyan', 'orange', 'empty', 'white', 'yellow'}
     for color in colors:
         for h in hud_kit.FILL_HEIGHTS:
-            assert os.path.exists(os.path.join(base, f'ui_fill_{color}_{h}.png')), (color, h)
+            assert os.path.exists(os.path.join(base, f'uc_fill_{color}_{h}.png')), (color, h)
     for name in {n for n in re.findall(r"kit\.icon\('(\w+)'", src) if not n.endswith('_')}:   # 'hud_map_' + 종류는 빼고
         assert os.path.exists(os.path.join(base, name + '.png')), name
 

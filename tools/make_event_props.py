@@ -6,7 +6,7 @@
   청록 옷 -> 바랜 적갈색, 전체를 조금 어둡게. assets/sprites/unified/npc_drifter_idle_1~2.png
 - 미니맵 표시: assets/ui/hud_map_event.png (20x16, 물음표)
 - 구역별 장치(5-5): assets/ui/device_crate.png·device_crate_broken.png(슬럼 상자), device_vent.png·device_vent_hot.png(공장 증기 분출구),
-  device_laser.png(탑 감시 레이저의 머리)
+  device_laser.png(탑 감시 레이저의 머리), device_crack.png(슬럼 부서지는 발판의 금 간 표시)
 
 사용: python tools/make_event_props.py
 """
@@ -201,7 +201,19 @@ def laser_head():
     return cv
 
 
+def crack():
+    """부서지는 발판 표시: 논리 30x6(60x12). 발판 윗면에 덮는 금과 녹슨 얼룩 (칸마다 하나)."""
+    cv = Canvas(30, 6)
+    dark, rust = (16, 20, 34), (150, 86, 52)
+    for x, y in ((4, 0), (5, 1), (5, 2), (6, 3), (13, 0), (14, 1), (15, 1), (16, 2), (16, 3), (17, 4), (24, 0), (24, 1), (23, 2), (23, 3)):
+        cv.px(x, y, dark)
+    for x, y in ((9, 0), (10, 0), (20, 0), (21, 0), (21, 1), (27, 0)):
+        cv.px(x, y, rust)
+    return cv
+
+
 def main():
+    Image.fromarray(up2(crack().a), 'RGBA').save(os.path.join(UI, 'device_crack.png'))
     for name, cv in (('device_crate', crate()), ('device_crate_broken', crate(True)), ('device_vent', vent()),
                      ('device_vent_hot', vent(True)), ('device_laser', laser_head())):
         Image.fromarray(up2(cv.a), 'RGBA').save(os.path.join(UI, name + '.png'))

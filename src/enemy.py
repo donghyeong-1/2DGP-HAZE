@@ -51,6 +51,8 @@ POUNCE_MAX_VX = 1000.0
 class Enemy(TileBody):
     pullable = True                # 사슬로 끌어올 수 있는가 (보스는 False: 맞기만 한다)
     launched = False               # v8 띄우기: 띄워져 떠 있는 중 (combo.launch). 땅에 닿으면 풀린다
+    blown = False                  # 떠 있다가 큰 공격을 맞아 옆으로 날아가는 중 (벽에 부딪히면 튕긴다)
+    wall_bounced = False           # 이번에 뜬 동안 이미 벽에 튕겼다 (한 번만)
     air_hits = 0                   # 떠 있는 동안 맞아 다시 뜬 횟수 (JUGGLE_MAX까지)
     FLOATS = False                 # 중력 없이 떠다니는 적 (드론·망령·감시 눈): 띄우기가 경직으로만 먹힌다
     SPREAD = True                  # 같은 바닥의 다른 적과 겹치지 않게 비켜 선다 (떠다니는 적·수레·보스는 False)
@@ -211,6 +213,9 @@ class Enemy(TileBody):
         if from_x is not None:
             weight = config.ENEMY_WEIGHT.get(self.kind, 1.0) * self.weight_mult
             self.vx = config.ENEMY_KNOCKBACK * knock / weight * (1 if self.x >= from_x else -1)
+            if knock >= config.KNOCK_BIG and self.launched and not self.on_ground:     # 떠 있는 적이 큰 공격을 맞았다: 옆으로 날아간다
+                self.blown = True
+                self.vx = config.BLOW_SPEED / weight * (1 if self.x >= from_x else -1)
         self.hit_left = 0.18
         self.hurt()
         return False
@@ -253,9 +258,14 @@ class Enemy(TileBody):
             self.walk_phase = 0.0
         getattr(self, '_do_' + self.state.lower())(dt)
         self.vy = max(self.vy - config.GRAVITY * dt, -config.MAX_FALL_SPEED)
+        flying_vx = self.vx
         self.move_with_tiles(dt)
+        if (self.launched and not self.on_ground and not self.wall_bounced
+                and abs(flying_vx) >= config.WALL_BOUNCE_SPEED and abs(self.vx) < 1.0):
+            self._wall_bounce(flying_vx)                             # 날아가다 벽에 막혔다
         if self.launched and self.on_ground and self.vy <= 0:        # v8 띄우기: 떨어져 땅에 닿았다
             self.launched, self.air_hits = False, 0
+            self.blown = self.wall_bounced = False
             effects.spawn('dust-land', self.x, self.y, duration=0.28)
             self.hold(config.JUGGLE_LAND)
         self._spread(dt)
@@ -629,8 +639,25 @@ class Enemy(TileBody):
         """기본 타격 (보스의 휘두르기도 이것을 쓴다)."""
         self._melee()
 
+    def _wall_bounce(self, vx):
+        """떠서 날아가다 벽에 부딪혔다: 피해를 받고 반대로 튕긴다 (한 번 뜬 동안 한 번)."""
+        self.wall_bounced = True                          # 튕겨 나오는 동안에도 날아가는 중이다 (천천히 줄며 떨어진다)
+        side = 1 if vx > 0 else -1
+        cx, cy = self.center
+        effects.spawn_impact(cx + side * self.hb_w / 2, cy, -vx, 0, 8, (235, 245, 255), big=True)
+        effects.add_trauma(config.SHAKE_HIT * 1.5)
+        effects.add_kick(side, 0, config.KICK_BIG)
+        assets.play_sound('impact_pipe_heavy')
+        self.vx = -vx * config.WALL_BOUNCE_BACK
+        self.vy = max(self.vy, 240.0)
+        self.take_damage(config.WALL_BOUNCE_DAMAGE)
+
     def _do_hit(self, dt):
         self.hit_left -= dt
+        if self.blown and not self.on_ground:
+            self.vx *= max(0.0, 1.0 - config.BLOW_DRAG * dt)   # 날아가는 중: 천천히 줄고, 닿을 때까지 경직이 풀리지 않는다
+            self.hit_left = max(self.hit_left, 0.05)
+            return
         self.vx *= max(0.0, 1.0 - 9.0 * dt)  # 밀려나다 멈춘다
         if self.hit_left <= 0:
             self.vx = 0.0

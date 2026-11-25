@@ -71,6 +71,7 @@ def launch(enemy, speed):
     enemy.on_ground = False
     enemy.launched = True
     enemy.air_hits = 0
+    enemy.blown = enemy.wall_bounced = False
     enemy.hold(config.JUGGLE_HOLD)
     return True
 
@@ -82,7 +83,10 @@ def juggle(enemy):
         return False
     enemy.air_hits += 1
     enemy.vy = max(enemy.vy, config.JUGGLE_POP)
+    flying = enemy.vx
     enemy.hold(config.JUGGLE_HOLD)
+    if getattr(enemy, 'blown', False):                 # 큰 공격으로 날아가는 중이면 그 속도는 그대로 (hold가 멈춰 세운다)
+        enemy.vx = flying
     return True
 
 

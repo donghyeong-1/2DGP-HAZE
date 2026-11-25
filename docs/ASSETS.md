@@ -362,3 +362,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 이 정리는 Claude(프로젝트 스레드)가 기록만 옮긴 것이다. 약관은 읽지 않았다.
 - 2026-11-25: `assets/presentation_examples/demo3_*.jpg` 10장(3차 발표 자료용 게임 화면): 실제 게임 창을 찍은 것(1280x720, 자체 캡처). `docs/presentation_3rd.pptx`는 `tools/make_presentation_3rd.py`(python-pptx)가 만든다.
 - 2026-11-25: `assets/backgrounds/far_cell.png`·`far_foundry.png`·`far_haze.png`(1920x1080), `mid_cell.png`·`mid_foundry.png`·`mid_haze.png`(2880x1080)을 Codex T49 그림(`assets/sprites/forge/backdrops_v6/`, 내장 image_gen, 960x540·1440x540 픽셀 그림, 2026-11-23 줄 참고)으로 교체. `tools/apply_backdrops_v6.py`가 정수 2배로만 키운다. `far_gold`·`far_shop`·`far_boss`와 그 `mid_*`는 같은 판을 테마 색으로 다시 입힌 것(gold <- cell, shop <- foundry, boss <- haze). 예전 원경(Codex backgrounds_v1을 색 입힌 것)과 코드로 그린 중경은 쓰지 않는다(`tools/make_world.py --backdrops-v1`로 다시 만들 수 있다).
+- 2026-11-25: `assets/ui/device_crack.png`(슬럼 부서지는 발판의 금 간 표시, 60x12): `tools/make_event_props.py`(code-drawn).

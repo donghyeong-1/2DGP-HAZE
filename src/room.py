@@ -65,6 +65,7 @@ class Room:
         self.far_mix = 0.0
         self.name = name
         self.extra_solids = {}      # (열, 줄) -> 임시 벽 조각 (보스가 세운 고철 기둥·결정 벽, boss_terrain)
+        self.removed = set()        # (열, 줄): 잠시 사라진 타일 (v8 부서지는 발판, devices.Crumble). 밟을 수 없고 그려지지 않는다
         self.links = set(links or ())   # 이웃 방(또는 탈출구)이 있어서 열릴 수 있는 출입구 방향. 나머지 출입구는 벽이다
         self.locked = False             # 전투 중에는 출입구가 잠긴다
         self.door_hints = {}            # 방향 -> 문 너머 방 종류('gold', 'boss', 'shop', 'gate', 'rift'): 문 색과 이름으로 알려 준다
@@ -233,6 +234,8 @@ class Room:
             return EMPTY if self._hole_below(col) else SOLID
         if (col, row) in self.extra_solids:
             return SOLID
+        if self.removed and (col, row) in self.removed:
+            return EMPTY
         ch = self.rows[row][col]
         if ch in DOOR_CHARS and not self.door_open(ch):
             return SOLID  # 잠겼거나 이어진 방이 없는 출입구는 벽
@@ -380,6 +383,8 @@ class Room:
             bottom = self.height - (row + 1) * t
             for col in range(c0, c1 + 1):
                 ch = line[col]
+                if self.removed and (col, row) in self.removed:      # 무너진 발판은 그리지 않는다
+                    continue
                 if ch in DOOR_CHARS:
                     self._draw_door(ch, col, row, col * t + t // 2, bottom, atlas)
                 elif ch == SOLID:

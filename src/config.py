@@ -510,7 +510,17 @@ LASER_SPEED = 0.9             # 오가는 빠르기(rad/s)
 LASER_HALF_WIDTH = 22         # 빛줄기에 닿는 반폭(px)
 LASER_DAMAGE, LASER_GAUGE = 8, 6              # 닿으면 받는 피해와 오르는 게이지 (최종 변화: 피격 기본 손실을 빼고도 +6)
 LASER_COOL = 1.0              # 한 번 닿은 뒤 다시 닿기까지(초)
+# 벽 튕김 (v8 4-1의 남은 부분, 2026-11-25): 떠 있는 적이 큰 공격을 맞으면 옆으로 날아가고, 벽에 부딪히면 튕기며 피해를 받는다
+BLOW_SPEED = 620.0            # 날아가는 처음 속도(px/s, 무게 1)
+BLOW_DRAG = 1.6               # 날아가는 동안 속도가 줄어드는 비율(1/s). 땅에서 밀릴 때는 9
+WALL_BOUNCE_SPEED = 220.0     # 이 속도 이상으로 벽에 막히면 튕긴다
+WALL_BOUNCE_DAMAGE = 12
+WALL_BOUNCE_BACK = 0.4        # 튕겨 나오는 속도 비율
 BOSS_REWARD_DELAY = 1.2       # 구역 보스(문지기·크래셔)를 쓰러뜨린 뒤 증강 선택 창이 뜨기까지(초): 쓰러지는 연출과 대사가 먼저 보이게
+# 부서지는 발판 (v8 5-5의 남은 부분, 2026-11-25, devices.Crumble): 슬럼의 얇은 발판 한 토막
+CRUMBLE_ROOM_CHANCE = 0.6     # 슬럼 전투방에 부서지는 발판이 생길 확률
+CRUMBLE_DELAY = 0.6           # 올라선 뒤 무너지기까지(초)
+CRUMBLE_BACK = 3.0            # 무너진 뒤 다시 생기기까지(초)
 # v8 큰 방 (2026-11-25, 계획 5-3): 구역마다 두 화면짜리 전투방 수, 그 방의 적 무리 수 (세 물결로 나온다)
 BIG_ROOMS_PER_ZONE = {'stage1': 2, 'stage2': 2, 'stage3': 1}
 BIG_ROOM_PACKS = 8

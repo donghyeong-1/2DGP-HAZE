@@ -37,17 +37,20 @@ def room_with(name, kind):
         for c in sorted(st.layout):
             if st.type_of(c) == 'combat':
                 st.enter_room(c)
-                if st.devices:
-                    assert all(d.kind == kind for d in st.devices), (name, [d.kind for d in st.devices])
-                    return st, p, st.devices[0]
+                mine = [d for d in st.devices if d.kind == kind]
+                if mine:
+                    extra = {'stage1': {'crumble'}}.get(name, set())              # 슬럼은 부서지는 발판이 하나 더 있을 수 있다
+                    assert all(d.kind == kind or d.kind in extra for d in st.devices), (name, [d.kind for d in st.devices])
+                    return st, p, mine[0]
     raise AssertionError(f'{name}에서 장치를 찾지 못했다')
 
 
 def test_each_zone_places_its_own_device_on_open_floor():
     for name, kind in devices.ZONE.items():
         st, p, d = room_with(name, kind)
-        assert len(st.devices) <= config.DEVICE_COUNT[kind][1]
-        for dev in st.devices:
+        mine = [x for x in st.devices if x.kind == kind]
+        assert len(mine) <= config.DEVICE_COUNT[kind][1]
+        for dev in mine:
             col = int(dev.x // config.TILE)
             assert devices.DOOR_MARGIN <= col < st.room.cols - devices.DOOR_MARGIN
 
@@ -69,7 +72,7 @@ def test_a_crate_breaks_when_attacked_and_stays_broken():
             crate.smash()
     assert crate.gone and p.shards > before
     st.enter_room(coord)
-    assert st.devices[0].gone                               # 다시 들어와도 그대로
+    assert next(d for d in st.devices if d.kind == 'crate').gone   # 다시 들어와도 그대로
 
 
 def test_a_vent_hurts_the_player_and_launches_enemies_only_while_jetting():

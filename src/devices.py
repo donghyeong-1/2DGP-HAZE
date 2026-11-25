@@ -49,9 +49,10 @@ def place(stage):
     room = stage.room
     if kind is None or stage.type_of(stage.coord) != 'combat':
         return []
+    extra = place_crumble(stage) if stage.name == 'stage1' else []      # 슬럼의 둘째 장치: 부서지는 발판
     rng = random.Random(f'{stage.seed}:{stage.coord}:device')
     if rng.random() >= config.DEVICE_ROOM_CHANCE:
-        return []
+        return extra
     cells = floor_cells(room)
     spawn_cols = {int(x // config.TILE) for x, _y, _k in room.enemy_spawns}
     cells = [c for c in cells if all(abs(c[0] - s) > 1 for s in spawn_cols)]
@@ -75,7 +76,40 @@ def place(stage):
             d = Laser(x, y, stage.player, room, col, row, rng.uniform(0, math.tau))
         out.append(d)
         game_world.add_object(d, game_world.LAYER_TILES)
-    return out
+    return out + extra
+
+
+def platform_runs(room):
+    """문에서 떨어진 얇은 발판 토막들: [[(열, 줄), ...]] (가로로 이어진 것끼리, 둘 이상)."""
+    runs = []
+    for row in range(2, room.nrows - 2):
+        run = []
+        for col in range(DOOR_MARGIN, room.cols - DOOR_MARGIN + 1):
+            if col < room.cols - DOOR_MARGIN and room.rows[row][col] == '=':
+                run.append((col, row))
+            else:
+                if len(run) >= 2:
+                    runs.append(run)
+                run = []
+    return runs
+
+
+def place_crumble(stage):
+    """슬럼 전투방의 얇은 발판 한 토막을 부서지는 발판으로 만든다 (판의 시드로). 긴 발판은 가운데 몇 칸만."""
+    room = stage.room
+    room.removed = set()
+    rng = random.Random(f'{stage.seed}:{stage.coord}:crumble')
+    runs = platform_runs(room)
+    if not runs or rng.random() >= config.CRUMBLE_ROOM_CHANCE:
+        return []
+    run = rng.choice(runs)
+    if len(run) > 5:
+        n = rng.randint(3, 5)
+        k = rng.randint(0, len(run) - n)
+        run = run[k:k + n]
+    d = Crumble(room, run, stage.player)
+    game_world.add_object(d, game_world.LAYER_TILES)
+    return [d]
 
 
 class Crate:
@@ -238,3 +272,54 @@ class Laser:
             assets.draw_rect_color(x - 1, y, 2, 12, (255, 236, 226))
         assets.draw_rect_color(x - 8, bottom, 16, 2, (255, 110, 110))     # 바닥에 닿은 자리
         assets.draw_rect_color(x - 4, bottom + 2, 8, 2, (255, 226, 214))
+
+
+class Crumble:
+    """슬럼의 부서지는 발판: 얇은 발판 한 토막. 주인공이 올라서면 잠시 뒤 무너지고(room.removed), 조금 있다 다시 생긴다."""
+    kind = 'crumble'
+
+    def __init__(self, room, cells, player):
+        self.room, self.cells, self.player = room, list(cells), player
+        self.state, self.left, self.tick = 'idle', 0.0, 0.0
+        t = config.TILE
+        self.row = self.cells[0][1]
+        self.x0, self.x1 = self.cells[0][0] * t, (self.cells[-1][0] + 1) * t
+        self.top = room.height - self.row * t                 # 발판 윗면 y
+        self.x, self.y = (self.x0 + self.x1) / 2, self.top
+
+    def _stood_on(self):
+        p = self.player
+        return (p is not None and p.on_ground and abs(p.y - self.top) < 6
+                and self.x0 - 10 <= p.x <= self.x1 + 10)
+
+    def update(self, dt):
+        if self.state == 'idle':
+            if self._stood_on():
+                self.state, self.left, self.tick = 'shaking', config.CRUMBLE_DELAY, 0.0
+                assets.play_sound('hit_small')
+            return
+        self.left -= dt
+        self.tick -= dt
+        if self.state == 'shaking':
+            if self.tick <= 0:                                # 부스러기가 떨어진다
+                self.tick = 0.12
+                x = self.x0 + (self.x1 - self.x0) * ((int(self.left * 50) % 5) + 0.5) / 5
+                effects.spawn('dust-land', x, self.top - config.TILE + 8, duration=0.22)
+            if self.left <= 0:
+                self.state, self.left = 'gone', config.CRUMBLE_BACK
+                self.room.removed |= set(self.cells)
+                for col, _row in self.cells:
+                    effects.spawn('puff', col * config.TILE + config.TILE / 2, self.top - 20, duration=0.3)
+                assets.play_sound('hit_armor')
+        elif self.left <= 0:                                  # 다시 생긴다
+            self.state = 'idle'
+            self.room.removed -= set(self.cells)
+            effects.spawn('puff', self.x, self.top - 20, duration=0.3)
+
+    def draw(self):
+        if self.state == 'gone':
+            return
+        img = assets.image('ui/device_crack.png')            # 금이 간 표시 (칸마다)
+        dy = (int(self.left * 40) % 2) * 2 if self.state == 'shaking' else 0
+        for col, _row in self.cells:
+            assets.draw_image(img, col * config.TILE + config.TILE // 2, self.top - img.h - dy)

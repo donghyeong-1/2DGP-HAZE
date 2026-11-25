@@ -13,6 +13,8 @@
   python tools/balance_sim.py --scenario boss --gauge 60              # 게이지 60%로 시작
   python tools/balance_sim.py --save tools/balance_base.json
   python tools/balance_sim.py --compare tools/balance_base.json
+  python tools/balance_sim.py --zones --seeds 20 --md out.md         # 무기 4종 x 구역 3개 표 (전투방·큰 방·구역 끝 싸움)
+  python tools/balance_sim.py --zones --easy                          # 초보자 모드로
 """
 import argparse
 import json
@@ -49,9 +51,36 @@ SCENARIOS = {
     'eye': ([('eye', 900)], 40),
     'knight': ([('knight', 800)], 40),
     'wraith': ([('wraith', 800)], 40),
+    'drone': ([('drone', 900)], 40),
+    'cart': ([('cart', 900)], 40),
     'boss': ([('boss', 900)], 90),
     'ark': ([('ark', 900)], 120),
 }
+# 구역 시나리오 (v8 7일 차, 2026-11-25): 실제 판처럼 구역 적 목록(mapgen.SPECS의 pool)에서 시드로 뽑고, 정예 확률(config.ELITE_CHANCE)을
+# 따르고, 무리 수에 따라 물결로 나온다(stage._release_waves와 같은 규칙). 이름 -> (구역, 종류, 제한 시간 초)
+#   room: 보통 전투방 (스폰 칸 5개), big: 큰 방 (config.BIG_ROOM_PACKS), gate: 구역 1 관문 (arena_05: 간수 3 + 사냥개 1, 한 번에)
+ZONE_SCENARIOS = {
+    'z1_room': ('stage1', 'room', 90), 'z1_big': ('stage1', 'big', 150), 'z1_gate': ('stage1', 'gate', 90),
+    'z2_room': ('stage2', 'room', 90), 'z2_big': ('stage2', 'big', 150),
+    'z3_room': ('stage3', 'room', 90), 'z3_big': ('stage3', 'big', 150),
+}
+ROOM_PACKS = 5                 # 보통 전투방의 스폰 칸 수 (템플릿이 4~6칸을 쓴다)
+# 구역별 표에 쓰는 시나리오: 구역 -> [(이름, 표의 열 이름)]. 구역 끝 싸움은 1: 관문, 2: 크래셔, 3: 아크
+ZONE_TABLE = {
+    'stage1': [('z1_room', '전투방'), ('z1_big', '큰 방'), ('z1_gate', '관문')],
+    'stage2': [('z2_room', '전투방'), ('z2_big', '큰 방'), ('boss', '크래셔')],
+    'stage3': [('z3_room', '전투방'), ('z3_big', '큰 방'), ('ark', '아크')],
+}
+# 문지기(v8 6일 차)가 들어온 뒤에는 관문 싸움이 문지기다: 모듈이 있으면 시나리오를 더하고 구역 1 끝 싸움을 바꾼다
+try:
+    import importlib.util as _ilu
+    HAS_GATEKEEPER = _ilu.find_spec('gatekeeper') is not None
+except (ImportError, ValueError):
+    HAS_GATEKEEPER = False
+if HAS_GATEKEEPER:
+    SCENARIOS['gatekeeper'] = ([('gatekeeper', 900)], 120)
+    ZONE_TABLE['stage1'][2] = ('gatekeeper', '문지기')
+ALL_SCENARIOS = list(SCENARIOS) + list(ZONE_SCENARIOS)
 WEAPONS = ('pipe', 'pistol', 'gauntlet', 'chain')
 BOTS = ('stand', 'dodge')
 # 무기마다 봇이 서는 거리(px): 철파이프는 붙고, 식칼은 떨어져 던지고, 건틀릿은 중간에서 충전
@@ -82,9 +111,12 @@ def spawn(kind, x, room, player):
     elif kind == 'ark':
         from ark import Ark
         e = Ark(x, FLOOR_Y, room, player)
+    elif kind == 'gatekeeper':                           # 구역 1 중간 보스 (v8 6일 차, src/gatekeeper.py가 있을 때)
+        from gatekeeper import Gatekeeper
+        e = Gatekeeper(x, 2 * config.TILE, room, player)     # 키가 커서 FLOOR_Y에 세우면 천장에 박혀 방 밖으로 밀려 나간다: 바닥에 바로
     else:
         import enemy_kinds
-        y = 2 * config.TILE if kind in ('eye', 'wraith') else FLOOR_Y      # 벽·공중 적은 실제 바닥(아래 두 줄 위)에서 올린다
+        y = 2 * config.TILE if kind in ('eye', 'wraith', 'drone') else FLOOR_Y   # 벽·공중 적(중력 없음)은 실제 바닥(아래 두 줄 위)에서 올린다
         foes = enemy_kinds.make_pack(kind, x, y, room, player)             # 새 적은 자기 클래스, 쥐는 무리
         for e in foes:
             game_world.add_object(e, game_world.LAYER_ENEMY)
@@ -138,6 +170,9 @@ def bot_step(p, bot, weapon_id, state):
             p.swap_weapon(1)
     held = p.weapon.weapon_id
     keep = KEEP[held]
+    # 머리 위에 뜬 적(용접 드론 등)은 근접 무기로 닿지 않는다: 밑에 오면 뛰어올라 친다 (11/25, 그 전에는 드론을 못 잡았다)
+    if held in ('pipe', 'gauntlet') and ey - p.center[1] > 110 and dist < 140 and p.on_ground:
+        p.request_jump()
     if dist > keep + 20:
         p.right, p.left = side > 0, side < 0
     elif held != 'pipe' and dist < keep * 0.5:
@@ -155,7 +190,50 @@ def bot_step(p, bot, weapon_id, state):
         p.request_attack()
 
 
-def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
+def zone_waves(scenario, seed):
+    """구역 시나리오의 물결 목록: [[(종류, 정예 수식어 또는 None), ...], ...]. 같은 시드면 같은 구성."""
+    import mapgen
+    import stage as stage_mod
+    zone, shape, _limit = ZONE_SCENARIOS[scenario]
+    rng = random.Random(f'sim:{scenario}:{seed}')
+    if shape == 'gate':
+        kinds = ['guard', 'guard', 'guard', 'hound']
+    else:
+        n = config.BIG_ROOM_PACKS if shape == 'big' else ROOM_PACKS
+        kinds = [mapgen._weighted(rng, mapgen.SPECS[zone]['pool']) for _ in range(n)]
+    packs = [(k, stage_mod.roll_elite(rng, zone)) for k in kinds]
+    n_waves = 1
+    if shape != 'gate' and len(packs) >= config.WAVE_MIN_PACKS:
+        n_waves = 3 if len(packs) >= config.WAVE_THREE_PACKS else 2
+    elites = [pk for pk in packs if pk[1]]
+    normals = [pk for pk in packs if not pk[1]]
+    size = -(-len(packs) // n_waves)
+    waves = []
+    for _ in range(n_waves - 1):
+        if normals[:size]:
+            waves.append(normals[:size])
+        normals = normals[size:]
+    if normals or elites:
+        waves.append(normals + elites)
+    return waves
+
+
+def spawn_wave(wave, room, p, rng):
+    """물결 하나를 시험장에 흩어 세운다 (플레이어에서 600~1700px). 세운 적 수를 돌려준다."""
+    count = 0
+    for i, (kind, mod) in enumerate(wave):
+        d = 600 + (i * 1100 // max(1, len(wave) - 1) if len(wave) > 1 else 300) + rng.randint(-60, 60)
+        x = min(room.width - 2 * config.TILE, PLAYER_X + d)
+        before = len(game_world.world[game_world.LAYER_ENEMY])
+        e = spawn(kind, x, room, p)
+        added = game_world.world[game_world.LAYER_ENEMY][before:]
+        if mod and hasattr(e, 'make_elite'):
+            e.make_elite(mod)
+        count += len(added)
+    return count
+
+
+def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None, hp=None):
     random.seed(seed)
     game_world.clear()
     effects.reset()
@@ -171,16 +249,28 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
     if weapon_id != 'pipe':
         p.give_weapon(weapon_id)
     p.attack_held = False
+    if hp is not None:                                   # 구역 통판(--run): 앞 싸움에서 남은 체력으로 시작
+        p.hp = max(1, min(p.max_hp, int(hp)))
     if gauge is not None:                                # 시작 게이지를 정한다 (기본은 게임 시작값)
         p.gauge.value = float(gauge)
         p.gauge.zone = p.gauge._zone_of(float(gauge))
-    foes, limit = SCENARIOS[scenario]
     rng = random.Random(seed * 7919 + 1)
-    for kind, d in foes:
-        x = min(room.width - 2 * config.TILE, PLAYER_X + d + rng.randint(-60, 60))
-        e = spawn(kind, x, room, p)
-        if kind in ('boss', 'ark'):
-            e.rng = random.Random(seed)          # 보스 패턴 순서도 시드마다 다르게 (게임에서는 고정 Random(7))
+    waves = []
+    foe_count = 0
+    if scenario in ZONE_SCENARIOS:
+        limit = ZONE_SCENARIOS[scenario][2]
+        waves = zone_waves(scenario, seed)
+        foe_count = spawn_wave(waves.pop(0), room, p, rng)
+    else:
+        foes, limit = SCENARIOS[scenario]
+        for kind, d in foes:
+            x = min(room.width - 2 * config.TILE, PLAYER_X + d + rng.randint(-60, 60))
+            before = len(game_world.world[game_world.LAYER_ENEMY])
+            e = spawn(kind, x, room, p)
+            foe_count += len(game_world.world[game_world.LAYER_ENEMY]) - before
+            if kind in ('boss', 'ark', 'gatekeeper') and hasattr(e, 'rng'):
+                e.rng = random.Random(seed)          # 보스 패턴 순서도 시드마다 다르게 (게임에서는 고정 Random(7))
+    wave_wait = None
 
     hp0 = p.hp
     zone_time = {}
@@ -202,9 +292,14 @@ def run_one(scenario, weapon_id, bot, seed, gauge=None, meta_levels=None):
             result = 'dead'
             break
         if not enemies():
-            result = 'win'
-            break
-    return dict(result=result, time=round(t, 2), max_hp=p.max_hp, hp_lost=round(hp0 - max(0, p.hp), 1),
+            if not waves:
+                result = 'win'
+                break
+            wave_wait = config.WAVE_WARN if wave_wait is None else wave_wait - DT   # 다음 물결은 예고 뒤에 (게임과 같다)
+            if wave_wait <= 0:
+                foe_count += spawn_wave(waves.pop(0), room, p, rng)
+                wave_wait = None
+    return dict(result=result, time=round(t, 2), foes=foe_count, max_hp=p.max_hp, hp_end=max(0, p.hp), hp_lost=round(hp0 - max(0, p.hp), 1),
                 gauge_end=round(p.gauge.value, 1), gauge_min=round(gmin, 1), gauge_max=round(gmax, 1),
                 overloads=events.count('overload'), zones={k: round(v / t, 3) for k, v in zone_time.items()})
 
@@ -263,9 +358,80 @@ def print_economy():
     print(f'정비사 강화 전부 + 보관 칸 = {total} 결정')
 
 
+# 구역 통판 (--run): 싸움 사이에 체력·게이지가 이어진다. 구역마다 (보통 전투방 수, 큰 방 수, 끝 싸움)
+RUN_ORDER = {'stage1': (6, 2, 'gatekeeper' if HAS_GATEKEEPER else 'z1_gate'), 'stage2': (6, 2, 'boss'), 'stage3': (4, 1, 'ark')}
+RUN_POTION_AT = 45            # 봇은 체력이 이 아래로 내려간 채 싸움이 끝나면 물약을 마신다
+
+
+def zone_run(zone, weapon_id, bot, seed, potions=None, heal=None, meta_levels=None):
+    """한 구역을 처음부터 끝 싸움까지 이어서 싸운다. 방 순서는 시드로 섞고, 전투방 보상 중 회복은 mutations.REWARD_WEIGHTS 비율로.
+    (결과, 끝난 싸움 번호, 남은 체력)을 돌려준다. 정비방 물약 구입·증강·E 강화는 치지 않는다."""
+    import mutations
+    potions = config.POTION_START if potions is None else potions
+    heal = mutations.REWARD_HEAL if heal is None else heal
+    w = mutations.REWARD_WEIGHTS
+    heal_p = w['heal'] / sum(w.values())
+    n_room, n_big, end = RUN_ORDER[zone]
+    z = zone[-1]
+    rng = random.Random(f'run:{zone}:{seed}')
+    fights = [f'z{z}_room'] * n_room + [f'z{z}_big'] * n_big
+    rng.shuffle(fights)
+    fights.append(end)
+    hp, gauge = None, None
+    for i, sc in enumerate(fights):
+        r = run_one(sc, weapon_id, bot, seed * 100 + i, gauge, meta_levels, hp)
+        if r['result'] != 'win':
+            return 'dead' if r['result'] == 'dead' else 'timeout', i, 0
+        hp, gauge = r['hp_end'], max(20.0, min(80.0, r['gauge_end']))   # 다음 방 입구까지 게이지는 조금 움직인다: 20~80으로 묶는다
+        if i < len(fights) - 1 and rng.random() < heal_p:
+            hp = min(r['max_hp'], hp + heal)
+        while potions > 0 and hp < RUN_POTION_AT:
+            potions -= 1
+            hp = min(r['max_hp'], hp + config.POTION_HEAL)
+    return 'clear', len(fights), hp
+
+
+def zone_table(weapons, bots, seeds, gauge=None, meta_levels=None):
+    """무기 × 구역 표: {(구역, 시나리오, 무기, 봇): 요약}. 구역 끝 싸움(관문·크래셔·아크)까지 한 번에."""
+    out = {}
+    for zone, cols in ZONE_TABLE.items():
+        for sc, _label in cols:
+            for w in weapons:
+                for b in bots:
+                    runs = [run_one(sc, w, b, seed, gauge, meta_levels) for seed in range(seeds)]
+                    s = summarize(runs)
+                    s['foes'] = round(sum(r['foes'] for r in runs) / len(runs), 1)
+                    out[(zone, sc, w, b)] = s
+    return out
+
+
+def zone_markdown(table, weapons, bots):
+    """zone_table 결과를 마크다운 표로: 구역마다 한 표, 줄은 무기·봇, 칸은 '승률 / 처치 초 / 잃은 체력'."""
+    names = {'stage1': '구역 1 (슬럼)', 'stage2': '구역 2 (공장)', 'stage3': '구역 3 (탑)'}
+    lines = []
+    for zone, cols in ZONE_TABLE.items():
+        lines.append(f'### {names.get(zone, zone)}')
+        lines.append('')
+        lines.append('| 무기 | 봇 | ' + ' | '.join(label for _sc, label in cols) + ' |')
+        lines.append('|---|---|' + '---|' * len(cols))
+        for w in weapons:
+            for b in bots:
+                cells = []
+                for sc, _label in cols:
+                    s = table[(zone, sc, w, b)]
+                    cells.append(f"{s['win']:.0%} / {s['ttk']}초 / -{s['hp_lost']}")
+                lines.append(f'| {w} | {b} | ' + ' | '.join(cells) + ' |')
+        foes = ', '.join(f"{label} {table[(zone, sc, weapons[0], bots[0])]['foes']}마리" for sc, label in cols)
+        lines.append('')
+        lines.append(f'적 수 평균: {foes}')
+        lines.append('')
+    return '\n'.join(lines)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--scenario', nargs='*', default=list(SCENARIOS), choices=list(SCENARIOS))
+    ap.add_argument('--scenario', nargs='*', default=list(SCENARIOS), choices=ALL_SCENARIOS,
+                    help='기본은 1:1·보스 시나리오. 구역 시나리오(z1_room 등)는 이름으로 부르거나 --zones')
     ap.add_argument('--weapon', nargs='*', default=list(WEAPONS), choices=list(WEAPONS))
     ap.add_argument('--bot', nargs='*', default=list(BOTS), choices=list(BOTS))
     ap.add_argument("--seeds", type=int, default=10)
@@ -274,7 +440,42 @@ def main():
     ap.add_argument('--compare', help='저장한 기준 JSON과 비교해 차이를 보여 준다')
     ap.add_argument('--meta', choices=('max',), help='은신처 영구 강화를 모두 최대로 한 플레이어로 싸운다')
     ap.add_argument('--economy', action='store_true', help='판이 끝나는 곳별 헤이즈 결정과 강화 총비용만 보여 준다')
+    ap.add_argument('--zones', action='store_true', help='무기 × 구역 표 (전투방·큰 방·구역 끝 싸움)')
+    ap.add_argument('--md', help='--zones 표를 마크다운 파일로도 쓴다')
+    ap.add_argument('--easy', action='store_true', help='설정의 초보자 모드를 켜고 싸운다 (config.EASY_*)')
+    ap.add_argument('--run', nargs='*', choices=list(RUN_ORDER), help='구역 통판: 체력·게이지를 이어 끝 싸움까지 (구역 생략 시 모두)')
+    ap.add_argument('--potions', type=int, help='--run 시작 물약 수 (기본 config.POTION_START)')
+    ap.add_argument('--heal', type=int, help='--run 회복 보상 양 (기본 mutations.REWARD_HEAL)')
     a = ap.parse_args()
+    import options
+    options.easy_mode = bool(a.easy)                     # 저장 파일은 건드리지 않는다
+    if a.run is not None:
+        started = time.time()
+        zones = a.run or list(RUN_ORDER)
+        print(f"{'구역':<8}{'무기':<10}{'봇':<7}{'통과':>6}  평균 남은 체력  죽은 곳(싸움 번호별)")
+        for zone in zones:
+            for w in a.weapon:
+                for b in a.bot:
+                    res = [zone_run(zone, w, b, seed, a.potions, a.heal, a.meta) for seed in range(a.seeds)]
+                    ok = [r for r in res if r[0] == 'clear']
+                    where = {}
+                    for r in res:
+                        if r[0] != 'clear':
+                            where[r[1]] = where.get(r[1], 0) + 1
+                    left = round(sum(r[2] for r in ok) / len(ok)) if ok else '-'
+                    print(f"{zone:<10}{w:<11}{b:<8}{len(ok) / len(res):>6.0%}  {str(left):>8}       {dict(sorted(where.items()))}", flush=True)
+        print(f'시드 {a.seeds}개, {time.time() - started:.0f}초')
+        return
+    if a.zones:
+        started = time.time()
+        table = zone_table(a.weapon, a.bot, a.seeds, a.gauge, a.meta)
+        text = zone_markdown(table, a.weapon, a.bot)
+        print(text)
+        print(f'시드 {a.seeds}개, {time.time() - started:.0f}초')
+        if a.md:
+            with open(a.md, 'w', encoding='utf-8') as f:
+                f.write(text + '\n')
+        return
     if a.economy:
         print_economy()
         return

@@ -987,6 +987,62 @@ def _surge_draw(p, u, R, o, x):
 
 
 # 증기 분출 (v8 5-5 공장 장치): 바닥 틈에서 흰 줄기 다발이 솟구치고 -> 줄기가 끊어지며 위로 빠지고 -> 김 덩이가 옆으로 퍼지며 사라진다
+# ----- 공장 증기 분출구 (devices.Vent) -----
+# 한 줄: 틈에서 흰 김 덩이가 촘촘한 기둥으로 솟구치고(첫 두 장은 흰 심), 위로 갈수록 느려지며 옆으로 부풀어 회색으로 식고,
+#        바닥에는 김이 양옆으로 깔리고 위에서 물방울이 흩어진다. 게임은 분출 동안 0.2초마다 이 시트를 겹쳐 띄워 끊기지 않는 기둥을 만든다.
+STEAM_META = dict(size=[100, 172], origin=[50, 166], duration=0.46, fps=30, options=dict(ramp='dust', seed=66),
+                  variant_seeds=[66, 71, 79])           # 세 줄: 분출구가 차례로 돌려 써서 기둥이 0.2초마다 똑같이 되풀이되지 않는다
+# 김이 식어 가는 색: 흰색 -> 옅은 청회색 -> 공장 그늘색 (FLAME은 앞이 뜨겁고 뒤가 식은 색, 테두리는 두 칸 뒤 색)
+STEAM_HEAT = [WHITE, (242, 247, 251), (226, 235, 242), (208, 220, 230), (186, 200, 214), (162, 178, 194), (138, 154, 172),
+              (112, 128, 148), (88, 102, 122)]
+STEAM_HOT = [WHITE] * 4 + STEAM_HEAT[1:6]                    # 처음 솟는 흰 심 (금방 식지 않는다)
+
+
+def steam_create(o):
+    rng = Rng(o['seed'])
+    ps = Particles(rng, RAMPS[o['ramp']])
+    ps.cool_pow = 1.8                                           # 오래 희게 (금방 회색이 되면 연기처럼 보인다): 희게 있다가 줄어들며 사라진다
+    for k in range(14):                                         # 흰 심: 한 줄로 촘촘히 쏜다 (뒤로 갈수록 작고 빠르다)
+        sp = 380 + 42 * k + rng.range(-25, 25)
+        ps.spawn(FLAME, rng.range(-1.5, 1.5), -4, rng.range(-12, 12), -sp, rng.range(0.16, 0.26), max(3.0, 8.5 - 0.4 * k),
+                 0.004 * k, ramp=STEAM_HOT)
+    for i in range(52):                                         # 몸통: 0.22초 동안 쉬지 않고 뿜는다 (다음 시트와 이어진다). 위로 갈수록 퍼진다
+        d = i / 52 * 0.22 + rng.range(0, 0.01)
+        sp = rng.range(420, 760)
+        ps.spawn(FLAME, rng.range(-3, 3), -4, rng.range(-80, 80), -sp, rng.range(0.24, 0.4), rng.range(3.5, 7.0), d, ramp=STEAM_HEAT)
+    for i in range(16):                                         # 위의 뭉게: 기둥이 닿을 즈음 그 높이에서 느리게 부풀며 옆으로 번진다
+        y = -rng.range(70, 140)
+        ps.spawn(FLAME, rng.range(-12, 12) * (-y / 100), y, rng.range(-60, 60), -rng.range(40, 140), rng.range(0.22, 0.34),
+                 rng.range(6.0, 10.5), 0.03 + (-y) / 900 + rng.range(0, 0.12), ramp=STEAM_HEAT[1:])
+    for side in (-1, 1):                                        # 바닥에 깔리는 김: 작은 덩이 여럿이 짧게 번진다
+        for _ in range(9):
+            ps.spawn(FLAME, side * rng.range(2, 10), -3, side * rng.range(40, 130), -rng.range(5, 30), rng.range(0.18, 0.3),
+                     rng.range(2.0, 4.0), rng.range(0.0, 0.2), ramp=STEAM_HEAT[1:])
+    for _ in range(12):                                         # 가장자리에서 떨어져 나가는 작은 김 가닥
+        y = -rng.range(30, 120)
+        side = rng.pick((-1, 1))
+        ps.spawn(FLAME, side * rng.range(6, 14), y, side * rng.range(90, 200), -rng.range(30, 160), rng.range(0.18, 0.3),
+                 rng.range(1.5, 2.8), 0.02 + (-y) / 1000 + rng.range(0, 0.15), ramp=STEAM_HEAT[2:])
+    ps.burst(MOTE, 0, -90, 16, (80, 260), (0.25, 0.42), spread=2.6, aim=-math.pi / 2, delay=(0.1, 0.24))   # 물방울
+    lights = Lights()
+    later = [(0.0, 0, -16, 26, 90, 0.3), (0.08, 0, -56, 32, 70, 0.34), (0.16, 0, -100, 32, 55, 0.3)]   # 빛도 김을 따라 오른다 (앞서지 않게)
+    t = [0.0]
+
+    class Steam:
+        def update(self, dt):
+            t[0] += dt
+            while later and later[0][0] <= t[0]:
+                _d, x, y, r, k, life = later.pop(0)
+                lights.add(x, y, r, (196, 222, 236), k, life)
+            ps.update(dt)
+            lights.update(dt)
+
+        def draw(self, p):
+            ps.draw(p)
+            lights.draw(p)
+    return Steam()
+
+
 def _steam_setup(ps, lights, rng, R, o):
     light = [R[2], R[3], R[4], R[4], WHITE]             # 김은 밝게 (어두운 공처럼 보이지 않게)
     for i in range(12):                                 # 작은 김 덩이 여럿: 줄기를 따라 위로 빠르게, 위에서 옆으로 퍼진다
@@ -1067,7 +1123,8 @@ MISC = {
     'dust-land': (dict(size=[96, 36], origin=[48, 34], duration=0.28, fps=30, glow=False, options=dict(ramp='dust', seed=61)), _simple(_dust_setup, _dust_draw)),
     'puff': (dict(size=[72, 72], origin=[36, 41], duration=0.34, fps=30, glow=False, options=dict(ramp='dust', seed=62)), _simple(_puff_setup, _puff_draw)),
     'surge': (dict(size=[64, 88], origin=[32, 80], duration=0.36, fps=30, options=dict(ramp='haze', seed=63)), _simple(_surge_setup, _surge_draw)),
-    'steam-jet': (dict(size=[80, 160], origin=[40, 154], duration=0.46, fps=30, options=dict(ramp='dust', seed=66)), _simple(_steam_setup, _steam_draw)),
+    # v8 7일 차(2026-11-25): 가는 흰 줄만 보여 '가늘다'는 지적 -> 김 덩이로 만든 굵은 기둥 (steam_create, 예전 판은 _steam_setup·_steam_draw)
+    'steam-jet': (STEAM_META, steam_create),
     'quake-blast': (dict(size=[220, 120], origin=[110, 116], duration=0.46, fps=30, options=dict(ramp='ember', seed=64, ground=0)),
                     _simple(_quake_setup, _quake_draw)),
     'death-burst': (dict(size=[110, 110], origin=[55, 55], duration=0.46, fps=30, options=dict(ramp='haze', seed=65)),
@@ -1553,14 +1610,17 @@ def main(argv):
             print('보기 전용 시안이라 굽지 않는다 (--look):', name)
             continue
         meta, create = EFFECTS[name] if name in EFFECTS else LOOK_ONLY[name]
-        frames = fx.render(meta, create)
+        # variant_seeds: 같은 레시피를 시드만 바꿔 여러 줄로 굽는다 (자주 겹쳐 띄우는 이펙트가 똑같이 되풀이되지 않게, 예: steam-jet)
+        rows = [fx.render(meta, create, seed=sd) for sd in meta['variant_seeds']] if meta.get('variant_seeds') else [fx.render(meta, create)]
+        frames = [f for row in rows for f in row]
         path = fx.contact(frames, os.path.join(fx.ROOT, 'shots', 'fx', name + '.png'), actor=HERO, origin=meta['origin'],
                           label=f"{name}  {meta['size'][0]}x{meta['size'][1]}  {len(frames)}f @{meta.get('fps', 30)}fps")
         if look:
             print('본다', path)
             continue
         meta = dict(meta)
-        info = fx.export(name, meta, [frames])
+        meta.pop('variant_seeds', None)
+        info = fx.export(name, meta, rows)
         print('구움', name, info['frames'], '프레임')
 
 

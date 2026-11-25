@@ -131,6 +131,7 @@ class Vent:
         self.phase, self.left = 'idle', config.VENT_IDLE - offset
         self.tick = 0.0
         self.hit = set()                 # 이번 분출에 이미 맞은 것 (한 번만)
+        self.puffs = 0                   # 띄운 김 시트 수: 시트의 세 줄(시드가 다른 변형)을 차례로 쓴다
 
     def column(self, x, y):
         """(x, y)가 분출 기둥 안인가."""
@@ -153,7 +154,8 @@ class Vent:
             return
         if self.tick <= 0:                                   # 분출 기둥을 이어 붙인다
             self.tick = 0.2
-            effects.spawn('steam-jet', self.x, self.y + 6, duration=0.46)
+            effects.spawn('steam-jet', self.x, self.y + 6, duration=0.46, variant=self.puffs % 3)
+            self.puffs += 1
         p = self.player
         if p is not None and 'player' not in self.hit and self.column(p.x, p.y) and p.invuln_left <= 0:
             self.hit.add('player')

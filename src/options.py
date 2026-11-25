@@ -1,4 +1,4 @@
-"""설정: 화면 흔들림 세기, 번쩍임 줄이기(접근성), 음악·효과음 크기, 해상도, 마우스 가두기, 키 설정(keybinds). pico2d와 무관한 순수 로직이다.
+"""설정: 화면 흔들림 세기, 번쩍임 줄이기(접근성), 음악·효과음 크기, 해상도, 마우스 가두기, 초보자 모드, 키 설정(keybinds). pico2d와 무관한 순수 로직이다.
 (해상도·마우스 가두기를 실제 창에 적용하는 일은 display.apply가 한다.)
 
 값은 이번 실행 동안 유지되고, 바꿀 때마다 사용자 홈 폴더의 작은 파일(~/.haze_options.json)에 저장해
@@ -27,6 +27,7 @@ show_hints = True         # 처음 하는 사람 안내판 (11/21 계획 2-5)
 show_damage = True        # 피해 숫자 (11/21 타격감)
 test_mode = False         # v7 테스트 모드: 무적, 게이지 유지, F6~F9 바로가기 (발표·점검용)
 confine_mouse = False     # True면 마우스가 게임 창 밖으로 나가지 않는다 (조준하다 다른 모니터를 누르는 일 방지)
+easy_mode = False         # v8 초보자 모드: 받는 피해·줄어드는 게이지 완화 (config.EASY_*)
 _loaded = False
 
 
@@ -62,6 +63,24 @@ def toggle_damage():
     global show_damage
     show_damage = not show_damage
     save()
+
+
+def toggle_easy():
+    global easy_mode
+    easy_mode = not easy_mode
+    save()
+
+
+def damage_taken_mult():
+    """받는 피해 배율 (초보자 모드면 config.EASY_DAMAGE_MULT)."""
+    import config
+    return config.EASY_DAMAGE_MULT if easy_mode else 1.0
+
+
+def gauge_loss_mult():
+    """피격·시간 경과로 줄어드는 게이지 배율 (초보자 모드면 config.EASY_GAUGE_LOSS_MULT)."""
+    import config
+    return config.EASY_GAUGE_LOSS_MULT if easy_mode else 1.0
 
 
 def toggle_test_mode():
@@ -114,7 +133,9 @@ def toggle_flash():
 def reset():
     """기본값으로 되돌린다 (테스트용, 파일은 건드리지 않는다)."""
     global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, show_damage, test_mode
+    global easy_mode
     shake_level, reduce_flash, show_hints, show_damage, test_mode = 2, False, True, True, False
+    easy_mode = False
     music_level = sfx_level = VOLUME_DEFAULT
     resolution, confine_mouse = RESOLUTION_DEFAULT, False
     keybinds.reset()
@@ -123,6 +144,7 @@ def reset():
 def load(path=None):
     """저장된 값을 읽는다. 처음 한 번만 읽고, 이상한 값은 무시한다."""
     global shake_level, reduce_flash, music_level, sfx_level, resolution, confine_mouse, show_hints, show_damage, _loaded
+    global easy_mode
     _loaded = True
     data = safe_io.read_json(path or PATH)            # 깨졌으면 .bak, 그것도 없으면 None (기본값)
     if not isinstance(data, dict):
@@ -142,6 +164,7 @@ def load(path=None):
         confine_mouse = bool(data.get('confine_mouse', confine_mouse))
         show_hints = bool(data.get('show_hints', show_hints))
         show_damage = bool(data.get('show_damage', show_damage))
+        easy_mode = bool(data.get('easy_mode', easy_mode))
         keybinds.load_json(data.get('keys'))
     except (OSError, ValueError, TypeError, AttributeError):
         pass
@@ -151,7 +174,7 @@ def save(path=None):
     return safe_io.write_json(path or PATH, {
         'shake_level': shake_level, 'reduce_flash': reduce_flash, 'music_level': music_level, 'sfx_level': sfx_level,
         'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints, 'show_damage': show_damage,
-        'keys': keybinds.to_json()})
+        'easy_mode': easy_mode, 'keys': keybinds.to_json()})
 
 
 def ensure_loaded():

@@ -1,6 +1,6 @@
-# T51 떠돌이 죄수 NPC (이벤트 방, 초안 2026-11-25 Claude 프로젝트)
+# T51 떠돌이 죄수 NPC (이벤트 방, 2026-11-25 Claude 프로젝트 초안, Claude Code 등록)
 
-> **초안이다.** `docs/codex/TASKS.md`에 아직 줄이 없다. 로컬 Claude Code가 검토해 표에 넣은 뒤 시작한다.
+> 2026-11-25 Claude Code 검토·등록(`docs/codex/TASKS.md`에 `ready`, T50 다음). 지금 게임은 보관인 그림의 색을 바꾼 임시 그림(`assets/sprites/unified/npc_drifter_idle_1~2.png`)을 쓴다.
 
 먼저 `docs/codex/COMMON.md`를 읽고 그 규칙을 따른다. T22(은신처 NPC)와 같은 방식: **마스터 1장 → 대기 2장 → `finish_character.py <원화> npc_drifter --height 117` → `check_sprites.py`**.
 

@@ -360,3 +360,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - AI를 쓰지 않은 그림(타일·이펙트·HUD·아이콘 일부·장치 소품)은 모두 `tools/make_*.py`로 코드로 그렸다(code-drawn). 소리·글꼴의 출처와 라이선스는 위 표(Kenney CC0, OpenGameArt CC0·CC-BY 3.0, Galmuri OFL)에 있다.
 - 엔딩 크레딧(`src/credits_mode.py`)의 'AI 도구'에 PixelLab과 Gemini 줄을 더했다(2026-11-25). 빈칸이 채워지면 크레딧의 '이미지 모델명은 도구가 제공하지 않았다' 줄도 함께 고친다.
 - 이 정리는 Claude(프로젝트 스레드)가 기록만 옮긴 것이다. 약관은 읽지 않았다.
+- 2026-11-25: `assets/presentation_examples/demo3_*.jpg` 10장(3차 발표 자료용 게임 화면): 실제 게임 창을 찍은 것(1280x720, 자체 캡처). `docs/presentation_3rd.pptx`는 `tools/make_presentation_3rd.py`(python-pptx)가 만든다.

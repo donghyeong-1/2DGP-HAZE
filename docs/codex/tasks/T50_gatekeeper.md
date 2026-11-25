@@ -1,7 +1,7 @@
-# T50 구역 1 중간 보스 '문지기' (초안, 2026-11-25 Claude 프로젝트)
+# T50 구역 1 중간 보스 '문지기' (2026-11-25 Claude 프로젝트 초안, Claude Code 등록)
 
-> **초안이다.** `docs/codex/TASKS.md`에 아직 줄이 없다(그 파일은 Codex 영역이라 클라우드 스레드가 고치지 않았다). 로컬 Claude Code가 검토해 표에 `ready`로 넣은 뒤 시작한다.
-> 문지기 코드(인계서 대기열 1번)가 먼저 들어가면, 그때 정한 기술 이름과 장 수에 맞춰 이 파일을 고친다.
+> 2026-11-25 Claude Code 검토·등록(`docs/codex/TASKS.md`에 `ready`). 문지기 코드는 들어갔다(`src/gatekeeper.py`): 기술은 아래 표 그대로 방패 돌진·내려찍기·증원 호출이다.
+> 지금 게임은 간수 그림을 크게 구운 임시 그림(`assets/sprites/unified/boss_gatekeeper_*`, 키 192px, 도트가 굵다)을 쓴다. 이 작업의 결과로 바꾼다. 파일 이름은 이 작업서대로 내면 Claude Code가 적용할 때 게임 이름에 맞춘다.
 
 먼저 `docs/codex/COMMON.md`를 읽고 그 규칙을 따른다. 새 캐릭터이므로 **마스터 스틸 1장 → 동작 격자 시트 → `process` → `finish_character.py <원화> boss_gatekeeper --height 165` → `check_sprites.py`** 순서다(T27·T42와 같은 방식, 키는 `--height`로 준다).
 

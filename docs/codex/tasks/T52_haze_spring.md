@@ -1,7 +1,6 @@
-# T52 헤이즈 샘 소품 (이벤트 방, 초안 2026-11-25 Claude 프로젝트)
+# T52 헤이즈 샘 소품 (이벤트 방, 2026-11-25 Claude 프로젝트 초안, Claude Code 등록)
 
-> **초안이다.** `docs/codex/TASKS.md`에 아직 줄이 없다. 로컬 Claude Code가 검토해 표에 넣은 뒤 시작한다.
-> 지금 그림은 코드로 그린 임시 그림(`tools/make_event_props.py`)이다. 코드 그림으로 충분하다고 사용자가 정하면 이 작업은 하지 않는다.
+> 2026-11-25 Claude Code 검토·등록(`docs/codex/TASKS.md`에 `ready`, 선택 작업: T50·T51 뒤). 지금 게임은 코드로 그린 그림(`assets/ui/event_spring_*.png`)을 쓴다.
 
 먼저 `docs/codex/COMMON.md`를 읽고 그 규칙을 따른다. 소품이라 T28(움직이는 소품)·T43(보스방 지형 소품)과 같은 방식이다.
 

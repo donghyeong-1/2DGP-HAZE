@@ -68,7 +68,7 @@ Claude Code가 `docs/codex/reports/T01.md`와 결과 파일을 측정·비교해
 | T46 | 헤이즈 심장 기계 손 8장 | [T46_heart_hands.md](tasks/T46_heart_hands.md) | T45 | done |
 | T47 | 헤이즈 심장 결전 방 배경 + 등장 카드 | [T47_heart_arena.md](tasks/T47_heart_arena.md) | T45 | done |
 | T48 | 전경 실루엣 층 3장 (구역마다) | [T48_foreground.md](tasks/T48_foreground.md) | - | done |
-| T49 | v6 구역 배경 다시 그리기 (원경·중경 6장, 960x540 픽셀) | [T49_zone_backdrops_v6.md](tasks/T49_zone_backdrops_v6.md) | - | ready |
+| T49 | v6 구역 배경 다시 그리기 (원경·중경 6장, 960x540 픽셀) | [T49_zone_backdrops_v6.md](tasks/T49_zone_backdrops_v6.md) | - | done·게임 적용 2026-11-25 (`tools/apply_backdrops_v6.py`가 2배로 구워 `assets/backgrounds/far_*·mid_*`에. 황금방·정비방·보스방은 같은 판을 테마 색으로) |
 | T50 | 구역 1 중간 보스 문지기 17장 (방패 돌진·내려찍기·증원 호출) | [T50_gatekeeper.md](tasks/T50_gatekeeper.md) | - | ready |
 | T51 | 떠돌이 죄수 (이벤트 방 NPC) | [T51_drifter.md](tasks/T51_drifter.md) | - | ready |
 | T52 | 헤이즈 샘 (이벤트 방 소품, 선택 작업) | [T52_haze_spring.md](tasks/T52_haze_spring.md) | - | ready |

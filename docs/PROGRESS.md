@@ -26,7 +26,7 @@
 3. [ ] **(Claude Code) 3차 발표 자료**: 초안 완료(11/25) `docs/presentation_3rd.pptx`(10장), `docs/script_3rd.md`(대본·촬영 순서·제출 체크리스트). 1차와 같은 형식(PPT 10쪽 이내 + 영상 1분 30초)으로 가정했다. 형식이 확인되면 `tools/make_presentation_3rd.py`를 고쳐 다시 만들고, 게임이 바뀌면 화면을 다시 찍는다. **(사용자) 한 번 열어 보고 고칠 곳을 알려 주기.**
 4. [ ] **(사용자) 데모 촬영 → YouTube 업로드 → e-class 제출.** CC-BY 곡을 쓰면 영상 설명란에 곡명·작가·라이선스.
 5. [ ] **(사용자, 제출 전 필수)** `docs/ASSETS.md` 맨 끝 표의 빈칸(이미지 생성 도구의 모델명·이용 조건). **주인공 동작을 PixelLab 체험판 계정으로 만들었다: 체험판 생성물을 공개 영상·저장소에 써도 되는지 확인.** 채워지면 크레딧 문구를 고친다.
-6. [ ] **(Codex) T50 문지기 그림 → T51 떠돌이 죄수 → T52 헤이즈 샘**(11/25 등록, `docs/codex/TASKS.md`). T49 구역 배경은 Codex가 review로 올렸다: "T49 결과를 검토해줘"로 Claude Code에게.
+6. [ ] **(Codex) T50 문지기 그림 → T51 떠돌이 죄수 → T52 헤이즈 샘**(11/25 등록, `docs/codex/TASKS.md`). T49 구역 배경은 11/25 검토·적용 완료.
 7. [ ] **(사용자) 효과음 검토**: 연습장 F 메뉴 → '효과음 듣기'. 표시한 소리부터 Claude Code가 다시 만든다(`sfx_review.json`).
 8. [ ] **(사용자 결정)** 주인공 이름(화면에는 'N-09'만 나온다), 대화 초상화를 지금 주인공 그림에 맞출지.
 9. [ ] **(사용자)** 실행 파일을 파이썬 없는 PC에서 켜 보기, 게임패드가 있으면 몇 방.
@@ -360,3 +360,4 @@
 2026-11-25 [Claude Code] 프로젝트 추천안 검토(사용자 요청: 검토 후 정하기)와 수정 셋: (1) 감시 레이저에 닿으면 게이지가 최종 +6(피격 기본 손실 -5에 묻혀 +1이던 것), (2) 도전방 시간 12 + 4.5n -> 10 + 3.5n(시뮬레이션에서 이긴 판이 모두 제한의 절반 안), (3) 합성 카드 글자 겹침(교체 연무 설명을 세 줄로, 합성 조건 글자는 '합성:' 머리말을 빼 한 줄로, 진화의 두 줄 조건 글자는 위로 올림). 나머지 추천안은 그대로 채택(DECISIONS). 밸런스 기준을 합친 상태로 다시 저장. 임시 인계 문서 docs/NEXT_SESSION.md 삭제. / src/devices.py, src/config.py, src/mutations.py, src/mutation_mode.py, tools/balance_base.json, tests/test_devices.py, tests/test_events.py, tests/test_duo_v8.py, docs/NEXT_SESSION.md(삭제)
 2026-11-25 [Claude Code] PROGRESS의 '지금 상태'·'발표 일정'·'다음 할 일'·'열린 질문'을 v8 기준으로 다시 씀(식칼·Q 교체 같은 옛 내용 정리), 3차 발표일 12/2(수) 기록, Codex 작업 목록에 T50 문지기·T51 떠돌이 죄수·T52 헤이즈 샘 등록. / docs/PROGRESS.md, docs/codex/TASKS.md, docs/DECISIONS.md
 2026-11-25 [Claude Code] 3차 발표 자료 초안: PPT 10장(제목, 계획 대비 진행, 게이지, 확장 셋, 적·보스, 완성도, 변경 한눈에, 남은 일)과 대본·촬영 순서. 게임 화면 10장을 실제 창에서 새로 찍음. 슬라이드를 그림으로 내보내 글자 넘침을 확인하고 고침. 형식은 확인 전이라 1차와 같다고 가정. / tools/make_presentation_3rd.py, docs/presentation_3rd.pptx, docs/script_3rd.md, assets/presentation_examples/demo3_*.jpg, docs/ASSETS.md
+2026-11-25 [Claude Code] Codex T49 검토·적용: v6 구역 배경(슬럼·공장·탑의 원경·중경 6장)이 합격 기준을 충족해 게임에 적용. 960x540·1440x540 픽셀 그림을 정수 2배로 구워 `assets/backgrounds/far_*·mid_*`에, 황금방·정비방·보스방은 같은 판을 테마 색으로 다시 입힘. 실제 창에서 여섯 종류 방을 확인. make_world는 타일만 만든다. / tools/apply_backdrops_v6.py(신규), tools/make_world.py, assets/backgrounds/(far·mid)_(cell·foundry·haze·gold·shop·boss).png, docs/codex/TASKS.md, docs/ASSETS.md

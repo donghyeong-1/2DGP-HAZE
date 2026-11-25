@@ -13,7 +13,8 @@ v2 (2026-11-17): 캐릭터와 같은 **1배 픽셀 밀도**로 다시 그렸다 
   assets/backgrounds/far_<테마>.png  1920x1080 원경 (불투명)
   assets/backgrounds/mid_<테마>.png  1920x1200 중경 (투명, 가로 반복)
 테마: cell(감방 청회색) foundry(제련소 주황) haze(헤이즈 청록) gold(황금방 황동) shop(정비방 청색) boss(보스 붉은색)
-사용: python tools/make_world.py [테마 ...]
+사용: python tools/make_world.py [테마 ...]   (타일만 만든다. 원경·중경은 2026-11-25부터 tools/apply_backdrops_v6.py가 만든다.
+      예전 원경·중경으로 되돌리려면 --backdrops-v1)
 """
 import math
 import os
@@ -723,10 +724,12 @@ def build_mid(theme):
 def main():
     os.makedirs(TILE_DIR, exist_ok=True)
     os.makedirs(BG_DIR, exist_ok=True)
-    for theme in (sys.argv[1:] or list(THEMES)):
+    old = '--backdrops-v1' in sys.argv          # 2026-11-25: 원경·중경은 Codex T49 그림을 쓴다 (tools/apply_backdrops_v6.py)
+    for theme in ([a for a in sys.argv[1:] if not a.startswith('--')] or list(THEMES)):
         build_atlas(theme)
-        build_far(theme)
-        build_mid(theme)
+        if old:                                 # 예전 원경·중경(코드 그림)으로 되돌릴 때만
+            build_far(theme)
+            build_mid(theme)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,36 @@
+{
+ "frames": {
+  "v6_cart_idle": [
+   1,
+   94,
+   124
+  ],
+  "v6_cart_roll": [
+   4,
+   94,
+   124
+  ],
+  "v6_cart_arm": [
+   3,
+   94,
+   124
+  ],
+  "v6_cart_hurt": [
+   2,
+   94,
+   124
+  ],
+  "v6_cart_wreck": [
+   2,
+   94,
+   124
+  ]
+ },
+ "skin": {
+  "enemy_cart_idle": "v6_cart_idle",
+  "enemy_cart_roll": "v6_cart_roll",
+  "enemy_cart_arm": "v6_cart_arm",
+  "enemy_cart_hurt": "v6_cart_hurt",
+  "enemy_cart_wreck": "v6_cart_wreck"
+ }
+}

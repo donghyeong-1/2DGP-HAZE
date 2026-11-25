@@ -1,0 +1,36 @@
+{
+ "frames": {
+  "v6_eye_idle": [
+   2,
+   83,
+   110
+  ],
+  "v6_eye_charge": [
+   3,
+   83,
+   110
+  ],
+  "v6_eye_fire": [
+   1,
+   83,
+   110
+  ],
+  "v6_eye_hurt": [
+   2,
+   83,
+   110
+  ],
+  "v6_eye_death": [
+   2,
+   83,
+   110
+  ]
+ },
+ "skin": {
+  "enemy_eye_idle": "v6_eye_idle",
+  "enemy_eye_charge": "v6_eye_charge",
+  "enemy_eye_fire": "v6_eye_fire",
+  "enemy_eye_hurt": "v6_eye_hurt",
+  "enemy_eye_death": "v6_eye_death"
+ }
+}

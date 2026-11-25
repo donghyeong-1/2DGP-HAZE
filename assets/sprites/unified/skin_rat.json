@@ -1,0 +1,36 @@
+{
+ "frames": {
+  "v6_rat_idle": [
+   1,
+   64,
+   92
+  ],
+  "v6_rat_run": [
+   8,
+   68,
+   92
+  ],
+  "v6_rat_bite": [
+   2,
+   64,
+   92
+  ],
+  "v6_rat_hurt": [
+   1,
+   64,
+   92
+  ],
+  "v6_rat_death": [
+   2,
+   64,
+   92
+  ]
+ },
+ "skin": {
+  "enemy_rat_idle": "v6_rat_idle",
+  "enemy_rat_run": "v6_rat_run",
+  "enemy_rat_bite": "v6_rat_bite",
+  "enemy_rat_hurt": "v6_rat_hurt",
+  "enemy_rat_death": "v6_rat_death"
+ }
+}

@@ -1,0 +1,31 @@
+{
+ "frames": {
+  "v6_wraith_float": [
+   4,
+   72,
+   122
+  ],
+  "v6_wraith_grab": [
+   3,
+   72,
+   122
+  ],
+  "v6_wraith_hurt": [
+   1,
+   72,
+   122
+  ],
+  "v6_wraith_death": [
+   2,
+   72,
+   122
+  ]
+ },
+ "skin": {
+  "enemy_wraith_idle": "v6_wraith_float",
+  "enemy_wraith_float": "v6_wraith_float",
+  "enemy_wraith_grab": "v6_wraith_grab",
+  "enemy_wraith_hurt": "v6_wraith_hurt",
+  "enemy_wraith_death": "v6_wraith_death"
+ }
+}

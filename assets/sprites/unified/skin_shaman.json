@@ -1,0 +1,36 @@
+{
+ "frames": {
+  "v6_shaman_idle": [
+   2,
+   80,
+   188
+  ],
+  "v6_shaman_walk": [
+   8,
+   81,
+   188
+  ],
+  "v6_shaman_cast": [
+   3,
+   80,
+   188
+  ],
+  "v6_shaman_hurt": [
+   2,
+   80,
+   188
+  ],
+  "v6_shaman_death": [
+   3,
+   80,
+   188
+  ]
+ },
+ "skin": {
+  "enemy_shaman_idle": "v6_shaman_idle",
+  "enemy_shaman_walk": "v6_shaman_walk",
+  "enemy_shaman_cast": "v6_shaman_cast",
+  "enemy_shaman_hurt": "v6_shaman_hurt",
+  "enemy_shaman_death": "v6_shaman_death"
+ }
+}

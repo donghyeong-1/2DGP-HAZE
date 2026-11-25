@@ -7,6 +7,8 @@
 4. assets/sprites/unified/skin_<캐릭터>.json 에 {"frames": {세트: [장수, 기준점 x, y]}, "skin": {기존 이름: 세트}}.
    src/sprites.py가 읽어 기존 이름(enemy_guard_walk 등)을 새 그림으로 바꿔 그린다. 게임 코드는 그대로.
 공격처럼 적 코드가 장수로 타이밍을 잡는 동작은 기존과 같은 장수를 고른다 (src/sprites.py FRAMES의 기존 장수).
+선택 옵션 (2026-11-25, 적 5종): 'clean' = 이 세트들은 PixelLab이 그려 넣은 효과(충격 별·불티·피)를 지운다(base 색이 아닌 칸과
+작은 떨어진 조각 제거). 'palette_extra' = base에 없지만 써야 하는 색이 있는 프레임(렌즈가 하얗게 달아오름, 경고등)의 색을 더한다.
 
 실행: python tools/apply_pixellab_char.py [캐릭터 ...]   (없으면 원본이 있는 캐릭터 전부)
 """
@@ -126,7 +128,80 @@ CHARS = {
         },
         'skin': {},
     },
+    # 남은 일반 적 5종 (2026-11-25, shots/pixellab_test/<이름>_v6_all.png). 모두 pixminimax. 장수는 src/enemy_kinds.py·sprites.FRAMES 그대로.
+    # 무당: 숨쉬기 2, 걷기 8(느린 발끌기), 시전 3(지팡이 듦 -> 높이 -> 내림, try1은 몸이 청록으로 물들어 다시 뽑음), 피격 2(별·핏방울을 지움), 사망 3
+    'shaman': {
+        'prefix': 'v6_shaman',
+        'clean': ('hurt',),
+        'sets': {'idle': (_f('idle', [0, 2]), 'none'), 'walk': (_f('walk', range(1, 9)), 'loop'),
+                 'cast': (_f('cast', [2, 4, 6]), 'none'), 'hurt': (_f('hurt', [2, 3]), 'none'),
+                 'death': (_f('death', [3, 5, 7]), 'none')},
+        'skin': {'enemy_shaman_idle': 'idle', 'enemy_shaman_walk': 'walk', 'enemy_shaman_cast': 'cast',
+                 'enemy_shaman_hurt': 'hurt', 'enemy_shaman_death': 'death'},
+    },
+    # 쥐: 달리기 8, 물기 2(웅크림 -> 입 벌리고 내밈. 5~7번은 베는 호가 그려져 뺌), 피격 1(별 지움), 사망 2(핏방울 지움)
+    'rat': {
+        'prefix': 'v6_rat',
+        'clean': ('hurt', 'death'),
+        'sets': {'idle': ([('base.png', None)], 'none'), 'run': (_f('run', range(1, 9)), 'loop'),
+                 'bite': (_f('bite', [2, 4]), 'none'), 'hurt': (_f('hurt', [3]), 'none'),
+                 'death': (_f('death', [3, 6]), 'none')},
+        'skin': {'enemy_rat_idle': 'idle', 'enemy_rat_run': 'run', 'enemy_rat_bite': 'bite',
+                 'enemy_rat_hurt': 'hurt', 'enemy_rat_death': 'death'},
+    },
+    # 감시 눈(벽 포탑, 떠 있는 적: 몸통 중심을 히트박스 가운데에): 대기 2, 충전 3(밝아짐 -> 가득 -> 흰색), 발사 1, 피격 2(렌즈 꺼짐), 사망 2
+    'eye': {
+        'prefix': 'v6_eye',
+        'float_hb': 48,
+        'anchor_dx': 20,                                        # 기준점을 받침대 쪽으로 20px: 뒤집어 그릴 때 받침대가 벽에 닿는다 (옛 그림과 같은 거리 66px)
+        'clean': ('hurt',),
+        'palette_extra': [('charge', 2), ('charge', 4), ('death', 3)],
+        'sets': {'idle': (_f('idle', [0, 2]), 'none'), 'charge': (_f('charge', [1, 3, 2]), 'none'),
+                 'fire': (_f('charge', [4]), 'none'), 'hurt': (_f('hurt', [2, 3]), 'none'),
+                 'death': (_f('death', [3, 6]), 'none')},
+        'skin': {'enemy_eye_idle': 'idle', 'enemy_eye_charge': 'charge', 'enemy_eye_fire': 'fire',
+                 'enemy_eye_hurt': 'hurt', 'enemy_eye_death': 'death'},
+    },
+    # 망령(떠 있는 적): 떠 있기 4, 붙잡기 3(팔을 뒤로 -> 더 뒤로 -> 앞으로 뻗음), 피격 1(별 지움), 사망 2(가늘어짐 -> 흩어짐. 옛 세트와 같은 장수: tests/test_sprites.py)
+    'wraith': {
+        'prefix': 'v6_wraith',
+        'float_hb': 50,
+        'clean': ('hurt',),
+        'sets': {'float': (_f('float', [1, 2, 3, 4]), 'none'), 'grab': (_f('grab', [1, 2, 4]), 'none'),
+                 'hurt': (_f('hurt', [3]), 'none'), 'death': (_f('death', [3, 5]), 'none')},
+        'skin': {'enemy_wraith_idle': 'float', 'enemy_wraith_float': 'float', 'enemy_wraith_grab': 'grab',
+                 'enemy_wraith_hurt': 'hurt', 'enemy_wraith_death': 'death'},
+    },
+    # 자폭 수레: 구르기 4, 예고 3(경고등이 커진다), 피격 2(뒤로 들림, 별 지움), 잔해 2(무너짐 -> 납작한 더미)
+    'cart': {
+        'prefix': 'v6_cart',
+        'clean': ('hurt', 'wreck'),
+        'palette_extra': [('arm', 2), ('arm', 3)],
+        'sets': {'idle': ([('base.png', None)], 'none'), 'roll': (_f('roll', [1, 3, 5, 7]), 'none'),
+                 'arm': (_f('arm', [1, 2, 3]), 'none'), 'hurt': (_f('hurt', [2, 3]), 'none'),
+                 'wreck': (_f('wreck', [4, 7]), 'none')},
+        'skin': {'enemy_cart_idle': 'idle', 'enemy_cart_roll': 'roll', 'enemy_cart_arm': 'arm',
+                 'enemy_cart_hurt': 'hurt', 'enemy_cart_wreck': 'wreck'},
+    },
 }
+
+
+def clean_effects(a, pal, min_size=10):
+    """PixelLab이 피격·사망에 그려 넣는 효과를 지운다: 기준 색(pal)에 없는 칸을 지우고, 몸에서 떨어진 작은 조각(min_size 칸 미만)도 지운다."""
+    from scipy import ndimage
+    out = a.copy()
+    keys = {tuple(int(v) for v in c) for c in pal}
+    m = out[:, :, 3] == 255
+    ys, xs = np.nonzero(m)
+    for y, x in zip(ys, xs):
+        if tuple(int(v) for v in out[y, x, :3]) not in keys:
+            out[y, x] = 0
+    lab, n = ndimage.label(out[:, :, 3] == 255, structure=np.ones((3, 3)))
+    sizes = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1)) if n else []
+    for i, size in enumerate(sizes, 1):
+        if size < min_size:
+            out[lab == i] = 0
+    return out
 
 
 def load(char, rel, n=None):
@@ -155,12 +230,18 @@ def apply(char):
         return
     base = load(char, 'base.png')
     pal = palette_of(base)
+    for src, n in cfg.get('palette_extra', ()):                     # base에 없는 색을 쓰는 프레임 (달아오른 렌즈, 경고등)
+        pal = np.unique(np.concatenate([pal, palette_of(load(char, src, n))]), axis=0)
+    cleaned = set(cfg.get('clean', ()))
     base_x = body_x(base)
     foot = foot_row([base])
     frames_meta, skin = {}, {}
     for tail, (frames_src, align) in cfg['sets'].items():
         name = f"{cfg['prefix']}_{tail}"
-        frames = [lock_palette(remove_white_arcs(load(char, src, n)), pal) for src, n in frames_src]
+        loaded = [load(char, src, n) for src, n in frames_src]
+        if tail in cleaned:
+            loaded = [clean_effects(f, pal) for f in loaded]
+        frames = [lock_palette(remove_white_arcs(f), pal) for f in loaded]
         anchor_x = base_x
         if align == 'loop':
             bx = [body_x(f) for f in frames]
@@ -173,7 +254,7 @@ def apply(char):
         if cfg.get('float_hb') and tail not in cfg.get('foot_sets', ()):
             # 떠 있는 적: 몸통 중심(기준 그림 불투명 줄의 평균)을 히트박스 가운데(발 위 float_hb px)에 맞춘다
             anchor_y = int(round(np.nonzero(base[:, :, 3])[0].mean() * SCALE)) + cfg['float_hb']
-        frames_meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1, anchor_y]
+        frames_meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1 + cfg.get('anchor_dx', 0), anchor_y]
         print(f'{name}: {len(frames)}장, 기준점 {frames_meta[name][1:]}')
         if cfg.get('still') == tail:                               # 정지 그림(<세트 이름>.png)도 같은 그림으로
             im = Image.fromarray(frames[0], 'RGBA')

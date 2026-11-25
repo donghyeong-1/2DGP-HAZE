@@ -12,6 +12,8 @@ v8 6일 차 대기열 1 (docs/NEXT_SESSION.md 4절, plan_v8 6절): 구역 1 끝�
 import os
 import sys
 
+import numpy as np
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'src'))
 sys.path.insert(0, os.path.join(HERE, '..', 'tools'))
@@ -72,7 +74,8 @@ def adds():
 
 # ----- 그림 -----
 def test_sprites_are_registered_with_binary_alpha_and_sit_between_guard_and_crasher():
-    """2026-11-25 Codex T50 그림(키 165px)으로 교체: 간수(134)보다 크고 크래셔(194)보다 작다."""
+    """2026-11-25 PixelLab v6 그림: 다른 캐릭터와 같은 2px 도트 격자, 간수보다 크고 크래셔보다 작다.
+    (같은 날 Codex T50 그림을 넣었다가 뺐다: 1px 단위 그림이라 혼자 그림체가 달랐다.)"""
     import sprites
     for name in ('idle', 'walk', 'heavy', 'bash', 'call', 'hurt', 'death'):
         key = f'boss_gatekeeper_{name}'
@@ -80,13 +83,15 @@ def test_sprites_are_registered_with_binary_alpha_and_sit_between_guard_and_cras
         count = sprites.FRAMES[key][0]
         for n in range(1, count + 1):
             im = Image.open(os.path.join(UNI, f'{key}_{n}.png')).convert('RGBA')
-            assert im.size == (360, 284)
+            assert im.size == (256, 256)
+            a = np.asarray(im).reshape(128, 2, 128, 2, 4)
+            assert (a == a[:, :1, :, :1]).all(), (key, n)                # 2px 도트 격자 (v6 규격)
             assert {a for *_, a in im.getdata()} <= {0, 255}
     g = Image.open(os.path.join(UNI, 'v6_guard_idle_1.png')).convert('RGBA').getbbox()
     k = Image.open(os.path.join(UNI, 'boss_gatekeeper_idle_1.png')).convert('RGBA').getbbox()
-    c = Image.open(os.path.join(UNI, 'boss_crasher_idle_1.png')).convert('RGBA').getbbox()
-    assert (g[3] - g[1]) < (k[3] - k[1]) == 165 < (c[3] - c[1])
-    assert config.ENEMY_STATS['gatekeeper']['hb'][1] <= 165             # 판정이 그림보다 크지 않다
+    c = Image.open(os.path.join(UNI, 'v6_crasher_idle_1.png')).convert('RGBA').getbbox()
+    assert (g[3] - g[1]) < (k[3] - k[1]) < (c[3] - c[1])
+    assert config.ENEMY_STATS['gatekeeper']['hb'][1] <= k[3] - k[1]     # 판정이 그림보다 크지 않다
 
 
 # ----- 관문 방 -----

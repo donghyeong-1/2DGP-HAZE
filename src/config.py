@@ -696,10 +696,10 @@ BOSS_INTRO = True
 # ----- v8 6일 차: 구역 1 중간 보스 문지기 (스레드 v8/day6-boss, src/gatekeeper.py) -----
 # 관문 방(gate)에서 정예 전투 대신 문지기와 싸운다. False면 예전 관문 정예 전투(간수·사냥개).
 GATEKEEPER = True
-# 그림은 Codex T50(키 165px, tools/apply_gatekeeper_t50.py. 11/25 전에는 간수 그림을 1.5배로 구운 임시 그림). 패턴: 방패 돌진(charge) / 내려찍기(slam) / 증원 호출(call).
+# 그림은 PixelLab v6(키 208px = 104도트, 간수를 화풍 기준으로 만든 것, tools/apply_pixellab_char.py gatekeeper). Codex T50 그림은 도트 크기가 달라 쓰지 않는다. 패턴: 방패 돌진(charge) / 내려찍기(slam) / 증원 호출(call).
 # gain_on_hit 15: 맞으면 게이지 +15 (간수 규칙). 수치는 플레이 없이 정한 첫 값이다(크래셔 체력 700의 약 2/3)
 ENEMY_STATS['gatekeeper'] = dict(
-    hp=480, hb=(84, 160), speed=140.0, sight=2400, sight_dy=700, attack_range=170, reach_dy=260, damage=24,
+    hp=480, hb=(96, 196), speed=140.0, sight=2400, sight_dy=700, attack_range=170, reach_dy=260, damage=24,
     windup=0.75, attack_time=0.3, cooldown=1.2, gain_on_hit=15, sprite='boss_gatekeeper_idle', leap=0.0,
     moves=[('slam', 3), ('charge', 3), ('call', 1)], walk_px=40.0,
     charge_speed=860.0, charge_damage=20, wave_speed=480.0, wave_damage=10, slam_reach=70, wall_stun=0.9,

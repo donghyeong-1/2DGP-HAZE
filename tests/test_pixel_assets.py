@@ -37,6 +37,25 @@ def ui_files():
     return sorted(glob.glob(os.path.join(ROOT, 'assets', 'ui', '*.png')))
 
 
+def test_v6_sprite_sets_are_on_the_two_pixel_grid():
+    """v6 규격(docs/plan_v6.md): 캐릭터는 도트 하나가 화면 2px다. skin_*.json에 등록된 세트(PixelLab으로 만든 것)는
+    모든 2x2 칸이 한 색이어야 한다. 2026-11-25: 1px 단위로 그린 문지기 그림(Codex T50)이 섞여 들어가 그림체가 달라졌다."""
+    import json
+
+    import numpy as np
+    uni = os.path.join(ROOT, 'assets', 'sprites', 'unified')
+    checked = 0
+    for path in sorted(glob.glob(os.path.join(uni, 'skin_*.json'))):
+        for name, (count, _x, _y) in json.load(open(path, encoding='utf-8'))['frames'].items():
+            for n in range(1, count + 1):
+                a = np.asarray(Image.open(os.path.join(uni, f'{name}_{n}.png')).convert('RGBA'))
+                assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, (name, n, a.shape)
+                b = a.reshape(a.shape[0] // 2, 2, a.shape[1] // 2, 2, 4)
+                assert (b == b[:, :1, :, :1]).all(), f'{name}_{n}: 2px 격자가 아니다 (1px 단위 그림)'
+                checked += 1
+    assert checked > 100
+
+
 def test_sprites_have_binary_alpha():
     assert sprite_files(), '검사할 스프라이트가 없다'
     for path in sprite_files() + tile_files() + effect_files() + ui_files() + prop_files():

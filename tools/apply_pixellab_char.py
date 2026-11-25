@@ -110,6 +110,22 @@ CHARS = {
                  'boss_crasher_smash': 'smash', 'boss_crasher_charge': 'charge', 'boss_crasher_leap': 'leap',
                  'boss_crasher_hurt': 'hurt', 'boss_crasher_death': 'death'},
     },
+    # 문지기 (2026-11-25, shots/pixellab_test/gatekeeper_v6_<동작>.png). 구역 1 중간 보스. 게임이 쓰는 세트 이름 그대로 굽는다
+    # (접두 boss_gatekeeper, skin 없음). 장수는 src/gatekeeper.py·enemy.py가 쓰는 대로: 공격 그림은 1 예고·2 타격·3 회수.
+    'gatekeeper': {
+        'prefix': 'boss_gatekeeper',
+        'still': 'idle',                                           # 정지 그림 boss_gatekeeper_idle.png = idle 1번
+        'sets': {
+            'idle': (_f('idle', [0, 2]), 'none'),                  # 숨쉬기 2장
+            'walk': (_f('walk', range(0, 8)), 'loop'),
+            'heavy': (_f('heavy', [1, 4, 5]), 'none'),             # 철퇴를 머리 위로 -> 앞으로 내려찍음 -> 회수 (try1은 방패가 사라져 다시 뽑음)
+            'bash': (_f('bash', [1, 4, 5]), 'none'),               # 방패 뒤로 웅크림 -> 낮게 내지름 -> 멈춰 섬
+            'call': (_f('call', [0, 2]), 'none'),                  # 철퇴를 치켜들고 외친다 (증원 호출)
+            'hurt': ([('hurt', 2), ('death', 1)], 'none'),         # 움찔 / 벽에 부딪혀 비틀(무릎이 꺾인다)
+            'death': (_f('death', [1, 3, 5]), 'none'),             # 무릎 -> 쓰러짐 -> 누움
+        },
+        'skin': {},
+    },
 }
 
 
@@ -159,6 +175,9 @@ def apply(char):
             anchor_y = int(round(np.nonzero(base[:, :, 3])[0].mean() * SCALE)) + cfg['float_hb']
         frames_meta[name] = [len(frames), int(round(anchor_x * SCALE)) + 1, anchor_y]
         print(f'{name}: {len(frames)}장, 기준점 {frames_meta[name][1:]}')
+        if cfg.get('still') == tail:                               # 정지 그림(<세트 이름>.png)도 같은 그림으로
+            im = Image.fromarray(frames[0], 'RGBA')
+            im.resize((im.width * SCALE, im.height * SCALE), Image.NEAREST).save(os.path.join(DST, f'{name}.png'))
     for old, tail in cfg['skin'].items():
         skin[old] = f"{cfg['prefix']}_{tail}"
     path = os.path.join(DST, f'skin_{char}.json')

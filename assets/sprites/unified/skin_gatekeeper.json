@@ -2,38 +2,38 @@
  "frames": {
   "boss_gatekeeper_idle": [
    2,
-   168,
-   250
+   142,
+   252
   ],
   "boss_gatekeeper_walk": [
-   4,
-   168,
-   250
+   8,
+   147,
+   252
   ],
   "boss_gatekeeper_heavy": [
    3,
-   168,
-   250
+   142,
+   252
   ],
   "boss_gatekeeper_bash": [
    3,
-   168,
-   250
+   142,
+   252
   ],
   "boss_gatekeeper_call": [
    2,
-   168,
-   250
+   142,
+   252
   ],
   "boss_gatekeeper_hurt": [
    2,
-   168,
-   250
+   142,
+   252
   ],
   "boss_gatekeeper_death": [
-   2,
-   168,
-   250
+   3,
+   142,
+   252
   ]
  },
  "skin": {}

@@ -64,3 +64,12 @@ Keep everything else exactly the same ...". seed 7(**선택**)·seed 3. 두 장 
 `hero_gen/hero_b_s3_mood_s7.png` -> `raw_gen/n09_2.png`. 얼굴 사각형은 (36,30)-(78,72)로 바꿈(`tools/apply_pixellab_portraits.py`의 FACE).
 확인: 실제 대화창 `shots/review/hero_portrait_ingame.png`(위 기본, 아래 강화를 샀을 때의 결의 + 정비사의 씩 웃음).
 
+### 사용자 선택으로 바꿈 (2026-11-26, 같은 날)
+시안 비교판을 본 사용자가 **아랫줄 세 번째 = `hero_c_s5`**(정비사 초상화를 화풍 기준으로, 색 따라 하기 끔, seed 5)를 골랐다("아래 줄 3번째 걸로 스타일을 뽑자").
+Claude Code가 골랐던 b_s3(예전 초상화를 다시 그린 것)보다 선이 또렷하고 피부가 희며 머플러가 푸른 쪽이다: NPC 초상화와 같은 그림체.
+- 기본 표정 `raw_gen/n09_1.png` = `hero_gen/hero_c_s5.png` (알파 0/255로만 정리)
+- 결의 표정 (12회: 6회 x 2): 같은 편집 지시, 원본 = hero_c_s5, seed 7(**선택**)·seed 3. 얼굴 밖은 거의 그대로(달라진 칸 86·97).
+  `hero_gen/hero_c_s5_mood_s7.png` -> `raw_gen/n09_2.png`. 얼굴 사각형 (44,28)-(74,62).
+- b_s3와 그 결의 표정(`hero_b_s3*.png`)은 `hero_gen/`에 남겨 둔다.
+확인: `shots/review/hero_portrait_final.png`(두 표정), `hero_portrait_ingame_crop.png`(실제 대화창, 위 기본·아래 결의).
+

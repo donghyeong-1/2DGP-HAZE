@@ -25,7 +25,7 @@ RAW = os.path.join(ROOT, 'assets', 'sprites', 'pixellab', 'portraits_v6', 'raw_g
 DST = os.path.join(ROOT, 'assets', 'portraits')
 SCALE = 2
 # 얼굴 영역 (x0, y0, x1, y1), 100x100 기준: 눈썹·눈·입이 들어가는 사각형. 머리카락·옷은 건드리지 않는다
-FACE = {'n09': (36, 30, 78, 72), 'mechanic': (17, 24, 50, 60), 'keeper': (14, 20, 48, 66), 'archivist': (20, 24, 54, 64)}
+FACE = {'n09': (44, 28, 74, 62), 'mechanic': (17, 24, 50, 60), 'keeper': (14, 20, 48, 66), 'archivist': (20, 24, 54, 64)}
 
 
 def load(name):

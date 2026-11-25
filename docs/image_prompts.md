@@ -321,3 +321,5 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 2026-11-25 [Codex] T52 기존 샘 폭과 두 구역 타일을 참고해 끊긴 철 배수관, 고철·벽돌 테두리, 청록 웅덩이와 결정을 마젠타 원화로 요청했다. 같은 구조에서 물결과 결정의 밝은 면만 변하는 두 컷, 물이 빠져 균열과 회색 결정만 남은 한 컷을 추가로 생성했다. Codex 내장 image_gen(모델명 미제공). 프롬프트 전문은 `assets/sprites/forge/spring_v1/provenance.json`.
 
 2026-11-25 [Claude Code] PixelLab(v6 방식, 화풍 기준 = 간수 base)으로 이벤트 방의 떠돌이 죄수와 헤이즈 샘을 만듦. 떠돌이: 오른쪽 옆모습, 해진 죄수복 위 누빈 적갈색 망토, 두건과 목 천, 허리·가슴의 주머니와 병, 내민 손바닥 위 청록 결정 하나(결정만 밝게). 샘: 깨진 배수관 아래 고철·벽돌 그릇에 고인 청록 헤이즈와 결정(표면과 결정만 밝게), 마른 그림은 같은 그림을 글로 편집(물과 빛을 없애고 결정을 회색 그루터기로). 영문 프롬프트 전문·seed·시안 비교는 `assets/sprites/pixellab/drifter_v6/GENERATION_LOG.md`, `assets/sprites/pixellab/spring_v6/GENERATION_LOG.md`.
+
+2026-11-25 [Claude Code] PixelLab(v6 방식, 화풍 기준 = 간수 base)으로 은신처 NPC 셋을 다시 만듦. 정비사: 올린 머리·이마의 주황 고글·올리브색 작업복·회색 의수(청록 불빛)·어깨에 멘 큰 렌치. 보관인: 구부정한 노인·갈색 두건 망토(청록 안감)·등에 진 자물쇠 궤짝·손에 든 등불. 기록관: 헝클어진 갈색 머리·둥근 안경·귀에 꽂은 연필·회청색 셔츠·가슴에 안은 두꺼운 적갈색 장부. 글로 적은 키를 지키지 않아 캔버스를 줄여 키를 맞췄다. 영문 프롬프트 전문·seed·시안 비교는 `assets/sprites/pixellab/(mechanic|keeper|archivist)_v6/GENERATION_LOG.md`.

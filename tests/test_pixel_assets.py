@@ -56,22 +56,23 @@ def test_v6_sprite_sets_are_on_the_two_pixel_grid():
     assert checked > 100
 
 
-def test_event_room_art_is_pixellab_two_pixel_art():
+def test_npc_and_event_art_is_pixellab_two_pixel_art():
     """이벤트 방의 떠돌이 죄수·헤이즈 샘도 PixelLab 그림이다(2026-11-25 사용자 결정: 캐릭터 옆에 서는 도트 그림은 PixelLab으로).
     모든 2x2 칸이 한 색이고, 마른 샘에는 청록이 남지 않는다."""
     import numpy as np
     sys.path.insert(0, os.path.join(ROOT, 'src'))
     import events
-    files = [os.path.join(ROOT, 'assets', 'sprites', 'unified', f'npc_drifter_idle_{n}.png') for n in (1, 2)]
-    files += [os.path.join(ROOT, 'assets', 'ui', f'event_spring_{n}.png') for n in list(range(1, events.SPRING_FRAMES + 1)) + ['dry']]
+    springs = [os.path.join(ROOT, 'assets', 'ui', f'event_spring_{n}.png') for n in list(range(1, events.SPRING_FRAMES + 1)) + ['dry']]
+    files = [os.path.join(ROOT, 'assets', 'sprites', 'unified', f'npc_{kind}_idle_{n}.png')        # 은신처 NPC 셋도 같은 날 PixelLab으로
+             for kind in ('drifter', 'mechanic', 'keeper', 'archivist') for n in (1, 2)] + springs
     for path in files:
         a = np.asarray(Image.open(path).convert('RGBA'))
         assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, (path, a.shape)
         b = a.reshape(a.shape[0] // 2, 2, a.shape[1] // 2, 2, 4)
         assert (b == b[:, :1, :, :1]).all(), f'{os.path.basename(path)}: 2px 격자가 아니다'
     teal = lambda a: int(((a[:, :, 2] > 150) & (a[:, :, 0] < 120) & (a[:, :, 3] > 0)).sum())   # noqa: E731
-    assert teal(np.asarray(Image.open(files[2]).convert('RGBA'))) > 200          # 쓸 수 있는 샘은 청록으로 빛난다
-    assert teal(np.asarray(Image.open(files[-1]).convert('RGBA'))) == 0          # 마른 샘
+    assert teal(np.asarray(Image.open(springs[0]).convert('RGBA'))) > 200        # 쓸 수 있는 샘은 청록으로 빛난다
+    assert teal(np.asarray(Image.open(springs[-1]).convert('RGBA'))) == 0        # 마른 샘
 
 
 def test_sprites_have_binary_alpha():

@@ -7,7 +7,7 @@
    (tests/test_pixel_assets.py: UI 그림은 64색 이하).
 2. 모든 장을 같은 틀로 자른다: 가로 가운데 = 몸(아래 절반) 중심, 아래 가장자리 = 바닥 줄. 게임은 그림의 가운데 아래를 기준점으로 그린다.
 3. 최근접 2배로 키워 쓴다(도트 2px).
-   - 떠돌이 죄수: assets/sprites/unified/npc_drifter_idle_1~2.png (src/npc.py)
+   - 떠돌이 죄수·은신처 NPC 셋(정비사·보관인·기록관): assets/sprites/unified/npc_<종류>_idle_1~2.png (src/npc.py)
    - 헤이즈 샘: assets/ui/event_spring_1~4.png(물결), event_spring_dry.png(마름) (src/events.py Spot)
 
 실행: python tools/apply_pixellab_event.py
@@ -31,6 +31,13 @@ SETS = {
     # 숨쉬기 5장 중 0(= base)·2번(어깨가 올라가고 결정이 뜬다). src/npc.py가 0.6초마다 번갈아 그린다
     'drifter': ('drifter_v6', ['idle/frame_0.png', 'idle/frame_2.png'], ['base.png'],
                 ('sprites', 'unified'), ['npc_drifter_idle_1', 'npc_drifter_idle_2']),
+    # 은신처 NPC 셋 (2026-11-25): 숨쉬기 5장 중 0(= base)·2번
+    'mechanic': ('mechanic_v6', ['idle/frame_0.png', 'idle/frame_2.png'], ['base.png'],
+                 ('sprites', 'unified'), ['npc_mechanic_idle_1', 'npc_mechanic_idle_2']),
+    'keeper': ('keeper_v6', ['idle/frame_0.png', 'idle/frame_2.png'], ['base.png'],
+               ('sprites', 'unified'), ['npc_keeper_idle_1', 'npc_keeper_idle_2']),
+    'archivist': ('archivist_v6', ['idle/frame_0.png', 'idle/frame_2.png'], ['base.png'],
+                  ('sprites', 'unified'), ['npc_archivist_idle_1', 'npc_archivist_idle_2']),
     # 물결 0~3번(2~3번에 관에서 방울이 떨어지고 결정이 반짝인다) + 마른 그림
     'spring': ('spring_v6', ['ripple/frame_0.png', 'ripple/frame_1.png', 'ripple/frame_2.png', 'ripple/frame_3.png', 'dry.png'],
                ['base.png', 'dry.png'], ('ui',),

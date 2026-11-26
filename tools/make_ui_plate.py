@@ -442,18 +442,22 @@ def cursor():
 
 
 def strip_hot():
-    """고른 메뉴 띠 98x44: 철판 + 왼쪽 경고 줄무늬(노랑·검정 사선) + 노란 밑줄. hud_kit.strip이 왼쪽 2·오른쪽 16을 그대로 쓴다."""
+    """고른 메뉴 띠 98x44: 철판 + 노란 밑줄 + 오른쪽 끝 경고 줄무늬. hud_kit.strip이 왼쪽 2·오른쪽 16px을 그대로 두고
+    가운데 64px을 이어 붙이므로, 가운데에는 세로로 바뀌는 무늬가 없어야 한다(가로 줄만)."""
     w, h = 49, 22
     p = Pix(w, h)
-    plate(p, 0, 0, w, h, cut=2, bevel=1)
-    for y in range(h - 3, h - 1):
-        for x in range(1, w - 1):
-            if p.get(x, y)[3]:
-                p.put(x, y, YEL if y == h - 3 else YEL_LO)
-    # 오른쪽 끝 8점: 줄무늬 띠 (반복되지 않는 끝)
-    for y in range(2, h - 3):
-        for x in range(w - 8, w - 2):
+    rows = [EDGE, HI, MID] + [FACE] * (h - 7) + [YEL, YEL_LO, SHADE, EDGE]
+    for y, c in enumerate(rows):
+        for x in range(w):
+            p.put(x, y, c)
+    for y in range(h):                                       # 왼쪽 끝 1점 윤곽 (화면 2px = 그대로 두는 왼쪽)
+        p.put(0, y, EDGE)
+    for y in range(1, h - 4):                                # 오른쪽 끝 8점: 경고 줄무늬 (화면 16px = 그대로 두는 오른쪽)
+        for x in range(w - 8, w - 1):
             p.put(x, y, YEL if ((x + y) // 2) % 2 == 0 else LO)
+    for y in range(h):
+        p.put(w - 1, y, EDGE)
+        p.put(w - 9, y, EDGE)
     return p
 
 

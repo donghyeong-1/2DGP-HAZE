@@ -36,6 +36,7 @@
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
 ## 열린 질문
+- (사용자) UI 3차 철판 시안 A 깔끔 / B 낡음(지금 기본) / C 거침 중 하나, 시험 세 화면(HUD·증강 카드·타이틀)과 갈래 아이콘 18개 통과 여부. 답을 받으면 O9(나머지 화면)를 진행한다. 시안을 바꾸면 `python tools/make_ui_plate.py --look <clean|worn|heavy>` 한 번.
 - 3차 발표의 형식과 제출 마감 시각(날짜는 12/2).
 - 주인공 이름("화이트"는 임시, 화면에는 'N-09'만).
 - **저주 증강(11/26)의 수치도 플레이 전 값**: 나올 확률 30%, 기간 2~3방, 공격력 -20%·흡수 -40%·한계 -30·피해 2배. 등급 3 저주가 실제로 얼마나 위험한지 모른다(`docs/DECISIONS.md` 11/26).
@@ -418,4 +419,5 @@
 2026-11-26 [Claude Code] 일시정지 '이번 판' 카드 맨 위에 걸린 저주 표시(사용자 결정): 머리 줄 '저주' + 남은 전투방, 내용 줄 '이름 · 짧은 내용'(한 줄은 500px로 카드 안쪽 344px를 넘어서 둘로 나눔), 저주만 있어도 카드가 뜸. 실제 창에서 확인 / src/pause_mode.py, tests/test_pause_curse.py, docs/project/bug-sweep.md
 2026-11-26 [Claude Code] UI 3차 O8-1 전투 HUD를 교도소 철판으로: tools/make_ui_plate.py가 up_* 96장을 코드로 굽고(시안 clean·worn·heavy, 기본 worn) config.UI_SKIN으로 예전 uc_*와 바꿔 낌. 미니맵 지금 방 노랑·깬 방 철색, 대시 충전 흰색, 보스 막대 철 테, 고른 칸·카드는 노란 꺾쇠 / src/(config, hud_kit, ui, mutation_mode).py, tools/make_ui_plate.py, assets/ui/up_*.png, tests/test_ui_skin.py, docs/(ASSETS, PROGRESS).md
 2026-11-26 [Claude Code] UI 3차 O8-2 증강 카드를 교도소 철판으로: 카드 틀 넷(보통 맨 철판·진화 칠한 띠·합성 황동 테·저주 경고 줄무늬), 고른 카드 노란 꺾쇠, 갈래 아이콘 18개 + 저주(PixelLab 기호 21장 105회 + 코드 원판, 갈래마다 다른 그림) / tools/make_ui_plate.py, src/(hud_kit, mutation_mode).py, assets/ui/up_*.png, assets/sprites/pixellab/ui_plate_v1/, tests/test_ui_skin.py, docs/(ASSETS, image_prompts, PROGRESS).md
+2026-11-26 [Claude Code] UI 3차 O8-3 타이틀을 교도소 철판으로: 배경은 게임 속 슬럼 원경·중경·벽 타일을 겹쳐 굽고(새 일러스트 없음) 게임의 비·주인공 대기 동작을 실행 중에 그림, 로고 'HAZE/헤이즈'는 철판에 찍은 스텐실 도트 글자(코드), 메뉴는 철판 + 노란 꺾쇠·띠. O8 시험 세 화면 끝: 시안 비교판·전후 비교판·아이콘 18개를 보내고 사용자 답을 기다림(O9는 그 뒤) / tools/(make_title_plate, make_ui_plate).py, src/title_mode.py, assets/backgrounds/title_plate.png, assets/ui/(up_logo_title, up_strip_hot).png, docs/(ASSETS, PROGRESS).md
 2026-11-26 [Claude Code] UI 전면 교체(교도소 철판) 설계와 작업 세션 지시문 3차 작성: AI 느낌의 원인 다섯 가지 진단, 재질·모양·색 쓰임 기준, 시험 세 화면 -> 사용자 확인 -> 나머지, 예전 UI와 바꿔 끼우기, 그림을 멈추는 날 11/29 / docs/opus/TASKS.md, docs/(PROGRESS, DECISIONS).md

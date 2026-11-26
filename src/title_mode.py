@@ -29,11 +29,17 @@ def controls_text():
 
 
 selected = 0
+age = 0.0                                  # 타이틀에 머문 시간 (주인공 대기 동작)
+_rain = [None]                             # 철판 스킨: 게임의 비 (atmosphere.Weather)
+HERO_X, HERO_Y = 330, 180                  # 철판 스킨: 주인공 발 위치 (벽 덩어리 위, tools/make_title_plate.py LEDGE_ROWS x 60)
+LOGO_Y = 600                               # 로고 아래 가장자리
+MENU_PANEL = (W // 2 - 260, 150, 520, 340)  # 철판 스킨: 메뉴 뒤 철판 (x, y, w, h)
 
 
 def enter():
-    global selected
+    global selected, age
     selected = 0
+    age = 0.0
     import transition
     transition.reveal()
     assets.play_music('title')
@@ -86,11 +92,47 @@ def handle_events():
 
 
 def update():
-    pass
+    global age
+    dt = getattr(game_framework, 'frame_time', 0) or 1 / 60
+    age += dt
+    if kit.skin() == 'plate':
+        _weather().update(dt)
+
+
+def _weather():
+    if _rain[0] is None:
+        import atmosphere
+        _rain[0] = atmosphere.Weather(seed=3)
+        _rain[0].set_kind('rain')
+    return _rain[0]
+
+
+def _draw_plate():
+    """UI 3차 '교도소 철판' 제목 화면: 게임 속 슬럼 원경·중경·벽(구운 배경) + 게임의 비 + 주인공 대기 동작 + 스텐실 철판 로고 +
+    철판 메뉴(고른 항목은 노란 꺾쇠와 띠). 새 일러스트를 쓰지 않는다 (docs/opus/TASKS.md 3차 O8-3)."""
+    import sprites
+    assets.draw_image(assets.image('backgrounds/title_plate.png'), W // 2, 0)     # tools/make_title_plate.py
+    _weather().draw()
+    n = int(age / config.IDLE_FRAME_TIME) % sprites.count('n09_idle') + 1
+    sprites.draw('n09_idle', n, HERO_X, HERO_Y, 1)
+    logo = assets.image('ui/up_logo_title.png')
+    assets.draw_image(logo, W // 2, LOGO_Y)
+    x, y, w, h = MENU_PANEL
+    kit.panel('panel', x, y, w, h)
+    for i, b in enumerate(MENU):
+        hot = i == selected
+        b.draw(hot)
+        if hot:
+            tw = assets.text_width(b.label, False)
+            kit.marker(W // 2 - tw // 2 - 46, b.y + b.h // 2)
+    kit.text(W - 28, 30, VERSION, (138, 147, 163), small=True, right=True)
 
 
 def draw_frozen():
     """제목 화면 (설정 창이 아래에 깔 때도 쓴다)."""
+    if kit.skin() == 'plate':
+        _draw_plate()
+        return
     assets.draw_image(assets.image('backgrounds/screen_title.png'), W // 2, 0)   # Codex T16 제목 화면 일러스트
     assets.draw_image(assets.image('ui/logo_title.png'), W // 2, 588)          # 상점 로고(T29)를 1배로 (tools/make_store_art.py)
     for i, b in enumerate(MENU):

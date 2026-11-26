@@ -585,6 +585,81 @@ def kit_frame():
     return p
 
 
+# ----- 증강 갈래 아이콘 (PixelLab 기호 + 코드 원판) -----
+RAW = os.path.join(ROOT, 'assets', 'sprites', 'pixellab', 'ui_plate_v1', 'raw')
+ICON_PICK = {'hollow': 'hollow_s13'}           # 갈래 -> 고른 원본 (없으면 <갈래>_s11). 고른 이유는 ui_plate_v1/GENERATION_LOG.md
+CURSE_ICON_COLOR = RED
+ICON_COLOR = {'pipe_dash': (150, 190, 255), 'pistol_rapid': (226, 230, 238)}   # 갈래 색이 청록 계열인데 헤이즈가 아닌 갈래 (청록은 헤이즈에만)
+GREYS = {(12, 14, 19): 0, (90, 98, 114): 1, (167, 175, 189): 2, (238, 241, 246): 3}   # PixelLab 팔레트 4단 -> 윤곽·어두움·가운데·밝음
+
+
+def _tones(color):
+    """갈래 색 하나에서 명암 3단 (어두움, 가운데, 밝음)."""
+    c = np.array(color, float)
+    return tuple(int(v) for v in c * 0.55), tuple(int(v) for v in c), tuple(int(v) for v in c + (255 - c) * 0.5)
+
+
+def disc(n=32):
+    """어두운 철 원판 (지름 n-2점): 위·왼쪽 밝은 테, 아래·오른쪽 그늘, 리벳 넷."""
+    p = Pix(n, n)
+    r = n / 2 - 1
+    cx = cy = n / 2 - 0.5
+    for y in range(n):
+        for x in range(n):
+            d = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+            if d > r:
+                continue
+            if d > r - 1:
+                c = EDGE
+            elif d > r - 2:
+                c = HI if (x - cx) + (y - cy) < 0 else SHADE
+            else:
+                c = FACE
+            p.put(x, y, c)
+    for ang in (45, 135, 225, 315):                          # 테 안쪽 리벳 넷 (비스듬히)
+        import math
+        rx = int(round(cx + (r - 3.5) * math.cos(math.radians(ang)))) - 0
+        ry = int(round(cy + (r - 3.5) * math.sin(math.radians(ang)))) - 0
+        p.put(rx, ry, RIVET_HI if LOOK != 'clean' else HI)
+        p.put(rx + 1, ry + 1, LO)
+    return p
+
+
+def icon(raw_name, color):
+    """PixelLab 기호(회색 4단)를 color 3단으로 바꿔 철 원판 위 가운데에 얹는다. 64x64(화면) 한 장."""
+    src = np.array(Image.open(os.path.join(RAW, raw_name + '.png')).convert('RGBA'))
+    lo, mid, hi = _tones(color)
+    tone = {0: EDGE, 1: lo, 2: mid, 3: hi}
+    ys, xs = np.nonzero(src[:, :, 3] > 0)
+    x0, y0 = xs.min(), ys.min()
+    w, h = xs.max() - x0 + 1, ys.max() - y0 + 1
+    p = disc(32)
+    ox, oy = (32 - w) // 2, (32 - h) // 2
+    for y, x in zip(ys, xs):
+        rgb = tuple(int(v) for v in src[y, x, :3])
+        k = GREYS.get(rgb)
+        if k is None:                                        # 팔레트 밖 색은 가장 가까운 단으로
+            k = min(GREYS, key=lambda g: sum((a - b) ** 2 for a, b in zip(g, rgb)))
+            k = GREYS[k]
+        p.put(int(x - x0 + ox), int(y - y0 + oy), tone[k])
+    return p
+
+
+def family_icons(out=UI):
+    """갈래 18개 + 저주 아이콘: assets/ui/up_mut_<갈래>.png, up_mut_curse.png (64x64)."""
+    import sys
+    sys.path.insert(0, os.path.join(ROOT, 'src'))
+    import mutations as mu
+    made = []
+    for fid, fam in mu.FAMILIES.items():
+        p = icon(ICON_PICK.get(fid, fid + '_s11'), ICON_COLOR.get(fid, fam['color']))
+        p.save(f'mut_{fid}', out)
+        made.append(f'mut_{fid}')
+    icon('curse_s11', CURSE_ICON_COLOR).save('mut_curse', out)
+    made.append('mut_curse')
+    return made
+
+
 def build(out=UI, look='worn', seed=7):
     """부품을 모두 굽는다. 돌려주는 값은 만든 이름 목록."""
     global LOOK
@@ -640,6 +715,7 @@ def build(out=UI, look='worn', seed=7):
     for kind in ('common', 'rare', 'legendary', 'curse'):
         keep(card(kind, rng.randrange(1000)), f'card_{kind}')
     del rng
+    made += family_icons(out)
     return made
 
 

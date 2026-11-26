@@ -22,7 +22,7 @@ import hud_kit  # noqa: E402
 
 UI = os.path.join(ROOT, 'assets', 'ui')
 CYAN = (46, 230, 214)
-HAZE_PARTS = ('shard', 'crystal', 'diamond', 'map_haze', 'fill_cyan')     # 헤이즈를 나타내는 부품 (청록 허용)
+HAZE_PARTS = ('shard', 'crystal', 'diamond', 'map_haze', 'fill_cyan', 'mut_bloom')     # 헤이즈를 나타내는 부품 (청록 허용. 각성 = 헤이즈 구간)
 
 
 def _with_skin(name, fn):
@@ -92,6 +92,22 @@ def test_no_cyan_on_plate_frames_and_decor():
         rgb = a[a[:, :, 3] > 0][:, :3].astype(int)
         cyanish = ((rgb[:, 1] > 150) & (rgb[:, 2] > 150) & (rgb[:, 0] < 120)).sum() if len(rgb) else 0
         assert cyanish == 0, name
+
+
+def test_every_family_has_its_own_icon_in_the_plate_skin():
+    import hashlib
+    import mutations as mu
+    seen = {}
+    for fid, fam in mu.FAMILIES.items():
+        path = _with_skin('plate', lambda: hud_kit.family_icon(fid, fam))
+        data = open(os.path.join(ROOT, 'assets', path), 'rb').read()
+        h = hashlib.md5(np.array(Image.open(os.path.join(ROOT, 'assets', path)).convert('RGBA')).tobytes()).hexdigest()
+        assert h not in seen, (fid, seen.get(h))
+        seen[h] = fid
+        assert Image.open(os.path.join(ROOT, 'assets', path)).size == (64, 64)
+        del data
+    assert len(seen) == len(mu.FAMILIES) == 18
+    assert _with_skin('crystal', lambda: hud_kit.family_icon('bloom', mu.FAMILIES['bloom'])) == mu.FAMILIES['bloom']['icon']
 
 
 if __name__ == '__main__':

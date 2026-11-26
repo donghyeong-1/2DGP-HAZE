@@ -80,6 +80,21 @@ def panel(kind, x, y, w, h):
     assets.draw_clip(img, size - c, 0, c, c, x + w - c, y)
 
 
+def family_icon(fid, fam):
+    """증강 갈래 아이콘 경로. 철판: 갈래마다 다른 그림 ui/up_mut_<갈래>.png (18개 + 저주) / 결정형: 예전 넷을 돌려쓴 fam['icon']."""
+    return f'ui/up_mut_{fid}.png' if skin() == 'plate' else fam['icon']
+
+
+EVENT_ICONS = {'ui/mut_tide.png': 'tide', 'ui/mut_bloom.png': 'bloom', 'ui/mut_ember.png': 'ember'}   # 헤이즈 샘 카드 (구간 갈래와 같은 뜻)
+
+
+def event_icon(path):
+    """이벤트 카드 아이콘: 철판이면 같은 뜻의 갈래 아이콘으로 (샘의 노멀 = 강화가 아니라 '가라앉히기'라 tide 그대로 둔다)."""
+    if skin() == 'plate' and path in EVENT_ICONS:
+        return f'ui/up_mut_{EVENT_ICONS[path]}.png'
+    return path
+
+
 def card_well():
     """카드·정보판 속 색 (철판 스킨은 면 색)."""
     return PLATE_FACE if skin() == 'plate' else (13, 18, 31)

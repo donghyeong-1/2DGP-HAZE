@@ -234,7 +234,7 @@ def _draw_event_card(i, mid):
     assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
     draw_frame(x, y, CARD_W, CARD_H, 'rare' if ok and info['icon'] else 'common')
     if info['icon']:
-        img = assets.image(info['icon'])
+        img = assets.image(kit.event_icon(info['icon']))
         assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 200, info['name'], (240, 244, 252) if ok else (130, 140, 160), center=True, big=True)
     kit.text(x + CARD_W // 2, y + CARD_H - 250, info['sub'], color, center=True, small=True)
@@ -256,7 +256,7 @@ def _draw_curse_card(i, mid):
         kit.select_mark(x, y, CARD_W, CARD_H, color)
     assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
     draw_frame(x, y, CARD_W, CARD_H, 'curse' if kit.skin() == 'plate' else 'legendary' if info['grade'] >= 3 else 'rare')   # 철판: 경고 줄무늬 틀
-    img = assets.image('ui/mut_ember.png')
+    img = assets.image(kit.family_icon('curse', {'icon': 'ui/mut_ember.png'}))
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 54, '저주', color, center=True, small=True)
     kit.text(x + CARD_W // 2, y + CARD_H - 200, info['name'], (240, 244, 252), center=True, big=True)
@@ -292,7 +292,7 @@ def _draw_card(i, mid):
     info = mu.card_info(player, mid) if player is not None else {'rarity': 'common', 'note': fam['set'], 'hot': False}
     tier = mu.tier(mid)
     draw_frame(x, y, CARD_W, CARD_H, info['rarity'])      # v7: 기본 = 보통 / 진화 = 희귀 / 합성 = 전설 테두리
-    img = assets.image(fam['icon'])
+    img = assets.image(kit.family_icon(m['family'], fam))
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     if tier != 'base':                                    # 진화·합성 띠
         label, band = ('진화', color) if tier == 'evo' else ('합성', (255, 214, 120))

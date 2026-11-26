@@ -154,11 +154,41 @@ def form_rows(p):
     return [(forms.FORMS[wid]['name'], mu.WEAPON_NAMES.get(wid, wid), wid in held) for wid in order]
 
 
+BUILD_W = 400                  # '이번 판' 카드 폭
+CURSE_INDENT = 48              # 저주 내용 줄의 왼쪽 여백 (형태·증강 줄과 같다)
+
+
+def curse_row(p):
+    """지금 걸린 저주: (이름 · 짧은 내용, 전투방 n). 없으면 None (2026-11-26 사용자 결정).
+    한 줄로 쓰면 가장 긴 것이 카드 폭을 넘어서 머리 줄('저주' + 전투방 n)과 내용 줄로 나눠 그린다."""
+    import curse
+    cid = curse.active(p) if p is not None else None
+    if cid is None:
+        return None
+    c = curse.CURSES[cid]
+    return f'{c["name"]} · {c["short"]}', f'전투방 {curse.rooms_left(p)}'
+
+
 def has_build(p):
-    """'이번 판' 카드에 보일 것이 있는가 (형태·증강·아이템)."""
+    """'이번 판' 카드에 보일 것이 있는가 (저주·형태·증강·아이템)."""
     if p is None:
         return False
-    return bool(form_rows(p) or getattr(p, 'mutations', None) or p.items)
+    return bool(curse_row(p) or form_rows(p) or getattr(p, 'mutations', None) or p.items)
+
+
+def _draw_curse(p, x, ty, w):
+    """저주 줄(머리 + 내용)을 그리고 다음 줄의 y를 돌려준다. 저주가 없으면 그대로."""
+    import curse
+    row = curse_row(p)
+    if row is None:
+        return ty
+    text, rooms = row
+    assets.draw_rect_color(x + 28, ty + 2, w - 56, 2, curse.COLOR, 0.5)
+    kit.text(x + 28, ty + 20, '저주', curse.COLOR, small=True)
+    kit.text(x + w - 28, ty + 20, rooms, curse.COLOR, small=True, right=True)
+    ty -= 34
+    kit.text(x + CURSE_INDENT, ty + 15, text, (255, 190, 196), small=True)
+    return ty - 34 - 18
 
 
 def _draw_forms(p, x, ty, w):
@@ -178,7 +208,7 @@ def _draw_forms(p, x, ty, w):
 
 
 def _draw_build(x, y, w, h):
-    """이번 판: 무기 형태, 증강(갈래 색), 아이템."""
+    """이번 판: 저주, 무기 형태, 증강(갈래 색), 아이템."""
     import play_mode
     import items
     import mutations as mu
@@ -190,6 +220,7 @@ def _draw_build(x, y, w, h):
         kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', kit.FAINT, small=True)
         kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', kit.FAINT, small=True)
         return
+    ty = _draw_curse(p, x, ty, w)                                  # 걸린 저주가 맨 위 (2026-11-26)
     ty = _draw_forms(p, x, ty, w)
     for fam_id, mids in (mu.grouped(p) if p is not None else []):     # v7: 갈래별로 묶어 보인다
         if ty < y + 60:
@@ -235,6 +266,6 @@ def draw():
     for i, b in enumerate(MENU):
         b.draw(i == selected, left=True)
     _draw_controls(660, CARD_Y, 700, CARD_H)
-    _draw_build(1390, CARD_Y, 400, CARD_H)
+    _draw_build(1390, CARD_Y, BUILD_W, CARD_H)
     kit.footer([('Esc', '계속'), ('O', '설정'), ('H', '은신처로'), ('Q', '타이틀로'), ('W S', '선택'), ('Enter', '확인')])
     update_canvas()

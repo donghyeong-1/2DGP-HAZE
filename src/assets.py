@@ -32,6 +32,20 @@ def image(relative_path):
 _silhouettes = {}
 
 
+def _write_cache(img, out):
+    """임시 폴더 캐시 그림을 쓰고 불러올 경로를 돌려준다. 이 실행만의 파일에 먼저 쓰고 공유 이름으로 옮긴다.
+    다른 실행(게임 두 개, 백신 검사)이 공유 파일을 쥐고 있어 옮길 수 없으면 이 실행의 파일을 그대로 쓴다
+    (2026-11-26 버그 점검: 예전에는 PermissionError로 게임이 꺼졌다)."""
+    root, ext = os.path.splitext(out)
+    mine = f'{root}.{os.getpid()}.tmp{ext}'
+    img.save(mine)
+    try:
+        os.replace(mine, out)
+        return out
+    except OSError:
+        return mine
+
+
 def silhouette(relative_path):
     """그림의 모양만 흰색으로 채운 판 (색 테두리용). 처음 한 번 Pillow로 만들어 임시 폴더에 두고 불러온다.
     알파는 원본 그대로(켜짐·꺼짐)라 픽셀 규칙을 지킨다."""
@@ -45,8 +59,7 @@ def silhouette(relative_path):
         src = Image.open(os.path.join(ASSET_DIR, relative_path)).convert('RGBA')
         white = Image.new('RGBA', src.size, (255, 255, 255, 255))
         white.putalpha(src.getchannel('A'))
-        white.save(out)
-        _silhouettes[relative_path] = load_image(out)
+        _silhouettes[relative_path] = load_image(_write_cache(white, out))
     return _silhouettes[relative_path]
 
 
@@ -85,8 +98,7 @@ def outline_image(relative_path, radius, color=(6, 8, 14), rim=0, rim_color=(110
         img = Image.new('RGBA', padded.size, (0, 0, 0, 0))
         img.paste(rim_color + (255,), (0, 0) + padded.size, outer)
         img.paste(color + (255,), (0, 0) + padded.size, inner)
-        img.save(out)
-        _outlines[key] = load_image(out)
+        _outlines[key] = load_image(_write_cache(img, out))
     return _outlines[key]
 
 

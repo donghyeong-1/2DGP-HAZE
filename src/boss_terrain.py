@@ -21,6 +21,7 @@ import game_world
 T = config.TILE
 PILLAR_WARN, PILLAR_FALL, PILLAR_LIFE, PILLAR_CRUMBLE = 0.7, 0.25, 7.0, 0.4
 PILLAR_ROWS = 4
+PILLAR_WARN_COLOR = config.FALL_WARN_COLOR      # O7 색 언어: 낙하 예고는 노랑 (전에는 주황 (255, 120, 60))
 PILLAR_DAMAGE = 16
 PUMP_TIME = 10.0
 VALVE_REACH = (90, 140)
@@ -101,7 +102,7 @@ class ScrapPillar(_Solid):
         x0 = int(self.x - T)
         if self.state == 'warn':                                     # 바닥에 깜빡이는 그림자
             if int(self.time * 10) % 2 == 0:
-                assets.draw_rect_color(x0, int(self.floor_y), 2 * T, 8, (255, 120, 60))
+                assets.draw_rect_color(x0, int(self.floor_y), 2 * T, 8, PILLAR_WARN_COLOR)
             return
         if self.state == 'fall':
             k = self.time / PILLAR_FALL

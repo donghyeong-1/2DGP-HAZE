@@ -128,7 +128,7 @@ def floor_below(room, x, y):
 class Debris:
     """보스가 발을 구르면 천장에서 떨어지는 고철 더미. 떨어질 자리 바닥에 먼저 붉은 표시가 깜빡이고(예고), 그다음 떨어진다."""
     WARN = 0.75          # 표시가 깜빡이는 시간(초)
-    WARN_COLOR = (250, 220, 90)
+    WARN_COLOR = config.FALL_WARN_COLOR      # 낙하 예고 노랑 (색 언어)
     FALL_FROM = 760      # 바닥 위 이 높이에서 떨어지기 시작한다(px)
     FALL_SPEED = 1500.0
 

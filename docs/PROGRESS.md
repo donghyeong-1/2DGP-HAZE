@@ -36,7 +36,7 @@
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
 ## 열린 질문
-- (사용자) UI 3차 철판: 코드 판(plate_code)과 PixelLab 판(plate) 중 어느 쪽, PixelLab이면 시안 A 보통(지금 기본)·B 무거움·C 깔끔 중 하나. 답을 받으면 O9(나머지 화면)를 진행한다. PixelLab 시안을 바꾸면 `python tools/apply_ui_plate.py --look <a|b|c>`와 `python tools/make_title_plate.py`.
+- (사용자) UI 컨셉: A 안개 미니멀 / B 감시 단말 / C 수감 기록 중 하나(철판은 반려, 스킨으로만 남음). 고르면 그 컨셉으로 시험 세 화면부터 게임에 연결한다. 시안은 `python tools/ui_concepts_shots.py <폴더>`로 다시 찍는다.
 - 3차 발표의 형식과 제출 마감 시각(날짜는 12/2).
 - 주인공 이름("화이트"는 임시, 화면에는 'N-09'만).
 - **저주 증강(11/26)의 수치도 플레이 전 값**: 나올 확률 30%, 기간 2~3방, 공격력 -20%·흡수 -40%·한계 -30·피해 2배. 등급 3 저주가 실제로 얼마나 위험한지 모른다(`docs/DECISIONS.md` 11/26).
@@ -421,5 +421,6 @@
 2026-11-26 [Claude Code] UI 3차 O8-2 증강 카드를 교도소 철판으로: 카드 틀 넷(보통 맨 철판·진화 칠한 띠·합성 황동 테·저주 경고 줄무늬), 고른 카드 노란 꺾쇠, 갈래 아이콘 18개 + 저주(PixelLab 기호 21장 105회 + 코드 원판, 갈래마다 다른 그림) / tools/make_ui_plate.py, src/(hud_kit, mutation_mode).py, assets/ui/up_*.png, assets/sprites/pixellab/ui_plate_v1/, tests/test_ui_skin.py, docs/(ASSETS, image_prompts, PROGRESS).md
 2026-11-26 [Claude Code] UI 3차 O8-3 타이틀을 교도소 철판으로: 배경은 게임 속 슬럼 원경·중경·벽 타일을 겹쳐 굽고(새 일러스트 없음) 게임의 비·주인공 대기 동작을 실행 중에 그림, 로고 'HAZE/헤이즈'는 철판에 찍은 스텐실 도트 글자(코드), 메뉴는 철판 + 노란 꺾쇠·띠. O8 시험 세 화면 끝: 시안 비교판·전후 비교판·아이콘 18개를 보내고 사용자 답을 기다림(O9는 그 뒤) / tools/(make_title_plate, make_ui_plate).py, src/title_mode.py, assets/backgrounds/title_plate.png, assets/ui/(up_logo_title, up_strip_hot).png, docs/(ASSETS, PROGRESS).md
 2026-11-26 [Claude Code] UI 3차 O8 재시험(사용자: 판도 PixelLab으로): create_ui_asset으로 부품 판 셋(A 보통·B 무거움·C 깔끔)과 카드 판 둘을 뽑아(125회) tools/apply_ui_plate.py가 upx_* 19장으로 굽고, config.UI_SKIN을 'plate'(PixelLab, 없으면 코드 판)·'plate_code'(코드)·'crystal'로. 든 무기 칸은 노란 꺾쇠, E 칸은 강화 단계 색 테로 구별. 비교판을 보내고 사용자 답을 기다림 / tools/(apply_ui_plate, make_title_plate).py, src/(config, hud_kit, ui, title_mode).py, assets/ui/upx_*.png, assets/sprites/pixellab/ui_plate_v1/, tests/test_ui_skin.py, docs/(ASSETS, PROGRESS).md
+2026-11-26 [Claude Code] UI 컨셉 셋 시안(철판 반려 뒤): A 안개 미니멀·B 감시 단말·C 수감 기록을 PixelLab(136회)으로 그리고 실제 창에서 타이틀·증강 카드를 컨셉마다 한 장씩, 비교판과 원본 모음을 보내고 사용자 답을 기다림. 게임 스킨에는 연결하지 않음 / tools/(ui_concepts_prep, ui_concepts_shots).py, assets/sprites/pixellab/ui_concepts_v2/, docs/(ASSETS, PROGRESS).md
 2026-11-26 [Claude Code] UI 전면 교체(교도소 철판) 설계와 작업 세션 지시문 3차 작성: AI 느낌의 원인 다섯 가지 진단, 재질·모양·색 쓰임 기준, 시험 세 화면 -> 사용자 확인 -> 나머지, 예전 UI와 바꿔 끼우기, 그림을 멈추는 날 11/29 / docs/opus/TASKS.md, docs/(PROGRESS, DECISIONS).md
 2026-11-26 [Claude Code] UI 교도소 철판 컨셉을 사용자가 반려("공사장 느낌", 감싸는 띠·판이 별로): 컨셉 셋(안개 미니멀·감시 단말·수감 기록)을 시안으로 다시 뽑기로 하고 작업 세션에 전달 / docs/opus/TASKS.md, docs/PROGRESS.md

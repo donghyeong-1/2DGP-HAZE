@@ -40,6 +40,8 @@ def on_hit(weapon, enemy, killed):
     if _busy or not active(p):
         return
     wid = weapon.weapon_id
+    if _spread_window(p, wid):                            # O5 강화 교체기: 둘레에 각인이 묻는다
+        _spread(enemy, wid)
     mark = imprint_of(enemy)
     if mark is not None and mark != wid:
         _detonate(weapon, enemy)
@@ -217,8 +219,13 @@ class StormArc:
 STRIKE_NAMES = {'pipe': '발도 베기', 'pistol': '물러나 쏘기', 'gauntlet': '올려치기', 'chain': '낚아채기'}
 
 
+_boost = [1.0]          # 지금 나가는 교체기의 강화 배율 (교체기 함수들이 피해·범위에 곱한다)
+
+
 def swap_strike(player):
-    """방금 든 무기의 교체기. 나갔으면 True (쿨 중·무기 하나·기절 중이면 False)."""
+    """방금 든 무기의 교체기. 나갔으면 True (쿨 중·무기 하나·기절 중이면 False).
+    O5 강화 교체기: 강화 1~2단계가 준비돼 있으면 피해·범위 x SWAP_ENHANCE_MULT, 쌓인 단계를 모두 쓴다,
+    SWAP_ENHANCE_WINDOW 동안 그 무기의 타격이 맞은 적 둘레에 각인을 퍼뜨린다. 3단계(궁극기 준비)면 강화를 쓰지 않는다."""
     p = player
     if p.state in ('DEAD', 'HIT') or p.stunned or p.swap_cool > 0 or not active(p):
         return False
@@ -227,9 +234,39 @@ def swap_strike(player):
     p.swing_left = 0.0                                    # 직전 공격의 남은 자세를 끊는다
     w.cooldown = min(getattr(w, 'cooldown', 0.0), config.SWAP_FOLLOW)
     cx, cy = p.center
-    effects.float_text(cx, cy - 70, STRIKE_NAMES[w.weapon_id], COLORS[w.weapon_id], life=0.5)     # 발밑 쪽에 (피해 숫자·격발 글자와 겹치지 않게)
-    _STRIKES[w.weapon_id](p, w)
+    g = p.gauge
+    level = g.enhance_level if g.enhanced and g.enhance_level in config.SWAP_ENHANCE_MULT else 0
+    name, color = STRIKE_NAMES[w.weapon_id], COLORS[w.weapon_id]
+    p.swap_boost = w.weapon_id if level else None
+    if level:
+        name, color = '강화 ' + name, config.ENHANCE_LEVEL_COLOR[level]
+        g.consume_enhance()                               # 강화 공격과 같다: 쌓인 단계를 모두 쓴다
+        effects.spawn_ring(cx, cy, color, radius_max=150 + 60 * level)
+        effects.spawn_bloom(cx, cy, color, big=True, life=0.2, strength=0.8)
+    effects.float_text(cx, cy - 70, name, color, life=0.5 + 0.2 * bool(level))     # 발밑 쪽에 (피해 숫자·격발 글자와 겹치지 않게)
+    _boost[0] = config.SWAP_ENHANCE_MULT.get(level, 1.0)
+    try:
+        _STRIKES[w.weapon_id](p, w)
+    finally:
+        _boost[0] = 1.0
     return True
+
+
+def _spread_window(p, wid):
+    """강화 교체기 뒤 SWAP_ENHANCE_WINDOW 안의 그 무기 타격인가 (교체기 쿨다운이 흐른 만큼으로 잰다)."""
+    return (getattr(p, 'swap_boost', None) == wid and
+            getattr(p, 'swap_cool_max', 0.0) - getattr(p, 'swap_cool', 0.0) <= config.SWAP_ENHANCE_WINDOW)
+
+
+def _spread(enemy, wid):
+    """맞은 적 둘레 SWAP_ENHANCE_SPREAD 안의 적에게 들어오는 무기의 각인을 묻힌다."""
+    ex, ey = enemy.center
+    for o in list(game_world.world[game_world.LAYER_ENEMY]):
+        if o is enemy or not getattr(o, 'alive', False) or getattr(o, 'imprint_lock', 0.0) > 0:
+            continue
+        ox, oy = o.center
+        if math.hypot(ox - ex, oy - ey) <= config.SWAP_ENHANCE_SPREAD:
+            imprint(o, wid)
 
 
 def swap_cooldown(p):
@@ -256,8 +293,8 @@ def _strike_pipe(p, w):
     effects.spawn(fx['slash'], cx, cy, flip=flip, duration=0.24, variant=variant)
     w._swing_sound('swing_3', False)
     effects.add_trauma(config.SHAKE_HIT)
-    damage = w._damage(config.SWAP_PIPE_MULT)
-    for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_PIPE_REACH)):
+    damage = w._damage(config.SWAP_PIPE_MULT) * _boost[0]
+    for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_PIPE_REACH * _boost[0])):
         w._hit(e, damage, config.GAIN_HIT, fx, big=True)
 
 
@@ -268,7 +305,7 @@ def _strike_pistol(p, w):
     p.lunge_vx = (-1 if ax >= 0 else 1) * config.SWAP_PISTOL_HOP
     mx, my = p.pistol_muzzle()
     base = math.atan2(ay, ax)
-    damage = w._damage(config.SWAP_PISTOL_MULT)
+    damage = w._damage(config.SWAP_PISTOL_MULT) * _boost[0]
     for k in (-1, 0, 1):
         a = base + k * 0.06
         game_world.add_object(wp.Bullet(w, mx, my + k * 3, math.cos(a), math.sin(a), damage, False, w._fx(False), k or 1),
@@ -285,8 +322,8 @@ def _strike_gauntlet(p, w):
     p.start_punch('blast')
     w._swing_sound('swing_3', False)
     effects.spawn('surge', cx + (1 if ax >= 0 else -1) * 70, p.y, duration=0.36)
-    damage = w._damage(config.SWAP_GAUNTLET_MULT)
-    for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_GAUNTLET_REACH)):
+    damage = w._damage(config.SWAP_GAUNTLET_MULT) * _boost[0]
+    for e in w._targets(lambda e: w._in_arc(e, cx, cy, ax, ay, scale=config.SWAP_GAUNTLET_REACH * _boost[0])):
         w._hit(e, damage, config.GAIN_HIT, fx, big=True, extra=False)
         launch(e, config.SWAP_LAUNCH)
 
@@ -297,7 +334,7 @@ def _strike_chain(p, w):
 
     def reach(e):
         ex, ey = e.center
-        return getattr(e, 'pullable', True) and math.hypot(ex - cx, ey - cy) <= config.SWAP_CHAIN_RANGE
+        return getattr(e, 'pullable', True) and math.hypot(ex - cx, ey - cy) <= config.SWAP_CHAIN_RANGE * _boost[0]
     found = w._targets(reach)
     p.start_punch('throw')
     assets.play_sound('pickup')
@@ -316,6 +353,7 @@ class Yank:
     def __init__(self, player, weapon, enemy):
         self.p, self.w, self.e = player, weapon, enemy
         self.time = 0.0
+        self.mult = _boost[0]                             # O5 강화 교체기 배율 (끌려온 뒤에 맞는다)
         enemy.hold(config.SWAP_CHAIN_TIME + 0.45)
 
     def update(self, dt):
@@ -328,7 +366,7 @@ class Yank:
         stop = p.x + (1 if e.x >= p.x else -1) * 84
         e.pull_step((stop - e.x) * min(1.0, dt / left))
         if self.time >= config.SWAP_CHAIN_TIME:
-            self.w._hit(e, self.w._damage(config.SWAP_CHAIN_MULT), config.GAIN_HIT, self.w._fx(False), extra=False)
+            self.w._hit(e, self.w._damage(config.SWAP_CHAIN_MULT) * self.mult, config.GAIN_HIT, self.w._fx(False), extra=False)
             game_world.remove_object(self)
 
     def draw(self):

@@ -266,6 +266,83 @@ def test_a_run_without_the_pipe_fights_and_combos_normally():
     mutations.on_plunge_land(p)                                          # 철파이프 전용 낙뢰는 철파이프가 없으면 아무 일도 없다 (오류 없이)
 
 
+# ----- O5 강화 교체기 (2026-11-26, docs/plan_v8.md 3절, docs/opus/TASKS.md) -----
+def _ready(p, level):
+    p.gauge.enhance_level = level
+    p.gauge.enhance_timer = 5.0
+
+
+def _uppercut_damage(level, cooldown=False):
+    """건틀릿 올려치기(바로 맞는다) 한 번의 피해와 쓰고 난 강화 단계."""
+    room, p = world('gauntlet')
+    e = enemy(room, p, 110)
+    if level:
+        _ready(p, level)
+    if cooldown:
+        p.swap_cool = 1.0
+    hp = e.hp
+    press_swap(p, 1)
+    return hp - e.hp, p.gauge.enhance_level, p, room, e
+
+
+def test_enhanced_swap_strike_hits_one_and_a_half_or_two_times_harder():
+    plain, _, _, _, _ = _uppercut_damage(0)
+    one, left1, _, _, _ = _uppercut_damage(1)
+    two, left2, _, _, _ = _uppercut_damage(2)
+    assert plain > 0
+    assert abs(one - plain * config.SWAP_ENHANCE_MULT[1]) < 1e-6 and config.SWAP_ENHANCE_MULT[1] == 1.5
+    assert abs(two - plain * config.SWAP_ENHANCE_MULT[2]) < 1e-6 and config.SWAP_ENHANCE_MULT[2] == 2.0
+    assert left1 == 0 and left2 == 0                                    # 쌓인 강화 단계를 모두 쓴다
+
+
+def test_third_stage_keeps_the_ultimate_and_swaps_normally():
+    plain, _, _, _, _ = _uppercut_damage(0)
+    three, left, _, _, _ = _uppercut_damage(3)
+    assert abs(three - plain) < 1e-6 and left == 3                      # 궁극기를 실수로 날리지 않는다
+
+
+def test_a_swap_on_cooldown_does_not_spend_the_enhance():
+    dealt, left, p, _, _ = _uppercut_damage(2, cooldown=True)
+    assert dealt == 0 and left == 2 and p.weapon.weapon_id == 'gauntlet'
+
+
+def test_enhanced_swap_spreads_the_incoming_imprint_around_the_target():
+    for level, want in ((0, None), (1, 'gauntlet')):
+        room, p = world('gauntlet')
+        a = enemy(room, p, 110)
+        b = enemy(room, p, 110 + 190)                                    # a에서 190px (220 안), 올려치기 사거리 밖
+        if level:
+            _ready(p, level)
+        hp = b.hp
+        press_swap(p, 1)
+        assert b.hp == hp                                                # b는 맞지 않았다
+        assert combo.imprint_of(b) == want, level                        # 강화 교체기면 들어오는 무기의 각인이 묻는다
+
+
+def test_enhanced_swap_shows_the_enhanced_name_in_the_stage_color():
+    room, p = world('gauntlet')
+    enemy(room, p, 110)
+    _ready(p, 2)
+    press_swap(p, 1)
+    texts = [o for o in game_world.world[game_world.LAYER_EFFECT] if getattr(o, 'text', None) == '강화 ' + combo.STRIKE_NAMES['gauntlet']]
+    assert texts and tuple(texts[0].color) == tuple(config.ENHANCE_LEVEL_COLOR[2])
+
+
+def test_enhanced_pistol_and_chain_swaps_also_hit_harder():
+    for wid, dx, frames in (('pistol', 260, 20), ('chain', 380, 30)):
+        dealt = []
+        for level in (0, 2):
+            room, p = world(wid)
+            e = enemy(room, p, dx)
+            if level:
+                _ready(p, level)
+            hp = e.hp
+            press_swap(p, 1)
+            tc.run_frames(frames)
+            dealt.append(hp - e.hp)
+        assert dealt[0] > 0 and dealt[1] > dealt[0] * 1.5, (wid, dealt)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

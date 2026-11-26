@@ -1878,6 +1878,69 @@ def bolt_create(o):
 
 EFFECTS['bolt-pillar'] = (BOLT_META, bolt_create)
 
+# 보스 바닥 충격파 (크래셔·문지기, 2026-11-26 make_fx.py에서 옮김): 오른쪽으로 달리는 불길 물결.
+# 앞(오른쪽)이 가장 높은 혀 다섯이 뒤로 기울어 일렁이고, 높이의 물결이 앞에서 뒤로 지나간다.
+# 바닥에는 불길 띠가 깔리고, 앞쪽 땅에서 흙 조각이 튀어 오르며, 뒤로 불씨가 떨어져 나간다. 왼쪽으로 갈 때는 게임이 좌우 반전한다
+RAMPS.setdefault('blaze', [fx.hexc(c) for c in ('#4a1010', '#a3262a', '#ff6a2e', '#ffc457', '#fff4d6')])   # 보스 불길 (예전 FIRE 색)
+
+SHOCK_TONGUES = (   # (뿌리 x, 높이 비율, 반폭, 어긋남, 주파수)
+    (12.0, 1.00, 7.5, 0.00, 1), (4.5, 0.72, 6.5, 0.22, 2), (-2.5, 0.50, 4.5, 0.41, 3), (-13.0, 0.40, 5.5, 0.63, 1), (-27.0, 0.20, 4.0, 0.86, 2))
+
+
+def _shock_draw(p, ph, R, o):
+    Hh = o['height']
+
+    def fn(X, Y):
+        u = -Y                                                   # 바닥에서 위로
+        best = fx.np.full(X.shape, 9.0)
+        core = fx.np.zeros(X.shape, bool)
+        for cx, hk, hw0, off, m in SHOCK_TONGUES:
+            swell = 0.78 + 0.22 * math.sin(TAU * (ph - off)) + 0.06 * math.sin(TAU * (3 * ph + off * 2))   # 앞에서 뒤로 지나가는 높이 물결
+            top = Hh * hk * swell
+            k = fx.np.clip(u / top, 0, 1)
+            lean = (6.0 + 6.0 * hk) * k ** 1.6                   # 달리는 반대쪽(뒤)으로 기운다
+            xc = X - cx + lean + 1.4 * fx.np.sin(TAU * (u / 13 - m * ph) + off * 5) * k
+            hw = hw0 * (1 - k) ** 0.55 * (1 + 0.12 * fx.np.sin(TAU * (u / 9 + m * ph) + off * 3))
+            ax = fx.np.where((u >= 0) & (u <= top), fx.np.abs(xc) / fx.np.maximum(hw, 0.01), 9.0)
+            best = fx.np.minimum(best, ax)
+            core |= (ax < 0.36) & (k < 0.66) & (hk > 0.5)
+        # 바닥 불길 띠: 뒤로 갈수록 얇아지고 윗선이 출렁인다
+        reach = fx.np.clip((X + 38) / 52, 0, 1)                 # 0 꼬리 -> 1 앞
+        bed_top = 2.6 * reach + 1.2 * fx.np.sin(TAU * (X / 11 + 2 * ph)) + 0.7 * fx.np.sin(TAU * (X / 4.7 - 3 * ph) + 1.3)
+        bed_top = fx.np.where(X > 15, bed_top + 4.0 - 0.75 * fx.np.maximum(X - 15, 0) ** 1.2, bed_top)   # 앞 발치: 비스듬히 낮아진다 (수직 벽처럼 잘리지 않게)
+        bed = fx.np.where((u >= -1) & (u <= bed_top) & (X > -40) & (X < 25),
+                          0.55 + 0.4 * fx.np.clip(u / fx.np.maximum(bed_top, 0.5), 0, 1) - 0.25 * reach, 9.0)   # 가장자리는 어두운 붉은색, 앞쪽만 밝다
+        best = fx.np.minimum(best, bed)
+        idx = fx.np.full(X.shape, -1)
+        idx[best < 1.0] = 1
+        idx[best < 0.78] = 2
+        idx[best < 0.5] = 3
+        idx[core] = 4
+        idx[core & (fx.np.sin(TAU * (u / 11 - 2 * ph) + X * 0.8) > 0.62)] = 3      # 심 안에서 위로 흐르는 결 (민짜 면이 되지 않게)
+        idx[(u < 0.5) & (idx >= 3)] = 2                         # 땅에 닿는 줄은 한 단계 어둡게
+        return idx
+    p.shade(-42, -Hh - 4, 26, 3, fn, R)
+    for i in range(5):                                           # 앞쪽 땅에서 튀어 오르는 달궈진 파편 (포물선, 한 주기에 1~2번): 불길 앞으로 튄다
+        s = _frac(ph * (1 + i % 2) + i * 0.41)
+        x = 18 + 2 * (i % 3) + (5 + 3 * (i % 2)) * s
+        y = -(24 + 7 * (i % 3)) * s + 28 * s * s - 1
+        if y < -1:
+            hot = s < 0.45
+            p.px(x, y, R[3] if hot else R[2])
+            p.px(x + 1, y, R[2] if hot else R[1])
+            if i % 2 == 0:
+                p.px(x, y + 1, R[1])
+                p.px(x + 1, y + 1, R[0])
+    for i in range(7):                                           # 뒤로 떨어져 나가는 불씨
+        s = _frac(ph * (1 if i % 2 else 2) + i * 0.19)
+        x = 4 - 6 * i - 18 * s
+        y = -Hh * (0.25 + 0.09 * (i % 4)) - 10 * s
+        if s < 0.75:
+            p.px(x, y, R[4] if s < 0.25 else (R[3] if s < 0.5 else R[2]))
+    p.glow(4, -Hh * 0.4, Hh * 0.85, R[2], 120)
+    p.glow(10, -Hh * 0.25, Hh * 0.4, R[3], 80)
+    p.glow(-10, -2, 26, R[1], 70)
+
 # 반복 시트: 이름 -> (meta, create). period = duration (한 주기). json은 loop로 쓴다
 PLAIN_LOOPS = {
     'orb-haze': (dict(size=[30, 30], origin=[15, 15], duration=0.4, fps=30, options=dict(ramp='haze', seed=21, period=0.4)), _periodic(_orb_draw)),
@@ -1897,6 +1960,8 @@ PLAIN_LOOPS = {
                   _periodic(_pollution_draw)),
     'crystal-fall': (dict(size=[28, 60], origin=[14, 54], duration=0.4, fps=30, options=dict(ramp='haze', seed=29, period=0.4)),
                      _periodic(_crystal_draw)),
+    'shockwave': (dict(size=[72, 56], origin=[44, 52], duration=0.4, fps=30, options=dict(ramp='blaze', seed=30, period=0.4, height=44)),
+                  _periodic(_shock_draw)),
 }
 
 

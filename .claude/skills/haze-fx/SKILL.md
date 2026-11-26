@@ -123,9 +123,9 @@ def create(o):
 - **한 타격에 겹치는 것을 같이 본다**: 타격 하나에 타격 불꽃 + 방사선 + 별 섬광 + 고리 + 베기 자국 + 빛 번짐 + 적의 흰 번쩍임이 한자리에 겹친다. 시트 하나만 보면 괜찮아도
   겹치면 달라진다. 새 시트를 넣으면 그 시트만 따로 띄운 캡처와 실제 타격 캡처를 둘 다 본다.
 - **그대로 둔 것**: 베기 자국 cut-mark, 처형 fin-burst·exec-crescent, 대시 궤적 DashStreak (사용자가 마음에 들어 한 대시 화풍). 바꾸려면 먼저 묻는다.
-- **반복·타일 시트 (2026-11-26, `make_fx2.py`의 `PLAIN_LOOPS`·`_periodic`)**: 적 탄환 orb-haze, 아크 파동 wave-absorb·wave-overcharge, 결정 조각 crystal-fall, 광선 타일 beam-flame·beam-haze(+바닥 불꽃 `-base`), 오염 장판 타일 pollution, 둥근 점 dots(`build_dots`, 색은 게임이 입힌다), 낙뢰 bolt-pillar, 청록 증기 steam-jet-haze.
+- **반복·타일 시트 (2026-11-26, `make_fx2.py`의 `PLAIN_LOOPS`·`_periodic`)**: 적 탄환 orb-haze, 아크 파동 wave-absorb·wave-overcharge, 결정 조각 crystal-fall, 광선 타일 beam-flame·beam-haze(+바닥 불꽃 `-base`), 오염 장판 타일 pollution, 둥근 점 dots(`build_dots`, 색은 게임이 입힌다), 낙뢰 bolt-pillar, 청록 증기 steam-jet-haze, 보스 바닥 충격파 shockwave(`_shock_draw`, 오른쪽으로 달리는 불길: 게임이 왼쪽은 뒤집는다).
   반복 시트는 입자 시뮬레이션 없이 **ph(0~1)의 주기 함수로만** 그려야 처음과 끝이 이어진다(정수 배 주파수만 쓴다). 타일은 위치도 주기 함수(타일 길이 = 프레임 길이)로. `--look`의 아래쪽에 같은 프레임을 세 번 이어 붙인 그림이 나온다: 이음매를 거기서 본다.
   게임 쪽 도우미(`src/effects.py`): `draw_loop`(반복 시트), `draw_beam`(세로 타일 + 바닥 불꽃), `draw_strip`(가로 타일), `draw_dot`(둥근 점 0~3 크기), `draw_warn`(바닥 예고 띠).
   배운 것: 규칙적인 식으로 흩뿌린 점은 격자 무늬로 보인다(광선 바깥 불티) -> 몇 개만 따로 움직이게. 원뿔 하나짜리 불길은 회오리로 보인다 -> 높이가 다른 혀 서넛을 겹친다.
 - **방향 시트 (2026-11-26, `make_fx2.py`의 `DIR_SHEETS`·`build_dir`)**: 쌍권총 탄환 bullet·bullet-big·bullet-s(반복 4장)와 총구 섬광 muzzle·muzzle-big(3장). 32방향을 한 줄씩 굽는다(`o['variant']`, `_dir(o)`가 그림 좌표의 단위 벡터). 게임은 `effects.dir_variant(dx, dy)`로 줄을 고르고 `draw_loop(..., variant=)`나 `effects.spawn(..., variant=)`로 그린다. 길이·방향이 모두 실행 중에 정해지는 선(건틀릿 돌진 궤적, 도탄 사슬 잔상)은 `weapon.DashStreak`를 굵기·색만 바꿔 쓴다.
-- 아직 예전 방식: dash-strike(창 모양)·shockwave(보스 충격파, 반복)·오라(make_aura.py), 실행 중 사각형 이펙트(weapon.py의 표식·조준 꺾쇠·사슬·LinkNet·탄피, effects.py의 ScreenLine·BlurSmear 속도선). DashStreak는 사용자가 마음에 들어 해 그대로(대각선에서는 색 띠가 세로 막대로 보인다: 바꾸려면 먼저 묻는다). `effects.LightPillar`는 아무도 부르지 않는다.
+- 아직 예전 방식: dash-strike(창 모양)·오라(make_aura.py), 실행 중 사각형 이펙트(weapon.py의 표식·조준 꺾쇠·사슬·LinkNet·탄피, effects.py의 ScreenLine·BlurSmear 속도선). DashStreak는 사용자가 마음에 들어 해 그대로(대각선에서는 색 띠가 세로 막대로 보인다: 바꾸려면 먼저 묻는다). `effects.LightPillar`는 아무도 부르지 않는다.

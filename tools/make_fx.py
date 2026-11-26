@@ -12,7 +12,7 @@
   quake-blast   바닥 충격 폭발 (보스 내려찍기·착지, 바닥에서 솟는 반구)
   death-burst   적이 헤이즈 조각으로 흩어지는 소멸
   dust-land     착지·대시 출발 먼지 (바닥을 따라 좌우로)
-  shockwave     보스 바닥 충격파 (반복 재생, 오른쪽 방향. 왼쪽은 좌우 반전)
+  shockwave     보스 바닥 충격파 (2026-11-26부터 tools/make_fx2.py가 만든다. 아래 build_shockwave는 예전 그림)
   ult-nova-<무기>  궁극기 광역 폭발 (11/20, 11/21 무기별): 흰 섬광 -> 충격 고리 + 빛 가시 + 안쪽 소용돌이.
                  철파이프 청록, 식칼 은빛 긴 칼날 가시, 건틀릿 주황 굵은 고리, 사슬 보라 끊어진 고리
 
@@ -414,7 +414,7 @@ def save(name, frames, pivot):
 
 V8 = ('hit-fade', 'hit-normal', 'hit-awake', 'hit-critical', 'hit-enhanced', 'hit-enhanced2', 'hit-enhanced3', 'haze-blast',
       'puff', 'surge', 'quake-blast', 'death-burst', 'dust-land', 'overload-burst',
-      'ult-nova-pipe', 'ult-nova-knife', 'ult-nova-pistol', 'ult-nova-gauntlet', 'ult-nova-chain')
+      'ult-nova-pipe', 'ult-nova-knife', 'ult-nova-pistol', 'ult-nova-gauntlet', 'ult-nova-chain', 'shockwave')
 
 
 def main():

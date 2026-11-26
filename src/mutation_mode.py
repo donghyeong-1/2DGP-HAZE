@@ -255,7 +255,7 @@ def _draw_curse_card(i, mid):
     if hot:
         kit.select_mark(x, y, CARD_W, CARD_H, color)
     assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
-    draw_frame(x, y, CARD_W, CARD_H, 'curse' if kit.skin() == 'plate' else 'legendary' if info['grade'] >= 3 else 'rare')   # 철판: 경고 줄무늬 틀
+    draw_frame(x, y, CARD_W, CARD_H, 'curse' if kit.is_plate() else 'legendary' if info['grade'] >= 3 else 'rare')   # 철판: 경고 줄무늬 틀
     img = assets.image(kit.family_icon('curse', {'icon': 'ui/mut_ember.png'}))
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 54, '저주', color, center=True, small=True)

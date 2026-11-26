@@ -292,7 +292,8 @@ def music_path(name):
 def play_music(name):
     """배경음악을 반복 재생한다. 같은 곡이 이미 나오고 있으면 그대로 둔다.
     v7: 곡이 바뀌면 지금 곡의 위치를 기억하고, 새 곡은 기억한 위치에서 서서히 커지며 시작한다.
-    소리가 꺼져 있거나 오디오가 없으면 곡 이름만 기억하고 조용히 넘어간다."""
+    소리가 꺼져 있거나 오디오가 없으면 곡 이름만 기억하고 조용히 넘어간다.
+    name이 None이면 지금 곡을 뚝 끊는다(위치는 기억한다): 보스 등장씬의 정적(O2-1)."""
     global current_music
     if name == current_music:
         return
@@ -308,6 +309,9 @@ def play_music(name):
                 _music_pos[old] = float(mix.Mix_GetMusicPosition(_music[old].music))
             except Exception:
                 pass
+        if name is None:
+            mix.Mix_HaltMusic()
+            return
         if name not in _music:
             from pico2d import load_music
             _music[name] = load_music(music_path(name))
@@ -318,7 +322,8 @@ def play_music(name):
         except Exception:
             _music[name].repeat_play()
     except Exception:
-        _music[name] = None
+        if name is not None:
+            _music[name] = None
 
 
 music_duck = 1.0      # 음악 크기 배율 (페이드 구간에서 먹먹하게, drama.music_duck)

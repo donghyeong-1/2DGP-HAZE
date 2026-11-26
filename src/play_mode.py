@@ -68,10 +68,13 @@ def enter():
 
 def music_for(stage):
     """지금 방에 맞는 곡: 은신처 곡, 살아 있는 보스가 있으면 보스 곡(보스마다 MUSIC, 기본 'boss'),
-    적이 남아 방이 잠겨 있으면 전투곡(v7), 아니면 스테이지 탐험곡."""
+    적이 남아 방이 잠겨 있으면 전투곡(v7), 아니면 스테이지 탐험곡. 보스 등장씬의 정적 동안은 None(곡 없음)."""
     name = getattr(stage, 'name', '')
     if name in ('hideout', 'practice'):
         return 'hideout'
+    import boss_intro
+    if boss_intro.music_held(stage):           # O2-1: 보스 등장씬의 정적 (이름 띠가 뜰 때 보스 곡)
+        return None
     boss = stage.boss
     if boss is not None and boss.alive:
         return getattr(boss, 'MUSIC', 'boss')
@@ -198,6 +201,7 @@ def handle_events():
 
 
 def update():
+    global clear_notice, room, message_time, stage
     dt = game_framework.frame_time
     effects.tick_shake(dt)
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
@@ -208,11 +212,11 @@ def update():
         for obj in game_world.world[game_world.LAYER_UI]:
             if isinstance(obj, (zone_card.ZoneCard, boss_intro.BossIntro)):
                 obj.update(dt)
+        assets.play_music(music_for(stage))      # 멈춘 동안에도: 이름 띠가 열리면 보스 곡 (O2-1)
         return
     scale = effects.time_scale()   # 슬로 모션: 게임 시간만 느려지고, 슬로 모션 자체는 실제 시간으로 줄어든다
     effects.tick_slow_motion(dt)
     dt *= scale
-    global clear_notice, room, message_time, stage
     clear_notice = max(0.0, clear_notice - dt)
     message_time = max(0.0, message_time - dt)
     game_world.update(dt)

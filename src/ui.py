@@ -452,6 +452,7 @@ class GameUI:
 
     # ----- 가운데 위: 보스 체력 (게이지 아래, 판 없이 얇게) -----
     def _draw_boss_bar(self):
+        import boss_intro
         boss = self.stage.boss
         if boss is None or not boss.alive:
             return
@@ -469,8 +470,9 @@ class GameUI:
         ratio = max(0.0, boss.hp) / boss.max_hp
         kit.fill('empty', x, y, BOSS_W, 16)
         ghost = self.boss_ghost if self.boss_ref is boss else ratio
-        kit.fill('orange', x, y, int(BOSS_W * max(ratio, ghost)), 16)           # 방금 깎인 만큼 (따라 줄어든다)
-        kit.fill('boss', x, y, int(BOSS_W * ratio), 16)
+        fill = boss_intro.bar_fill()                                      # O2-1: 등장씬이 끝나면 0에서 차오른다
+        kit.fill('orange', x, y, int(BOSS_W * max(ratio, ghost) * fill), 16)    # 방금 깎인 만큼 (따라 줄어든다)
+        kit.fill('boss', x, y, int(BOSS_W * ratio * fill), 16)
         for m in boss_phase_marks(kind):                                   # 페이즈 경계 눈금
             assets.draw_rect_color(x + int(BOSS_W * m) // 2 * 2 - 2, y - 6, 4, BOSS_H + 12, (242, 246, 250))
 

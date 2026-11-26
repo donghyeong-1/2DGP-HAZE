@@ -10,6 +10,9 @@
 - 같은 보스를 두 번째 만나면(게임을 켠 뒤, 판이 바뀌어도 기억한다: seen) 짧게: 다시 만난 대사 한 줄, 이동·이름 띠도 짧게.
 - 헤이즈 심장은 다 내려온 뒤(intro_left <= 0) 시작한다. 그림이 없는 보스 카드는 건너뛰고 카메라만 돌아온다.
 - config.BOSS_INTRO가 False면 아무것도 하지 않는다(zone_card가 예전처럼 이름 띠를 바로 띄운다).
+- 음악 정적(O2-1, 2026-11-26): 보스방에 들어서는 순간부터(등장씬이 시작되기 전 프레임, 심장이 내려오는 동안 포함)
+  wait·pan·lines 동안은 곡을 틀지 않고(music_held, play_mode.music_for가 None을 고른다), 이름 띠(card)가 열리면 보스 곡.
+  넘겨도 정적은 MIN_SILENCE초는 된다. 등장씬이 끝나면 보스 체력바가 FILL_TIME초에 걸쳐 0에서 차오른다(bar_fill, ui가 쓴다).
 
 한 줄 대사(bark): 페이즈가 바뀔 때·쓰러질 때 보스가(boss.py·ark.py·heart.py가 bark를 부른다), 플레이어가 쓰러지면
 살아 있는 보스가 한 줄 말한다. 게임은 멈추지 않고 화면 아래에 자막으로 잠깐 뜬다.
@@ -72,6 +75,9 @@ FULL = dict(wait=0.35, pan=0.9, hold=1.5, card=2.0, back=0.5, out=0.3)       # �
 SHORT = dict(wait=0.12, pan=0.45, hold=0.9, card=1.0, back=0.4, out=0.25)    # 다시 만났을 때
 TYPE_CPS = 30.0         # 대사 글자가 찍히는 빠르기(초당 글자)
 ADVANCE_GUARD = 0.3     # 등장씬이 시작되고 이 시간 안의 누름은 무시한다 (들어오며 누르던 점프로 넘어가지 않게)
+MIN_SILENCE = 0.5       # 등장씬의 음악 정적은 넘겨도 이 시간은 된다 (다시 만난 보스도)
+FILL_TIME = 0.6         # 등장씬이 끝난 뒤 보스 체력바가 0에서 차오르는 시간
+SILENT = ('wait', 'pan', 'lines')   # 곡을 틀지 않는 단계 (이름 띠 card가 열리면 보스 곡)
 FROZEN = ('wait', 'pan', 'lines', 'card', 'back')
 BAR_H = 112             # 위아래 검은 띠 높이(px, 짝수). 보스방 바닥(2칸 = 128px)과 보스 발이 가려지지 않게
 BAR_COLOR = (3, 5, 10)
@@ -80,6 +86,8 @@ freezing = False        # 등장씬이 게임을 멈추고 있는가 (play_mode,
 seen = set()            # 등장씬을 본 보스 종류 (게임을 켜 있는 동안)
 _hud_hidden = [False]
 _bark = [None]          # [speaker, text, color, 남은 시간]
+_active = [None]        # 지금 게임의 등장씬 객체 (music_held가 본다)
+_fill = [None]          # 등장씬이 끝나고 지난 시간 (체력바가 차오르는 중), None이면 가득
 
 
 def reset_all():
@@ -89,6 +97,28 @@ def reset_all():
     _bark[0] = None
     freezing = False
     _hud_hidden[0] = False
+    _active[0] = None
+    _fill[0] = None
+
+
+def music_held(stage=None):
+    """보스 등장씬이 음악을 붙잡고 있는가 (play_mode.music_for): 들어서는 순간·심장이 내려오는 동안·wait·pan·lines,
+    그리고 등장씬이 시작되고 MIN_SILENCE초 안. config.BOSS_INTRO가 False면 늘 False."""
+    it = _active[0]
+    if it is None or not getattr(config, 'BOSS_INTRO', False) or (stage is not None and it.stage is not stage):
+        return False
+    if it.step in SILENT or (it.step is not None and it.age < MIN_SILENCE):    # 넘겨서 띠까지 닫아도 0.5초는 정적
+        return True
+    return it.step is None and it.pending()
+
+
+def bar_fill():
+    """보스 체력바가 차오른 정도 0~1 (ui._draw_boss_bar가 체력 비율에 곱한다). 빠르게 차고 끝에서 느려진다."""
+    t = _fill[0]
+    if t is None:
+        return 1.0
+    k = min(1.0, t / FILL_TIME)
+    return 1.0 - (1.0 - k) ** 3
 
 
 def hud_hidden():
@@ -150,6 +180,8 @@ class BossIntro:
         global freezing
         freezing = False
         _hud_hidden[0] = False
+        _active[0] = self
+        _fill[0] = None
         self.stage, self.player, self.card = stage, player, card
         self.boss_seen = getattr(stage, 'boss', None)
         self.boss = None
@@ -165,6 +197,13 @@ class BossIntro:
         self.taunted = None          # 플레이어가 쓰러졌을 때 한 줄을 말한 보스
 
     # ----- 조회 -----
+    def pending(self):
+        """곧 등장씬이 시작될 보스가 있다 (방에 막 들어섰거나 헤이즈 심장이 내려오는 중)."""
+        boss = getattr(self.stage, 'boss', None)
+        p = self.player
+        return (boss is not None and boss is not self.boss_seen and getattr(boss, 'alive', True)
+                and getattr(boss, 'kind', None) in LINES and not (p is not None and p.state == 'DEAD'))
+
     def line(self):
         return self.lines[self.line_index] if self.step == 'lines' and self.line_index < len(self.lines) else ''
 
@@ -186,6 +225,10 @@ class BossIntro:
     # ----- 갱신 -----
     def update(self, dt):
         tick_bark(dt)
+        if _fill[0] is not None:                         # 등장씬이 끝난 뒤 체력바가 차오른다
+            _fill[0] += dt
+            if _fill[0] >= FILL_TIME:
+                _fill[0] = None
         if self.step is None:
             self._watch()
         else:
@@ -306,6 +349,7 @@ class BossIntro:
             except Exception:                            # noqa: BLE001 (창 없는 실행: 모두 뗀 것으로 둔다)
                 pass
         self.step, self.t = 'out', 0.0
+        _fill[0] = 0.0                                   # HUD가 돌아오며 보스 체력바가 0에서 차오른다
         self._sync()
 
     def advance(self):

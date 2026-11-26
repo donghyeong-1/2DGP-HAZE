@@ -409,6 +409,133 @@ def test_real_boss_room_freezes_play_until_intro_ends():
     game_world.clear()
 
 
+# ----- O2-1 (2026-11-26, docs/opus/TASKS.md): 음악 정적 + 체력바 차오름 -----
+def _music(st):
+    import play_mode
+    return play_mode.music_for(st)
+
+
+def test_music_is_silent_until_the_name_card_opens():
+    """보스방에 들어서는 순간 곡이 끊기고(등장씬이 시작되기 전 프레임도), 이름 띠가 열릴 때 보스 곡이 시작된다."""
+    st, p, card, intro = make()
+    assert _music(st) == 'factory'
+    st.boss = FakeBoss()
+    assert _music(st) is None                                      # 들어선 프레임: 등장씬이 아직 시작 전이어도 정적
+    intro.update(DT)
+    seen_steps = set()
+    while intro.step in ('wait', 'pan', 'lines'):
+        seen_steps.add(intro.step)
+        assert _music(st) is None, intro.step
+        card.update(DT)
+        intro.update(DT)
+    assert seen_steps == {'wait', 'pan', 'lines'}
+    assert intro.step == 'card' and _music(st) == 'boss'          # 이름 띠가 뜨는 순간 보스 곡
+    run_until_free(intro, card)
+    assert _music(st) == 'boss'
+
+
+def test_second_meeting_keeps_at_least_half_a_second_of_silence():
+    st, p, card, intro = make()
+    st.boss = FakeBoss()
+    intro.update(DT)
+    run_until_free(intro, card)
+    tick(intro, card, 1.0)
+    st.boss = FakeBoss()                                           # 다시 만났다: 짧은 등장씬을 Enter로 마구 넘긴다
+    intro.update(DT)
+    assert intro.short
+    t = 0.0
+    while _music(st) is None and t < 5:
+        intro.advance()
+        card.update(DT)
+        intro.update(DT)
+        t += DT
+    assert t >= bi.MIN_SILENCE - 1e-6, t
+    assert _music(st) == 'boss'
+
+
+def test_heart_is_silent_while_descending():
+    st, p, card, intro = make(name='stage3')
+    heart = FakeBoss('heart', 1920, 600, '헤이즈 심장')
+    heart.intro_left = 1.0
+    st.boss = heart
+    tick(intro, card, 0.5)
+    assert intro.step is None and _music(st) is None               # 내려오는 동안이 정적
+    heart.intro_left = 0.0
+    intro.update(DT)
+    assert intro.step == 'wait' and _music(st) is None
+    while intro.step in ('wait', 'pan', 'lines'):
+        card.update(DT)
+        intro.update(DT)
+    assert _music(st) == 'boss'
+
+
+def test_switch_off_plays_boss_music_at_once_and_bar_is_full():
+    old = config.BOSS_INTRO
+    try:
+        config.BOSS_INTRO = False
+        st, p, card, intro = make()
+        st.boss = FakeBoss()
+        assert _music(st) == 'boss'
+        card.update(DT)
+        intro.update(DT)
+        assert _music(st) == 'boss' and bi.bar_fill() == 1.0
+    finally:
+        config.BOSS_INTRO = old
+
+
+def test_boss_bar_fills_from_zero_after_the_intro():
+    st, p, card, intro = make()
+    assert bi.bar_fill() == 1.0                                    # 등장씬이 없으면 처음부터 가득
+    st.boss = FakeBoss()
+    intro.update(DT)
+    run_until_free(intro, card)
+    intro.update(DT)
+    assert bi.bar_fill() < 0.1                                     # 등장씬 직후: 0에서 시작
+    tick(intro, card, bi.FILL_TIME / 2)
+    half = bi.bar_fill()
+    assert 0.6 < half < 1.0, half                                  # 빠르게 차고 끝에서 느려진다 (절반 시간에 절반보다 많이)
+    tick(intro, card, bi.FILL_TIME / 2 + 0.02)
+    assert bi.bar_fill() == 1.0
+
+
+def test_real_boss_room_silence_then_boss_music():
+    import assets
+    import game_framework
+    import play_mode
+    import stage as stage_mod
+    fresh()
+    p = Player(0, 0, None)
+    game_world.add_object(p, game_world.LAYER_PLAYER)
+    st = stage_mod.Stage(p, name='stage2', seed=1)
+    st.start()
+    card = zone_card.ZoneCard(st)
+    intro = bi.BossIntro(st, p, card)
+    game_world.add_object(card, game_world.LAYER_UI)
+    game_world.add_object(intro, game_world.LAYER_UI)
+    play_mode.stage, play_mode.player, play_mode.room = st, p, st.room
+    game_framework.frame_time = DT
+    play_mode.update()
+    assert assets.current_music == 'factory'
+    st.enter_room(stage_mod.boss_room(st), 'L')
+    play_mode.update()
+    assert assets.current_music is None                            # 들어선 프레임부터 정적
+    heard = None
+    for _ in range(int(20 / DT)):
+        play_mode.update()
+        if assets.current_music is not None and heard is None:
+            heard = intro.step                                     # 곡이 처음 나온 단계
+        if not (bi.freezing or zone_card.freezing):
+            break
+    assert heard == 'card', heard                                  # 멈춘 동안에도 이름 띠가 열리면 곡이 바뀐다
+    assert assets.current_music == getattr(st.boss, 'MUSIC', 'boss')
+    game_world.clear()
+
+
+def test_ui_boss_bar_uses_the_fill():
+    src = open(os.path.join(HERE, '..', 'src', 'ui.py'), encoding='utf-8').read()
+    assert 'bar_fill()' in src
+
+
 def test_play_mode_and_gamepad_use_the_intro():
     src = open(os.path.join(HERE, '..', 'src', 'play_mode.py'), encoding='utf-8').read()
     assert 'boss_intro.freezing' in src and 'boss_intro.filter_event' in src and 'BossIntro(' in src

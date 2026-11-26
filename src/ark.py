@@ -133,6 +133,8 @@ class Ark(Enemy):
         effects.float_text(self.x, self.y + self.hb_h + 80, word, (150, 240, 230), big=True, life=1.0)
         import boss_intro
         boss_intro.bark(self, f'phase{phase}')                            # v8 6일 차: 페이즈 전환 한 줄
+        import cut_in
+        cut_in.boss_phase(self, phase, word)                              # O1: 실루엣 컷인
 
     def on_attack_start(self):
         super().on_attack_start()

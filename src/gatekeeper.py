@@ -108,6 +108,8 @@ class Gatekeeper(Enemy):
         effects.float_text(self.x, self.y + self.hb_h + 80, '비상', (255, 110, 90), big=True, life=1.0)
         import boss_intro
         boss_intro.bark(self, 'phase2')
+        import cut_in
+        cut_in.boss_phase(self, 2, '비상')                                # O1: 실루엣 컷인
 
     def _do_chase(self, dt):
         if self.stunned_left > 0:                           # 벽에 부딪혀 비틀거린다 (빈틈)

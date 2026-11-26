@@ -67,6 +67,8 @@ def reset():
     slow_left, slow_scale = 0.0, 1.0
     trauma = 0.0
     flash_left = 0.0
+    import cut_in
+    cut_in.reset()                               # O1: 도는 컷인도 지운다 (새 판·테스트)
 
 
 def request_flash(seconds):

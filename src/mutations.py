@@ -145,6 +145,9 @@ MUTATIONS = {
     'tide_cost': {'family': 'tide', 'name': '얕은 물', 'desc': f'E 강화 비용 -{TIDE_COST}%'},
     'tide_chain': {'family': 'tide', 'name': '되밀림', 'desc': f'강화 공격으로 처치하면 게이지 +{TIDE_CHAIN}%'},
     'tide_wave': {'family': 'tide', 'name': '파문', 'desc': f'강화 공격 피해의 {round(TIDE_WAVE[1] * 100)}%가 주변 적에게 퍼집니다'},
+    # O1 (2026-11-26): 강화 갈래의 진화. 궁극기 피해 x config.ULT_AWAKEN_MULT, 보스 상한 ULT_AWAKEN_BOSS_CAP, 시전할 때 실루엣 컷인
+    'ult_awaken': {'family': 'tide', 'tier': 'evo', 'ready': True, 'name': '궁극기 각성',
+                   'desc': '궁극기 피해 +40%. 시전할 때 컷인이 나옵니다'},
     # v7 철파이프 갈래 (기본 3 + 진화 1). 진화는 동작·이펙트가 준비되면 ready=True
     'combo_speed': {'family': 'pipe_combo', 'name': '손목 풀기', 'desc': f'철파이프 공격 속도 +{round((1 / COMBO_SPEED - 1) * 100)}%'},
     'combo_third': {'family': 'pipe_combo', 'name': '마무리', 'desc': f'3타 피해 +{round((COMBO_THIRD - 1) * 100)}%'},

@@ -874,7 +874,15 @@ class Pipe:
         self.level = config.ENHANCE_MAX_LEVEL
         effects.enh_level = self.level
         self.last_kind, self.last_enhanced = 'ult_' + kind, True
-        game_world.add_object(ULTIMATES[self.weapon_id](self, kind, ax, ay), game_world.LAYER_EFFECT)
+        wid = self.weapon_id
+
+        def fire():
+            game_world.add_object(ULTIMATES[wid](self, kind, ax, ay), game_world.LAYER_EFFECT)
+        import cut_in
+        import mutations
+        actor = ('n09_ult', sprites.count('n09_ult'), 1, (config.SCREEN_W * 58 // 100, 140), 3)   # 시전 자세 (해방) 3배
+        if not (mutations.has(p, 'ult_awaken') and cut_in.play(ULT_DEEP[wid], [actor], ULT_NAMES[wid], on_end=fire)):
+            fire()                                         # O1 궁극기 각성: 컷인이 끝난 뒤에 나간다 (없으면 바로)
         g.consume_enhance()
         p.ult_pose_left = config.ULT_POSE_TIME             # 시전 자세: 모으기 -> 해방 (사슬만 끝까지 쓴다, 나머지는 자기 동작)
         p.swing_left = p.punch_left = 0.0
@@ -2834,8 +2842,13 @@ class Ultimate:
         p = self.weapon.owner
         damage = (config.ULT_BASE_DAMAGE * p.gauge.zone_multipliers()['attack'] * p.attack_bonus *
                   config.ULT_HIT_MULT * config.ULT_HITS * share)
+        import mutations
+        awaken = mutations.has(p, 'ult_awaken')          # O1 궁극기 각성: 피해 x1.4, 보스 상한 20%
+        if awaken:
+            damage *= config.ULT_AWAKEN_MULT
         if not getattr(e, 'pullable', True):              # 보스: 한 번의 궁극기로 최대 체력의 ULT_BOSS_CAP까지만
-            damage = min(damage, e.max_hp * config.ULT_BOSS_CAP - self.dealt.get(id(e), 0.0))
+            cap = config.ULT_AWAKEN_BOSS_CAP if awaken else config.ULT_BOSS_CAP
+            damage = min(damage, e.max_hp * cap - self.dealt.get(id(e), 0.0))
         if damage <= 0 or not e.alive:
             return False
         fx = config.ENHANCED_FX_BY_LEVEL[3]             # 궁극기(3단계): 진홍

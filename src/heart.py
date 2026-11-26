@@ -149,12 +149,16 @@ class HeartCore(_Part):
             self._announce('맥동', (150, 240, 230))
             import boss_intro
             boss_intro.bark(self, 'phase2')        # v8 6일 차: 페이즈 전환 한 줄
+            import cut_in
+            cut_in.boss_phase(self, 2, '맥동')       # O1: 실루엣 컷인
         elif self.phase == 2 and self.hp <= self.max_hp * b:
             self.phase = 3
             self.room.is_high_haze = True          # 바닥이 헤이즈로 잠긴다: 게이지가 계속 오른다
             self._announce('범람', (255, 150, 120))
             import boss_intro
             boss_intro.bark(self, 'phase3')
+            import cut_in
+            cut_in.boss_phase(self, 3, '범람', 'heart3')
 
     def _announce(self, word, color):
         assets.play_sound('ark_roar')

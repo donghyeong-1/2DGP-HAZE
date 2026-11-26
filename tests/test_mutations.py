@@ -31,8 +31,10 @@ def world(gauge=40.0):
 
 # ----- 목록 -----
 def test_twelve_gauge_mutations_in_four_families():
-    """v7: 게이지 갈래(각성·위험·페이드·강화)는 지금처럼 12종 4계열. 무기·대시 갈래는 test_augments.py."""
-    gauge = [m for m in mu.MUTATIONS.values() if m['family'] in mu.GAUGE_FAMILIES]
+    """v7: 게이지 갈래(각성·위험·페이드·강화)는 지금처럼 기본 12종 4계열. 무기·대시 갈래는 test_augments.py.
+    O1 (2026-11-26): 강화 갈래에만 진화 '궁극기 각성'이 하나 있다 (기본 카드 수는 그대로)."""
+    gauge = [m for m in mu.MUTATIONS.values() if m['family'] in mu.GAUGE_FAMILIES and m.get('tier', 'base') == 'base']
+    assert [k for k, m in mu.MUTATIONS.items() if m['family'] in mu.GAUGE_FAMILIES and m.get('tier') == 'evo'] == ['ult_awaken']
     assert len(gauge) == 12 and len(mu.GAUGE_FAMILIES) == 4
     fams = [m['family'] for m in gauge]
     assert all(fams.count(f) == 3 for f in mu.GAUGE_FAMILIES)

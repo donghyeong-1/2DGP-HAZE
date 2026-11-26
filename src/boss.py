@@ -129,6 +129,8 @@ class Boss(Enemy):
         effects.float_text(self.x, self.y + self.hb_h + 80, '분노', (255, 110, 90), big=True, life=1.0)
         import boss_intro
         boss_intro.bark(self, 'phase2')                                   # v8 6일 차: 페이즈 전환 한 줄
+        import cut_in
+        cut_in.boss_phase(self, 2, '분노')                                # O1: 실루엣 컷인 (위의 것들은 컷인 뒤에 보인다)
 
     def _do_chase(self, dt):
         s = self.stats

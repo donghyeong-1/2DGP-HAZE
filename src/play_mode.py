@@ -203,6 +203,10 @@ def handle_events():
 def update():
     global clear_notice, room, message_time, stage
     dt = game_framework.frame_time
+    import cut_in
+    if cut_in.running():                         # O1 실루엣 컷인: 실제 시간으로 그것만 돌고 세계는 멈춘다 (흔들림·대사도 그 뒤에)
+        cut_in.update(dt)
+        return
     effects.tick_shake(dt)
     if effects.tick_hit_stop(dt):  # 명중한 순간 화면이 잠깐 멈춘다
         return

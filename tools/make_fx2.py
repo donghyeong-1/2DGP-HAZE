@@ -2037,6 +2037,49 @@ def build_dots(look):
     print('구움 dots', len(DOT_SIZES), '크기')
 
 
+# ----- 실루엣 컷인의 큰 원반 (O1, 2026-11-26, src/cut_in.py): 색은 게임이 입힌다 (윗줄 색 층, 아랫줄 흰 심) -----
+# 단색 바탕 위의 큰 원반: 처음 네 장은 커지며(살짝 넘쳤다 돌아온다) 마지막 장에 머문다. 안쪽에 한 단계 어두운 띠와 끊어진 가는 고리,
+# 바깥에 끊어진 고리 하나, 흰 심은 윗왼쪽 가장자리의 가는 호와 짧은 빗금 몇 개뿐 (원반 자체가 주인공, 흰색은 작게)
+CUTIN_R = 140
+CUTIN_CELL = 300
+CUTIN_GROW = (0.6, 0.86, 1.04, 0.98, 1.0)
+
+
+def _cutin_paint(a, b, R, i):
+    """원반 한 장: a = 색 층, b = 흰 심."""
+    a.disc(0, 0, R, fx.GRAY[3])                                          # 원반 몸통 (컷인의 그래픽 면: 반듯한 원)
+    a.ring(0, 0, R - 3, 6.0, fx.GRAY[2])                                  # 가장자리만 한 단계 어둡게 (접시처럼 보이지 않게 안쪽 띠는 없다)
+    a.ring(0, 0, R * 0.7, 2.0, fx.GRAY[2], gaps=5, phase=0.4 + i * 0.05)   # 끊어진 가는 고리 (장마다 조금 돈다)
+    a.ring(0, 0, R + 7, 2.0, fx.GRAY[3], gaps=9, phase=1.1 - i * 0.06)     # 바깥 끊어진 고리
+    if i < 2:
+        a.ring(0, 0, R + 14 + 10 * i, 1.0, fx.GRAY[3], gaps=12, phase=0.2)  # 들어올 때 퍼지는 고리
+    b.ring(0, 0, R - 2, 2.0, WHITE, a0=math.radians(190), a1=math.radians(262))   # 윗왼쪽 가장자리의 흰 호 (그림 좌표: y 아래)
+    b.ring(0, 0, R - 2, 2.0, WHITE, a0=math.radians(20), a1=math.radians(38))     # 맞은편의 짧은 호
+    for j, ang in enumerate((215, 228, 241)):
+        c, sn = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+        b.line(c * (R - 10), sn * (R - 10), c * (R - 16 - 3 * j), sn * (R - 16 - 3 * j), WHITE, 1.0)
+
+
+def build_cutin_disc(look):
+    w = CUTIN_CELL
+    tint, core = [], []
+    for i, k in enumerate(CUTIN_GROW):
+        R = CUTIN_R * k
+        a = fx.Painter(w, w, w // 2, w // 2)
+        b = fx.Painter(w, w, w // 2, w // 2)
+        _cutin_paint(a, b, R, i)
+        tint.append(a.images())
+        core.append(b.images())
+    meta = dict(size=[w, w], origin=[w // 2, w // 2], duration=len(CUTIN_GROW) / 30, fps=30)
+    if look:
+        path = fx.contact([(t[0], t[1]) for t in tint] + [(c[0], c[1]) for c in core], os.path.join(fx.ROOT, 'shots', 'fx', 'cutin-disc.png'),
+                          zoom=1, cols=5, label='cutin-disc (tint / core)')
+        print('본다', path)
+        return
+    fx.export_tint('cutin-disc', meta, [tint], [core])
+    print('구움 cutin-disc', len(CUTIN_GROW), '장')
+
+
 # ----- 주인공 쪽 (2026-11-26): 쌍권총 탄환과 총구 섬광. 조준 방향이 실행 중에 정해져 32방향(11.25도 간격)을 미리 굽는다 -----
 DIR_N = 32
 
@@ -2149,8 +2192,11 @@ def main(argv):
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
     names = ([a for a in argv if not a.startswith('--')]
-             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + list(DIR_SHEETS) + ['dots'])
+             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + list(DIR_SHEETS) + ['dots', 'cutin-disc'])
     for name in names:
+        if name == 'cutin-disc':
+            build_cutin_disc(look)
+            continue
         if name == 'dots':
             build_dots(look)
             continue

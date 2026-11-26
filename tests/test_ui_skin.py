@@ -36,12 +36,24 @@ def _with_skin(name, fn):
 
 def test_default_skin_is_plate_and_paths_switch():
     assert config.UI_SKIN == 'plate'
-    assert _with_skin('plate', lambda: hud_kit.art('kit_panel.png')) == 'ui/up_kit_panel.png'
+    assert _with_skin('plate_code', lambda: hud_kit.art('kit_panel.png')) == 'ui/up_kit_panel.png'
     assert _with_skin('crystal', lambda: hud_kit.art('kit_panel.png')) == 'ui/uc_kit_panel.png'
-    assert _with_skin('plate', lambda: hud_kit.part_name('uc_heart')) == 'up_heart'
+    assert _with_skin('plate_code', lambda: hud_kit.part_name('uc_heart')) == 'up_heart'
     assert _with_skin('crystal', lambda: hud_kit.part_name('uc_heart')) == 'uc_heart'
     assert _with_skin('plate', lambda: hud_kit.part_name('icon_shard')) == 'icon_shard'
     assert _with_skin('nonsense', hud_kit.skin) == 'plate'
+    assert _with_skin('plate_code', hud_kit.is_plate) and _with_skin('plate', hud_kit.is_plate)
+    assert not _with_skin('crystal', hud_kit.is_plate)
+
+
+def test_pixellab_skin_uses_its_own_parts_and_falls_back_to_code_plates():
+    for f in glob.glob(os.path.join(UI, 'uc_*.png')):
+        rest = os.path.basename(f)[3:]
+        rel = _with_skin('plate', lambda: hud_kit.art(rest))
+        assert rel in (f'ui/upx_{rest}', f'ui/up_{rest}'), rel
+        assert os.path.exists(os.path.join(ROOT, 'assets', rel)), rel
+        if rel.startswith('ui/upx_'):                                         # PixelLab 부품도 크기가 같다
+            assert Image.open(os.path.join(ROOT, 'assets', rel)).size == Image.open(f).size, rest
 
 
 def test_every_old_part_has_a_plate_twin_of_the_same_size():
@@ -74,7 +86,7 @@ def test_parts_named_in_code_exist_for_the_plate_skin():
 
 
 def test_plate_parts_follow_pixel_rules():
-    for f in sorted(glob.glob(os.path.join(UI, 'up_*.png'))):
+    for f in sorted(glob.glob(os.path.join(UI, 'up_*.png')) + glob.glob(os.path.join(UI, 'upx_*.png'))):
         a = np.array(Image.open(f).convert('RGBA'))
         name = os.path.basename(f)
         assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
@@ -84,8 +96,8 @@ def test_plate_parts_follow_pixel_rules():
 
 
 def test_no_cyan_on_plate_frames_and_decor():
-    for f in sorted(glob.glob(os.path.join(UI, 'up_*.png'))):
-        name = os.path.basename(f)[3:-4]
+    for f in sorted(glob.glob(os.path.join(UI, 'up_*.png')) + glob.glob(os.path.join(UI, 'upx_*.png'))):
+        name = os.path.basename(f).split('_', 1)[1][:-4]
         if name.startswith(HAZE_PARTS):
             continue
         a = np.array(Image.open(f).convert('RGBA'))

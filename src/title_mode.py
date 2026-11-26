@@ -95,7 +95,7 @@ def update():
     global age
     dt = getattr(game_framework, 'frame_time', 0) or 1 / 60
     age += dt
-    if kit.skin() == 'plate':
+    if kit.is_plate():
         _weather().update(dt)
 
 
@@ -115,7 +115,7 @@ def _draw_plate():
     _weather().draw()
     n = int(age / config.IDLE_FRAME_TIME) % sprites.count('n09_idle') + 1
     sprites.draw('n09_idle', n, HERO_X, HERO_Y, 1)
-    logo = assets.image('ui/up_logo_title.png')
+    logo = assets.image(kit.art('logo_title.png'))
     assets.draw_image(logo, W // 2, LOGO_Y)
     x, y, w, h = MENU_PANEL
     kit.panel('panel', x, y, w, h)
@@ -130,7 +130,7 @@ def _draw_plate():
 
 def draw_frozen():
     """제목 화면 (설정 창이 아래에 깔 때도 쓴다)."""
-    if kit.skin() == 'plate':
+    if kit.is_plate():
         _draw_plate()
         return
     assets.draw_image(assets.image('backgrounds/screen_title.png'), W // 2, 0)   # Codex T16 제목 화면 일러스트

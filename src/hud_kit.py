@@ -9,9 +9,14 @@ import assets
 import config
 
 ART = 'ui/uc_'                 # 예전(결정형) 부품 그림 접두 (assets/ui/uc_*.png). 지금 스킨의 접두는 prefix()
-# 2026-11-26 UI 3차 '교도소 철판': config.UI_SKIN = 'plate'(새 것, assets/ui/up_*.png, tools/make_ui_plate.py) /
-# 'crystal'(예전 것, uc_*). 이름·크기가 같아 접두만 바꿔 끼운다. 예전 그림은 지우지 않는다.
-SKIN_PREFIX = {'plate': 'up_', 'crystal': 'uc_'}
+# 2026-11-26 UI 3차 '교도소 철판': config.UI_SKIN
+#   'plate'      PixelLab 철판 (assets/ui/upx_*.png, tools/apply_ui_plate.py). PixelLab 판이 없는 부품은 코드 철판(up_*)을 쓴다
+#   'plate_code' 코드로 그린 철판 (assets/ui/up_*.png, tools/make_ui_plate.py)
+#   'crystal'    예전 결정형 (uc_*, Gemini G06)
+# 이름·크기가 같아 접두만 바꿔 끼운다. 예전 그림은 지우지 않는다.
+SKIN_PREFIX = {'plate': 'upx_', 'plate_code': 'up_', 'crystal': 'uc_'}
+FALLBACK = {'plate': 'up_'}                  # 이 스킨에 없는 부품은 이 접두로
+_exists = {}
 
 
 def skin():
@@ -19,18 +24,35 @@ def skin():
     return s if s in SKIN_PREFIX else 'plate'
 
 
+def is_plate():
+    """철판 계열 스킨인가 (PixelLab·코드 둘 다: 노란 꺾쇠, 청록은 헤이즈에만, 결정 장식 없음)."""
+    return skin() in ('plate', 'plate_code')
+
+
 def prefix():
     return SKIN_PREFIX[skin()]
 
 
+def _has(rel):
+    if rel not in _exists:
+        import os
+        _exists[rel] = os.path.exists(os.path.join(assets.ASSET_DIR, rel))
+    return _exists[rel]
+
+
 def art(rest):
-    """지금 스킨의 부품 경로: art('kit_panel.png') -> 'ui/up_kit_panel.png' (plate) / 'ui/uc_kit_panel.png' (crystal)."""
-    return f'ui/{prefix()}{rest}'
+    """지금 스킨의 부품 경로: art('kit_panel.png') -> 'ui/upx_kit_panel.png' (plate, 없으면 up_) / 'ui/up_...' (plate_code) /
+    'ui/uc_...' (crystal)."""
+    rel = f'ui/{prefix()}{rest}'
+    fb = FALLBACK.get(skin())
+    if fb and not _has(rel):
+        return f'ui/{fb}{rest}'
+    return rel
 
 
 def part_name(name):
     """'uc_<부품>' 이름을 지금 스킨의 이름으로 (그 밖의 이름은 그대로)."""
-    return prefix() + name[3:] if name.startswith('uc_') else name
+    return art(name[3:] + '.png')[3:-4] if name.startswith('uc_') else name
 
 
 # 판 종류 -> (그림 한 변 크기, 모서리 크기, 속 색). 크기는 스킨이 같고, 속 색만 스킨마다 다르다
@@ -50,7 +72,7 @@ PLATE_FACE = (29, 34, 43)
 def kit(kind):
     """(그림 한 변 크기, 모서리 크기, 속 색) — 지금 스킨 기준."""
     size, c, well = KITS[kind]
-    if skin() == 'plate':
+    if is_plate():
         well = PLATE_WELL.get(kind, PLATE_FACE)
     return size, c, well
 FILL_HEIGHTS = (8, 12, 16, 20, 24)
@@ -82,7 +104,7 @@ def panel(kind, x, y, w, h):
 
 def family_icon(fid, fam):
     """증강 갈래 아이콘 경로. 철판: 갈래마다 다른 그림 ui/up_mut_<갈래>.png (18개 + 저주) / 결정형: 예전 넷을 돌려쓴 fam['icon']."""
-    return f'ui/up_mut_{fid}.png' if skin() == 'plate' else fam['icon']
+    return f'ui/up_mut_{fid}.png' if is_plate() else fam['icon']
 
 
 EVENT_ICONS = {'ui/mut_tide.png': 'tide', 'ui/mut_bloom.png': 'bloom', 'ui/mut_ember.png': 'ember'}   # 헤이즈 샘 카드 (구간 갈래와 같은 뜻)
@@ -90,27 +112,26 @@ EVENT_ICONS = {'ui/mut_tide.png': 'tide', 'ui/mut_bloom.png': 'bloom', 'ui/mut_e
 
 def event_icon(path):
     """이벤트 카드 아이콘: 철판이면 같은 뜻의 갈래 아이콘으로 (샘의 노멀 = 강화가 아니라 '가라앉히기'라 tide 그대로 둔다)."""
-    if skin() == 'plate' and path in EVENT_ICONS:
+    if is_plate() and path in EVENT_ICONS:
         return f'ui/up_mut_{EVENT_ICONS[path]}.png'
     return path
 
 
 def card_well():
     """카드·정보판 속 색 (철판 스킨은 면 색)."""
-    return PLATE_FACE if skin() == 'plate' else (13, 18, 31)
+    return PLATE_FACE if is_plate() else (13, 18, 31)
 
 
 YELLOW = (226, 178, 58)        # 경고 노랑: 철판 스킨에서 '지금 고른 것'
 YELLOW_LO = (138, 102, 26)
 
 
-def select_mark(x, y, w, h, color):
-    """고른 카드·칸 표시. 결정형: 둘레를 color로 채운 테 / 철판: 네 귀퉁이 노란 꺾쇠(바깥 6px, 굵기 6px, 길이 44px)."""
+def select_mark(x, y, w, h, color, L=44, t=6, o=10):
+    """고른 카드·칸 표시. 결정형: 둘레를 color로 채운 테 / 철판: 네 귀퉁이 노란 꺾쇠(바깥 o px, 굵기 t px, 길이 L px)."""
     x, y, w, h = int(x), int(y), int(w), int(h)
-    if skin() != 'plate':
+    if not is_plate():
         assets.draw_rect_color(x - 6, y - 6, w + 12, h + 12, color)
         return
-    L, t, o = 44, 6, 10
     for cx, cy, sx, sy in ((x - o, y - o, 1, 1), (x + w + o, y - o, -1, 1), (x - o, y + h + o, 1, -1), (x + w + o, y + h + o, -1, -1)):
         hx = cx if sx > 0 else cx - L
         vy = cy if sy > 0 else cy - L
@@ -160,13 +181,14 @@ def tag(x, y, w):
 def strip(x, y, w):
     """고른 메뉴 띠(높이 44): 흰 윗선·청록 밑선, 오른쪽 아래 청록 모서리, 왼쪽에 결정 덩어리. 왼쪽 아래 (x, y), 너비 w."""
     img = assets.image(art('strip_hot.png'))
-    left, right, x, y, w = 2, 16, int(x) // 2 * 2, int(y) // 2 * 2, max(int(w) // 2 * 2, 40)
+    left = 16 if skin() == 'plate' else 2                   # PixelLab 띠는 왼쪽 끝에도 잘린 모서리가 있다
+    right, x, y, w = 16, int(x) // 2 * 2, int(y) // 2 * 2, max(int(w) // 2 * 2, 40)
     mid = 64
     for along in range(0, w - left - right, mid):
         assets.draw_clip(img, left, 0, min(mid, w - left - right - along), img.h, x + left + along, y)
     assets.draw_clip(img, 0, 0, left, img.h, x, y)
     assets.draw_clip(img, img.w - right, 0, right, img.h, x + w - right, y)
-    if skin() != 'plate':                                    # 철판 띠는 결정 장식 없이 (경고 줄무늬가 끝에 있다)
+    if not is_plate():                                    # 철판 띠는 결정 장식 없이 (경고 줄무늬가 끝에 있다)
         icon('uc_crystal', x - 22, y - 6)
 
 
@@ -307,7 +329,7 @@ def pill(x, y, w, h, label, on, focus=False):
     x, y, w, h = int(x), int(y), int(w), int(h)
     if on:
         assets.draw_rect_color(x, y, w, h, (34, 44, 69))
-        assets.draw_rect_color(x, y, w, 4, YELLOW if skin() == 'plate' else (46, 230, 214))   # 밑줄: 철판은 경고 노랑, 결정형은 청록
+        assets.draw_rect_color(x, y, w, 4, YELLOW if is_plate() else (46, 230, 214))   # 밑줄: 철판은 경고 노랑, 결정형은 청록
     assets.draw_text(x + w // 2, y + h // 2 + 2, label,
                      (242, 246, 250) if on else ((150, 162, 188) if focus else (104, 116, 142)), small=True, center=True)
 
@@ -316,7 +338,7 @@ def card(x, y, w, h, title=None):
     """정보 카드 (불투명): 사선 모서리 큰 판 + 오른쪽 위 모서리의 결정. 제목이 있으면 왼쪽 위에 청록 글자."""
     x, y, w, h = int(x) // 2 * 2, int(y) // 2 * 2, int(w) // 2 * 2, int(h) // 2 * 2
     panel('panel', x, y, w, h)
-    if skin() != 'plate':                                    # 철판: 결정 장식 없음, 제목은 스텐실 흰색
+    if not is_plate():                                    # 철판: 결정 장식 없음, 제목은 스텐실 흰색
         icon('uc_crystal', x + w - 24, y + h - 20)
     if title:
-        text(x + 28, y + h - 34, title, (216, 221, 230) if skin() == 'plate' else (159, 247, 238))
+        text(x + 28, y + h - 34, title, (216, 221, 230) if is_plate() else (159, 247, 238))

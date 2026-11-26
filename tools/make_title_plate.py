@@ -86,17 +86,21 @@ def stencil_word(p, word, x0, y0, color, shadow, rng):
                 p.put(gx + col * CELL + rng.randrange(CELL), y0 + r * CELL + rng.randrange(CELL), mp.MID)
 
 
-def logo():
+def logo(base=None):
+    """base(1배 RGBA 배열 236x100, PixelLab 로고 판)가 있으면 그 위에, 없으면 코드로 그린 철판 위에 글자를 찍는다."""
     mp.LOOK = 'worn'
     rng = random.Random(9)
     w, h = 236, 100
     p = mp.Pix(w, h)
-    mp.plate(p, 0, 0, w, h, cut=6, bevel=2)
-    mp.corner_rivets(p, 0, 0, w, h, inset=5)
-    for x in range(36, w - 36, 40):                          # 위아래 변 리벳
-        mp.rivet(p, x, 4)
-        mp.rivet(p, x, h - 6)
-    mp.scuff(p, 10, 12, w - 20, h - 24, rng, n=4)
+    if base is not None:
+        p.a[:] = base
+    else:
+        mp.plate(p, 0, 0, w, h, cut=6, bevel=2)
+        mp.corner_rivets(p, 0, 0, w, h, inset=5)
+        for x in range(36, w - 36, 40):                      # 위아래 변 리벳
+            mp.rivet(p, x, 4)
+            mp.rivet(p, x, h - 6)
+        mp.scuff(p, 10, 12, w - 20, h - 24, rng, n=4)
     word_w = (4 * (8 + GAP) - GAP) * CELL
     stencil_word(p, 'HAZE', (w - word_w) // 2, 12, mp.WHITE, mp.LO, rng)
     # '헤이즈': Galmuri14를 2배(28점)로 찍는다 (도트 글꼴의 정수 배)
@@ -128,6 +132,12 @@ def main():
     print('저장 assets/backgrounds/title_plate.png')
     logo().save('logo_title', os.path.join(ROOT, 'assets', 'ui'))
     print('저장 assets/ui/up_logo_title.png')
+    px = os.path.join(ROOT, 'assets', 'ui', 'upx_logo_plate.png')
+    if os.path.exists(px):                                   # PixelLab 로고 판 (tools/apply_ui_plate.py) 위에 같은 글자
+        base = np.array(Image.open(px).convert('RGBA'))[::2, ::2]
+        im = Image.fromarray(logo(base).a, 'RGBA')
+        im.resize((im.width * 2, im.height * 2), Image.NEAREST).save(os.path.join(ROOT, 'assets', 'ui', 'upx_logo_title.png'))
+        print('저장 assets/ui/upx_logo_title.png')
 
 
 if __name__ == '__main__':

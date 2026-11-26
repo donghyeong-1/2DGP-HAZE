@@ -245,7 +245,7 @@ class GameUI:
             if i == p.dash_slots and p.dash_slots < p.dash_max:
                 import mutations
                 k = min(1.0, p.dash_charge / max(0.01, mutations.dash_recharge_time(p)))
-                assets.draw_rect_color(x + 2, DASH_Y - 6, int(24 * k) // 2 * 2, 2, WHITE if kit.skin() == 'plate' else TEAL)   # 대시는 헤이즈가 아니다
+                assets.draw_rect_color(x + 2, DASH_Y - 6, int(24 * k) // 2 * 2, 2, WHITE if kit.is_plate() else TEAL)   # 대시는 헤이즈가 아니다
         self._draw_potions()
         self._draw_items()
 
@@ -278,9 +278,14 @@ class GameUI:
         for i, wp in enumerate(slots):                                       # 무기 두 칸
             x, y = xs[i], ACT_Y
             active = i == p.slot
-            if active and g.enhanced:                                        # 강화 중: 든 칸 둘레에 단계 색 (평소에는 틀의 청록 이중 선)
+            if active and g.enhanced and not kit.is_plate():                 # 강화 중: 든 칸 둘레에 단계 색 (철판은 든 칸 = 노란 꺾쇠만, 단계 색은 E 칸에)
                 assets.draw_rect_color(x - 4, y - 4, SLOT + 8, SLOT + 8, config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))])
-            kit.panel('slot_hot' if active else 'slot', x, y, SLOT, SLOT)
+            if kit.is_plate():                                               # 철판: 든 칸 = 일반 칸 + 노란 꺾쇠 (E 칸의 강화 단계 색과 구별)
+                kit.panel('slot', x, y, SLOT, SLOT)
+                if active:
+                    kit.select_mark(x, y, SLOT, SLOT, None, L=26, t=4, o=4)
+            else:
+                kit.panel('slot_hot' if active else 'slot', x, y, SLOT, SLOT)
             if wp is None:
                 kit.text(x + SLOT // 2, y + SLOT // 2, '빈 칸', FAINT, small=True, center=True)
                 continue
@@ -300,9 +305,16 @@ class GameUI:
         ex = xs[0] - SLOT - 26
         ready = g.can_enhance()
         hot = g.enhanced
-        if hot:
-            assets.draw_rect_color(ex - 4, ACT_Y - 4, SLOT + 8, SLOT + 8, config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))])
-        kit.panel('slot_hot' if hot or ready else 'slot', ex, ACT_Y, SLOT, SLOT)
+        if kit.is_plate():                                                   # 철판: E 칸은 노란 꺾쇠를 쓰지 않고 강화 단계 색 테 (든 무기 칸과 구별)
+            if hot or ready:
+                lv = max(1, min(3, g.enhance_level)) if hot else 1
+                assets.draw_rect_color(ex - 6, ACT_Y - 6, SLOT + 12, SLOT + 12, (6, 7, 10))
+                assets.draw_rect_color(ex - 4, ACT_Y - 4, SLOT + 8, SLOT + 8, config.ENHANCE_LEVEL_COLOR[lv])
+            kit.panel('slot', ex, ACT_Y, SLOT, SLOT)
+        else:
+            if hot:
+                assets.draw_rect_color(ex - 4, ACT_Y - 4, SLOT + 8, SLOT + 8, config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))])
+            kit.panel('slot_hot' if hot or ready else 'slot', ex, ACT_Y, SLOT, SLOT)
         img = assets.image('ui/icon_enhance.png')
         if hot or ready:
             assets.draw_image(img, ex + SLOT // 2 + 8, ACT_Y + 24)
@@ -407,7 +419,7 @@ class GameUI:
         borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60),
                    'rift': (200, 130, 255), 'event': (140, 235, 170)}
         well = (13, 18, 31)
-        if kit.skin() == 'plate':                                # 철판: 지금 방 = 경고 노랑, 깬 방 = 밝은 철, 청록은 헤이즈 방에만
+        if kit.is_plate():                                # 철판: 지금 방 = 경고 노랑, 깬 방 = 밝은 철, 청록은 헤이즈 방에만
             colors = {'current': kit.YELLOW, 'cleared': (92, 102, 120), 'visited': (52, 59, 72), 'unknown': (21, 25, 32)}
             borders = {'gold': (240, 180, 50), 'boss': (226, 58, 72), 'shop': (216, 221, 230), 'gate': (226, 58, 72),
                        'rift': (46, 230, 214), 'event': (216, 221, 230)}
@@ -415,7 +427,7 @@ class GameUI:
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
-            border = borders.get(kind, ((46, 230, 214) if kit.skin() == 'plate' else (240, 150, 60)) if high else well)
+            border = borders.get(kind, ((46, 230, 214) if kit.is_plate() else (240, 150, 60)) if high else well)
             assets.draw_rect_color(x - 4, y - 4, cell_w + 8, cell_h + 8, well)
             assets.draw_rect_color(x - 2, y - 2, cell_w + 4, cell_h + 4, border)
             assets.draw_rect_color(x, y, cell_w, cell_h, colors[state])
@@ -470,7 +482,10 @@ class GameUI:
         phase = getattr(boss, 'phase', 1)
         if phase > 1:
             kit.text(x + BOSS_W, y + 32, f'{phase}페이즈', (255, 120, 110), small=True, right=True)
-        if kit.skin() == 'plate':                                              # 철판: 위 밝은 테·아래 어두운 테
+        frame = kit.art('boss_frame.png')
+        if kit.skin() == 'plate' and frame.startswith('ui/upx_'):           # PixelLab 철판: 양끝 쇠고리가 있는 막대 틀 (막대는 그 위에)
+            kit.icon(frame[3:-4], x - 8, y - 6)
+        elif kit.is_plate():                                            # 철판: 위 밝은 테·아래 어두운 테
             assets.draw_rect_color(x, y - 4, BOSS_W, BOSS_H + 8, (6, 7, 10))
             assets.draw_rect_color(x, y + BOSS_H + 2, BOSS_W, 2, (59, 67, 82))
         else:

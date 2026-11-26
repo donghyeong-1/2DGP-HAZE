@@ -13,6 +13,9 @@
 - 음악 정적(O2-1, 2026-11-26): 보스방에 들어서는 순간부터(등장씬이 시작되기 전 프레임, 심장이 내려오는 동안 포함)
   wait·pan·lines 동안은 곡을 틀지 않고(music_held, play_mode.music_for가 None을 고른다), 이름 띠(card)가 열리면 보스 곡.
   넘겨도 정적은 MIN_SILENCE초는 된다. 등장씬이 끝나면 보스 체력바가 FILL_TIME초에 걸쳐 0에서 차오른다(bar_fill, ui가 쓴다).
+- 크래셔 착지 등장(O2-2): 처음 만난 크래셔(FULL)만 pan 뒤에 drop(DROP 합 약 1.1초): 바닥 그림자가 커지고 -> 위에서 떨어져
+  -> 착지(슬로모션·흔들림·ground_slam) -> 대사. 그동안 world는 멈춰 있고 effects 모듈의 이펙트만 돈다(effects_live, play_mode).
+  Enter·Space면 바로 착지한 상태로 대사. 다시 만나면(SHORT) 지금처럼 서 있다.
 
 한 줄 대사(bark): 페이즈가 바뀔 때·쓰러질 때 보스가(boss.py·ark.py·heart.py가 bark를 부른다), 플레이어가 쓰러지면
 살아 있는 보스가 한 줄 말한다. 게임은 멈추지 않고 화면 아래에 자막으로 잠깐 뜬다.
@@ -77,8 +80,12 @@ TYPE_CPS = 30.0         # 대사 글자가 찍히는 빠르기(초당 글자)
 ADVANCE_GUARD = 0.3     # 등장씬이 시작되고 이 시간 안의 누름은 무시한다 (들어오며 누르던 점프로 넘어가지 않게)
 MIN_SILENCE = 0.5       # 등장씬의 음악 정적은 넘겨도 이 시간은 된다 (다시 만난 보스도)
 FILL_TIME = 0.6         # 등장씬이 끝난 뒤 보스 체력바가 0에서 차오르는 시간
-SILENT = ('wait', 'pan', 'lines')   # 곡을 틀지 않는 단계 (이름 띠 card가 열리면 보스 곡)
-FROZEN = ('wait', 'pan', 'lines', 'card', 'back')
+SILENT = ('wait', 'pan', 'drop', 'lines')   # 곡을 틀지 않는 단계 (이름 띠 card가 열리면 보스 곡)
+FROZEN = ('wait', 'pan', 'drop', 'lines', 'card', 'back')
+DROP = dict(shadow=0.6, fall=0.25, land=0.25)   # O2-2 크래셔 착지: 그림자가 커짐 -> 낙하 -> 착지 뒤 머묾
+DROP_HEIGHT = 1400.0    # 떨어지기 전 보스가 있는 높이 (바닥 위 px, 화면 밖)
+DROP_KINDS = ('crasher',)
+DROP_SLOW = (0.35, 0.35)    # 착지 순간 슬로모션 (초, 배율)
 BAR_H = 112             # 위아래 검은 띠 높이(px, 짝수). 보스방 바닥(2칸 = 128px)과 보스 발이 가려지지 않게
 BAR_COLOR = (3, 5, 10)
 
@@ -110,6 +117,12 @@ def music_held(stage=None):
     if it.step in SILENT or (it.step is not None and it.age < MIN_SILENCE):    # 넘겨서 띠까지 닫아도 0.5초는 정적
         return True
     return it.step is None and it.pending()
+
+
+def effects_live():
+    """등장씬으로 world가 멈춘 동안에도 이펙트(effects 모듈)는 돌아야 하는가: 크래셔 착지 단계 (play_mode가 본다)."""
+    it = _active[0]
+    return it is not None and it.step == 'drop'
 
 
 def bar_fill():
@@ -266,6 +279,9 @@ class BossIntro:
         self.boss_seen = self.boss = boss
         self.short = kind in seen
         seen.add(kind)
+        self.drop = not self.short and kind in DROP_KINDS     # O2-2: 처음 만난 크래셔는 위에서 떨어진다
+        self.land_y = boss.y
+        self.landed = False
         self.times = SHORT if self.short else FULL
         self.lines = list(LINES[kind]['again' if self.short else 'intro'])
         self.line_index, self.line_t = 0, 0.0
@@ -273,6 +289,8 @@ class BossIntro:
         self.cam_from = (camera.x, camera.y)
         room = self.stage.room
         self.cam_boss = camera.look_at(room, boss.x, boss.y + getattr(boss, 'hb_h', 100) / 2)
+        if self.drop:
+            boss.y = self.land_y + DROP_HEIGHT             # 카메라가 비출 때 착지 자리는 아직 비어 있다
         if self.player is not None and hasattr(self.player, 'release_inputs'):
             self.player.release_inputs()                 # 누르고 있던 이동이 멈춘 동안 남지 않게
 
@@ -293,6 +311,8 @@ class BossIntro:
         self.age += dt
         if boss is not None and self.step in FROZEN and hasattr(boss, 'anim_time'):
             boss.anim_time += dt                         # 멈춘 동안에도 보스는 숨 쉰다 (대기 그림이 번갈아)
+        if boss is not None and self.step in FROZEN and getattr(boss, 'land_left', 0) > 0:
+            boss.land_left = max(0.0, boss.land_left - dt)    # 착지 자세가 대사 동안 풀린다
         tm = self.times
         if self.step == 'wait':
             if self.t >= tm['wait']:
@@ -301,7 +321,19 @@ class BossIntro:
             k = _ease(self.t / tm['pan'])
             self._set_camera([a + (b - a) * k for a, b in zip(self.cam_from, self.cam_boss)])
             if self.t >= tm['pan']:
-                self._go('lines')
+                self._go('drop' if self.drop else 'lines')
+        elif self.step == 'drop':
+            self._set_camera(self.cam_boss)
+            d = DROP
+            if self.t < d['shadow']:
+                boss.y = self.land_y + DROP_HEIGHT
+            elif self.t < d['shadow'] + d['fall']:
+                u = (self.t - d['shadow']) / d['fall']
+                boss.y = self.land_y + DROP_HEIGHT * (1.0 - u * u)      # 점점 빨라지며 떨어진다
+            else:
+                self._land()
+                if self.t >= sum(d.values()):
+                    self._go('lines')
         elif self.step == 'lines':
             self._set_camera(self.cam_boss)
             self.line_t += dt
@@ -325,7 +357,35 @@ class BossIntro:
             if self.t >= tm['out']:
                 self.step = None
 
+    def shadow_size(self):
+        """착지 그림자의 크기 0~1 (drop 동안 커진다, 떨어지는 동안 다 커져 있다)."""
+        if self.step != 'drop' or self.landed:
+            return 0.0
+        return min(1.0, self.t / DROP['shadow'])
+
+    def _land(self, quiet=False):
+        """바닥에 닿는다: 슬로모션·흔들림·땅 강타. quiet(넘기기)면 자리만 맞춘다."""
+        if self.landed or self.boss is None:
+            return
+        self.landed = True
+        boss = self.boss
+        boss.y = self.land_y
+        if hasattr(boss, 'land_left'):
+            boss.land_left = 0.6                         # 착지 자세 (웅크림)
+        if quiet:
+            return
+        import assets
+        import effects
+        effects.request_slow_motion(*DROP_SLOW)
+        effects.add_trauma(1.0)
+        effects.ground_slam(boss.x, self.land_y, power=1.6)
+        assets.play_sound('overload')
+
     def _go(self, step):
+        if self.step == 'drop' and step != 'drop':
+            self._land(quiet=True)
+            import effects
+            effects.slow_left = 0.0                      # 남은 슬로모션은 싸움으로 넘기지 않는다
         self.step, self.t = step, 0.0
         if step == 'lines':
             self.line_index, self.line_t = 0, 0.0
@@ -343,6 +403,8 @@ class BossIntro:
 
     def _finish(self):
         """멈춤을 풀고 띠를 뺀다."""
+        if self.step == 'drop':
+            self._land(quiet=True)
         if self.step in FROZEN and self.player is not None and hasattr(self.player, 'sync_inputs'):
             try:
                 self.player.sync_inputs()                # 지금 실제로 눌린 키만 다시 누른 것으로
@@ -356,8 +418,8 @@ class BossIntro:
         """Enter·Space: 한 단계 넘긴다."""
         if self.step not in FROZEN or self.age < ADVANCE_GUARD:
             return
-        if self.step in ('wait', 'pan'):
-            self._go('lines')
+        if self.step in ('wait', 'pan', 'drop'):
+            self._go('lines')                            # 착지 중이면 바로 착지한 상태 (_go가 자리를 맞춘다)
         elif self.step == 'lines':
             if self.typed() < len(self.line()):
                 self.line_t = len(self.line()) / TYPE_CPS     # 이 줄을 다 보여 준다
@@ -376,6 +438,8 @@ class BossIntro:
         import hud_kit as kit
         w, h = config.SCREEN_W, config.SCREEN_H
         bar = self.bars()
+        if self.step == 'drop' and not self.landed:
+            self._draw_shadow()
         if bar > 0:
             assets.draw_rect_color(0, 0, w, bar, BAR_COLOR)
             assets.draw_rect_color(0, h - bar, w, bar, BAR_COLOR)
@@ -388,6 +452,26 @@ class BossIntro:
             kit.text(w - 300 + kw + 10, 45, '넘기기', kit.FAINT, small=True)
         elif self.step is None:
             self._draw_bark()
+
+    def _draw_shadow(self):
+        """착지 자리의 바닥 그림자 (구운 네 크기 중 하나, 반투명)."""
+        import assets
+        import effects
+        info = effects.sheet_info('drop-shadow')
+        fw, fh = info['frameSize']
+        px, py = info['pivot']
+        sc = info.get('scale', 2)
+        n = info['columns']
+        i = min(n - 1, int(self.shadow_size() * n))
+        ox, oy = camera.offset()
+        x = int(self.boss.x + ox - px * sc) // 2 * 2
+        y = int(self.land_y + 6 + oy - (fh - py) * sc) // 2 * 2       # 바닥선 바로 위
+        img = assets.image('effects/drop-shadow.png')
+        img.opacify(0.6 + 0.3 * self.shadow_size())
+        try:
+            assets.draw_clip(img, i * fw, 0, fw, fh, x, y, '', sc)
+        finally:
+            img.opacify(1.0)
 
     def _draw_bark(self):
         b = current_bark()

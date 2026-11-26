@@ -216,6 +216,12 @@ def update():
         for obj in game_world.world[game_world.LAYER_UI]:
             if isinstance(obj, (zone_card.ZoneCard, boss_intro.BossIntro)):
                 obj.update(dt)
+        if boss_intro.effects_live():                # O2-2 크래셔 착지: 멈춘 동안에도 착지 이펙트(먼지·충격)는 돈다 (슬로모션 포함)
+            scale = effects.time_scale()
+            effects.tick_slow_motion(dt)
+            for obj in list(game_world.world[game_world.LAYER_EFFECT]):
+                if type(obj).__module__ == 'effects':
+                    obj.update(dt * scale)
         assets.play_music(music_for(stage))      # 멈춘 동안에도: 이름 띠가 열리면 보스 곡 (O2-1)
         return
     scale = effects.time_scale()   # 슬로 모션: 게임 시간만 느려지고, 슬로 모션 자체는 실제 시간으로 줄어든다

@@ -131,6 +131,8 @@ def test_full_intro_pans_to_boss_then_lines_then_name_card():
     assert intro.step == 'wait' and bi.freezing
     assert p.released == 1                                         # 누르고 있던 키를 뗀다 (멈춘 동안 걷지 않게)
     tick(intro, card, bi.FULL['wait'] + bi.FULL['pan'] + 0.05)
+    assert intro.step == 'drop'                                    # O2-2: 처음 만난 크래셔는 위에서 떨어진다
+    tick(intro, card, sum(bi.DROP.values()))
     assert intro.step == 'lines'
     want_x, _ = camera.look_at(st.room, st.boss.x, st.boss.y + st.boss.hb_h / 2)
     assert abs(camera.x - want_x) < 2 and camera.x > start + 500   # 카메라가 보스를 비춘다
@@ -423,12 +425,12 @@ def test_music_is_silent_until_the_name_card_opens():
     assert _music(st) is None                                      # 들어선 프레임: 등장씬이 아직 시작 전이어도 정적
     intro.update(DT)
     seen_steps = set()
-    while intro.step in ('wait', 'pan', 'lines'):
+    while intro.step in bi.SILENT:
         seen_steps.add(intro.step)
         assert _music(st) is None, intro.step
         card.update(DT)
         intro.update(DT)
-    assert seen_steps == {'wait', 'pan', 'lines'}
+    assert seen_steps == {'wait', 'pan', 'drop', 'lines'}           # 크래셔 착지(O2-2)도 정적
     assert intro.step == 'card' and _music(st) == 'boss'          # 이름 띠가 뜨는 순간 보스 곡
     run_until_free(intro, card)
     assert _music(st) == 'boss'
@@ -463,7 +465,7 @@ def test_heart_is_silent_while_descending():
     heart.intro_left = 0.0
     intro.update(DT)
     assert intro.step == 'wait' and _music(st) is None
-    while intro.step in ('wait', 'pan', 'lines'):
+    while intro.step in bi.SILENT:
         card.update(DT)
         intro.update(DT)
     assert _music(st) == 'boss'
@@ -528,6 +530,125 @@ def test_real_boss_room_silence_then_boss_music():
             break
     assert heard == 'card', heard                                  # 멈춘 동안에도 이름 띠가 열리면 곡이 바뀐다
     assert assets.current_music == getattr(st.boss, 'MUSIC', 'boss')
+    game_world.clear()
+
+
+# ----- O2-2 (2026-11-26, docs/opus/TASKS.md): 크래셔 착지 등장 -----
+def _steps_until_free(intro, card):
+    steps = []
+    t = 0.0
+    while (bi.freezing or zone_card.freezing) and t < 30:
+        if intro.step not in steps:
+            steps.append(intro.step)
+        card.update(DT)
+        intro.update(DT)
+        t += DT
+    return steps
+
+
+def test_first_crasher_intro_drops_from_above_and_lands_on_the_floor():
+    st, p, card, intro = make()
+    boss = FakeBoss()
+    floor = boss.y
+    st.boss = boss
+    intro.update(DT)
+    steps = _steps_until_free(intro, card)
+    assert steps[:4] == ['wait', 'pan', 'drop', 'lines'], steps
+    assert boss.y == floor                                         # 끝나면 바닥에 서 있다
+    assert abs(sum(bi.DROP.values()) - 1.1) < 0.05
+
+
+def test_drop_shadow_grows_then_boss_falls_then_lands():
+    st, p, card, intro = make()
+    boss = FakeBoss()
+    floor = boss.y
+    st.boss = boss
+    intro.update(DT)
+    for _ in range(int(5 / DT)):
+        if intro.step == 'drop':
+            break
+        card.update(DT)
+        intro.update(DT)
+    assert intro.step == 'drop', intro.step
+    sizes, heights = [], []
+    while intro.step == 'drop':
+        sizes.append(intro.shadow_size())
+        heights.append(boss.y - floor)
+        intro.update(DT)
+    grow = int(bi.DROP['shadow'] / DT)
+    assert sizes[0] < sizes[grow - 2] and heights[0] > 600          # 그림자가 먼저 커지고 보스는 화면 위에 있다
+    assert min(heights) == 0 and heights[-1] == 0                  # 떨어져 바닥에 닿는다
+    assert heights.index(0) > grow                                 # 그림자가 다 커진 뒤에 떨어진다
+
+
+def test_drop_only_for_the_first_crasher_meeting():
+    st, p, card, intro = make()
+    st.boss = FakeBoss()
+    intro.update(DT)
+    _steps_until_free(intro, card)
+    tick(intro, card, 1.0)
+    st.boss = FakeBoss()                                           # 다시 만났다: 지금처럼 서 있다
+    intro.update(DT)
+    assert 'drop' not in _steps_until_free(intro, card)
+    for kind in ('ark', 'heart', 'gatekeeper'):
+        st, p, card, intro = make(name='stage3')
+        st.boss = FakeBoss(kind, 1920, 128, kind)
+        intro.update(DT)
+        assert 'drop' not in _steps_until_free(intro, card), kind
+
+
+def test_skip_during_drop_lands_at_once():
+    st, p, card, intro = make()
+    boss = FakeBoss()
+    floor = boss.y
+    st.boss = boss
+    intro.update(DT)
+    for _ in range(int(5 / DT)):
+        if intro.step == 'drop' and intro.t >= 0.2:
+            break
+        card.update(DT)
+        intro.update(DT)
+    assert intro.step == 'drop' and boss.y > floor, intro.step
+    intro.advance()
+    assert boss.y == floor and intro.step == 'lines'
+
+
+def test_real_drop_keeps_player_safe_and_boss_idle_but_effects_run():
+    import effects as fx
+    import game_framework
+    import play_mode
+    import stage as stage_mod
+    fresh()
+    p = Player(0, 0, None)
+    game_world.add_object(p, game_world.LAYER_PLAYER)
+    st = stage_mod.Stage(p, name='stage2', seed=1)
+    st.start()
+    card = zone_card.ZoneCard(st)
+    intro = bi.BossIntro(st, p, card)
+    game_world.add_object(card, game_world.LAYER_UI)
+    game_world.add_object(intro, game_world.LAYER_UI)
+    st.enter_room(stage_mod.boss_room(st), 'L')
+    boss = st.boss
+    floor = boss.y
+    room = st.room
+    assert room.tile_at_world(boss.x, floor - 10) == '#'           # 착지 자리는 바닥 위 (기둥 위가 아니다)
+    play_mode.stage, play_mode.player, play_mode.room = st, p, room
+    game_framework.frame_time = DT
+    hp, cd = p.hp, boss.cooldown
+    p.x = boss.x                                                   # 바로 아래에 서 있어도 맞지 않는다
+    landed = None
+    for i in range(int(12 / DT)):
+        play_mode.update()
+        if intro.step == 'drop' and boss.y == floor and landed is None:
+            landed = [o for o in game_world.world[game_world.LAYER_EFFECT] if type(o).__module__ == 'effects']
+            ages = [getattr(o, 't', getattr(o, 'time', None)) for o in landed]
+            play_mode.update()
+            after = [getattr(o, 't', getattr(o, 'time', None)) for o in landed]
+            assert ages != after, '착지 이펙트가 등장씬 중에도 움직인다'
+        if intro.step == 'lines':
+            break
+    assert landed, '착지 순간이 있었다'
+    assert p.hp == hp and boss.cooldown == cd and boss.state != 'ATTACK'
     game_world.clear()
 
 

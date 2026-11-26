@@ -2037,6 +2037,36 @@ def build_dots(look):
     print('구움 dots', len(DOT_SIZES), '크기')
 
 
+# ----- 크래셔 착지 등장의 바닥 그림자 (O2-2, 2026-11-26, src/boss_intro.py): 크기별 네 장 (실행 중 확대 없이 크기마다 그림) -----
+# 납작한 어두운 타원 두 겹(가운데가 더 어둡다). 게임은 반투명으로 얹는다. 색 층만 쓴다 (빛 없음)
+SHADOW_WIDTHS = (36, 64, 92, 120)
+SHADOW_RAMP = [(4, 4, 8), (4, 4, 8), (72, 44, 44), (4, 4, 8), (4, 4, 8)]   # 가운데 검정, 바깥 겹은 어두운 바닥에서도 보이게 회갈색
+
+
+def build_drop_shadow(look):
+    w, h = SHADOW_WIDTHS[-1] + 8, 28
+    frames = []
+    for sw in SHADOW_WIDTHS:
+        p = fx.Painter(w, h, w // 2, h // 2)
+        rx, ry = sw / 2, max(3.0, sw * 0.09)
+
+        def fn(X, Y, rx=rx, ry=ry):
+            d = (X / rx) ** 2 + (Y / ry) ** 2
+            idx = fx.np.full(X.shape, -1)
+            idx[d < 1.0] = 2                                    # 바깥 겹 (조금 밝은 검보라)
+            idx[d < 0.45] = 0                                   # 가운데 (더 어둡다)
+            return idx
+        p.shade(-w / 2, -h / 2, w / 2, h / 2, fn, SHADOW_RAMP)
+        frames.append(p.images())
+    meta = dict(size=[w, h], origin=[w // 2, h // 2], duration=len(frames) / 30, fps=30)
+    if look:
+        path = fx.contact(frames, os.path.join(fx.ROOT, 'shots', 'fx', 'drop-shadow.png'), zoom=4, cols=4, label='drop-shadow (4 sizes)')
+        print('본다', path)
+        return
+    fx.export('drop-shadow', meta, [frames])
+    print('구움 drop-shadow', len(frames), '크기')
+
+
 # ----- 실루엣 컷인의 큰 원반 (O1, 2026-11-26, src/cut_in.py): 색은 게임이 입힌다 (윗줄 색 층, 아랫줄 흰 심) -----
 # 단색 바탕 위의 큰 원반: 처음 네 장은 커지며(살짝 넘쳤다 돌아온다) 마지막 장에 머문다. 안쪽에 한 단계 어두운 띠와 끊어진 가는 고리,
 # 바깥에 끊어진 고리 하나, 흰 심은 윗왼쪽 가장자리의 가는 호와 짧은 빗금 몇 개뿐 (원반 자체가 주인공, 흰색은 작게)
@@ -2192,8 +2222,11 @@ def main(argv):
     # 초승달·회전 베기(SLASHES·SPINS)는 이름을 직접 줄 때만 굽는다: 2026-11-24 사용자가 '찌그러지고 빛이 사라져 밋밋하다'며 반려,
     # 게임은 tools/make_slash_hq.py의 예전 그림을 쓴다. 다시 시도하려면 모양(가운데가 굵은 고른 초승달)과 빛부터 고칠 것
     names = ([a for a in argv if not a.startswith('--')]
-             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + list(DIR_SHEETS) + ['dots', 'cutin-disc'])
+             or list(EFFECTS) + [n for n in TINTS if n not in LOOK_ONLY_TINTS] + list(LOOPS) + list(PLAIN_LOOPS) + list(DIR_SHEETS) + ['dots', 'cutin-disc', 'drop-shadow'])
     for name in names:
+        if name == 'drop-shadow':
+            build_drop_shadow(look)
+            continue
         if name == 'cutin-disc':
             build_cutin_disc(look)
             continue

@@ -1,0 +1,18 @@
+{
+ "id": "fx/drop-shadow",
+ "frames": 4,
+ "frameSize": [
+  128,
+  28
+ ],
+ "columns": 4,
+ "fps": 30,
+ "loop": false,
+ "pivot": [
+  64,
+  14
+ ],
+ "scale": 2,
+ "duration": 0.13333333333333333,
+ "source": "tools/make_fx2.py + tools/fxkit.py (code-drawn, numpy, no image model)"
+}

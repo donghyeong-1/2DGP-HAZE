@@ -149,6 +149,7 @@ ULT_HIT_MULT = 1.4           # 한 번 타격 배율 (5번이면 기본 피해 x
 ULT_BASE_DAMAGE = 20         # 궁극기 기본 피해: 무기와 상관없이 같다 (철파이프 기본 피해와 같은 값)
 ULT_BOSS_CAP = 0.15          # 궁극기 한 번이 보스에게 줄 수 있는 피해 = 최대 체력의 15%
 # O1 (2026-11-26): 실루엣 컷인(src/cut_in.py)과 강화 갈래 진화 '궁극기 각성'
+UI_SKIN = 'plate'            # UI 3차(2026-11-26): 'plate' 교도소 철판(assets/ui/up_*) / 'crystal' 예전 결정형(uc_*). hud_kit.skin()
 CUT_IN = True                # False면 보스 페이즈 전환·궁극기 각성의 컷인을 끈다
 ULT_AWAKEN_MULT = 1.4        # 궁극기 각성: 궁극기 피해 배율
 ULT_AWAKEN_BOSS_CAP = 0.20   # 궁극기 각성: 보스 피해 상한 (기본 ULT_BOSS_CAP 15%)

@@ -182,7 +182,7 @@ class GameUI:
             pulse = 0.5 + 0.5 * math.sin(self.player.aura_time * (9 if g.zone == CRITICAL else 6))
             if pulse > 0.5:
                 assets.draw_rect_color(BAR_X - 4, BAR_Y - 10, BAR_W + 8, BAR_H + 20, ZONE_COLOR[g.zone])
-        body = assets.image('ui/uc_gauge_body.png')              # 몸통 틀: 흰 윗선·밑선 + 남색 그림자, 가로로 이어 붙인다
+        body = assets.image(kit.art('gauge_body.png'))              # 몸통 틀: 흰 윗선·밑선 + 남색 그림자, 가로로 이어 붙인다
         for along in range(0, BAR_W, body.w):
             assets.draw_clip(body, 0, 0, min(body.w, BAR_W - along), body.h, BAR_X + along, BAR_Y - 6)
         bounds = self._bounds()
@@ -245,7 +245,7 @@ class GameUI:
             if i == p.dash_slots and p.dash_slots < p.dash_max:
                 import mutations
                 k = min(1.0, p.dash_charge / max(0.01, mutations.dash_recharge_time(p)))
-                assets.draw_rect_color(x + 2, DASH_Y - 6, int(24 * k) // 2 * 2, 2, TEAL)
+                assets.draw_rect_color(x + 2, DASH_Y - 6, int(24 * k) // 2 * 2, 2, WHITE if kit.skin() == 'plate' else TEAL)   # 대시는 헤이즈가 아니다
         self._draw_potions()
         self._draw_items()
 
@@ -406,11 +406,17 @@ class GameUI:
         colors = {'current': (242, 246, 250), 'cleared': (30, 160, 156), 'visited': (72, 86, 116), 'unknown': (34, 44, 69)}
         borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60),
                    'rift': (200, 130, 255), 'event': (140, 235, 170)}
+        well = (13, 18, 31)
+        if kit.skin() == 'plate':                                # 철판: 지금 방 = 경고 노랑, 깬 방 = 밝은 철, 청록은 헤이즈 방에만
+            colors = {'current': kit.YELLOW, 'cleared': (92, 102, 120), 'visited': (52, 59, 72), 'unknown': (21, 25, 32)}
+            borders = {'gold': (240, 180, 50), 'boss': (226, 58, 72), 'shop': (216, 221, 230), 'gate': (226, 58, 72),
+                       'rift': (46, 230, 214), 'event': (216, 221, 230)}
+            well = (6, 7, 10)
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
-            border = borders.get(kind, (240, 150, 60) if high else (13, 18, 31))
-            assets.draw_rect_color(x - 4, y - 4, cell_w + 8, cell_h + 8, (13, 18, 31))
+            border = borders.get(kind, ((46, 230, 214) if kit.skin() == 'plate' else (240, 150, 60)) if high else well)
+            assets.draw_rect_color(x - 4, y - 4, cell_w + 8, cell_h + 8, well)
             assets.draw_rect_color(x - 2, y - 2, cell_w + 4, cell_h + 4, border)
             assets.draw_rect_color(x, y, cell_w, cell_h, colors[state])
             mark = ({'gate': 'boss', 'rift': 'haze'}.get(kind, kind)) if kind in borders else 'haze' if high else None   # event: hud_map_event
@@ -464,7 +470,11 @@ class GameUI:
         phase = getattr(boss, 'phase', 1)
         if phase > 1:
             kit.text(x + BOSS_W, y + 32, f'{phase}페이즈', (255, 120, 110), small=True, right=True)
-        assets.draw_rect_color(x, y - 2, BOSS_W, BOSS_H + 4, (242, 246, 250))   # 위아래 흰 1점 선
+        if kit.skin() == 'plate':                                              # 철판: 위 밝은 테·아래 어두운 테
+            assets.draw_rect_color(x, y - 4, BOSS_W, BOSS_H + 8, (6, 7, 10))
+            assets.draw_rect_color(x, y + BOSS_H + 2, BOSS_W, 2, (59, 67, 82))
+        else:
+            assets.draw_rect_color(x, y - 2, BOSS_W, BOSS_H + 4, (242, 246, 250))   # 위아래 흰 1점 선
         kit.icon('uc_boss_l', x - 6, y - 2)                                   # 양끝 작은 결정
         kit.icon('uc_boss_r', x + BOSS_W, y - 2)
         ratio = max(0.0, boss.hp) / boss.max_hp

@@ -174,7 +174,7 @@ def _completes_synergy(m):
 
 def draw_frame(x, y, w, h, rarity='common'):
     """카드 테두리를 9칸 자르기로 (x, y) 왼쪽 아래에 w x h로 그린다: 모서리는 그대로, 변은 1배로 이어 붙인다."""
-    img = assets.image(f'ui/uc_card_{rarity}.png')
+    img = assets.image(kit.art(f'card_{rarity}.png'))
     c, mid_w, mid_h = CORNER, img.w - 2 * CORNER, img.h - 2 * CORNER
     sw, sh = img.w, img.h
     for bx, by, dx, dy in ((0, 0, 0, 0), (sw - c, 0, w - c, 0), (0, sh - c, 0, h - c), (sw - c, sh - c, w - c, h - c)):
@@ -203,8 +203,8 @@ def _draw_form_card(i, mid):
     skip = wid == 'skip'
     color = (150, 165, 190) if skip else forms.COLOR
     if hot:
-        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))
+        kit.select_mark(x, y, CARD_W, CARD_H, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
     draw_frame(x, y, CARD_W, CARD_H, 'common' if skip else 'legendary')
     if skip:
         name, sub, desc = '넘기기', '형태를 얻지 않습니다', f'대신 조각 {forms.SKIP_SHARDS}개를 받습니다'
@@ -230,8 +230,8 @@ def _draw_event_card(i, mid):
     ok = info['ok']
     color = info['color'] if ok else (96, 104, 124)
     if hot:
-        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))
+        kit.select_mark(x, y, CARD_W, CARD_H, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
     draw_frame(x, y, CARD_W, CARD_H, 'rare' if ok and info['icon'] else 'common')
     if info['icon']:
         img = assets.image(info['icon'])
@@ -253,9 +253,9 @@ def _draw_curse_card(i, mid):
     y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
     color = info['color']
     if hot:
-        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))
-    draw_frame(x, y, CARD_W, CARD_H, 'legendary' if info['grade'] >= 3 else 'rare')
+        kit.select_mark(x, y, CARD_W, CARD_H, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
+    draw_frame(x, y, CARD_W, CARD_H, 'curse' if kit.skin() == 'plate' else 'legendary' if info['grade'] >= 3 else 'rare')   # 철판: 경고 줄무늬 틀
     img = assets.image('ui/mut_ember.png')
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 54, '저주', color, center=True, small=True)
@@ -287,8 +287,8 @@ def _draw_card(i, mid):
     y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
     color = fam['color']
     if hot:                                               # 고른 카드: 계열 색 테두리
-        assets.draw_rect_color(x - 6, y - 6, CARD_W + 12, CARD_H + 12, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, (13, 18, 31))      # 카드 속
+        kit.select_mark(x, y, CARD_W, CARD_H, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())      # 카드 속
     info = mu.card_info(player, mid) if player is not None else {'rarity': 'common', 'note': fam['set'], 'hot': False}
     tier = mu.tier(mid)
     draw_frame(x, y, CARD_W, CARD_H, info['rarity'])      # v7: 기본 = 보통 / 진화 = 희귀 / 합성 = 전설 테두리

@@ -6,9 +6,34 @@
 막대 속은 uc_fill_<색>_<높이>.png에서 필요한 너비만큼 잘라 쓴다. 모든 위치는 정수 픽셀(도트 2px 격자에 맞게 짝수)이다.
 """
 import assets
+import config
 
-ART = 'ui/uc_'                 # 부품 그림 접두 (assets/ui/uc_*.png)
-# 판 종류 -> (그림 한 변 크기, 모서리 크기, 속 색)
+ART = 'ui/uc_'                 # 예전(결정형) 부품 그림 접두 (assets/ui/uc_*.png). 지금 스킨의 접두는 prefix()
+# 2026-11-26 UI 3차 '교도소 철판': config.UI_SKIN = 'plate'(새 것, assets/ui/up_*.png, tools/make_ui_plate.py) /
+# 'crystal'(예전 것, uc_*). 이름·크기가 같아 접두만 바꿔 끼운다. 예전 그림은 지우지 않는다.
+SKIN_PREFIX = {'plate': 'up_', 'crystal': 'uc_'}
+
+
+def skin():
+    s = getattr(config, 'UI_SKIN', 'plate')
+    return s if s in SKIN_PREFIX else 'plate'
+
+
+def prefix():
+    return SKIN_PREFIX[skin()]
+
+
+def art(rest):
+    """지금 스킨의 부품 경로: art('kit_panel.png') -> 'ui/up_kit_panel.png' (plate) / 'ui/uc_kit_panel.png' (crystal)."""
+    return f'ui/{prefix()}{rest}'
+
+
+def part_name(name):
+    """'uc_<부품>' 이름을 지금 스킨의 이름으로 (그 밖의 이름은 그대로)."""
+    return prefix() + name[3:] if name.startswith('uc_') else name
+
+
+# 판 종류 -> (그림 한 변 크기, 모서리 크기, 속 색). 크기는 스킨이 같고, 속 색만 스킨마다 다르다
 KITS = {
     'panel': (96, 24, (13, 18, 31)),          # 큰 판: 사선 모서리, 흰 1점 선
     'plate': (48, 12, (13, 18, 31)),          # 작은 HUD 틀: 미니맵·칩·아이템 칸
@@ -18,14 +43,24 @@ KITS = {
     'key': (24, 8, (22, 30, 49)),             # 키캡
     'key_dim': (24, 8, (13, 18, 31)),
 }
+PLATE_WELL = {'key': (42, 48, 59)}                      # 철판 스킨의 속 색 (나머지는 면 색 #1d222b)
+PLATE_FACE = (29, 34, 43)
+
+
+def kit(kind):
+    """(그림 한 변 크기, 모서리 크기, 속 색) — 지금 스킨 기준."""
+    size, c, well = KITS[kind]
+    if skin() == 'plate':
+        well = PLATE_WELL.get(kind, PLATE_FACE)
+    return size, c, well
 FILL_HEIGHTS = (8, 12, 16, 20, 24)
 SHADOW = (8, 11, 20)
 
 
 def panel(kind, x, y, w, h):
     """왼쪽 아래 (x, y)부터 w x h 판을 그린다."""
-    size, c, well = KITS[kind]
-    img = assets.image(f'{ART}kit_{kind}.png')
+    size, c, well = kit(kind)
+    img = assets.image(art(f'kit_{kind}.png'))
     x, y, w, h = int(x), int(y), max(int(w), 2 * c), max(int(h), 2 * c)
     m = size - 2 * c                                       # 가운데 무늬 조각 길이
     assets.draw_rect_color(x + c, y + c, w - 2 * c, h - 2 * c, well)
@@ -45,12 +80,40 @@ def panel(kind, x, y, w, h):
     assets.draw_clip(img, size - c, 0, c, c, x + w - c, y)
 
 
+def card_well():
+    """카드·정보판 속 색 (철판 스킨은 면 색)."""
+    return PLATE_FACE if skin() == 'plate' else (13, 18, 31)
+
+
+YELLOW = (226, 178, 58)        # 경고 노랑: 철판 스킨에서 '지금 고른 것'
+YELLOW_LO = (138, 102, 26)
+
+
+def select_mark(x, y, w, h, color):
+    """고른 카드·칸 표시. 결정형: 둘레를 color로 채운 테 / 철판: 네 귀퉁이 노란 꺾쇠(바깥 6px, 굵기 6px, 길이 44px)."""
+    x, y, w, h = int(x), int(y), int(w), int(h)
+    if skin() != 'plate':
+        assets.draw_rect_color(x - 6, y - 6, w + 12, h + 12, color)
+        return
+    L, t, o = 44, 6, 10
+    for cx, cy, sx, sy in ((x - o, y - o, 1, 1), (x + w + o, y - o, -1, 1), (x - o, y + h + o, 1, -1), (x + w + o, y + h + o, -1, -1)):
+        hx = cx if sx > 0 else cx - L
+        vy = cy if sy > 0 else cy - L
+        bx = cx if sx > 0 else cx - t
+        by = cy if sy > 0 else cy - t
+        for (rx, ry, rw, rh) in ((hx, by, L, t), (bx, vy, t, L)):
+            assets.draw_rect_color(rx - 2, ry - 2, rw + 4, rh + 4, (6, 7, 10))        # 어두운 윤곽
+        for (rx, ry, rw, rh) in ((hx, by, L, t), (bx, vy, t, L)):
+            assets.draw_rect_color(rx, ry, rw, rh, YELLOW)
+            assets.draw_rect_color(rx, ry, rw, 2, YELLOW_LO)
+
+
 def fill(color, x, y, w, h):
     """막대 속 무늬를 (x, y)부터 너비 w만큼. h는 FILL_HEIGHTS 중 하나."""
     w = int(w)
     if w <= 0:
         return
-    img = assets.image(f'{ART}fill_{color}_{h}.png')
+    img = assets.image(art(f'fill_{color}_{h}.png'))
     assets.draw_clip(img, 0, 0, min(w, img.w), h, int(x), int(y))
 
 
@@ -62,15 +125,15 @@ def bar(color, x, y, w, h, ratio, empty='empty'):
 
 
 def icon(name, x, y):
-    """assets/ui/<name>.png를 왼쪽 아래 (x, y)에 1배로 그린다."""
-    img = assets.image(f'ui/{name}.png')
+    """assets/ui/<name>.png를 왼쪽 아래 (x, y)에 1배로 그린다. 'uc_' 부품은 지금 스킨의 것으로."""
+    img = assets.image(f'ui/{part_name(name)}.png')
     assets.draw_image(img, int(x) + img.w // 2, int(y))
     return img.w, img.h
 
 
 def tag(x, y, w):
     """이름표 띠(양끝이 육각으로 깎인 판, 높이 40)를 왼쪽 아래 (x, y)에 너비 w로. 양끝 16px은 그대로, 가운데는 이어 붙인다."""
-    img = assets.image(f'{ART}tag.png')
+    img = assets.image(art('tag.png'))
     cap, x, y, w = 16, int(x) // 2 * 2, int(y), max(int(w) // 2 * 2, 32)
     mid = img.w - 2 * cap
     for along in range(0, w - 2 * cap, mid):
@@ -81,14 +144,15 @@ def tag(x, y, w):
 
 def strip(x, y, w):
     """고른 메뉴 띠(높이 44): 흰 윗선·청록 밑선, 오른쪽 아래 청록 모서리, 왼쪽에 결정 덩어리. 왼쪽 아래 (x, y), 너비 w."""
-    img = assets.image(f'{ART}strip_hot.png')
+    img = assets.image(art('strip_hot.png'))
     left, right, x, y, w = 2, 16, int(x) // 2 * 2, int(y) // 2 * 2, max(int(w) // 2 * 2, 40)
     mid = 64
     for along in range(0, w - left - right, mid):
         assets.draw_clip(img, left, 0, min(mid, w - left - right - along), img.h, x + left + along, y)
     assets.draw_clip(img, 0, 0, left, img.h, x, y)
     assets.draw_clip(img, img.w - right, 0, right, img.h, x + w - right, y)
-    icon('uc_crystal', x - 22, y - 6)
+    if skin() != 'plate':                                    # 철판 띠는 결정 장식 없이 (경고 줄무늬가 끝에 있다)
+        icon('uc_crystal', x - 22, y - 6)
 
 
 def text(x, y, s, color, small=False, center=False, big=False, right=False):
@@ -197,7 +261,7 @@ def row(x, y, w, h, hot):
 
 def marker(x, y):
     """고른 항목 앞 표시: 떠 있는 청록 결정(uc_cursor, 8x24)을 글자 가운데 y에 맞춘다. x는 예전 24px 표시의 왼쪽."""
-    img = assets.image(f'{ART}cursor.png')
+    img = assets.image(art('cursor.png'))
     assets.draw_image(img, int(x) + 12, int(y) - img.h // 2)
 
 
@@ -228,7 +292,7 @@ def pill(x, y, w, h, label, on, focus=False):
     x, y, w, h = int(x), int(y), int(w), int(h)
     if on:
         assets.draw_rect_color(x, y, w, h, (34, 44, 69))
-        assets.draw_rect_color(x, y, w, 4, (46, 230, 214))          # 밑줄은 청록 (금색은 전설 카드에만 쓴다, G06)
+        assets.draw_rect_color(x, y, w, 4, YELLOW if skin() == 'plate' else (46, 230, 214))   # 밑줄: 철판은 경고 노랑, 결정형은 청록
     assets.draw_text(x + w // 2, y + h // 2 + 2, label,
                      (242, 246, 250) if on else ((150, 162, 188) if focus else (104, 116, 142)), small=True, center=True)
 
@@ -237,6 +301,7 @@ def card(x, y, w, h, title=None):
     """정보 카드 (불투명): 사선 모서리 큰 판 + 오른쪽 위 모서리의 결정. 제목이 있으면 왼쪽 위에 청록 글자."""
     x, y, w, h = int(x) // 2 * 2, int(y) // 2 * 2, int(w) // 2 * 2, int(h) // 2 * 2
     panel('panel', x, y, w, h)
-    icon('uc_crystal', x + w - 24, y + h - 20)
+    if skin() != 'plate':                                    # 철판: 결정 장식 없음, 제목은 스텐실 흰색
+        icon('uc_crystal', x + w - 24, y + h - 20)
     if title:
-        text(x + 28, y + h - 34, title, (159, 247, 238))
+        text(x + 28, y + h - 34, title, (216, 221, 230) if skin() == 'plate' else (159, 247, 238))

@@ -31,6 +31,15 @@ def test_weapon_imprint_colors_follow_the_color_language():
     assert chain[2] > chain[0] > chain[1]                         # 보라
 
 
+def test_pillar_warning_uses_the_baked_warn_band():
+    """2차 검토 반영: 고철 기둥 낙하 예고도 다른 바닥 예고처럼 effects.draw_warn(끝이 가늘어지는 띠 + 빛)으로 그린다."""
+    import inspect
+    src = inspect.getsource(boss_terrain.ScrapPillar.draw)
+    warn = src[src.index("'warn'"):src.index("'fall'")]
+    assert 'effects.draw_warn(' in warn and 'PILLAR_WARN_COLOR' in warn
+    assert 'draw_rect_color' not in warn
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

@@ -31,3 +31,23 @@
 ## 굽기
 `python tools/apply_pixellab_boss_cards.py`: 구역 카드 배경(zone_foundry·zone_haze·zone_cell)을 0.5배로 어둡게 + 인물 뒤에 구역 빛 색을 옅게,
 상반신은 알파 영역으로 잘라 최근접 2배(도트 2px), 오른쪽 끝에서 140px, 허리가 카드 아래 끝. 예전 카드는 `assets/concept/boss_cards_old/`.
+
+## 2차: 가슴 위 클로즈업 (2026-11-26 저녁, 기획 세션 검토 "인물이 작아 카드가 비어 보인다") — 48회 사용
+목표: 상반신이 카드 높이(400px)의 85~100%. 도트는 그대로 2px(최근접 2배).
+- style_image = 고른 1차 시안을 알파 영역으로 자른 것(`ref/<이름>_crop.png`, upload), usage "This is the character to draw: keep his design, colours, outline and pixel scale exactly, only frame him much closer so he fills the canvas." (color_palette 기본 true: 같은 인물의 색 그대로)
+- 설명: "Tight close-up bust portrait of the exact same character as the style image ... Chest-up framing, three-quarter view facing left. The figure fills the whole canvas: (머리 위 끝이 캔버스 위 끝, 어깨가 좌우 끝, 가슴 가운데에서 아래 끝) ..." 아크 3·4안은 "Extreme close-up ... No margins at all ... No white lines, no border."
+- 208x200, seed 5·13 (아크는 21·29 추가).
+
+| 파일 | 몸 높이(도트, 200 중) | 평가 |
+|---|---|---|
+| crasher_c1 (seed 5) | 200 | 캔버스를 가득, 깔끔 -> **선택** |
+| crasher_c2 (seed 13) | 196 | 점묘 같은 잡무늬가 많다 |
+| ark_c1 (seed 5) | 176 (정리 뒤 169) | 아래 끝 흰 줄 4줄과 모자 위 흰 점이 붙어 나옴. 정리본 `ark_c1_clean.png`은 84.5%로 목표에 조금 못 미침 |
+| ark_c2 (seed 13) | 156 | 78%, 작다 |
+| ark_c3 (seed 21) | 154 | 작다 |
+| ark_c4 (seed 29) | 200 | 캔버스를 가득(모자 꼭대기가 위 끝에서 조금 잘림), 흰 줄 없음 -> **선택** |
+| gatekeeper_c1 (seed 5) | 200 | 캔버스를 가득, 깔끔 -> **선택** |
+| gatekeeper_c2 (seed 13) | 196 | 어둡고 잡무늬 |
+
+굽기 변경(`tools/apply_pixellab_boss_cards.py`): 인물이 캔버스 좌우 끝까지 차 있어 오른쪽 끝을 카드 끝에 붙이고(RIGHT 0), 캔버스에서 잘린 왼쪽 세로 선은
+왼쪽 80px을 2px 열마다 같은 배율로 어둡게 해 배경에 스며들게 했다(격자 유지). 1차 선택(crasher_2·ark_1·gatekeeper_1)은 raw_gen에 그대로 둔다.

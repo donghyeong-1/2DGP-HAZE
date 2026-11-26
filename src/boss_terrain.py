@@ -101,8 +101,8 @@ class ScrapPillar(_Solid):
     def draw(self):
         x0 = int(self.x - T)
         if self.state == 'warn':                                     # 바닥에 깜빡이는 그림자
-            if int(self.time * 10) % 2 == 0:
-                assets.draw_rect_color(x0, int(self.floor_y), 2 * T, 8, PILLAR_WARN_COLOR)
+            if int(self.time * 10) % 2 == 0:                          # 다른 바닥 예고와 같은 구운 띠 + 빛 (폭·깜빡임은 그대로)
+                effects.draw_warn(x0, int(self.floor_y), 2 * T, PILLAR_WARN_COLOR)
             return
         if self.state == 'fall':
             k = self.time / PILLAR_FALL

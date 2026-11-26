@@ -19,14 +19,14 @@ RAW = os.path.join(ROOT, 'assets', 'sprites', 'pixellab', 'boss_cards_v6', 'raw_
 OUT = os.path.join(ROOT, 'assets', 'backgrounds')
 W, H = 1920, 400
 SCALE = 2
-RIGHT = 140                 # 인물 오른쪽 끝과 카드 오른쪽 끝 사이
+RIGHT = 0                   # 인물 오른쪽 끝과 카드 오른쪽 끝 사이 (2차 검토: 가슴 위 클로즈업이 캔버스 좌우를 채워 카드 끝에 붙인다)
 DARK = 0.5                  # 배경 밝기
 
 # 보스 -> (고른 시안, 구역 배경, 인물 뒤 빛 색). 고른 이유는 boss_cards_v6/GENERATION_LOG.md
 CARDS = {
-    'crasher': ('crasher_2', 'zone_foundry', (255, 120, 50)),
-    'ark': ('ark_1', 'zone_haze', (60, 220, 200)),
-    'gatekeeper': ('gatekeeper_1', 'zone_cell', (120, 170, 230)),
+    'crasher': ('crasher_c1', 'zone_foundry', (255, 120, 50)),
+    'ark': ('ark_c4', 'zone_haze', (60, 220, 200)),
+    'gatekeeper': ('gatekeeper_c1', 'zone_cell', (120, 170, 230)),
     'heart': (None, 'zone_haze', (60, 230, 210)),
 }
 
@@ -43,11 +43,21 @@ def background(zone, glow, center_x):
     return Image.composite(color, bg, halo)
 
 
+FADE_W = 80                 # 인물 왼쪽 끝(캔버스에서 잘린 세로 선)을 이만큼 어둡게 스며들게 한다(px, 2px 열 단위)
+
+
 def portrait(name):
-    """고른 상반신: 알파 영역으로 잘라 최근접 2배. 알파는 0/255 그대로."""
+    """고른 상반신: 알파 영역으로 잘라 최근접 2배. 알파는 0/255 그대로.
+    2차 검토: 가슴 위 클로즈업이라 캔버스 왼쪽 끝에서 잘린다 -> 왼쪽 FADE_W를 2px 열마다 같은 배율로 어둡게(격자 유지)."""
     im = Image.open(os.path.join(RAW, name + '.png')).convert('RGBA')
     im = im.crop(im.getchannel('A').getbbox())
-    return im.resize((im.width * SCALE, im.height * SCALE), Image.NEAREST)
+    im = im.resize((im.width * SCALE, im.height * SCALE), Image.NEAREST)
+    import numpy as np
+    a = np.array(im).astype(np.float32)
+    for x0 in range(0, min(FADE_W, im.width), 2):
+        k = 0.12 + 0.88 * ((x0 + 2) / FADE_W) ** 1.4
+        a[:, x0:x0 + 2, :3] *= k
+    return Image.fromarray(np.clip(a + 0.5, 0, 255).astype(np.uint8), 'RGBA')
 
 
 def place(kind):

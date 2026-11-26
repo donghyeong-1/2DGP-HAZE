@@ -34,6 +34,15 @@ _rain = [None]                             # 철판 스킨: 게임의 비 (atmos
 HERO_X, HERO_Y = 330, 180                  # 철판 스킨: 주인공 발 위치 (벽 덩어리 위, tools/make_title_plate.py LEDGE_ROWS x 60)
 LOGO_Y = 600                               # 로고 아래 가장자리
 MENU_PANEL = (W // 2 - 260, 150, 520, 340)  # 철판 스킨: 메뉴 뒤 철판 (x, y, w, h)
+# 'mist' 스킨: 감시 단말 (2026-11-27 확정). 인광 글자색, 왼쪽 위 머리글, 오른쪽 아래 판번호 자리 (어둠 시트도 이 자리에 맞춰 굽는다)
+PH = (168, 240, 200)                       # 인광 글자
+PH_DIM = (60, 110, 100)
+PH_MENU = (112, 170, 150)                  # 고르지 않은 메뉴 (어둠 위에서 읽히게 PH_DIM보다 밝게)
+PH_BG = (10, 16, 20)                       # 고른 항목의 뒤집힌 글자
+TERM_HEAD = (110, H - 60)                  # 머리글 첫 줄 (왼쪽, 글자 가운데 y)
+TERM_MARGIN = 110                          # 오른쪽 아래 판번호의 오른쪽 여백
+BRACKET_MARGIN = 24                        # 화면 네 귀퉁이 꺾쇠
+SCAN_STEP, SCAN_ALPHA = 4, 0.16            # 주사선: 4px마다 2px 어두운 줄
 
 
 def enter():
@@ -107,6 +116,43 @@ def _weather():
     return _rain[0]
 
 
+def _draw_terminal():
+    """'mist' 스킨 제목 화면 (2026-11-27 확정 B 감시 단말): 슬럼 배경·비·주인공은 철판과 같고, 글자 뒤에 어둠(글자에서 멀어질수록
+    옅어지는 빛 층 시트 light/title_shade, tools/make_ui_mist.py), 주사선, 네 귀퉁이 꺾쇠, 감시 머리글과 표시등, 색이 어긋난 인광
+    로고(PixelLab). 고른 메뉴는 글자 폭만큼 색을 뒤집고 앞에 커서. 띠·판·줄무늬로 감싸지 않는다."""
+    import sprites
+    assets.draw_image(assets.image('backgrounds/title_plate.png'), W // 2, 0)
+    _weather().draw()
+    n = int(age / config.IDLE_FRAME_TIME) % sprites.count('n09_idle') + 1
+    sprites.draw('n09_idle', n, HERO_X, HERO_Y, 1)
+    shade = assets.image('light/title_shade.png')         # 절반 크기 그림을 2배로 (빛 층 예외: 부드러운 알파)
+    assets.draw_clip(shade, 0, 0, shade.w, shade.h, 0, 0, scale=2)
+    for y in range(0, H, SCAN_STEP):
+        assets.draw_rect_color(0, y, W, 2, (0, 0, 0), SCAN_ALPHA)
+    b = assets.image('ui/um_bracket.png')
+    m = BRACKET_MARGIN
+    for x, y, flip in ((m, H - m - b.h, ''), (W - m - b.w, H - m - b.h, 'h'), (m, m, 'v'), (W - m - b.w, m, 'hv')):
+        assets.draw_image(b, x + b.w // 2, y, flip)
+    hx, hy = TERM_HEAD
+    kit.text(hx, hy, 'TOWER SURVEILLANCE // INMATE N-09', PH, small=True)
+    kit.text(hx, hy - 26, 'CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM, small=True)
+    lamps = assets.image('ui/um_lamps.png')
+    assets.draw_image(lamps, W - 200, H - 92)
+    assets.draw_image(assets.image('ui/um_logo_title.png'), W // 2, LOGO_Y)
+    kit.text(W // 2, LOGO_Y - 28, '헤이즈', PH, center=True)
+    cur = assets.image('ui/um_cursor.png')
+    for i, btn in enumerate(MENU):
+        cy = btn.y + btn.h // 2
+        tw = assets.text_width(btn.label, False)
+        if i == selected:                                 # 색 뒤집기: 글자 폭 + 양옆 8px만 (길게 뻗는 띠 아님)
+            assets.draw_rect_color(W // 2 - tw // 2 - 8, cy - 18, tw + 16, 36, PH)
+            assets.draw_text(W // 2, cy, btn.label, PH_BG, center=True)
+            assets.draw_image(cur, W // 2 - tw // 2 - 34, cy - 21)
+        else:
+            kit.text(W // 2, cy, btn.label, PH_MENU, center=True)
+    kit.text(W - TERM_MARGIN, 60, VERSION, PH_DIM, small=True, right=True)
+
+
 def _draw_plate():
     """UI 3차 '교도소 철판' 제목 화면: 게임 속 슬럼 원경·중경·벽(구운 배경) + 게임의 비 + 주인공 대기 동작 + 스텐실 철판 로고 +
     철판 메뉴(고른 항목은 노란 꺾쇠와 띠). 새 일러스트를 쓰지 않는다 (docs/opus/TASKS.md 3차 O8-3)."""
@@ -130,6 +176,9 @@ def _draw_plate():
 
 def draw_frozen():
     """제목 화면 (설정 창이 아래에 깔 때도 쓴다)."""
+    if kit.is_mist():
+        _draw_terminal()
+        return
     if kit.is_plate():
         _draw_plate()
         return

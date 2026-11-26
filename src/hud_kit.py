@@ -13,20 +13,32 @@ ART = 'ui/uc_'                 # 예전(결정형) 부품 그림 접두 (assets/
 #   'plate'      PixelLab 철판 (assets/ui/upx_*.png, tools/apply_ui_plate.py). PixelLab 판이 없는 부품은 코드 철판(up_*)을 쓴다
 #   'plate_code' 코드로 그린 철판 (assets/ui/up_*.png, tools/make_ui_plate.py)
 #   'crystal'    예전 결정형 (uc_*, Gemini G06)
+# 2026-11-27 UI 컨셉 확정 'mist': 타이틀 = B 감시 단말, 증강 선택 = A 안개 미니멀 (um_*, tools/make_ui_mist.py).
+#   그 밖의 화면(HUD·일시정지·설정·상점·결과)은 아직 'plate'와 같다 (upx_*, 없으면 up_)
 # 이름·크기가 같아 접두만 바꿔 끼운다. 예전 그림은 지우지 않는다.
-SKIN_PREFIX = {'plate': 'upx_', 'plate_code': 'up_', 'crystal': 'uc_'}
-FALLBACK = {'plate': 'up_'}                  # 이 스킨에 없는 부품은 이 접두로
+SKIN_PREFIX = {'mist': 'upx_', 'plate': 'upx_', 'plate_code': 'up_', 'crystal': 'uc_'}
+FALLBACK = {'mist': 'up_', 'plate': 'up_'}                  # 이 스킨에 없는 부품은 이 접두로
 _exists = {}
 
 
 def skin():
-    s = getattr(config, 'UI_SKIN', 'plate')
-    return s if s in SKIN_PREFIX else 'plate'
+    s = getattr(config, 'UI_SKIN', 'mist')
+    return s if s in SKIN_PREFIX else 'mist'
 
 
 def is_plate():
-    """철판 계열 스킨인가 (PixelLab·코드 둘 다: 노란 꺾쇠, 청록은 헤이즈에만, 결정 장식 없음)."""
-    return skin() in ('plate', 'plate_code')
+    """철판 계열 스킨인가 (PixelLab·코드 둘 다: 노란 꺾쇠, 청록은 헤이즈에만, 결정 장식 없음). 'mist'도 타이틀·증강 밖은 철판."""
+    return skin() in ('mist', 'plate', 'plate_code')
+
+
+def is_pixellab_plate():
+    """PixelLab 철판 부품(upx_*)을 쓰는 스킨인가."""
+    return skin() in ('mist', 'plate')
+
+
+def is_mist():
+    """2026-11-27 확정 컨셉: 타이틀은 감시 단말, 증강 선택은 안개 미니멀 (um_*)."""
+    return skin() == 'mist'
 
 
 def prefix():
@@ -181,7 +193,7 @@ def tag(x, y, w):
 def strip(x, y, w):
     """고른 메뉴 띠(높이 44): 흰 윗선·청록 밑선, 오른쪽 아래 청록 모서리, 왼쪽에 결정 덩어리. 왼쪽 아래 (x, y), 너비 w."""
     img = assets.image(art('strip_hot.png'))
-    left = 16 if skin() == 'plate' else 2                   # PixelLab 띠는 왼쪽 끝에도 잘린 모서리가 있다
+    left = 16 if is_pixellab_plate() else 2                   # PixelLab 띠는 왼쪽 끝에도 잘린 모서리가 있다
     right, x, y, w = 16, int(x) // 2 * 2, int(y) // 2 * 2, max(int(w) // 2 * 2, 40)
     mid = 64
     for along in range(0, w - left - right, mid):

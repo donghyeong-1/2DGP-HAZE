@@ -483,7 +483,7 @@ class GameUI:
         if phase > 1:
             kit.text(x + BOSS_W, y + 32, f'{phase}페이즈', (255, 120, 110), small=True, right=True)
         frame = kit.art('boss_frame.png')
-        if kit.skin() == 'plate' and frame.startswith('ui/upx_'):           # PixelLab 철판: 양끝 쇠고리가 있는 막대 틀 (막대는 그 위에)
+        if kit.is_pixellab_plate() and frame.startswith('ui/upx_'):           # PixelLab 철판: 양끝 쇠고리가 있는 막대 틀 (막대는 그 위에)
             kit.icon(frame[3:-4], x - 8, y - 6)
         elif kit.is_plate():                                            # 철판: 위 밝은 테·아래 어두운 테
             assets.draw_rect_color(x, y - 4, BOSS_W, BOSS_H + 8, (6, 7, 10))

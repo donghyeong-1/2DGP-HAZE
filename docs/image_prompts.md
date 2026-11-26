@@ -340,3 +340,6 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 
 ## 2026-11-26 UI 3차 증강 갈래 아이콘 (PixelLab create_image_pro_flash 32x32)
 프롬프트·시안·고른 이유는 `assets/sprites/pixellab/ui_plate_v1/GENERATION_LOG.md` 표. 공통: "pixel art game icon symbol: <갈래 기호>, bold chunky shapes, readable at small size, dark outline, flat shading, no background, centered", 팔레트 #0c0e13 #5a6272 #a7afbd #eef1f6, 첫 장(연결)을 style_image로.
+
+## 2026-11-27 UI 'mist' 증강 카드 테두리 (PixelLab create_image_pro_flash 128x176)
+"Minimalist card border frame for a dark game UI: one single thin 1-pixel pale grey-white line forming a tall rectangle, with a small white diamond ornament centered on the top edge and on the bottom edge, and tiny short accent ticks at each of the four corners. The inside of the rectangle and the outside are fully transparent. Flat clean lines, elegant and quiet. No fill, no metal, no rivets, no thick border, no bevel." 팔레트 #eef1f5 #b8c0cc #6e7888 #343c4a, 화풍 기준 = A 흰 장식선, seed 21·22 중 22. 기록 `assets/sprites/pixellab/ui_mist_v1/GENERATION_LOG.md`.

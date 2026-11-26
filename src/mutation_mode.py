@@ -193,6 +193,40 @@ def draw_frame(x, y, w, h, rarity='common'):
         off += step
 
 
+# 'mist' 스킨 (2026-11-27 확정 A 안개 미니멀): 가는 테두리(도트 1칸, PixelLab um_card_*) + 안쪽의 거의 불투명한 어두운 바탕 +
+# 위아래 장식선(테두리 선 위에 얹는다). 등급은 테두리 색: 보통 회백, 진화 청록, 합성 금, 저주 빨강. 고른 카드는 테두리가 밝아지고
+# 아래에 헤이즈 안개, 안 고른 카드는 조금 어둡게 덮는다. 두꺼운 틀·리벳·금속 질감은 없다 (tools/make_ui_mist.py)
+MIST_WELL, MIST_WELL_ALPHA = (9, 12, 21), 0.94
+MIST_DIVIDER = {'common': 'white', 'rare': 'cyan', 'legendary': 'gold', 'curse': 'red'}
+MIST_DIM = 0.38                # 안 고른 카드 위에 덮는 어둠
+MIST_BACKDROP = 0.78           # 화면 전체를 덮는 어둠 (다른 스킨 0.66): 카드 밖 제목 글자도 읽히게
+
+
+def _card_back(x, y, rarity, hot, color):
+    """카드 뒤판: 고른 표시, 속 바탕, 테두리. 글자·아이콘은 그 위에."""
+    if kit.is_mist():
+        if hot:
+            pool = assets.image('ui/um_mist_pool.png')
+            assets.draw_image(pool, x + CARD_W // 2, y - pool.h // 2 - 22)
+        assets.draw_rect_color(x + 2, y + 2, CARD_W - 4, CARD_H - 4, MIST_WELL, MIST_WELL_ALPHA)
+        assets.draw_image(assets.image(f'ui/um_card_{rarity}{"_hot" if hot else ""}.png'), x + CARD_W // 2, y)
+        div = assets.image(f'ui/um_divider_{MIST_DIVIDER[rarity]}.png')
+        lift = div.h // 2 - 1                              # 장식선의 선 줄(그림 세로 가운데 도트)을 테두리 선(2px)에 맞춘다
+        assets.draw_image(div, x + CARD_W // 2, y + CARD_H - 2 - lift)
+        assets.draw_image(div, x + CARD_W // 2, y - lift)
+        return
+    if hot:
+        kit.select_mark(x, y, CARD_W, CARD_H, color)
+    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
+    draw_frame(x, y, CARD_W, CARD_H, rarity)
+
+
+def _card_pos(i):
+    """카드 i의 왼쪽 아래 (올라오는 동안은 아래에서, 고른 카드는 16px 위로)."""
+    k = min(1.0, age / OPEN_TIME)
+    return card_x(i), int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if i == selected else 0)
+
+
 def _draw_form_card(i, mid):
     """무기 형태 카드: 금색 테두리, 무기 그림, 형태 이름과 설명. 'form:skip'은 넘기기."""
     wid = mid[len(forms.CARD):]
@@ -202,10 +236,7 @@ def _draw_form_card(i, mid):
     y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
     skip = wid == 'skip'
     color = (150, 165, 190) if skip else forms.COLOR
-    if hot:
-        kit.select_mark(x, y, CARD_W, CARD_H, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
-    draw_frame(x, y, CARD_W, CARD_H, 'common' if skip else 'legendary')
+    _card_back(x, y, 'common' if skip else 'legendary', hot, color)
     if skip:
         name, sub, desc = '넘기기', '형태를 얻지 않습니다', f'대신 조각 {forms.SKIP_SHARDS}개를 받습니다'
     else:
@@ -229,10 +260,7 @@ def _draw_event_card(i, mid):
     y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
     ok = info['ok']
     color = info['color'] if ok else (96, 104, 124)
-    if hot:
-        kit.select_mark(x, y, CARD_W, CARD_H, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
-    draw_frame(x, y, CARD_W, CARD_H, 'rare' if ok and info['icon'] else 'common')
+    _card_back(x, y, 'rare' if ok and info['icon'] else 'common', hot, color)
     if info['icon']:
         img = assets.image(kit.event_icon(info['icon']))
         assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
@@ -252,10 +280,7 @@ def _draw_curse_card(i, mid):
     x = card_x(i)
     y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
     color = info['color']
-    if hot:
-        kit.select_mark(x, y, CARD_W, CARD_H, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())
-    draw_frame(x, y, CARD_W, CARD_H, 'curse' if kit.is_plate() else 'legendary' if info['grade'] >= 3 else 'rare')   # 철판: 경고 줄무늬 틀
+    _card_back(x, y, 'curse' if kit.is_plate() else 'legendary' if info['grade'] >= 3 else 'rare', hot, color)   # 철판: 경고 줄무늬 틀 / mist: 빨간 테두리
     img = assets.image(kit.family_icon('curse', {'icon': 'ui/mut_ember.png'}))
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     kit.text(x + CARD_W // 2, y + CARD_H - 54, '저주', color, center=True, small=True)
@@ -270,6 +295,13 @@ def _draw_curse_card(i, mid):
 
 
 def _draw_card(i, mid):
+    _draw_card_body(i, mid)
+    if kit.is_mist() and i != selected:                   # 안 고른 카드는 조금 어둡게 (글자까지)
+        x, y = _card_pos(i)
+        assets.draw_rect_color(x - 2, y - 2, CARD_W + 4, CARD_H + 4, MIST_WELL, MIST_DIM)
+
+
+def _draw_card_body(i, mid):
     if mid.startswith(curse.CARD):
         _draw_curse_card(i, mid)
         return
@@ -286,12 +318,9 @@ def _draw_card(i, mid):
     x = card_x(i)
     y = int(CARD_Y - (1 - k) * (1 - k) * 400) + (16 if hot else 0)
     color = fam['color']
-    if hot:                                               # 고른 카드: 계열 색 테두리
-        kit.select_mark(x, y, CARD_W, CARD_H, color)
-    assets.draw_rect_color(x + 8, y + 8, CARD_W - 16, CARD_H - 16, kit.card_well())      # 카드 속
     info = mu.card_info(player, mid) if player is not None else {'rarity': 'common', 'note': fam['set'], 'hot': False}
     tier = mu.tier(mid)
-    draw_frame(x, y, CARD_W, CARD_H, info['rarity'])      # v7: 기본 = 보통 / 진화 = 희귀 / 합성 = 전설 테두리
+    _card_back(x, y, info['rarity'], hot, color)          # v7: 기본 = 보통 / 진화 = 희귀 / 합성 = 전설 테두리
     img = assets.image(kit.family_icon(m['family'], fam))
     assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
     if tier != 'base':                                    # 진화·합성 띠
@@ -339,7 +368,7 @@ def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
-    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.66)
+    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), MIST_BACKDROP if kit.is_mist() else 0.66)
     form = any(c.startswith(forms.CARD) for c in choices)
     title = '무기 형태' if form else '증강 선택'
     sub = ('무기 하나의 기본 공격이 달라집니다. ' if form else '하나를 선택하세요. ') + '이번 판이 끝날 때까지 유지됩니다'
@@ -349,5 +378,8 @@ def draw():
     kit.text(W // 2, CARD_Y + CARD_H + 66, sub, (150, 165, 190), center=True, small=True)
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
-    kit.footer([('A D', '선택'), ('Enter', '확인')], y=CARD_Y - 80)
+    if kit.is_mist():                                     # 안개 미니멀: 키 판 없이 글자만
+        kit.text(W // 2, CARD_Y - 80, 'A D  선택        Enter  확인', (150, 165, 190), center=True, small=True)
+    else:
+        kit.footer([('A D', '선택'), ('Enter', '확인')], y=CARD_Y - 80)
     update_canvas()

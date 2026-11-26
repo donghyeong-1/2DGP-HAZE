@@ -51,3 +51,21 @@
 
 굽기 변경(`tools/apply_pixellab_boss_cards.py`): 인물이 캔버스 좌우 끝까지 차 있어 오른쪽 끝을 카드 끝에 붙이고(RIGHT 0), 캔버스에서 잘린 왼쪽 세로 선은
 왼쪽 80px을 2px 열마다 같은 배율로 어둡게 해 배경에 스며들게 했다(격자 유지). 1차 선택(crasher_2·ark_1·gatekeeper_1)은 raw_gen에 그대로 둔다.
+
+## 3차: 왼쪽 윤곽이 온전한 구도 (2026-11-26 밤, 기획 세션 검토 "왼쪽에서 수직으로 뚝 잘려 네모난 판처럼 보인다") — 54회 사용
+2차 클로즈업(c1·c4)은 캔버스 왼쪽 끝에서 잘려 카드 안에 곧은 세로선이 생겼다(왼쪽 어둡게 스미기로도 줄여 보면 보였다).
+- style_image = 2차 선택(crasher_c1·ark_c4·gatekeeper_c1, 208x200 그대로, upload), usage "... Only the framing changes."
+- 설명 끝에 구도를 못 박음: "the figure is pushed to the right side of the canvas. His LEFT side is fully visible with its complete outline ... about 20 pixels of empty transparent space ... cut off ONLY by the bottom edge and by the right edge". 아크 3·4안은 224x200(9회), 왼쪽 빈 띠 24px.
+
+| 파일 | bbox | 몸 높이 | 평가 |
+|---|---|---|---|
+| crasher_r1 (seed 7) | (4,5)-(203,198) | 193 | 왼쪽 어깨판 둥근 윤곽 온전, 오른쪽 어깨는 오른쪽 끝에서 잘림 -> **선택** (카드 96.5%) |
+| crasher_r2 (seed 19) | (27,25)-(182,175) | 150 | 작다 |
+| ark_r1 (seed 7) | (0,0)-(208,200) | 200 | 여전히 왼쪽에서 잘림 |
+| ark_r2 (seed 19) | (29,21)-(183,180) | 159 | 작고 아래 흰 줄 |
+| ark_r3 (seed 37, 224x200) | (13,0)-(224,200) | 200 | 어깨판 윤곽 온전, 모자 꼭대기는 위 끝에서 잘림(카드 위 끝에 붙여 가장자리와 겹치게) -> **선택** (카드 100%) |
+| ark_r4 (seed 43, 224x200) | (7,0)-(224,200) | 200 | 비슷하나 왼쪽 여백이 좁다 |
+| gatekeeper_r1 (seed 7) | (13,10)-(204,200) | 190 | 철퇴·팔까지 왼쪽 온전, 방패가 오른쪽 끝, 아래 끝까지 -> **선택** (카드 95%) |
+| gatekeeper_r2 (seed 19) | (5,4)-(206,198) | 194 | 비슷하나 아래 끝에서 2줄 떠 있다 |
+
+굽기: 왼쪽이 잘리지 않으니 왼쪽 어둡게 스미기(FADE_W)는 0으로 끔. 인물은 알파 영역으로 잘라 오른쪽·아래 끝에 붙인다. 심장 카드는 그대로.

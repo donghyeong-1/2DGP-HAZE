@@ -24,9 +24,9 @@ DARK = 0.5                  # 배경 밝기
 
 # 보스 -> (고른 시안, 구역 배경, 인물 뒤 빛 색). 고른 이유는 boss_cards_v6/GENERATION_LOG.md
 CARDS = {
-    'crasher': ('crasher_c1', 'zone_foundry', (255, 120, 50)),
-    'ark': ('ark_c4', 'zone_haze', (60, 220, 200)),
-    'gatekeeper': ('gatekeeper_c1', 'zone_cell', (120, 170, 230)),
+    'crasher': ('crasher_r1', 'zone_foundry', (255, 120, 50)),
+    'ark': ('ark_r3', 'zone_haze', (60, 220, 200)),
+    'gatekeeper': ('gatekeeper_r1', 'zone_cell', (120, 170, 230)),
     'heart': (None, 'zone_haze', (60, 230, 210)),
 }
 
@@ -44,7 +44,7 @@ def background(zone, glow, center_x):
 
 
 HEART_RIGHT = 140           # 헤이즈 심장 카드는 1차 배치 그대로 (2차 검토: 심장은 바꾸지 않는다)
-FADE_W = 80                 # 인물 왼쪽 끝(캔버스에서 잘린 세로 선)을 이만큼 어둡게 스며들게 한다(px, 2px 열 단위)
+FADE_W = 0                  # 인물 왼쪽 끝을 이만큼 어둡게 스며들게 한다(px, 2px 열 단위). 3차: 왼쪽 윤곽이 온전한 시안이라 쓰지 않는다
 
 
 def portrait(name):

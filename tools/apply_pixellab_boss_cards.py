@@ -43,6 +43,7 @@ def background(zone, glow, center_x):
     return Image.composite(color, bg, halo)
 
 
+HEART_RIGHT = 140           # 헤이즈 심장 카드는 1차 배치 그대로 (2차 검토: 심장은 바꾸지 않는다)
 FADE_W = 80                 # 인물 왼쪽 끝(캔버스에서 잘린 세로 선)을 이만큼 어둡게 스며들게 한다(px, 2px 열 단위)
 
 
@@ -78,7 +79,7 @@ def heart_card(zone, glow):
     core = core.crop(core.getchannel('A').getbbox())
     hand = Image.open(os.path.join(unified, 'heart_hand_idle_1.png')).convert('RGBA')
     hand = hand.crop(hand.getchannel('A').getbbox())
-    cx = W - RIGHT - core.width // 2
+    cx = W - HEART_RIGHT - core.width // 2
     card = background(zone, glow, cx)
     top = 24                                                           # 본체 위 끝을 보이고 아래는 카드 밖으로 잘린다
     card.paste(core, (cx - core.width // 2, top), core)

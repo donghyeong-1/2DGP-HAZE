@@ -5,7 +5,9 @@
            I 아이템 진열대 / B 보스 스폰 / . 빈 칸
 좌표: 원점은 방의 왼쪽 아래, y는 위로 증가. 맨 윗줄이 0줄이다 (줄 r의 아래 모서리 y = (줄 수 - r - 1) x TILE).
 """
+import math
 import os
+import zlib
 
 import assets
 import camera
@@ -48,6 +50,30 @@ BACKDROP_THEMES = {'hideout': 'foundry'}
 
 def _hash(a, b=0, c=0):
     return ((a * 73856093) ^ (b * 19349663) ^ (c * 83492791)) & 0xFFFF
+
+
+# ----- O6 등불 깜빡임 (2026-11-26): 등 장식(DECOR_LAMP) 빛의 세기 -----
+LAMP_MIN = 0.3          # 가장 어두울 때 (꺼질 듯한 순간)
+
+
+def lamp_seed(name, col, row):
+    """등 하나의 고유 수 (방 이름·칸으로만 정한다: 같은 방의 같은 등이면 늘 같다)."""
+    return _hash(col, row, zlib.crc32((name or '').encode('utf-8')) & 0xFFFF)
+
+
+def lamp_level(seed, t):
+    """등 빛 세기 배율 LAMP_MIN~1: 느리고 불규칙하게 흔들리고(박자가 다른 사인 둘), 등마다 5~9초에 한 번 0.14초쯤 꺼질 듯 어두워진다.
+    번쩍임 줄이기면 1(흔들지 않는다)."""
+    import options
+    if options.reduce_flash:
+        return 1.0
+    ph = (seed % 997) * 0.37
+    v = 0.84 + 0.09 * math.sin(t * 1.1 + ph) + 0.07 * math.sin(t * 2.7 + ph * 1.9)
+    period = 5.0 + (seed % 9) * 0.5
+    u = (t + (seed % 101) * 0.13) % period
+    if u < 0.14:
+        v *= 0.35 + 0.65 * abs(u - 0.07) / 0.07           # 짧게 꺼질 듯
+    return max(LAMP_MIN, min(1.0, v))
 
 
 class Room:
@@ -357,9 +383,9 @@ class Room:
         r0 = max(0, self.row_of(camera.y + config.SCREEN_H) - 1)
         r1 = min(self.nrows - 1, self.row_of(camera.y) + 1)
         # 1) 램프 빛과 뒤쪽 소품
-        atlas.opacify(0.55)
         for kind, col, row in self.decor:
             if kind == DECOR_LAMP and c0 - 2 <= col <= c1 + 2 and r0 - 2 <= row <= r1 + 2:
+                atlas.opacify(0.55 * lamp_level(lamp_seed(self.name, col, row), self.anim_time))   # O6: 등마다 깜빡인다
                 assets.draw_clip(atlas, 0, 0, GLOW_SIZE, GLOW_SIZE, col * t + t // 2 - GLOW_SIZE // 2, self.tile_top(row) - GLOW_SIZE)
         atlas.opacify(1.0)
         for kind, col, row in self.decor:

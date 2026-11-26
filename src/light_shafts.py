@@ -111,6 +111,9 @@ def draw(room, t, alpha, motes=False):
         if left > config.SCREEN_W or left + w < 0 or top < 0 or top - h > config.SCREEN_H:
             continue
         k = alpha * breath(t, phase)
+        if kind == 'cone':                                    # O6: 등 아래 원뿔은 그 등과 같이 깜빡인다
+            import room as room_mod
+            k *= room_mod.lamp_level(room_mod.lamp_seed(room.name, room.col_of(x), room.row_of(y)), getattr(room, 'anim_time', t))
         assets.draw_clip_added(img, 0, 0, img.w, img.h, left, top - h, 'h' if flip else '', SCALE, k, color)
         if motes:
             _motes(left, top, w, h, kind, flip, t, phase, color)

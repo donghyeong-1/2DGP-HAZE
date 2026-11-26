@@ -22,6 +22,52 @@ _center = (config.SCREEN_W // 2, config.SCREEN_H // 2)     # 화면 좌표 (왼�
 _ring = None          # (시작 시각, 속도 px/s, 두께 px): 퍼져 나가는 굴절 고리
 _drawing = False
 _mesh = None          # (꼭짓점 배열 셋, 색인 배열)
+_zoom = None          # O6 보스 막타 줌: (시작 시각, 화면 x, 화면 y). 볼록 렌즈와 달리 화면 전체를 같은 비율로 당긴다
+zoom_requests = 0     # 받아들인 줌 요청 수 (테스트·확인용)
+
+
+def reset_zoom():
+    global _zoom, zoom_requests
+    _zoom, zoom_requests = None, 0
+
+
+def zoom(cx, cy, now=None):
+    """화면(세계 층)을 (cx, cy) 쪽으로 고르게 당겼다가 돌아온다 (config.BOSS_KILL_ZOOM). 번쩍임 줄이기와 상관없이
+    config.BOSS_KILL_ZOOM_ON으로만 끈다. 실제 시간으로 잰다 (타격 멈춤·슬로모션과 상관없이)."""
+    global _zoom, zoom_requests
+    if not getattr(config, 'BOSS_KILL_ZOOM_ON', False):
+        return
+    _zoom = (time.monotonic() if now is None else now, cx, cy)
+    zoom_requests += 1
+
+
+def zoom_scale(now=None):
+    """지금 당긴 배율 (1 = 그대로). 빠르게 당기고(t_in) 부드럽게 돌아온다(t_out)."""
+    global _zoom
+    if _zoom is None:
+        return 1.0
+    a, t_in, t_out = config.BOSS_KILL_ZOOM
+    t = (time.monotonic() if now is None else now) - _zoom[0]
+    if t < 0:
+        return 1.0
+    if t < t_in:
+        k = t / t_in
+        return 1.0 + a * (1.0 - (1.0 - k) ** 2)
+    if t < t_in + t_out:
+        k = (t - t_in) / t_out
+        return 1.0 + a * (1.0 - k * k * (3 - 2 * k))
+    _zoom = None
+    return 1.0
+
+
+def boss_kill(boss):
+    """보스를 쓰러뜨렸다: 그 보스 쪽으로 줌 (보스마다 한 번). 일반 적은 부르지 않는다."""
+    if getattr(boss, '_kill_zoomed', False):
+        return
+    boss._kill_zoomed = True
+    import camera
+    cx, cy = getattr(boss, 'center', (boss.x, boss.y))
+    zoom(*camera.to_screen(cx, cy))
 
 
 def play(keys, cx, cy, ring=None):
@@ -65,7 +111,7 @@ def begin():
     """세계 층을 그리기 직전에 부른다: 연출 중이면 그림판에 그리게 돌린다."""
     global _tex, _drawing
     _drawing = False
-    if state() is None:
+    if state() is None and zoom_scale() == 1.0:
         return
     import pico2d.pico2d as p2
     import sdl2
@@ -124,6 +170,8 @@ def end():
         _mesh = _build_mesh()
     sets, idx, n_idx, n = _mesh
     w, h = config.SCREEN_W, config.SCREEN_H
+    zs = zoom_scale()                                         # O6 보스 막타 줌: 그림판의 가운데 쪽 자리를 가져와 고르게 커 보인다
+    zx, zy = (_zoom[1], h - _zoom[2]) if _zoom is not None else (w / 2, h / 2)
     cx, cy = _center[0], h - _center[1]                       # SDL은 y가 아래로
     ring_r = ring_w = None
     if _ring is not None and t >= _ring[0] and ring_amp > 0.5:
@@ -149,7 +197,10 @@ def end():
     for verts, k in zip(sets, (1.0, 0.0, -1.0)):              # 빨강은 더, 파랑은 덜 휜다 = 색 번짐
         for v, (x, y, ux, uy, d, r) in zip(verts, base):
             e = d + k * chroma * (0.12 + min(1.6, r / 600.0)) + k * abs(d) * 0.1   # 중심(주인공)은 덜, 가장자리는 크게 갈라진다
-            v.tex_coord.x = min(1.0, max(0.0, (x - ux * e) / w))
-            v.tex_coord.y = min(1.0, max(0.0, (y - uy * e) / h))
+            tx, ty = x - ux * e, y - uy * e
+            if zs != 1.0:
+                tx, ty = zx + (tx - zx) / zs, zy + (ty - zy) / zs
+            v.tex_coord.x = min(1.0, max(0.0, tx / w))
+            v.tex_coord.y = min(1.0, max(0.0, ty / h))
         sdl2.SDL_RenderGeometry(p2.renderer, _tex, verts, n, idx, n_idx)
     sdl2.SDL_SetTextureBlendMode(_tex, sdl2.SDL_BLENDMODE_BLEND)

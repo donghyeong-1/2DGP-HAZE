@@ -276,6 +276,8 @@ class Gatekeeper(Enemy):
         assets.play_sound('enemy_die')
         import boss_intro
         boss_intro.bark(self, 'death')
+        import postfx
+        postfx.boss_kill(self)                            # O6: 보스 막타 줌
         p = self.player
         p.run_kills = getattr(p, 'run_kills', 0) + 1
         p.shards += config.SHARDS_PER_KILL.get(self.kind, 1)

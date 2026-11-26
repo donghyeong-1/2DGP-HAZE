@@ -279,6 +279,8 @@ class HeartCore(_Part):
         assets.play_sound('enemy_die')
         import boss_intro
         boss_intro.bark(self, 'death')             # v8 6일 차: 쓰러지며 한 줄
+        import postfx
+        postfx.boss_kill(self)                            # O6: 보스 막타 줌
         for dx, dy in ((0, 100), (-120, 180), (120, 220), (0, 300)):
             effects.spawn('haze-blast', self.x + dx, self.y + dy, duration=0.7)
 

@@ -273,6 +273,65 @@ def test_without_the_mutation_the_ultimate_is_unchanged():
     assert cut_in.history == []
 
 
+# ----- 검토 반영 (2026-11-26 기획 세션): 보스 실루엣 배율, 궁극기 실루엣이 보는 쪽 -----
+BOSS_POSES = {'crasher': ('boss_crasher_smash', 1), 'gatekeeper': ('boss_gatekeeper_call', 2),
+              'ark': ('boss_ark_phase', 1), 'heart': ('heart_core', 1)}
+
+
+def _body(name, n):
+    import sprites
+    name, n = sprites.resolve(name, n)
+    return cut_in.body_height(sprites.path(name, n))
+
+
+def test_boss_silhouette_fills_about_half_the_screen_with_an_integer_scale():
+    """보스 실루엣은 화면 높이의 45~60%를 차지하는 정수 배율 (없으면 그 범위에 가장 가까운 정수 배)."""
+    lo, hi = cut_in.BOSS_FILL
+    assert (lo, hi) == (0.45, 0.60)
+    for kind, (name, n) in BOSS_POSES.items():
+        body = _body(name, n)
+        s = cut_in.boss_scale(body)
+        assert isinstance(s, int) and s >= 1, kind
+        ratio = body * s / config.SCREEN_H
+
+        def miss(k):
+            r = body * k / config.SCREEN_H
+            return max(lo - r, r - hi, 0.0)
+        assert miss(s) == min(miss(k) for k in range(1, 6)), (kind, s, ratio)
+        if kind != 'heart':
+            assert lo <= ratio <= hi, (kind, s, ratio)                 # 크래셔·문지기·아크는 범위 안
+    assert cut_in.boss_scale(_body('boss_ark_phase', 1)) == 3
+
+
+def test_boss_phase_cut_in_uses_the_boss_scale():
+    from boss import Boss
+    room, p, b = arena(lambda room, p, floor: Boss(p.x + 600, floor, room, p))
+    b.cooldown = 99.0
+    b.hp = b.max_hp / 2 - 1
+    step()
+    name, n, face, pos, scale = cut_in.current().actors[0]
+    assert scale == cut_in.boss_scale(_body(name, n))
+
+
+def test_ult_awaken_silhouette_faces_the_aim():
+    import test_ultimate as tu
+    for side in (1, -1):
+        fresh()
+        room, p, _ = tu.stacked(90, 3, [])
+        p.mutations = ['tide_cost', 'tide_chain', 'ult_awaken']
+        p.mouse_x, p.mouse_y = p.x + side * 400, p.center[1]
+        assert p.request_attack() and cut_in.running()
+        assert cut_in.current().actors[0][2] == side, side             # 왼쪽으로 쏘면 실루엣도 왼쪽을 본다
+        finish()
+
+
+def test_boss_and_ult_words_use_the_same_big_letters():
+    """보스 페이즈 글자와 궁극기 이름은 같은 큰 글자(WORD_FONT)로 그린다: 글자 크기를 고르는 인자가 없다."""
+    import inspect
+    src = inspect.getsource(cut_in.CutIn._word)
+    assert 'word_font()' in src and 'big=' not in src
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

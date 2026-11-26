@@ -85,7 +85,9 @@ FROZEN = ('wait', 'pan', 'drop', 'lines', 'card', 'back')
 DROP = dict(shadow=0.6, fall=0.25, land=0.25)   # O2-2 크래셔 착지: 그림자가 커짐 -> 낙하 -> 착지 뒤 머묾
 DROP_HEIGHT = 1400.0    # 떨어지기 전 보스가 있는 높이 (바닥 위 px, 화면 밖)
 DROP_KINDS = ('crasher',)
-DROP_SLOW = (0.35, 0.35)    # 착지 순간 슬로모션 (초, 배율)
+DROP_SLOW = (0.35, 0.35)    # 착지 순간 슬로모션 (초, 배율)
+DROP_DUST = (0.15, 0.32, 0.48)   # 그림자가 커지는 동안 가장자리에서 먼지가 이는 때 (예고로 읽히게, 검토 반영)
+SHADOW_HALF = (36, 64, 92, 120)  # 그림자 크기별 반폭(px, 그림 반폭 x 2배)
 BAR_H = 112             # 위아래 검은 띠 높이(px, 짝수). 보스방 바닥(2칸 = 128px)과 보스 발이 가려지지 않게
 BAR_COLOR = (3, 5, 10)
 
@@ -282,6 +284,7 @@ class BossIntro:
         self.drop = not self.short and kind in DROP_KINDS     # O2-2: 처음 만난 크래셔는 위에서 떨어진다
         self.land_y = boss.y
         self.landed = False
+        self.dust = 0
         self.times = SHORT if self.short else FULL
         self.lines = list(LINES[kind]['again' if self.short else 'intro'])
         self.line_index, self.line_t = 0, 0.0
@@ -327,6 +330,8 @@ class BossIntro:
             d = DROP
             if self.t < d['shadow']:
                 boss.y = self.land_y + DROP_HEIGHT
+                while self.dust < len(DROP_DUST) and self.t >= DROP_DUST[self.dust]:
+                    self._dust()
             elif self.t < d['shadow'] + d['fall']:
                 u = (self.t - d['shadow']) / d['fall']
                 boss.y = self.land_y + DROP_HEIGHT * (1.0 - u * u)      # 점점 빨라지며 떨어진다
@@ -362,6 +367,14 @@ class BossIntro:
         if self.step != 'drop' or self.landed:
             return 0.0
         return min(1.0, self.t / DROP['shadow'])
+
+    def _dust(self):
+        """그림자 가장자리 양쪽에서 바닥 먼지가 인다 (effects_live라 멈춘 동안에도 움직인다)."""
+        import effects
+        half = SHADOW_HALF[min(len(SHADOW_HALF) - 1, int(self.shadow_size() * len(SHADOW_HALF)))]
+        for side in (-1, 1):
+            effects.spawn('dust-land', self.boss.x + side * half, self.land_y, flip=side < 0, duration=0.4)
+        self.dust += 1
 
     def _land(self, quiet=False):
         """바닥에 닿는다: 슬로모션·흔들림·땅 강타. quiet(넘기기)면 자리만 맞춘다."""

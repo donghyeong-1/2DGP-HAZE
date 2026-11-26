@@ -18,7 +18,9 @@ DURATION = 0.7
 T_IN = 0.08              # 들어옴 (흰 섬광 한 프레임 뒤 단색)
 T_HOLD = 0.5             # 여기까지 실루엣이 미끄러지고, 그 뒤 닫힌다
 SLIDE = 40               # 실루엣이 미끄러지는 거리(px)
-MAX_ACTOR_H = 600        # 실루엣을 키울 때 몸(빈 곳을 뺀 높이)이 화면에서 넘지 않는 높이(px)
+MAX_ACTOR_H = 600        # 배율을 주지 않은 실루엣을 키울 때 몸(빈 곳을 뺀 높이)이 화면에서 넘지 않는 높이(px)
+BOSS_FILL = (0.45, 0.60) # 보스 실루엣의 몸이 화면 높이에서 차지하는 비율 (그 안의 정수 배율, 없으면 가장 가까운 정수 배)
+BOSS_FOOT_Y = 200        # 보스 실루엣의 발 높이(px): 몸이 원반 가운데에 걸치게
 WORD_FONT = ('Galmuri14.ttf', 14 * 8)   # 큰 글자: 도트 글꼴을 원래 크기의 정수 배로 (흐려지지 않게)
 BAR = (3, 5, 10)         # 닫히는 띠 색 (보스 등장씬의 검은 띠와 같다)
 INK = (6, 8, 14)         # 실루엣 색 (캐릭터 테두리 색과 같은 푸른 검정)
@@ -80,6 +82,19 @@ def update(dt):
         c.update(dt)
 
 
+def boss_scale(body_h, screen_h=None):
+    """보스 실루엣 배율: 몸 높이 x 배율이 화면 높이의 BOSS_FILL 안에 드는 정수 (여럿이면 0.52에 가까운 것,
+    없으면 범위에 가장 가까운 것). 크래셔·문지기 2배, 아크 3배, 헤이즈 심장 1배(44%, 2배면 88%)."""
+    screen_h = screen_h or config.SCREEN_H
+    lo, hi = BOSS_FILL
+    mid = (lo + hi) / 2
+
+    def key(s):
+        r = body_h * s / screen_h
+        return (max(lo - r, r - hi, 0.0), abs(r - mid))
+    return min(range(1, 7), key=key)
+
+
 def boss_phase(boss, phase, word, color_key=None):
     """보스 페이즈 전환 컷인: 그 보스의 지금 자세(포효·페이즈 자세)를 실루엣으로. 같은 보스·같은 페이즈는 한 번만."""
     done = boss.__dict__.setdefault('_cut_phases', set())
@@ -95,7 +110,13 @@ def boss_phase(boss, phase, word, color_key=None):
             return False
         name, n = frame
     color = BOSS_COLORS.get(color_key or boss.kind, BOSS_COLORS['crasher'])
-    return play(color, [(name, n, -1, (config.SCREEN_W * 62 // 100, 120), None)], word)
+    import sprites
+    rn, rk = sprites.resolve(name, n)
+    try:
+        scale = boss_scale(body_height(sprites.path(rn, rk)))
+    except OSError:                                       # 그림 파일이 없는 테스트용 보스
+        scale = None
+    return play(color, [(name, n, -1, (config.SCREEN_W * 62 // 100, BOSS_FOOT_Y), scale)], word)
 
 
 class CutIn:

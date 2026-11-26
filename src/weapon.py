@@ -880,7 +880,8 @@ class Pipe:
             game_world.add_object(ULTIMATES[wid](self, kind, ax, ay), game_world.LAYER_EFFECT)
         import cut_in
         import mutations
-        actor = ('n09_ult', sprites.count('n09_ult'), 1, (config.SCREEN_W * 58 // 100, 140), 3)   # 시전 자세 (해방) 3배
+        face = 1 if ax >= 0 else -1                        # 실루엣은 조준한 쪽을 본다 (검토 반영)
+        actor = ('n09_ult', sprites.count('n09_ult'), face, (config.SCREEN_W * 58 // 100, 140), 3)   # 시전 자세 (해방) 3배
         if not (mutations.has(p, 'ult_awaken') and cut_in.play(ULT_DEEP[wid], [actor], ULT_NAMES[wid], on_end=fire)):
             fire()                                         # O1 궁극기 각성: 컷인이 끝난 뒤에 나간다 (없으면 바로)
         g.consume_enhance()

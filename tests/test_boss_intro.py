@@ -581,6 +581,27 @@ def test_drop_shadow_grows_then_boss_falls_then_lands():
     assert heights.index(0) > grow                                 # 그림자가 다 커진 뒤에 떨어진다
 
 
+def test_dust_rises_at_the_shadow_edge_before_landing():
+    """검토 반영: 어두운 바닥에서도 착지 자리가 읽히게 그림자가 커지는 동안 가장자리에서 먼지가 인다 (붉은 예고 띠는 쓰지 않는다)."""
+    import effects as fx
+    calls = []
+    real = fx.spawn
+    fx.spawn = lambda name, *a, **k: calls.append(name) or real(name, *a, **k)
+    try:
+        st, p, card, intro = make()
+        st.boss = FakeBoss()
+        intro.update(DT)
+        for _ in range(int(5 / DT)):
+            if intro.step == 'drop' and intro.t >= bi.DROP['shadow']:
+                break
+            card.update(DT)
+            intro.update(DT)
+        assert calls.count('dust-land') == 2 * len(bi.DROP_DUST), calls
+        assert not intro.landed
+    finally:
+        fx.spawn = real
+
+
 def test_drop_only_for_the_first_crasher_meeting():
     st, p, card, intro = make()
     st.boss = FakeBoss()

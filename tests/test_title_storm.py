@@ -328,6 +328,61 @@ def test_r1_flash_header_first_line_is_not_drawn():
         tm._storm[0] = None
 
 
+# ----- R2 (11/27): 줄기가 글자 자리를 지나지 않고, 어두운 화면에서 한 줄로 읽힌다 -----
+TEXT_CLEAR = 16              # 줄기와 글자 상자 사이 (px)
+BOLT_MAX_GAP = 60            # 어두운 화면(줄기 판)에서 보이는 줄기 조각 사이 가장 큰 세로 끊김 (px). R1 판 3은 76(가운데 조각은 머리글 뒤 어둠에 묻혀 두 조각으로 보였다), 판 1·2는 36·35
+BOLT_APART = 250             # 판끼리 줄기 가로 자리(가운데) 차이 (px)
+
+
+def _title_text_boxes():
+    """타이틀 글자 상자 (왼, 위, 오른, 아래) 화면 px, 위가 0. 머리글 두 줄은 실제 창에서 잰 폭(x 110~556, 첫 줄 위 끝 48 ~ 둘째 줄 아래 끝 98)."""
+    import config
+    import title_mode as tm
+    W, H = config.SCREEN_W, config.SCREEN_H
+    logo = _png('ui/um_logo_title.png')
+    lh, lw = logo.shape[:2]
+    boxes = [('head', (110, 46, 560, 100)),
+             ('logo', (W // 2 - lw // 2, H - tm.LOGO_Y - lh, W // 2 + lw // 2, H - tm.LOGO_Y)),
+             ('logo_sub', (W // 2 - 50, H - (tm.LOGO_Y - 28) - 16, W // 2 + 50, H - (tm.LOGO_Y - 28) + 16)),
+             ('version', (W - tm.TERM_MARGIN - 150, H - 60 - 16, W - tm.TERM_MARGIN, H - 60 + 16))]
+    for b in tm.MENU:                                       # 메뉴 한 줄: 고르면 글자 폭 + 커서(왼쪽 34px)까지
+        cy = H - (b.y + b.h // 2)
+        boxes.append(('menu_' + b.key, (W // 2 - 120, cy - 22, W // 2 + 90, cy + 22)))
+    return boxes
+
+
+def _bolt_visible(n):
+    import numpy as np
+    return _png(f'backgrounds/title_bolt_{n}.png')[:, :, 3] > 0
+
+
+def test_r2_bolts_keep_clear_of_the_title_text():
+    """판 셋 모두 줄기의 보이는 픽셀이 머리글·로고·'헤이즈'·메뉴·판번호 글자 상자(+TEXT_CLEAR)와 겹치지 않는다
+    (R1 판 3은 위쪽 조각이 왼쪽 위 머리글 글자를 지나갔다)."""
+    import numpy as np
+    for n in range(1, ts.FLASH_PLATES + 1):
+        v = _bolt_visible(n)
+        for name, (x0, y0, x1, y1) in _title_text_boxes():
+            m = TEXT_CLEAR
+            assert not v[max(0, y0 - m):y1 + m, max(0, x0 - m):x1 + m].any(), (n, name)
+
+
+def test_r2_bolt_reads_as_one_line_on_the_dark_screen():
+    """어두운 화면(줄기 판)에서 보이는 줄기 조각 사이 가장 큰 세로 끊김이 BOLT_MAX_GAP 이하 (앞 구조물에 가려 끊겨도 멀지 않게)."""
+    import numpy as np
+    for n in range(1, ts.FLASH_PLATES + 1):
+        rows = np.nonzero(_bolt_visible(n).any(axis=1))[0]
+        gap = int(np.diff(rows).max()) - 1
+        assert gap <= BOLT_MAX_GAP, (n, gap)
+
+
+def test_r2_bolts_stand_apart():
+    """판끼리 줄기 가로 자리(보이는 픽셀의 가운데값)가 BOLT_APART px 이상 다르다."""
+    import numpy as np
+    xs = [int(np.median(np.nonzero(_bolt_visible(n))[1])) for n in range(1, ts.FLASH_PLATES + 1)]
+    assert min(abs(a - b) for i, a in enumerate(xs) for b in xs[i + 1:]) >= BOLT_APART, xs
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

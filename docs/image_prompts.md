@@ -338,6 +338,15 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 
 2026-11-26 [Claude Code] PixelLab으로 보스 이름 카드 상반신(크래셔·아크·문지기)을 새로 만듦(O4). create_image_pro_flash 208x200, 화풍 기준 = 주인공 대화 초상화(color_palette false), 보스마다 seed 3·11 두 장. 설명은 각 보스의 v6 디자인 그대로, 3/4 시점 왼쪽을 봄, 허리에서 자른 상반신. 영문 프롬프트 전문과 시안 평가는 `assets/sprites/pixellab/boss_cards_v6/GENERATION_LOG.md`.
 
+
+## 2026-11-23 적 6종·크래셔 v6 (PixelLab. 11/27 R2에서 빠진 기록을 채움)
+2026-11-23 [Claude Code] PixelLab으로 일반 적 여섯(슬럼 폐인·투척병·간수·사냥개·결정 기사·드론)과 보스 크래셔를 다시 만듦. 영문 설명 전문은 남아 있지 않고 아래만 기록돼 있다(`assets/sprites/pixellab/designs_v6/GENERATION_LOG.md`, `hero_v6_test/GENERATION_LOG.md` 6·7차, 각 `<이름>_v6/GENERATION_LOG.md`).
+- 디자인(다섯): `create_image_pro_flash` 96x96, no_background, seed 3(1안)·11(2안), style_image = 간수 `guard_v6/raw/base.png`, usage "Art style, detail level and pixel scale only (flat dark colour blocks, 1px dark edge, muted body, one bright danger part, few small glints). Do not copy the character."
+  설명 끝은 모두 "Same art style and pixel density as the reference: flat color blocks, few colors, 1px dark edge." + 몸 색 / 위험 부위 하나만 밝게 / 작은 반짝임. 고른 것: slum_1(구부정한 옆모습, 회갈색 누더기, 연보라 손톱), thrower_1(방독면·등 고철 자루·달군 주황 고철), hound_1(드러난 금속 갈비뼈, 붉은 눈·이빨), drone_2(둥근 녹슨 몸통·외눈 렌즈·쌍 프로펠러·주황 노즐), knight_2(검푸른 갑옷과 결정 검).
+- 간수: `create_image_pro_flash` 96, style_image = 주인공 base96("art style and pixel scale only"), seed 3 -> `edit_image_pro_flash` seed 5로 디테일 추가(guard_1b_3) -> 20색. description 앞부분 "heavily armored prison guard in dull blue-grey plate armor and helmet with a thin glowing orange visor slit and a small orange chest light, holding a large riot shield with a warning mark in front, …"(뒤는 기록에서 잘려 있다).
+- 크래셔: `create_image_pixflux` 128, color_image = 크래셔 색표, side/east, seed 11 -> `edit_image_pixen` seed 17로 디테일 추가(crasher_1b_2) -> 20색 -> `rotate_image` 옆모습 -> 손 영역만 인페인트(Pro Flash seed 17, inpaint_pf_2 채택). description 앞부분 "huge hulking scrap-metal brute boss in rusty orange and dark brown patched armor plates with weld seams, two exhaust pipes rising from its back with sooty tips, …".
+- 동작: `animate_with_skeleton_v3`(write_motion_frames, side/east, seed 5, "keep danger part" + no effects), 네 발·기계는 `animate_image_pixminimax`("keep exact same design, do not redraw or restyle" + no effects).
+
 ## 2026-11-26 UI 3차 증강 갈래 아이콘 (PixelLab create_image_pro_flash 32x32)
 프롬프트·시안·고른 이유는 `assets/sprites/pixellab/ui_plate_v1/GENERATION_LOG.md` 표. 공통: "pixel art game icon symbol: <갈래 기호>, bold chunky shapes, readable at small size, dark outline, flat shading, no background, centered", 팔레트 #0c0e13 #5a6272 #a7afbd #eef1f6, 첫 장(연결)을 style_image로.
 

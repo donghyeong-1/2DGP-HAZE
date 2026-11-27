@@ -20,6 +20,7 @@ COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (1
 SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None), 'practice': (60, 120, None), 'drifter': (44, 117, (150, 110, 70))}
 
 
+THINGS = ('armory', 'practice')    # 사람이 아닌 것 (무기 걸이·연습장 표지판): mist에서 이름표가 인물 색 대신 밝은 회백 (R2)
 PROMPT_MIST = (236, 240, 248)      # mist: 진열대 'F 획득'(S1)과 같은 밝은 회백 그림자 글자 (R1, 11/27. 경고 노랑을 쓰지 않는다)
 
 
@@ -61,7 +62,8 @@ class NPC:
         import game_world
         if game_world.quiet:                        # R1: mist 메뉴 창 뒤에 깔린 멈춘 은신처에서는 이름표·안내를 빼고 (그림만)
             return
-        color = COLORS[self.kind]
+        import hud_kit as kit
+        color = PROMPT_MIST if self.kind in THINGS and kit.is_mist() else COLORS[self.kind]   # R2: 사람 NPC는 인물 색 그대로
         top = self.y + (132 if self._art else SHAPES[self.kind][1])
         assets.draw_text(self.x, top + 34, self.name, color, small=True, center=True)
         if self.player is not None and self.near(self.player):
@@ -121,5 +123,6 @@ class NPC:
             cx = x - 52 + i * 52
             img = assets.image(f'ui/icon_w_{wid}.png')
             assets.draw_image(img, cx, y + 34)
-            if wid == now:
-                assets.draw_rect_color(cx - 18, y + 26, 36, 4, COLORS['armory'])
+            if wid == now:                                               # R2: mist는 옅은 노랑 대신 회백 밑줄
+                import hud_kit as kit
+                assets.draw_rect_color(cx - 18, y + 26, 36, 4, PROMPT_MIST if kit.is_mist() else COLORS['armory'])

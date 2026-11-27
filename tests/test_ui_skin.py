@@ -680,14 +680,15 @@ def _other_logs(skin_name):
 
 
 # 고치기 전(2026-11-27, 712637e)의 기록 (위 _menu_logs·_other_logs·_title_log). M1 뒤에도 이 값 그대로여야 한다
+# R2(11/27): credits_mid(세 옛 스킨) = 크레딧 '아이템 아이콘'·PixelLab 셋째 줄·'그래픽' 캐릭터 줄 (R2 전 f8b78f59f4fceb53)
 # R1(11/27)이 바꾼 값: credits_mid(세 옛 스킨 같은 값) = 크레딧 'AI 도구'·'그래픽' 절 문구(묶음 4, 스킨과 상관없는 글. 전 7896f4a09436720a),
 # mist cards_augment·cards_curse = 증강 카드 진행 칸 up_step_off -> um_step_off/on(묶음 3. 전 c56ed617c57c2389·f791b2981770fab9),
 # mist 0_flash·2_flash = 번쩍이는 프레임에 머리글 첫 줄을 그리지 않음(묶음 1. 전 c11c65208d8510e7·683ccfdbc9a80c9c).
 # 평소·줄기·잔광 프레임(0_None·0_bolt·0_glow·0_dark 등)과 옛 스킨의 타이틀은 그대로
 MENU_DIGEST = {
-    'plate': {'pause_0': 'b19ee9dc864b0a01', 'pause_build_2': '6ae6f7ab6ef0d0b7', 'pause_ask': '66ee9d32b8a33b9f', 'options_0': '8cbd7f0df2cfc6fc', 'options_music': 'a419f76afd494218', 'options_keys': '9f7173efe3492c98', 'options_back': '8a5eee2d0a367c12', 'keys_0': 'ef308dbcb9260879', 'keys_listen': 'd295e3923ad3762e', 'keys_buttons': '752615646c0755d4', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '457569a5e2438d30', 'credits_0': '172500abe524364a', 'credits_mid': 'f8b78f59f4fceb53'},
-    'plate_code': {'pause_0': '8df4193d19bdfbf2', 'pause_build_2': '34455f35d14d2f5a', 'pause_ask': '5082a77b5ab0160b', 'options_0': 'ab08bd79454e75cb', 'options_music': 'ef857f40dc5b69ea', 'options_keys': '4cb748417456d6c2', 'options_back': '24a49e43e2c2a66d', 'keys_0': 'fed31c421bb366af', 'keys_listen': '2a3a765ce28e8d3a', 'keys_buttons': '05357bebb0facb1d', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': 'e1b2c56e58772ddf', 'credits_0': '172500abe524364a', 'credits_mid': 'f8b78f59f4fceb53'},
-    'crystal': {'pause_0': '79c408f0d295d530', 'pause_build_2': '9987c6242ccd28c0', 'pause_ask': '333c32d83894f2d4', 'options_0': 'a0c7365cc9e7ffbb', 'options_music': '5634f126abf58c51', 'options_keys': 'c21e3299723bf298', 'options_back': 'bc0eff4b8c851f33', 'keys_0': '6dd4d230b55172a7', 'keys_listen': '59e8301e6d732c38', 'keys_buttons': 'f002538b74e0e07a', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': 'd88bb8f7622d7c31', 'credits_0': '172500abe524364a', 'credits_mid': 'f8b78f59f4fceb53'},
+    'plate': {'pause_0': 'b19ee9dc864b0a01', 'pause_build_2': '6ae6f7ab6ef0d0b7', 'pause_ask': '66ee9d32b8a33b9f', 'options_0': '8cbd7f0df2cfc6fc', 'options_music': 'a419f76afd494218', 'options_keys': '9f7173efe3492c98', 'options_back': '8a5eee2d0a367c12', 'keys_0': 'ef308dbcb9260879', 'keys_listen': 'd295e3923ad3762e', 'keys_buttons': '752615646c0755d4', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '457569a5e2438d30', 'credits_0': '172500abe524364a', 'credits_mid': 'e40b84a73a1f011c'},
+    'plate_code': {'pause_0': '8df4193d19bdfbf2', 'pause_build_2': '34455f35d14d2f5a', 'pause_ask': '5082a77b5ab0160b', 'options_0': 'ab08bd79454e75cb', 'options_music': 'ef857f40dc5b69ea', 'options_keys': '4cb748417456d6c2', 'options_back': '24a49e43e2c2a66d', 'keys_0': 'fed31c421bb366af', 'keys_listen': '2a3a765ce28e8d3a', 'keys_buttons': '05357bebb0facb1d', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': 'e1b2c56e58772ddf', 'credits_0': '172500abe524364a', 'credits_mid': 'e40b84a73a1f011c'},
+    'crystal': {'pause_0': '79c408f0d295d530', 'pause_build_2': '9987c6242ccd28c0', 'pause_ask': '333c32d83894f2d4', 'options_0': 'a0c7365cc9e7ffbb', 'options_music': '5634f126abf58c51', 'options_keys': 'c21e3299723bf298', 'options_back': 'bc0eff4b8c851f33', 'keys_0': '6dd4d230b55172a7', 'keys_listen': '59e8301e6d732c38', 'keys_buttons': 'f002538b74e0e07a', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': 'd88bb8f7622d7c31', 'credits_0': '172500abe524364a', 'credits_mid': 'e40b84a73a1f011c'},
 }
 OTHER_DIGEST = {
     'mist': {'npc_mechanic': '28af8461a02c3229', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '21e97898001e6a97', 'practice': 'e9559cc8d678474f', 'sfx': '9a9457b7fddf7a23', 'cards_augment': '3a87b2c1b4d26d13', 'cards_form': 'c34bc28ac9fe489b', 'cards_curse': '2c4008f25af6d0ab'},
@@ -932,7 +933,7 @@ MIST_DONE_DIGEST = {
     'pause_0': '7c2a8885d1b28a99', 'pause_build_2': 'f9913e8d78a0b16a', 'pause_ask': '78b44769b58dffa7',
     'keys_0': '89e6b6949d456e3d', 'keys_listen': 'e52db5bf5ec26c81', 'keys_buttons': '793b1540dbcb3f05',
     'ending_dead_choose': '43eade0e9df9adaa', 'ending_dead': '52682eb733096be5', 'ending_clear': '11eef79b43905daf',
-    'credits_0': '9806d3b1e8a2a935', 'credits_mid': '0079b3bc44f0a3ff',
+    'credits_0': '9806d3b1e8a2a935', 'credits_mid': '67cc436ab00bde72',
     # H2(11/27)이 mist HUD 다섯 장면을 바꿨다: 위험·페이드 맥박이 바깥 띠 대신 게이지 테두리(critical·fade_items_curse),
     # 들지 않은 무기 칸 테두리 dim -> line·아이콘·숫자 밝게(모든 장면), 켜지 않았지만 쓸 수 있는 E 칸 테두리 e1 -> line(enhanced 밖의 장면).
     # S1 전 값: normal 8efe4fcd6336eccb, critical b31072f9b278ac7c, fade_items_curse 3bb41f6c79aa52a0, enhanced 865db9d39038e5d6, boss 00693a953f9a52ad
@@ -942,8 +943,10 @@ MIST_DONE_DIGEST = {
     # (W4 전 = da: normal 0983bb8e8fb070bd, critical 45af07c556566555, fade_items_curse 0b3e5f39d920eddc, enhanced b2965326972bc329, boss 6ef6c177c0925d67)
     # W5(11/27): row의 공격 설명 줄은 잠깐만(첫 프레임에는 보인다)·콤보 칸은 든 칸 안이라 다시 바뀌었다 (W5 전 = W4 row: normal 0cee15bba614f447, critical d91b8f349ea0d637, fade_items_curse c93403d845b463d6, enhanced beba88515de4feb2, boss 0efed2a7de8aeab8)
     # W6(11/27): 기본 그림 'mix'(결정·무기 칸 틀 PixelLab)와 이름 자리 손질로 다시 바뀌었다 (W6 전: normal f0f62e71a80383f5, critical 401cad53cd7ce33a, fade_items_curse 545badf1b23d2033, enhanced 09fc099fa437c13e, boss 7d9bbe677ca8d9b1)
-    'hud_normal': '4686e809587db610', 'hud_critical': '834c88ae5ec2a70f', 'hud_fade_items_curse': '218265a74db90ef2',
-    'hud_enhanced': '922fbb1129555a59', 'hud_boss': '29c828bbbb8a8b77', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    # R2(11/27): 기본 그림 'mix'의 E 마름모 테두리를 세로로 긴 마름모(um_wp_row_socket_mix_*, 가운데 x = cx-1, 결정과 같은 축)로, credits_mid = 크레딧 문구
+    # (R2 전: normal 4686e809587db610, critical 834c88ae5ec2a70f, fade_items_curse 218265a74db90ef2, enhanced 922fbb1129555a59, boss 29c828bbbb8a8b77, credits_mid 0079b3bc44f0a3ff)
+    'hud_normal': '022318b8b83d2c43', 'hud_critical': '46d9fe4d9a5cbf88', 'hud_fade_items_curse': '9394e6cf546291be',
+    'hud_enhanced': '63a75d99890e63b6', 'hud_boss': 'ce428de5e861773e', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # 무기·E 패널 'flat'일 때의 mist HUD 다섯 장면 (W3 전 기본값. W3부터 기본값 'da'라 MIST_DONE_DIGEST의 hud_*는 da 값)
 FLAT_MIST_HUD_DIGEST = {
@@ -2555,6 +2558,135 @@ def test_w6_name_sits_on_the_slot_and_rises_only_for_the_hint():
         r = _w5_draw(u)
         name = [bx for row, bx in _row_boxes(r) if row[0] == 'draw_text' and row[3] == p.weapon.name and row[4] != hud_kit.SHADOW]
         assert name and 0 <= name[0][1] - (y + h) <= W6_NAME_GAP, (slot, name, y + h)
+
+
+# ----- R2 나머지 손질 2 (11/27, docs/opus/TASKS.md '4차' R2) -----
+R2_GAP_DIFF = 4              # 결정과 소켓 안쪽 선 사이: 좌우 틈과 위아래 틈의 차이 (px)
+
+
+def _r2_socket_scene(prep):
+    """기본 그림(row + mix)으로 HUD를 그려 소켓 테두리·결정의 (그림 경로, 왼쪽, 아래) 를 돌려준다."""
+    import ui
+    assert config.HUD_WEAPON_STYLE == 'row' and config.HUD_WEAPON_ART == 'mix'
+
+    def go():
+        p, st, _pick = dict(_hud_states())['normal']()
+        prep(p)
+        with _Recorder() as r:
+            ui.GameUI(p, st).draw()
+        return r
+    r = _with_skin('mist', go)
+    out = {}
+    for row in r.log:
+        if row[0] in ('draw_image', 'draw_clip') and isinstance(row[1], str) and 'socket' in row[1] and 'well' not in row[1]:
+            img = Image.open(os.path.join(ROOT, 'assets', row[1]))
+            out['socket'] = (row[1], row[2] - img.width // 2, row[3])
+        if row[0] == 'draw_image' and isinstance(row[1], str) and 'crystal' in row[1]:
+            img = Image.open(os.path.join(ROOT, 'assets', row[1]))
+            out['crystal'] = (row[1], row[2] - img.width // 2, row[3])
+    return out
+
+
+def _r2_masks(found, H=200, W=200):
+    """소켓 선(가장 안쪽 선까지)·결정 픽셀을 같은 좌표(화면, 위가 0)의 마스크로."""
+    sp, sl, sb = found['socket']
+    cp, cl, cb = found['crystal']
+    s = np.array(Image.open(os.path.join(ROOT, 'assets', sp)).convert('RGBA'))[:, :, 3] > 0
+    c = np.array(Image.open(os.path.join(ROOT, 'assets', cp)).convert('RGBA'))[:, :, 3] > 0
+    ox, oy = sl - 50, sb + s.shape[0] + 50            # 그림 좌표 원점
+    S = np.zeros((H, W), bool)
+    C = np.zeros((H, W), bool)
+    S[oy - sb - s.shape[0]:oy - sb, sl - ox:sl - ox + s.shape[1]] = s
+    C[oy - cb - c.shape[0]:oy - cb, cl - ox:cl - ox + c.shape[1]] = c
+    return S, C
+
+
+def _r2_gaps(S, C):
+    """결정에서 소켓 선까지 가로(왼·오)·세로(위·아래) 가장 가까운 틈 (px)."""
+    gaps = {'left': 999, 'right': 999, 'top': 999, 'bottom': 999}
+    for y in np.nonzero(C.any(axis=1))[0]:
+        xs = np.nonzero(C[y])[0]
+        sx = np.nonzero(S[y])[0]
+        lo, hi = sx[sx < xs.min()], sx[sx > xs.max()]
+        if len(lo):
+            gaps['left'] = min(gaps['left'], xs.min() - lo.max() - 1)
+        if len(hi):
+            gaps['right'] = min(gaps['right'], hi.min() - xs.max() - 1)
+    for x in np.nonzero(C.any(axis=0))[0]:
+        ys = np.nonzero(C[:, x])[0]
+        sy = np.nonzero(S[:, x])[0]
+        lo, hi = sy[sy < ys.min()], sy[sy > ys.max()]
+        if len(lo):
+            gaps['top'] = min(gaps['top'], ys.min() - lo.max() - 1)
+        if len(hi):
+            gaps['bottom'] = min(gaps['bottom'], hi.min() - ys.max() - 1)
+    return gaps
+
+
+def test_r2_crystal_sits_in_the_middle_of_the_socket():
+    """(묶음 1) 기본 그림(row + mix): PixelLab 결정의 가로 가운데 = 마름모 테두리의 가로 가운데, 세로도 같다.
+    결정과 테두리(가장 안쪽 선) 사이의 좌우 틈과 위아래 틈의 차이가 R2_GAP_DIFF px 이하, 왼쪽 = 오른쪽, 위 = 아래. 상태 넷(쓸 수 있음·못 씀·켬·줄어든 결정)."""
+    def gauge(v):
+        def f(p):
+            p.gauge.value = v
+            p.gauge.zone = p.gauge._zone_of(v)
+        return f
+
+    def on(p):
+        gauge(90)(p)
+        assert p.gauge.use_enhance()
+    for name, prep in (('ready', gauge(62)), ('low', gauge(22)), ('on', on)):
+        f = _r2_socket_scene(prep)
+        assert 'socket' in f and 'crystal' in f, (name, f)
+        S, C = _r2_masks(f)
+        sx = np.nonzero(S.any(axis=0))[0]
+        cx = np.nonzero(C.any(axis=0))[0]
+        assert (sx.min() + sx.max()) == (cx.min() + cx.max()), (name, sx.min(), sx.max(), cx.min(), cx.max())
+        sy = np.nonzero(S.any(axis=1))[0]
+        cy = np.nonzero(C.any(axis=1))[0]
+        assert (sy.min() + sy.max()) == (cy.min() + cy.max()), (name, sy.min(), sy.max(), cy.min(), cy.max())
+        g = _r2_gaps(S, C)                                   # 가장 가까운 틈: 좌우·위아래 대칭이고 어디서도 선에 붙지 않는다
+        assert g['left'] == g['right'] and g['top'] == g['bottom'], (name, g)
+        assert min(g.values()) >= 4, (name, g)
+        m = _r2_mid_gaps(S, C)                               # 눈에 보이는 틈: 결정 허리 옆(좌우)과 끝(위아래)
+        assert m['left'] == m['right'] and m['top'] == m['bottom'], (name, m)
+        assert abs(m['left'] - m['top']) <= R2_GAP_DIFF, (name, m)
+
+
+def _r2_mid_gaps(S, C):
+    """결정 가운데 줄에서 좌우 선까지, 가운데 열에서 위아래 선까지의 틈 (px). W6에서는 좌우 약 22, 위아래 약 6이었다."""
+    ys, xs = np.nonzero(C.any(axis=1))[0], np.nonzero(C.any(axis=0))[0]
+    r, c = (ys.min() + ys.max()) // 2, (xs.min() + xs.max()) // 2
+    cx, sx = np.nonzero(C[r])[0], np.nonzero(S[r])[0]
+    cy, sy = np.nonzero(C[:, c])[0], np.nonzero(S[:, c])[0]
+    return {'left': cx.min() - sx[sx < cx.min()].max() - 1, 'right': sx[sx > cx.max()].min() - cx.max() - 1,
+            'top': cy.min() - sy[sy < cy.min()].max() - 1, 'bottom': sy[sy > cy.max()].min() - cy.max() - 1}
+
+
+
+def test_r2_hub_nameplates_of_things_are_light_grey_in_mist():
+    """(묶음 3) 은신처 이름표: 사람이 아닌 것('무기 걸이'·'연습장')은 mist에서 밝은 회백, 사람 NPC 이름표는 인물 색 그대로.
+    무기 걸이의 지금 건 무기 밑줄도 옅은 노랑 대신 회백. 다른 스킨은 예전 그대로."""
+    import npc as npc_mod
+    for kind in ('armory', 'practice'):
+        cols = [c for t, c in _texts(_hub_npc_log('mist', kind)) if t == npc_mod.NAMES[kind]]
+        assert cols and all(not _yellowish(c) and min(c) >= 200 for c in cols), (kind, cols)
+        for skin_name in ('plate', 'plate_code', 'crystal'):
+            cols = [c for t, c in _texts(_hub_npc_log(skin_name, kind)) if t == npc_mod.NAMES[kind]]
+            assert cols == [npc_mod.COLORS[kind]], (skin_name, kind, cols)
+    for kind in ('mechanic', 'keeper', 'archivist'):
+        cols = [c for t, c in _texts(_hub_npc_log('mist', kind)) if t == npc_mod.NAMES[kind]]
+        assert cols == [npc_mod.COLORS[kind]], (kind, cols)
+    import meta
+    _temp_saves()
+    meta.state['start_weapon'] = meta.START_WEAPONS[0]
+    try:
+        for skin_name, want in (('mist', npc_mod.PROMPT_MIST), ('plate', npc_mod.COLORS['armory'])):
+            r = _hub_npc_log(skin_name, 'armory')
+            marks = [tuple(row[5]) for row in r.log if row[0] == 'draw_rect_color' and row[3] == 36 and row[4] == 4]
+            assert marks == [want], (skin_name, marks)
+    finally:
+        meta.reset()
 
 
 if __name__ == '__main__':

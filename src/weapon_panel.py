@@ -398,6 +398,10 @@ ROW_SOCKET_GAP = 10
 ROW_TAG_W = 104                               # '강화' 꼬리표 (소켓 위, 2번 칸 위 이름 줄과 겹치지 않는 폭)
 ROW_BASE = 56                                 # 칸 아랫변. 키 배지(지름 32)가 반쯤 걸쳐 아래 끝이 40
 ROW_SOCKET = 96                               # 소켓 그림 (마름모 88, 둘레 4px)
+# R2(11/27): 기본 그림 'mix'의 마름모 테두리(um_wp_row_socket_mix_*, 96x104 캔버스). 세로로 긴 마름모(겉 70x92)의 가운데가 도트 한가운데(x = cx - 1)라
+# 홀수 폭(13도트) PixelLab 결정과 축이 같다. 아래 꼭짓점은 예전처럼 줄 아랫변보다 8px 아래, 위 꼭짓점은 4px 높아진다
+ROW_MIX_H, ROW_MIX_HALF = 104, 46             # 캔버스 높이, 겉 마름모 반높이 (px)
+ROW_MIX_LV_DX = -4                             # 단계 숫자 배지를 4px 안쪽으로 (마름모가 좁아져 오른쪽 위 변에 걸치게)
 ROW_ALPHA_HELD, ROW_ALPHA_IDLE, ROW_ALPHA_SOCKET = 0.9, 0.72, 0.86    # 바탕 불투명도
 ROW_ICON_IDLE = ((172, 180, 196), 0.6)        # 들지 않은 칸 아이콘: 회백 곱, 불투명도 0.6
 
@@ -528,11 +532,17 @@ def draw_row(u):
     w, g = p.weapon, p.gauge
     R = ui.ACT_RIGHT
     spots, (cx, cy) = row_layout(p.slot)
-    tag_x, tag_y = R - ROW_TAG_W, cy + 44 + 6
+    mix = getattr(config, 'HUD_WEAPON_ART', 'code') == 'mix'
+    if mix:                                                    # R2: 세로로 긴 마름모 (아래 꼭짓점 그대로, 가운데가 2px 위)
+        cy = ROW_BASE - 8 + ROW_MIX_HALF
+        sock, s_bottom, s_half = 'row_socket_mix_', cy - ROW_MIX_H // 2, ROW_MIX_HALF
+    else:
+        sock, s_bottom, s_half = 'row_socket_', cy - ROW_SOCKET // 2, 44
+    tag_x, tag_y = R - ROW_TAG_W, cy + s_half + 6
     for i, (x, y, sw, sh) in enumerate(spots):                 # 바탕 먼저 (칸마다 따로 반투명. 든 칸이 더 불투명)
         big = i == p.slot
         _well(f'row_well_{"big" if big else "small"}', x, y, ROW_ALPHA_HELD if big else ROW_ALPHA_IDLE)
-    _well('row_socket_well', cx - ROW_SOCKET // 2, cy - ROW_SOCKET // 2, ROW_ALPHA_SOCKET)
+    _well(sock + 'well', cx - ROW_SOCKET // 2, s_bottom, ROW_ALPHA_SOCKET)
     _well('row_tag_well', tag_x, tag_y, ROW_ALPHA_SOCKET)
     for i, (x, y, sw, sh) in enumerate(spots):
         wp = p.weapons[i]
@@ -558,7 +568,7 @@ def draw_row(u):
     # E 결정 소켓 (W3과 같은 뜻)
     ready, hot = g.can_enhance(), g.enhanced
     lv = _tier(g)
-    _put_art(f'row_socket_e{lv}' if hot else 'row_socket_line', cx - ROW_SOCKET // 2, cy - ROW_SOCKET // 2)
+    _put_art(f'{sock}e{lv}' if hot else sock + 'line', cx - ROW_SOCKET // 2, s_bottom)
     probe = assets.image(f'ui/um_{_art("a_crystal_empty")}.png')       # 결정 그림 크기 (코드 24x52, PixelLab 28x56): 소켓 가운데에
     cl, cb = cx - probe.w // 2, cy - probe.h // 2
     if hot:
@@ -571,7 +581,7 @@ def draw_row(u):
         _put_art('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)
     _key_badge(keybinds.label('enhance', first=True)[:3], cx - 8, ROW_BASE + 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE, art=True)
     if hot:                                                        # 단계 숫자 배지: 소켓 오른쪽 위 변에 걸쳐서, 켰을 때만
-        bx, by = cx + 18, cy + 18
+        bx, by = cx + 18 + (ROW_MIX_LV_DX if mix else 0), cy + 18
         _put(f'd_lv_e{lv}', bx, by)
         _lv_number(g, bx, by)
     _cost(g, tag_x + ROW_TAG_W // 2, tag_y + DA_TAG_H // 2)

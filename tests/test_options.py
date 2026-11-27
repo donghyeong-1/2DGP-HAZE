@@ -252,6 +252,37 @@ def test_credits_scenes_change_as_credits_scroll():
                                        n + '.png')).size == (1920, 1080)
 
 
+def test_r2_credits_match_the_art_the_game_draws():
+    """R2(11/27): 크레딧 도구 표기가 게임이 실제로 그리는 그림과 맞다.
+    - 아이템 아이콘 10종(ui/icon_<id>)·진열대 3종(ui/pedestal_*)은 Codex T13·T14 원본(assets/sprites/forge/icons_v1, props_v1)과 픽셀까지 같다 -> Codex 줄
+      (무기 아이콘·형태 아이콘은 코드 그림이라 '아이템 아이콘'으로 좁힌다).
+    - HUD 무기·E 패널의 결정·무기 칸 틀(ui/um_wpx_*, 기본 그림 'mix')은 PixelLab -> PixelLab 줄.
+    - 캐릭터 동작은 PixelLab 도트를 색 고정·효과 지우기로 다듬은 것(tools/apply_pixellab_*.py) -> 'AI 생성 원화를 직접 픽셀로 마무리'가 아니다."""
+    import numpy as np
+    from PIL import Image
+    import credits_mode
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
+    for i in ('absorb', 'cap', 'dash', 'enhance', 'heal', 'power', 'resist', 'shard', 'steady', 'vigor'):
+        a = np.array(Image.open(os.path.join(root, 'ui', f'icon_{i}.png')).convert('RGBA'))
+        b = np.array(Image.open(os.path.join(root, 'sprites', 'forge', 'icons_v1', f'icon_{i}.png')).convert('RGBA'))
+        assert a.shape == b.shape and (a == b).all(), i
+    for k in ('gold', 'shop', 'gone'):
+        a = np.array(Image.open(os.path.join(root, 'ui', f'pedestal_{k}.png')).convert('RGBA'))
+        b = np.array(Image.open(os.path.join(root, 'sprites', 'forge', 'props_v1', f'pedestal_{k}.png')).convert('RGBA'))
+        assert a.shape == b.shape and (a == b).all(), k
+    lines = [t for _, t in credits_mode.CREDITS]
+    i = lines.index('AI 도구')
+    j = lines.index('그래픽')
+    ai, gfx = lines[i:j], lines[j:lines.index('소리')]
+    codex = ' '.join(t for t in ai[ai.index(next(t for t in ai if t.startswith('Codex'))):] if not t.startswith(('PixelLab', 'Gemini', 'agent'))).split('PixelLab')[0]
+    assert '아이템 아이콘' in codex and '진열대' in codex, codex
+    k = next(n for n, t in enumerate(ai) if t.startswith('PixelLab'))
+    pix = ' '.join(ai[k:k + 3])
+    assert 'HUD 결정' in pix and '무기 칸 틀' in pix, pix
+    assert not any('AI 생성 원화를 직접 픽셀로' in t for t in gfx), gfx
+    assert any(t.startswith('캐릭터') and 'PixelLab' in t for t in gfx), gfx
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

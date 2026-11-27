@@ -2,46 +2,49 @@
 
 사용한 모든 이미지·사운드는 아래에 기록한다. (이름 / 출처 URL / 라이선스 / 사용 위치)
 
-## 지금 게임이 쓰는 에셋 (2026-11-19 기준, 이 표가 최신이다)
-아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트 하나뿐이다.
+## 지금 게임이 쓰는 에셋 (2026-11-27 기준, 이 표가 최신이다)
+아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트, 효과음 녹음 원본(Kenney), 배경음악(OpenGameArt)이다.
+2026-11-27 R2에서 게임이 실제로 불러오는 파일(`src/sprites.py`의 SKIN·skin_*.json, 그리는 코드의 그림 경로)과 원본 폴더를 맞대어 고쳤다(전에는 11-19 상태라 캐릭터를 Codex로 적고 있었다).
 
 | 구분 | 위치 | 만든 방법 | 출처·라이선스 |
 |---|---|---|---|
-| 캐릭터·적·보스와 동작 프레임 | `assets/sprites/unified/` | Codex(agent-sprite-forge `generate2dsprite`, 내장 image_gen)로 원화 → `tools/finish_character.py`로 픽셀화. 작업 기록은 `docs/codex/`, 원화는 `assets/sprites/forge/` | AI 생성물 (이미지 모델명 미제공: 제출 전 확인 필요) |
-| 사망·엔딩 화면 | `assets/backgrounds/screen_*.png` | Codex `generate2dmap` (T11) | AI 생성물 |
-| 은신처 원경 (NPC 3명 그림은 2026-11-25 PixelLab 그림으로 바뀜: 아래 11-25 줄) | `assets/backgrounds/far_hideout.png`, `assets/sprites/unified/npc_*` | Codex T22 (`generate2dmap`·`generate2dsprite`, 내장 image_gen) | AI 생성물 |
-| 철파이프 2단계 강화 동작 6장 (올려베기·내려찍기) | `assets/sprites/unified/n09_s2rise_1~3.png`, `n09_s2slam_1~3.png` | Codex T24 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 일반 적 4종 피격 2장째·쓰러짐 3장 | `assets/sprites/unified/enemy_<종류>_hurt_2.png`, `enemy_<종류>_death_1~3.png` | Codex T25 (내장 image_gen, `finish_character.py --like <적 마감본>`) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 무기 전용 자세 10장 (식칼 3·건틀릿 4·사슬 3) | `assets/sprites/unified/n09_knife_1~3.png`, `n09_gauntlet_1~4.png`, `n09_chain_1~3.png` | Codex T26 (내장 image_gen, `finish_character.py --like n09_v3b`) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 투척병 걷기 4장·뒷걸음 2장 | `assets/sprites/unified/enemy_thrower_walk_1~4.png`, `enemy_thrower_back_1~2.png` | Codex T30 (내장 image_gen, 모델명 미제공, `finish_character.py --like enemy_thrower_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 보스 등장 카드 2장 | `assets/backgrounds/boss_card_crasher.png`, `boss_card_ark.png` | Codex T34 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 엔딩 크레딧 장면 3장 | `assets/backgrounds/credits_1~3.png` | Codex T35 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | 2026-11-26부터 여덟 장 모두 PixelLab(주인공 2장도 새로 생성·편집. 화풍·디자인 기준으로 넣은 그림은 우리 것인 Gemini G04 주인공 초상화). 아래 11-25·11-26 줄. 이전: Codex T32 | AI 생성물 |
-| 움직이는 배경 소품 12종 x 4장 | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, 모델명 미제공, hibit 마감) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 스팀 상점 그림 (캡슐 4장·라이브러리 배경·로고) | `assets/store/` | Codex T29 (내장 image_gen, 모델명 미제공) + `tools/make_store_art.py`로 로고 합성 (2026-11-21). 게임 안에서는 쓰지 않는다 | AI 생성물 |
-| 보스 크래셔 걷기 4장·쓰러짐 2장 | `assets/sprites/unified/boss_crasher_walk_1~4.png`, `boss_crasher_death_1~2.png` | Codex T27 (내장 image_gen, `finish_character.py --like boss_crasher_remake`) 그대로 복사 (2026-11-21) | AI 생성물 |
-| 궁극기 컷인 띠, 시전 자세 2장 | `assets/ui/ult_cutin.png`, `assets/sprites/unified/n09_ult_1~2.png` | Codex T23 (내장 image_gen, hibit 마감) | AI 생성물 |
-| 타일 세트, 원경, 중경 (6개 테마) | `assets/tiles/tile_set_*.png`, `assets/backgrounds/far_*.png`, `mid_*.png` | `tools/make_world.py` (code-drawn). 원경은 Codex 배경판(T06)에 테마 색을 다시 입힘 | 자체 제작 |
-| 전투 이펙트 | `assets/effects/` | `tools/make_fx.py`(타격·폭발·먼지, 궁극기 광역 폭발 `ult-nova-<무기>` 4종), `make_slash_hq.py`(휘두르기), `make_aura.py`(오라). 모두 code-drawn | 자체 제작 (이전 pixelfx 시트는 쓰지 않는다) |
-| UI 부품(9칸 판·막대 무늬·게이지 장식·키·칸·바늘) | `assets/ui/ui_*.png` | `tools/make_ui.py` (numpy, code-drawn, 2026-11-18 v3) | 자체 제작 |
-| HUD 조각(조준점·미니맵 아이콘·하트), 아이템 아이콘·진열대, 로고 | `assets/ui/` | `tools/make_hud.py`, `make_icons.py`, `make_codeart.py`(codeart2d 스킬의 SVG 렌더러) | 자체 제작 |
-| 투사체(고철) | `assets/sprites/unified/proj_scrap.png` | `tools/make_codeart.py` | 자체 제작 |
-| 무기 그림(식칼 8방향, 건틀릿 충격파, 무기 아이콘 4종: 철파이프·식칼·건틀릿·사슬, 사슬 줄·갈고리는 실행 중 사각형으로 그림) | `assets/sprites/unified/proj_knife_*`, `proj_blast_*`, `assets/ui/icon_w_*` | `tools/make_weapons.py` (code-drawn) | 자체 제작 |
-| 맨손 자세(던지기·건틀릿) | `assets/sprites/unified/n09_punch_1~4.png` | Codex T05 결과(`forge/n09_attack_v3`)를 그대로 복사 | AI 생성물 |
-| 피해 숫자 픽셀 글꼴 2종 | `assets/ui/dmg_small.png`, `dmg_big.png` | `tools/make_digits.py` (3x5 점 글꼴, 코드 그림) | 자체 제작 |
-| 강화 2·3단계 이펙트 (금·진홍) 8장 | `assets/effects/<hit|pipe-slash|air-spin|aura>-enhanced2·3` | `tools/recolor_fx.py` (보라 시트 색만 다시 칠함) | 자체 제작 |
-| 효과음 59종 (11/19 사슬·궁극기·아크 12종, 11/21 무기별 명중 3종·적 예고 4종·환경음 4종, 11/21 식칼·사슬 구간별 9종·무기별 궁극기 마무리 4종·구간 진입·심장·마지막 처치) | `assets/sfx/` | `tools/make_sfx.py` (numpy 합성) | 자체 제작 |
-| 배경음악 7곡 (title·explore·boss·ark, 11/21 factory·tower·hideout 추가) | `assets/music/` | `tools/make_music.py` (numpy 작곡·합성) | 자체 제작 |
-| 화면 분위기(가장자리 어둡게·흐르는 안개) | `assets/ui/vignette.png`, `assets/backgrounds/fog_strip.png` | `tools/make_atmosphere.py` (numpy 점묘, code-drawn, 2026-11-21) | 자체 제작 |
+| 주인공 N-09 모든 동작 | `assets/sprites/unified/hero6_*.png`, `hero6.json` (게임은 `n09_*` 이름을 고르고 `sprites.SKIN`이 `hero6_*`로 바꿔 그린다) | PixelLab(`create_image_pixflux`·`edit_image_pro_flash` 디자인, `animate_with_skeleton_v3`·`animate_image_pixminimax` 동작) → `tools/apply_pixellab_hero.py`(알파 정리, 기준 그림 색으로 다시 칠함, 최근접 2배). 기준 그림은 Gemini G01 A안. 기록 `assets/sprites/pixellab/hero_v6_test/GENERATION_LOG.md` (11-23·11-24·11-25 줄) | AI 생성물 (PixelLab) |
+| 일반 적 11종·보스 넷(문지기·크래셔·아크·헤이즈 심장) | `assets/sprites/unified/v6_<이름>_*.png`, `boss_gatekeeper_*.png`, `skin_<이름>.json` 15개 | PixelLab(`create_image_pro_flash` 디자인, `animate_with_skeleton_v3`·`animate_image_pixminimax` 동작) → `tools/apply_pixellab_char.py`(색 고정, PixelLab이 그린 효과 지우기, 최근접 2배), 심장은 `tools/apply_pixellab_heart.py`. 기록 `assets/sprites/pixellab/<이름>_v6/GENERATION_LOG.md` (11-23·11-25 줄) | AI 생성물 (PixelLab) |
+| 은신처 NPC 셋·떠돌이 죄수, 헤이즈 샘 | `assets/sprites/unified/npc_<이름>_idle_1~2.png`, `assets/ui/event_spring_*.png` | PixelLab → `tools/apply_pixellab_event.py` (11-25 줄) | AI 생성물 (PixelLab) |
+| 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | PixelLab(`create_image_pro_flash` + `edit_image_pro_flash`), 기준 그림은 Gemini G04 주인공 초상화 (11-25·11-26 줄) | AI 생성물 (PixelLab) |
+| 보스 이름 카드 4장 | `assets/backgrounds/boss_card_<보스>.png` | 인물은 PixelLab 클로즈업, 배경은 구역 카드(Codex T33)를 어둡게, `tools/apply_pixellab_boss_cards.py` (11-26 줄) | AI 생성물 (PixelLab + Codex) |
+| 원경·중경 배경판 | `assets/backgrounds/far_<테마>.png`, `mid_<테마>.png` | Codex T49(내장 image_gen) → `tools/apply_backdrops_v6.py`(정수 2배). gold·shop·boss는 같은 판에 테마 색 (11-25 줄) | AI 생성물 (Codex) |
+| 은신처 원경 | `assets/backgrounds/far_hideout.png` | Codex T22 (`generate2dmap`, 내장 image_gen) | AI 생성물 (Codex) |
+| 사망·탈출 화면 | `assets/backgrounds/screen_death.png`, `screen_ending.png` | Codex T11 (`generate2dmap`), 캐릭터 영역만 `tools/pixelize_chars.py`로 픽셀화 (11-22 줄) | AI 생성물 (Codex) |
+| 엔딩 크레딧 장면 3장 | `assets/backgrounds/credits_1~3.png` | Codex T35 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
+| 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
+| 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py`로 2배 규격 | AI 생성물 (Codex) |
+| 움직이는 배경 소품 12종 x 4장 | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py` | AI 생성물 (Codex) |
+| 아이템 아이콘 10종, 진열대 3종 | `assets/ui/icon_<아이템>.png`, `assets/ui/pedestal_<gold·shop·gone>.png` | Codex T13·T14 결과를 그대로 복사(2026-11-17, 커밋 `06746a8`). `assets/sprites/forge/icons_v1/`·`props_v1/`의 원본과 픽셀까지 같다(R2에서 비교, `tests/test_options.py`). 그 전의 `tools/make_icons.py` 코드 그림은 쓰지 않는다 | AI 생성물 (Codex) |
+| 균열의 분노 아이콘 | `assets/ui/icon_fury.png` | `tools/make_fury_icon.py`: Codex T13 공격력 아이콘의 색을 보라로 돌림 (11-19 줄) | Codex 그림을 코드로 가공 |
+| 스팀 상점 그림 (캡슐 4장·라이브러리 배경·로고) | `assets/store/` | Codex T29 + `tools/make_store_art.py`. 게임 안에서는 쓰지 않는다 | AI 생성물 (Codex) |
+| UI 'mist' 스킨 (기본): 증강 카드 테두리·장식선·안개, 타이틀 로고·커서·꺾쇠, 번갯줄기 조각 | `assets/ui/um_card_*`, `um_divider_*`, `um_mist_pool`, `um_logo_title`, `um_cursor`, `um_bracket`, `um_bolt_1~3` | PixelLab(`create_image_pro_flash`·`create_ui_asset`) 원본을 `tools/make_ui_mist.py`가 자르고 색만 바꿈 (11-26·11-27 줄) | AI 생성물 (PixelLab) |
+| HUD 무기·E 패널의 결정과 무기 칸 틀 (기본 그림 'mix') | `assets/ui/um_wpx_crystal_*`, `um_wpx_slot_*` | PixelLab `create_image_pro_flash`(P1 원본 `assets/sprites/pixellab/ui_wp_v1/raw/`) → `tools/make_ui_mist.py --wp`(색·틀 다듬기) (11-27 P1·W6 줄) | AI 생성물 (PixelLab) |
+| 증강 갈래 아이콘 19장 | `assets/ui/up_mut_*.png` | PixelLab 기호 + `tools/make_ui_plate.py`가 코드로 그린 철 원판 (11-26 줄) | AI 생성물 (PixelLab) + 자체 제작 |
+| UI 'mist' 코드 부품: HUD 판·막대·작은 표시, 메뉴 글자 뒤 어둠, 무기·E 패널 칸 바탕·배지·꼬리표·E 마름모 테두리, 증강 진행 칸, 고르는 화면 커서 | `assets/ui/um_hud_frame_*`, `um_fill_*`, `um_dash_*`, `um_combo_*`, `um_dot_off`, `um_wp_*`, `um_step_*`, `um_pick_cursor*`, `assets/light/menu_shade_*`, `title_shade*` | `tools/make_ui_mist.py`(numpy, code-drawn) | 자체 제작 |
+| 타이틀 배경·대비 판·줄기 판·잔광 판 | `assets/backgrounds/title_mist.png`, `title_flash_1~3`, `title_bolt_1~3`, `title_glow` | `tools/make_ui_mist.py --storm`: 게임 속 배경(`far_cell`·`mid_cell`, Codex T49)에서 코드로 굽고, 줄기는 PixelLab 조각을 이어 붙임 | 자체 가공 (Codex·PixelLab 그림 바탕) |
+| 옛 스킨 UI 부품(철판·크리스털) | `assets/ui/up_*` (갈래 아이콘 빼고), `upx_*`, `ui_*` | `up_*`는 `tools/make_ui_plate.py`(code-drawn), `upx_*`는 PixelLab `create_ui_asset` 원본을 `tools/apply_ui_plate.py`로, `ui_*`는 `tools/make_ui.py`(code-drawn). `config.UI_SKIN`을 바꿀 때만 쓴다. HUD의 하트·물약·조준점·미니맵 표시·조각·바늘은 mist에서도 `up_*`(code-drawn)를 쓴다 | 자체 제작 / PixelLab |
+| 타일 세트 | `assets/tiles/tile_set_*.png` | `tools/make_world.py` (code-drawn), 11-23 `tools/pixel2x.py`로 2배 규격 | 자체 제작 |
+| 전투 이펙트 | `assets/effects/`, 빛 시트 `assets/light/glow_*` | `tools/make_fx2.py` + `tools/fxkit.py`, `make_fx.py`, `make_slash_hq.py`, `make_aura.py`, `recolor_fx.py` (모두 code-drawn) | 자체 제작 |
+| 무기 그림(무기 아이콘 4종·식칼·건틀릿 충격파·형태 아이콘) | `assets/ui/icon_w_*`, `icon_f_*`, `assets/sprites/unified/proj_*` | `tools/make_weapons.py`, `tools/make_form_icons.py`, `tools/make_codeart.py` (code-drawn). 사슬 줄·갈고리·탄환은 실행 중 코드로 그림 | 자체 제작 |
+| 피해 숫자 픽셀 글꼴 | `assets/ui/dmg_tiny·small·big.png` | `tools/make_digits.py` (코드 그림) | 자체 제작 |
+| 화면 분위기·빛 | `assets/ui/vignette.png`, `assets/backgrounds/fog_strip.png`, `assets/light/` | `tools/make_atmosphere.py`, `make_light.py`, `make_glow.py` (code-drawn) | 자체 제작 |
+| 효과음 116종 | `assets/sfx/` | `tools/make_sfx.py`(numpy 합성) + `tools/make_sfx_v2.py`(Kenney 녹음 원본 74개를 자르고 겹치고 합성음을 더함, 원본 `assets/sfx_src/kenney/`) (11-24 줄) | 자체 제작 + Kenney (kenney.nl) **CC0 1.0** |
+| 배경음악 8곡 | `assets/music/` | OpenGameArt.org에서 받은 곡 (11-24 줄: 곡명·작곡가·라이선스. CC-BY 3.0 곡 셋은 크레딧에 표시). 예전 합성 곡은 지웠다 | **CC-BY 3.0** 3곡 · **CC0** 5곡 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
 | 폰트 | `assets/fonts/Galmuri11.ttf`, `Galmuri14.ttf` | 갈무리 v2.40.4 (Lee Minseo) | **SIL OFL 1.1** (`assets/fonts/OFL.txt`) |
 
 - 실행 파일 만들기: PyInstaller 6.22.3 (GPL-2.0 + 부트로더 예외: 만든 실행 파일은 우리 라이선스로 배포할 수 있다), `tools/build_exe.py`. 실행 파일에 SDL2 DLL(pysdl2-dll, zlib 라이선스)과 Galmuri 글꼴(OFL, `FONT_LICENSE_OFL.txt`로 같이 넣는다)이 들어간다.
 - 쓰는 스킬·도구(개발용, 게임에 포함되지 않음)는 `docs/SKILLS.md`에 있다. agent-sprite-forge와 codixel은 MIT, gamedev-skills는 Apache-2.0.
-- 엔딩 크레딧(`src/credits_mode.py`의 `CREDITS`)에 표기한다: Galmuri font by Lee Minseo (SIL OFL 1.1), AI 생성 이미지(Codex 내장 이미지 생성, 모델명 미제공), 개발 환경(pico2d, transitions MIT, numpy, Pillow), 나머지는 자체 제작. 이 표가 바뀌면 크레딧도 함께 고친다.
+- 엔딩 크레딧(`src/credits_mode.py`의 `CREDITS`)에 표기한다: Galmuri font by Lee Minseo (SIL OFL 1.1), AI 도구(Claude Code, Codex 내장 이미지 생성(모델명 미제공), PixelLab, Gemini, agent-sprite-forge MIT), 개발 환경(pico2d, transitions MIT, numpy, Pillow), 효과음 녹음 원본 Kenney CC0, 배경음악 OpenGameArt(CC-BY 곡은 곡명·작곡가·라이선스), 나머지는 자체 제작. 이 표가 바뀌면 크레딧도 함께 고친다.
 - 게임에서 더는 쓰지 않는 것(기록용으로만 남음): `assets/sprites/unified_legacy/`, `assets/sprites/detailed/`, `assets/concept/`, `assets/presentation_examples/`(발표 자료용).
+  `assets/sprites/unified/`의 예전 Codex 캐릭터 그림(`n09_*`, `enemy_*`, `boss_crasher_*`, `boss_ark_*`, `heart_*` 등. T02~T05·T10·T20·T23~T27·T30·T37~T46)은 파일은 남아 있지만 게임이 PixelLab 그림으로 바꿔 그린다
+  (`sprites.SKIN`·skin_*.json이 덮지 않는 것은 `n09_knife`·`n09_walk` 둘이고 플레이어 코드가 고르지 않는다). 궁극기 컷인 띠 `assets/ui/ult_cutin.png`(Codex T23)도 부르는 코드가 없다(지금 컷인은 code-drawn `effects/cutin-disc`).
 
 ---
 
@@ -398,7 +401,9 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-27 (W6 그림 확정 'mix'): 게임 기본 모습이 쓰는 PixelLab 부품은 `um_wpx_crystal_*`(결정 다섯, 원본 `ui_wp_v1/raw/crystal_s52.png`)와 `um_wpx_slot_*`(무기 칸 틀 다섯, 원본 `raw/slot_s64.png`). W6에서 같은 원본을 다시 정리했다(칸 틀 네 변 다시 칠하기, 결정 단계 색 밝기 지키기). 마름모 테두리·키 배지·단계 배지·꼬리표·콤보 칸은 코드 그림(`um_wp_*`). PixelLab 소켓 `um_wpx_socket_*`은 'px' 값에서만 쓴다.
 - 2026-11-27 (S1 고르는 화면): 고른 줄 앞 삼각 커서 `assets/ui/um_pick_cursor.png`(밝은 회백)·`um_pick_cursor_off.png`(살 수 없는 줄, 흐린 회색) 2장 — `tools/make_ui_mist.py --pick`가 코드로 구웠다(직접 제작, 한 색 삼각형). PixelLab 생성 없음.
 - 2026-11-27 (R1 나머지 손질): 대비 판 `assets/backgrounds/title_flash_1~3.png`·줄기 판 `title_bolt_1~3.png` 다시 굽기(긴 줄기 = PixelLab 줄기 조각 `um_bolt_1~3`을 잘라 위아래로 이어 붙이고 좌우 반전만, 새 생성 없음. 대비 판에 로고 둘레 실루엣), `assets/light/title_shade_flash.png` 다시 굽기(머리글·로고·메뉴 상자를 뺀 어둠) — `tools/make_ui_mist.py --storm`(직접 제작). 증강 카드 진행 칸 `assets/ui/um_step_off.png`·`um_step_on.png`(가는 테두리 + 어두운 속) — `tools/make_ui_mist.py --step`(직접 제작). PixelLab 생성 없음.
+- 2026-11-27 (R2 나머지 손질 2): 기본 그림 'mix'의 E 마름모 테두리 `assets/ui/um_wp_row_socket_mix_<well|line|e1|e2|e3>.png` 5장(세로로 긴 마름모, 가운데가 도트 한가운데) — `tools/make_ui_mist.py --socket`(직접 제작, 한 색 선). 타이틀 번개 판 3 `assets/backgrounds/title_bolt_3.png`·`title_flash_3.png` 다시 굽기(줄기 아래 끝 자리만 옮김, 같은 PixelLab 조각, 새 생성 없음) — `tools/make_ui_mist.py --storm`. PixelLab 생성 없음.
 - 2026-11-25: 은신처 NPC 셋 `assets/sprites/unified/npc_mechanic_idle_1~2.png`·`npc_keeper_idle_1~2.png`·`npc_archivist_idle_1~2.png`: **PixelLab**(유료 구독 Tier 1, MCP. `create_image_pro_flash` 디자인 + `animate_image_pixminimax` 숨쉬기)으로 새로 생성, 화풍 기준은 우리 그림인 간수 `assets/sprites/pixellab/guard_v6/raw/base.png`. 디자인은 예전 그림(Codex T22)과 대화 초상화의 설정을 글로 옮긴 것이고 그 그림을 입력으로 넣지는 않았다. 원본·프롬프트·seed는 `assets/sprites/pixellab/mechanic_v6/`·`keeper_v6/`·`archivist_v6/`의 GENERATION_LOG.md, 적용은 `tools/apply_pixellab_event.py`. 예전 T22 NPC 그림은 게임에서 빠졌다(원본은 `assets/sprites/forge/hideout_v1/npc_v1/`). 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.
+- 2026-11-23 (11/27 R2에서 빠진 기록을 채움): 일반 적 6종·보스 크래셔 v6 — 슬럼 폐인 `v6_slum_*`, 투척병 `v6_thrower_*`, 간수 `v6_guard_*`, 사냥개 `v6_hound_*`, 결정 기사 `v6_knight_*`, 드론 `v6_drone_*`, 크래셔 `v6_crasher_*`와 각 `skin_<이름>.json` (`assets/sprites/unified/`): **PixelLab**(MCP, 2026-11-23 당시 Tier 1). 디자인: 간수는 주인공 기준 그림(base96)을 화풍 기준으로 `create_image_pro_flash` seed 3 -> `edit_image_pro_flash` seed 5(guard_1b_3, 20색), 크래셔는 `create_image_pixflux` seed 11(색표 고정) -> `edit_image_pixen` seed 17(crasher_1b_2, 20색) -> `rotate_image`로 옆모습 -> 손만 인페인트(Pro Flash seed 17), 나머지 다섯은 간수 base를 화풍 기준(`style_image`, "Art style, detail level and pixel scale only … Do not copy the character.")으로 `create_image_pro_flash` 96x96 seed 3·11 두 안 중 하나(slum_1·thrower_1·hound_1·drone_2·knight_2). 동작: `estimate_skeleton` + `animate_with_skeleton_v3`(사람형), `animate_image_pixminimax`(사냥개·드론, 기사 일부). 적용 `tools/apply_pixellab_char.py`(색 고정, 효과 지우기, 최근접 2배). 커밋 `10fa774`(간수)·`93dbc3a`(크래셔)·`bd95bf7`(나머지 다섯). 원본·고른 프레임·평가는 `assets/sprites/pixellab/<이름>_v6/GENERATION_LOG.md`, 디자인 시안은 `designs_v6/GENERATION_LOG.md`·`hero_v6_test/GENERATION_LOG.md`(6·7차). 타인의 그림을 입력으로 쓰지 않았다. 예전 Codex 그림(T02·T03·T10·T37~T42)은 파일만 남고 게임은 새 그림으로 바꿔 그린다. 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.
 - 2026-11-25: 일반 적 5종 `assets/sprites/unified/v6_shaman_*`·`v6_rat_*`·`v6_eye_*`·`v6_wraith_*`·`v6_cart_*`와 `skin_(shaman|rat|eye|wraith|cart).json`: **PixelLab**(유료 구독 Tier 1, MCP. `create_image_pro_flash` 디자인 1장씩 + `animate_image_pixminimax` 동작)으로 새로 생성, 화풍 기준은 우리 그림인 간수·사냥개 base(`assets/sprites/pixellab/guard_v6`, `hound_v6`)의 조각. 디자인은 예전 그림(Codex T37·T38·T40·T41·T42)의 설정을 글로 옮긴 것이고 그 그림을 입력으로 넣지는 않았다. PixelLab이 피격·사망에 그려 넣은 충격 별·불티는 `tools/apply_pixellab_char.py`가 지운다(code 가공). 원본·프롬프트·고른 번호는 `assets/sprites/pixellab/(shaman|rat|eye|wraith|cart)_v6/GENERATION_LOG.md`. 예전 `enemy_(shaman|rat|eye|wraith|cart)_*` 그림은 파일은 남아 있지만 게임이 새 그림으로 바꿔 그린다. 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.
 - 2026-11-25: 최종 보스 아크 `assets/sprites/unified/v6_ark_*`·`skin_ark.json`: **PixelLab**(유료 구독 Tier 1, MCP. `create_image_pro_flash` 디자인 + `animate_image_pixminimax`·`animate_with_skeleton_v3` 동작)으로 새로 생성. 디자인은 우리 원화 Gemini G02 `ark_side.png`의 설정을 글로 옮긴 것(그림을 입력으로 넣지 않음), 화풍 기준은 간수 base 조각. 탄환·베는 호 같은 효과는 `tools/apply_pixellab_char.py`가 지운다. 원본·프롬프트·고른 번호는 `assets/sprites/pixellab/ark_v6/GENERATION_LOG.md`. 예전 `boss_ark_*`(Codex T20) 파일은 남아 있지만 게임이 새 그림으로 바꿔 그린다. 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.
 - 2026-11-25: 헤이즈 심장 본체·손 `assets/sprites/unified/v6_heart_core*`·`v6_heart_hand_*`·`skin_heart.json`: **PixelLab**(유료 구독 Tier 1, MCP. `create_image_pro_flash` 디자인 + `animate_image_pixminimax` 동작)으로 새로 생성. 디자인은 우리 원화 Gemini G02(`heart_core.png`, `heart_hand.png`)와 옛 그림(Codex T45·T46)의 설정을 글로 옮긴 것(그림을 입력으로 넣지 않음). 본체는 왼쪽 절반만 만들어 `tools/apply_pixellab_heart.py`가 좌우로 뒤집어 붙이고, 방 안쪽 채우기·맞는 순간의 흰 결정·기절한 손의 꺼진 불빛은 같은 도구의 가공(code)이다. 원본·프롬프트·고른 번호는 `assets/sprites/pixellab/heart_core_v6/`·`heart_hand_v6/`의 GENERATION_LOG.md. 예전 `heart_core*`·`heart_hand_*` 파일은 남아 있지만 게임이 새 그림으로 바꿔 그린다. 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.

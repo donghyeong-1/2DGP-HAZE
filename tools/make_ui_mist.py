@@ -30,6 +30,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2)·um_wp_da_*(W3)·um_wp_row_*(W4)·um_wpx_*(P1 PixelLab))
       python tools/make_ui_mist.py --storm  (타이틀 배경·대비 판·줄기 판·잔광 판·글자 뒤 어둠만, R1)
       python tools/make_ui_mist.py --step   (증강 카드 진행 칸 um_step_off·um_step_on만, R1)
+      python tools/make_ui_mist.py --socket (기본 그림 'mix'의 E 마름모 테두리 um_wp_row_socket_mix_*만, R2)
 """
 import math
 import os
@@ -217,6 +218,7 @@ BOLT_RECIPES = (
     [(1, 0, 41, False), (3, 0, 114, True)],
     [(2, 0, 45, False), (1, 0, 59, True), (2, 0, 25, True), (3, 0, 114, False)],
 )
+BOLT_END = {3: (1616, 376)}            # R2: 판 번호 -> 줄기 아래 끝 (화면 px x, 위에서 내려온 y). 없으면 BOLT_SPOTS(L1 줄기가 끝나던 자리)
 # 곁가지: (붙일 이음매 번호(0 = 첫 이음매), 조각, 첫 줄, 끝 줄, 좌우 반전, 줄기 쪽 'l'|'r') — 조각의 가늘어지는 아랫부분을 이음매에서 비스듬히
 BOLT_BRANCHES = (
     [(0, 1, 76, 115, True, 'l')],
@@ -294,6 +296,8 @@ def long_bolt(n):
     bx, top = BOLT_SPOTS[n - 1]
     end_x = (bx - old.shape[1]) // 2 + _runs(old[-1, :, 3] > 0)[0].mean()   # 도트 단위
     end_y = top // 2 + len(old)
+    if n in BOLT_END:                                       # R2: 아래 끝 자리를 화면 px로 따로 정한 판
+        end_x, end_y = BOLT_END[n][0] / 2, BOLT_END[n][1] // 2
     last = _runs(out[-1, :, 3] > 0)[0].mean()
     x0 = int(round(end_x - last))
     y0 = end_y - len(out)
@@ -323,12 +327,10 @@ def logo_silhouette(H, W):
     return out
 
 
-def title_backgrounds():
-    """title_mist.png(발판 없는 배경), title_flash_<n>.png(대비 판 셋, 번갯줄기 자리만 다르다), title_glow.png(잔광 판). 1920x1080, 불투명.
-    title_bolt_<n>.png: 대비 판 n의 줄기만 같은 자리에 (1920x1080, 줄기 밖은 알파 0, 알파 0/255)."""
+def title_sky():
+    """(배경 그림, 대비 판 하늘 마스크, 2px 칸 단위 하늘 마스크) — 줄기는 하늘 칸에만 보인다."""
     import make_title_plate as tp
     base = tp.background(ledge=False)
-    base.save(os.path.join(BG, 'title_mist.png'))
     W, H = base.size
     far = np.array(Image.open(os.path.join(BG, 'far_cell.png')).convert('RGB'))
     mid = np.array(Image.open(os.path.join(BG, 'mid_cell.png')).convert('RGBA'))
@@ -340,19 +342,32 @@ def title_backgrounds():
     off = (mid.shape[1] - W) // 2
     sky &= mid[:, off:off + W, 3] == 0                         # 중경(지붕·전선·관)은 실루엣
     sky &= ~logo_silhouette(H, W)                             # R1: 로고 둘레는 실루엣 (흰 하늘 위 회색 그늘 대신)
-    flash = np.where(sky[:, :, None], SKY_WHITE, SILHOUETTE).astype(np.uint8)
     # 2px 격자: 2x2 칸이 모두 하늘이어야 그 칸에 줄기가 보인다 (줄기 가림도 도트 단위)
     sky2 = sky[0::2, 0::2] & sky[1::2, 0::2] & sky[0::2, 1::2] & sky[1::2, 1::2]
-    sky2 = sky2.repeat(2, 0).repeat(2, 1)
+    return base, sky, sky2.repeat(2, 0).repeat(2, 1)
+
+
+def bolt_on_sky(n, sky2):
+    """판 n의 긴 줄기를 화면에 놓은 (줄기 2배 RGBA, 자리 slice, 보이는 마스크)."""
+    b1, x0, top = long_bolt(n)
+    b = b1.repeat(2, 0).repeat(2, 1)
+    if top < 0:                                             # 화면 위로 넘친 부분은 자른다
+        b, top = b[-top:], 0
+    box = (slice(top, top + b.shape[0]), slice(x0, x0 + b.shape[1]))
+    return b, box, (b[:, :, 3] > 0) & sky2[box]
+
+
+def title_backgrounds():
+    """title_mist.png(발판 없는 배경), title_flash_<n>.png(대비 판 셋, 번갯줄기 자리만 다르다), title_glow.png(잔광 판). 1920x1080, 불투명.
+    title_bolt_<n>.png: 대비 판 n의 줄기만 같은 자리에 (1920x1080, 줄기 밖은 알파 0, 알파 0/255)."""
+    base, sky, sky2 = title_sky()
+    base.save(os.path.join(BG, 'title_mist.png'))
+    W, H = base.size
+    flash = np.where(sky[:, :, None], SKY_WHITE, SILHOUETTE).astype(np.uint8)
     made = []
     for n in range(1, len(BOLT_SPOTS) + 1):                # 번갯줄기는 하늘이 보이는 곳에만 (건물·전선 뒤에서 친다)
         plate = flash.copy()
-        b1, x0, top = long_bolt(n)
-        b = b1.repeat(2, 0).repeat(2, 1)
-        if top < 0:                                         # 화면 위로 넘친 부분은 자른다
-            b, top = b[-top:], 0
-        box = (slice(top, top + b.shape[0]), slice(x0, x0 + b.shape[1]))
-        on = (b[:, :, 3] > 0) & sky2[box]
+        b, box, on = bolt_on_sky(n, sky2)
         rgb = b[:, :, :3].copy()
         for src, dst in BOLT_COLORS.items():
             rgb[(b[:, :, :3] == src).all(axis=2)] = dst
@@ -926,6 +941,37 @@ def row_parts():
     return made
 
 
+# R2(11/27): 기본 그림 'mix'의 E 마름모 테두리. PixelLab 결정(13x28 도트, 위아래 뾰족한 육각)은 홀수 폭이라 짝수 폭 마름모(row_socket_*) 안에서
+# 1px 왼쪽에 있었고, 정사각 마름모라 결정 옆(좌우) 틈이 끝(위아래) 틈보다 훨씬 컸다 -> 가운데를 도트 한가운데(23.5)에 두고(결정과 같은 축) 세로로 긴 마름모로.
+# 자리 선(안쪽 흐린 선) 반폭 14·반높이 20 도트: 결정 허리 옆 틈 12px, 끝 틈 10px, 어깨 틈 4px. 겉선은 자리 선에서 3도트 밖(반폭 17 = 폭 70px, 반높이 23 = 높이 92px).
+# 캔버스 48x52 도트(96x104px, 단계 색 바깥 그늘까지). 'code'·'px'는 예전 row_socket_*를 그대로 쓴다.
+ROW_MIX_SOCKET = (52, 48)                       # 캔버스 (높이, 폭) 도트
+ROW_MIX_C = (26, 23.5)                          # 마름모 가운데 (세로, 가로) 도트 — 가로가 도트 한가운데라 홀수 폭 결정과 축이 같다
+ROW_MIX_SEAT = (20, 14)                         # 자리 선 반높이·반폭
+ROW_MIX_RING = 3                                # 겉선 = 자리 선 + 3도트
+
+
+def _socket_mix(tone, well=False):
+    (h, w), (cy, cx), (ry, rx) = ROW_MIX_SOCKET, ROW_MIX_C, ROW_MIX_SEAT
+    outer = _diamond(h, w, cy, cx, ry + ROW_MIX_RING, rx + ROW_MIX_RING)
+    if well:
+        return _well_only(outer)
+    tier = tone in WP_TIER.values()
+    a = np.zeros((h, w, 4), np.uint8)
+    _put(a, _edge(outer), tone)
+    _put(a, _edge(_diamond(h, w, cy, cx, ry, rx)), _mix(tone, WP_WELL, 0.55) if tier else WP_DIM)
+    if tier:
+        _put(a, _edge(_diamond(h, w, cy, cx, ry + ROW_MIX_RING + 1.5, rx + ROW_MIX_RING + 1.5)) & ~outer, _mix(tone, (0, 0, 0), 0.45))
+    return a
+
+
+def socket_mix_parts():
+    made = [save2(_socket_mix(None, well=True), 'um_wp_row_socket_mix_well.png')]
+    for name, tone in (('line', WP_LINE), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):
+        made.append(save2(_socket_mix(tone), f'um_wp_row_socket_mix_{name}.png'))
+    return made
+
+
 # ----- P1 무기·E 패널 그림 PixelLab 시험 (2026-11-27, docs/opus/TASKS.md '4차' P1): config.HUD_WEAPON_ART = 'px' -----
 # 원본: assets/sprites/pixellab/ui_wp_v1/raw/ (create_image_pro_flash, 1배 도트로 받은 것. 기록은 같은 폴더 GENERATION_LOG.md).
 # 상태·색 변형은 새로 뽑지 않고 여기서 만든다: 결정은 한 장의 밝기 순서를 단계 색 사다리에 바꿔 끼우고(실루엣이 같다), 빈 결정은 같은 실루엣을 어둡게 채우고 윤곽만 흐린 회백.
@@ -1122,6 +1168,10 @@ def main():
         made = menu_parts()
         print(len(made), '개:', ', '.join(made))
         return
+    if '--socket' in sys.argv:                    # 기본 그림 'mix'의 E 마름모 테두리만 (R2)
+        made = socket_mix_parts()
+        print(len(made), '개:', ', '.join(made))
+        return
     if '--step' in sys.argv:                      # 증강 카드 진행 칸만 (R1)
         made = step_parts()
         print(len(made), '개:', ', '.join(made))
@@ -1141,7 +1191,7 @@ def main():
     made += card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     made.append(title_shade(flash=True))
-    made += menu_parts() + pick_parts() + wp_parts() + step_parts()
+    made += menu_parts() + pick_parts() + wp_parts() + step_parts() + socket_mix_parts()
     print(len(made), '개:', ', '.join(made))
 
 

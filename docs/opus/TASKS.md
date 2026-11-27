@@ -1131,3 +1131,10 @@ Codex는 이 PC에서 모델 오류로 시작하지 못했고, Antigravity(Gemin
 - 게임에서 쓰지 않는 것: `assets/backgrounds/screen_title.png`(옛 'crystal' 스킨에서만 그림, 기본 mist·plate는 안 씀), `assets/ui/ult_cutin.png`(`src/`에서 부르지 않음), `forge/boss_cards_v1/`·`forge/portraits_v1/`(보관).
 - 발표 자료(`docs/presentation_3rd.pptx` 등)의 화면 그림은 발표 그림 다시 찍기 때 함께.
 - 커밋하지 않은 것: `assets/sprites/gemini/illust_v2/work/`(합성 중간물 11MB, 보고서가 가리키는 중간 파일. 최종 그림·AI 원본 `raw/`·비교판은 커밋).
+
+## S2-1 게임패드 물약 버튼 (2026-11-27, 사용자 "물약 버튼 십자 위로 결정")
+- 겹침 확인: 플레이 중 십자 위는 `gamepad._direction`의 y(위 +)에 들어갔지만 플레이에서 쓰는 것은 '아래'(얇은 발판 통과)뿐이라 하는 일이 없었다. 스틱 아래 + 십자 위를 같이 누르면 '아래'가 지워지는 것만 있었다. 위 조준(R스틱)·점프(A)·문(방 끝으로 걸어 들어감)과는 겹치지 않는다.
+- 바꾼 것: `gamepad.PLAY_BUTTONS`에 `'dpup': 'potion'`, 플레이의 이동 방향 계산에서 십자 위를 뺐다, `apply_play`가 `drink_potion()`을 부른다. 메뉴(`Translator.menu`)는 그대로 십자 위 = ↑.
+- 안내: 패드 조작표 '물약 마시기 (키보드만)' 줄의 키 'Q' -> '십자↑', 설명 '물약 마시기 (체력 회복)'(키보드 표와 같은 말). `input_device.PAD_LABELS['potion']` '-' -> '십자↑'(타이틀 조작 줄 등 `keybinds.label('potion')`을 쓰는 곳). 물약 관련 처음 안내·알림은 키 이름을 적지 않아 바뀐 곳이 없다. HUD 물약 병에는 키 배지가 없다.
+- 테스트 먼저 `tests/test_s2_pad_potion.py` 4개(실패 확인): 십자 위 -> 물약 한 병·체력 회복·누르고 있어도 한 번, 십자 위는 이동이 아님(스틱 아래 유지), 메뉴에서는 ↑이고 물약이 그대로, 패드 조작표·키 이름.
+- 실제 패드로는 확인하지 못했다.

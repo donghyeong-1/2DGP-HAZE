@@ -5,7 +5,7 @@
 - 키보드: 키를 누르거나 마우스 버튼을 누르거나 마우스를 한 번에 MOUSE_MOVE px 이상 움직이면.
   패드가 메뉴에 넣는 가짜 키 이벤트(gamepad._push_key)는 창 번호가 0이라 키보드로 치지 않는다.
 패드 버튼 이름은 지금 패드 배치를 따른다: 플레이 gamepad.PLAY_BUTTONS(A 점프, B·LT 대시, X 공격, RB·RT 강화, LB 교체, Y 상호작용,
-Start 일시정지, 왼쪽 스틱·십자 이동, 오른쪽 스틱 조준), 메뉴 A 확인·B 뒤로·십자·스틱 이동. pico2d와 무관한 순수 로직 + SDL 엿보기(scan).
+Start 일시정지, 십자 위 물약, 왼쪽 스틱·십자 좌우·아래 이동, 오른쪽 스틱 조준), 메뉴 A 확인·B 뒤로·십자·스틱 이동. pico2d와 무관한 순수 로직 + SDL 엿보기(scan).
 """
 import math
 
@@ -15,9 +15,9 @@ PAD_STICK = 0.6          # 패드로 보는 스틱 기울기
 MOUSE_MOVE = 6           # 키보드·마우스로 보는 마우스 한 번 이동 (px, 가로+세로)
 _pad_prev = set()
 
-# 동작 -> 패드 버튼 이름 (keybinds.label이 패드일 때 쓴다). 물약은 패드 버튼이 없다
+# 동작 -> 패드 버튼 이름 (keybinds.label이 패드일 때 쓴다). 물약은 십자 위 (S2-1, 11/27 사용자 결정)
 PAD_LABELS = {'left': '←', 'right': '→', 'down': '↓', 'jump': 'A', 'dash': 'B', 'attack': 'X', 'enhance': 'RB',
-              'swap': 'LB', 'weapon1': 'LB', 'weapon2': 'LB', 'interact': 'Y', 'potion': '-'}
+              'swap': 'LB', 'weapon1': 'LB', 'weapon2': 'LB', 'interact': 'Y', 'potion': '십자↑'}
 # 메뉴 아래 키 안내: 키보드 글자 -> 패드 버튼. 여기에 없는 키(O·H·Q·G·Backspace 등 키보드 전용)는 패드일 때 안내에서 뺀다
 MENU_KEYS = {'W S': '↑↓', 'A D': '←→', 'Enter': 'A', 'Space': 'A', 'Esc': 'B', '아무 키': 'A'}
 

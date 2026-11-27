@@ -1,7 +1,7 @@
 """게임패드 (2026-11-21 퀄리티 계획 2-6). SDL GameController로 첫 번째 패드를 읽는다 (Xbox 배치, 꽂으면 바로 잡는다).
 
 pico2d의 get_events는 패드 이벤트를 넘겨주지 않아서, 매 프레임 패드 상태를 직접 읽는다(tick).
-- 플레이 중: 플레이어 함수를 바로 부른다(apply_play). Start만 Esc 키 이벤트를 넣어 일시정지 창을 연다.
+- 플레이 중: 플레이어 함수를 바로 부른다(apply_play). 십자 위는 물약(S2-1). Start만 Esc 키 이벤트를 넣어 일시정지 창을 연다.
 - 메뉴: 화살표·Enter·Esc 키 이벤트를 SDL 큐에 넣어 기존 메뉴가 그대로 받게 한다(위아래는 누르고 있으면 반복).
   타이틀에서는 B(Esc = 게임 끄기)를 무시한다.
 변환 규칙(Translator)은 SDL과 무관한 순수 로직이라 패드 없이 테스트한다(tests/test_gamepad.py).
@@ -15,7 +15,8 @@ AIM_DISTANCE = 320        # 조준점: 플레이어에게서 이 거리(px) 앞
 REPEAT_DELAY, REPEAT_EVERY = 0.35, 0.12   # 메뉴에서 방향을 누르고 있을 때 반복
 
 PadState = namedtuple('PadState', 'buttons lx ly rx ry')     # 축은 -1~1, SDL처럼 아래·오른쪽이 +
-PLAY_BUTTONS = {'a': 'jump', 'b': 'dash', 'x': 'attack', 'rb': 'enhance', 'lb': 'swap', 'y': 'interact', 'start': 'pause'}
+PLAY_BUTTONS = {'a': 'jump', 'b': 'dash', 'x': 'attack', 'rb': 'enhance', 'lb': 'swap', 'y': 'interact', 'start': 'pause',
+                'dpup': 'potion'}         # S2-1 (11/27 사용자 결정): 십자 위 = 물약 (키보드 Q). 메뉴에서는 그대로 ↑
 
 
 def _direction(state, deadzone=DEADZONE):
@@ -38,7 +39,7 @@ class Translator:
         held = {PLAY_BUTTONS[b] for b in state.buttons if b in PLAY_BUTTONS}
         before = {PLAY_BUTTONS[b] for b in self.prev if b in PLAY_BUTTONS}
         self.prev = set(state.buttons)
-        x, y = _direction(state)
+        x, y = _direction(state._replace(buttons=set(state.buttons) - {'dpup'}))   # 십자 위는 물약 전용 (플레이에서 '위' 이동은 없다)
         aim = None
         mag = math.hypot(state.rx, state.ry)
         if mag > AIM_DEADZONE:
@@ -93,6 +94,8 @@ def apply_play(player, actions, origin):
         player.swap_weapon(strike=True)
     if 'interact' in press:
         player.interact_pressed = True
+    if 'potion' in press:
+        player.drink_potion()
     if 'attack' in press:
         player.attack_held = True
         player.request_attack()

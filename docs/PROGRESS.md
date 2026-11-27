@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-27 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Claude Code] S2-2 효과음 다시 만들기 / assets/sfx_v3/, assets/sfx_src/, tools/make_sfx_v3.py, src/assets.py, src/sfx_mode.py, src/config.py, src/credits_mode.py, tests/test_sfx*.py
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -38,7 +38,7 @@
 ## 열린 질문
 - (사용자) A1 화면 일러스트(11/27) 확인: 비교판 `shots/review/A1_*.png`. **게임 밖에 옛 주인공이 남아 있다**: 실행 파일 아이콘(`tools/build_exe.py`의 `ICON_SOURCE`가 옛 `n09_idle_1.png`), 상점 그림 `assets/store/capsule_*`. exe를 다시 만들 때(발표 준비) 아이콘을 지금 주인공으로 바꿀지 정한다.
 - (사용자) I1 아이콘(11/27) 확인: 비교판 `shots/review/I1_*.png`, I1-fix `shots/review/I1fix_hud.png`·`I1fix_items.png`(무기 밝기를 예전 아이콘 이상의 칸 대비로, 공격력·균열의 분노·흡수·결핍 방지 손질).
-- (사용자) U1-2의 결정 셋은 N1에서 추천대로 반영(설정은 고른 줄 설명만, 패드 키 안내, 해상도 960x540 추가). **새로 정할 것: 패드 물약 버튼**(지금 패드 배치에 물약이 없다. 예: 십자 위). **사용자가 확인할 것: 게임패드로 메뉴·플레이를 오가며 안내가 바뀌는지**(비교판 `shots/review/N1_pad.png`).
+- (사용자) U1-2의 결정 셋은 N1에서 추천대로 반영(설정은 고른 줄 설명만, 패드 키 안내, 해상도 960x540 추가). 패드 물약 버튼은 십자 위로 정해 넣었다(S2-1, 11/27). **사용자가 확인할 것: 게임패드로 메뉴·플레이를 오가며 안내가 바뀌는지**(비교판 `shots/review/N1_pad.png`).
 - (사용자) 글 검토 C는 N1-1에서 추천대로 반영. 하나만 남김: 균열방 아이템 '균열의 분노'(추천 '균열 과부하'는 오버로드와 헷갈려 두었다. 대신 '균열의 힘'?). '연쇄 ~' 이름이 넷이 된 것도 괜찮은지(`docs/opus/TASKS.md` N1-1).
 - (사용자) Q1 소품 그림(11/27) 확인: 비교판 `shots/review/Q1_*.png`(은신처 무기 걸이·표지판·모루·화로, 상자·분출구·레이저 머리, 진열대). 크레딧 Codex 줄의 '진열대'는 U1-1에서 뺐다. 방 장식 18종·배경 소품 10종(Codex)은 원경과 한 벌이라 두었다: 바꾼다면 테마 한 벌을 한꺼번에(`docs/opus/TASKS.md` Q1).
 - (사용자) 나머지 화면 맞추기("제안대로 전부", 11/27): **세 묶음 모두 끝남** — HUD(H1, 가는 선 + 어두운 바탕), 메뉴 화면(M1: 일시정지·설정·키 설정·사망·탈출 결과·크레딧을 타이틀 감시 단말 모양으로), 고르는 화면과 남은 화면(S1: 은신처 NPC 창 넷을 증강 카드 말투로, 연습 메뉴·효과음 듣기는 감시 단말, 보스 대사 띠 키 판·진열대 이름판은 가는 테두리, 설정 화면 줄 묶음 손질). mist에서 철판 부품을 부르는 화면은 이제 없다. 11/27 H2에서 HUD 세 가지 손질(맥박 = 게이지 테두리, 평소 E 칸 회백, 들지 않은 칸 밝게, 비교판 `shots/review/H2_*`). **남은 것: 사용자 확인** — 비교판 `shots/review/H1_*`, `shots/review/H2_*`, `shots/review/M1_*`, `shots/review/S1_*`(한 벌 비교 `S1_set.png`). 다시 찍기는 `python tools/ui_pick_shots.py <폴더>`, `python tools/ui_menu_shots.py <폴더>`, `python tools/ui_hud_shots.py <폴더>`, `python tools/ui_mist_shots.py <폴더>`.
@@ -458,3 +458,4 @@
 2026-11-27 [Claude Code] I1 무기·아이템 아이콘 다시 뽑기: 무기 넷(걸이 무기와 같은 생김새, 어두운 HUD에 맞춰 몸통 밝힘)·아이템 10종을 PixelLab(한 장에 24x24 칸 여럿, 40회)으로, 형태·분노 아이콘은 새 그림에서 코드로, 크레딧 아이콘 출처 세 줄 / assets/ui/icon_*, assets/sprites/pixellab/icons_v6/, tools/apply_pixellab_icons.py, tools/i1_icon_shots.py, src/credits_mode.py, tests/test_i1_icons.py, tests/test_options.py, tests/test_ui_skin.py, docs/*
 2026-11-27 [Claude Code] I1-fix 아이콘 밝기와 뜻: 무기 넷 HUD 칸 대비를 I1 전 이상으로(테스트 먼저, 바깥 외곽선 두고 안쪽 밝기 펴기, 생성 없음), 공격력·균열의 분노를 서로 다른 그림으로 다시 뽑음(10회), 흡수·결핍 방지는 I1 다른 후보로 / assets/ui/icon_w_*·icon_f_*·icon_absorb·steady·power·fury.png, assets/sprites/pixellab/icons_v6/, tools/apply_pixellab_icons.py, tools/make_fury_icon.py, tests/test_i1_icons.py, docs/*
 2026-11-27 [Claude Code] A1 화면 일러스트 적용: Gemini G08이 주인공을 다시 그린 사망·탈출·크레딧(1·3) 그림 검토(인물 밖 차이는 팔레트 수준)·credits_3 목도리 끝 청록 손질·적용, 맡길 물건 칸 묶음이 그림의 인물을 피하게(테스트 먼저), 크레딧 Codex·Gemini 줄 / assets/backgrounds/credits_1·credits_3·screen_death·screen_ending.png, assets/sprites/gemini/illust_v2/, docs/gemini/reports/G08.md, tools/apply_g08_illust.py, tools/a1_illust_shots.py, src/ending_mode.py, src/credits_mode.py, tests/test_ui_skin.py, docs/*
+2026-11-27 [Claude Code] S2-1 게임패드 물약 = 십자 위(사용자 결정): 플레이 중 십자 위로 물약, 십자 위는 플레이 이동에서 뺌, 메뉴에서는 그대로 ↑, 패드 조작표·키 이름 '십자↑', 테스트 먼저 / src/gamepad.py·input_device.py·pause_mode.py, tests/test_s2_pad_potion.py(새), docs/opus/TASKS.md, docs/DECISIONS.md

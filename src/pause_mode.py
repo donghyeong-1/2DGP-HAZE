@@ -21,9 +21,8 @@ CARD_Y = H - 314 - CARD_H + 66
 
 
 def pad_controls():
-    """게임패드 조작표 (N1-3). gamepad.PLAY_BUTTONS와 같은 배치. 물약은 패드 버튼이 없어 키보드 키를 적는다."""
-    import keybinds
-    potion = keybinds.key_name(keybinds.keys('potion')[0])
+    """게임패드 조작표 (N1-3). gamepad.PLAY_BUTTONS와 같은 배치. 물약은 십자 위 (S2-1)."""
+    import input_device
     return [
         ('L스틱', '좌우 이동'),
         ('A', '점프 (2단, 짧게 누르면 낮게)'),
@@ -34,7 +33,7 @@ def pad_controls():
         ('RB  RT', '강화 (게이지 25%, 세 번이면 궁극기)'),
         ('LB', '무기 교체 (교체하는 순간 교체기)'),
         ('Y', '말 걸기·줍기·구매'),
-        (potion, '물약 마시기 (키보드만)'),
+        (input_device.PAD_LABELS['potion'], '물약 마시기 (체력 회복)'),
     ]
 
 

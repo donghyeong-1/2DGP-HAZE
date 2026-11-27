@@ -27,7 +27,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
       python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
-      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*, W1)
+      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2))
       python tools/make_ui_mist.py --storm  (타이틀 배경·대비 판·줄기 판·잔광 판·글자 뒤 어둠만, R1)
       python tools/make_ui_mist.py --step   (증강 카드 진행 칸 um_step_off·um_step_on만, R1)
 """
@@ -775,6 +775,93 @@ def _pip(c, on):
 WP_SIZES = {'a': (48, 38), 'b': (46,), 'c': ((50, 54), (38, 42))}     # 칸 크기 (도트). a·c는 (든 칸, 다른 칸), c는 (폭, 높이)
 
 
+# ----- W2 시안 D '떠 있는 칸' (2026-11-27, docs/opus/TASKS.md '4차' W2): 사용자가 참고 그림과 함께 "이런 느낌 안되나?" -----
+# 칸이 하나씩 따로 떠 있다: 칸마다 바탕(한 색, 실행 중 불투명도를 낮춰 반투명으로 그린다)과 테두리(속 투명)를 따로 굽는다.
+# 든 칸 테두리 = 그 무기의 색을 밝힌 선 + 안쪽에 무기 색 한 줄(빛), 들지 않은 칸 = 회백 한 줄. E 칸은 왼쪽 위를 깎은 정사각, 켜면 단계 색.
+# 칸 바깥에 반쯤 걸치는 동그란 키 배지(불투명), E 칸 모서리의 단계 배지(둥근 네모, 단계 색으로 차고 숫자는 실행 중 글자).
+D_SLOT = (50, 32)                       # 무기 칸 (도트. 화면 100x64)
+D_E = 42                                # E 칸 한 변 (도트. 화면 84)
+D_KEY = 16                              # 키 배지 지름 (도트. 화면 32)
+D_LV = 13                               # 단계 배지 한 변 (도트. 화면 26)
+D_IDLE = (120, 128, 144)                # 들지 않은 칸 테두리 (밝기 약 127: H2 기준 120 이상, 든 칸보다 60 넘게 어둡다)
+D_WELL = (9, 12, 21)
+D_KEY_FILL = (16, 20, 31)
+
+
+def _weapon_colors():
+    """무기의 색 = src/combo.py COLORS (교체기 막대·각인 빛과 같은 색). 굽는 도구가 게임 모듈 전체를 불러오지 않게 그 줄만 읽는다."""
+    import ast
+    src = open(os.path.join(ROOT, 'src', 'combo.py'), encoding='utf-8').read()
+    for node in ast.parse(src).body:
+        if isinstance(node, ast.Assign) and getattr(node.targets[0], 'id', '') == 'COLORS':
+            return ast.literal_eval(node.value)
+    raise RuntimeError('combo.COLORS 없음')
+
+
+def _round_rect(h, w, r):
+    """모서리를 r 도트만큼 둥글게 깎은 사각 마스크 (도트 원 모양 모서리)."""
+    yy, xx = _grid(h, w)
+    cy = np.clip(yy, r, h - r)
+    cx = np.clip(xx, r, w - r)
+    return np.hypot(yy - cy, xx - cx) <= r + 0.1
+
+
+def _cut_rect(n, k):
+    """n x n 사각, 왼쪽 위 모서리를 k 도트 비스듬히 깎는다 (나머지 셋은 1도트 둥글림)."""
+    yy, xx = _grid(n, n)
+    m = _round_rect(n, n, 1.5)
+    return m & ~(xx + yy < k + 1)
+
+
+def _frame_only(mask, outer, inner=None):
+    a = np.zeros(mask.shape + (4,), np.uint8)
+    e = _edge(mask)
+    _put(a, e, outer)
+    if inner is not None:
+        _put(a, _edge(mask & ~e), inner)
+    return a
+
+
+def _well_only(mask):
+    a = np.zeros(mask.shape + (4,), np.uint8)
+    _put(a, mask, D_WELL)
+    return a
+
+
+def d_parts():
+    made = []
+    h, w = D_SLOT[1], D_SLOT[0]
+    slot = _round_rect(h, w, 3)
+    made.append(save2(_well_only(slot), 'um_wp_d_well.png'))
+    made.append(save2(_frame_only(slot, D_IDLE), 'um_wp_d_slot_line.png'))
+    for wid, c in _weapon_colors().items():                        # 든 칸: 무기 색을 반쯤 밝힌 겉선 + 무기 색 안쪽 선
+        made.append(save2(_frame_only(slot, _mix(c, (255, 255, 255), 0.5), _mix(c, D_WELL, 0.35)), f'um_wp_d_slot_{wid}.png'))
+    e = _cut_rect(D_E, 6)
+    made.append(save2(_well_only(e), 'um_wp_d_e_well.png'))
+    made.append(save2(_frame_only(e, WP_LINE), 'um_wp_d_e_line.png'))
+    for lv, c in WP_TIER.items():
+        made.append(save2(_frame_only(e, c, _mix(c, D_WELL, 0.45)), f'um_wp_d_e_e{lv}.png'))
+    n = D_KEY                                                      # 키 배지: 불투명한 동그라미 + 테두리 한 줄
+    yy, xx = _grid(n, n)
+    disk = np.hypot(yy - n / 2, xx - n / 2) <= n / 2 - 0.2
+    for name, c in (('hot', WP_HOT), ('line', D_IDLE)):
+        a = np.zeros((n, n, 4), np.uint8)
+        _put(a, disk, D_KEY_FILL)
+        _put(a, _edge(disk), c)
+        made.append(save2(a, f'um_wp_d_key_{name}.png'))
+    m = _round_rect(D_LV, D_LV, 3)                                 # 단계 배지: 둥근 네모
+    for lv, c in WP_TIER.items():
+        a = np.zeros((D_LV, D_LV, 4), np.uint8)
+        _put(a, m, c)
+        _put(a, _edge(m), _mix(c, (0, 0, 0), 0.6))
+        made.append(save2(a, f'um_wp_d_lv_e{lv}.png'))
+    a = np.zeros((D_LV, D_LV, 4), np.uint8)
+    _put(a, m, D_KEY_FILL)
+    _put(a, _edge(m), WP_GHOST)
+    made.append(save2(a, 'um_wp_d_lv_off.png'))
+    return made
+
+
 def wp_parts():
     made = []
     # a 결정 소켓
@@ -811,6 +898,7 @@ def wp_parts():
         made.append(save2(_pip(c, True), f'um_wp_c_pip_e{lv}.png'))
     made.append(save2(_rule(WP_LINE), 'um_wp_c_rule_line.png'))
     made.append(save2(_pip(None, False), 'um_wp_c_pip_off.png'))
+    made += d_parts()                             # W2 시안 D
     return made
 
 

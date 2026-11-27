@@ -490,3 +490,26 @@
 - 바꾼 파일: `src/title_mode.py`, `src/npc.py`, `src/npc_mode.py`, `src/events.py`, `src/mutation_mode.py`, `src/credits_mode.py`, `src/ui.py`, `src/hud_kit.py`, `src/game_world.py`, `src/tutorial.py`, `src/practice.py`, `src/pedestal.py`,
   `src/pause_mode.py`, `src/practice_mode.py`, `src/sfx_mode.py`, `src/options_mode.py`, `src/keys_mode.py`, `src/ending_mode.py`, `tools/make_ui_mist.py`(`--storm`·`--step`), `tools/ui_r1_shots.py`(새),
   `tests/test_title_storm.py`, `tests/test_ui_skin.py`, `tests/test_options.py`, `assets/backgrounds/title_flash_1~3.png`·`title_bolt_1~3.png`, `assets/light/title_shade_flash.png`, `assets/ui/um_step_off.png`·`um_step_on.png`(새).
+
+## W2 무기·E 패널 시안 D
+사용자(11/27, W1의 A·B·C를 본 뒤 참고 그림 한 장과 함께): **"이런 느낌 안되나?"** (참고 그림은 다른 게임 HUD의 빠른 칸 묶음으로 보이는 약 160x130 그림. 어느 게임인지는 말하지 않았다. 저장소에 넣지 않았다.)
+- 지휘 쪽 해석(사용자가 말한 것이 아니다): 느낌을 만드는 것은 (1) 칸이 하나씩 따로 떠 있음(반투명 판) (2) 크기·자리가 어긋난 묶음 (3) 고른 칸만 밝음 (4) 칸 바깥에 붙은 둥근 키 표시
+  (5) 모서리의 숫자 배지 (6) 크고 단순한 아이콘. 모양·아이콘·색·배치는 따라 그리지 않고 이 여섯 가지 구성 원리만 가져온다.
+- 작업 쪽이 그림을 직접 보고 다르게 읽은 것: 왼쪽 세로 칸은 가로로 긴 칸이 아니라 거의 정사각이다. 둥근 키 표시는 칸에 걸치지 않고 칸 왼쪽에 붙어 있다.
+  숫자 배지는 두 종류다(고른 칸 오른쪽 위 모서리에 걸친 동그라미, 오른쪽 칸 아래 가장자리에 반쯤 걸친 둥근 네모). 판은 한 모서리만 깎인 것이 많다. 강조색은 한 가지(청록 계열)다.
+- **D '떠 있는 칸'** (`config.HUD_WEAPON_STYLE = 'd'`, 그리기 `src/weapon_panel.draw_d`, 부품 `tools/make_ui_mist.py --wp` -> `assets/ui/um_wp_d_*.png` 17장, 코드로 굽기. PixelLab 안 씀)
+  - 칸마다 바탕 한 장(한 색 불투명 그림을 실행 중 불투명도 0.84로 그린다)과 테두리(속 투명)를 따로. 칸 사이는 비어 있다.
+  - 무기 두 칸(100x64, 둥근 모서리): 세로로 쌓고 위(1번) 칸을 왼쪽으로 24px 비킨다. E 칸(84x84, 왼쪽 위를 깎음)은 따로 오른쪽 아래.
+  - 든 칸만 밝다: 테두리 = 그 무기의 색(`combo.COLORS`)을 반쯤 밝힌 겉선 + 무기 색 안쪽 한 줄, 아이콘 원래 색. 다른 칸 = 회백 (120,128,144) 한 줄(밝기 약 127) + 회백 곱 아이콘.
+  - 동그란 키 배지(지름 32, 불투명): 1·2는 칸 왼쪽 가운데에 반쯤 걸치고, E는 칸 아래 가운데에 반쯤 걸친다. 든 칸·쓸 수 있는 E는 밝은 테두리, 나머지는 회백. 빈 칸에도 붙는다.
+  - E 칸 오른쪽 위 모서리에 단계 배지(26, 둥근 네모): 켬 = 단계 색 바탕에 단계 숫자, 쓸 수 있음 = 빈 배지, 못 씀 = 없음. 켜면 E 테두리도 단계 색, 남은 시간은 칸 위쪽 안 줄이 줄어든다.
+  - 재충전은 든 칸 아래 안쪽 줄(다 차면 흰색, 차는 중 회색), 다른 칸의 같은 자리는 교체기 줄(다 차면 그 무기 색). '강화 -25%'/'강화 30%+'는 E 칸 위 오른쪽 맞춤, 무기 이름·공격·콤보 칸은 묶음 위 오른쪽(문구 그대로).
+  - 참고 그림과 일부러 다르게 한 것: 강조색이 한 가지가 아니라 무기마다 다르다(무기 색). 세로 세 칸이 아니라 두 칸, 개수 배지 대신 키·단계 배지, 깎은 모서리는 E 칸만, 무기 칸은 둥근 모서리.
+  - 무기 색과 색 규칙: 쌍권총 색 (40,235,180)은 헤이즈 청록 (46,230,214)과 거의 같다(쌍권총을 들면 든 칸 테두리가 청록처럼 보인다). 사슬 색 (160,90,255)은 강화 1단계 보라 (200,160,255)와 가깝다. 고치지 않았다(무기 색은 이 작업 범위 밖).
+  - 넓이: 바깥 상자 어림 약 260x224 = flat(약 316x198)의 약 0.93배.
+- 확인: 테스트 5개를 먼저 쓰고 실패를 본 뒤 고쳤다(`tests/test_ui_skin.py` test_w2_*: 'd' 고르기·a·b·c 열다섯 상태 기록 그대로·옛 스킨 그대로, 열다섯 상태가 철판·다른 시안 부품 없이 그려짐,
+  든 칸 = 무기 색 테두리이고 회백 칸보다 밝기 60 이상 높음 + 회백 칸 120 이상, E 테두리·단계 배지·숫자가 상태와 맞음, 새 부품 픽셀 규칙·바탕 반투명).
+  실제 창 촬영 `tools/ui_w1_shots.py`(`W1_ONLY=flat,a,d`, `--board2`), 네 번 돌며 고침(1회차: 못 쓸 때 글자가 위 칸 테두리에 닿음·어긋남이 약함·칸에 비해 아이콘이 작음 -> 칸 116x70 -> 100x64, 간격 20 -> 28, 비킴 16 -> 24 / 3·4회차: 단계 숫자가 배지 아래로 처짐 -> 2px 올림).
+  비교판 `shots/review/W2_compare_dark.png`·`W2_compare_bright.png`(가로 flat·A·D, 원래 크기), `W2_full_d.png`, `W2_set_d.png`, `W2_feel.png`(여섯 가지가 D의 어디인지 번호로).
+- 바꾼 파일: `src/weapon_panel.py`(draw_d, `_texts`가 막대 없이도 그림, `_cost`에 오른쪽 맞춤), `src/hud_kit.py`(`WEAPON_STYLES`에 'd'), `src/config.py`(설명), `tools/make_ui_mist.py`(`d_parts`),
+  `tools/ui_w1_shots.py`(`W1_ONLY`, `--board2`), `tests/test_ui_skin.py`, `assets/ui/um_wp_d_*.png`(새 17장).

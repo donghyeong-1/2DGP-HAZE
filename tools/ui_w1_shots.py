@@ -3,6 +3,8 @@ config.HUD_WEAPON_STYLE을 'flat'·'a'·'b'·'c'로 바꿔 가며 같은 시드�
 설정·저장 파일은 임시 폴더로 돌린다(사용자 파일을 건드리지 않는다). tools/ui_hud2_shots.py의 방식을 잇는다.
 
   python tools/ui_w1_shots.py <출력 폴더>                 장면 찍기: w1_<시안>_<방>_<상태>.png, w1_<시안>_cards.png
+  python tools/ui_w1_shots.py --board2 <출력 폴더> <비교판 폴더>
+        W2(시안 D): W2_compare_dark.png·W2_compare_bright.png(가로 flat·A·D), W2_full_d.png, W2_set_d.png
   python tools/ui_w1_shots.py --board <출력 폴더> <비교판 폴더>
         W1_compare_dark.png·W1_compare_bright.png(가로 flat·A·B·C, 세로 상태 여섯, 패널 둘레를 원래 크기로),
         W1_full_<a|b|c>.png(시안별 전체 화면, 평소 상태, 전투 방), W1_set_<a|b|c>.png(HUD 전체 화면 | 증강 카드 화면)
@@ -22,7 +24,8 @@ os.chdir(ROOT)
 from PIL import Image, ImageDraw  # noqa: E402
 
 W, H = 1920, 1080
-STYLES = ('flat', 'a', 'b', 'c')
+STYLES = ('flat', 'a', 'b', 'c', 'd')
+W2_STYLES = ('flat', 'a', 'd')               # W2 비교판의 가로 (flat·A·D)
 SLOT_STATES = ('a_ready', 'b_on1', 'c_on2', 'd_low', 'e_slot2', 'f_empty')
 ROOMS = {'dark': (11, 'stage1'), 'bright': (12, 'stage3')}
 PANEL_BOX = (1500, 790, 1920, 1080)          # 원래 크기로 자를 부분 (PIL 좌표: 위가 0)
@@ -99,7 +102,7 @@ def shoot(out):
         p.gauge.value = v
         p.gauge.zone = p.gauge._zone_of(v)
 
-    for style in STYLES:
+    for style in os.environ.get('W1_ONLY', ','.join(STYLES)).split(','):   # W1_ONLY=flat,a,d 로 일부만
         config.HUD_WEAPON_STYLE = style
         for room, (seed, target) in ROOMS.items():
             for state in SLOT_STATES:
@@ -142,20 +145,41 @@ def _label(im, text):
     return im
 
 
-def board(src, out):
-    os.makedirs(out, exist_ok=True)
+def _compare(src, out, styles, prefix):
     made = []
     cw, ch = PANEL_BOX[2] - PANEL_BOX[0], PANEL_BOX[3] - PANEL_BOX[1]
     for room in ROOMS:
-        im = Image.new('RGB', ((cw + 20) * len(STYLES) - 20, (ch + 10) * len(SLOT_STATES)), (20, 20, 24))
+        im = Image.new('RGB', ((cw + 20) * len(styles) - 20, (ch + 10) * len(SLOT_STATES)), (20, 20, 24))
         for r, s in enumerate(SLOT_STATES):
-            for c, style in enumerate(STYLES):
+            for c, style in enumerate(styles):
                 crop = Image.open(os.path.join(src, f'w1_{style}_{room}_{s}.png')).crop(PANEL_BOX)
                 im.paste(_label(crop, f'{style.upper()} {s}'), (c * (cw + 20), r * (ch + 10)))
-        name = f'W1_compare_{room}.png'
+        name = f'{prefix}_compare_{room}.png'
         im.save(os.path.join(out, name))
         made.append(name)
-    for style in STYLES[1:]:
+    return made
+
+
+def _full_and_set(src, out, style, prefix):
+    full = _label(Image.open(os.path.join(src, f'w1_{style}_dark_a_ready.png')), f'{style.upper()} dark a_ready')
+    full.save(os.path.join(out, f'{prefix}_full_{style}.png'))
+    im = Image.new('RGB', (W * 2 + 20, H), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_bright_a_ready.png')), f'{style.upper()} HUD'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_cards.png')), f'{style.upper()} cards'), (W + 20, 0))
+    im.save(os.path.join(out, f'{prefix}_set_{style}.png'))
+    return [f'{prefix}_full_{style}.png', f'{prefix}_set_{style}.png']
+
+
+def board2(src, out):
+    os.makedirs(out, exist_ok=True)
+    made = _compare(src, out, W2_STYLES, 'W2') + _full_and_set(src, out, 'd', 'W2')
+    print(len(made), '장:', ', '.join(made))
+
+
+def board(src, out):
+    os.makedirs(out, exist_ok=True)
+    made = _compare(src, out, STYLES[:4], 'W1')
+    for style in STYLES[1:4]:
         full = _label(Image.open(os.path.join(src, f'w1_{style}_dark_a_ready.png')), f'{style.upper()} dark a_ready')
         full.save(os.path.join(out, f'W1_full_{style}.png'))
         made.append(f'W1_full_{style}.png')
@@ -168,7 +192,9 @@ def board(src, out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--board':
+    if sys.argv[1] == '--board2':
+        board2(*sys.argv[2:4])
+    elif sys.argv[1] == '--board':
         board(*sys.argv[2:4])
     else:
         shoot(sys.argv[1])

@@ -1753,6 +1753,139 @@ def test_r1_sfx_inverted_block_has_two_px_under_every_name():
     assert n > 50, n
 
 
+
+# ----- 2026-11-27 W2 무기·E 패널 시안 D (사용자가 A·B·C를 본 뒤 참고 그림과 함께 "이런 느낌 안되나?". docs/opus/TASKS.md '4차' W2) -----
+# 'd' 떠 있는 칸: 칸이 하나씩 따로 떠 있고(반투명 바탕), 무기 두 칸은 어긋나게 세로로 쌓이고 E 칸은 따로 떨어져 있다.
+# 든 칸만 그 무기 색으로 밝고, 칸 바깥에 반쯤 걸친 동그란 키 배지(1·2·E), E 칸 모서리에 강화 단계 숫자 배지.
+# W1 뒤(3eccbd5)의 시안 a·b·c 그리기 기록. D를 더해도 그대로여야 한다 (_w1_preps의 열다섯 상태)
+W1_DIGEST = {
+    'a': {'one_low': '575a2568228c8d3f', 'one_ready': 'cbe06e3e973d2244', 'one_on1': '753f0b860479f938', 'one_on2': '09ed9121359490e0', 'one_on3': '17eda0186fe26c55', 'two_low': 'a4a6e6363197a925', 'two_ready': '2de3d1069c05cb6f', 'two_on1': '4d9b88ff50bcb7d1', 'two_on2': '696e6b7f2ab1bac1', 'two_on3': 'b39e0747c5857799', 'empty_low': '01ca5531c2a393c5', 'empty_ready': '79397b8cdda97cd9', 'empty_on1': '5e36eb491d6d709f', 'empty_on2': '33a8fe0255db268a', 'empty_on3': 'f04d482e2ea7cd6f'},
+    'b': {'one_low': '8beda36e772d14c7', 'one_ready': '5d54f1a260560dca', 'one_on1': '0e215b42fa0818a4', 'one_on2': '0eb85465443cd057', 'one_on3': '76325899f6b2e667', 'two_low': '1af57f80f3d51c34', 'two_ready': '73c699e980542268', 'two_on1': '7c1a800032182465', 'two_on2': 'cb14145c87be9f9c', 'two_on3': '74832e9e59b6bffd', 'empty_low': '388011f7ca0eac53', 'empty_ready': 'af9067898a443c47', 'empty_on1': '0b9a844183baf8e5', 'empty_on2': '2587f3659ff94dc1', 'empty_on3': '978d2cc20e35bc35'},
+    'c': {'one_low': 'c5ef5e612ce26ed1', 'one_ready': 'f126fe8b0531f261', 'one_on1': 'a2e06b17b396bdbd', 'one_on2': 'ee45898155a1ad85', 'one_on3': '9317debcf67de202', 'two_low': 'c9d82a4cd8b5c420', 'two_ready': '2e7c6866c108d8bf', 'two_on1': 'fcf9f3fb427cfbe5', 'two_on2': 'f54eb6babe2f3a22', 'two_on3': '75dd5bac20adbbb3', 'empty_low': 'c08c4c6a3e92f93f', 'empty_ready': '38b0207eb697f21e', 'empty_on1': '0f4688f1ff5597b9', 'empty_on2': '9ad743c131fed7d0', 'empty_on3': '50f8cb2777d6b865'},
+}
+
+
+def test_w2_d_is_a_style_and_other_styles_draw_the_same():
+    """(1) 'd'는 고를 수 있는 시안이다(mist에서만, 다른 스킨은 'flat'). 기본값은 'flat' 그대로이고,
+    'a'·'b'·'c'는 열다섯 상태의 그리기 기록이 D를 더하기 전과 같다('flat'과 옛 스킨은 test_w1_*가 본다)."""
+    assert config.HUD_WEAPON_STYLE == 'flat'
+    assert _with_skin('mist', lambda: _with_style('d', hud_kit.weapon_style)) == 'd'
+    for skin_name in ('plate', 'plate_code', 'crystal'):
+        assert _with_skin(skin_name, lambda: _with_style('d', hud_kit.weapon_style)) == 'flat'
+    for style, want in W1_DIGEST.items():
+        got = {'_'.join(k): _w1_log(style, prep)[0].digest() for k, prep in _w1_preps().items()}
+        assert got == want, (style, [k for k in want if got.get(k) != want[k]])
+    for name, st in _hud_states():                                      # 옛 스킨은 'd'여도 그대로
+        for skin_name in ('plate', 'plate_code', 'crystal'):
+            assert _with_style('d', lambda: _hud_log(skin_name, st)).digest() == HUD_DIGEST[(skin_name, name)], (skin_name, name)
+
+
+def test_w2_d_draws_every_state_without_plate_parts():
+    """(2) 'd'에서 무기 칸 세 상태 x E 다섯 상태가 오류 없이 그려지고, D 부품(um_wp_d_*)만 쓰며 철판 판·틀과 경고 노랑,
+    다른 시안의 부품을 부르지 않는다. 무기 이름·빈 칸·'강화 -25%'/'강화 30%+'·키 글자(1·2·E)가 그대로 나온다."""
+    for key, prep in _w1_preps().items():
+        r, p = _w1_log('d', prep)
+        _assert_no_plate(('d', key), r, PLATE_ICONS_OK)
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
+        assert wp and all(x.startswith('um_wp_d_') for x in wp), (key, wp)
+        texts = [row[3] for row in r.log if row[0] == 'draw_text']
+        assert p.weapon.name in texts, key
+        assert '1' in texts and '2' in texts and 'E' in texts, (key, texts)          # 키 배지는 빈 칸에도 붙는다
+        assert ('빈 칸' in texts) == (key[0] == 'empty'), key
+        if key[1] == 'low':
+            assert any(t.startswith('강화 ') and t.endswith('%+') for t in texts), (key, texts)
+        else:
+            assert any(t.startswith('강화 -') for t in texts), (key, texts)
+
+
+def _d_slot_frames(r):
+    """D 무기 칸 테두리 부품 이름 (그린 차례대로: 1번 칸, 2번 칸)."""
+    return [os.path.basename(row[1]) for row in r.log
+            if row[0] == 'draw_image' and os.path.basename(row[1]).startswith('um_wp_d_slot_')]
+
+
+def _outer_color(name):
+    a = np.array(Image.open(os.path.join(UI, name)).convert('RGBA'))
+    mid = a.shape[0] // 2
+    row = np.nonzero(a[mid, :, 3])[0]
+    return tuple(int(v) for v in a[mid, row[0], :3])
+
+
+def test_w2_held_slot_is_lit_in_its_weapon_color_and_idle_slot_still_reads():
+    """(3) 든 칸 테두리 = 그 무기의 색 부품(um_wp_d_slot_<무기>), 들지 않은 칸(빈 칸 포함) = 회백 부품(um_wp_d_slot_line).
+    든 칸 테두리 밝기는 들지 않은 칸보다 IDLE_GAP_LUMA 이상 높고, 들지 않은 칸은 IDLE_MIN_LUMA 이상(H2 기준: 어두운 방에서도 칸으로 보인다).
+    든 칸 아이콘은 원래 색, 들지 않은 칸 아이콘은 회백 곱."""
+    preps = _w1_preps()
+    for slot in ('one', 'two', 'empty'):
+        r, p = _w1_log('d', preps[(slot, 'ready')])
+        frames = _d_slot_frames(r)
+        assert len(frames) == 2, frames
+        held, idle = frames[p.slot], frames[1 - p.slot]
+        assert held == f'um_wp_d_slot_{p.weapon.weapon_id}.png', (slot, held)
+        assert idle == 'um_wp_d_slot_line.png', (slot, idle)
+        hc, ic = _outer_color(held), _outer_color(idle)
+        assert _luma(ic) >= IDLE_MIN_LUMA, ic
+        assert _luma(hc) - _luma(ic) >= IDLE_GAP_LUMA, (hc, ic)
+        icons = [row for row in r.log if row[0] in ('draw_image', 'draw_image_tinted') and row[1].startswith('ui/icon_w_')]
+        assert any(row[0] == 'draw_image' and row[1] == f'ui/icon_w_{p.weapon.weapon_id}.png' for row in icons), icons
+        if slot != 'empty':
+            assert any(row[0] == 'draw_image_tinted' for row in icons), icons
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):          # 무기 넷 모두 든 칸 테두리가 회백보다 분명히 밝다
+        assert _luma(_outer_color(f'um_wp_d_slot_{wid}.png')) - _luma(_outer_color('um_wp_d_slot_line.png')) >= IDLE_GAP_LUMA, wid
+
+
+def test_w2_e_slot_and_level_badge_follow_the_enhance_state():
+    """(4) E 칸: 켬 1~3단계 = 단계 색 테두리(um_wp_d_e_e<n>) + 단계 배지(um_wp_d_lv_e<n>)와 그 숫자, 쓸 수 있음 = 회백 테두리 + 빈 배지(um_wp_d_lv_off),
+    못 씀 = 회백 테두리(겉 윤곽 밝기 ≥ IDLE_MIN_LUMA) + 배지 없음 + 흐린 아이콘. 배지 색은 config.ENHANCE_LEVEL_COLOR의 그 단계 색."""
+    preps = _w1_preps()
+    for e in ('low', 'ready', 'on1', 'on2', 'on3'):
+        r, p = _w1_log('d', preps[('one', e)])
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp_d_' in x}
+        frames = [x for x in wp if x.startswith('um_wp_d_e_') and x != 'um_wp_d_e_well.png']
+        badges = [x for x in wp if x.startswith('um_wp_d_lv_')]
+        texts = [row for row in r.log if row[0] == 'draw_text']
+        if e.startswith('on'):
+            n = int(e[2])
+            assert frames == [f'um_wp_d_e_e{n}.png'], (e, frames)
+            assert badges == [f'um_wp_d_lv_e{n}.png'], (e, badges)
+            a = np.array(Image.open(os.path.join(UI, badges[0])).convert('RGBA'))
+            cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+            assert tuple(config.ENHANCE_LEVEL_COLOR[n]) in cols, (n, cols)
+            assert any(row[3] == str(n) for row in texts), (e, [row[3] for row in texts])
+        else:
+            assert frames == ['um_wp_d_e_line.png'], (e, frames)
+            assert badges == (['um_wp_d_lv_off.png'] if e == 'ready' else []), (e, badges)
+            tinted = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1] == 'ui/icon_enhance.png']
+            assert bool(tinted) == (e == 'low'), e
+    assert _luma(_outer_color('um_wp_d_e_line.png')) >= IDLE_MIN_LUMA
+
+
+def test_w2_d_parts_follow_pixel_rules():
+    """(5) 새 부품 um_wp_d_*: 알파 0/255, 2px 격자, 64색 이하, 경고 노랑·헤이즈 청록 없음.
+    칸 바탕(_well)은 한 색 불투명 그림이고 실행 중 불투명도를 낮춰 그린다(반투명 바탕)."""
+    files = sorted(glob.glob(os.path.join(UI, 'um_wp_d_*.png')))
+    names = {os.path.basename(f) for f in files}
+    want = ({'um_wp_d_well.png', 'um_wp_d_slot_line.png', 'um_wp_d_e_well.png', 'um_wp_d_e_line.png', 'um_wp_d_lv_off.png',
+             'um_wp_d_key_hot.png', 'um_wp_d_key_line.png'} |
+            {f'um_wp_d_slot_{w}.png' for w in ('pipe', 'pistol', 'gauntlet', 'chain')} |
+            {f'um_wp_d_e_e{n}.png' for n in (1, 2, 3)} | {f'um_wp_d_lv_e{n}.png' for n in (1, 2, 3)})
+    assert want <= names, want - names
+    for f in files:
+        a = np.array(Image.open(f).convert('RGBA'))
+        name = os.path.basename(f)
+        assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, name
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), name
+        cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+        assert len(cols) <= 64, name
+        assert hud_kit.YELLOW not in cols and CYAN not in cols, name
+        if name.endswith('_well.png'):
+            assert len(cols) == 1, name
+    r, _p = _w1_log('d', _w1_preps()[('one', 'ready')])
+    wells = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1].endswith('_well.png')]
+    assert len(wells) == 3 and all(0.6 <= row[6] < 1.0 for row in wells), wells
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

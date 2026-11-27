@@ -41,7 +41,7 @@ def is_mist():
     return skin() == 'mist'
 
 
-WEAPON_STYLES = ('flat', 'a', 'b', 'c')
+WEAPON_STYLES = ('flat', 'a', 'b', 'c', 'd')                 # d = W2 떠 있는 칸
 
 
 def weapon_style():

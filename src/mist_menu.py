@@ -52,15 +52,18 @@ def header(lines):
         kit.text(hx, hy - 26 * i, s, color, small=True)
 
 
-def pick(x, cy, label, hot, color=PH_MENU, center=True, small=False, mark=True, hh=None):
+def pick(x, cy, label, hot, color=PH_MENU, center=True, small=False, mark=True, span=None):
     """메뉴 항목. 고른 항목은 글자 폭 + 양옆 8px만 색을 뒤집고 앞에 커서(um_cursor). 길게 뻗는 띠 아님.
     center면 x가 글자 가운데, 아니면 글자 왼쪽 끝. 돌려주는 값은 (뒤집힌 블록의 왼쪽 x, 폭) — 고르지 않았으면 글자 자리.
-    hh: 뒤집힌 블록의 위아래 반 높이 (기본 큰 글자 18·작은 글자 14. 설정 화면은 설명과 붙이려고 14, 11/27 S1)."""
+    span: 뒤집힌 블록이 cy에서 (아래로, 위로) 뻗는 길이. 기본은 위아래 같게 큰 글자 18·작은 글자 14.
+    설정 화면(11/27 S1-fix)은 (14, 18): 설명을 이름에 붙이려고 아래만 줄인다. 갈무리 28px 글자는 실제 픽셀이 cy-12 ~ cy+15라
+    위아래를 같게 14로 줄이면 윗줄이 잘린다(S1에서 그랬다). 아래 14·위 18이면 글자 위아래로 2·3px 여유."""
     tw = assets.text_width(label, small)
     left = x - tw // 2 if center else x
-    hh = hh or (14 if small else 18)
+    hh = 14 if small else 18
+    below, above = span or (hh, hh)
     if hot:
-        assets.draw_rect_color(left - 8, cy - hh, tw + 16, 2 * hh, PH)
+        assets.draw_rect_color(left - 8, cy - below, tw + 16, below + above, PH)
         if small:
             assets.draw_text(x, cy, label, PH_BG, small=True, center=center)
         else:

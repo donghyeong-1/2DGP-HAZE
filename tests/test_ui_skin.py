@@ -1076,6 +1076,65 @@ def test_s1_mist_options_rows_group_name_and_description():
         desc = [t for t in r.log if t[0] == 'draw_text' and t[3] == om.DESCS[om.ROWS[sel]]][-1]
         assert block[2] >= desc[2] + 11 - 2, (sel, block, desc)
 
+def _glyph_span(text, small=False, big=False):
+    """그 글자를 y에 그렸을 때 실제 글자 픽셀의 세로 범위 (y 기준 아래·위, 아래쪽이 0인 화면 좌표).
+    assets.draw_text와 같은 글꼴·크기를 창 없이 SDL_ttf로 그려 알파가 있는 줄을 잰다 (pico2d는 글자 그림을 y에 세로 가운데로 놓는다)."""
+    import ctypes
+    import sdl2
+    import sdl2.sdlttf as ttf
+    import assets
+    if not ttf.TTF_WasInit():
+        ttf.TTF_Init()
+    key = 'big' if big else ('small' if small else 'normal')
+    base = assets.FONT_SIZES['normal' if key == 'big' else key]
+    f = ttf.TTF_OpenFont(os.path.join(ROOT, 'assets', 'fonts', f'Galmuri{base}.ttf').encode(), assets._font_px(key))
+    s = ttf.TTF_RenderUTF8_Blended(f, text.encode('utf-8'), sdl2.SDL_Color(255, 255, 255))
+    try:
+        surf = s.contents
+        h, w, pitch, amask = surf.h, surf.w, surf.pitch, surf.format.contents.Amask
+        buf = ctypes.string_at(surf.pixels, pitch * h)
+        rows = [r for r in range(h)
+                if any(int.from_bytes(buf[r * pitch + 4 * c:r * pitch + 4 * c + 4], 'little') & amask for c in range(w))]
+    finally:
+        sdl2.SDL_FreeSurface(s)
+        ttf.TTF_CloseFont(f)
+    return h / 2 - rows[-1] - 1, h / 2 - rows[0]
+
+
+def _inverted_text_fits(r, block_colors, text_colors, scene, margin=2):
+    """색 뒤집힌 블록 위의 어두운 글자가 블록 안에 위아래 margin px 이상 여유로 들어간다. 블록 수를 돌려준다."""
+    n = 0
+    for i, row in enumerate(r.log):
+        if row[0] != 'draw_rect_color' or row[5:6] not in tuple((c,) for c in block_colors) or row[4] < 20:
+            continue
+        nxt = next(x for x in r.log[i + 1:] if x[0] == 'draw_text')
+        if nxt[4] not in text_colors:
+            continue
+        lo, hi = _glyph_span(nxt[3], ('small', True) in nxt, ('big', True) in nxt)
+        y = nxt[2]
+        assert row[2] <= y + lo - margin and row[2] + row[4] >= y + hi + margin, (scene, nxt[3], row[2:5], y + lo, y + hi)
+        n += 1
+    return n
+
+
+def test_s1fix_inverted_block_holds_its_whole_text():
+    """S1-fix: 고른 항목의 뒤집힌 블록이 그 글자(실제 글자 픽셀)를 위아래 2px 이상 여유로 감싼다. 설정 화면의 모든 줄,
+    뒤집기를 쓰는 다른 mist 화면(일시정지·키 설정·결과·연습·효과음·NPC 창·타이틀)은 글자가 블록 밖으로 나가지 않는다(1px 이상).
+    (11/27: S1에서 설정의 블록을 위아래 14로 줄여 큰 글자 윗줄이 잘렸다)"""
+    import mist_menu as mm
+    import mist_pick as mp
+    import options_mode as om
+    for sel in range(len(om.ITEMS)):
+        assert _inverted_text_fits(_options_log('mist', sel), (mm.PH,), (mm.PH_BG,), f'options_{sel}') >= 1, sel
+    logs = dict(_menu_logs('mist'))
+    logs.update(_s1_logs('mist'))
+    logs['title'] = _title_log('mist', 0)
+    logs['title_2'] = _title_log('mist', 2)
+    n = 0
+    for scene, r in logs.items():                       # 다른 화면은 고치지 않는다: 잘리지 않는지(1px 이상)만. 효과음 듣기의 영문 소문자
+        n += _inverted_text_fits(r, (mm.PH, mp.HOT_BG, mp.HOT_OFF), (mm.PH_BG, mp.HOT_FG), scene, margin=1)   # g 아래가 1px 여유
+    assert n > 20, n
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

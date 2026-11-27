@@ -411,3 +411,4 @@
   새 그림 픽셀 규칙, 뒤집힘 폭 ≤ 글자 + 16px, 살 수 있는 줄·없는 줄이 다르게 보임, 설정 이름·설명 묶음). 실제 창 촬영 `tools/ui_pick_shots.py`(장면 열셋 + 카드 둘, 비교판 `shots/review/S1_*`).
 - 바꾼 파일: `src/mist_pick.py`(새), `src/npc_mode.py`, `src/practice_mode.py`, `src/sfx_mode.py`, `src/boss_intro.py`, `src/pedestal.py`, `src/hud_kit.py`, `src/mist_menu.py`, `src/options_mode.py`,
   `tools/make_ui_mist.py`(`--pick`), `tools/ui_pick_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_pick_cursor(_off).png`(새).
+- S1-fix(11/27, 지휘 쪽 검토): 설정에서 고른 이름의 뒤집힌 블록을 위아래 14(28px)로 줄인 탓에 갈무리 28px 글자(실제 픽셀 y-12 ~ y+15) 윗줄이 잘려 보였다. 블록을 아래 14·위 18(32px, `mist_menu.pick(span=)`, `options_mode.MIST_PICK_SPAN`)로: 글자 위아래 여유 3px(실제 창에서 잼), 설명을 덮지 않고 이름·설명 자리는 그대로. 다른 화면은 그대로(효과음 듣기의 영문 소문자 g 아래만 1px 여유, 잘리지는 않음). 테스트 `test_s1fix_inverted_block_holds_its_whole_text`(SDL_ttf로 실제 글자 픽셀을 잼), 비교판 `shots/review/S1fix_options_*.png`.

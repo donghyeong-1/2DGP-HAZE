@@ -3,12 +3,14 @@
 
   python tools/ui_pick_shots.py <출력 폴더>          장면 찍기: pick_<장면>.png
   python tools/ui_pick_shots.py --board <전 폴더> <후 폴더> <비교판 폴더>
+  python tools/ui_pick_shots.py --fixboard <전 폴더> <후 폴더> <비교판 폴더>
+        S1-fix: S1fix_options_before_after.png(설정 세 장면 전·후 전체), S1fix_options_crop.png(고른 줄 둘레 원래 크기 전·후)
         S1_scene_<장면>.png(전·후 전체), S1_crop_<부분>.png(원래 크기로 자른 전·후), S1_set.png(증강 카드·형태 카드·NPC 창 한 벌)
 
 장면: npc_mech_buy 정비사(살 수 있는 줄) / npc_mech_no 정비사(다 올린 줄, 결정 모자람 문구) / npc_keeper 보관인 / npc_archivist 기록관
       npc_armory_first 무기 걸이 첫 칸 / npc_armory_second 무기 걸이 둘째 칸 / practice 연습장 F 메뉴 / sfx 효과음 듣기
       boss_lines 보스 대사 띠(Enter 키 판) / ped_shop 정비방 진열대 앞 / ped_gold 황금방 진열대 앞
-      options_music 설정(음량 줄, 일시정지 위) / options_top 설정(맨 위 줄, 타이틀 위)
+      options_music 설정(음량 줄, 일시정지 위) / options_top 설정(맨 위 줄, 타이틀 위) / options_keys 설정(맨 아래 항목 '키 설정')
       cards_augment·cards_form 증강·형태 카드 (한 벌 비교판용, 이번에 바꾸지 않는다)
 """
 import ctypes
@@ -23,7 +25,7 @@ os.chdir(ROOT)
 from PIL import Image, ImageDraw  # noqa: E402
 
 SCENES = ('npc_mech_buy', 'npc_mech_no', 'npc_keeper', 'npc_archivist', 'npc_armory_first', 'npc_armory_second',
-          'practice', 'sfx', 'boss_lines', 'ped_shop', 'ped_gold', 'options_music', 'options_top')
+          'practice', 'sfx', 'boss_lines', 'ped_shop', 'ped_gold', 'options_music', 'options_top', 'options_keys')
 W, H = 1920, 1080
 # 원래 크기로 자를 부분: (장면, (왼, 위, 오른, 아래) PIL 좌표: 위가 0)
 CROPS = {
@@ -231,6 +233,8 @@ def shoot(out):
     options_mode.enter()
     options_mode.selected = 0
     grab(options_mode, 'options_top')
+    options_mode.selected = options_mode.ITEMS.index('keys')     # 맨 아래 항목 줄 '키 설정' (S1-fix)
+    grab(options_mode, 'options_keys')
 
     # 증강·형태 카드 (한 벌 비교판용)
     p = new_run(27)
@@ -319,8 +323,34 @@ def board(before, after, out):
     print(len(made), '장:', ', '.join(made))
 
 
+def fixboard(before, after, out):
+    """S1-fix 설정 화면: 세 장면(맨 위 줄·음량 줄·'키 설정' 줄)의 전·후."""
+    import options_mode as om
+    os.makedirs(out, exist_ok=True)
+    scenes = [('options_top', 0), ('options_music', 2), ('options_keys', om.ITEMS.index('keys'))]
+    hw, hh = W // 2, H // 2
+    im = Image.new('RGB', (hw * 2 + 20, (hh + 20) * len(scenes)), (20, 20, 24))
+    for j, (s, _sel) in enumerate(scenes):
+        for c, folder in enumerate((before, after)):
+            src = Image.open(os.path.join(folder, f'pick_{s}.png')).resize((hw, hh), Image.NEAREST)
+            im.paste(_label(src, f'{"BEFORE" if c == 0 else "AFTER"} {s}'), (c * (hw + 20), j * (hh + 20)))
+    im.save(os.path.join(out, 'S1fix_options_before_after.png'))
+    cw, ch = 700, 120                                   # 고른 줄 둘레 (원래 크기): 커서·이름·설명
+    im = Image.new('RGB', (cw * 2 + 30, (ch + 10) * len(scenes)), (20, 20, 24))
+    for j, (s, sel) in enumerate(scenes):
+        cy = H - 1 - om.ROW_Y[sel]
+        box = (om.PANEL_X - 60, cy - 60, om.PANEL_X - 60 + cw, cy + 60)
+        for c, folder in enumerate((before, after)):
+            src = Image.open(os.path.join(folder, f'pick_{s}.png')).crop(box)
+            im.paste(_label(src, f'{"BEFORE" if c == 0 else "AFTER"} {s}'), (c * (cw + 30), j * (ch + 10)))
+    im.save(os.path.join(out, 'S1fix_options_crop.png'))
+    print('S1fix_options_before_after.png, S1fix_options_crop.png')
+
+
 if __name__ == '__main__':
-    if sys.argv[1] == '--board':
+    if sys.argv[1] == '--fixboard':
+        fixboard(*sys.argv[2:5])
+    elif sys.argv[1] == '--board':
         board(*sys.argv[2:5])
     else:
         shoot(sys.argv[1])

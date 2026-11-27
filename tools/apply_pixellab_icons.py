@@ -3,16 +3,19 @@
 원본은 assets/sprites/pixellab/icons_v6/raw/ (한 장에 24x24 칸으로 여러 아이콘을 뽑은 것), 버린 시안은 raw_gen/. 기록은 icons_v6/GENERATION_LOG.md.
 - 무기: weapons_a.png(seed 3)·weapons_b.png(seed 11), 96x24, 칸 순서 철파이프·쌍권총·건틀릿·사슬. 같은 프롬프트·같은 기준 그림(Q1 무기 걸이)이라
   칸마다 나은 쪽을 고른다(WEAPONS).
-- 아이템: items.png("칸을 거의 채우는" 프롬프트 seed 29), 96x72, 4x3 칸 (ITEMS).
+- 아이템: items.png("칸을 거의 채우는" 프롬프트 seed 29), 96x72, 4x3 칸 (ITEMS). 흡수·결핍 방지는 items_alt.png(같은 프롬프트 seed 11),
+  공격력·균열의 분노는 power_fury.png(96x24 한 줄, seed 29) (I1-fix).
 
 1. 칸을 잘라 알파 0/255, 몸통에서 떨어진 조각을 지운다(무기는 몸통 하나만, 아이템은 1칸 점과 칸 가장자리에 닿는 조각 = 이웃 칸에서 넘어온 끝.
    불꽃·반짝임 같은 2칸 이상 조각은 남긴다).
 2. 무기 넷은 한 벌, 아이템은 한 벌로 색을 고정한다(벌마다 MAX_COLORS로 줄임).
 3. 그림 둘레로 잘라 24x24 칸 가운데에 놓고 최근접 2배 -> 48x48 (지금 아이콘과 같은 크기, 쓰는 코드의 자리는 그대로).
-4. 무기 넷은 외곽선을 두고 몸통 색을 밝게 들어 올린다(LIFT): 어두운 강철색이라 어두운 HUD 칸에서 묻혔다.
+4. 무기 넷은 바깥 외곽선을 두고 안쪽 칸의 밝기를 STAND 구간으로 편다: 어두운 강철색이라 어두운 HUD 칸에서 묻혔다
+   (I1 첫 적용은 감마 0.62, I1-fix에서 칸 바탕과의 명암 차이 기준으로 다시).
 5. 물약(heal)은 십자가가 청록으로 나와 물약 색(초록)으로 색상만 돌린다.
 
-그 뒤 같은 그림에서 코드로 만드는 것: python tools/make_form_icons.py (형태 = 무기 + 금별), python tools/make_fury_icon.py (분노 = 공격력을 보라로).
+그 뒤 같은 그림에서 코드로 만드는 것: python tools/make_form_icons.py (형태 = 무기 + 금별).
+균열의 분노는 I1-fix부터 따로 뽑은 그림이다(tools/make_fury_icon.py는 쓰지 않는다: 공격력의 색만 바꾼 같은 그림이라 뜻이 갈리지 않았다).
 실행: python tools/apply_pixellab_icons.py
 """
 import colorsys
@@ -30,7 +33,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, 'assets', 'sprites', 'pixellab', 'icons_v6', 'raw')
 UI = os.path.join(ROOT, 'assets', 'ui')
 CELL, SCALE = 24, 2
-MAX_COLORS = {'weapons': 32, 'items': 48}
+MAX_COLORS = {'weapons': 32, 'items': 60}
 SPECK = {'weapons': None, 'items': 2}   # 이보다 작은 떨어진 조각은 지운다. None = 가장 큰 덩어리만 (무기는 한 덩어리다, 옆 칸에서 넘어온 조각을 지운다). 아이템은 불꽃·반짝임 2칸부터 남긴다
 
 # 결과 이름: (raw 파일, 칸 열, 칸 줄)
@@ -41,14 +44,20 @@ WEAPONS = {
     'icon_w_chain': ('chain.png', 0, 0),           # 따로 뽑은 24x24 (seed 3): 사슬 고리가 보이고 끝에 네모 추 (시트의 사슬은 갈고리처럼 읽혔다)
 }
 ITEMS = {
-    'icon_cap': ('items.png', 0, 0), 'icon_absorb': ('items.png', 1, 0), 'icon_steady': ('items.png', 2, 0),
+    'icon_cap': ('items.png', 0, 0), 'icon_absorb': ('items_alt.png', 1, 0), 'icon_steady': ('items_alt.png', 2, 0),
     'icon_enhance': ('items.png', 3, 0), 'icon_resist': ('items.png', 0, 1), 'icon_dash': ('items.png', 1, 1),
-    'icon_power': ('items.png', 2, 1), 'icon_vigor': ('items.png', 3, 1), 'icon_heal': ('items.png', 0, 2),
-    'icon_shard': ('items.png', 1, 2),
+    'icon_power': ('power_fury.png', 0, 0), 'icon_vigor': ('items.png', 3, 1), 'icon_heal': ('items.png', 0, 2),
+    'icon_shard': ('items.png', 1, 2), 'icon_fury': ('power_fury.png', 2, 0),
 }
+# I1-fix(11/27): 흡수(손이 굽은 관처럼 보였다)·결핍 방지(모래에 체크 무늬)는 같은 프롬프트의 다른 장(items_alt = items_big_s11)에서,
+# 공격력(세운 파이프 + 불꽃이 풀처럼 보였다)·균열의 분노(공격력의 색만 바꾼 것이었다)는 따로 뽑은 장(power_fury, seed 29)에서:
+# 공격력 = 쇠파이프가 내리쳐 터지는 주황 충격, 균열의 분노 = 보라 불꽃에 휩싸인 주먹 (효과가 다르니 모양도 다르게)
 HEAL_HUE = 0.37            # 물약 색 (120, 235, 150) 근처의 초록
-LIFT = {'weapons': 0.62, 'items': 1.0}   # 몸통 색 감마(1보다 작으면 밝게, 어두운 칸일수록 많이 오른다. 외곽선은 그대로). 무기는 어두운 HUD 칸에서 읽히게
-OUTLINE_LUM = 34          # 이보다 어두운 칸은 외곽선으로 보고 건드리지 않는다
+# 무기 몸통 밝기 (I1-fix 11/27): 바깥 외곽선(투명 칸과 맞닿은 칸)은 그대로 어둡게, 그 안쪽 칸은 밝기 순서를 지킨 채
+# [STAND_LO, STAND_HI] 구간으로 펴서 올린다(안쪽의 어두운 선은 구간 아래쪽으로 남아 세부가 된다). 어두운 HUD 칸에서
+# 곁눈으로 읽히게: 칸 바탕과의 명암 차이가 I1 전 코드 그림 아이콘 이상 (tests/test_i1_icons.py). I1 첫 적용은 감마 0.62였다.
+STAND = {'weapons': (118, 250), 'items': None}
+STAND_ICON = {'icon_w_pistol': (168, 252), 'icon_w_gauntlet': (150, 252), 'icon_w_chain': (128, 250)}   # 쌍권총·건틀릿·사슬: 바깥 외곽선 비율이 커서(I1 전 그림은 외곽선이 1px) 구간을 높게
 
 
 def cell(raw, col, row):
@@ -95,16 +104,26 @@ def heal_green(a):
     return out
 
 
-def lift(a, k):
-    """외곽선(아주 어두운 칸)은 두고 나머지 색에 감마 k를 건다: 명암 순서와 색상은 그대로, 밝은 면은 더 밝게(대비 유지)."""
-    if k >= 1:
+def stand(a, band):
+    """바깥 외곽선은 두고 안쪽 칸의 밝기를 band 구간으로 편다. 밝기만 더해 칸끼리의 색 차이는 그대로 둔다."""
+    if band is None:
         return a
+    from scipy import ndimage
+    lo, hi = band
     out = a.copy()
-    m = out[:, :, 3] == 255
-    rgb = out[m][:, :3].astype(np.float32)
+    op = out[:, :, 3] == 255
+    inner = ndimage.binary_erosion(op)                    # 바깥 외곽선(투명과 맞닿은 칸) = op & ~inner
+    rgb = out[:, :, :3].astype(np.float32)
     lum = rgb @ np.array([0.3, 0.6, 0.1], np.float32)
-    new = 255 * (rgb / 255) ** k
-    out[m, :3] = np.where(lum[:, None] < OUTLINE_LUM, rgb, new).round().astype(np.uint8)
+    l0, l1 = float(lum[inner].min()), float(lum[inner].max())
+    target = lo + (lum - l0) / max(1.0, l1 - l0) * (hi - lo)
+    new = rgb + (target - lum)[:, :, None]                       # 밝기만 더한다: 칸끼리의 색 차이(녹·강철의 푸른 기)는 그대로
+    for _ in range(3):                                          # 255에서 잘린 만큼은 다른 채널에 다시 나눠 목표 밝기를 맞춘다
+        clipped = np.clip(new, 0, 255)
+        short = target - clipped @ np.array([0.3, 0.6, 0.1], np.float32)
+        room = (clipped < 255).astype(np.float32) @ np.array([0.3, 0.6, 0.1], np.float32)
+        new = clipped + np.where(clipped < 255, (short / np.maximum(0.1, room))[:, :, None], 0)
+    out[inner, :3] = np.clip(new[inner], 0, 255).round().astype(np.uint8)
     return out
 
 
@@ -114,7 +133,7 @@ def apply_set(kind, table):
     pal, counts = np.unique(px, axis=0, return_counts=True)
     pal = reduce_palette(pal, counts, MAX_COLORS[kind])
     for name, a in cells.items():
-        a = lift(centered(lock_palette(a, pal)), LIFT[kind])
+        a = stand(centered(lock_palette(a, pal)), STAND_ICON.get(name, STAND[kind]))
         if name == 'icon_heal':
             a = heal_green(a)
         im = Image.fromarray(a, 'RGBA')

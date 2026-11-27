@@ -43,23 +43,75 @@ def test_no_floating_specks_and_centered():
         assert abs(int(xs.min()) - (23 - int(xs.max()))) <= 2 and abs(int(ys.min()) - (23 - int(ys.max()))) <= 2, n
 
 
+# I1-fix(11/27): HUD 무기 칸에서 아이콘과 칸 바탕의 명암 차이. 칸 바탕은 실제 창에서 잰 값(어두운 방·밝은 벽 방 모두 약 (12, 16, 27),
+# 칸 바탕 판이 불투명도 0.72~0.9라 방 색이 거의 비치지 않는다). 들지 않은 칸은 weapon_panel.ROW_ICON_IDLE(회백 곱 + 불투명도 0.6)을 적용한 뒤.
+SLOT_BG = np.array([12, 16, 27], float)
+LUM = np.array([0.3, 0.6, 0.1])
+# I1 전(71b2bac) 코드 그림 무기 아이콘의 값: 든 칸, 들지 않은 칸 (평균 |아이콘 밝기 - 칸 바탕 밝기|, 불투명 픽셀 전부)
+OLD_CONTRAST = {'pipe': (103.9, 43.1), 'pistol': (121.5, 50.0), 'gauntlet': (141.4, 57.8), 'chain': (82.2, 34.8)}
+
+
+def slot_contrast(a):
+    sys.path.insert(0, os.path.join(ROOT, 'src'))
+    import weapon_panel
+    tint, alpha = weapon_panel.ROW_ICON_IDLE
+    px = a[a[:, :, 3] == 255][:, :3].astype(float)
+    lb = SLOT_BG @ LUM
+    held = np.abs(px @ LUM - lb).mean()
+    idle_px = alpha * (px * np.array(tint, float) / 255) + (1 - alpha) * SLOT_BG
+    idle = np.abs(idle_px @ LUM - lb).mean()
+    return held, idle
+
+
 def test_weapon_icons_read_on_the_dark_hud():
-    """무기 아이콘은 어두운 HUD 칸 위에 놓인다: 외곽선을 뺀 몸통의 평균 밝기가 충분하다(어두운 강철색 그대로는 칸에 묻혔다)."""
+    """I1-fix: 무기 아이콘은 어두운 HUD 칸에서 곁눈으로 읽혀야 한다. 든 칸에서 칸 바탕과의 명암 차이가 I1 전 아이콘 이상,
+    들지 않은 칸에서는 I1 전의 0.8배 이상 (I1 첫 적용은 든 칸 54~79로 I1 전의 0.56~0.65배였다)."""
     for w in WEAPONS:
-        a = _a(f'icon_w_{w}')
-        rgb = a[a[:, :, 3] == 255][:, :3].astype(float)
-        lum = rgb @ np.array([0.3, 0.6, 0.1])
-        body = lum[lum >= 34]
-        assert body.mean() >= 95, (w, body.mean())
+        held, idle = slot_contrast(_a(f'icon_w_{w}'))
+        old_held, old_idle = OLD_CONTRAST[w]
+        assert held >= old_held, (w, round(held, 1), old_held)
+        assert idle >= 0.8 * old_idle, (w, round(idle, 1), old_idle)
 
 
-def test_form_and_fury_icons_follow_the_new_art():
-    """형태 아이콘 = 새 무기 아이콘 + 금별 (금별 자리 밖은 무기 아이콘과 같다), 분노 = 새 공격력 아이콘의 색만 보라로 (모양이 같다)."""
+def test_weapon_icons_keep_their_shading():
+    """밝혀도 평평한 흰색이 되지 않는다: 몸통(바깥 외곽선 안쪽)에 밝기 단계가 넷 이상 남고, 바깥 외곽선은 어둡다."""
+    from scipy import ndimage
+    for w in WEAPONS:
+        a = _a(f'icon_w_{w}')[::2, ::2]
+        op = a[:, :, 3] == 255
+        inner = ndimage.binary_erosion(op)
+        edge = op & ~inner
+        lum = a[:, :, :3].astype(float) @ LUM
+        assert np.median(lum[edge]) < 60, (w, np.median(lum[edge]))
+        levels = np.unique(np.round(lum[inner] / 16))
+        assert len(levels) >= 4, (w, levels)
+
+
+def test_form_icons_follow_the_new_art():
+    """형태 아이콘 = 새 무기 아이콘 + 금별 (금별 자리 밖은 무기 아이콘과 같다)."""
     for w in WEAPONS:
         f, base = _a(f'icon_f_{w}'), _a(f'icon_w_{w}')
         assert (f[20:] == base[20:]).all(), w                     # 금별은 왼쪽 위 9x9 도트(18px) 안
-    assert (_a('icon_fury')[:, :, 3] == _a('icon_power')[:, :, 3]).all()
-    assert not (_a('icon_fury') == _a('icon_power')).all()
+
+
+def test_power_and_fury_are_different_pictures():
+    """I1-fix: 공격력(영구 +20%)과 균열의 분노(이번 판 +30%)는 효과가 다르니 모양부터 다르다 (I1에서는 분노가 공격력의 색만 바꾼 같은 그림이었다).
+    두 실루엣이 겹치는 칸이 합친 칸의 80% 아래(둘 다 칸을 채운 덩어리라 0.65쯤, I1의 색만 바꾼 그림은 1.0), 분노는 보라가 주된 강조색, 공격력은 주황·빨강."""
+    import colorsys
+    p, f = _a('icon_power')[:, :, 3] > 0, _a('icon_fury')[:, :, 3] > 0
+    assert (p & f).sum() / (p | f).sum() < 0.8, (p & f).sum() / (p | f).sum()
+
+    def hues(n):
+        a = _a(n)
+        out = []
+        for r, g, b in a[a[:, :, 3] == 255][:, :3] / 255:
+            h, l, s = colorsys.rgb_to_hls(r, g, b)
+            if s > 0.45 and 0.2 < l < 0.9:
+                out.append(h)
+        return np.array(out)
+    hp, hf = hues('icon_power'), hues('icon_fury')
+    assert ((hf > 0.68) & (hf < 0.88)).mean() > 0.6, 'fury not violet'
+    assert ((hp < 0.14) | (hp > 0.95)).mean() > 0.6, 'power not orange-red'
 
 
 def test_icon_paths_unchanged():

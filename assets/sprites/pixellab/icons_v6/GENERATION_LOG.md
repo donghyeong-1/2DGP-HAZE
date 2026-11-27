@@ -37,3 +37,23 @@
 - 무기: `icon_w_pipe`(weapons_b 0칸), `icon_w_pistol`(weapons_a 1칸), `icon_w_gauntlet`(weapons_b 2칸), `icon_w_chain`(chain.png)
 - 아이템(items.png 4x3): 1줄 `icon_cap`·`icon_absorb`·`icon_steady`·`icon_enhance`, 2줄 `icon_resist`·`icon_dash`·`icon_power`·`icon_vigor`, 3줄 `icon_heal`·`icon_shard`
 - 코드로 다시 만든 것: `icon_f_pipe·pistol·gauntlet·chain`(make_form_icons), `icon_fury`(make_fury_icon). `icon_w_knife`(옛 무기, 부르는 코드 없음)는 그대로.
+
+## I1-fix (2026-11-27): 무기 밝기, 아이템 넷의 뜻
+지휘 쪽이 I1 비교판을 원래 크기로 보고 짚은 것: (1) 무기 아이콘이 HUD에서 예전보다 덜 읽힌다, (2) 공격력(세운 파이프 + 불꽃)과 균열의 분노(같은 그림의 보라)가
+풀이 난 기둥처럼 보이고 색만 다르다. 흡수의 손이 굽은 관처럼, 모래시계 모래에 체크 무늬.
+
+- 무기 넷(생성 없음): `apply_pixellab_icons.py`의 밝히기를 감마 0.62에서 `stand()`로 바꿈. 바깥 외곽선(투명과 맞닿은 칸)은 어둡게 두고, 안쪽 칸은 밝기 순서대로
+  구간 [118, 250]으로 편다(쌍권총 [168, 252], 건틀릿 [150, 252], 사슬 [128, 250]: 가는 모양이라 외곽선 비율이 커서). 밝기만 더해 녹·강철의 색 차이는 지킨다
+  (흰색 쪽 섞기는 녹이 바래고, 곱은 남색 칸의 푸른 기가 과장되어 버렸다).
+  HUD 칸 바탕 (12, 16, 27) 위 평균 명암 차이(든 칸 / 들지 않은 칸, I1 전 -> I1 -> I1-fix):
+  철파이프 103.9/43.1 -> 71.5/29.1 -> 125.5/51.4, 쌍권총 121.5/50.0 -> 71.8/29.7 -> 123.5/51.2, 건틀릿 141.4/57.8 -> 79.2/32.5 -> 147.0/60.1, 사슬 82.2/34.8 -> 53.5/23.0 -> 86.5/36.0.
+- 흡수·결핍 방지(생성 없음): I1의 `items_big_s11.png`(같은 프롬프트) 칸으로 바꿈 -> `raw/items_alt.png`. 손바닥·엄지가 보이고, 모래가 체크 무늬 없이 한 덩어리.
+- 공격력·균열의 분노(생성 10회, 잔액 544.70 -> 534.70): 96x24 한 줄 4칸, 화풍 기준 = 고른 아이템 시트의 방패 칸 24x24(`raw/items.png` (0,24)-(24,48)),
+  usage "Same icon set as this shield icon: match outline thickness, chunky shapes, shading and pixel scale. Do not draw a shield."
+  프롬프트: "Game UI icon sheet: a row of four separate item icons, each one filling almost its whole 24x24 pixel square cell, big and bold, nothing crossing between cells. Left to right: 1) a heavy iron pipe smashing down diagonally into a big bright orange-red impact starburst; 2) a clenched grey metal fist punching forward with a big bright orange-red impact starburst at the knuckles; 3) a clenched grey metal fist wrapped in tall violet flames; 4) a glowing violet jagged crack torn open in the air with violet flames bursting out of it. Bold chunky shapes and big clear silhouettes readable at small size, few details, dark navy outline, flat shading lit from the upper left, transparent background."
+  | 파일 (raw_gen/) | seed | 평가 |
+  |---|---|---|
+  | power_fury_s29.png | 29 | 1칸 파이프가 내리쳐 터지는 주황 충격 -> **공격력**, 3칸 보라 불꽃에 휩싸인 주먹 -> **균열의 분노** (`raw/power_fury.png`). 2칸 주먹 + 충격도 좋음, 4칸 균열은 지저분함 |
+  | power_fury_s7.png | 7 | 같은 구성이 더 작고 흐림 -> 버림 |
+  `tools/make_fury_icon.py`(공격력 색 바꾸기)는 이제 쓰지 않는다(--force 없이는 멈춤).
+

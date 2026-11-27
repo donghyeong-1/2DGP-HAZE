@@ -9,6 +9,9 @@ LAYER_EFFECT = 4
 LAYER_UI = 5
 
 world = [[] for _ in range(6)]
+# R1(11/27): mist 메뉴 창(일시정지·NPC 창·연습 메뉴·효과음 듣기·설정)이 뒤에 멈춘 게임을 깔 때 True.
+# 게임의 글자 덮개(처음 안내 카드·연습장 글자·NPC 이름표·머리 위 안내·진열대 이름판)는 그리지 않는다 (창의 글자 뒤로 비쳐 겹쳤다)
+quiet = False
 
 
 def add_object(obj, layer):

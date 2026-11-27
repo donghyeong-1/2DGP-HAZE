@@ -28,6 +28,8 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
       python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
       python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*, W1)
+      python tools/make_ui_mist.py --storm  (타이틀 배경·대비 판·줄기 판·잔광 판·글자 뒤 어둠만, R1)
+      python tools/make_ui_mist.py --step   (증강 카드 진행 칸 um_step_off·um_step_on만, R1)
 """
 import math
 import os
@@ -163,18 +165,22 @@ def shade_boxes():
     W, H = config.SCREEN_W, config.SCREEN_H
     boxes = []
     lw, lh = Image.open(os.path.join(UI, 'um_logo_title.png')).size
-    boxes.append((W // 2 - lw // 2 + 40, tm.LOGO_Y - 30, W // 2 + lw // 2 - 40, tm.LOGO_Y + lh - 20, 0.80, 170))   # 로고 + '헤이즈'
+    boxes.append((W // 2 - lw // 2 + 40, tm.LOGO_Y - 30, W // 2 + lw // 2 - 40, tm.LOGO_Y + lh - 20, 0.80, 170, 'logo'))   # 로고 + '헤이즈'
     for b in tm.MENU:
         cy = b.y + b.h // 2
-        boxes.append((W // 2 - 80, cy - 16, W // 2 + 80, cy + 16, 0.74, 150))                    # 메뉴 한 줄 (글자 폭 정도)
+        boxes.append((W // 2 - 80, cy - 16, W // 2 + 80, cy + 16, 0.74, 150, 'menu'))            # 메뉴 한 줄 (글자 폭 정도)
     hx, hy = tm.TERM_HEAD
     boxes.append((hx, hy - 30, hx + 520, hy + 6, 0.62, 110, 'head'))                          # 왼쪽 위 머리글 두 줄
     boxes.append((W - tm.TERM_MARGIN - 130, 54, W - tm.TERM_MARGIN, 66, 0.55, 80))                  # 오른쪽 아래 판번호
     return boxes
 
 
+FLASH_NO_SHADE = ('head', 'logo', 'menu')   # 대비 판(번쩍)에서 뒤 어둠을 깔지 않는 글자 상자
+
+
 def title_shade(scale=2, flash=False):
-    """flash면 머리글('head') 상자를 빼고 굽는다 (대비 판 위에서 회색 얼룩으로 보여서)."""
+    """flash면 머리글·로고·메뉴 상자를 빼고 굽는다 (대비 판의 흰 하늘 위에서 회색 얼룩·둥근 그늘로 보여서.
+    11/27 L1: 머리글, 11/27 R1: 로고·메뉴. 로고는 대비 판에 구운 어두운 실루엣 위에, 메뉴는 검은 땅 실루엣 위에 놓인다)."""
     import config
     W, H = config.SCREEN_W // scale, config.SCREEN_H // scale
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
@@ -182,7 +188,7 @@ def title_shade(scale=2, flash=False):
     yy = (H - 1 - yy + 0.5) * scale                        # 그림 줄 0 = 화면 맨 위
     keep = np.ones((H, W), np.float32)                  # 겹치는 곳은 부드럽게 더 진하게: 1 - (1-a1)(1-a2)...
     for x0, y0, x1, y1, k, sigma, *tag in shade_boxes():
-        if flash and tag == ['head']:
+        if flash and tag and tag[0] in FLASH_NO_SHADE:
             continue
         dx = np.maximum(np.maximum(x0 - xx, xx - x1), 0)
         dy = np.maximum(np.maximum(y0 - yy, yy - y1), 0)
@@ -202,7 +208,21 @@ def title_shade(scale=2, flash=False):
 # ----- 타이틀 배경과 번개 (2026-11-27) -----
 BG = os.path.join(ROOT, 'assets', 'backgrounds')
 SKY_WHITE = (176, 190, 232)            # 번쩍일 때 하늘 (푸른 흰색. 11/27 L1: 196,208,242에서 낮췄다. 줄기의 흰 심과 옅은 가장자리가 하늘보다 밝게)
-BOLT_SPOTS = ((1090, 84), (760, 84), (420, 250))   # 대비 판마다 번갯줄기 자리 (화면 x 가운데, 위에서 내려온 거리)
+BOLT_SPOTS = ((1090, 84), (760, 84), (420, 250))   # (L1) 대비 판마다 번갯줄기 자리: 조각 하나의 (화면 x 가운데, 위 끝). R1부터는 아래 끝 자리만 쓴다
+# R1(11/27): 줄기가 약 230px로 하늘 한가운데 떠 있었다 -> PixelLab 조각 um_bolt_1~3을 잘라 위아래로 이어 붙여(좌우 반전, 회전·확대 없음)
+# 화면 위 끝에서 L1 줄기가 끝나던 자리까지 내려오게 한다. (조각 번호, 첫 줄, 끝 줄(포함), 좌우 반전) — 줄 번호는 1배 도트.
+# 이음매는 줄기 한 가닥만 있는 줄끼리 가운데를 맞춘다(끊기지 않게). 앞 조각은 굵은 윗부분, 마지막 조각은 통째(가늘어지며 갈라지는 끝).
+BOLT_RECIPES = (
+    [(3, 0, 45, True), (2, 0, 112, False)],
+    [(1, 0, 41, False), (3, 0, 114, True)],
+    [(2, 0, 45, False), (1, 0, 59, True), (2, 0, 25, True), (3, 0, 114, False)],
+)
+# 곁가지: (붙일 이음매 번호(0 = 첫 이음매), 조각, 첫 줄, 끝 줄, 좌우 반전, 줄기 쪽 'l'|'r') — 조각의 가늘어지는 아랫부분을 이음매에서 비스듬히
+BOLT_BRANCHES = (
+    [(0, 1, 76, 115, True, 'l')],
+    [(0, 2, 81, 112, False, 'r')],
+    [(1, 3, 79, 114, False, 'r')],
+)
 # 줄기 색 (PixelLab 줄기 팔레트 -> 흰 심 + 옅은 푸른 흰 가장자리). 어두운 하늘(줄기 판)과 대비 판에 같은 색을 쓴다
 # (11/27 L1: 전에는 대비 판에서 가장자리를 더 어두운 파랑으로 바꿔 '흰 하늘 위 가는 푸른 선'으로 보였다)
 BOLT_EDGE = (208, 222, 252)
@@ -229,6 +249,80 @@ def skyline(far, T=36, smooth=9):
     return line
 
 
+def _runs(row):
+    xs = np.nonzero(row)[0]
+    return np.split(xs, np.nonzero(np.diff(xs) > 1)[0] + 1) if len(xs) else []
+
+
+def long_bolt(n):
+    """대비 판 n의 긴 줄기 (1배 도트 RGBA, 위가 0)와 그 왼쪽 위 화면 자리 (x, y, 2px 단위로 짝수). PixelLab 조각을 잘라 잇는다."""
+    pieces = {k: load(os.path.join(UI, f'um_bolt_{k}.png'))[::2, ::2] for k in (1, 2, 3)}   # 2배로 저장된 조각 -> 1배 도트
+    segs = []
+    for k, r0, r1, flip in BOLT_RECIPES[n - 1]:
+        a = pieces[k][r0:r1 + 1]
+        segs.append(a[:, ::-1] if flip else a)
+    # 이음매: 위 조각 끝 줄의 한 가닥 가운데 = 아래 조각 첫 줄의 한 가닥 가운데
+    xs, joints = [0], []
+    for up, down in zip(segs, segs[1:]):
+        ru, rd = _runs(up[-1, :, 3] > 0), _runs(down[0, :, 3] > 0)
+        assert len(ru) == 1 and len(rd) == 1, '이음매 줄에 줄기가 한 가닥이 아니다'
+        xs.append(xs[-1] + int(round(ru[0].mean() - rd[0].mean())))
+    ys = np.cumsum([0] + [len(a) for a in segs])
+    branches = []
+    for j, k, r0, r1, flip, side in BOLT_BRANCHES[n - 1]:
+        b = pieces[k][r0:r1 + 1]
+        b = b[:, ::-1] if flip else b
+        top = _runs(b[0, :, 3] > 0)
+        seg_row = segs[j + 1][0, :, 3] > 0
+        trunk = _runs(seg_row)[0] + xs[j + 1]
+        bx = (trunk[0] - 1 - top[0][-1]) if side == 'l' else (trunk[-1] + 1 - top[0][0])   # 줄기 옆에 바로 붙는다
+        branches.append((b, bx, int(ys[j + 1])))
+    lo = min(xs + [bx for _b, bx, _y in branches])
+    hi = max([x + a.shape[1] for x, a in zip(xs, segs)] + [bx + b.shape[1] for b, bx, _y in branches])
+    out = np.zeros((int(ys[-1]), hi - lo, 4), np.uint8)
+    for b, bx, by in branches:                              # 곁가지 먼저, 줄기를 위에
+        h = min(len(b), len(out) - by)
+        dst = out[by:by + h, bx - lo:bx - lo + b.shape[1]]
+        m = b[:h, :, 3] > 0
+        dst[m] = b[:h][m]
+    for a, x, y in zip(segs, xs, ys):
+        dst = out[y:y + len(a), x - lo:x - lo + a.shape[1]]
+        m = a[:, :, 3] > 0
+        dst[m] = a[m]
+    # 아래 끝을 L1 줄기의 아래 끝 자리에 (조각 하나일 때의 아래 끝 가운데 x, 아래 끝 y)
+    old = pieces[n]
+    bx, top = BOLT_SPOTS[n - 1]
+    end_x = (bx - old.shape[1]) // 2 + _runs(old[-1, :, 3] > 0)[0].mean()   # 도트 단위
+    end_y = top // 2 + len(old)
+    last = _runs(out[-1, :, 3] > 0)[0].mean()
+    x0 = int(round(end_x - last))
+    y0 = end_y - len(out)
+    if y0 > 0:                                              # 화면 위 끝까지 닿지 않는다 -> BOLT_RECIPES에 조각을 더 잇는다
+        raise ValueError(f'줄기 {n}이 짧다: 위 끝 {y0 * 2}px')
+    return out, 2 * x0, 2 * y0                              # 위로 넘친 부분은 부르는 쪽이 자른다
+
+
+def logo_silhouette(H, W):
+    """대비 판에서 로고 둘레를 어두운 실루엣으로 (R1, 11/27): 로고 글자 모양을 도트 3칸(6px) 넓힌 덩어리. 화면 크기 bool, 위가 0.
+    뒤 어둠(부드러운 알파)을 흰 하늘 위에 깔면 둥근 회색 그늘로 보여서, 번쩍일 때는 이 실루엣이 그늘 대신 로고를 받친다."""
+    from scipy import ndimage
+    import config
+    import title_mode as tm
+    logo = load(os.path.join(UI, 'um_logo_title.png'))
+    m = logo[::2, ::2, 3] > 0                                 # 1배 도트
+    cross, square = ndimage.generate_binary_structure(2, 1), ndimage.generate_binary_structure(2, 2)
+    pad = 4
+    m = np.pad(m, pad)
+    for st in (square, cross, square):                      # 모서리가 둥근 팔각 쪽으로 넓힌다
+        m = ndimage.binary_dilation(m, st)
+    big = m.repeat(2, 0).repeat(2, 1)
+    out = np.zeros((H, W), bool)
+    top = config.SCREEN_H - tm.LOGO_Y - logo.shape[0] - 2 * pad
+    left = config.SCREEN_W // 2 - logo.shape[1] // 2 - 2 * pad
+    out[top:top + big.shape[0], left:left + big.shape[1]] = big
+    return out
+
+
 def title_backgrounds():
     """title_mist.png(발판 없는 배경), title_flash_<n>.png(대비 판 셋, 번갯줄기 자리만 다르다), title_glow.png(잔광 판). 1920x1080, 불투명.
     title_bolt_<n>.png: 대비 판 n의 줄기만 같은 자리에 (1920x1080, 줄기 밖은 알파 0, 알파 0/255)."""
@@ -245,14 +339,20 @@ def title_backgrounds():
     sky[tp.FAR_DROP:] = rows < line[None, :W]
     off = (mid.shape[1] - W) // 2
     sky &= mid[:, off:off + W, 3] == 0                         # 중경(지붕·전선·관)은 실루엣
+    sky &= ~logo_silhouette(H, W)                             # R1: 로고 둘레는 실루엣 (흰 하늘 위 회색 그늘 대신)
     flash = np.where(sky[:, :, None], SKY_WHITE, SILHOUETTE).astype(np.uint8)
+    # 2px 격자: 2x2 칸이 모두 하늘이어야 그 칸에 줄기가 보인다 (줄기 가림도 도트 단위)
+    sky2 = sky[0::2, 0::2] & sky[1::2, 0::2] & sky[0::2, 1::2] & sky[1::2, 1::2]
+    sky2 = sky2.repeat(2, 0).repeat(2, 1)
     made = []
-    for n, (bx, top) in enumerate(BOLT_SPOTS, 1):         # 번갯줄기는 하늘이 보이는 곳에만 (건물·전선 뒤에서 친다)
+    for n in range(1, len(BOLT_SPOTS) + 1):                # 번갯줄기는 하늘이 보이는 곳에만 (건물·전선 뒤에서 친다)
         plate = flash.copy()
-        b = np.array(Image.open(os.path.join(UI, f'um_bolt_{n}.png')).convert('RGBA'))
-        x0 = bx - b.shape[1] // 2
+        b1, x0, top = long_bolt(n)
+        b = b1.repeat(2, 0).repeat(2, 1)
+        if top < 0:                                         # 화면 위로 넘친 부분은 자른다
+            b, top = b[-top:], 0
         box = (slice(top, top + b.shape[0]), slice(x0, x0 + b.shape[1]))
-        on = (b[:, :, 3] > 0) & sky[box]
+        on = (b[:, :, 3] > 0) & sky2[box]
         rgb = b[:, :, :3].copy()
         for src, dst in BOLT_COLORS.items():
             rgb[(b[:, :, :3] == src).all(axis=2)] = dst
@@ -372,6 +472,18 @@ def hud_marks():
     a[:, :] = _rgba(dim)
     a[1:4, 1:4] = _rgba(well)
     made.append(save2(a, 'um_dot_off.png'))
+    return made
+
+
+def step_parts():
+    """증강 카드의 진행 칸 (R1, 11/27): 철판 칸 up_step_off와 같은 크기(12x6 도트 = 화면 24x12)의 가는 테두리 한 줄 + 어두운 속.
+    off = 기본 회백 테두리, on = 밝은 회백 테두리(찬 칸. 속은 실행 중 코드가 갈래 색으로 채운다 — 색의 뜻은 그대로)."""
+    made = []
+    for name, edge in (('off', HUD_TONES['line']), ('on', HUD_TONES['hot'])):
+        a = np.zeros((6, 12, 4), np.uint8)
+        a[:, :] = _rgba(edge)
+        a[1:-1, 1:-1] = _rgba((9, 12, 21))
+        made.append(save2(a, f'um_step_{name}.png'))
     return made
 
 
@@ -711,6 +823,14 @@ def main():
         made = menu_parts()
         print(len(made), '개:', ', '.join(made))
         return
+    if '--step' in sys.argv:                      # 증강 카드 진행 칸만 (R1)
+        made = step_parts()
+        print(len(made), '개:', ', '.join(made))
+        return
+    if '--storm' in sys.argv:                     # 타이틀 번개 판과 글자 뒤 어둠만 (R1)
+        made = title_backgrounds() + [title_shade(), title_shade(flash=True)]
+        print(len(made), '개:', ', '.join(made))
+        return
     if '--wp' in sys.argv:                        # 무기·E 패널 시안 부품만 (W1)
         made = wp_parts()
         print(len(made), '개:', ', '.join(made))
@@ -722,7 +842,7 @@ def main():
     made += card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     made.append(title_shade(flash=True))
-    made += menu_parts() + pick_parts() + wp_parts()
+    made += menu_parts() + pick_parts() + wp_parts() + step_parts()
     print(len(made), '개:', ', '.join(made))
 
 

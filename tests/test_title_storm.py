@@ -200,7 +200,8 @@ def test_flash_is_drawn_under_the_text_layers():
             # 대비 판일 때는 머리글 뒤 어둠을 뺀 시트 (흰 하늘 위 회색 얼룩, L1)
             shade = 'light/title_shade_flash.png' if phase == 'flash' else 'light/title_shade.png'
             assert shade in calls and ('light/title_shade.png' if phase == 'flash' else 'light/title_shade_flash.png') not in calls
-            for later in (shade, 'ui/um_logo_title.png', 'TOWER SURVEILLANCE // INMATE N-09', tm.MENU[1].label):
+            head = 'CAM 04 · 제9구역 폐기물 슬럼 · REC' if phase == 'flash' else 'TOWER SURVEILLANCE // INMATE N-09'   # R1: 번쩍일 때 첫 줄은 뺀다
+            for later in (shade, 'ui/um_logo_title.png', head, tm.MENU[1].label):
                 hit = [n for n, c in enumerate(calls) if c == later or (isinstance(c, str) and c.startswith('text:') and c.endswith(later))]
                 assert hit and hit[0] > i, (phase, later)
             if phase in ('flash', 'glow'):
@@ -211,6 +212,119 @@ def test_flash_is_drawn_under_the_text_layers():
         for n, f in saved.items():
             setattr(assets, n, f)
         kit.text, tm._weather = saved_text, saved_weather
+        tm._storm[0] = None
+
+
+# ----- R1 나머지 손질 (11/27): 긴 줄기, 번쩍일 때 로고 그늘·머리글 -----
+ROOT = os.path.join(HERE, '..')
+BOLT_MIN_LEN = 280          # 줄기의 세로 길이 (화면 px, 보이는 픽셀의 위 끝 ~ 아래 끝. L1은 약 170~230)
+BOLT_TOP_MAX = 16           # 줄기 위 끝이 이보다 위 (화면 맨 위에서 내려온다)
+
+
+def _png(rel):
+    import numpy as np
+    from PIL import Image
+    return np.array(Image.open(os.path.join(ROOT, 'assets', rel)).convert('RGBA'))
+
+
+def test_r1_bolt_is_long_and_starts_at_the_top_of_the_sky():
+    """줄기 판 셋: 보이는 줄기가 화면 맨 위(하늘 위쪽)에서 시작해 BOLT_MIN_LEN 이상 내려온다. 판마다 자리가 다르다."""
+    import numpy as np
+    spots = []
+    for n in range(1, ts.FLASH_PLATES + 1):
+        a = _png(f'backgrounds/title_bolt_{n}.png')
+        ys, xs = np.nonzero(a[:, :, 3])
+        assert ys.min() <= BOLT_TOP_MAX, (n, ys.min())
+        assert ys.max() - ys.min() >= BOLT_MIN_LEN, (n, ys.max() - ys.min())
+        spots.append(int(np.median(xs)))
+    assert min(abs(a - b) for i, a in enumerate(spots) for b in spots[i + 1:]) > 150, spots
+
+
+def test_r1_bolt_plate_and_flash_plate_share_the_bolt_pixel_for_pixel():
+    """줄기 판의 줄기 = 같은 번호 대비 판의 줄기 (같은 자리·같은 색). 대비 판의 그 밖의 줄기 색 픽셀은 없다."""
+    import numpy as np
+    for n in range(1, ts.FLASH_PLATES + 1):
+        b, f = _png(f'backgrounds/title_bolt_{n}.png'), _png(f'backgrounds/title_flash_{n}.png')
+        on = b[:, :, 3] > 0
+        assert (f[on][:, :3] == b[on][:, :3]).all(), n
+        bright = (f[:, :, :3] >= 200).all(axis=2)            # 줄기 색(흰 심·옅은 가장자리)은 하늘(176,190,232)보다 밝다
+        assert not (bright & ~on).any(), n
+        # 2px 격자: 줄기 알파가 2x2 칸 단위
+        m = on.astype(int)
+        assert (m[0::2, 0::2] == m[1::2, 0::2]).all() and (m[0::2, 0::2] == m[0::2, 1::2]).all() and (m[0::2, 0::2] == m[1::2, 1::2]).all(), n
+
+
+def _logo_box():
+    import config
+    import title_mode as tm
+    logo = _png('ui/um_logo_title.png')
+    h, w = logo.shape[:2]
+    top = config.SCREEN_H - tm.LOGO_Y - h                   # 그림 줄 (위가 0)
+    left = config.SCREEN_W // 2 - w // 2
+    return logo, top, left
+
+
+def test_r1_flash_has_no_grey_halo_around_the_logo_and_logo_sits_on_dark():
+    """번쩍이는 프레임: 로고·메뉴 뒤 어둠(부드러운 알파)을 깔지 않는다(흰 하늘 위 회색 둥근 그늘). 대신 대비 판에
+    로고 둘레 어두운 실루엣이 구워져 있어 로고 글자 바로 둘레는 실루엣 색이다 (로고가 흰 하늘 위에서도 읽힌다)."""
+    import numpy as np
+    import config
+    shade = _png('light/title_shade_flash.png')[:, :, 3]
+    logo, top, left = _logo_box()
+    s = 2                                                    # 어둠 시트는 절반 크기
+    y0, y1 = max(0, (top - 200) // s), (top + logo.shape[0] + 120) // s
+    x0, x1 = (left - 200) // s, (left + logo.shape[1] + 200) // s
+    assert shade[y0:y1, x0:x1].max() == 0, shade[y0:y1, x0:x1].max()
+    from scipy import ndimage
+    ring = ndimage.binary_dilation(logo[:, :, 3] > 0, iterations=4) & ~(logo[:, :, 3] > 0)
+    for n in range(1, ts.FLASH_PLATES + 1):
+        f = _png(f'backgrounds/title_flash_{n}.png')[top:top + logo.shape[0], left:left + logo.shape[1], :3]
+        dark = f.astype(int).sum(axis=2) < 60
+        assert dark[ring].mean() > 0.99, (n, dark[ring].mean())
+    assert config.SCREEN_W == shade.shape[1] * s
+
+
+def test_r1_flash_header_first_line_is_not_drawn():
+    """번쩍이는 프레임에만 머리글 첫 줄을 그리지 않는다 (흰 하늘 위에서 글자와 그림자가 겹쳐 지저분했다. 어두운 한 색으로 그려 보니
+    들보 위 기둥 머리에 글자 일부가 묻혀 빼기로 했다). 둘째 줄(검은 들보 위)은 그대로. 평소·줄기·잔광 프레임은 그림자 있는 인광 글자 그대로."""
+    import assets
+    import title_mode as tm
+    first = 'TOWER SURVEILLANCE // INMATE N-09'
+    saved = {n: getattr(assets, n) for n in ('image', 'draw_image', 'draw_clip', 'draw_rect_color', 'draw_text', 'text_width',
+                                             'draw_image_tinted')}
+    saved_weather = tm._weather
+    calls = []
+
+    class Img:
+        def __init__(self, rel):
+            self.rel, self.w, self.h = rel, 64, 32
+
+    class Rain:
+        def draw(self):
+            pass
+    try:
+        assets.image = Img
+        for n in ('draw_image', 'draw_clip', 'draw_rect_color', 'draw_image_tinted'):
+            setattr(assets, n, lambda *a, **k: None)
+        assets.draw_text = lambda x, y, s, color, *a, **k: calls.append((s, tuple(color)))
+        assets.text_width = lambda s, *a, **k: 10 * len(s)
+        tm._weather = lambda: Rain()
+        for phase in (None, 'bolt', 'flash', 'dark', 'glow'):
+            calls.clear()
+            tm._storm[0] = ts.Storm(seed=1)
+            tm._storm[0].force(phase)
+            tm._draw_terminal()
+            mine = [c for s, c in calls if s == first]
+            second = [c for s, c in calls if s.startswith('CAM 04')]
+            assert len(second) == 2, (phase, second)                     # 둘째 줄은 늘 그림자 + 글자
+            if phase == 'flash':
+                assert mine == [], mine
+            else:
+                assert len(mine) == 2 and tuple(tm.PH) in mine, (phase, mine)   # 그림자 + 인광 글자
+    finally:
+        for n, f in saved.items():
+            setattr(assets, n, f)
+        tm._weather = saved_weather
         tm._storm[0] = None
 
 

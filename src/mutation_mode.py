@@ -341,6 +341,11 @@ def _draw_card_body(i, mid):
         pips = min(2, have + 1)
         for k in range(2):                                # 칸 두 개: 찬 칸은 갈래 색
             px = x + CARD_W // 2 - 26 + k * 32
+            if kit.is_mist():                             # R1(11/27): 가는 테두리(2px) 칸, 찬 칸은 밝은 테두리 + 속 전체를 갈래 색으로
+                kit.icon('um_step_on' if k < pips else 'um_step_off', px - 2, y + 114)
+                if k < pips:
+                    assets.draw_rect_color(px, y + 116, 20, 8, color)
+                continue
             kit.icon('uc_step_off', px - 2, y + 114)        # 진행 칸 (G06 4번). 찬 칸은 갈래 색으로 속을 채운다
             if k < pips:
                 assets.draw_rect_color(px + 2, y + 116, 16, 8, color)

@@ -141,13 +141,18 @@ def _draw_terminal():
     elif storm.bolt_plate() is not None:                  # 번쩍이기 직전·두 깜빡임 사이: 어두운 하늘에 흰 번갯줄기 (대비 판과 같은 자리)
         assets.draw_image(assets.image(f'backgrounds/title_bolt_{storm.bolt_plate() + 1}.png'), W // 2, 0)
     _weather().draw()
-    # 글자 뒤 어둠: 절반 크기 그림을 2배로 (빛 층 예외: 부드러운 알파). 대비 판일 때는 머리글 뒤 어둠을 뺀 시트
-    # (11/27 L1: 흰 하늘 위에서 머리글 뒤 어둠이 회색 얼룩으로 보였다. 머리글은 글자 그림자만으로 판 위에 둔다)
+    # 글자 뒤 어둠: 절반 크기 그림을 2배로 (빛 층 예외: 부드러운 알파). 대비 판일 때는 머리글·로고·메뉴 뒤 어둠을 뺀 시트
+    # (11/27 L1: 흰 하늘 위에서 머리글 뒤 어둠이 회색 얼룩으로 보였다. R1: 로고 뒤 어둠도 둥근 회색 그늘로 보였다 ->
+    #  대비 판에 로고 둘레 어두운 실루엣을 구웠고, 메뉴는 원래 검은 땅 실루엣 위다)
     shade = assets.image('light/title_shade_flash.png' if phase == 'flash' else 'light/title_shade.png')
     assets.draw_clip(shade, 0, 0, shade.w, shade.h, 0, 0, scale=2)
     mm.scanlines()
     mm.brackets()
-    mm.header([('TOWER SURVEILLANCE // INMATE N-09', PH), ('CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM)])
+    if phase == 'flash':                                  # R1: 흰 하늘 위 첫 줄은 번쩍이는 2~4프레임 동안 그리지 않는다 (글자와 그림자가 겹쳐
+        hx, hy = mm.TERM_HEAD                             # 지저분했다. 어두운 한 색으로 그려 보니 들보 위 기둥 머리에 글자가 묻혔다). 둘째 줄은 검은 들보 위라 그대로
+        kit.text(hx, hy - 26, 'CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM, small=True)
+    else:
+        mm.header([('TOWER SURVEILLANCE // INMATE N-09', PH), ('CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM)])
     assets.draw_image(assets.image('ui/um_logo_title.png'), W // 2, LOGO_Y)
     kit.text(W // 2, LOGO_Y - 28, '헤이즈', PH, center=True)
     for i, btn in enumerate(MENU):                        # 색 뒤집기: 글자 폭 + 양옆 8px만 (길게 뻗는 띠 아님)

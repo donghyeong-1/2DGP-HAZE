@@ -452,3 +452,41 @@
 - PixelLab: 쓰지 않았다(셋 다 코드로 구운 도트로 충분했다).
 - 바꾼 파일: `src/weapon_panel.py`(새), `src/ui.py`(시안이면 weapon_panel로 넘김, flat은 그대로), `src/hud_kit.py`(`weapon_style()`), `src/config.py`(`HUD_WEAPON_STYLE`), `tools/make_ui_mist.py`(`--wp`),
   `tools/ui_w1_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_wp_*.png`(새 48장).
+
+## R1 나머지 손질
+사용자(11/27): 지휘 쪽이 오늘 UI 작업 검토에서 찾고 고치지 않은 흠을 목록으로 알렸고(번개의 로고 뒤 그늘과 짧은 줄기, 남은 노랑 글자, 증강 카드의 철판 모양 진행 칸, 크레딧의 도구 표기, HUD의 남은 흠) **"나머지도 다 고쳐줘"**.
+고치는 방법은 사용자가 정하지 않았다(아래 방법은 지휘 쪽 제안을 따르고, 다르게 한 곳은 이유를 적었다). 그림 도구는 "코드 우선", 이번에 PixelLab 생성 없음. NPC 창 배치는 그대로.
+- 묶음 1 타이틀 번개 (`tools/make_ui_mist.py --storm`, `src/title_mode.py`)
+  - 줄기: PixelLab 조각 `um_bolt_1~3`을 1배 도트로 잘라 위아래로 이어 붙였다(`BOLT_RECIPES`, 좌우 반전만, 회전·확대 없음, 이음매는 줄기 한 가닥 줄끼리 가운데를 맞춤). 판마다 곁가지 하나(`BOLT_BRANCHES`, 조각의 가는 아랫부분).
+    아래 끝은 L1 줄기가 끝나던 자리 그대로, 위 끝은 화면 위로 넘쳐 잘린다(화면 맨 위 y 0에서 내려온다). 보이는 세로 길이 판 1·2·3 = 약 300·291·480px(L1 약 170~230). 가림(들보·전선·건물)은 지금처럼 대비 판 하늘 자리에서만, 이번에 2x2 칸 단위로 맞춰 2px 격자를 지킨다(L1 판 2·3은 홀수 자리라 격자가 어긋나 있었다).
+  - 로고 뒤 회색 그늘: 대비 판용 어둠 시트 `title_shade_flash`에서 머리글에 더해 로고·메뉴 상자도 뺐다. 대신 대비 판에 로고 글자 모양을 도트 3칸(6px) 넓힌 어두운 실루엣((6,8,15))을 구웠다(제안의 두 번째 방법). 로고가 흰 하늘 위에서 검은 테 안에 놓여 읽히고, 메뉴는 원래 검은 땅 실루엣 위라 그대로 읽힌다. 평소 화면은 픽셀 단위로 그대로(title_mist·title_glow·title_shade 바이트 같음, 기록 해시 같음).
+  - 머리글: 처음에 첫 줄을 어두운 한 색 (8,11,20)·그림자 없이 그렸는데 실제 창에서 들보 위 기둥 머리에 'TOW'·'ATE' 글자 일부가 묻혀, **번쩍이는 프레임에는 첫 줄을 그리지 않는** 쪽으로 바꿨다(둘째 줄은 검은 들보 위라 그대로).
+- 묶음 2 남은 노랑 글자: 무기 걸이 창 제목(mist) (230,210,150) -> 밝은 회백 (236,240,248)(`mist_pick.TEXT`). 사람 NPC 이름 색은 그대로. 다른 NPC 창 제목 중 노랑 계열은 없다(정비사 주황·보관인 보라·기록관 하늘).
+  은신처 NPC 머리 위 안내 `F ...`(mist) (255,240,150) -> 진열대 'F 획득'(S1)과 같은 밝은 회백 그림자 글자 (236,240,248)(`npc.draw_prompt`, 키 글자 F도 같은 줄 같은 색). 같은 함수를 떠돌이 죄수(npc.NPC)와 헤이즈 샘(`src/events.py`)도 쓴다(샘만 노랑으로 남지 않게 맞춤, 지시 밖 파일 하나). 다른 스킨은 예전 노랑 그대로.
+  은신처 무기 걸이 머리 위 이름표 '무기 걸이'(230,210,150)는 창 제목이 아니라 그대로 두었다.
+- 묶음 3 증강 카드 진행 칸: mist에서 `up_step_off` 대신 `um_step_off`(테두리 2px 기본 회백 (128,137,152) + 속 (9,12,21))·`um_step_on`(찬 칸, 테두리 밝은 회백 (222,228,236)), 크기 24x12 그대로, 찬 칸은 속 20x8 전체를 갈래 색으로(전에는 16x8). `tools/make_ui_mist.py --step`.
+- 묶음 4 크레딧(`src/credits_mode.py`): 근거와 고치기 전·후 줄은 아래 '크레딧 근거'. 라이선스·출처 줄은 그대로.
+- 묶음 5 HUD(`src/ui.py`, flat만): 게이지가 모자라 강화를 못 쓰는 E 칸 테두리 `dim` -> `line`(들지 않은 무기 칸과 같은 부품, 밝기 약 136). 못 쓴다는 것은 흐린 아이콘(색 곱 (110,120,140) 0.6)·흐린 키 글자·'강화 N%+'·빈 단계 점(모두 그대로). W1 시안 셋은 그대로.
+  맥박이 켜진 프레임에 구간 경계 흰 눈금을 `BAR_Y-2`부터 높이 `BAR_H+4`(테두리 안쪽 2px 틈까지)로. 꺼진 프레임·다른 구간은 예전 그대로(BAR_Y-6, BAR_H+12). 바늘은 그대로.
+- 묶음 6 뒤로 비치는 것과 겹치는 것
+  - `game_world.quiet` + `hud_kit.frozen_backdrop(draw)`: mist의 일시정지·NPC 창·연습 메뉴·효과음 듣기·설정·키 설정이 뒤에 멈춘 게임을 깔 때만 켠다. 켜져 있으면 처음 안내 카드(`tutorial`), 연습장 '초당 피해'·안내 줄(`practice.PracticeHud`), NPC 이름표·머리 위 안내(`npc`), 이벤트 방 이름·안내(`events`), 진열대 이름판(`pedestal`)을 그리지 않는다. 방·캐릭터·HUD는 그대로 어둡게 비친다. 증강 카드 화면은 그대로.
+  - NPC 창 '돌아가기' 뒤에 글자 뒤 어둠 한 겹(`mist_menu.text_shade`, wide, pad 24): 무기 걸이 그림이 덜 비친다.
+  - 사망 결과: 고른 물건 이름(뒤집힌 블록·커서)을 안내 줄과 물건 칸 사이로 올리고(이름 y 330 -> 428, 칸 370 -> 318, `ending_mode.CHOOSE_*`), 칸 간격 96 -> 88로 좁혀 첫 칸 왼쪽이 780 -> 792(쓰러진 주인공 머리 오른쪽 끝 약 765에서 27px). 이 화면은 키(A D·Enter)로만 고른다: 마우스로 누르는 자리가 없어 옮길 것이 없다(테스트가 확인). 탈출 결과는 겹치는 곳이 없어 그대로.
+  - 효과음 듣기: 고른 이름 블록을 아래로 2px 더(`span=(16,14)`), 소문자 g 아래 여유 1px -> 3px.
+- 확인: 테스트 14개 새로(`tests/test_title_storm.py` test_r1_* 4개, `tests/test_ui_skin.py` test_r1_* 10개), 고친 테스트 4개(H2 못 쓰는 E 칸 = line, 크레딧 '컷인' 요구 뺌, 번개 그리는 순서 테스트의 머리글 줄, S1의 철판 예외에서 up_step_off 뺌). 기록 해시는 바뀐 것만 갱신하고 주석에 이유. 전체 952개 통과, 픽셀 11개 통과.
+  실제 창 촬영: `tools/ui_r1_shots.py`(새: 은신처 NPC 앞 둘·크레딧 AI 도구 절 + 비교판), 기존 `title_storm_shots`·`ui_hud2_shots`·`ui_menu_shots`·`ui_pick_shots`. 두 번 돌며 고침(머리글 첫 줄 처리, 사망 결과 이름 4px 내림, 크레딧 Codex 줄이 너무 길어 두 줄로 다시 나눔). 비교판 `shots/review/R1_*.png` 16장.
+- 크레딧 근거 (`docs/ASSETS.md`, `docs/image_prompts.md`, 게임이 실제로 불러오는 그림)
+  - 캐릭터: 게임은 주인공 `hero6_*`(hero6.json), 적·보스 `v6_*`·`boss_gatekeeper_*`(skin_*.json 15개), NPC `npc_*_idle`, 초상화 `portraits/*`를 그린다. ASSETS 11-23(주인공)·11-25(떠돌이·NPC 셋·적 5종·아크·심장·문지기·궁극기 자세·초상화)·11-26(주인공 초상화, 보스 카드 인물) 줄이 PixelLab이라고 적는다. 나머지 적 7종(슬럼·투척병·간수·사냥개·기사·드론·크래셔)은 ASSETS·image_prompts에 줄이 없고 `assets/sprites/pixellab/<이름>_v6/GENERATION_LOG.md`와 게임이 부르는 `v6_*` 그림이 근거다.
+  - 지금도 게임에 쓰이는 Codex 그림: 원경·중경 배경판(11-25 T49), 은신처 원경(T22), 장식(T31)·움직이는 소품(T28), 구역 카드(T33, 보스 카드 배경으로도), 사망·탈출 화면(T11), 크레딧 장면(T35). 빠진 것: NPC 셋(11-25 "예전 T22 NPC 그림은 게임에서 빠졌다"), 궁극기 시전 자세(11-25 "Codex T05·T23 그림이 남지 않는다"), 궁극기 컷인 띠 `ui/ult_cutin.png`(src 어디서도 부르지 않는다. 지금 컷인은 코드로 그린 `effects/cutin-disc`). 캐릭터 디자인은 예전 Codex 그림의 설정을 글로 옮긴 것(11-25 줄) -> '초기 캐릭터 원화'로 남겼다.
+  - PixelLab UI: 증강 갈래 아이콘(11-26), 증강 카드 테두리·타이틀 로고·번갯줄기(11-27). 그래서 '그래픽'의 code-drawn 줄에서 '로고'를 뺐다(옛 스킨의 코드 로고는 mist 기본에서 안 쓴다).
+  - Gemini: 주인공 디자인 G01 A안(PixelLab 기준 그림, 11-23), 주인공 초상화 G04가 PixelLab 초상화의 기준 그림(11-25·11-26 줄) -> '초상화 원화'를 더했다.
+  - 고치지 않은 것: Codex 줄의 '아이콘 · 진열대'는 근거가 엇갈린다(ASSETS 맨 위 표는 `make_icons.py` 코드 그림, 11-17 줄은 Codex T13·T14 결과로 교체). '그래픽'의 '캐릭터·적·보스·NPC 동작 - AI 생성 원화를 직접 픽셀로 마무리'(PixelLab 도트를 색 고정·2배로 마무리하는 것이라 틀린 말은 아니다), '이미지 모델명은 도구가 제공하지 않았다' 줄(ASSETS 맨 끝 표 빈칸이 안 채워졌다)도 그대로.
+  - 고치기 전 -> 후
+    - `Codex (OpenAI) 내장 이미지 생성 - 캐릭터·적·보스 원화와 동작, 배경판, 화면 일러스트` -> `Codex (OpenAI) 내장 이미지 생성 - 배경판, 장식·소품, 구역 카드, 장면 일러스트`
+    - `은신처 배경 · NPC 3명 · 궁극기 컷인과 시전 자세 · 아이콘 · 진열대` -> `은신처 배경 · 사망·탈출·크레딧 장면 · 아이콘 · 진열대 · 초기 캐릭터 원화`
+    - `PixelLab (pixellab.ai) - 주인공 N-09 동작` -> `PixelLab (pixellab.ai) - 주인공·적·보스·NPC 동작, 대화 초상화` + 새 줄 `보스 카드 인물 · 증강 갈래 아이콘 · 증강 카드 테두리 · 타이틀 로고 · 번갯줄기`
+    - `Gemini (Google) - 주인공 디자인 시안 (PixelLab 기준 그림)` -> `Gemini (Google) - 주인공 디자인 시안 · 초상화 원화 (PixelLab 기준 그림)`
+    - `타일·이펙트·HUD·무기 아이콘·로고 - 코드로 직접 그림 (code-drawn)` -> `타일·이펙트·HUD·무기 아이콘 - 코드로 직접 그림 (code-drawn)`
+- 바꾼 파일: `src/title_mode.py`, `src/npc.py`, `src/npc_mode.py`, `src/events.py`, `src/mutation_mode.py`, `src/credits_mode.py`, `src/ui.py`, `src/hud_kit.py`, `src/game_world.py`, `src/tutorial.py`, `src/practice.py`, `src/pedestal.py`,
+  `src/pause_mode.py`, `src/practice_mode.py`, `src/sfx_mode.py`, `src/options_mode.py`, `src/keys_mode.py`, `src/ending_mode.py`, `tools/make_ui_mist.py`(`--storm`·`--step`), `tools/ui_r1_shots.py`(새),
+  `tests/test_title_storm.py`, `tests/test_ui_skin.py`, `tests/test_options.py`, `assets/backgrounds/title_flash_1~3.png`·`title_bolt_1~3.png`, `assets/light/title_shade_flash.png`, `assets/ui/um_step_off.png`·`um_step_on.png`(새).

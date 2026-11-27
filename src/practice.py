@@ -105,6 +105,9 @@ class PracticeHud:
     def draw(self):
         if getattr(self.stage, 'name', '') != 'practice':
             return
+        import game_world
+        if game_world.quiet:                       # R1: 연습 메뉴 뒤에 깔린 멈춘 연습장에서는 '초당 피해'·안내 줄을 빼고
+            return
         import hud_kit as kit
         kit.text(config.SCREEN_W // 2, config.SCREEN_H - 150, f'초당 피해 {dps():.0f}   (최근 {DPS_WINDOW:.0f}초)',
                  (255, 230, 150), center=True)

@@ -210,7 +210,7 @@ def draw():
     """NPC 창 (11/22 메뉴 v2): 덮개 + 큰 이름 제목 + 줄 카드, 양옆 대화 초상화, 결정 수는 오른쪽 위."""
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
-        _under.draw_frozen()
+        kit.frozen_backdrop(_under.draw_frozen)            # mist: 은신처 NPC 이름표·안내 카드 없이 (R1)
     if kit.is_mist():
         _draw_mist()
         update_canvas()
@@ -261,7 +261,7 @@ def _draw_mist():
     살 수 없는 줄은 흐린 글자. 제목·결정 수·한마디·초상화·값·무기 그림과 줄·버튼의 자리(마우스로 누르는 자리)는 그대로."""
     import mist_pick as mp
     mp.backdrop()
-    color = npc_mod.COLORS[kind]
+    color = npc_mod.COLORS[kind] if kind != 'armory' else mp.TEXT  # R1: 사람 NPC 이름은 인물 색, 사람이 아닌 무기 걸이는 밝은 회백 (옅은 노랑 대신)
     kit.text(PANEL_X, PANEL_Y + PANEL_H - 50, npc_mod.NAMES[kind], color, big=True)
     kit.text(PANEL_X + 2, PANEL_Y + PANEL_H - 92, npc_mod.ROLES[kind], mp.FAINT, small=True)
     kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 50, f'헤이즈 결정 {meta.state["crystals"]}', mp.HAZE, right=True)
@@ -313,6 +313,8 @@ def _draw_mist():
             else:
                 kit.text(vx, vy, value, (mp.HAZE if ok else mp.OFF) if key == 'unlock' else mp.TEXT, right=True)
     back = buttons[-1]
+    import mist_menu as mm                                      # R1: '돌아가기' 뒤 어둠 한 겹 더 (은신처 무기 걸이 그림이 비쳐 겹쳤다)
+    mm.text_shade(back.x + back.w // 2, back.y + back.h // 2, back.label, center=True, pad=24, kind='wide')
     mp.pick(back.x + back.w // 2, back.y + back.h // 2, back.label, selected == len(buttons) - 1, mp.SOFT, center=True)
     for (x, y), name in zip(portrait_spots(), faces()):
         if name is None:

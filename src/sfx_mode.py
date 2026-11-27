@@ -166,11 +166,11 @@ FOOTER = [('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋�
 def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
-        _under.draw_frozen()
+        kit.frozen_backdrop(_under.draw_frozen)
     if kit.is_mist():
         frozen = getattr(_under, '_under', None)                 # 연습 메뉴 아래의 멈춘 연습장 (연습 메뉴에는 draw_frozen이 없다)
         if not (_under is not None and hasattr(_under, 'draw_frozen')) and frozen is not None and hasattr(frozen, 'draw_frozen'):
-            frozen.draw_frozen()
+            kit.frozen_backdrop(frozen.draw_frozen)              # R1: '초당 피해'·안내 카드·이름표 없이
         _draw_mist()
         update_canvas()
         return
@@ -223,7 +223,8 @@ def _draw_mist():
         i = first + j
         cy = TOP_Y - j * ROW_STEP
         on = i == row
-        mm.pick(PANEL_X + 34, cy, name, on, mm.PH_SOFT, center=False, small=True)
+        # R1: 블록을 아래로 2px 더 (영문 소문자 g·y 아래 여유가 1px였다 -> 3px). 위는 그대로
+        mm.pick(PANEL_X + 34, cy, name, on, mm.PH_SOFT, center=False, small=True, span=(16, 14))
         m = marks.get(name)
         if m:
             text, color = MARKS[m]

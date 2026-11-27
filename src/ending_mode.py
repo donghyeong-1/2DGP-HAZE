@@ -142,6 +142,10 @@ def _draw_summary(cx):
 
 # ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌. 일러스트(screen_death·screen_ending)는 그대로 -----
 CHOOSE_FOOTER = [('A D', '선택'), ('Enter', '맡기기')]
+# 맡길 물건 묶음의 자리 (아래가 0, 판 기록이 길면 dy만큼 함께 내려간다). R1(11/27): 고른 물건 이름(뒤집힌 블록·커서)이 칸 아래에서
+# 일러스트의 쓰러진 주인공 머리에 닿았다 -> 이름을 안내 줄과 칸 사이로 올리고 칸 간격을 96 -> 88로 좁혀 첫 칸을 머리에서 떼었다.
+# 이 화면은 키(A D·Enter)로만 고른다: 마우스로 누르는 자리가 따로 없다
+CHOOSE_PROMPT_Y, CHOOSE_NAME_Y, CHOOSE_SLOT_Y, CHOOSE_GAP = 480, 428, 318, 88
 MIST_HEAD = {'dead': [('TOWER SURVEILLANCE // SIGNAL LOST', mm.PH), ('INMATE N-09 · 사망 기록', mm.PH_DIM)],
              'clear': [('TOWER SURVEILLANCE // SUBJECT ESCAPED', mm.PH), ('INMATE N-09 · 탈출 기록', mm.PH_DIM)]}
 
@@ -202,8 +206,8 @@ def draw_mist():
         prompt = '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)'
         mm.text_shade(cx, 480 + dy, prompt, center=True, pad=8)
         n = len(choices)
-        half = (n - 1) * 96 // 2 + 36
-        mm.shade(cx - half, 300 + dy, cx + half, 446 + dy)
+        half = (n - 1) * CHOOSE_GAP // 2 + 36
+        mm.shade(cx - half, CHOOSE_SLOT_Y - 24 + dy, cx + half, CHOOSE_NAME_Y + 18 + dy)
         mm.footer_shade(CHOOSE_FOOTER, y=256 + dy)
         if easy_hint:
             mm.text_shade(cx, 206 + dy, easy_hint, small=True, center=True, pad=8)
@@ -223,22 +227,23 @@ def draw_mist():
     if choosing:
         kit.text(cx, 480 + dy, '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)', mm.PH_TEXT, center=True)
         n = len(choices)
-        gap = 96
+        gap = CHOOSE_GAP
         x0 = cx - (n - 1) * gap // 2
+        sy = CHOOSE_SLOT_Y + dy
         for i, item_id in enumerate(choices):
             x = x0 + i * gap
             hot = i == choice
-            mm.frame(x - 36, 370 + dy, 72, 72, 'ph' if hot else 'ph_dim')
+            mm.frame(x - 36, sy, 72, 72, 'ph' if hot else 'ph_dim')
             if hot:                                   # 고른 칸: 밝은 테두리 + 아래 가는 밑줄 (설정의 고른 값과 같은 표시)
-                assets.draw_rect_color(x - 36, 360 + dy, 72, 2, mm.PH)
+                assets.draw_rect_color(x - 36, sy - 10, 72, 2, mm.PH)
             if item_id is None:
-                kit.text(x, 406 + dy, '없음', mm.PH if hot else mm.PH_SOFT, small=True, center=True)
+                kit.text(x, sy + 36, '없음', mm.PH if hot else mm.PH_SOFT, small=True, center=True)
             else:
-                assets.draw_image(assets.image(_icon_of(item_id)), x, 382 + dy)
+                assets.draw_image(assets.image(_icon_of(item_id)), x, sy + 12)
         sel = choices[choice]
         name = '맡기지 않기' if sel is None else items.ITEMS[sel]['name'] + (
             ' (1단계로)' if sel in items.UPGRADES else '')
-        mm.pick(cx, 330 + dy, name, True)                     # 고른 물건 이름: 글자 폭으로 색 뒤집기 + 커서
+        mm.pick(cx, CHOOSE_NAME_Y + dy, name, True)           # 고른 물건 이름: 글자 폭으로 색 뒤집기 + 커서 (칸 위, R1)
         mm.footer(CHOOSE_FOOTER, y=256 + dy)
         if easy_hint:
             kit.text(cx, 206 + dy, easy_hint, (255, 225, 140), center=True, small=True)

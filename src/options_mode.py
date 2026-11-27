@@ -315,7 +315,7 @@ def draw_frozen():
 def draw():
     clear_canvas()
     if kit.is_mist():
-        draw_scene()
+        kit.frozen_backdrop(draw_scene)            # R1: 멈춘 게임이면 안내 카드·이름표 없이
         mm.dim(mm.scene_dim(_under))
         draw_mist_panel()
         update_canvas()

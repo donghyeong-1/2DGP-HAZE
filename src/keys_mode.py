@@ -222,7 +222,7 @@ def draw():
     clear_canvas()
     if kit.is_mist():
         if _under is not None and hasattr(_under, 'draw_scene'):
-            _under.draw_scene()
+            kit.frozen_backdrop(_under.draw_scene)     # R1: 멈춘 게임이면 안내 카드·이름표 없이
         mm.dim(mm.scene_dim(_under))
         draw_mist_panel()
         update_canvas()

@@ -208,7 +208,10 @@ class GameUI:
                 assets.draw_rect_color(xv, BAR_Y, x1 - xv, BAR_H, (13, 18, 31), 0.78)
         for lo, _hi, _zone in bounds[1:]:                        # 구간 경계 눈금: 흰 세로선 (몸통 높이)
             x = round(self._x_of(lo)) // 2 * 2
-            assets.draw_rect_color(x - 2, BAR_Y - 6, 4, BAR_H + 12, (242, 246, 250))
+            if mist and lit:                                     # R1: 맥박으로 굵어진 색 테두리(바깥 6px ~ 안쪽 2px)를 가로지르지 않게 테두리 안쪽까지만
+                assets.draw_rect_color(x - 2, BAR_Y - 2, 4, BAR_H + 4, (242, 246, 250))
+            else:
+                assets.draw_rect_color(x - 2, BAR_Y - 6, 4, BAR_H + 12, (242, 246, 250))
         if not mist:
             kit.icon('uc_gauge_l', BAR_X - 26, BAR_Y - 15)       # 양끝 결정 첨탑 (왼쪽 빨강 조각 = 페이드, 오른쪽 주황 = 위험)
             kit.icon('uc_gauge_r', BAR_X + BAR_W - 6, BAR_Y - 15)
@@ -344,7 +347,9 @@ class GameUI:
         if kit.is_mist():                                                    # H1 mist: 강화 중이면 테두리가 강화 단계 색 (두꺼운 테 없음)
             # H2: 쓸 수 있지만 켜지 않은 평소에는 다른 칸과 같은 기본 회백 (색 테두리라 든 무기 칸보다 먼저 눈에 띄었다).
             # 켠 순간(강화 준비)만 단계 색, 게이지가 모자라면 흐린 테두리
-            tone = f'e{max(1, min(3, g.enhance_level))}' if hot else ('line' if ready else 'dim')
+            # R1: 게이지가 모자라 못 쓸 때도 테두리는 들지 않은 무기 칸과 같은 기본 회백 (dim은 어두운 방에서 거의 안 보였다).
+            # 못 쓴다는 것은 흐린 아이콘·흐린 키 글자·'강화 N%+' 흐린 글자·빈 단계 점이 알린다
+            tone = f'e{max(1, min(3, g.enhance_level))}' if hot else 'line'
             kit.hud_panel('slot', ex, ACT_Y, SLOT, SLOT, tone)
         elif kit.is_plate():                                                 # 철판: E 칸은 노란 꺾쇠를 쓰지 않고 강화 단계 색 테 (든 무기 칸과 구별)
             if hot or ready:

@@ -46,6 +46,9 @@ class Pedestal:
         assets.draw_image(assets.image(f'ui/pedestal_{kind}.png'), self.x, self.y)
         if not self.gone:                                              # 받침 위 보관함에 아이템 아이콘 (1배)
             assets.draw_image(assets.image(f'ui/icon_{self.item_id}.png'), self.x, self.y + 66)
+        import game_world
+        if game_world.quiet:                                           # R1: mist 메뉴 창 뒤에 깔린 멈춘 화면에서는 이름판·안내를 빼고
+            return
         if self.player is not None and not self.gone and self.near(self.player):
             desc = items.describe(self.player, self.item_id)
             if self.mode == 'rift' and self.item_id in items.UPGRADES:   # 두 단계를 한꺼번에: 'N단계' -> 'N~N+1단계'

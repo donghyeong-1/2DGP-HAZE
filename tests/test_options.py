@@ -81,11 +81,12 @@ def test_credits_cover_every_external_source_and_finish():
 
 
 def test_credits_list_v4_art_and_match_the_sound_files():
-    """크레딧이 v4에서 더한 그림(은신처·NPC·궁극기 컷인)을 적고, 소리 수가 실제 파일 수와 같다 (2026-11-19)."""
+    """크레딧이 v4에서 더한 그림(은신처·NPC)을 적고, 소리 수가 실제 파일 수와 같다 (2026-11-19).
+    R1(11/27): Codex 궁극기 컷인 띠(ui/ult_cutin.png)는 게임이 더 쓰지 않아(지금 컷인은 코드로 그린 실루엣 컷인) 크레딧에서 뺐다."""
     import re
     import credits_mode
     text = ' '.join(t for _, t in credits_mode.CREDITS)
-    for must in ('은신처', 'NPC', '컷인'):
+    for must in ('은신처', 'NPC'):
         assert must in text, must
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
     sfx = len([f for f in os.listdir(os.path.join(root, 'sfx'))

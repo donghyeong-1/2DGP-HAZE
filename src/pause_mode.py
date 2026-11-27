@@ -294,7 +294,7 @@ def _draw_mist():
     """'mist' 일시정지 (11/27 M1, 타이틀 감시 단말과 한 벌): 멈춘 게임을 어둡게 한 위에 글자 뒤 어둠, 주사선, 네 귀퉁이 꺾쇠,
     감시 머리글. 판·띠·노란 꺾쇠 없이 메뉴는 고른 항목만 글자 폭으로 색 뒤집기 + 커서. 조작·이번 판도 판 없이 글자."""
     import play_mode
-    draw_frozen()
+    kit.frozen_backdrop(draw_frozen)                # R1: 처음 안내 카드·이름표 없이 (제목·메뉴 뒤에 비쳐 겹쳤다)
     mm.dim(MIST_DIM)
     st = getattr(play_mode, 'stage', None)
     sub = getattr(st, 'title', '') or None

@@ -678,19 +678,23 @@ def _other_logs(skin_name):
 
 
 # 고치기 전(2026-11-27, 712637e)의 기록 (위 _menu_logs·_other_logs·_title_log). M1 뒤에도 이 값 그대로여야 한다
+# R1(11/27)이 바꾼 값: credits_mid(세 옛 스킨 같은 값) = 크레딧 'AI 도구'·'그래픽' 절 문구(묶음 4, 스킨과 상관없는 글. 전 7896f4a09436720a),
+# mist cards_augment·cards_curse = 증강 카드 진행 칸 up_step_off -> um_step_off/on(묶음 3. 전 c56ed617c57c2389·f791b2981770fab9),
+# mist 0_flash·2_flash = 번쩍이는 프레임에 머리글 첫 줄을 그리지 않음(묶음 1. 전 c11c65208d8510e7·683ccfdbc9a80c9c).
+# 평소·줄기·잔광 프레임(0_None·0_bolt·0_glow·0_dark 등)과 옛 스킨의 타이틀은 그대로
 MENU_DIGEST = {
-    'plate': {'pause_0': 'b19ee9dc864b0a01', 'pause_build_2': '6ae6f7ab6ef0d0b7', 'pause_ask': '66ee9d32b8a33b9f', 'options_0': '8cbd7f0df2cfc6fc', 'options_music': 'a419f76afd494218', 'options_keys': '9f7173efe3492c98', 'options_back': '8a5eee2d0a367c12', 'keys_0': 'ef308dbcb9260879', 'keys_listen': 'd295e3923ad3762e', 'keys_buttons': '752615646c0755d4', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '457569a5e2438d30', 'credits_0': '172500abe524364a', 'credits_mid': '7896f4a09436720a'},
-    'plate_code': {'pause_0': '8df4193d19bdfbf2', 'pause_build_2': '34455f35d14d2f5a', 'pause_ask': '5082a77b5ab0160b', 'options_0': 'ab08bd79454e75cb', 'options_music': 'ef857f40dc5b69ea', 'options_keys': '4cb748417456d6c2', 'options_back': '24a49e43e2c2a66d', 'keys_0': 'fed31c421bb366af', 'keys_listen': '2a3a765ce28e8d3a', 'keys_buttons': '05357bebb0facb1d', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': 'e1b2c56e58772ddf', 'credits_0': '172500abe524364a', 'credits_mid': '7896f4a09436720a'},
-    'crystal': {'pause_0': '79c408f0d295d530', 'pause_build_2': '9987c6242ccd28c0', 'pause_ask': '333c32d83894f2d4', 'options_0': 'a0c7365cc9e7ffbb', 'options_music': '5634f126abf58c51', 'options_keys': 'c21e3299723bf298', 'options_back': 'bc0eff4b8c851f33', 'keys_0': '6dd4d230b55172a7', 'keys_listen': '59e8301e6d732c38', 'keys_buttons': 'f002538b74e0e07a', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': 'd88bb8f7622d7c31', 'credits_0': '172500abe524364a', 'credits_mid': '7896f4a09436720a'},
+    'plate': {'pause_0': 'b19ee9dc864b0a01', 'pause_build_2': '6ae6f7ab6ef0d0b7', 'pause_ask': '66ee9d32b8a33b9f', 'options_0': '8cbd7f0df2cfc6fc', 'options_music': 'a419f76afd494218', 'options_keys': '9f7173efe3492c98', 'options_back': '8a5eee2d0a367c12', 'keys_0': 'ef308dbcb9260879', 'keys_listen': 'd295e3923ad3762e', 'keys_buttons': '752615646c0755d4', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '457569a5e2438d30', 'credits_0': '172500abe524364a', 'credits_mid': 'f8b78f59f4fceb53'},
+    'plate_code': {'pause_0': '8df4193d19bdfbf2', 'pause_build_2': '34455f35d14d2f5a', 'pause_ask': '5082a77b5ab0160b', 'options_0': 'ab08bd79454e75cb', 'options_music': 'ef857f40dc5b69ea', 'options_keys': '4cb748417456d6c2', 'options_back': '24a49e43e2c2a66d', 'keys_0': 'fed31c421bb366af', 'keys_listen': '2a3a765ce28e8d3a', 'keys_buttons': '05357bebb0facb1d', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': 'e1b2c56e58772ddf', 'credits_0': '172500abe524364a', 'credits_mid': 'f8b78f59f4fceb53'},
+    'crystal': {'pause_0': '79c408f0d295d530', 'pause_build_2': '9987c6242ccd28c0', 'pause_ask': '333c32d83894f2d4', 'options_0': 'a0c7365cc9e7ffbb', 'options_music': '5634f126abf58c51', 'options_keys': 'c21e3299723bf298', 'options_back': 'bc0eff4b8c851f33', 'keys_0': '6dd4d230b55172a7', 'keys_listen': '59e8301e6d732c38', 'keys_buttons': 'f002538b74e0e07a', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': 'd88bb8f7622d7c31', 'credits_0': '172500abe524364a', 'credits_mid': 'f8b78f59f4fceb53'},
 }
 OTHER_DIGEST = {
-    'mist': {'npc_mechanic': '28af8461a02c3229', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '21e97898001e6a97', 'practice': 'e9559cc8d678474f', 'sfx': '9a9457b7fddf7a23', 'cards_augment': 'c56ed617c57c2389', 'cards_form': 'c34bc28ac9fe489b', 'cards_curse': 'f791b2981770fab9'},
+    'mist': {'npc_mechanic': '28af8461a02c3229', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '21e97898001e6a97', 'practice': 'e9559cc8d678474f', 'sfx': '9a9457b7fddf7a23', 'cards_augment': '3a87b2c1b4d26d13', 'cards_form': 'c34bc28ac9fe489b', 'cards_curse': '2c4008f25af6d0ab'},
     'plate': {'npc_mechanic': '28af8461a02c3229', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '21e97898001e6a97', 'practice': 'e9559cc8d678474f', 'sfx': '9a9457b7fddf7a23', 'cards_augment': '66dde66425db532b', 'cards_form': 'ae0723bb82b4dcb0', 'cards_curse': '555cccc3b76312d3'},
     'plate_code': {'npc_mechanic': '716d1cbb76959899', 'npc_keeper': '9bd792190691bf5d', 'npc_armory': '6c2ed9b37c52f713', 'npc_archivist': 'e1b19db44dcbd2fd', 'practice': '00d90b22a3d76598', 'sfx': 'eadf10acbcbf4be4', 'cards_augment': '56c1d0b20659a32a', 'cards_form': '5a00a1cd20b36e53', 'cards_curse': 'a6935aa1ce7013cb'},
     'crystal': {'npc_mechanic': '96e7246516e9d3e3', 'npc_keeper': '31561871fca6e4e8', 'npc_armory': '85f7f3ec6f0c1355', 'npc_archivist': '14ba1e5f05411fc7', 'practice': '65851386c8f25102', 'sfx': '0275367891d27066', 'cards_augment': '290c43e803d5ea39', 'cards_form': 'f159e81d34c0a9f9', 'cards_curse': 'f89e823a62aa03ca'},
 }
 TITLE_DIGEST = {
-    'mist': {'0_None': '96332275734e9873', '0_bolt': 'a3d2af5695e9fdb6', '0_flash': 'c11c65208d8510e7', '0_glow': 'bb61df4537c82835', '0_dark': 'a3d2af5695e9fdb6', '2_None': 'fa00c5dac1455141', '2_bolt': '76a420dda14b725f', '2_flash': '683ccfdbc9a80c9c', '2_glow': 'e4aac5e20e64b8b0', '2_dark': '76a420dda14b725f'},
+    'mist': {'0_None': '96332275734e9873', '0_bolt': 'a3d2af5695e9fdb6', '0_flash': '79b7ac365eda8ccc', '0_glow': 'bb61df4537c82835', '0_dark': 'a3d2af5695e9fdb6', '2_None': 'fa00c5dac1455141', '2_bolt': '76a420dda14b725f', '2_flash': 'ca21b8b008e2359b', '2_glow': 'e4aac5e20e64b8b0', '2_dark': '76a420dda14b725f'},
     'plate': {'0_None': '7953c8af79829697', '2_None': '07ca9bb3cb141af2'},
     'plate_code': {'0_None': '7a88abf1168794ce', '2_None': 'ee4dabfe94a926ac'},
     'crystal': {'0_None': 'cd03ff02e3c5e164', '2_None': '50542a0ca7b7705d'},
@@ -925,16 +929,18 @@ S1_DIGEST = {
 MIST_DONE_DIGEST = {
     'pause_0': '7c2a8885d1b28a99', 'pause_build_2': 'f9913e8d78a0b16a', 'pause_ask': '78b44769b58dffa7',
     'keys_0': '89e6b6949d456e3d', 'keys_listen': 'e52db5bf5ec26c81', 'keys_buttons': '793b1540dbcb3f05',
-    'ending_dead_choose': 'b9e6f5c9ad866e37', 'ending_dead': '52682eb733096be5', 'ending_clear': '11eef79b43905daf',
-    'credits_0': '9806d3b1e8a2a935', 'credits_mid': '0b0823fe314bdbc0',
+    'ending_dead_choose': '43eade0e9df9adaa', 'ending_dead': '52682eb733096be5', 'ending_clear': '11eef79b43905daf',
+    'credits_0': '9806d3b1e8a2a935', 'credits_mid': '0079b3bc44f0a3ff',
     # H2(11/27)이 mist HUD 다섯 장면을 바꿨다: 위험·페이드 맥박이 바깥 띠 대신 게이지 테두리(critical·fade_items_curse),
     # 들지 않은 무기 칸 테두리 dim -> line·아이콘·숫자 밝게(모든 장면), 켜지 않았지만 쓸 수 있는 E 칸 테두리 e1 -> line(enhanced 밖의 장면).
     # S1 전 값: normal 8efe4fcd6336eccb, critical b31072f9b278ac7c, fade_items_curse 3bb41f6c79aa52a0, enhanced 865db9d39038e5d6, boss 00693a953f9a52ad
-    'hud_normal': '23b4e49a3fc1f2c2', 'hud_critical': 'c4f647940e7a08a6', 'hud_fade_items_curse': 'bdaf7e221ef01150',
+    # R1(11/27): ending_dead_choose = 맡길 물건 이름을 칸 위로·칸 간격 88(묶음 6, 전 b9e6f5c9ad866e37), credits_mid = 크레딧 문구(묶음 4, 전 0b0823fe314bdbc0),
+    # hud_critical·hud_fade_items_curse = 맥박이 켜진 프레임의 구간 눈금을 테두리 안쪽까지만(묶음 5, 전 c4f647940e7a08a6·bdaf7e221ef01150)
+    'hud_normal': '23b4e49a3fc1f2c2', 'hud_critical': '9fb9d92670150de6', 'hud_fade_items_curse': 'b14964aa31ca37d3',
     'hud_enhanced': '9d1b7738804e202b', 'hud_boss': 'f572fa1d75edfce9', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # mist에서도 쓰는 철판 쪽 작은 그림 (판·틀·띠·키·노란 표시가 아니다). up_step_off는 증강 카드의 진행 칸(이미 끝난 화면이라 그대로 둔다)
-MIST_PLATE_ICONS_OK = PLATE_ICONS_OK + ('up_step_off',)
+MIST_PLATE_ICONS_OK = PLATE_ICONS_OK          # R1(11/27): 증강 카드의 진행 칸도 mist 부품 um_step_*으로 (전에는 up_step_off를 여기서 허용했다)
 PICK_PARTS = ('um_pick_cursor', 'um_pick_cursor_off')
 
 
@@ -1237,7 +1243,8 @@ def test_h2_e_slot_is_plain_until_enhance_is_on():
         assert _frame_at(r, _e_slot_x(), ui.ACT_Y) == f'ui/um_hud_frame_e{n}.png', n
     r, p = _h2_log(_h2_state('normal'), 0.1, gauge_to(22))
     assert not p.gauge.can_enhance() and not p.gauge.enhanced
-    assert _frame_at(r, _e_slot_x(), ui.ACT_Y) == 'ui/um_hud_frame_dim.png'
+    # R1(11/27): 못 쓰는 E 칸도 테두리는 들지 않은 무기 칸과 같은 기본 회백 (dim은 어두운 방에서 거의 안 보였다). 못 씀은 흐린 아이콘·글자·빈 점으로
+    assert _frame_at(r, _e_slot_x(), ui.ACT_Y) == 'ui/um_hud_frame_line.png'
 
 
 def _luma(c):
@@ -1442,6 +1449,308 @@ def test_w1_new_parts_follow_pixel_rules():
         assert hud_kit.YELLOW not in cols, name
         if not name.startswith('um_wp_a_crystal_haze'):
             assert CYAN not in cols, name
+
+
+# ----- R1 나머지 손질 (11/27, docs/opus/TASKS.md '4차' R1) -----
+def _yellowish(c):
+    """경고 노랑 계열: 빨강·초록이 밝고 파랑이 그보다 한참 낮다 ((255,240,150), (230,210,150) 등)."""
+    r, g, b = c[:3]
+    return r >= 200 and g >= 190 and b <= min(r, g) - 50
+
+
+def _texts(r):
+    """기록에서 (글, 색) 줄: kit.text는 그림자 + 글자 두 줄로 남는다."""
+    return [(row[3], tuple(row[4])) for row in r.log if row[0] == 'draw_text']
+
+
+def test_r1_armory_title_is_not_yellow_in_mist():
+    """(묶음 2) mist 무기 걸이 창 제목 '무기 걸이'는 밝은 회백(사람이 아니라 인물 색이 없다). 사람 NPC 이름 색은 그대로. 옛 스킨은 그대로."""
+    import npc as npc_mod
+    r = _npc_log('mist', 'armory', 0)
+    cols = [c for t, c in _texts(r) if t == '무기 걸이' and c != hud_kit.SHADOW]
+    assert cols and not any(_yellowish(c) for c in cols), cols
+    assert all(min(c) >= 200 for c in cols), cols                       # 밝은 회백
+    for kind in ('mechanic', 'keeper', 'archivist'):
+        cols = [c for t, c in _texts(_npc_log('mist', kind, 0)) if t == npc_mod.NAMES[kind] and c != hud_kit.SHADOW]
+        assert cols == [npc_mod.COLORS[kind]], (kind, cols)
+
+
+def _hub_npc_log(skin_name, kind):
+    import npc as npc_mod
+
+    class P:
+        x, y = 600, 100
+    n = npc_mod.NPC(kind, 600, 100)
+    n.player = P()
+
+    def go():
+        import assets
+        old = assets.outline_image
+        try:
+            assets.outline_image = lambda rel, *a, **k: _Img(rel)          # 창 없이는 외곽선을 못 굽는다
+            with _Recorder() as r:
+                n.draw()
+            return r
+        finally:
+            assets.outline_image = old
+    return _with_skin(skin_name, go)
+
+
+def test_r1_hub_npc_prompt_is_light_grey_not_warning_yellow_in_mist():
+    """(묶음 2) 은신처 NPC 머리 위 상호작용 안내('F 기본 능력 영구 강화' 등): mist에서는 진열대 'F 획득'(S1)과 같은 밝은 회백 그림자 글자.
+    다른 스킨은 예전 경고 노랑 (255,240,150) 그대로."""
+    import npc as npc_mod
+    for kind in ('mechanic', 'keeper', 'archivist', 'armory', 'practice'):
+        prompt = f'F {npc_mod.ROLES[kind]}'
+        cols = [c for t, c in _texts(_hub_npc_log('mist', kind)) if t == prompt]
+        assert cols == [hud_kit.SHADOW, (236, 240, 248)], (kind, cols)
+        for skin_name in ('plate', 'plate_code', 'crystal'):
+            cols = [c for t, c in _texts(_hub_npc_log(skin_name, kind)) if t == prompt]
+            assert cols == [(255, 240, 150)], (skin_name, kind, cols)
+
+
+def _augment_log(skin_name, have=1):
+    """증강 카드 셋 (기본 증강: 진행 칸 두 개). have: 이미 가진 같은 갈래 수 (0이면 칸 하나만 찬다)."""
+    import mutation_mode as mm
+    import mutations as mu
+    p = dict(_hud_states())['normal']()[0]
+    ids = list(mu.MUTATIONS)[:3]
+
+    def mut():
+        mm.setup(p, ids)
+        mm.age = 5.0
+        mm.selected = 1
+    return _with_skin(skin_name, lambda: _draw_log(mm, mut))
+
+
+def test_r1_augment_step_cells_are_thin_frames_in_mist():
+    """(묶음 3) mist 증강 카드의 진행 칸은 철판 칸(up_step_*)이 아니라 가는 테두리(2px)의 작은 칸 um_step_off/on.
+    찬 칸은 갈래 색 그대로(뜻이 같다). 칸 크기·자리는 예전과 같다."""
+    r = _augment_log('mist')
+    paths = r.paths()
+    assert not any('up_step' in p or 'uc_step' in p for p in paths), paths
+    assert 'ui/um_step_off.png' in paths or 'ui/um_step_on.png' in paths, paths
+    for name in ('um_step_off', 'um_step_on'):
+        a = np.array(Image.open(os.path.join(UI, name + '.png')).convert('RGBA'))
+        old = np.array(Image.open(os.path.join(UI, 'up_step_off.png')).convert('RGBA'))
+        assert a.shape == old.shape, (name, a.shape)
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), name
+        edge = np.ones(a.shape[:2], bool)
+        edge[2:-2, 2:-2] = False
+        ring = {tuple(int(v) for v in c) for c in a[edge][:, :3]}
+        assert len(ring) == 1, (name, ring)                                 # 테두리는 한 줄 한 색 (도트 1칸 = 2px)
+        inner = {tuple(int(v) for v in c) for c in a[~edge][:, :3]}
+        assert len(inner) == 1 and max(next(iter(inner))) < 40, (name, inner)   # 속은 어두운 한 색 (찬 칸 색은 코드가 깐다)
+        assert hud_kit.YELLOW not in ring | inner, name
+    # 찬 칸은 갈래 색 사각형으로 속을 채운다
+    import mutations as mu
+    colors = {tuple(mu.FAMILIES[f]['color']) for f in mu.FAMILIES}
+    fills = [row for row in r.log if row[0] == 'draw_rect_color' and len(row) > 5 and tuple(row[5]) in colors]
+    assert fills, '찬 칸이 없다'
+
+
+def test_r1_flat_low_e_slot_outline_matches_the_idle_weapon_slot():
+    """(묶음 5-1) HUD_WEAPON_STYLE 'flat'(기본): 게이지가 모자라 강화를 못 쓰는 E 칸의 테두리 = 들지 않은 무기 칸 테두리(같은 부품, 같은 밝기).
+    못 쓴다는 것은 흐린 아이콘(색 곱)·흐린 키 글자·'강화 N%+' 흐린 글자·빈 단계 점으로 알린다."""
+    import ui
+    assert config.HUD_WEAPON_STYLE == 'flat'
+
+    def low(p):
+        p.gauge.value = 22
+        p.gauge.zone = p.gauge._zone_of(22)
+    r, p = _h2_log(_h2_state('normal'), 0.1, low)
+    assert not p.gauge.can_enhance() and not p.gauge.enhanced
+    e = _frame_at(r, _e_slot_x(), ui.ACT_Y)
+    xs = [ui.ACT_RIGHT - 2 * ui.SLOT - 14 + i * (ui.SLOT + 14) for i in range(2)]
+    frames = [_frame_at(r, x, ui.ACT_Y) for x in xs]
+    idle = [f for f in frames if f != 'ui/um_hud_frame_hot.png']
+    assert idle, frames
+    assert e == idle[0], (e, idle)
+    assert abs(_luma(_frame_color(e)) - _luma(_frame_color(idle[0]))) < 1
+    assert _luma(_frame_color(e)) >= IDLE_MIN_LUMA
+    tinted = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1] == 'ui/icon_enhance.png']
+    assert tinted, '못 쓰는 E 아이콘이 흐리지 않다'
+    dots = [row for row in r.log if row[0] == 'draw_rect_color' and len(row) > 5 and tuple(row[5]) in
+            {tuple(c) for c in config.ENHANCE_LEVEL_COLOR.values()}]
+    assert not dots, dots                                                  # 빈 단계 점
+
+
+def test_r1_gauge_ticks_stay_inside_the_pulsing_frame():
+    """(묶음 5-2) 위험·페이드 맥박이 켜진 프레임: 구간 경계 흰 눈금이 굵어진 색 테두리(바깥 6px ~ 안쪽 2px)를 가로지르지 않는다 —
+    눈금은 테두리 안쪽(막대 위아래 2px 틈까지)에만. 꺼진 프레임과 다른 구간은 예전 그대로."""
+    import math
+    import ui
+    white = (242, 246, 250)
+    for name, on, off in (('critical', math.pi / 18, 3 * math.pi / 18), ('fade_items_curse', math.pi / 12, 3 * math.pi / 12)):
+        r, _p = _h2_log(_h2_state(name), on)
+        ticks = [row for row in r.log if row[0] == 'draw_rect_color' and tuple(row[5]) == white and row[3] == 4 and row[4] > ui.BAR_H // 2]
+        assert ticks, name
+        for row in ticks:
+            y, h = row[2], row[4]
+            assert y >= ui.BAR_Y - 2 and y + h <= ui.BAR_Y + ui.BAR_H + 2, (name, row)
+        r, _p = _h2_log(_h2_state(name), off)
+        ticks = [row for row in r.log if row[0] == 'draw_rect_color' and tuple(row[5]) == white and row[3] == 4 and row[4] > ui.BAR_H // 2]
+        assert ticks and all(row[2] == ui.BAR_Y - 6 and row[4] == ui.BAR_H + 12 for row in ticks), (name, ticks)
+
+
+def _backdrop_flag_during(mod, prep=None):
+    """mod.draw()가 아래 멈춘 게임(play_mode.draw_frozen = game_world.render)을 그리는 동안의 game_world.quiet 값들."""
+    import game_world
+    seen = []
+    old = game_world.render
+
+    class Under:
+        __name__ = 'play_mode'
+
+        @staticmethod
+        def draw_frozen():
+            seen.append(getattr(game_world, 'quiet', False))
+    try:
+        game_world.render = lambda *a, **k: seen.append(getattr(game_world, 'quiet', False))
+        _draw_log(mod, prep, under=Under)
+    finally:
+        game_world.render = old
+    return seen
+
+
+def test_r1_menus_draw_the_frozen_game_without_its_text_overlays_in_mist():
+    """(묶음 6-1) mist에서 일시정지·NPC 창·연습 메뉴·효과음 듣기가 뒤에 멈춘 게임을 깔 때는 게임의 글자 덮개(처음 안내 카드,
+    연습장 '초당 피해'·안내 줄, NPC 이름표·머리 위 안내, 이벤트 방 이름)를 빼고 그린다(game_world.quiet). 방·캐릭터·HUD는 그대로 비친다.
+    다른 스킨과 증강 카드 화면은 예전처럼 다 그린다."""
+    import game_world
+    import mutation_mode
+    import npc_mode
+    import pause_mode
+    import practice_mode
+    import sfx_mode
+
+    def pause_prep():
+        pause_mode.enter()
+    p = dict(_hud_states())['normal']()[0]
+
+    def prac_prep():
+        practice_mode.selected, practice_mode.player = 2, p
+    for mod, prep in ((npc_mode, None), (practice_mode, prac_prep), (sfx_mode, None), (pause_mode, pause_prep)):
+        seen = _with_skin('mist', lambda: _backdrop_flag_during(mod, prep))
+        assert seen and all(seen), (mod.__name__, seen)
+        seen = _with_skin('plate', lambda: _backdrop_flag_during(mod, prep))
+        assert seen and not any(seen), (mod.__name__, seen)
+    assert not getattr(game_world, 'quiet', False)
+    seen = _with_skin('mist', lambda: _backdrop_flag_during(mutation_mode))
+    assert not any(seen), seen                                               # 증강 카드는 이번에 바꾸지 않는다
+
+
+def test_r1_text_overlays_hide_while_quiet():
+    """(묶음 6-1) game_world.quiet이면 처음 안내 카드·연습장 글자·NPC 이름표·머리 위 안내가 글자를 그리지 않는다 (그림은 그린다)."""
+    import game_world
+    import npc as npc_mod
+    import practice
+    import tutorial
+
+    class St:
+        name = 'practice'
+
+    class P:
+        x, y = 600, 100
+    t = tutorial.Tutorial.__new__(tutorial.Tutorial)
+    t.__dict__.update(tutorial.Tutorial.__new__(tutorial.Tutorial).__dict__)
+    n = npc_mod.NPC('mechanic', 600, 100)
+    n.player = P()
+    hud = practice.PracticeHud(St())
+
+    def go():
+        import assets
+        old = assets.outline_image
+        try:
+            assets.outline_image = lambda rel, *a, **k: _Img(rel)
+            with _Recorder() as r:
+                n.draw()
+                hud.draw()
+            return r
+        finally:
+            assets.outline_image = old
+    try:
+        game_world.quiet = True
+        r = _with_skin('mist', go)
+        assert not [row for row in r.log if row[0] == 'draw_text'], r.log
+        assert any(row[0] == 'draw_image' for row in r.log)                 # NPC 그림은 그린다
+    finally:
+        game_world.quiet = False
+    r = _with_skin('mist', go)
+    assert [row for row in r.log if row[0] == 'draw_text']
+    import inspect
+    assert 'quiet' in inspect.getsource(tutorial.Tutorial.draw)
+
+
+def test_r1_npc_back_button_has_its_own_shade_in_mist():
+    """(묶음 6-1) NPC 창 '돌아가기' 뒤에 글자 뒤 어둠을 한 번 더 깐다 (은신처 무기 걸이 그림이 비쳐 겹쳤다)."""
+    import npc_mode
+    r = _npc_log('mist', 'mechanic', 0, crystals=40)
+    back = npc_mode._buttons()[-1]
+    shades = [row for row in r.log if row[0] == 'draw_rect_color' and len(row) > 6 and row[5] == (4, 6, 12)]
+    cy = back.y + back.h // 2
+    assert any(row[1] <= back.x + back.w // 2 - 60 and row[1] + row[3] >= back.x + back.w // 2 + 60
+               and row[2] <= cy - 14 and row[2] + row[4] >= cy + 14 for row in shades), shades
+
+
+# 사망 결과 일러스트(screen_death.png)의 쓰러진 주인공 머리 상자 (화면 좌표, 아래가 0): 원래 크기 그림에서 잰 값 (x 605~765, 위에서 745~855)
+DEAD_HEAD = (605, 1080 - 855, 765, 1080 - 745)
+DEAD_CLEAR = 16                                    # 머리와 떨어뜨릴 거리 (px)
+
+
+def _boxes_apart(a, b, gap):
+    return a[2] + gap <= b[0] or b[2] + gap <= a[0] or a[3] + gap <= b[1] or b[3] + gap <= a[1]
+
+
+def test_r1_dead_result_item_group_clears_the_fallen_hero():
+    """(묶음 6-2) 사망 결과(mist): 고른 물건 이름의 뒤집힌 블록·커서·물건 칸이 일러스트의 쓰러진 주인공 머리에서 DEAD_CLEAR px 이상 떨어진다.
+    물건이 셋·넷일 때, 어느 것을 골라도. 이 화면은 키(A D·Enter)로만 고른다(마우스로 누르는 자리가 없다: 보이는 자리만 옮기면 된다)."""
+    import inspect
+    import ending_mode as em
+    import items
+    assert 'MOUSE' not in inspect.getsource(em.handle_events)
+    ids = [i for i in items.ITEMS][:3]
+    for choices in ([ids[0], ids[1], None], [ids[0], ids[1], ids[2], None]):
+        for choice in range(len(choices)):
+            def prep():
+                em.result, em.reward = 'dead', 12
+                em.summary = [('도달한 구역', '구역 2 · 공장'), ('걸린 시간', '12:34'), ('클리어한 방', '9'), ('처치한 적', '41'),
+                              ('처치한 보스·관문', '1'), ('받은 헤이즈 결정', '+12'), ('사망 원인', '크래셔의 강타')]
+                em.choices, em.choice, em.choosing, em.kept = list(choices), choice, True, None
+                em.ending_line, em.easy_hint = '', ''
+            r = _with_skin('mist', lambda: _draw_log(em, prep))
+            boxes = []
+            for row in r.log:
+                if row[0] == 'draw_rect_color' and len(row) > 5 and row[5] == mm_ph() and row[4] >= 20:
+                    boxes.append((row[1], row[2], row[1] + row[3], row[2] + row[4]))              # 뒤집힌 블록
+                if row[0] == 'draw_image' and row[1] == 'ui/um_cursor.png':
+                    boxes.append((row[2] - 13, row[3], row[2] + 13, row[3] + 42))                  # 커서 (26x42)
+                if row[0] == 'draw_clip' and row[1].startswith('ui/um_hud_frame_ph'):
+                    boxes.append((row[6], row[7], row[6] + 8, row[7] + 8))                         # 물건 칸 테두리 조각
+            assert len(boxes) > 4, boxes
+            for b in boxes:
+                assert _boxes_apart(b, DEAD_HEAD, DEAD_CLEAR), (choices, choice, b)
+
+
+def mm_ph():
+    import mist_menu as mm
+    return mm.PH
+
+
+def test_r1_sfx_inverted_block_has_two_px_under_every_name():
+    """(묶음 6-3) 효과음 듣기: 모든 종류·모든 줄에서 고른 이름의 뒤집힌 블록이 실제 글자 픽셀을 위아래 2px 이상 여유로 감싼다
+    (소문자 g 등이 있는 줄도. S1-fix의 재는 방법: SDL_ttf로 글자 픽셀을 잰다)."""
+    import mist_menu as mm
+    import sfx_mode
+    n = 0
+    for cat, (_label, names) in enumerate(sfx_mode.catalog()):
+        for row in range(len(names)):
+            def prep(cat=cat, row=row):
+                sfx_mode.cat, sfx_mode.row, sfx_mode.marks = cat, row, {}
+            r = _with_skin('mist', lambda: _draw_log(sfx_mode, prep))
+            n += _inverted_text_fits(r, (mm.PH,), (mm.PH_BG,), f'sfx_{cat}_{row}', margin=2)
+    assert n > 50, n
 
 
 if __name__ == '__main__':

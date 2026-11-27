@@ -20,6 +20,19 @@ COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (1
 SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None), 'practice': (60, 120, None), 'drifter': (44, 117, (150, 110, 70))}
 
 
+PROMPT_MIST = (236, 240, 248)      # mist: 진열대 'F 획득'(S1)과 같은 밝은 회백 그림자 글자 (R1, 11/27. 경고 노랑을 쓰지 않는다)
+
+
+def draw_prompt(x, y, s):
+    """머리 위 상호작용 안내 ('F 기본 능력 영구 강화' 등). mist는 밝은 회백 그림자 글자(키 글자도 같은 줄에 같은 색,
+    플레이 방의 진열대 안내와 같은 모양), 다른 스킨은 예전 경고 노랑 그대로."""
+    import hud_kit as kit
+    if kit.is_mist():
+        kit.text(x, y, s, PROMPT_MIST, small=True, center=True)
+    else:
+        assets.draw_text(x, y, s, (255, 240, 150), small=True, center=True)
+
+
 class NPC:
     def __init__(self, kind, x, y):
         self.kind, self.x, self.y = kind, x, y
@@ -45,11 +58,14 @@ class NPC:
             assets.draw_image(assets.image(rel), self.x, self.y, face)
         else:
             self._draw_placeholder()
+        import game_world
+        if game_world.quiet:                        # R1: mist 메뉴 창 뒤에 깔린 멈춘 은신처에서는 이름표·안내를 빼고 (그림만)
+            return
         color = COLORS[self.kind]
         top = self.y + (132 if self._art else SHAPES[self.kind][1])
         assets.draw_text(self.x, top + 34, self.name, color, small=True, center=True)
         if self.player is not None and self.near(self.player):
-            assets.draw_text(self.x, top + 70, f'F {ROLES[self.kind]}', (255, 240, 150), small=True, center=True)
+            draw_prompt(self.x, top + 70, f'F {ROLES[self.kind]}')
 
     def _draw_placeholder(self):
         if self.kind == 'armory':

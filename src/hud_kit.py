@@ -375,6 +375,17 @@ HUD_EDGE = 4                                       # 9칸 테두리 그림의 �
 MIST_MARKS = ('uc_dash_on', 'uc_dash_off', 'uc_combo_on', 'uc_combo_off', 'uc_combo_fin', 'uc_dot_off')
 
 
+def frozen_backdrop(draw_fn):
+    """메뉴 창 뒤에 멈춘 게임을 깐다 (draw_fn). mist면 그동안 game_world.quiet: 게임의 글자 덮개를 빼고 방·캐릭터·HUD만 (R1, 11/27)."""
+    import game_world
+    old = game_world.quiet
+    game_world.quiet = is_mist()
+    try:
+        draw_fn()
+    finally:
+        game_world.quiet = old
+
+
 def hud_panel(kind, x, y, w, h, tone='line', alpha=HUD_WELL_ALPHA):
     """HUD 판. mist: 바탕 한 장 + 테두리 한 줄(um_hud_frame_<tone>: line 회백 / dim / hot 지금 것 / red / cyan / gold / e1~e3).
     alpha는 바탕 불투명도 (미니맵은 1.0: 뒤 벽이 비치면 방 칸처럼 보인다). 다른 스킨: panel(kind, ...) 그대로."""

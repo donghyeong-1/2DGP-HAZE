@@ -156,20 +156,27 @@ class Spot:
 
     def draw(self):
         import assets
+        import game_world
         p = self.player
         color = COLORS[self.kind]
+        quiet = game_world.quiet                              # R1: mist 메뉴 창 뒤에 깔린 멈춘 화면에서는 글자를 빼고 (그림만)
         if self.npc is not None:
             self.npc.player = None if self.used else p       # 거래를 마치면 안내를 띄우지 않는다
             self.npc.draw()
             top = self.y + 132
+            if quiet:
+                return
             if p is not None and not self.used and self.npc.near(p) and self.greeting:   # 인사말: 안내('F 거래') 위에
                 assets.draw_text(self.x, top + 106, self.greeting, (235, 220, 190), small=True, center=True)
         else:
             frame = 'dry' if self.used else str(int(self.time / SPRING_FRAME) % SPRING_FRAMES + 1)   # 물결 4장 (PixelLab)
             assets.draw_image(assets.image(f'ui/event_spring_{frame}.png'), self.x, self.y)
             top = self.y + 104
+            if quiet:
+                return
             assets.draw_text(self.x, top + 34, NAMES[self.kind], color if not self.used else (130, 140, 160), small=True, center=True)
             if p is not None and not self.used and self.near(p):
-                assets.draw_text(self.x, top + 70, PROMPT[self.kind], (255, 240, 150), small=True, center=True)
+                import npc as npc_mod                                    # R1: 떠돌이 죄수(npc.NPC)의 안내와 같은 모양
+                npc_mod.draw_prompt(self.x, top + 70, PROMPT[self.kind])
         if self.used:
             assets.draw_text(self.x, top + 70, DONE[self.kind], (130, 140, 160), small=True, center=True)

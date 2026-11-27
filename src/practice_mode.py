@@ -150,7 +150,7 @@ FOOTER = [('Esc F', '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter
 def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
-        _under.draw_frozen()
+        kit.frozen_backdrop(_under.draw_frozen)            # mist: '초당 피해'·안내 카드·이름표 없이 (R1)
     if kit.is_mist():
         _draw_mist()
         update_canvas()

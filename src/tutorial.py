@@ -98,6 +98,9 @@ class Tutorial:
         왼쪽에 청록 띠, 제목, 왼쪽 정렬 줄, 아래에 남은 시간 막대. 옆에서 미끄러져 들어왔다 나간다."""
         if self.current is None:
             return
+        import game_world
+        if game_world.quiet:                       # R1: mist 메뉴 창 뒤에 깔린 멈춘 게임에서는 안내 카드를 빼고
+            return
         import boss_intro
         if boss_intro.hud_hidden():                # v8 보스 등장씬 동안은 숨긴다 (HUD와 같이)
             return

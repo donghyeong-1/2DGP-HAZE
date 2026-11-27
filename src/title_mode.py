@@ -69,7 +69,7 @@ def resume():
 
 def run(key):
     """메뉴 항목 실행."""
-    assets.play_sound('pickup')
+    assets.play_sound('ui_start')                  # S3: 메뉴 소리 (예전 묶음에서는 pickup 그대로)
     if key == 'start':
         import play_mode
         game_framework.change_mode(play_mode)
@@ -95,7 +95,7 @@ def handle_events():
         before = selected
         selected, action = kit.menu_pick(MENU, selected, event, H)
         if selected != before and event.type != SDL_MOUSEBUTTONDOWN:
-            assets.play_sound('swing_fade')                # 고르는 소리 (작게)
+            assets.play_sound('ui_title_move')             # 고르는 소리 (작게). S3: 예전 묶음에서는 swing_fade 그대로
         if action == 'click':
             run(MENU[selected].key)
             return

@@ -8,7 +8,16 @@
    "license": "CC0 1.0",
    "license_text": "License (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ You may use these assets in personal and commercial projects. Credit (Kenney or www.kenney.nl) would be nice but is not mandatory.",
    "got": "2026-11-24 (사용자가 kenney.nl에서 받은 압축 파일 다섯. 11-27에 같은 압축에서 더 꺼냄)",
-   "site_entry": "Free Game Dev Assets catalog/audio: kenney-impact-sounds, kenney-interface-sounds, kenney-sci-fi-sounds, kenney-rpg-audio (모두 license CC0, status active). Digital Audio는 같은 작가·같은 라이선스"
+   "site_entry": "Free Game Dev Assets catalog/audio: kenney-impact-sounds, kenney-interface-sounds, kenney-sci-fi-sounds, kenney-rpg-audio, kenney-ui-audio (모두 license CC0, status active). Digital Audio는 같은 작가·같은 라이선스. S3(11-28): UI Audio(압축 안 이름 UI SFX Set)는 사용자가 2026-11-27에 받은 kenney_ui-audio.zip"
+  },
+  "opengameart_footsteps": {
+   "title": "Footsteps",
+   "author": "gboxmikefozzy (OpenGameArt.org)",
+   "url": "https://opengameart.org/content/footsteps-0",
+   "license": "CC0 1.0",
+   "license_text": "원래 페이지의 문구는 읽지 못했다(사이트가 자동 접근을 막는다). CC0는 Free Game Dev Assets 목록 catalog/audio/gboxmikefozzy-footsteps.md의 표기(license CC0, status active). 제출 전 사용자가 페이지에서 확인",
+   "got": "2026-11-27 사용자가 브라우저로 받음, 2026-11-28 assets/sfx_src/opengameart_footsteps/로 복사 (SOURCE.md)",
+   "site_entry": "Free Game Dev Assets catalog/audio: gboxmikefozzy-footsteps"
   }
  },
  "sounds": {
@@ -1790,41 +1799,41 @@
     "kenney/impact-sounds/impactSoft_medium_001.ogg",
     "kenney/impact-sounds/impactSoft_medium_002.ogg",
     "kenney/impact-sounds/impactSoft_medium_004.ogg",
-    "kenney/rpg-audio/footstep01.ogg",
-    "kenney/rpg-audio/footstep03.ogg",
-    "kenney/rpg-audio/footstep08.ogg"
+    "opengameart_footsteps/03-footstep.ogg",
+    "opengameart_footsteps/04-footstep.ogg",
+    "opengameart_footsteps/06-footstep.ogg"
    ],
    "synth": [],
    "files": {
     "land": {
      "length": 0.2,
-     "peak_db": -8.63,
+     "peak_db": -8.19,
      "loud_db": -21.01,
-     "rms_db": -23.61,
+     "rms_db": -22.98,
      "lead_ms": 0.18,
      "clip": false,
-     "centroid": 455.04,
-     "low": 0.37
+     "centroid": 253.02,
+     "low": 0.63
     },
     "land_v2": {
      "length": 0.2,
-     "peak_db": -6.15,
+     "peak_db": -7.84,
      "loud_db": -21.01,
-     "rms_db": -23.76,
+     "rms_db": -22.97,
      "lead_ms": 0.18,
      "clip": false,
-     "centroid": 518.84,
-     "low": 0.35
+     "centroid": 239.94,
+     "low": 0.67
     },
     "land_v3": {
      "length": 0.2,
-     "peak_db": -9.79,
-     "loud_db": -21.0,
-     "rms_db": -23.89,
+     "peak_db": -8.04,
+     "loud_db": -21.01,
+     "rms_db": -22.72,
      "lead_ms": 0.23,
      "clip": false,
-     "centroid": 493.26,
-     "low": 0.17
+     "centroid": 437.91,
+     "low": 0.45
     }
    }
   },
@@ -1917,6 +1926,80 @@
      "clip": false,
      "centroid": 516.74,
      "low": 0.0
+    }
+   }
+  },
+  "step": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "opengameart_footsteps/01-footstep.ogg",
+    "opengameart_footsteps/02-footstep.ogg",
+    "opengameart_footsteps/03-footstep.ogg",
+    "opengameart_footsteps/04-footstep.ogg",
+    "opengameart_footsteps/05-footstep.ogg",
+    "opengameart_footsteps/06-footstep.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "step": {
+     "length": 0.18,
+     "peak_db": -9.72,
+     "loud_db": -24.0,
+     "rms_db": -24.8,
+     "lead_ms": 0.27,
+     "clip": false,
+     "centroid": 374.62,
+     "low": 0.3
+    },
+    "step_v2": {
+     "length": 0.18,
+     "peak_db": -5.28,
+     "loud_db": -24.0,
+     "rms_db": -25.53,
+     "lead_ms": 0.41,
+     "clip": false,
+     "centroid": 1778.88,
+     "low": 0.22
+    },
+    "step_v3": {
+     "length": 0.18,
+     "peak_db": -11.59,
+     "loud_db": -24.0,
+     "rms_db": -26.7,
+     "lead_ms": 0.86,
+     "clip": false,
+     "centroid": 348.38,
+     "low": 0.37
+    },
+    "step_v4": {
+     "length": 0.18,
+     "peak_db": -6.08,
+     "loud_db": -24.0,
+     "rms_db": -25.98,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 438.4,
+     "low": 0.52
+    },
+    "step_v5": {
+     "length": 0.18,
+     "peak_db": -8.91,
+     "loud_db": -24.0,
+     "rms_db": -26.76,
+     "lead_ms": 0.29,
+     "clip": false,
+     "centroid": 452.71,
+     "low": 0.62
+    },
+    "step_v6": {
+     "length": 0.18,
+     "peak_db": -10.47,
+     "loud_db": -24.0,
+     "rms_db": -26.84,
+     "lead_ms": 0.48,
+     "clip": false,
+     "centroid": 415.65,
+     "low": 0.81
     }
    }
   },
@@ -2733,18 +2816,57 @@
   "ui_move": {
    "group": "⑥ 메뉴",
    "sources": [
-    "kenney/interface-sounds/tick_002.ogg"
+    "kenney/ui-audio/click2.ogg",
+    "kenney/ui-audio/switch17.ogg"
    ],
    "synth": [],
    "files": {
     "ui_move": {
      "length": 0.07,
-     "peak_db": -2.58,
-     "loud_db": -21.46,
-     "rms_db": -16.14,
-     "lead_ms": 0.09,
+     "peak_db": -4.36,
+     "loud_db": -21.01,
+     "rms_db": -20.0,
+     "lead_ms": 0.5,
      "clip": false,
-     "centroid": 3195.35,
+     "centroid": 551.99,
+     "low": 0.58
+    }
+   }
+  },
+  "ui_title_move": {
+   "group": "⑥ 메뉴",
+   "sources": [
+    "kenney/ui-audio/rollover4.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_title_move": {
+     "length": 0.09,
+     "peak_db": -6.59,
+     "loud_db": -22.0,
+     "rms_db": -22.77,
+     "lead_ms": 0.45,
+     "clip": false,
+     "centroid": 997.34,
+     "low": 0.0
+    }
+   }
+  },
+  "ui_value": {
+   "group": "⑥ 메뉴",
+   "sources": [
+    "kenney/ui-audio/click4.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_value": {
+     "length": 0.06,
+     "peak_db": -3.1,
+     "loud_db": -21.08,
+     "rms_db": -19.24,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2803.62,
      "low": 0.0
     }
    }
@@ -2752,38 +2874,61 @@
   "ui_select": {
    "group": "⑥ 메뉴",
    "sources": [
-    "kenney/interface-sounds/select_006.ogg"
+    "kenney/ui-audio/click2.ogg",
+    "kenney/ui-audio/switch11.ogg"
    ],
    "synth": [],
    "files": {
     "ui_select": {
-     "length": 0.16,
-     "peak_db": -9.98,
+     "length": 0.13,
+     "peak_db": -5.95,
      "loud_db": -18.0,
-     "rms_db": -20.84,
+     "rms_db": -19.82,
      "lead_ms": 0.5,
      "clip": false,
-     "centroid": 634.9,
-     "low": 0.0
+     "centroid": 1089.42,
+     "low": 0.18
+    }
+   }
+  },
+  "ui_start": {
+   "group": "⑥ 메뉴",
+   "sources": [
+    "kenney/ui-audio/click2.ogg",
+    "kenney/ui-audio/rollover6.ogg",
+    "kenney/ui-audio/switch32.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_start": {
+     "length": 0.15,
+     "peak_db": -4.18,
+     "loud_db": -17.0,
+     "rms_db": -19.54,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 865.64,
+     "low": 0.5
     }
    }
   },
   "ui_back": {
    "group": "⑥ 메뉴",
    "sources": [
-    "kenney/interface-sounds/back_002.ogg"
+    "kenney/ui-audio/rollover5.ogg",
+    "kenney/ui-audio/switch17.ogg"
    ],
    "synth": [],
    "files": {
     "ui_back": {
-     "length": 0.09,
-     "peak_db": -6.43,
-     "loud_db": -19.02,
-     "rms_db": -19.76,
-     "lead_ms": 0.18,
+     "length": 0.1,
+     "peak_db": -3.47,
+     "loud_db": -20.02,
+     "rms_db": -20.51,
+     "lead_ms": 0.5,
      "clip": false,
-     "centroid": 698.26,
-     "low": 0.19
+     "centroid": 716.43,
+     "low": 0.03
     }
    }
   },

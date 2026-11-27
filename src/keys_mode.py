@@ -77,7 +77,7 @@ def press_key(key):
             message = f'{name}: {keybinds.NAMES[action]} · {old}: {keybinds.NAMES[before]}'
         else:
             message = f'{name}: {keybinds.NAMES[action]}'
-        assets.play_sound('pickup')
+        assets.play_sound('ui_value')
     else:
         message = f'{keybinds.NAMES[before]}에 남는 키가 없어 변경할 수 없습니다'
 
@@ -87,7 +87,7 @@ def _run_button(i):
     if i == 0:
         keybinds.reset_defaults()
         message = '기본 키로 되돌렸습니다'
-        assets.play_sound('pickup')
+        assets.play_sound('ui_value')
     else:
         game_framework.pop_mode()
 

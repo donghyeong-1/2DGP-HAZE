@@ -106,7 +106,7 @@ def change(item, step):
         options.toggle_easy()
     elif item == 'test':
         options.toggle_test_mode()
-    assets.play_sound('pickup')                    # 바뀐 효과음 크기를 바로 들려준다
+    assets.play_sound('ui_value')                    # 바뀐 효과음 크기를 바로 들려준다
 
 
 def _segments(item):
@@ -161,7 +161,7 @@ def click(mx, my):
             (options.set_music if item == 'music' else options.set_sfx)(level)
             if item == 'music':
                 assets.apply_music_volume()
-        assets.play_sound('pickup')
+        assets.play_sound('ui_value')
         return True
     return False
 

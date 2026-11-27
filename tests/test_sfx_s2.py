@@ -30,7 +30,8 @@ def _names(folder):
 
 
 def _base(names):
-    return [n for n in names if not n.endswith(('_v2', '_v3'))]
+    import re
+    return [n for n in names if not re.search(r'_v\d$', n)]
 
 
 def _manifest():
@@ -55,11 +56,13 @@ def test_every_name_the_game_plays_resolves_in_both_sets():
     names = set(_base(_names(V2))) | set(_base(_names(V3)))
     for s in ('v3', 'v2'):
         for n in names:
+            if s == 'v2' and n in config.SFX_NEW_ONLY:      # S3: 예전 묶음에 없던 소리(발소리)는 v2에서 조용하다
+                continue
             p = assets.sfx_path(n, s)
             assert p and os.path.exists(p), (s, n)
     literal = _literal_names()
     for n in literal:
-        assert assets.sfx_path(n, 'v3') and assets.sfx_path(n, 'v2'), n
+        assert assets.sfx_path(n, 'v3') and (assets.sfx_path(n, 'v2') or n in config.SFX_NEW_ONLY), n
 
 
 def _literal_names():
@@ -83,7 +86,7 @@ def test_new_files_format_peak_and_lead_silence():
         assert m['peak_db'] <= -1.0 and not m['clip'], (n, m['peak_db'])
         assert m['peak_db'] > -20, (n, m['peak_db'])                        # 무음이 아니다 (겹쳐 나는 색 소리는 작다)
         assert m['lead_ms'] <= 5.0, (n, m['lead_ms'])
-        base = n[:-3] if n.endswith(('_v2', '_v3')) else n
+        base = _base([n])[0] if _base([n]) else n[:n.rindex('_v')]
         if base in config.SFX_VARIANTS:
             assert 0.1 <= m['length'] <= 0.45, (n, m['length'])
         assert m['length'] <= 2.0, (n, m['length'])

@@ -1176,3 +1176,18 @@ Codex는 이 PC에서 모델 오류로 시작하지 못했고, Antigravity(Gemin
 1. 철파이프 타격(impact_pipe·_heavy)과 휘두르기(swing_1~3): 묵직한지, 칼 소리처럼 들리지 않는지.
 2. 쌍권총 shot·impact_pistol: 총처럼 들리는지, 연사할 때 시끄럽지 않은지. 3. 건틀릿·사슬(impact_gauntlet, chain_throw·latch).
 4. 적 맞는 소리(hit_flesh·armor·mech), 적 예고(windup_*: 예전보다 '빨아들이는' 소리), 5. 대시·점프·착지·피격·물약, 6. 메뉴, 오버로드·연속 처치.
+
+## S3 발소리와 메뉴 소리 (2026-11-28, 사용자 "다운로드 폴더에 있는데 복사해 가")
+- 받은 것 둘: Kenney UI Audio(`Downloads/kenney_ui-audio.zip`, 새 빈 폴더에 음원·License.txt만 풀어 씀, 쓴 원본 8개), OpenGameArt "Footsteps"(gboxmikefozzy, 지휘 쪽이 `assets/sfx_src/opengameart_footsteps/`로 복사, 6개 모두 씀). **BigSoundBank 소리는 없었다**(쇠·사슬·주먹·총성·증기는 S2 그대로).
+- 발소리 라이선스: 목록(Free Game Dev Assets)의 CC0 표기까지만. 원래 페이지는 읽지 못했다(자동 접근 차단, 읽으려 하지 않음). 제출 전 사용자 확인.
+- **발소리는 원래 없었다** -> 주인공 달리기·뒷걸음에 넣음: 달리기 그림 8장을 보고 발이 닿는 장을 1·5번으로 정했다(4·8번은 두 발이 떠 있다). 그 장으로 넘어가는 순간 `step` 한 번 = 128px마다(초당 3.75걸음). 땅·달리기 상태에서만(공중·대시·피격·기절 아님). 원본마다 발뒤꿈치가 닿는 곳부터 자름(01·03·05는 앞에 끌리는 소리가 0.05~0.09초라 그대로면 늦게 들린다).
+  크기: 파일 -24dBFS(움직임 -21보다 3dB 아래) x `SFX_V3_LEVEL`, 조절 `config.FOOTSTEP_VOLUME`=1.0, 끄기 `config.FOOTSTEP_ON`=False. 변주 여섯 = 원본 여섯, 직전과 다른 것을 무작위(`config.SFX_VARIANT_COUNT`). 적 발소리는 넣지 않음.
+- 착지 `land`(변주 셋): 발소리 녹음 중 저음이 큰 셋(04·03·06)을 몸통으로 + Kenney 콘크리트 발소리 -5dB + 부드러운 충격 -10dB. S2판은 Kenney 콘크리트 발소리가 몸통. 저음(200Hz 아래) 비율 S2 0.17~0.37 -> 새 0.45~0.67, 밝기 455~519 -> 240~438Hz, 크기 같음(재생 -18.1).
+- 메뉴 소리(Kenney UI Audio, 밝은 클릭은 0.65~0.9배로 낮춤): 이동 `ui_move` 0.07초 552Hz / 줄 이동(타이틀) `ui_title_move` 0.09초 / 값 변경 `ui_value` 0.06초 2800Hz(가장 높고 짧음) / 확인 `ui_select` 0.13초 / 시작 `ui_start` 0.15초 저음 / 뒤로 `ui_back` 0.10초 내려가는 두 소리. 재생 크기 -14.1(시작) ~ -19.1(타이틀 이동).
+  이름을 새로 준 셋(`ui_value`·`ui_start`·`ui_title_move`)이 나던 자리에서 예전에는 pickup(0.35초, 재생 -7.6)·swing_fade(0.22초, -13.0)가 났다: 메뉴에서 6~10dB 작고 짧아진다.
+- 두 판: S3(기본 'v3') / S2판(`'v3s2'`, `assets/sfx_v3_s2`: S2 레시피로 다시 구운 것이 커밋된 S2 파일과 바이트까지 같음) / 예전(`'v2'`). 효과음 듣기 V가 소리마다 있는 판만 돌린다.
+- 다시 구운 소리: 메뉴 여섯(셋은 새 이름), 착지 셋, 발소리 여섯(새) = 121종, 파일 180개. 나머지는 바이트까지 그대로.
+- 확인: 테스트 먼저 `tests/test_sfx_s3.py` 9개(걸음 주기에 한 번, 뒷걸음, 공중·대시·끔, 변주 여섯 연달아 같지 않음, 크기 값, v2 대신 소리, S2판 묶음, 메뉴가 메뉴 소리를 부름, V 순서). 실제 창(모니터 2, 임시 설정): 세 묶음 모두 못 읽은 소리 0, 1.5초 달리며 발소리 4번, V 새 -> S2 -> 예전, 크레딧 줄이 화면 안. 표 `shots/review/S3_sfx_table.md`, 파형 `S3_sfx_wave.png`, 화면 `S3_sfx_room.png`·`S3_credits.png`.
+- 크레딧 전: '효과음 117종 · 배경음악 8곡' / '효과음 녹음 원본 - Kenney (kenney.nl) Impact · Interface · Sci-fi · RPG · Digital Audio, CC0'
+  후: '효과음 121종 · 배경음악 8곡' / '효과음 녹음 원본 - Kenney (kenney.nl) Impact · Interface · Sci-fi · RPG · Digital · UI Audio, CC0' / '발소리 녹음 원본 - Footsteps by gboxmikefozzy (OpenGameArt.org), CC0'
+- 사용자가 귀로 확인할 것: 달리면서 발소리(전투 소리를 가리지 않는지, 빠르기가 발과 맞는지, 시끄러우면 `FOOTSTEP_VOLUME`이나 `FOOTSTEP_ON`), 메뉴 이동·확인·뒤로가 서로 구별되는지(효과음 듣기 '메뉴'에서 V로 S2판·예전과), 착지.

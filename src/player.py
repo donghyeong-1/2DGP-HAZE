@@ -546,6 +546,12 @@ class Player(TileBody):
         self.slot = 1 if self.weapons[1] is not None else 0
         self.weapon = self.weapons[self.slot]
 
+    def _run_frame(self):
+        """지금 그리는 달리기 장 번호(1~8): 앞으로 달리면 1 -> 8, 뒷걸음이면 8 -> 1 (그리기와 같은 셈, S3 발소리)."""
+        count = 8
+        k = int(self.move_dist / config.RUN_FRAME_PX) % count
+        return k + 1 if self._move_sign() == self.face_dir else count - k
+
     def drink_potion(self):
         """물약을 마신다 (Q). 체력 POTION_HEAL 회복. 마셨으면 True."""
         if (self.state == 'DEAD' or self.potions <= 0 or self.potion_cool > 0 or self.hp >= self.max_hp):
@@ -733,7 +739,11 @@ class Player(TileBody):
             self.gauge.value = min(max(self.gauge.value, 5.0), self.gauge.cap - 1.0)
         self.dead_time = self.dead_time + dt if self.state == 'DEAD' else 0.0
         if self.state == 'RUN' and self.on_ground:
+            before = self._run_frame()
             self.move_dist += abs(self.vx) * dt
+            after = self._run_frame()
+            if after != before and after in config.FOOTSTEP_FRAMES and config.FOOTSTEP_ON:
+                assets.play_sound('step')                    # S3: 발이 땅에 닿는 장마다 발소리 한 번
         else:
             self.move_dist = 0.0
         if self._was_stunned and not self.stunned and self.state != 'DEAD':   # 기절에서 깨어나는 순간

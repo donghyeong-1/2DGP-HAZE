@@ -213,11 +213,11 @@ def _sfx_set(sfx_set=None):
 
 def sfx_path(name, sfx_set=None):
     """효과음 파일 경로 (S2-2). 'v3'은 assets/sfx_v3에 있으면 그것, 없으면 예전 assets/sfx. 'v2'는 예전 것만.
+    S3: 'v3s2'는 assets/sfx_v3_s2(S2판 메뉴·착지) -> sfx_v3 -> sfx (config.SFX_CHAIN).
     둘 다 없으면 config.SFX_FALLBACK의 대신 소리. 그래도 없으면 None."""
     import config
     s = _sfx_set(sfx_set)
-    order = [config.SFX_DIRS[s]] + ([config.SFX_DIRS['v2']] if s != 'v2' else [])
-    for folder in order:
+    for folder in config.SFX_CHAIN[s]:
         p = os.path.join(ASSET_DIR, folder, name + '.wav')
         if os.path.exists(p):
             return p
@@ -229,8 +229,9 @@ def sfx_gain(name, sfx_set=None):
     """효과음 음량 균형 배율. 예전 파일(assets/sfx)이면 config.SFX_GAIN, v3 파일이면 config.SFX_GAIN_V3 (없으면 1.0)."""
     import config
     p = sfx_path(name, sfx_set)
-    if p and os.path.basename(os.path.dirname(p)) == config.SFX_DIRS['v3']:
-        return config.SFX_V3_LEVEL * config.SFX_GAIN_V3.get(name, 1.0)
+    if p and os.path.basename(os.path.dirname(p)) in (config.SFX_DIRS['v3'], config.SFX_DIRS['v3s2']):
+        g = config.SFX_V3_LEVEL * config.SFX_GAIN_V3.get(name, 1.0)
+        return g * config.FOOTSTEP_VOLUME if name == 'step' else g          # S3 발소리는 따로 크기 값
     return config.SFX_GAIN.get(name, 1.0)
 
 
@@ -263,7 +264,7 @@ def sfx_names():
     """지금 묶음에서 부를 수 있는 소리 이름 (예전 묶음 + v3 묶음의 파일 이름)."""
     import config
     names = set()
-    for s in {config.SFX_DIRS['v2'], config.SFX_DIRS[_sfx_set()]}:
+    for s in config.SFX_CHAIN[_sfx_set()]:
         folder = os.path.join(ASSET_DIR, s)
         if os.path.isdir(folder):
             names |= {f[:-4] for f in os.listdir(folder) if f.endswith('.wav')}
@@ -293,11 +294,18 @@ def preload(sounds=True):
 
 
 _variant_turn = {}
+_variant_rng = __import__('random').Random(5)
 
 
 def variant_of(name):
     """자주 나는 소리는 3버전을 차례로 돌린다 (같은 소리가 기관총처럼 반복되지 않게, 직전과 늘 다르다). 그 밖의 소리는 그대로."""
     import config
+    n = config.SFX_VARIANT_COUNT.get(name)
+    if n:                                       # S3 발소리: 변주 n개 가운데 직전과 다른 것을 무작위로
+        last = _variant_turn.get(name)
+        k = _variant_rng.choice([i for i in range(n) if i != last])
+        _variant_turn[name] = k
+        return name if k == 0 else f'{name}_v{k + 1}'
     if name not in config.SFX_VARIANTS:
         return name
     k = _variant_turn.get(name, 0)

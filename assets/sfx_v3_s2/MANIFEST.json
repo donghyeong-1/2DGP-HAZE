@@ -1,0 +1,129 @@
+{
+ "note": "tools/make_sfx_v3.py가 굽는다. sounds: 이름 -> 묶음·쓴 원본(assets/sfx_src 아래)·합성 보조·수치",
+ "sources": {
+  "kenney": {
+   "title": "Kenney Impact Sounds · Interface Sounds · Sci-fi Sounds · RPG Audio · Digital Audio",
+   "author": "Kenney Vleugels (Kenney.nl)",
+   "url": "https://kenney.nl/assets/impact-sounds , /interface-sounds , /sci-fi-sounds , /rpg-audio , /digital-audio",
+   "license": "CC0 1.0",
+   "license_text": "License (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ You may use these assets in personal and commercial projects. Credit (Kenney or www.kenney.nl) would be nice but is not mandatory.",
+   "got": "2026-11-24 (사용자가 kenney.nl에서 받은 압축 파일 다섯. 11-27에 같은 압축에서 더 꺼냄)",
+   "site_entry": "Free Game Dev Assets catalog/audio: kenney-impact-sounds, kenney-interface-sounds, kenney-sci-fi-sounds, kenney-rpg-audio, kenney-ui-audio (모두 license CC0, status active). Digital Audio는 같은 작가·같은 라이선스. S3(11-28): UI Audio(압축 안 이름 UI SFX Set)는 사용자가 2026-11-27에 받은 kenney_ui-audio.zip"
+  },
+  "opengameart_footsteps": {
+   "title": "Footsteps",
+   "author": "gboxmikefozzy (OpenGameArt.org)",
+   "url": "https://opengameart.org/content/footsteps-0",
+   "license": "CC0 1.0",
+   "license_text": "원래 페이지의 문구는 읽지 못했다(사이트가 자동 접근을 막는다). CC0는 Free Game Dev Assets 목록 catalog/audio/gboxmikefozzy-footsteps.md의 표기(license CC0, status active). 제출 전 사용자가 페이지에서 확인",
+   "got": "2026-11-27 사용자가 브라우저로 받음, 2026-11-28 assets/sfx_src/opengameart_footsteps/로 복사 (SOURCE.md)",
+   "site_entry": "Free Game Dev Assets catalog/audio: gboxmikefozzy-footsteps"
+  }
+ },
+ "sounds": {
+  "ui_move": {
+   "group": "S2판 (S3 전)",
+   "sources": [
+    "kenney/interface-sounds/tick_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_move": {
+     "length": 0.07,
+     "peak_db": -2.58,
+     "loud_db": -21.46,
+     "rms_db": -16.14,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 3195.35,
+     "low": 0.0
+    }
+   }
+  },
+  "ui_select": {
+   "group": "S2판 (S3 전)",
+   "sources": [
+    "kenney/interface-sounds/select_006.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_select": {
+     "length": 0.16,
+     "peak_db": -9.98,
+     "loud_db": -18.0,
+     "rms_db": -20.84,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 634.9,
+     "low": 0.0
+    }
+   }
+  },
+  "ui_back": {
+   "group": "S2판 (S3 전)",
+   "sources": [
+    "kenney/interface-sounds/back_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_back": {
+     "length": 0.09,
+     "peak_db": -6.43,
+     "loud_db": -19.02,
+     "rms_db": -19.76,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 698.26,
+     "low": 0.19
+    }
+   }
+  },
+  "land": {
+   "group": "S2판 (S3 전)",
+   "sources": [
+    "kenney/impact-sounds/footstep_concrete_001.ogg",
+    "kenney/impact-sounds/footstep_concrete_002.ogg",
+    "kenney/impact-sounds/footstep_concrete_004.ogg",
+    "kenney/impact-sounds/impactSoft_medium_001.ogg",
+    "kenney/impact-sounds/impactSoft_medium_002.ogg",
+    "kenney/impact-sounds/impactSoft_medium_004.ogg",
+    "kenney/rpg-audio/footstep01.ogg",
+    "kenney/rpg-audio/footstep03.ogg",
+    "kenney/rpg-audio/footstep08.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "land": {
+     "length": 0.2,
+     "peak_db": -8.63,
+     "loud_db": -21.01,
+     "rms_db": -23.61,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 455.04,
+     "low": 0.37
+    },
+    "land_v2": {
+     "length": 0.2,
+     "peak_db": -6.15,
+     "loud_db": -21.01,
+     "rms_db": -23.76,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 518.84,
+     "low": 0.35
+    },
+    "land_v3": {
+     "length": 0.2,
+     "peak_db": -9.79,
+     "loud_db": -21.0,
+     "rms_db": -23.89,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 493.26,
+     "low": 0.17
+    }
+   }
+  }
+ }
+}

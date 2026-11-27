@@ -16,6 +16,10 @@ v2(tools/make_sfx.py 합성 + make_sfx_v2.py)는 numpy 합성음이 바탕이었
   python tools/make_sfx_v3.py --import <Kenney 압축을 푼 폴더>   (쓰는 원본을 assets/sfx_src/kenney로 복사)
   python tools/make_sfx_v3.py                                   (assets/sfx_v3 다시 굽기 + MANIFEST.json)
   python tools/make_sfx_v3.py --review shots/review             (S2_sfx_table.md, S2_sfx_wave.png)
+  python tools/make_sfx_v3.py --review-s3 shots/review          (S3 발소리·메뉴: S3_sfx_table.md, S3_sfx_wave.png)
+  python tools/make_sfx_v3.py --only step ui_move               (그 이름만 다시 굽기)
+S3 (2026-11-28): 메뉴 소리를 Kenney UI Audio로, 발소리(step, 새 소리)와 착지에 OpenGameArt "Footsteps"(gboxmikefozzy, CC0 표기).
+  S2판 메뉴·착지는 RECIPES_S2 -> assets/sfx_v3_s2 (config.SFX_SET = 'v3s2'로 고를 수 있다).
 필요: numpy, scipy, pysdl2(SDL_mixer, ogg 읽기), Pillow(--review)
 """
 import argparse
@@ -37,6 +41,7 @@ ROOT = os.path.dirname(HERE)
 SRC_ROOT = os.path.join(ROOT, 'assets', 'sfx_src')
 OUT = os.path.join(ROOT, 'assets', 'sfx_v3')
 OLD = os.path.join(ROOT, 'assets', 'sfx')
+OUT_S2 = os.path.join(ROOT, 'assets', 'sfx_v3_s2')     # S3: S2판 메뉴·착지 소리를 남기는 곳 (config.SFX_SET = 'v3s2')
 R = K.RATE
 
 # ----- 출처 표 (원본이 어디서 왔는지. tests/test_sfx_s2.py가 레시피의 원본이 모두 여기 있는지 본다) -----
@@ -51,16 +56,30 @@ SOURCES = {
                      'Credit (Kenney or www.kenney.nl) would be nice but is not mandatory.',
         got='2026-11-24 (사용자가 kenney.nl에서 받은 압축 파일 다섯. 11-27에 같은 압축에서 더 꺼냄)',
         site_entry='Free Game Dev Assets catalog/audio: kenney-impact-sounds, kenney-interface-sounds, kenney-sci-fi-sounds, '
-                   'kenney-rpg-audio (모두 license CC0, status active). Digital Audio는 같은 작가·같은 라이선스',
+                   'kenney-rpg-audio, kenney-ui-audio (모두 license CC0, status active). Digital Audio는 같은 작가·같은 라이선스. '
+                   'S3(11-28): UI Audio(압축 안 이름 UI SFX Set)는 사용자가 2026-11-27에 받은 kenney_ui-audio.zip',
+    ),
+    'opengameart_footsteps': dict(
+        title='Footsteps',
+        author='gboxmikefozzy (OpenGameArt.org)',
+        url='https://opengameart.org/content/footsteps-0',
+        license='CC0 1.0',
+        license_text='원래 페이지의 문구는 읽지 못했다(사이트가 자동 접근을 막는다). CC0는 Free Game Dev Assets 목록 '
+                     'catalog/audio/gboxmikefozzy-footsteps.md의 표기(license CC0, status active). 제출 전 사용자가 페이지에서 확인',
+        got='2026-11-27 사용자가 브라우저로 받음, 2026-11-28 assets/sfx_src/opengameart_footsteps/로 복사 (SOURCE.md)',
+        site_entry='Free Game Dev Assets catalog/audio: gboxmikefozzy-footsteps',
     ),
 }
 
-PACK = {'IM': 'impact-sounds', 'UI': 'interface-sounds', 'SF': 'sci-fi-sounds', 'RP': 'rpg-audio', 'DG': 'digital-audio'}
+PACK = {'IM': 'impact-sounds', 'UI': 'interface-sounds', 'SF': 'sci-fi-sounds', 'RP': 'rpg-audio', 'DG': 'digital-audio',
+        'UA': 'ui-audio'}
 
 
 def src_path(ref):
     """'IM:impactMetal_heavy_002' -> 'kenney/impact-sounds/impactMetal_heavy_002.ogg' (assets/sfx_src 아래)."""
     pack, name = ref.split(':')
+    if pack == 'FS':                                          # S3: OpenGameArt 발소리
+        return f'opengameart_footsteps/{name}.ogg'
     return f'kenney/{PACK[pack]}/{name}.ogg'
 
 
@@ -68,7 +87,7 @@ def src_path(ref):
 def L(src, at=0.0, db=0.0, k=1.0, start=0.0, length=None, hp=None, lp=None, rev=False, decay=None, sweep=None, fade_in=0.0,
       swell=None):
     """녹음 원본 한 겹. src·k는 변주(1·2·3)마다 다른 값을 줄 수 있다(목록).
-    start·length: 원본(앞 무음을 자른 뒤)의 구간(초). k: 음 높이 배율(길이는 1/k). hp·lp: 필터(Hz). rev: 뒤집기.
+    start·length: 원본(앞 무음을 자른 뒤)의 구간(초). start도 변주마다 목록으로 줄 수 있다. k: 음 높이 배율(길이는 1/k). hp·lp: 필터(Hz). rev: 뒤집기.
     decay: 꼬리를 이 시간 상수(초)로 줄인다. sweep: (k0, k1) 음 높이를 k0 -> k1로 쓸기. db: 크기. at: 겹치는 시각(초).
     swell: 바람 모양 크기(0~1, 꼭대기 자리). 녹음의 첫 순간이 '딱' 하고 시작해도 휘두르는 바람처럼 솟았다 사라지게."""
     return dict(kind='rec', src=src, at=at, db=db, k=k, start=start, length=length, hp=hp, lp=lp, rev=rev, decay=decay,
@@ -104,6 +123,11 @@ PLL = ['IM:impactPlate_light_000', 'IM:impactPlate_light_002', 'IM:impactPlate_l
 TIN = ['IM:impactTin_medium_000', 'IM:impactTin_medium_002', 'IM:impactTin_medium_004']
 GEN = ['IM:impactGeneric_light_001', 'IM:impactGeneric_light_003', 'IM:impactGeneric_light_004']
 FC = ['IM:footstep_concrete_001', 'IM:footstep_concrete_002', 'IM:footstep_concrete_004']
+FST = [f'FS:0{i}-footstep' for i in range(1, 7)]                    # S3 OpenGameArt 발소리 여섯
+# 원본마다 발뒤꿈치가 닿는 순간(최대값의 30%를 처음 넘는 곳) 8ms 앞부터: 01·03·05는 앞에 끌리는 소리가 길어 그대로면 0.06~0.08초 늦게 들린다
+FST_START = [0.088, 0.0, 0.052, 0.005, 0.072, 0.024]
+FSH = ['FS:04-footstep', 'FS:03-footstep', 'FS:06-footstep']          # 그 가운데 몸통(저음)이 큰 셋 (착지)
+FSH_START = [0.005, 0.052, 0.024]
 FR = ['RP:footstep01', 'RP:footstep03', 'RP:footstep08']
 SL = ['RP:knifeSlice', 'RP:knifeSlice2', 'RP:knifeSlice']          # 칼이 공기를 가르는 녹음: 낮게 하면 휘두르는 바람
 SLK = [1.0, 0.97, 1.09]                                               # 세 번째 변주는 같은 녹음을 더 높게
@@ -305,8 +329,10 @@ RECIPES = {
     'jump': S('move', 0.18, [L(FR, k=1.05, decay=0.06), L(CL, db=-6.0, k=1.4, length=0.12, hp=300)], variants=True, target=-21.0),
     'double_jump': S('move', 0.28, [L('RP:cloth1', k=1.6, length=0.2, hp=300), L('RP:knifeSlice2', db=-8.0, k=1.1, hp=500, decay=0.08),
                                     L('UI:glass_002', at=0.01, db=-16.0, k=0.9, decay=0.08)], target=-19.0),
-    'land': S('move', 0.2, [L(FC, k=0.9), L(FR, db=-4.0, k=0.95, decay=0.06), L(SM, db=-10.0, k=1.0, decay=0.06)],
-              variants=True, target=-21.0),
+    'land': S('move', 0.2, [L(FSH, k=0.9, start=FSH_START, decay=0.07), L(FC, db=-5.0, k=0.9), L(SM, db=-10.0, k=1.0, decay=0.06)],
+              variants=True, target=-21.0),                 # S3: 발소리 녹음(무거운 셋)을 몸통으로, 콘크리트 발소리를 아래에
+    'step': S('move', 0.18, [L(FST, k=[0.97, 1.0, 0.95, 1.02, 0.98, 1.0], start=FST_START, hp=80, lp=4500, length=0.18, decay=0.06)],
+              variants=6, room=0.05, target=-24.0),       # S3 발소리: 원본 여섯 = 변주 여섯. 움직임 소리보다 3dB 아래
     'hit': S('hurt', 0.3, [L(PH, k=0.9), L(SH, db=-4.0, k=0.9, decay=0.1),
                            L('SF:explosionCrunch_002', db=-10.0, k=1.3, length=0.1, hp=1500, decay=0.04),
                            L(CL, db=-10.0, k=1.2, length=0.15)], variants=True),
@@ -371,9 +397,15 @@ RECIPES = {
     'kill_last': S('big', 0.95, [L('IM:impactPunch_heavy_002', k=0.75), L('IM:impactBell_heavy_001', db=-6.0, k=0.7, decay=0.4),
                                  L('SF:lowFrequency_explosion_001', db=-3.0, length=0.85, decay=0.35)], room=0.35, target=-9.0),
     # ⑥ 메뉴
-    'ui_move': S('ui', 0.07, [L('UI:tick_002', k=1.0)], room=0.0, target=-21.0),
-    'ui_select': S('ui', 0.16, [L('UI:select_006', k=1.0, decay=0.08)], room=0.05, target=-18.0),
-    'ui_back': S('ui', 0.09, [L('UI:back_002', k=0.95)], room=0.03, target=-19.0),
+    # S3 (11-28): Kenney UI Audio로. 밝은 클릭은 0.65~0.9배로 낮추고, 이동 < 값 < 확인 < 시작 순으로 길고 낮게, 뒤로는 내려가는 두 소리
+    'ui_move': S('ui', 0.07, [L('UA:switch17', k=0.85, decay=0.03), L('UA:click2', db=-10.0, k=0.9)], room=0.0, target=-21.0),
+    'ui_title_move': S('ui', 0.09, [L('UA:rollover4', k=0.8, decay=0.04)], room=0.04, target=-22.0),
+    'ui_value': S('ui', 0.06, [L('UA:click4', k=0.75, decay=0.025)], room=0.0, target=-21.0),
+    'ui_select': S('ui', 0.13, [L('UA:switch11', k=0.8, decay=0.06), L('UA:click2', db=-4.0, k=0.85)], room=0.05, target=-18.0),
+    'ui_start': S('ui', 0.15, [L('UA:switch32', k=0.75, length=0.15, decay=0.07), L('UA:click2', db=-4.0, k=0.8),
+                               L('UA:rollover6', db=-6.0, k=0.9)], room=0.08, target=-17.0),
+    'ui_back': S('ui', 0.1, [L('UA:switch17', k=0.65, decay=0.04), L('UA:rollover5', at=0.025, db=-5.0, k=0.7, decay=0.04)],
+                 room=0.03, target=-20.0),
     # ⑦ 보스·궁극기
     'ark_bullet': S('boss', 0.25, [L('SF:laserSmall_001', k=1.0, decay=0.1), L('SF:laserRetro_002', db=-10.0, k=1.1, decay=0.06)],
                     room=0.15, target=-14.0),
@@ -410,17 +442,27 @@ RECIPES = {
 # 묶음: 통째로 바꾸거나 통째로 둔다 (tests/test_sfx_s2.py). 위에서부터 우선순위
 GROUPS = {
     '① 타격': [n for n in RECIPES if n.startswith(('swing', 'accent', 'impact', 'shot', 'chain', 'hit_')) or n == 'enemy_hit'],
-    '② 주인공 움직임': ['dash', 'jump', 'double_jump', 'land', 'hit', 'death', 'potion'],
+    '② 주인공 움직임': ['dash', 'jump', 'double_jump', 'land', 'hit', 'death', 'potion', 'step'],
     '③ 적': ['enemy_die', 'windup_slum', 'windup_thrower', 'windup_hound', 'windup_guard', 'windup_drone', 'windup_cart',
             'drone_torch', 'throw', 'throw_fade', 'throw_awake', 'throw_critical', 'throw_enhanced'],
     '④ 게이지': ['warn_low', 'warn_high', 'zone_awake', 'heartbeat', 'overload', 'overload_zap', 'stun_end',
               'enhance', 'enhance_1', 'enhance_2', 'enhance_3'],
     '⑤ 줍기·보상': ['pickup', 'absorb_1', 'absorb_2', 'absorb_3', 'absorb_4', 'absorb_5', 'absorb_done',
                 'kill_streak_1', 'kill_streak_2', 'kill_streak_3', 'kill_streak_4', 'kill_streak_5', 'kill_streak_6', 'kill_last'],
-    '⑥ 메뉴': ['ui_move', 'ui_select', 'ui_back'],
+    '⑥ 메뉴': ['ui_move', 'ui_title_move', 'ui_value', 'ui_select', 'ui_start', 'ui_back'],
     '⑦ 보스·궁극기': ['ark_bullet', 'ark_teleport', 'ark_roar', 'ark_absorb', 'ark_burst', 'ark_field', 'ult_cast', 'ult_hit',
                  'ult_final_pipe', 'ult_final_knife', 'ult_final_pistol', 'ult_final_gauntlet', 'ult_final_chain'],
     '⑧ 환경': ['amb_drip', 'amb_steam', 'amb_wind', 'amb_forge'],
+}
+
+
+# S2판(11-27) 메뉴·착지 소리: S3에서 바꾸기 전 것을 assets/sfx_v3_s2에 남긴다 (config.SFX_SET = 'v3s2', 효과음 듣기 V)
+RECIPES_S2 = {
+    'ui_move': S('ui', 0.07, [L('UI:tick_002', k=1.0)], room=0.0, target=-21.0),
+    'ui_select': S('ui', 0.16, [L('UI:select_006', k=1.0, decay=0.08)], room=0.05, target=-18.0),
+    'ui_back': S('ui', 0.09, [L('UI:back_002', k=0.95)], room=0.03, target=-19.0),
+    'land': S('move', 0.2, [L(FC, k=0.9), L(FR, db=-4.0, k=0.95, decay=0.06), L(SM, db=-10.0, k=1.0, decay=0.06)],
+              variants=True, target=-21.0),
 }
 
 
@@ -475,7 +517,7 @@ def ramp_out(x, sec):
 
 def rec_layer(lay, v, pv):
     x = load_src(pick(v, lay['src']))
-    start = int(lay['start'] * R)
+    start = int(pick(v, lay['start']) * R)
     x = x[start:]
     k = pick(v, lay['k'])
     if not isinstance(lay['k'], list):
@@ -585,7 +627,7 @@ def finish(x, target, length):
 
 
 def build_one(name, recipe, v=1):
-    pv = {1: 1.0, 2: 0.95, 3: 1.05}[v] if recipe['variants'] else 1.0
+    pv = {1: 1.0, 2: 0.95, 3: 1.05}.get(v, 1.0) if recipe['variants'] else 1.0      # 변주 넷 이상(발소리)은 원본이 다르다
     parts, used, synth = [], set(), []
     for lay in recipe['layers']:
         if lay['kind'] == 'rec':
@@ -623,36 +665,53 @@ def variant_names():
     return set(config.SFX_VARIANTS)
 
 
-def build(only=None):
-    os.makedirs(OUT, exist_ok=True)
+def variant_files(name, recipe):
+    n = 3 if recipe['variants'] is True else int(recipe['variants'] or 1)
+    return [(name, 1)] + [(f'{name}_v{v}', v) for v in range(2, n + 1)]
+
+
+def bake(table, groups, out):
+    os.makedirs(out, exist_ok=True)
     frequent = variant_names()
     manifest = {'note': 'tools/make_sfx_v3.py가 굽는다. sounds: 이름 -> 묶음·쓴 원본(assets/sfx_src 아래)·합성 보조·수치',
                 'sources': SOURCES, 'sounds': {}}
-    for group, names in GROUPS.items():
+    for group, names in groups.items():
         for name in names:
-            recipe = RECIPES[name]
-            if only and name not in only:
-                continue
+            recipe = table[name]
             if name in frequent and not recipe['variants']:
                 raise ValueError(f'{name}: 자주 나는 소리인데 변주가 없다')
-            files = [(name, 1)] + ([(name + '_v2', 2), (name + '_v3', 3)] if recipe['variants'] else [])
             info = {'group': group, 'sources': [], 'synth': [], 'files': {}}
-            for fname, v in files:
+            for fname, v in variant_files(name, recipe):
                 x, used, synth = build_one(name, recipe, v)
-                write_wav(os.path.join(OUT, fname + '.wav'), x)
+                write_wav(os.path.join(out, fname + '.wav'), x)
                 info['sources'] = sorted(set(info['sources']) | set(used))
                 info['synth'] = sorted(set(info['synth']) | set(synth))
                 m = M.measure(x)
                 info['files'][fname] = {k: (round(val, 2) if isinstance(val, float) else val) for k, val in m.items()}
             manifest['sounds'][name] = info
-    with open(os.path.join(OUT, 'MANIFEST.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(out, 'MANIFEST.json'), 'w', encoding='utf-8') as f:
         json.dump(manifest, f, ensure_ascii=False, indent=1)
+    return manifest
+
+
+def build(only=None):
+    """assets/sfx_v3 전부(only면 그 이름만 다시 굽고 MANIFEST의 나머지는 그대로) + S2판 메뉴·착지(assets/sfx_v3_s2)."""
+    groups = {g: [n for n in names if not only or n in only] for g, names in GROUPS.items()}
+    if only:
+        manifest = json.load(open(os.path.join(OUT, 'MANIFEST.json'), encoding='utf-8'))
+        manifest['sounds'].update(bake(RECIPES, groups, OUT)['sounds'])
+        manifest['sources'] = SOURCES
+        with open(os.path.join(OUT, 'MANIFEST.json'), 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, ensure_ascii=False, indent=1)
+    else:
+        manifest = bake(RECIPES, groups, OUT)
+    bake(RECIPES_S2, {'S2판 (S3 전)': list(RECIPES_S2)}, OUT_S2)
     return manifest
 
 
 def all_refs():
     refs = set()
-    for recipe in RECIPES.values():
+    for recipe in list(RECIPES.values()) + list(RECIPES_S2.values()):
         for lay in recipe['layers']:
             if lay['kind'] == 'rec':
                 refs |= set(lay['src'] if isinstance(lay['src'], list) else [lay['src']])
@@ -677,7 +736,7 @@ def import_from(folder):
             continue
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copyfile(index[name], dst)
-    for pack in PACK.values():
+    for pack in PACK.values():                      # 묶음 폴더마다 압축 안의 License.txt (S3: ui-audio는 --license-from으로)
         lic = os.path.join(SRC_ROOT, 'kenney', pack, 'License.txt')
         if not os.path.exists(lic):
             raise SystemExit(f'라이선스 문서가 없다: {lic}')
@@ -762,39 +821,43 @@ def review(folder):
     wave_sheet(os.path.join(folder, 'S2_sfx_wave.png'))
 
 
-def wave_sheet(path):
-    """주요 소리 20개: 줄마다 예전 | 새, 각각 파형(위)과 스펙트로그램(아래, 0~11kHz, 밝을수록 큼). 같은 시간 축(0.6초)."""
+def wave_sheet(path, rows=None, cols=None, span=0.6):
+    """주요 소리: 줄마다 칸(예전 | 새 ...), 각각 파형(위)과 스펙트로그램(아래, 0~11kHz, 밝을수록 큼). 같은 시간 축(span초).
+    rows: [(새 이름, 예전 이름)], cols: [(제목, 폴더, 이름 고르기 0=새 이름·1=예전 이름)]. 없으면 S2의 20개 예전 | 새."""
     from PIL import Image, ImageDraw, ImageFont
-    cw, wh, sh, span = 560, 70, 90, 0.6
+    rows = rows or [(n, n) for n in REVIEW_20]
+    cols = cols or [('예전 (assets/sfx)', OLD, 1), ('새 (assets/sfx_v3)', OUT, 0)]
+    cw, wh, sh = 560, 70, 90
     rowh = wh + sh + 30
-    img = Image.new('RGB', (200 + 2 * cw + 30, 40 + rowh * len(REVIEW_20)), (16, 18, 22))
+    img = Image.new('RGB', (200 + len(cols) * (cw + 20) + 10, 40 + rowh * len(rows)), (16, 18, 22))
     d = ImageDraw.Draw(img)
     try:
         font = ImageFont.truetype('malgun.ttf', 14)
     except OSError:
         font = ImageFont.load_default()
-    d.text((200, 10), '예전 (assets/sfx)', fill=(200, 200, 200), font=font)
-    d.text((200 + cw + 20, 10), '새 (assets/sfx_v3)', fill=(200, 200, 200), font=font)
-    for i, name in enumerate(REVIEW_20):
+    for j, (title, _folder, _k) in enumerate(cols):
+        d.text((200 + j * (cw + 20), 10), title, fill=(200, 200, 200), font=font)
+    for i, row in enumerate(rows):
         y0 = 40 + i * rowh
-        d.text((10, y0 + 60), name, fill=(230, 230, 230), font=font)
-        for j, folder in enumerate((OLD, OUT)):
+        d.text((10, y0 + 60), row[0] + (f'\n(예전 {row[1]})' if row[1] != row[0] else ''), fill=(230, 230, 230), font=font)
+        for j, (_title, folder, k) in enumerate(cols):
             x0 = 200 + j * (cw + 20)
-            p = os.path.join(folder, name + '.wav')
+            p = os.path.join(folder, row[k] + '.wav')
             if not os.path.exists(p):
+                d.text((x0 + 4, y0 + 60), '(없음)', fill=(120, 120, 120), font=font)
                 continue
             x = M.read_wav(p)[0]
             m = M.measure(x)
             n = int(span * R)
             xs = np.zeros(n)
             xs[:min(n, len(x))] = x[:n]
-            cols = xs[:cw * (n // cw)].reshape(cw, -1)
+            colv = xs[:cw * (n // cw)].reshape(cw, -1)
             mid = y0 + wh // 2
             for c in range(cw):
-                lo, hi = cols[c].min(), cols[c].max()
+                lo, hi = colv[c].min(), colv[c].max()
                 d.line([(x0 + c, mid - int(hi * wh / 2)), (x0 + c, mid - int(lo * wh / 2))], fill=(120, 200, 230))
             d.line([(x0, mid), (x0 + cw, mid)], fill=(50, 60, 70))
-            f_, t_, Z = signal.spectrogram(xs, fs=R, nperseg=512, noverlap=384)
+            f_, t_, Z = signal.spectrogram(xs, fs=R, nperseg=256 if span < 0.4 else 512, noverlap=192 if span < 0.4 else 384)
             Z = 10 * np.log10(Z[f_ <= 11000] + 1e-12)
             Z = np.clip((Z - (Z.max() - 70)) / 70, 0, 1)
             spec = Image.fromarray((np.flipud(Z) * 255).astype(np.uint8), 'L').resize((cw, sh), Image.BILINEAR)
@@ -805,12 +868,68 @@ def wave_sheet(path):
     img.save(path)
 
 
+S3_NAMES = ['ui_move', 'ui_title_move', 'ui_value', 'ui_select', 'ui_start', 'ui_back', 'land', 'land_v2', 'land_v3',
+            'step', 'step_v2', 'step_v3', 'step_v4', 'step_v5', 'step_v6']
+S3_OLD_NAME = {'ui_value': 'pickup', 'ui_start': 'pickup', 'ui_title_move': 'swing_fade'}    # 예전에 그 자리에서 나던 소리
+
+
+def review_s3(folder):
+    """S3에서 바뀐 소리: 예전(v2) / S2판 / 새(S3) 수치 표(S3_sfx_table.md)와 파형·스펙트로그램(S3_sfx_wave.png)."""
+    sys.path.insert(0, os.path.join(ROOT, 'src'))
+    import config
+    os.makedirs(folder, exist_ok=True)
+    manifest = json.load(open(os.path.join(OUT, 'MANIFEST.json'), encoding='utf-8'))
+    v3db = 20 * np.log10(config.SFX_V3_LEVEL)
+
+    def info(path, gain_db):
+        if not path or not os.path.exists(path):
+            return None
+        x = M.read_wav(path)[0]
+        m = M.measure(x)
+        return dict(m, play=m['loud_db'] + gain_db)
+
+    lines = ['# S3 발소리와 메뉴 소리 (2026-11-28, tools/make_sfx_v3.py --review-s3)', '',
+             '아무도 들어 보지 않았다. 수치만 잰 것이다. 크기 = 실제 재생 크기(가장 큰 50ms RMS + 소리별 배율, dBFS),',
+             '밝기 = 스펙트럼 중심(Hz), 저음 = 200Hz 아래 비율, 앞 = 앞 무음(ms). 예전(v2)에 없던 이름은 그 자리에서 나던 소리를 적었다.',
+             '발소리(step)는 예전에 없던 소리다. 크기에 config.FOOTSTEP_VOLUME(1.0)이 곱해진다.', '',
+             '| 소리 | 원본 (새) | 예전 v2: 길이 / 크기 / 밝기 | S2판: 길이 / 크기 / 밝기 | 새 S3: 길이 / 크기 / 최대 / 앞 / 밝기 / 저음 |',
+             '|---|---|---|---|---|']
+    for name in S3_NAMES:
+        base = name.split('_v')[0] if name.startswith(('land_v', 'step_v')) else name
+        oldname = S3_OLD_NAME.get(name, name)
+        o = info(os.path.join(OLD, oldname + '.wav'), 20 * np.log10(config.SFX_GAIN.get(oldname, 1.0)))
+        s2 = info(os.path.join(OUT_S2, name + '.wav'), v3db)
+        n = info(os.path.join(OUT, name + '.wav'), v3db)
+        srcs = ', '.join(x.split('/')[-1][:-4] for x in manifest['sounds'][base]['sources'])
+
+        def f(m):
+            return f"{m['length']:.2f} / {m['play']:.1f} / {m['centroid']:.0f}" if m else '-'
+        tag = f' (예전 자리: `{oldname}`)' if oldname != name else ''
+        lines.append(f"| `{name}`{tag} | {srcs} | {f(o)} | {f(s2)} | {n['length']:.2f} / {n['play']:.1f} / {n['peak_db']:.1f} / "
+                     f"{n['lead_ms']:.1f} / {n['centroid']:.0f} / {n['low']:.2f} |")
+    steps = [M.read_wav(os.path.join(OUT, f'step{s_}.wav'))[0] for s_ in ['', '_v2', '_v3', '_v4', '_v5', '_v6']]
+    d = [M.spectrum_distance(steps[i], steps[j]) for i in range(6) for j in range(i + 1, 6)]
+    lines += ['', f'발소리 변주 여섯끼리 스펙트럼 모양 차이: 최소 {min(d):.2f}, 평균 {np.mean(d):.2f} (0이면 같은 소리).', '',
+              '걸음 주기: 달리기 8장 가운데 1·5번(발이 닿는 장)마다 한 번 = RUN_FRAME_PX 32 x 4 = 128px마다, '
+              f'달리기 속도 {config.RUN_SPEED:.0f}px/s에서 초당 {config.RUN_SPEED / 128:.2f}걸음(0.27초 간격). 발소리 길이 0.18초라 겹치지 않는다.']
+    with open(os.path.join(folder, 'S3_sfx_table.md'), 'w', encoding='utf-8') as fh:
+        fh.write('\n'.join(lines) + '\n')
+    pairs = [(n, S3_OLD_NAME.get(n, n)) for n in ('ui_move', 'ui_title_move', 'ui_value', 'ui_select', 'ui_start', 'ui_back',
+                                                   'land', 'step', 'step_v2', 'step_v4')]
+    wave_sheet(os.path.join(folder, 'S3_sfx_wave.png'), pairs,
+               [('예전 v2 (그 자리의 소리)', OLD, 1), ('S2판', OUT_S2, 0), ('새 S3', OUT, 0)], span=0.25)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--import', dest='imp', help='Kenney 압축을 푼 폴더')
     ap.add_argument('--only', nargs='*')
     ap.add_argument('--review', help='확인 자료를 쓸 폴더 (예: shots/review)')
+    ap.add_argument('--review-s3', help='S3(발소리·메뉴) 확인 자료를 쓸 폴더')
     a = ap.parse_args()
+    if a.review_s3:
+        review_s3(a.review_s3)
+        return
     if a.imp:
         import_from(a.imp)
     if a.review:

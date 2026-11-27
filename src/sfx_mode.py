@@ -30,7 +30,7 @@ PATH = os.path.join(os.path.dirname(assets.ASSET_DIR), 'sfx_review.json')     # 
 GROUPS = [('swing', '휘두르기'), ('impact', '타격'), ('hit', '맞는 소리'), ('shot', '총'), ('throw', '던지기'), ('chain', '사슬'),
           ('ult', '궁극기'), ('enhance', '강화'), ('overload', '오버로드'), ('kill', '연속 처치'), ('absorb', '흡수'),
           ('dash', '대시'), ('jump', '점프'), ('land', '착지'), ('windup', '적 예고'), ('ark', '아크'), ('amb', '환경'),
-          ('warn', '경고'), ('ui', '메뉴'), ('potion', '물약')]
+          ('warn', '경고'), ('ui', '메뉴'), ('potion', '물약'), ('step', '발소리')]
 OTHER = '기타'
 MARKS = {'good': ('좋음', (150, 240, 170)), 'bad': ('다시 만들기', (255, 130, 130))}
 cat = 0
@@ -118,13 +118,29 @@ def listening():
     return listen or config.SFX_SET
 
 
-def toggle_listen():
-    """V: 새 묶음 <-> 예전 묶음(v2). 게임이 v2를 쓰면 바꿀 것이 없다."""
+LISTEN_SETS = ('v3', 'v3s2', 'v2')
+LISTEN_NAMES = {'v3': '새 소리', 'v3s2': 'S2 소리', 'v2': '예전 소리'}
+
+
+def listen_order(name):
+    """V로 돌아가며 들을 묶음 (S3): 게임이 쓰는 묶음부터, 그 소리의 파일이 앞 묶음과 다른 것만. 예: 메뉴 소리는 새 -> S2판 -> 예전."""
+    order, seen = [], set()
+    for s in (config.SFX_SET,) + tuple(x for x in LISTEN_SETS if x != config.SFX_SET):
+        p = assets.sfx_path(name, s)
+        if p and p not in seen:
+            seen.add(p)
+            order.append(s)
+    return order or [config.SFX_SET]
+
+
+def toggle_listen(name=None):
+    """V: 지금 소리의 다른 판으로 (새 -> S2판 -> 예전 -> 새). 게임이 v2를 쓰면 바꿀 것이 없다."""
     global listen
-    if config.SFX_SET == 'v2':
-        listen = None
-        return listening()
-    listen = 'v2' if listening() != 'v2' else None
+    order = listen_order(name or current())
+    now = listening()
+    i = order.index(now) if now in order else -1
+    nxt = order[(i + 1) % len(order)]
+    listen = None if nxt == config.SFX_SET else nxt
     return listening()
 
 
@@ -143,7 +159,7 @@ def listen_label():
     """화면 한 줄: 지금 듣는 묶음 (게임이 v2만 쓰면 빈 글)."""
     if config.SFX_SET == 'v2':
         return ''
-    return '지금 듣는 소리: 예전 소리' if listening() == 'v2' else '지금 듣는 소리: 새 소리'
+    return '지금 듣는 소리: ' + LISTEN_NAMES.get(listening(), listening())
 
 
 

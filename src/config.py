@@ -702,8 +702,17 @@ SFX_VOLUME = 64            # 0~128
 # tools/make_sfx_v3.py), 'v2' = 예전 묶음(assets/sfx, 합성 + Kenney). v3에 없는 이름은 예전 파일을 쓴다.
 # 들어 보고 별로면 'v2'로 바꾸면 예전 소리로 돌아간다.
 SFX_SET = 'v3'
-SFX_DIRS = {'v2': 'sfx', 'v3': 'sfx_v3'}
-SFX_FALLBACK = {'potion': 'enhance'}     # 묶음에 그 이름이 없을 때 대신 쓰는 소리 (예전 묶음의 물약 = 강화 소리)
+SFX_DIRS = {'v2': 'sfx', 'v3': 'sfx_v3', 'v3s2': 'sfx_v3_s2'}
+# 묶음마다 찾는 폴더 순서 (앞에 없으면 뒤). 'v3s2' = S2판 메뉴·착지 소리(S3에서 바꾸기 전)를 남긴 묶음, 그 밖은 v3와 같다
+SFX_CHAIN = {'v2': ('sfx',), 'v3': ('sfx_v3', 'sfx'), 'v3s2': ('sfx_v3_s2', 'sfx_v3', 'sfx')}
+# 묶음에 그 이름이 없을 때 대신 쓰는 소리: 예전 묶음의 물약 = 강화 소리, S3 메뉴 소리 이름 = 예전에 메뉴에 빌려 쓰던 소리
+SFX_FALLBACK = {'potion': 'enhance', 'ui_value': 'pickup', 'ui_start': 'pickup', 'ui_title_move': 'swing_fade'}
+SFX_NEW_ONLY = ('step',)                 # 예전 묶음(v2)에 없는 소리: v2에서는 조용하다 (대신 소리 없음)
+SFX_VARIANT_COUNT = {'step': 6}          # 변주 수가 셋이 아닌 소리 (발소리는 원본 녹음 여섯 그대로). 이것은 직전과 다른 것을 무작위로
+# S3 발소리 (2026-11-28, OpenGameArt "Footsteps"): 주인공이 땅에서 달리는 동안 발이 닿는 장마다. 예전 묶음(v2)에는 없다
+FOOTSTEP_ON = True                       # 시끄러우면 False로 끈다
+FOOTSTEP_VOLUME = 1.0                    # 발소리 크기 배율 (파일은 움직임 소리보다 3dB 작게 구웠다)
+FOOTSTEP_FRAMES = (1, 5)                 # 달리기 8장 가운데 발이 땅에 닿는 장 (4·8번은 두 발이 다 떠 있다)
 SFX_GAIN_V3 = {}                         # v3는 종류별 목표 크기를 파일에 구웠다: 소리별 보정 없음 (예전 SFX_GAIN은 v2 파일에만)
 SFX_V3_LEVEL = 1.4                       # v3 파일 전체 배율(+2.9dB): 파일은 최대값 여유(-1.2dBFS)를 두고 구워 예전보다 작다. 타격 중앙값을 예전과 맞춤
 MUSIC_VOLUME = 44          # 0~128 (효과음보다 작게 깔린다)

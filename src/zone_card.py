@@ -14,7 +14,7 @@ import config
 import hud_kit as kit
 
 CARDS = {'stage1': 'cell', 'stage2': 'foundry', 'stage3': 'haze'}    # 구역 -> 카드 그림 테마
-NUMBERS = {'stage1': 'STAGE 1', 'stage2': 'STAGE 2', 'stage3': 'FINAL STAGE'}
+NUMBERS = {'stage1': 'SECTOR 09', 'stage2': 'SECTOR 04', 'stage3': 'CORE SECTOR'}
 CARD_H = 400
 CENTER_Y = 560            # 띠 가운데의 화면 y
 OPEN, HOLD, CLOSE = 0.35, 2.0, 0.35

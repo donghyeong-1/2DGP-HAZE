@@ -46,8 +46,9 @@ class Scrap:
 class Shockwave:
     """보스의 바닥 충격파. 바닥을 따라 퍼져 가고 점프나 대시로 피한다. 맞으면 게이지가 크게 내려간다(기획 3.2)."""
 
-    def __init__(self, x, y, direction, speed, damage, gauge_delta, room, player, life=1.5):
+    def __init__(self, x, y, direction, speed, damage, gauge_delta, room, player, life=1.5, owner=None):
         self.x, self.y = x, y              # y는 바닥 윗면
+        self.owner = owner                 # 쏜 적(크래셔·간수·문지기·헤이즈 심장). 사망 원인 이름에 쓴다 (U1, killers.describe)
         self.dir = direction
         self.speed = speed
         self.damage = damage

@@ -69,7 +69,7 @@ def _attack_line(u):
     text, color = u._attack_text(w, g)
     if g.enhanced and g.enhance_level >= config.ENHANCE_MAX_LEVEL:
         import weapon as weapon_mod
-        text, color = '궁극기 ' + weapon_mod.ULT_NAMES[w.weapon_id], (255, 200, 120)
+        text, color = '궁극기 · ' + weapon_mod.ULT_NAMES[w.weapon_id], (255, 200, 120)
     elif g.enhanced:
         text, color = f'강화 {g.enhance_level}단계 ' + text.split(':')[0], config.ENHANCE_LEVEL_COLOR[_tier(g)]
     return text, color

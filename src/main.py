@@ -71,8 +71,8 @@ def run_safely(fn, report=_message_box):
         return 0
     except Exception as e:       # noqa: BLE001 (어떤 오류든 기록을 남기고 끝낸다)
         log.error('오류가 발생해 게임을 종료했습니다', e)
-        report('오류가 나서 게임을 끝냈습니다.\n'
-               '저장은 마지막으로 저장된 곳까지 남아 있습니다.\n\n'
+        report('오류가 발생해 게임을 종료했습니다.\n'
+               '진행 내용은 마지막으로 저장한 시점까지 남아 있습니다.\n\n'
                f'오류 기록: {log.PATH}')
         return 1
 

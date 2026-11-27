@@ -90,7 +90,7 @@ def rows():
         return out
     s = meta.state
     return [(line, '', '', None) for line in STORY['archivist']] + [
-        ('지금까지', f'{s["runs"]}판 · 탈출 {s["escapes"]}번', f'헤이즈 결정 {s["crystals"]}', None)]
+        ('지금까지', f'{s["runs"]}판 · 탈출 {s["escapes"]}번', '', None)]   # U1: 결정 수는 창 오른쪽 위에 이미 있다
 
 
 def act(key):

@@ -28,8 +28,8 @@ GROUPS = [('swing', '휘두르기'), ('impact', '타격'), ('hit', '맞는 소�
           ('ult', '궁극기'), ('enhance', '강화'), ('overload', '오버로드'), ('kill', '연속 처치'), ('absorb', '흡수'),
           ('dash', '대시'), ('jump', '점프'), ('land', '착지'), ('windup', '적 예고'), ('ark', '아크'), ('amb', '환경'),
           ('warn', '경고'), ('ui', '메뉴')]
-OTHER = '그 밖'
-MARKS = {'good': ('좋음', (150, 240, 170)), 'bad': ('바꿔', (255, 130, 130))}
+OTHER = '기타'
+MARKS = {'good': ('좋음', (150, 240, 170)), 'bad': ('다시 만들기', (255, 130, 130))}
 cat = 0
 row = 0
 marks = {}
@@ -160,7 +160,7 @@ def update():
     pass
 
 
-FOOTER = [('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '바꿔'), ('X', '표시 지우기'), ('Esc', '닫기')]
+FOOTER = [('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '다시 만들기'), ('X', '표시 지우기'), ('Esc', '닫기')]
 
 
 def draw():
@@ -179,7 +179,7 @@ def draw():
     total = sum(len(names) for _, names in groups)
     done = sum(1 for names in (g[1] for g in groups) for n in names if n in marks)
     bad = sum(1 for v in marks.values() if v == 'bad')
-    kit.heading(PANEL_X, H - 150, '효과음 듣기', f'표시 {done}/{total} · 바꿔 {bad}')
+    kit.heading(PANEL_X, H - 150, '효과음 듣기', f'표시 {done}/{total} · 다시 만들기 {bad}')
     label, names = groups[cat]
     kit.text(PANEL_X + PANEL_W // 2, H - 220, f'<  {label}  ({cat + 1}/{len(groups)})  >', (255, 230, 150), center=True)
     first = max(0, min(row - VISIBLE // 2, len(names) - VISIBLE))
@@ -195,7 +195,7 @@ def draw():
             kit.text(PANEL_X + PANEL_W - 34, cy, text, color, small=True, right=True)
     if len(names) > VISIBLE:
         kit.text(PANEL_X + PANEL_W - 10, TOP_Y - VISIBLE * ROW_STEP + 14, f'{row + 1}/{len(names)}', kit.FAINT, small=True, right=True)
-    kit.footer([('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '바꿔'), ('X', '표시 지우기'), ('Esc', '닫기')])
+    kit.footer([('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '다시 만들기'), ('X', '표시 지우기'), ('Esc', '닫기')])
     update_canvas()
 
 
@@ -217,7 +217,7 @@ def _draw_mist():
     mm.footer_shade(FOOTER)
     mm.terminal([('TOWER SURVEILLANCE // AUDIO CHECK', mm.PH)])
     mm.title(PANEL_X, H - 150, '효과음 듣기')
-    kit.text(PANEL_X + 2, H - 192, f'표시 {done}/{total} · 바꿔 {bad}', mm.PH_SOFT, small=True)
+    kit.text(PANEL_X + 2, H - 192, f'표시 {done}/{total} · 다시 만들기 {bad}', mm.PH_SOFT, small=True)
     kit.text(PANEL_X + PANEL_W // 2, H - 220, f'<  {label}  ({cat + 1}/{len(groups)})  >', mm.PH, center=True)
     for j, name in enumerate(shown):
         i = first + j

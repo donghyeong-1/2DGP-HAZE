@@ -38,7 +38,7 @@ def setup(p, ids):
 
 
 def choose():
-    """고른 카드의 변이를 준다. 시너지가 켜졌으면 알려 준다."""
+    """고른 카드의 변이를 준다. 계열 효과가 켜지거나 진화가 열렸으면 알려 준다."""
     mid = choices[selected]
     if mid.startswith(events.CARD):                       # v8 이벤트 방 카드: 이어서 고를 카드가 있으면 돌려준다
         got = events.take(player, mid)
@@ -71,8 +71,16 @@ def choose():
     import effects
     cx, cy = player.center
     effects.float_text(cx, cy + 110, mu.MUTATIONS[mid]['name'], mu.FAMILIES[fam]['color'], big=True, life=1.2)
-    if mu.synergy(player, fam) and not before:
-        effects.float_text(cx, cy + 170, f'{mu.FAMILIES[fam]["name"]} 시너지', (255, 230, 140), life=1.6)
+    if mu.synergy(player, fam) and not before:           # 카드 아래 안내와 같은 말 (U1: 전에는 '<갈래> 시너지')
+        evo = mu.evolution_of(fam)
+        if fam in mu.GAUGE_FAMILIES:
+            text = f'{mu.FAMILIES[fam]["name"]} 계열 효과 켜짐'
+        elif evo is not None and not mu.has(player, evo):
+            text = f'진화 열림: {mu.MUTATIONS[evo]["name"]}'
+        else:
+            text = None
+        if text:
+            effects.float_text(cx, cy + 170, text, (255, 230, 140), life=1.6)
 
 
 def card_x(i):
@@ -244,7 +252,8 @@ def _draw_form_card(i, mid):
         img = assets.image(f'ui/icon_w_{wid}.png')
         assets.draw_image(img, x + CARD_W // 2, y + CARD_H - 70 - img.h)
         kit.text(x + CARD_W // 2, y + CARD_H - 54, '형태', color, center=True, small=True)
-        name, sub, desc = forms.FORMS[wid]['name'], mu.WEAPON_NAMES.get(wid, '') + ' · 기본 공격이 바뀝니다', forms.FORMS[wid]['desc']
+        # U1: 부제는 무기 이름만 (화면 제목 아래 문장 '기본 공격이 달라집니다'를 되풀이하지 않는다)
+        name, sub, desc = forms.FORMS[wid]['name'], mu.WEAPON_NAMES.get(wid, ''), forms.FORMS[wid]['desc']
     kit.text(x + CARD_W // 2, y + CARD_H - 200, name, (240, 244, 252), center=True, big=True)
     for j, line in enumerate(_wrap(sub, 13)):
         kit.text(x + CARD_W // 2, y + CARD_H - 250 - j * 28, line, color, center=True, small=True)
@@ -333,8 +342,10 @@ def _draw_card_body(i, mid):
     if weapon:
         sub = mu.WEAPON_NAMES.get(weapon, '') + ' · ' + sub
     kit.text(x + CARD_W // 2, y + CARD_H - 250, sub, color, center=True, small=True)
-    for j, line in enumerate(_wrap(m['desc'], 13)):
-        kit.text(x + CARD_W // 2, y + CARD_H - 300 - j * 30, line, (205, 215, 235), center=True, small=True)   # 세 줄까지 (그 아래는 갈래 칸)
+    desc = _wrap(m['desc'], 13)
+    top = CARD_H - (DESC_TOP_3 if kit.is_mist() and len(desc) >= 3 else 300)   # U1: 세 줄이면 위로 (셋째 줄이 진행 칸에 닿지 않게)
+    for j, line in enumerate(desc):
+        kit.text(x + CARD_W // 2, y + top - j * 30, line, (205, 215, 235), center=True, small=True)   # 세 줄까지 (그 아래는 갈래 칸)
     if tier == 'base':                                    # 이걸 고르면 같은 갈래가 몇 개가 되는가 (진화까지 2개)
         have = (mu.family_count(player, m['family']) if m['family'] in mu.GAUGE_FAMILIES
                 else mu.base_count(player, m['family'])) if player is not None else 0
@@ -354,6 +365,9 @@ def _draw_card_body(i, mid):
     for j, line in enumerate(note):
         kit.text(x + CARD_W // 2, top - j * 26, line, (255, 225, 140) if info['hot'] else MIST_NOTE if kit.is_mist() else (130, 145, 170), center=True,
                  small=True)
+
+
+DESC_TOP_3 = 286          # mist 증강 카드: 설명이 세 줄이면 첫 줄을 카드 위에서 이만큼 (두 줄 이하는 300). 셋째 줄 아래와 진행 칸 사이 약 16px
 
 
 def _wrap(text, n):

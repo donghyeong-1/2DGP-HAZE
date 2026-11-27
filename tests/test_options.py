@@ -100,7 +100,7 @@ def test_options_screen_shows_current_values():
     import options_mode
     options.reset()
     names = [n for n, _, _ in options_mode.lines()]
-    assert names == ['화면 흔들림', '번쩍임 줄이기', '음악 크기', '효과음 크기', '해상도', '마우스 가두기', '처음 안내', '피해 숫자', '초보자 모드', '테스트 모드', '키 설정']
+    assert names == ['화면 흔들림', '번쩍임 줄이기', '배경음악 음량', '효과음 음량', '해상도', '마우스 가두기', '처음 안내', '피해 숫자', '초보자 모드', '테스트 모드', '키 설정']
     values = [v for _, v, _ in options_mode.lines()]
     assert values == ['보통', '끔', str(options.VOLUME_DEFAULT), str(options.VOLUME_DEFAULT), '1920x1080', '끔', '켬', '켬', '끔', '끔', '기본']
 
@@ -255,7 +255,7 @@ def test_credits_scenes_change_as_credits_scroll():
 def test_r2_credits_match_the_art_the_game_draws():
     """R2(11/27): 크레딧 도구 표기가 게임이 실제로 그리는 그림과 맞다.
     - 아이템 아이콘 10종(ui/icon_<id>)은 Codex T13 원본(assets/sprites/forge/icons_v1)과 픽셀까지 같다 -> Codex 줄
-      (진열대 3종은 Q1(11/27)에 PixelLab으로 바뀌었다 -> PixelLab 줄의 '소품'. Codex 줄의 '진열대'는 Q1이 고치지 않았다: 화면 글은 PixelLab 한 줄만)
+      (진열대 3종은 Q1(11/27)에 PixelLab으로 바뀌었다 -> PixelLab 줄의 '소품'. Codex 줄의 '진열대'는 U1-1에서 뺐다)
       (무기 아이콘·형태 아이콘은 코드 그림이라 '아이템 아이콘'으로 좁힌다).
     - HUD 무기·E 패널의 결정·무기 칸 틀(ui/um_wpx_*, 기본 그림 'mix')은 PixelLab -> PixelLab 줄.
     - 캐릭터 동작은 PixelLab 도트를 색 고정·효과 지우기로 다듬은 것(tools/apply_pixellab_*.py) -> 'AI 생성 원화를 직접 픽셀로 마무리'가 아니다."""
@@ -279,6 +279,7 @@ def test_r2_credits_match_the_art_the_game_draws():
     ai, gfx = lines[i:j], lines[j:lines.index('소리')]
     codex = ' '.join(t for t in ai[ai.index(next(t for t in ai if t.startswith('Codex'))):] if not t.startswith(('PixelLab', 'Gemini', 'agent'))).split('PixelLab')[0]
     assert '아이템 아이콘' in codex, codex
+    assert '진열대' not in codex, codex                               # U1-1: 진열대는 PixelLab
     k = next(n for n, t in enumerate(ai) if t.startswith('PixelLab'))
     pix = ' '.join(ai[k:k + 3])
     assert 'HUD 결정' in pix and '무기 칸 틀' in pix, pix

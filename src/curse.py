@@ -23,7 +23,7 @@ CURSES = {
     'weak': {'grade': 1, 'rooms': 3, 'name': '무뎌진 손', 'desc': f'공격력 -{round((1 - WEAK_DAMAGE) * 100)}%', 'short': '공격력 감소'},
     'thirst': {'grade': 1, 'rooms': 3, 'name': '메마름', 'desc': f'적중과 처치로 얻는 게이지 -{round((1 - THIRST_GAIN) * 100)}%',
                'short': '게이지 흡수 감소'},
-    'lowcap': {'grade': 2, 'rooms': 3, 'name': '좁아진 한계', 'desc': f'게이지 한계 -{LOWCAP}%. 빨리 오버로드합니다',
+    'lowcap': {'grade': 2, 'rooms': 3, 'name': '좁아진 한계', 'desc': f'게이지 한계 -{LOWCAP}%. 일찍 오버로드됩니다',
                'short': '게이지 한계 감소'},
     'lock': {'grade': 2, 'rooms': 3, 'name': '굳은 손', 'desc': '무기를 교체할 수 없습니다', 'short': '무기 교체 잠김'},
     'frail': {'grade': 3, 'rooms': 2, 'name': '유리 몸', 'desc': '받는 피해가 2배가 됩니다', 'short': '받는 피해 2배'},

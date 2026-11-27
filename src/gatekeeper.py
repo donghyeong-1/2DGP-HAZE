@@ -175,7 +175,7 @@ class Gatekeeper(Enemy):
         for d in (-1, 1):
             game_world.add_object(
                 projectile.Shockwave(self.x + d * 60, self.y, d, s['wave_speed'] * speed_mult, s['wave_damage'], 0,
-                                     self.room, self.player, life=1.1), game_world.LAYER_EFFECT)
+                                     self.room, self.player, life=1.1, owner=self), game_world.LAYER_EFFECT)
 
     def _move_charge(self, after):
         """방패 돌진: 앞으로 달린다. 벽에 막히면 멈추고 비틀거린다, 낭떠러지·가시 앞에서는 그냥 멈춘다."""

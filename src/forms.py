@@ -20,10 +20,10 @@ import effects
 import game_world
 
 FORMS = {
-    'pipe': dict(name='중량 타격', desc='길게 누르면 힘을 모아 크게 칩니다. 짧게 누르면 느리고 세게 벱니다'),
-    'pistol': dict(name='산탄', desc='가까이 5발을 부채꼴로 쏩니다. 쏠 때마다 반동으로 밀립니다'),
-    'gauntlet': dict(name='연타', desc='빠른 잽을 연달아 칩니다. 세 번째 잽 뒤에도 누르고 있으면 돌진합니다'),
-    'chain': dict(name='갈고리 이동', desc='적에게 걸면 끌어오는 대신 내가 날아가 걷어찹니다'),
+    'pipe': dict(name='중량 타격', desc='길게 누르면 모아서 강타하고, 짧게 누르면 느리고 묵직하게 칩니다'),
+    'pistol': dict(name='산탄', desc='가까이 5발을 부채꼴로 쏘고, 쏠 때마다 반동으로 밀립니다'),
+    'gauntlet': dict(name='연타', desc='빠른 잽을 연달아 칩니다. 3타 뒤에도 누르고 있으면 돌진합니다'),
+    'chain': dict(name='갈고리 이동', desc='적에게 사슬을 걸고 그쪽으로 날아가 걷어찹니다'),
 }
 COLOR = (255, 214, 120)            # 형태 카드·안내의 색 (금색)
 # 형태와 잘 맞는 증강 갈래: 형태를 얻으면 이 갈래의 카드가 MATCH_WEIGHT배 자주 나온다 (판 초반에 싸움 방식이 정해진다)

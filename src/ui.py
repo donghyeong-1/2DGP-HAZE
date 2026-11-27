@@ -61,7 +61,7 @@ NOTICE_Y = TOAST_Y
 # ----- 보스 체력 막대 (퀄리티 계획 4-4) -----
 BOSS_GHOST_HOLD = 0.35      # 맞은 뒤 이만큼은 깎인 부분이 밝게 남는다(초)
 BOSS_GHOST_SPEED = 0.5      # 그다음 초당 이만큼(체력 비율) 따라 준다
-BOSS_EPITHET = {'gatekeeper': '제9구역 관문 간수장', 'crasher': '용광로의 파수꾼', 'ark': '헤이즈 탑의 총감시관', 'heart': '탑의 진짜 주인'}
+BOSS_EPITHET = {'gatekeeper': '제9구역 관문 간수장', 'crasher': '용광로의 파수꾼', 'ark': '네뷸라 교도소 최고 통제관', 'heart': '탑의 진짜 주인'}
 
 
 PICKUP_TIME = 2.8          # 아이템 띠를 보여 주는 시간(초)
@@ -386,7 +386,7 @@ class GameUI:
         text, color = self._attack_text(w, g)
         if g.enhanced and g.enhance_level >= config.ENHANCE_MAX_LEVEL:      # 다음 공격이 궁극기: 그 이름
             import weapon as weapon_mod
-            text, color = '궁극기 ' + weapon_mod.ULT_NAMES[w.weapon_id], (255, 200, 120)
+            text, color = '궁극기 · ' + weapon_mod.ULT_NAMES[w.weapon_id], (255, 200, 120)
         elif g.enhanced:
             text, color = f'강화 {g.enhance_level}단계 ' + text.split(':')[0], config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))]
         top = ACT_Y + SLOT + 44
@@ -419,7 +419,7 @@ class GameUI:
         kind = w.current_kind()
         import forms
         if forms.active(w) and kind in ('pipe', 'pistol', 'gauntlet', 'chain', 'charge') and not g.enhanced:    # v8 무기 형태: 그 이름
-            return '형태: ' + forms.FORMS[w.weapon_id]['name'], forms.COLOR
+            return '형태 · ' + forms.FORMS[w.weapon_id]['name'], forms.COLOR
         prefix = {'pistol_dash': '대시 ', 'pistol_air': '공중 ', 'chain_dash': '대시 ', 'chain_air': '공중 '}.get(kind, '')
         if w.weapon_id == 'pistol':
             count, _, pierce = w.volley()

@@ -394,7 +394,7 @@ class Stage:
             if coord in self.challenges:                 # v8 도전방: 제한 시간 시작
                 limit = self.challenge_limit()
                 self.challenge = {'limit': limit, 'left': limit}
-                self._say(f'도전방 · {int(limit)}초 안에 모두 처치하면 보상이 커집니다')
+                self._say(f'도전방 · {int(limit)}초 안에 모두 처치하면 추가 보상을 받습니다')
         elif kind == 'event':
             self._spawn_event(coord)
         if kind == 'combat':                             # v8 구역별 장치 (깬 방에도 그대로 있다)
@@ -484,7 +484,7 @@ class Stage:
         """그 문으로 지금 들어갈 수 없으면 이유(글자), 들어갈 수 있으면 None. 균열방은 여기서 체력을 낸다."""
         kind = self.type_of(target)
         if kind == 'gold' and self.gold_rooms_left() > 0:
-            return f'이 구역의 전투방을 모두 클리어하면 황금방이 열립니다 (남은 방 {self.gold_rooms_left()})'
+            return f'전투방을 모두 클리어해야 황금방이 열립니다 (남은 방 {self.gold_rooms_left()})'
         if kind == 'rift' and target not in self.paid_rifts:
             cost = self.rift_cost()
             if self.player.hp <= cost:
@@ -676,18 +676,20 @@ class Stage:
         ped = min(near, key=lambda d: abs(d.x - p.x))
         saved = self.state[self.coord]
         if not items.can_take(p, ped.item_id):
-            self._say('이미 얻은 형태입니다' if 'form' in items.ITEMS[ped.item_id] else '이미 최대 단계입니다')
+            info = items.ITEMS[ped.item_id]
+            self._say('이미 얻은 형태입니다' if 'form' in info else '물약이 가득 찼습니다' if ped.item_id == 'heal'
+                      else '이미 최대 단계입니다')
             return False
         if ped.mode == 'shop':
             if p.shards < ped.price:
                 self._say(f'조각이 부족합니다 ({p.shards}/{ped.price})')
                 return False
             p.shards -= ped.price
-        text = items.describe(p, ped.item_id)
+        rift = ped.mode == 'rift' and ped.item_id in items.UPGRADES
+        text = items.describe(p, ped.item_id, steps=2 if rift else 1)   # 균열방: 두 단계 뒤의 수치 (U1)
         items.apply(p, ped.item_id)
-        if ped.mode == 'rift' and ped.item_id in items.UPGRADES and items.can_take(p, ped.item_id):
+        if rift and items.can_take(p, ped.item_id):
             items.apply(p, ped.item_id)            # 균열방 업그레이드는 두 단계를 한꺼번에
-            text = '두 단계: ' + text
         info = items.ITEMS[ped.item_id]
         if self.on_pickup:                                # 화면 아래 이름·효과 띠 (11/22)
             self.on_pickup(ped.item_id, text)
@@ -754,7 +756,7 @@ class Stage:
                     effects.float_text(p.center[0], p.center[1] + 150, curse.reward_text(got), curse.REWARD_COLOR, big=True, life=1.6)
             won = ch is not None and ch['left'] > 0                 # v8 도전 성공: 보상이 커진다
             if won:
-                self._say('도전 성공 · 보상이 커집니다')
+                self._say('도전 성공 · 추가 보상을 받습니다')
             if self.reward_of(self.coord) and p is not None:
                 if self.type_of(self.coord) in END_TYPES:
                     self.end_reward = self.reward_of(self.coord)      # 보스가 쓰러지는 연출 뒤에 준다 (아래)

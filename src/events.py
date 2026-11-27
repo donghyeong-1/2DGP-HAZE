@@ -16,9 +16,15 @@ CARD = 'event:'
 KINDS = ('spring', 'drifter')
 NAMES = {'spring': '헤이즈 샘', 'drifter': '떠돌이 죄수'}
 COLORS = {'spring': (110, 235, 215), 'drifter': (240, 190, 120)}
-TITLES = {'spring': ('헤이즈 샘', '게이지를 원하는 구간으로 맞춥니다. 한 번만 쓸 수 있습니다'),
+TITLES = {'spring': ('헤이즈 샘', '게이지를 선택한 구간으로 맞춥니다. 한 번만 사용할 수 있습니다'),
           'drifter': ('떠돌이 죄수', '거래는 하나만 할 수 있습니다')}
-PROMPT = {'spring': 'F 사용', 'drifter': 'F 거래'}
+PROMPT = {'spring': '사용', 'drifter': '거래'}     # 안내 글 (앞에 상호작용 키: prompt)
+
+
+def prompt(kind):
+    """머리 위 안내 '<상호작용 키> 사용'. 키는 키 설정을 따른다 (U1, 전에는 'F' 고정)."""
+    import keybinds
+    return f"{keybinds.label('interact', first=True)} {PROMPT[kind]}"
 SPRING_FRAMES, SPRING_FRAME = 4, 0.3        # 헤이즈 샘 물결: assets/ui/event_spring_1~4.png, 장당 0.3초
 DONE = {'spring': '말라 버렸습니다', 'drifter': '거래를 마쳤습니다'}
 INTERACT_RANGE = 130
@@ -85,7 +91,7 @@ def card_info(player, card):
         return dict(name=name, sub=f'체력 -{config.DEAL_BLOOD_HP}', desc='체력을 내고 증강 하나를 선택합니다', color=color, icon=icon,
                     ok=hp > config.DEAL_BLOOD_HP, why='체력이 부족합니다')
     if key == 'heal':
-        return dict(name=name, sub=f'조각 -{config.DEAL_HEAL_SHARDS}', desc=f'조각을 내고 체력 {config.DEAL_HEAL_HP} 회복합니다', color=color,
+        return dict(name=name, sub=f'조각 -{config.DEAL_HEAL_SHARDS}', desc=f'조각을 내고 체력을 {config.DEAL_HEAL_HP} 회복합니다', color=color,
                     icon=icon, ok=shards >= config.DEAL_HEAL_SHARDS, why='조각이 부족합니다')
     if key == 'shards':
         return dict(name=name, sub=f'체력 -{config.DEAL_SHARDS_HP}', desc=f'체력을 내고 조각 {config.DEAL_SHARDS_GAIN}개를 받습니다', color=color,
@@ -166,7 +172,7 @@ class Spot:
             top = self.y + 132
             if quiet:
                 return
-            if p is not None and not self.used and self.npc.near(p) and self.greeting:   # 인사말: 안내('F 거래') 위에
+            if p is not None and not self.used and self.npc.near(p) and self.greeting:   # 인사말: 안내('<키> 거래') 위에
                 assets.draw_text(self.x, top + 106, self.greeting, (235, 220, 190), small=True, center=True)
         else:
             frame = 'dry' if self.used else str(int(self.time / SPRING_FRAME) % SPRING_FRAMES + 1)   # 물결 4장 (PixelLab)
@@ -177,6 +183,6 @@ class Spot:
             assets.draw_text(self.x, top + 34, NAMES[self.kind], color if not self.used else (130, 140, 160), small=True, center=True)
             if p is not None and not self.used and self.near(p):
                 import npc as npc_mod                                    # R1: 떠돌이 죄수(npc.NPC)의 안내와 같은 모양
-                npc_mod.draw_prompt(self.x, top + 70, PROMPT[self.kind])
+                npc_mod.draw_prompt(self.x, top + 70, prompt(self.kind))
         if self.used:
             assets.draw_text(self.x, top + 70, DONE[self.kind], (130, 140, 160), small=True, center=True)

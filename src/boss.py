@@ -247,7 +247,7 @@ class Boss(Enemy):
         for d in (-1, 1):                  # 좌우로 바닥 충격파
             game_world.add_object(
                 projectile.Shockwave(self.x + d * 70, self.y, d, s['wave_speed'] * speed_mult, s['wave_damage'],
-                                     s['wave_gauge'], self.room, self.player), game_world.LAYER_EFFECT)
+                                     s['wave_gauge'], self.room, self.player, owner=self), game_world.LAYER_EFFECT)
 
     def _combo_step(self, after):
         """세 번 내리치기: 매번 한 걸음 다가가 내리친다. 마지막 한 방이 가장 크다."""

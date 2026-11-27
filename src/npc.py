@@ -29,6 +29,12 @@ THINGS = ('armory', 'practice')    # 사람이 아닌 것 (무기 걸이·연습
 PROMPT_MIST = (236, 240, 248)      # mist: 진열대 'F 획득'(S1)과 같은 밝은 회백 그림자 글자 (R1, 11/27. 경고 노랑을 쓰지 않는다)
 
 
+def prompt_text(kind):
+    """머리 위 안내 '<상호작용 키> 할 일'. 키는 키 설정을 따른다 (U1, 전에는 'F' 고정)."""
+    import keybinds
+    return f"{keybinds.label('interact', first=True)} {ROLES[kind]}"
+
+
 def draw_prompt(x, y, s):
     """머리 위 상호작용 안내 ('F 기본 능력 영구 강화' 등). mist는 밝은 회백 그림자 글자(키 글자도 같은 줄에 같은 색,
     플레이 방의 진열대 안내와 같은 모양), 다른 스킨은 예전 경고 노랑 그대로."""
@@ -75,7 +81,7 @@ class NPC:
             top = self.y + (132 if self._art else SHAPES[self.kind][1])
         assets.draw_text(self.x, top + 34, self.name, color, small=True, center=True)
         if self.player is not None and self.near(self.player):
-            draw_prompt(self.x, top + 70, f'F {ROLES[self.kind]}')
+            draw_prompt(self.x, top + 70, prompt_text(self.kind))
 
     def _draw_placeholder(self):
         if self.kind == 'armory':

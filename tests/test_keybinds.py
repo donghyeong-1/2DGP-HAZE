@@ -134,7 +134,8 @@ def test_options_row_opens_key_screen_and_screen_binds():
     assert options_mode.lines()[row][1] == '기본'
     keys_mode.listening = ('enhance', 0)
     keys_mode.press_key(sdl2.SDLK_f)                                    # 상호작용 키 -> 맞바꿈 안내
-    assert keybinds.action_for(sdl2.SDLK_f) == 'enhance' and '서로 바꿨습니다' in keys_mode.message
+    assert keybinds.action_for(sdl2.SDLK_f) == 'enhance'
+    assert keys_mode.message == f"F: {keybinds.NAMES['enhance']} · E: {keybinds.NAMES['interact']}"   # U1: 두 동작의 새 키 (전: '서로 바꿨습니다')
     assert options_mode.lines()[row][1] == '변경됨'
     keys_mode.listening = ('jump', 1)
     keys_mode.press_key(sdl2.SDLK_BACKSPACE)                            # 보조 칸 비우기
@@ -144,7 +145,7 @@ def test_options_row_opens_key_screen_and_screen_binds():
     assert keybinds.keys('jump')[0] == sdl2.SDLK_SPACE and keys_mode.listening is None
     keys_mode.listening = ('jump', 0)
     keys_mode.press_key(sdl2.SDLK_F1)                                   # 예약 키: 안 들어간다
-    assert keybinds.keys('jump')[0] == sdl2.SDLK_SPACE and '쓸 수 없습니다' in keys_mode.message
+    assert keybinds.keys('jump')[0] == sdl2.SDLK_SPACE and '지정할 수 없습니다' in keys_mode.message   # U1: '쓸 수 없습니다 (…도움말…)' -> 개발용
     assert keys_mode.ROW_Y[-1] - 30 > keys_mode.buttons[0].y + keys_mode.buttons[0].h   # 버튼과 겹치지 않는다
     assert keys_mode.PANEL_Y > 66 and keys_mode.PANEL_Y + keys_mode.PANEL_H <= 1080
     game_framework.stack[:] = []
@@ -163,7 +164,7 @@ def test_help_texts_follow_bound_keys():
     keys = [k for k, _ in pause_mode.controls()]
     assert 'R' in keys and any('Ctrl' in k for k in keys)
     title, lines = tutorial.hint_text('enhance')
-    assert title.startswith('R') and lines[0].startswith('R')
+    assert title.startswith('R')        # U1(11/27): 키는 제목에만 ('{키}를 누르면'의 받침 조사를 빼려고 줄에서는 키를 뺐다)
     assert any('Ctrl' in line for line in tutorial.hint_text('move')[1])
     keybinds.reset()
 

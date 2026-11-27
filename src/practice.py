@@ -18,6 +18,12 @@ _log = []                     # (시각, 피해)
 _time = 0.0
 
 
+
+def menu_prompt():
+    """연습장 아래 안내. 상호작용 키는 키 설정을 따른다 (U1, 전에는 'F' 고정)."""
+    import keybinds
+    return f"{keybinds.label('interact', first=True)} 연습 메뉴: 적 불러내기 · 증강 · 게이지 · 무기 · 은신처로"
+
 def dummies():
     return [e for e in game_world.world[game_world.LAYER_ENEMY] if getattr(e, 'dummy', False)]
 
@@ -111,6 +117,6 @@ class PracticeHud:
         import hud_kit as kit
         kit.text(config.SCREEN_W // 2, config.SCREEN_H - 150, f'초당 피해 {dps():.0f}   (최근 {DPS_WINDOW:.0f}초)',
                  (255, 230, 150), center=True)
-        kit.text(config.SCREEN_W // 2, config.SCREEN_H - 190, 'F 연습 메뉴: 적 불러내기 · 증강 · 게이지 · 무기 · 은신처로',
+        kit.text(config.SCREEN_W // 2, config.SCREEN_H - 190, menu_prompt(),
                  (170, 190, 220), small=True, center=True)
         assets.draw_offset = (0, 0)

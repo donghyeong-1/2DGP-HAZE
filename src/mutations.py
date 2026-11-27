@@ -8,6 +8,7 @@
 여기는 규칙만 있다. 고르는 창은 mutation_mode, 효과가 걸리는 곳은 player·weapon·haze_gauge의 몇 줄이다.
 """
 import assets
+import config
 import effects
 import game_world
 
@@ -19,7 +20,7 @@ FAMILIES = {
     'hollow': {'name': '페이드', 'zone': 'FADE', 'color': (130, 150, 230), 'icon': 'ui/mut_hollow.png',
                'set': '페이드 구간 이동 감속 없음'},
     'tide': {'name': '강화', 'zone': None, 'color': (215, 150, 255), 'icon': 'ui/mut_tide.png',
-             'set': 'E 강화 준비 시간 +50%'},
+             'set': '강화 준비 시간 +50%'},
     # v7 무기 갈래 (docs/plan_v7.md 2절). weapon: 그 무기를 들고 있을 때 잘 나온다. set: 같은 갈래 2개면 열리는 진화
     'pipe_combo': {'name': '연타', 'zone': None, 'weapon': 'pipe', 'color': (240, 248, 255), 'icon': 'ui/mut_bloom.png',
                    'set': '진화: 난타'},
@@ -137,29 +138,30 @@ MUTATIONS = {
     'bloom_gain': {'family': 'bloom', 'name': '꽃가루', 'desc': f'각성 구간 처치 게이지 +{BLOOM_GAIN}%'},
     'bloom_dash': {'family': 'bloom', 'name': '포자 폭발', 'desc': '각성 구간에서 대시가 끝난 자리에 충격파가 일어납니다'},
     'ember_guard': {'family': 'ember', 'name': '그을린 피부', 'desc': f'위험 구간 받는 피해 -{round((1 - EMBER_GUARD) * 100)}%'},
-    'ember_burst': {'family': 'ember', 'name': '불씨 폭주', 'desc': f'오버로드 폭발이 주변 적에게도 피해를 줍니다 (피해 {EMBER_BURST[1]})'},
+    'ember_burst': {'family': 'ember', 'name': '불씨 폭주', 'desc': f'오버로드 폭발이 주변 적에게도 피해 {EMBER_BURST[1]}을 줍니다'},
     'ember_cool': {'family': 'ember', 'name': '방열판', 'desc': f'오버로드 피해 -{round((1 - EMBER_COOL) * 100)}%'},
     'hollow_leech': {'family': 'hollow', 'name': '굶주림', 'desc': f'페이드 구간 적중마다 체력 +{HOLLOW_LEECH}'},
     'hollow_dash': {'family': 'hollow', 'name': '빈 몸', 'desc': f'페이드 구간 대시 충전 시간 -{round((1 - HOLLOW_DASH) * 100)}%'},   # v8: '가쁜 숨'과 겹쳐 페이드에서만
     'hollow_floor': {'family': 'hollow', 'name': '마지막 숨', 'desc': f'게이지가 0%가 되면 {int(HOLLOW_FLOOR)}%로 회복합니다 (판마다 한 번)'},
-    'tide_cost': {'family': 'tide', 'name': '얕은 물', 'desc': f'E 강화 비용 -{TIDE_COST}%'},
+    'tide_cost': {'family': 'tide', 'name': '얕은 물', 'desc': f'강화 비용 -{TIDE_COST}%'},
     'tide_chain': {'family': 'tide', 'name': '되밀림', 'desc': f'강화 공격으로 처치하면 게이지 +{TIDE_CHAIN}%'},
     'tide_wave': {'family': 'tide', 'name': '파문', 'desc': f'강화 공격 피해의 {round(TIDE_WAVE[1] * 100)}%가 주변 적에게 퍼집니다'},
     # O1 (2026-11-26): 강화 갈래의 진화. 궁극기 피해 x config.ULT_AWAKEN_MULT, 보스 상한 ULT_AWAKEN_BOSS_CAP, 시전할 때 실루엣 컷인
     'ult_awaken': {'family': 'tide', 'tier': 'evo', 'ready': True, 'name': '궁극기 각성',
-                   'desc': '궁극기 피해 +40%. 시전할 때 컷인이 나옵니다'},
+                   'desc': f'궁극기 피해 +{round((config.ULT_AWAKEN_MULT - 1) * 100)}%, 보스에게 주는 피해 상한 '
+                           f'{round(config.ULT_BOSS_CAP * 100)}% → {round(config.ULT_AWAKEN_BOSS_CAP * 100)}%'},
     # v7 철파이프 갈래 (기본 3 + 진화 1). 진화는 동작·이펙트가 준비되면 ready=True
     'combo_speed': {'family': 'pipe_combo', 'name': '손목 풀기', 'desc': f'철파이프 공격 속도 +{round((1 / COMBO_SPEED - 1) * 100)}%'},
     'combo_third': {'family': 'pipe_combo', 'name': '마무리', 'desc': f'3타 피해 +{round((COMBO_THIRD - 1) * 100)}%'},
     'combo_wave': {'family': 'pipe_combo', 'name': '검기', 'desc': '3타가 앞으로 검기를 날립니다'},   # v8: '긴 손잡이'(사거리 +15%) 대신
     'combo_evo': {'family': 'pipe_combo', 'tier': 'evo', 'ready': True, 'name': '난타', 'desc': '4타와 5타가 추가됩니다. 5타는 회전 베기입니다'},
     'air_power': {'family': 'pipe_air', 'name': '낙차', 'desc': f'공중 공격 피해 +{round((AIR_POWER - 1) * 100)}%'},
-    'air_hang': {'family': 'pipe_air', 'name': '체공', 'desc': '공중에서 적을 맞히면 잠깐 떨어지지 않습니다'},
-    'air_lift': {'family': 'pipe_air', 'name': '띄우기', 'desc': '땅에서 위로 친 적이 높이 뜹니다'},
+    'air_hang': {'family': 'pipe_air', 'name': '체공', 'desc': '공중에서 적을 맞히면 잠시 공중에 머뭅니다'},
+    'air_lift': {'family': 'pipe_air', 'name': '띄우기', 'desc': '땅에서 위로 공격한 적이 더 높이 뜹니다'},
     'air_evo': {'family': 'pipe_air', 'tier': 'evo', 'ready': True, 'name': '낙뢰 내려찍기', 'desc': '내려찍기로 착지하면 번개 기둥과 충격파가 일어납니다'},
     'dashcut_power': {'family': 'pipe_dash', 'name': '돌진 베기', 'desc': f'대시 공격 피해 +{round((DASHCUT_POWER - 1) * 100)}%'},
     'dashcut_refund': {'family': 'pipe_dash', 'name': '깊은 낙인', 'desc': '대시 공격의 표식이 한 번에 2개 쌓입니다'},   # 11/24 '흐름'(대시 충전)은 기본이 됐다
-    'dashcut_wide': {'family': 'pipe_dash', 'name': '넓은 궤적', 'desc': '대시 공격의 범위가 넓어집니다'},
+    'dashcut_wide': {'family': 'pipe_dash', 'name': '넓은 궤적', 'desc': f'대시 공격의 판정 폭 +{round((DASHCUT_WIDE - 1) * 100)}%'},
     'dashcut_evo': {'family': 'pipe_dash', 'tier': 'evo', 'ready': True, 'name': '섬광 베기', 'desc': '지나간 자리를 0.3초 뒤에 한 번 더 벱니다'},
     'dash_extra': {'family': 'dash', 'name': '여분의 숨', 'desc': '대시 +1칸'},
     'dash_iframe': {'family': 'dash', 'name': '미끄러짐', 'desc': f'대시 무적 +{DASH_IFRAME}초'},
@@ -169,7 +171,7 @@ MUTATIONS = {
     'gather_more': {'family': 'chain_gather', 'name': '한 마리 더', 'desc': '사슬로 끌어오는 적 +1'},
     'gather_stun': {'family': 'chain_gather', 'name': '목줄', 'desc': f'끌려온 적 {GATHER_STUN}초 기절'},
     'gather_wall': {'family': 'chain_gather', 'name': '벽 걸기', 'desc': '아무도 걸리지 않은 사슬이 벽에 닿으면 그 벽으로 날아갑니다'},   # v8 (2026-11-25 사용자 요청)
-    'gather_clash': {'family': 'chain_gather', 'name': '박치기', 'desc': '끌려온 적끼리 부딪혀 피해를 입습니다 (모든 구간)'},
+    'gather_clash': {'family': 'chain_gather', 'name': '박치기', 'desc': '어느 구간에서나 끌려온 적끼리 부딪혀 피해를 입습니다'},
     'gather_evo': {'family': 'chain_gather', 'tier': 'evo', 'ready': True, 'name': '소용돌이',
                    'desc': f'끌어온 자리에 소용돌이가 생겨 주변 적을 {VORTEX[2]}초 동안 묶습니다'},
     'pierce_through': {'family': 'chain_pierce', 'name': '꿰뚫기', 'desc': '사슬이 적을 관통해 모두 맞힙니다'},
@@ -177,9 +179,9 @@ MUTATIONS = {
     'pierce_reach': {'family': 'chain_pierce', 'name': '긴 사슬', 'desc': f'사슬 사거리 +{round((PIERCE_REACH - 1) * 100)}%'},
     'pierce_evo': {'family': 'chain_pierce', 'tier': 'evo', 'ready': True, 'name': '반사 사슬',
                    'desc': f'사슬이 벽에서 {PIERCE_BOUNCES}번 튕깁니다'},
-    'link_bind': {'family': 'chain_link', 'name': '사슬 묶기', 'desc': f'함께 걸린 적 둘을 묶습니다. 한쪽이 맞으면 다른 쪽도 {round(LINK_SHARE[0] * 100)}% 피해'},
-    'link_share': {'family': 'chain_link', 'name': '공명', 'desc': f'묶인 적이 나눠 받는 피해 {round(LINK_SHARE[1] * 100)}% (사슬 묶기 포함)'},
-    'link_burst': {'family': 'chain_link', 'name': '연쇄 폭발', 'desc': f'묶인 적이 죽으면 폭발합니다 (피해 {LINK_BURST[1]}, 사슬 묶기 포함)'},
+    'link_bind': {'family': 'chain_link', 'name': '사슬 묶기', 'desc': f'걸린 적 둘을 묶어 피해의 {round(LINK_SHARE[0] * 100)}%를 나눠 받게 합니다'},
+    'link_share': {'family': 'chain_link', 'name': '공명', 'desc': f'걸린 적 둘을 묶고, 나눠 받는 피해가 {round(LINK_SHARE[1] * 100)}%가 됩니다'},
+    'link_burst': {'family': 'chain_link', 'name': '연쇄 폭발', 'desc': f'걸린 적 둘을 묶고, 묶인 적을 처치하면 폭발합니다 (피해 {LINK_BURST[1]})'},
     'link_evo': {'family': 'chain_link', 'tier': 'evo', 'ready': True, 'name': '헤이즈 그물',
                  'desc': f'걸린 적을 모두 그물로 묶습니다. 피해의 {round(LINK_SHARE[1] * 100)}%를 나눠 받습니다'},
     # v7 쌍권총 갈래
@@ -190,28 +192,28 @@ MUTATIONS = {
                   'desc': '누르고 있으면 끊기지 않는 탄막을 쏩니다'},
     'ric_bounce': {'family': 'pistol_ricochet', 'name': '도탄', 'desc': '총알이 벽에서 한 번 튕깁니다'},
     'ric_power': {'family': 'pistol_ricochet', 'name': '튕긴 탄', 'desc': f'튕긴 총알 피해 +{round((RIC_POWER - 1) * 100)}%'},
-    'ric_more': {'family': 'pistol_ricochet', 'name': '이중 도탄', 'desc': '총알이 벽에서 한 번 더 튕깁니다'},
+    'ric_more': {'family': 'pistol_ricochet', 'name': '이중 도탄', 'desc': '총알이 벽에서 튕기는 횟수 +1'},
     'ric_evo': {'family': 'pistol_ricochet', 'tier': 'evo', 'ready': True, 'name': '도탄 사슬',
-                'desc': f'적을 맞힌 총알이 가까운 적에게 튕깁니다 (최대 {RIC_CHAIN[0]}번)'},
+                'desc': f'적을 맞힌 총알이 가까운 적에게 최대 {RIC_CHAIN[0]}번 튕깁니다'},
     'dshot_auto': {'family': 'pistol_dash', 'name': '질주 사격', 'desc': '대시하는 동안 자동으로 쏩니다'},
     'dshot_after': {'family': 'pistol_dash', 'name': '여세', 'desc': f'대시 직후 {DSHOT_AFTER[0]}초 동안 연사 속도 2배'},
-    'dshot_load': {'family': 'pistol_dash', 'name': '장전 회피', 'desc': '저스트 대시에 성공하면 다음 한 발이 강화탄이 됩니다'},
+    'dshot_load': {'family': 'pistol_dash', 'name': '장전 회피', 'desc': '저스트 대시에 성공하면 다음 한 발을 게이지 없이 강화합니다'},
     'dshot_evo': {'family': 'pistol_dash', 'tier': 'evo', 'ready': True, 'name': '탄막 회피',
                   'desc': f'대시가 끝난 자리에서 {DSHOT_RING[0]}방향으로 탄막을 쏩니다'},
     # v7 건틀릿 갈래
     'charge_fast': {'family': 'gauntlet_charge', 'name': '빠른 장전', 'desc': f'건틀릿 충전 시간 -{round((1 - CHARGE_FAST) * 100)}%'},
     'charge_power': {'family': 'gauntlet_charge', 'name': '꽉 쥔 주먹', 'desc': f'끝까지 충전한 강타 피해 +{round((CHARGE_POWER - 1) * 100)}%'},
-    'charge_parry': {'family': 'gauntlet_charge', 'name': '쳐 내기', 'desc': '충전하는 동안 가까이 온 적 투사체를 쳐 냅니다'},   # v8: '버팀 자세'(받는 피해 -30%) 대신
+    'charge_parry': {'family': 'gauntlet_charge', 'name': '쳐내기', 'desc': '충전하는 동안 가까이 온 적 투사체를 쳐냅니다'},   # v8: '버팀 자세'(받는 피해 -30%) 대신
     'charge_evo': {'family': 'gauntlet_charge', 'tier': 'evo', 'ready': True, 'name': '헤이즈 붕괴',
                    'desc': '끝까지 충전한 강타가 처음 맞힌 자리에서 폭발합니다'},
     'crash_knock': {'family': 'gauntlet_crash', 'name': '밀어내기', 'desc': f'건틀릿 넉백 +{round((CRASH_KNOCK - 1) * 100)}%'},
-    'crash_wall': {'family': 'gauntlet_crash', 'name': '벽꽝', 'desc': '날아간 적이 벽에 부딪히면 피해를 입습니다'},
+    'crash_wall': {'family': 'gauntlet_crash', 'name': '벽꽝', 'desc': f'날아간 적이 벽에 부딪히면 강타 피해의 {round(CRASH_WALL * 100)}%를 입습니다'},
     'crash_stun': {'family': 'gauntlet_crash', 'name': '뇌진탕', 'desc': f'날아간 적이 멈추면 {CRASH_STUN}초 기절'},
     'crash_evo': {'family': 'gauntlet_crash', 'tier': 'evo', 'ready': True, 'name': '연쇄 충돌',
                   'desc': '날아간 적에게 부딪힌 적도 함께 날아갑니다'},
     'counter_power': {'family': 'gauntlet_counter', 'name': '맞받아치기', 'desc': '공격을 준비 중인 적에게 강타 피해 2배'},
-    'counter_guard': {'family': 'gauntlet_counter', 'name': '흘려 받기', 'desc': f'반격하면 {COUNTER_GUARD}초 무적'},
-    'counter_gain': {'family': 'gauntlet_counter', 'name': '역습의 숨', 'desc': f'반격하면 게이지 +{COUNTER_GAIN}%'},
+    'counter_guard': {'family': 'gauntlet_counter', 'name': '흘려 받기', 'desc': f'공격을 준비 중인 적을 치면 {COUNTER_GUARD}초 무적'},
+    'counter_gain': {'family': 'gauntlet_counter', 'name': '역습의 숨', 'desc': f'공격을 준비 중인 적을 치면 게이지 +{COUNTER_GAIN}%'},
     'counter_evo': {'family': 'gauntlet_counter', 'tier': 'evo', 'ready': True, 'name': '역류',
                     'desc': '반격하는 순간 충격파가 적의 투사체를 되돌려 보냅니다'},
     # v7 합성 (진화 둘)
@@ -232,7 +234,7 @@ MUTATIONS = {
                           'name': '각인 폭풍', 'desc': '격발이 가장 가까운 다른 적에게 한 번 더 번집니다'},
     'duo_swap_mist': {'family': 'duo', 'tier': 'duo', 'ready': True, 'requires': (), 'any_evos': 2,
                       'name': '교체 연무',
-                      'desc': f'교체기 쿨다운 {DUO_MIST[0]}초. 쓸 때마다 게이지 {int(DUO_MIST[1])}%를 냅니다'},
+                      'desc': f'교체기 대기 시간 {DUO_MIST[0]}초. 쓸 때마다 게이지 -{int(DUO_MIST[1])}%'},
 }
 
 # 방 보상 -> (이름, 아이콘, 글자 색). 무게는 REWARD_WEIGHTS.
@@ -680,7 +682,7 @@ def card_info(player, mid):
             pair = duo_partner(player, fam_id)
             hot = bool(pair and has(player, pair[1]))      # 가진 진화의 합성 짝 갈래: 금색으로 눈에 띄게
     if fam_id == 'chain_gather' and t == 'base' and family_count(player, 'chain_gather') == 0:
-        note = '모으기 갈래를 얻으면 사슬이 적을 끌어옵니다'      # v8: 사슬의 기본은 타격, 당기기는 이 갈래부터
+        note = '사슬이 적을 끌어오게 됩니다'      # v8: 사슬의 기본은 타격, 당기기는 이 갈래부터 (U1: 무기 줄이 붙어도 두 줄)
     weapon = fam.get('weapon')
     if weapon and weapon not in _held_weapons(player):
         note = f'{WEAPON_NAMES.get(weapon, weapon)} 장착 시 적용 · ' + note

@@ -29,14 +29,18 @@ PANEL_X, PANEL_Y = (W - PANEL_W) // 2, (H - PANEL_H) // 2 - 10
 ROW_Y = [PANEL_Y + PANEL_H - 170 - i * ROW_STEP for i in range(len(ROWS))]     # 항목 줄의 가운데 y
 VALUE_X = PANEL_X + 600                                          # 값 칸이 시작하는 x
 VALUE_W = 800
-NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '음악 크기', 'sfx': '효과음 크기',
+NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '배경음악 음량', 'sfx': '효과음 음량',
          'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'easy': '초보자 모드', 'test': '테스트 모드', 'keys': '키 설정'}
-DESCS = {'shake': '타격·폭발 때 흔들리는 세기', 'flash': '오버로드 섬광·큰 폭발을 약하게',
-         'music': '배경음악', 'sfx': '타격·발소리·경고음',
-         'resolution': '창 크기 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게',
-         'hints': '처음 보는 상황에 짧은 안내판', 'damage': '적이 맞은 자리에 피해 숫자 표시',
-         'easy': f'받는 피해 {100 - round(config.EASY_DAMAGE_MULT * 100)}% 감소, 줄어드는 게이지 {100 - round(config.EASY_GAUGE_LOSS_MULT * 100)}% 완화', 'test': '무적, F6~F8 구역 이동, F9 보스방',
-         'keys': '키보드 동작 키 (마우스는 그대로)'}
+# 설명은 '~합니다' 한 문장 (U1 2026-11-27: 전에는 명사형과 '~하게'로 끝나는 줄이 섞여 있었다)
+_EASY = (100 - round(config.EASY_DAMAGE_MULT * 100), 100 - round(config.EASY_GAUGE_LOSS_MULT * 100))
+DESCS = {'shake': '타격과 폭발 때 화면이 흔들리는 세기를 정합니다', 'flash': '오버로드 섬광과 큰 폭발을 약하게 합니다',
+         'music': '구역·전투·보스 곡에 적용합니다', 'sfx': '타격·발소리·경고음에 적용합니다',
+         'resolution': '창 크기를 변경합니다 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게 합니다',
+         'hints': '처음 보는 상황에 짧은 안내를 띄웁니다', 'damage': '적이 맞은 자리에 피해 숫자를 띄웁니다',
+         'easy': (f'받는 피해와 게이지 감소량이 {_EASY[0]}% 줄어듭니다' if _EASY[0] == _EASY[1] else
+                  f'받는 피해가 {_EASY[0]}%, 게이지 감소량이 {_EASY[1]}% 줄어듭니다'),
+         'test': '죽지 않고 오버로드도 없습니다. F6~F8 구역 이동, F9 보스방',
+         'keys': '키보드 동작 키를 변경합니다 (마우스는 그대로)'}
 SEGMENTED = ('shake', 'flash', 'resolution', 'confine', 'hints', 'damage', 'easy', 'test')
 back_button = kit.Button('back', '돌아가기', (W - 360) // 2, PANEL_Y + 40, 360, 64)
 selected = 0

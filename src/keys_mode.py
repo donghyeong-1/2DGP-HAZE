@@ -67,18 +67,19 @@ def press_key(key):
             message = '기본 칸은 비울 수 없습니다'
         return
     if key in keybinds.RESERVED:
-        message = f'{keybinds.key_name(key)} 키는 쓸 수 없습니다 (일시정지·도움말에 쓰입니다)'
+        message = f'{keybinds.key_name(key)} 키는 일시정지·개발용이라 지정할 수 없습니다'
         return
     before = keybinds.action_for(key)
+    old = keybinds.key_name(keybinds.to_json()[action][slot])
     if keybinds.bind(action, slot, key):
         name = keybinds.key_name(key)
-        if before is not None and before != action:
-            message = f'{name}: {keybinds.NAMES[action]} ({keybinds.NAMES[before]} 키와 서로 바꿨습니다)'
+        if before is not None and before != action:      # 맞바꿈: 두 동작의 새 키를 함께 보인다 (U1)
+            message = f'{name}: {keybinds.NAMES[action]} · {old}: {keybinds.NAMES[before]}'
         else:
             message = f'{name}: {keybinds.NAMES[action]}'
         assets.play_sound('pickup')
     else:
-        message = f'{keybinds.NAMES[before]}에 남는 키가 없어 바꿀 수 없습니다'
+        message = f'{keybinds.NAMES[before]}에 남는 키가 없어 변경할 수 없습니다'
 
 
 def _run_button(i):
@@ -155,7 +156,7 @@ def update():
 
 def draw_panel():
     """키 바꾸기 화면 (11/22 메뉴 v2): 줄마다 카드, 기본·보조 칸은 키 글자 알약."""
-    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 22, '키 설정', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)')
+    kit.heading(PANEL_X, PANEL_Y + PANEL_H - 22, '키 설정', '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (변경할 수 없습니다)')
     kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', kit.FAINT, small=True, center=True)
     kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', kit.FAINT, small=True, center=True)
     for i, action in enumerate(keybinds.IDS):
@@ -173,14 +174,14 @@ def draw_panel():
     for i, b in enumerate(buttons):
         b.draw(row == BUTTON_ROW and col == i)
     if listening:
-        kit.footer([('아무 키', '그 칸에 넣기'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')])
+        kit.footer([('아무 키', '키 지정'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')])
     else:
         kit.footer([('W S', '줄'), ('A D', '칸'), ('Enter', '변경'), ('Esc', '돌아가기')])
 
 
 # ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌 -----
 KEYS_FOOTER = [('W S', '줄'), ('A D', '칸'), ('Enter', '변경'), ('Esc', '돌아가기')]
-LISTEN_FOOTER = [('아무 키', '그 칸에 넣기'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')]
+LISTEN_FOOTER = [('아무 키', '키 지정'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')]
 
 
 def draw_mist_panel():
@@ -196,7 +197,7 @@ def draw_mist_panel():
     mm.footer_shade(LISTEN_FOOTER if listening else KEYS_FOOTER)
     mm.terminal([('TOWER SURVEILLANCE // INPUT MAP', mm.PH)])
     mm.title(PANEL_X, head_y, '키 설정')
-    kit.text(PANEL_X + 2, head_y - 42, '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)', mm.PH_SOFT, small=True)
+    kit.text(PANEL_X + 2, head_y - 42, '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (변경할 수 없습니다)', mm.PH_SOFT, small=True)
     kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', mm.PH_MENU, small=True, center=True)
     kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', mm.PH_MENU, small=True, center=True)
     for i, action in enumerate(keybinds.IDS):

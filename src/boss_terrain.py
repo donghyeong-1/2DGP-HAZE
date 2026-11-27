@@ -148,7 +148,13 @@ class Valve:
         n = 1 if int(self.time * 5) % 4 else 2                                          # 증기가 새다 가끔 덜컹 (Codex T43)
         assets.draw_image(_img('steam_valve', n), x + 8, y)                            # 기준점 x=37 (캔버스 가운데 45)
         if self.near():
-            assets.draw_text(x, y + 160, 'F 밸브 잠그기', (255, 230, 140), center=True, small=True)
+            assets.draw_text(x, y + 160, VALVE_PROMPT(), (255, 230, 140), center=True, small=True)
+
+
+def VALVE_PROMPT():   # noqa: N802 (상수처럼 읽는 안내 글)
+    """밸브 안내. 상호작용 키는 키 설정을 따른다 (U1, 전에는 'F' 고정)."""
+    import keybinds
+    return f"{keybinds.label('interact', first=True)} 밸브 잠그기"
 
 
 class HazeBands:

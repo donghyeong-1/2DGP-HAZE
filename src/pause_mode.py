@@ -30,9 +30,9 @@ def controls():
         (j, '점프 (2단, 짧게 누르면 낮게)'),
         (f'{k("down")} + {k("jump", first=True)}', '얇은 발판 아래로'),
         ('마우스', '조준'),
-        ('좌클릭', '공격 (3연타, 공중·대시 중 특수 공격)'),
+        ('좌클릭', '공격 (공중·대시 중에는 특수 공격)'),
         (f'{k("dash")}  우클릭', '대시 (아래로 겨누면 발판 통과)'),
-        (k('enhance'), '강화 일격 (게이지 25% 사용)'),
+        (k('enhance'), '강화 (게이지 25%, 세 번이면 궁극기)'),
         (f'{k("swap")}  {k("weapon1")}  {k("weapon2")}', '무기 교체 (교체하는 순간 교체기)'),
         (k('interact'), '말 걸기·줍기·구매'),
         (k('potion'), '물약 마시기 (체력 회복)'),
@@ -246,8 +246,8 @@ def _draw_build(x, y, w, h):
     ty = y + h - 110
     muts = list(getattr(p, 'mutations', [])) if p is not None else []
     if not has_build(p):
-        kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', _faint(), small=True)
-        kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', _faint(), small=True)
+        kit.text(x + 28, ty + 15, '아직 얻은 증강·아이템이 없습니다', _faint(), small=True)
+        kit.text(x + 28, ty - 12, '방 보상과 진열대에서 얻습니다', _faint(), small=True)
         return
     ty = _draw_curse(p, x, ty, w)                                  # 걸린 저주가 맨 위 (2026-11-26)
     ty = _draw_forms(p, x, ty, w)
@@ -307,7 +307,7 @@ def _draw_mist():
     mm.shade(CONTROLS_X + 12, CARD_Y + 140, CONTROLS_X + CONTROLS_W - 20, top)        # 조작 (열 줄)
     mm.shade(BUILD_X + 12, CARD_Y + 140, BUILD_X + BUILD_W - 20, top)                 # 이번 판
     mm.footer_shade(FOOTER)
-    mm.terminal([('TOWER SURVEILLANCE // FEED PAUSED', mm.PH), ('CAM 04 · 화면 정지 · HOLD', mm.PH_DIM)])
+    mm.terminal([('TOWER SURVEILLANCE // FEED PAUSED', mm.PH), ('LIVE FEED · 화면 정지 · HOLD', mm.PH_DIM)])
     mm.title(LEFT_X, hy, '일시정지')
     if sub:
         kit.text(LEFT_X + 2, hy - 42, sub, mm.PH_SOFT, small=True)

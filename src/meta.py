@@ -23,7 +23,7 @@ UPGRADES = {
     'hp':     dict(name='단련된 몸', desc=f'최대 체력 +{config.META_HP}', max=5, prices=(8, 12, 18, 26, 36)),
     'attack': dict(name='날 선 손', desc=f'공격력 +{int(config.META_ATTACK * 100)}%', max=5, prices=(10, 15, 22, 30, 40)),
     'gauge':  dict(name='헤이즈 적응', desc=f'시작 게이지 +{config.META_GAUGE}%', max=3, prices=(8, 14, 22)),
-    'dash':   dict(name='발놀림', desc=f'대시 충전 -{config.META_DASH:g}초', max=3, prices=(10, 16, 24)),
+    'dash':   dict(name='발놀림', desc=f'대시 충전 시간 -{config.META_DASH:g}초', max=3, prices=(10, 16, 24)),
 }
 ORDER = ('hp', 'attack', 'gauge', 'dash')
 START_WEAPONS = ('pistol', 'gauntlet', 'chain')

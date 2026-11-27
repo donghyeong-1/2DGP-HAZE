@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-27 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Claude Code] U1 글 검토 A·B 반영 + UI·UX 검토와 수정 / src/, data/, tests/, tools/, docs/opus/TASKS.md, docs/project/text_review_1127.md
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -36,7 +36,8 @@
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
 ## 열린 질문
-- (사용자) Q1 소품 그림(11/27) 확인: 비교판 `shots/review/Q1_*.png`(은신처 무기 걸이·표지판·모루·화로, 상자·분출구·레이저 머리, 진열대). 크레딧 **Codex 줄의 '진열대'는 이제 PixelLab 그림이라 맞지 않는다**(Q1은 PixelLab 줄만 고쳤다. 빼려면 글 검토와 함께). 방 장식 18종·배경 소품 10종(Codex)은 원경과 한 벌이라 두었다: 바꾼다면 테마 한 벌을 한꺼번에(`docs/opus/TASKS.md` Q1).
+- (사용자) **글 검토 C 32건(이름·대사 변경)** 결정 대기: `docs/project/text_review_1127.md` 2절 표의 C 행. A·B는 U1-1에서 반영(비교판 `shots/review/U1_text_*.png`, 처리 표 `docs/opus/TASKS.md` U1-1).
+- (사용자) Q1 소품 그림(11/27) 확인: 비교판 `shots/review/Q1_*.png`(은신처 무기 걸이·표지판·모루·화로, 상자·분출구·레이저 머리, 진열대). 크레딧 Codex 줄의 '진열대'는 U1-1에서 뺐다. 방 장식 18종·배경 소품 10종(Codex)은 원경과 한 벌이라 두었다: 바꾼다면 테마 한 벌을 한꺼번에(`docs/opus/TASKS.md` Q1).
 - (사용자) 나머지 화면 맞추기("제안대로 전부", 11/27): **세 묶음 모두 끝남** — HUD(H1, 가는 선 + 어두운 바탕), 메뉴 화면(M1: 일시정지·설정·키 설정·사망·탈출 결과·크레딧을 타이틀 감시 단말 모양으로), 고르는 화면과 남은 화면(S1: 은신처 NPC 창 넷을 증강 카드 말투로, 연습 메뉴·효과음 듣기는 감시 단말, 보스 대사 띠 키 판·진열대 이름판은 가는 테두리, 설정 화면 줄 묶음 손질). mist에서 철판 부품을 부르는 화면은 이제 없다. 11/27 H2에서 HUD 세 가지 손질(맥박 = 게이지 테두리, 평소 E 칸 회백, 들지 않은 칸 밝게, 비교판 `shots/review/H2_*`). **남은 것: 사용자 확인** — 비교판 `shots/review/H1_*`, `shots/review/H2_*`, `shots/review/M1_*`, `shots/review/S1_*`(한 벌 비교 `S1_set.png`). 다시 찍기는 `python tools/ui_pick_shots.py <폴더>`, `python tools/ui_menu_shots.py <폴더>`, `python tools/ui_hud_shots.py <폴더>`, `python tools/ui_mist_shots.py <폴더>`.
 - (사용자) R1·R2 손질(11/27) 확인: 비교판 `shots/review/R1_*.png`, `shots/review/R2_*.png`(E 결정 소켓, 패널, 번개 판 셋, 은신처 이름표, 크레딧). **크레딧 'AI 도구'·'그래픽' 절**(전·후 줄과 근거는 `docs/opus/TASKS.md` R1·R2)을 읽고 맞는지 확인. ASSETS 맨 위 표는 R2에서 11-27 상태로 다시 썼다. R2의 E 마름모가 좁아져 2번 칸과의 틈이 넓어졌다(배치는 그대로 둠, 옮길지 사용자 결정). 남은 흠 전체 표는 `docs/opus/TASKS.md` 'R2' 절.
 - (사용자) 타이틀 번개: L1 줄기 단계, R1 긴 줄기·로고 실루엣·번쩍일 때 머리글 첫 줄 빼기, R2 판 3 줄기를 오른쪽 트인 하늘로(글자와 겹치지 않고 한 줄로 읽힌다). 움직이는 화면에서 깜빡이는 느낌은 실제로 켜 보고 판단해야 한다. 다시 찍기 `python tools/title_storm_shots.py <폴더>`. 천둥 소리는 넣지 않는다(사용자 결정).
@@ -446,3 +447,4 @@
 2026-11-27 [Claude Code] W6 무기·E 패널 그림 확정과 빈 틈 줄이기(Orca 작업, 사용자 "결정을 둘러싼 테두리(소켓)은 기본(코드), 나머지 다른 소켓은 pixelLab"): HUD_WEAPON_ART 기본 'mix'(결정·무기 칸 틀 PixelLab, 나머지 코드), PixelLab 칸 틀 네 변 무기 색·들지 않은 칸 모서리 살림, 단계 색 결정 맑게, 이름은 평소 칸 바로 위(설명 줄이 뜰 때만 한 줄 위), PixelLab 추가 사용 없음, 테스트 5개 먼저, 비교판 W6_* / src/weapon_panel.py, src/config.py, tools/make_ui_mist.py, tools/ui_w1_shots.py, tests/test_ui_skin.py, assets/ui/um_wpx_*.png, docs/*
 2026-11-27 [Claude Code] R2 나머지 손질 2(Orca 작업, 사용자 "나머지도 다 고쳐줘"): E 결정이 마름모 가운데에 오게 세로로 긴 코드 마름모(mix만), 번개 판 3 줄기를 오른쪽 트인 하늘로(글자 상자와 안 겹침·끊김 34px), 은신처 사람 아닌 이름표 회백, 크레딧 아이템 아이콘·HUD 결정과 칸 틀·캐릭터 마무리 줄, ASSETS 맨 위 표 11-27 상태로·적 7종 기록 채움, 남은 흠 표 / src/(weapon_panel, npc, credits_mode), tools/make_ui_mist.py, tools/ui_r2_shots.py, tests/(test_ui_skin, test_title_storm, test_options), assets/ui/um_wp_row_socket_mix_*, assets/backgrounds/title_(bolt|flash)_3, docs/(ASSETS, image_prompts, DECISIONS, PROGRESS, opus/TASKS)
 2026-11-27 [Claude Code] Q1 소품 그림 다시 뽑기: 은신처 무기 걸이(네 무기)·연습장 표지판·모루·화로, 상자·증기 분출구·감시 레이저 머리, 진열대(제단·선반·품절 둘)를 PixelLab(간수 화풍, 121회)으로, 상태 그림은 같은 그림에서 코드로, 크레딧 PixelLab 줄에 '소품' / src/npc.py, src/pedestal.py, src/props_anim.py, src/credits_mode.py, tools/apply_pixellab_props.py, tools/q1_props_shots.py, tests/test_q1_props.py, tests/test_ui_skin.py, tests/test_options.py, assets/ui/*, assets/props/hideout_*, assets/sprites/pixellab/props_v6/, docs/*
+2026-11-27 [Claude Code] U1-1 글 검토 A·B 반영: A 36건 모두, B 36건(3건은 이유를 적고 둠), 동작 버그 넷(충격파 사망 원인·물약 가득·균열방 두 단계 알림·예약 키 알림) 테스트 먼저, 키 안내가 키 설정을 따름, 증강 카드 세 줄 설명 자리 / src/*.py 다수, data/dialogue.py, tests/test_u1_text.py(새)·test_ui_skin.py 외, tools/u1_shots.py(새), docs/opus/TASKS.md, docs/project/text_review_1127.md, docs/DECISIONS.md

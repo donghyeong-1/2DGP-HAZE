@@ -35,7 +35,7 @@ def run_summary(player, zone_title, reward):
     secs = int(getattr(player, 'run_clock', 0.0))
     return [('도달한 구역', zone_title or '-'), ('걸린 시간', f'{secs // 60}:{secs % 60:02d}'),
             ('클리어한 방', str(player.run_rooms)), ('처치한 적', str(getattr(player, 'run_kills', 0))),
-            ('처치한 보스·관문', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')] + (
+            ('처치한 보스', str(player.run_ends)), ('받은 헤이즈 결정', f'+{reward}')] + (
         [('사망 원인', player.death_cause)] if getattr(player, 'death_cause', '') else [])
 
 
@@ -147,7 +147,7 @@ CHOOSE_FOOTER = [('A D', '선택'), ('Enter', '맡기기')]
 # 이 화면은 키(A D·Enter)로만 고른다: 마우스로 누르는 자리가 따로 없다
 CHOOSE_PROMPT_Y, CHOOSE_NAME_Y, CHOOSE_SLOT_Y, CHOOSE_GAP = 480, 428, 318, 88
 MIST_HEAD = {'dead': [('TOWER SURVEILLANCE // SIGNAL LOST', mm.PH), ('INMATE N-09 · 사망 기록', mm.PH_DIM)],
-             'clear': [('TOWER SURVEILLANCE // SUBJECT ESCAPED', mm.PH), ('INMATE N-09 · 탈출 기록', mm.PH_DIM)]}
+             'clear': [('TOWER SURVEILLANCE // INMATE ESCAPED', mm.PH), ('INMATE N-09 · 탈출 기록', mm.PH_DIM)]}
 
 
 def _summary_box():
@@ -192,7 +192,7 @@ def draw_mist():
     nxt = '크레딧' if result == 'clear' else '은신처로'
     clear = result == 'clear'
     assets.draw_image(assets.image('backgrounds/screen_ending.png' if clear else 'backgrounds/screen_death.png'), cx, 0)
-    title, sub = ('탈출 성공', '안개를 뚫고 감옥을 벗어났습니다') if clear else (
+    title, sub = ('탈출 성공', '안개를 뚫고 교도소를 벗어났습니다') if clear else (
         '사망', '이번 판은 여기까지입니다. 영구 강화는 그대로 남습니다')
     # 글자 뒤 어둠: 제목 두 줄, 판 기록, 아래 글자들 (자리를 먼저 계산해 글자보다 먼저 깐다)
     mm.text_shade(cx, 880, title, big=True, center=True, pad=16, kind='wide')
@@ -270,7 +270,7 @@ def draw():
     if result == 'clear':
         assets.draw_image(assets.image('backgrounds/screen_ending.png'), cx, 0)
         assets.draw_text(cx, 880, '탈출 성공', (170, 230, 250), center=True, big=True)
-        assets.draw_text(cx, 830, '안개를 뚫고 감옥을 벗어났습니다', (170, 185, 210), center=True)
+        assets.draw_text(cx, 830, '안개를 뚫고 교도소를 벗어났습니다', (170, 185, 210), center=True)
     else:                                                          # 사망 화면: 쓰러진 인물 위쪽에 글자를 둔다
         assets.draw_image(assets.image('backgrounds/screen_death.png'), cx, 0)
         assets.draw_text(cx, 880, '사망', (225, 90, 100), center=True, big=True)

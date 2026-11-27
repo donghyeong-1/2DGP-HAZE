@@ -137,10 +137,10 @@ def value_label(item):
         return f'<  {player.gauge.value:.0f}%  >'
     if item == 'augment':
         mid = augment_ids()[index['augment']]
-        mark = '가짐' if mutations.has(player, mid) else '없음'
+        mark = '적용 중' if mutations.has(player, mid) else '없음'
         return f'<  {mutations.MUTATIONS[mid]["name"]} ({mark})  >'
     if item == 'clear':
-        return f'{len(mutations.owned(player))}개 가짐'
+        return f'{len(mutations.owned(player))}개 적용 중'
     return ''
 
 

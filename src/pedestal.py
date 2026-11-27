@@ -1,4 +1,4 @@
-"""진열대: 황금방과 정비방에서 아이템을 보여 주고, 가까이 가서 F를 누르면 얻는다.
+"""진열대: 황금방과 정비방에서 아이템을 보여 주고, 가까이 가서 상호작용 키(기본 F)를 누르면 얻는다.
 
 mode 'gold'  : 방에 놓인 여러 개 중 하나만 무료로 얻는다 (하나를 가지면 나머지는 사라진다).
 mode 'shop'  : 헤이즈 조각을 내고 산다. 업그레이드는 사면 다음 단계가 올라오고(값이 오른다) 3단계면 품절,
@@ -43,6 +43,12 @@ class Pedestal:
     def update(self, dt):
         pass
 
+    def prompt(self):
+        """안내 글: 상호작용 키는 키 설정을 따른다 (U1, 전에는 'F' 고정)."""
+        import keybinds
+        key = keybinds.label('interact', first=True)
+        return f'{key} 구매 ({self.price} 조각)' if self.mode == 'shop' else f'{key} 획득'
+
     def draw(self):
         info = self.info
         base = 'shop' if self.mode == 'shop' else 'gold'                # gold(제단: 황금방·균열방) / shop(선반)
@@ -54,10 +60,8 @@ class Pedestal:
         if game_world.quiet:                                           # R1: mist 메뉴 창 뒤에 깔린 멈춘 화면에서는 이름판·안내를 빼고
             return
         if self.player is not None and not self.gone and self.near(self.player):
-            desc = items.describe(self.player, self.item_id)
-            if self.mode == 'rift' and self.item_id in items.UPGRADES:   # 두 단계를 한꺼번에: 'N단계' -> 'N~N+1단계'
-                n = items.level(self.player, self.item_id) + 1
-                desc = '두 단계 한꺼번에 · ' + desc.replace(f'{n}단계', f'{n}~{n + 1}단계', 1)
+            rift = self.mode == 'rift' and self.item_id in items.UPGRADES   # 두 단계를 한꺼번에: 'N~N+1단계: 지금 → 두 단계 뒤'
+            desc = items.describe(self.player, self.item_id, steps=2 if rift else 1)
             import hud_kit as kit
             if kit.is_mist():
                 self._draw_mist_info(info, desc)
@@ -65,8 +69,7 @@ class Pedestal:
             x = self.x + text_shift(self.x, max(assets.text_width(info['name']), assets.text_width(desc, True)))
             assets.draw_text(x, self.y + 190, info['name'], info['color'], center=True)
             assets.draw_text(x, self.y + 156, desc, (200, 210, 230), small=True, center=True)
-            prompt = f'F 구매 ({self.price}조각)' if self.mode == 'shop' else 'F 획득'
-            assets.draw_text(self.x, self.y + 128, prompt, (255, 240, 150), small=True, center=True)
+            assets.draw_text(self.x, self.y + 128, self.prompt(), (255, 240, 150), small=True, center=True)
         elif self.gone and self.mode == 'shop':
             assets.draw_text(self.x, self.y + 128, '품절', (130, 140, 160), small=True, center=True)
 
@@ -76,7 +79,7 @@ class Pedestal:
         황금방(하나만 무료로 고르는 특별 보상)은 금 테두리, 나머지는 회백. 조각 값(헤이즈)은 청록, 경고 노랑은 쓰지 않는다.
         판 아래 진열대 아이콘과 겹치지 않게 글자 묶음을 철판 때보다 12~14px 올린다. 문구는 그대로."""
         import hud_kit as kit
-        prompt = f'F 구매 ({self.price}조각)' if self.mode == 'shop' else 'F 획득'
+        prompt = self.prompt()
         w = max(assets.text_width(info['name']), assets.text_width(desc, True), assets.text_width(prompt, True)) + 48
         w = w // 2 * 2
         x = int(self.x + text_shift(self.x, w))

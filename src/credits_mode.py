@@ -19,13 +19,13 @@ CREDITS = [
     ('gap', ''),
     ('head', '개발 환경'),
     ('line', 'Python 3.12 · pico2d (PySDL2)'),
-    ('line', 'transitions (MIT) · numpy · Pillow'),
+    ('line', 'transitions (MIT) · Pillow · 제작 도구 numpy'),
     ('gap', ''),
     ('head', 'AI 도구'),
     ('line', 'Claude Code (Anthropic) - 게임 코드, 코드로 그린 그림, 합성한 소리'),
     ('line', 'Codex (OpenAI) 내장 이미지 생성 - 배경판, 장식·소품, 구역 카드, 장면 일러스트'),
-    ('line', '은신처 배경 · 사망·탈출·크레딧 장면 · 아이템 아이콘 · 진열대 · 초기 캐릭터 원화'),
-    ('small', '이미지 모델명은 도구가 제공하지 않았다. 생성 기록: docs/image_prompts.md'),
+    ('line', '은신처 배경 · 사망·탈출·크레딧 장면 · 아이템 아이콘 · 초기 캐릭터 원화'),
+    ('small', '이미지 모델명: 도구에서 확인할 수 없음 · 생성 기록 docs/image_prompts.md'),
     ('line', 'PixelLab (pixellab.ai) - 주인공·적·보스·NPC 동작, 대화 초상화, 소품'),
     ('line', '보스 카드 인물 · 증강 갈래 아이콘 · 증강 카드 테두리'),
     ('line', '타이틀 로고 · 번갯줄기 · HUD 결정과 무기 칸 틀'),
@@ -33,7 +33,7 @@ CREDITS = [
     ('line', 'agent-sprite-forge (0x0funky, MIT) - 원화 다듬기·픽셀 마무리 도구'),
     ('gap', ''),
     ('head', '그래픽'),
-    ('line', '캐릭터·적·보스·NPC 동작 - PixelLab 도트를 색 고정·효과 지우기로 다듬어 씀'),
+    ('line', '캐릭터·적·보스·NPC 동작 - PixelLab 도트를 색 고정·효과 지우기로 손질'),
     ('line', '타일·이펙트·HUD·무기 아이콘 - 코드로 직접 그림 (code-drawn)'),
     ('gap', ''),
     ('head', '소리'),
@@ -47,8 +47,8 @@ CREDITS = [
     ('small', 'Gi-i Dark Ambient Techno · SouljahdeShiva (CC-BY 3.0) - 공장'),
     ('small', 'Ancient Apparitions · marcelofg55 (CC-BY 3.0) - 탑'),
     ('small', 'Dark Horse · Centurion_of_war (CC0) - 전투'),
-    ('small', 'Battle Theme A · cynicmusic (CC0) - 크래셔'),
-    ('small', 'The 9th Circle · Joth (CC0) - 최종 보스 아크'),
+    ('small', 'Battle Theme A · cynicmusic (CC0) - 문지기·크래셔'),
+    ('small', 'The 9th Circle · Joth (CC0) - 아크·헤이즈 심장'),
     ('gap', ''),
     ('head', '글꼴'),
     ('line', 'Galmuri - Lee Minseo (SIL Open Font License 1.1)'),
@@ -174,7 +174,7 @@ def draw_mist():
     for _ in range(2):
         mm.shade(-200, -200, W + 200, EDGE)
         mm.shade(-200, H - EDGE - 40, W + 200, H + 200)
-    mm.terminal([('TOWER SURVEILLANCE // CREDITS', mm.PH), ('CAM 04 · 기록 재생', mm.PH_DIM)])
+    mm.terminal([('TOWER SURVEILLANCE // CREDITS', mm.PH), ('ARCHIVE · 기록 재생', mm.PH_DIM)])
     kit_text(W // 2, 34, '키를 누르고 있으면 빨리 감기   Esc 타이틀로', mm.PH_SOFT, False, True)
 
 

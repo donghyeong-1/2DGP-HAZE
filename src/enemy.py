@@ -568,7 +568,7 @@ class Enemy(TileBody):
             for d in (-1, 1):
                 game_world.add_object(
                     projectile.Shockwave(self.x + d * 50, self.y, d, 430.0, self.stats.get('wave_damage', 8), 0,
-                                         self.room, self.player, life=0.55), game_world.LAYER_EFFECT)
+                                         self.room, self.player, life=0.55, owner=self), game_world.LAYER_EFFECT)
 
     def _move_bash(self, after):
         """방패 돌진: 앞으로 짧게 달려 부딪친다. 벽이나 낭떠러지에서 멈춘다."""

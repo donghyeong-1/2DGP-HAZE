@@ -34,7 +34,7 @@ def cause_kind(cause):
     """사망 원인 글(killers.describe) -> 'overload' / 'empty' / 'boss:<보스>' / 'hazard' / 'enemy' / ''."""
     if not cause:
         return ''
-    if cause == killers.OVERLOAD:
+    if cause == killers.OVERLOAD or cause in killers.OLD_OVERLOAD:
         return 'overload'
     if cause == killers.GAUGE_EMPTY:
         return 'empty'

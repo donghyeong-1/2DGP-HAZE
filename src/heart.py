@@ -399,7 +399,8 @@ class HeartHand(_Part):
             assets.play_sound('overload')
             for d in (-1, 1):
                 game_world.add_object(projectile.Shockwave(self.x + d * self.hb_w / 2, fy, d, H['wave_speed'],
-                                                           H['slam_wave'], 0, self.room, self.player, life=1.2),
+                                                           H['slam_wave'], 0, self.room, self.player, life=1.2,
+                                                           owner=self.core),
                                       game_world.LAYER_EFFECT)
 
     def _crush(self):

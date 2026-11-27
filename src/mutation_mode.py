@@ -198,8 +198,9 @@ def draw_frame(x, y, w, h, rarity='common'):
 # 아래에 헤이즈 안개, 안 고른 카드는 조금 어둡게 덮는다. 두꺼운 틀·리벳·금속 질감은 없다 (tools/make_ui_mist.py)
 MIST_WELL, MIST_WELL_ALPHA = (9, 12, 21), 0.94
 MIST_DIVIDER = {'common': 'white', 'rare': 'cyan', 'legendary': 'gold', 'curse': 'red'}
-MIST_DIM = 0.38                # 안 고른 카드 위에 덮는 어둠
+MIST_DIM = 0.14                # 안 고른 카드 위에 덮는 어둠 (11/27 검토: 0.38은 아래 안내 글이 안 읽혔다. 차이는 테두리·위치·안개로 충분)
 MIST_BACKDROP = 0.78           # 화면 전체를 덮는 어둠 (다른 스킨 0.66): 카드 밖 제목 글자도 읽히게
+MIST_NOTE = (176, 188, 210)    # 아래 안내 글 (다른 스킨 (130, 145, 170)보다 밝게)
 
 
 def _card_back(x, y, rarity, hot, color):
@@ -346,7 +347,7 @@ def _draw_card_body(i, mid):
     note = _wrap(info['note'], 16)
     top = y + 84 + (26 * (len(note) - 1) if tier != 'base' else 0)     # 진화·합성은 칸 표시가 없다: 두 줄이면 위로 올려 테두리에 걸리지 않게
     for j, line in enumerate(note):
-        kit.text(x + CARD_W // 2, top - j * 26, line, (255, 225, 140) if info['hot'] else (130, 145, 170), center=True,
+        kit.text(x + CARD_W // 2, top - j * 26, line, (255, 225, 140) if info['hot'] else MIST_NOTE if kit.is_mist() else (130, 145, 170), center=True,
                  small=True)
 
 

@@ -128,7 +128,7 @@ def test_every_family_has_its_own_icon_in_the_plate_skin():
 # ----- 2026-11-27 'mist' 스킨 (docs/opus/TASKS.md '3차 변경 2', tools/make_ui_mist.py) -----
 MIST_PARTS = (['um_card_' + k + h for k in ('common', 'rare', 'legendary', 'curse') for h in ('', '_hot')] +
               ['um_divider_' + c for c in ('white', 'cyan', 'gold', 'red')] +
-              ['um_mist_pool', 'um_logo_title', 'um_cursor', 'um_lamps', 'um_bracket'])
+              ['um_mist_pool', 'um_logo_title', 'um_cursor', 'um_bracket', 'um_bolt_1', 'um_bolt_2', 'um_bolt_3'])
 
 
 def test_mist_parts_exist_and_follow_pixel_rules():
@@ -155,6 +155,15 @@ def test_mist_card_border_is_one_thin_line_around_an_empty_inside():
         assert hot[hot[:, :, 3] > 0][:, :3].astype(int).sum() > a[a[:, :, 3] > 0][:, :3].astype(int).sum(), k   # 고른 카드는 밝게
         seen.add(tuple(a[h // 3, np.nonzero(a[h // 3, :, 3])[0][0], :3]))
     assert len(seen) == 4
+
+
+def test_mist_card_dividers_sit_in_the_middle():
+    """증강 카드 위아래 장식선의 가운데 장식(가장 키 큰 세로 줄들)이 그림 가운데에 있다 (11/27: 흰색만 왼쪽으로 13px 치우쳤다)."""
+    for c in ('white', 'cyan', 'gold', 'red'):
+        a = np.array(Image.open(os.path.join(UI, f'um_divider_{c}.png')).convert('RGBA'))
+        col = (a[:, :, 3] > 0).sum(axis=0)
+        mid = np.nonzero(col == col.max())[0].mean()
+        assert abs(mid - (a.shape[1] - 1) / 2) <= 2, (c, mid, a.shape[1])
 
 
 def test_title_shade_is_soft_light_layer_dark_behind_text_and_clear_at_the_sides():

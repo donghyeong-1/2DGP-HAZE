@@ -322,3 +322,17 @@
 - 확인 촬영: 실제 창(모니터 2), 설정·저장은 임시 폴더. 타이틀 2장(다른 메뉴 고름), 카드는 방 3곳 이상 x 기본·합성·저주. 비교판은 `shots/review/`.
 - 한 것: `tools/make_ui_mist.py`(굽기), `tools/ui_mist_shots.py`(촬영), `src/hud_kit.py`(스킨 'mist'), `src/title_mode.py`(`_draw_terminal`),
   `src/mutation_mode.py`(`_card_back`·안 고른 카드 어둡게), `tests/test_ui_skin.py`(3개 추가). PixelLab 기록 `assets/sprites/pixellab/ui_mist_v1/GENERATION_LOG.md`.
+
+# 3차 변경 3 (2026-11-27): 두 화면 방향 확정, 타이틀에서 셋 지우기·잔손질·번개
+
+사용자: "메인화면 왼쪽 밑에 절벽같은거랑 주인공있는거 지우고, 오른쪽 위 작은 거 지운 후 확정, 잔손질 보내줘 / 배경에 번개 가끔 치는 애니메이션 넣으면 좋을듯,
+실제 번개 처럼 번쩍하고 흰검으로 대비 한번씩 빡 넣는 식으로 ?"
+- 타이틀(mist)에서 왼쪽 아래 벽돌 발판과 주인공, 오른쪽 위 등 네 개 판(`um_lamps`)을 지운다. 빈 자리에는 배경만 보인다(새 것을 놓지 않는다).
+- 증강 카드: 안 고른 카드가 너무 어둡다(아래 회색 안내 글이 안 읽힌다) -> 밝게. 흰색 카드의 위아래 장식이 왼쪽으로 치우쳤다 -> 가운데로.
+- 타이틀 번개: 미리 구운 대비 판(푸른 흰 하늘 + 검은 실루엣)과 잔광 판. 한 번 = 대비 판 2~3프레임 -> 원래 2~3프레임 -> 대비 판 3~4프레임 -> 잔광 0.3초, 0.6초 안쪽.
+  간격 6~14초, 처음 3초 안에는 치지 않는다, 셋에 하나쯤 약한 번개(잔광만), 1초에 세 번 넘게 깜빡이지 않는다, 번쩍임 줄이기 설정을 따른다.
+  대비 판이 뜨는 순간 먼 하늘에 가는 번갯줄기(PixelLab). 번쩍임은 배경 층에만, 글자 뒤 어둠·로고·메뉴·꺾쇠·감시 글자는 그 위. 소리는 넣지 않는다.
+- 한 것: `src/title_storm.py`(시간), `src/title_mode.py`(배경 `title_mist`, 번쩍임·잔광 판), `src/mutation_mode.py`(안 고른 카드 어둠 0.38 -> 0.14, 안내 글 밝게),
+  `tools/make_ui_mist.py`(발판 없는 배경·대비 판 셋·잔광 판·줄기, 장식선 가로 가운데 맞춤), `tools/make_title_plate.py`(`background(ledge=False)`),
+  `tests/test_title_storm.py`(7개), `tests/test_ui_skin.py`(장식선 가운데 1개).
+

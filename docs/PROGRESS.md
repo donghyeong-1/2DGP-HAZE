@@ -36,7 +36,7 @@
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
 ## 열린 질문
-- (사용자) UI 'mist' 스킨(타이틀 감시 단말 + 증강 선택 안개 미니멀)의 두 화면 확인. 괜찮으면 나머지 화면(HUD·일시정지·설정·상점·결과)을 어느 컨셉으로 맞출지. 다시 찍기는 `python tools/ui_mist_shots.py <폴더>`.
+- (사용자) 두 화면 방향은 확정(11/27). 번개 연출과 카드 잔손질 확인, 나머지 화면(HUD·일시정지·설정·상점·결과)을 어느 컨셉으로 맞출지, 타이틀 천둥 소리를 넣을지. 다시 찍기는 `python tools/ui_mist_shots.py <폴더>`.
 - 3차 발표의 형식과 제출 마감 시각(날짜는 12/2).
 - 주인공 이름("화이트"는 임시, 화면에는 'N-09'만).
 - **저주 증강(11/26)의 수치도 플레이 전 값**: 나올 확률 30%, 기간 2~3방, 공격력 -20%·흡수 -40%·한계 -30·피해 2배. 등급 3 저주가 실제로 얼마나 위험한지 모른다(`docs/DECISIONS.md` 11/26).
@@ -425,3 +425,4 @@
 2026-11-26 [Claude Code] UI 전면 교체(교도소 철판) 설계와 작업 세션 지시문 3차 작성: AI 느낌의 원인 다섯 가지 진단, 재질·모양·색 쓰임 기준, 시험 세 화면 -> 사용자 확인 -> 나머지, 예전 UI와 바꿔 끼우기, 그림을 멈추는 날 11/29 / docs/opus/TASKS.md, docs/(PROGRESS, DECISIONS).md
 2026-11-26 [Claude Code] UI 교도소 철판 컨셉을 사용자가 반려("공사장 느낌", 감싸는 띠·판이 별로): 컨셉 셋(안개 미니멀·감시 단말·수감 기록)을 시안으로 다시 뽑기로 하고 작업 세션에 전달 / docs/opus/TASKS.md, docs/PROGRESS.md
 2026-11-27 [Claude Code] UI 컨셉 확정(타이틀 B 감시 단말 + 증강 선택 A 안개 미니멀)을 새 스킨 'mist'(기본값)로 게임에 연결: 타이틀 글자 뒤 어둠(빛 층 예외, 부드러운 알파), 증강 카드 PixelLab 가는 테두리(등급 색)·거의 불투명한 바탕·위아래 장식선·고른 카드 안개·안 고른 카드 어둡게, 다른 화면은 plate 그대로. 실제 창 확인 촬영(타이틀 2, 방 4 x 카드 셋 3), 테스트 3개 / src/(hud_kit, title_mode, mutation_mode, ui, config).py, tools/(make_ui_mist, ui_mist_shots).py, tests/test_ui_skin.py, assets/ui/um_*.png, assets/light/title_shade.png, assets/sprites/pixellab/ui_mist_v1/, docs/(PROGRESS, DECISIONS, ASSETS, image_prompts, opus/TASKS).md
+2026-11-27 [Claude Code] UI 두 화면 확정 뒤 손질: 타이틀(mist)에서 발판·주인공·등 판 제거(발판 없는 배경 title_mist), 타이틀 배경 번개(미리 구운 대비 판 셋 + 잔광 판, PixelLab 번갯줄기, 간격 6~14초·두 번 깜빡임·약한 번개·번쩍임 줄이기 따름), 증강 카드 안 고른 카드 밝게·흰 장식선 가운데 맞춤. 테스트 8개, 실제 창 촬영(평소·대비·잔광·번개 한 번 띠) / src/(title_storm, title_mode, mutation_mode).py, tools/(make_ui_mist, make_title_plate, ui_mist_shots).py, tests/(test_title_storm, test_ui_skin).py, assets/backgrounds/title_(mist|glow|flash_1~3).png, assets/ui/um_*.png, assets/sprites/pixellab/ui_mist_v1/, docs/(PROGRESS, DECISIONS, ASSETS, image_prompts, opus/TASKS).md

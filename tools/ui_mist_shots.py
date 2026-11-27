@@ -55,10 +55,41 @@ title_mode.enter()
 transition.tick(5.0)
 for _ in range(120):
     title_mode.update()
+import title_storm  # noqa: E402
 for sel in (0, 2):
     title_mode.selected = sel
+    title_mode._storm[0] = title_storm.Storm(seed=1)            # 평소 (번개 없음)
     title_mode.draw()
     grab(f'title_{sel}')
+title_mode.selected = 0
+for phase in ('flash', 'glow'):                                  # 대비 판 순간, 잔광 순간
+    title_mode._storm[0] = title_storm.Storm(seed=1)
+    title_mode._storm[0].force(phase)
+    title_mode.draw()
+    grab(f'title_{phase}')
+# 번개 한 번을 프레임마다 (60fps): 작게 줄여 띠로 이어 붙인다
+storm = title_storm.Storm(seed=4)
+storm.seq = [list(x) for x in storm.make_strike(weak=False)]
+storm.plate, storm.strength = 1, 1.0
+title_mode._storm[0] = storm
+strip = []
+for f in range(36):
+    title_mode.draw()
+    buf = (ctypes.c_ubyte * (W * H * 4))()
+    sdl2.SDL_RenderReadPixels(p2.renderer, None, sdl2.SDL_PIXELFORMAT_RGBA32, buf, W * 4)
+    strip.append((storm.phase(), Image.frombuffer('RGBA', (W, H), bytes(buf), 'raw', 'RGBA', 0, 1).convert('RGB').resize((W // 6, H // 6), Image.LANCZOS)))
+    p2.update_canvas()
+    storm.update(1 / 60)
+cols = 9
+sheet = Image.new('RGB', (cols * (W // 6 + 6), (len(strip) + cols - 1) // cols * (H // 6 + 26)), (20, 20, 24))
+from PIL import ImageDraw  # noqa: E402
+d = ImageDraw.Draw(sheet)
+for i, (ph, im) in enumerate(strip):
+    x, y = i % cols * (W // 6 + 6), i // cols * (H // 6 + 26)
+    sheet.paste(im, (x, y))
+    d.text((x + 4, y + H // 6 + 4), f'{i + 1} {ph or "-"}', fill=(220, 220, 220))
+sheet.save(os.path.join(OUT, 'title_strike_strip.png'))
+title_mode._storm[0] = title_storm.Storm(seed=1)
 
 # ----- 증강 카드 -----
 game_framework.stack[:] = [play_mode]
@@ -110,8 +141,8 @@ for rname, _t, _b in ROOMS:
         board.paste(im.crop(((W - cw) // 2, (H - ch) // 2 + 10, (W + cw) // 2, (H + ch) // 2 + 10)), (j * (cw + 20), y))
     y += ch + 10
 board.save(os.path.join(OUT, 'board_cards.png'))
-t = Image.new('RGB', (W * 2 + 20, H), (20, 20, 24))
-for j, sel in enumerate((0, 2)):
-    t.paste(Image.open(os.path.join(OUT, f'title_{sel}.png')), (j * (W + 20), 0))
+t = Image.new('RGB', (W * 2 + 20, H * 2 + 20), (20, 20, 24))
+for j, name in enumerate(('title_0', 'title_2', 'title_flash', 'title_glow')):
+    t.paste(Image.open(os.path.join(OUT, f'{name}.png')), (j % 2 * (W + 20), j // 2 * (H + 20)))
 t.save(os.path.join(OUT, 'board_title.png'))
 print('ok', len(shots), OUT)

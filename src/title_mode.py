@@ -31,6 +31,7 @@ def controls_text():
 selected = 0
 age = 0.0                                  # 타이틀에 머문 시간 (주인공 대기 동작)
 _rain = [None]                             # 철판 스킨: 게임의 비 (atmosphere.Weather)
+_storm = [None]                            # mist 스킨: 배경 번개 (title_storm.Storm)
 HERO_X, HERO_Y = 330, 180                  # 철판 스킨: 주인공 발 위치 (벽 덩어리 위, tools/make_title_plate.py LEDGE_ROWS x 60)
 LOGO_Y = 600                               # 로고 아래 가장자리
 MENU_PANEL = (W // 2 - 260, 150, 520, 340)  # 철판 스킨: 메뉴 뒤 철판 (x, y, w, h)
@@ -49,6 +50,7 @@ def enter():
     global selected, age
     selected = 0
     age = 0.0
+    _storm[0] = None                       # 들어올 때마다 처음 몇 초는 조용히
     import transition
     transition.reveal()
     assets.play_music('title')
@@ -106,6 +108,15 @@ def update():
     age += dt
     if kit.is_plate():
         _weather().update(dt)
+    if kit.is_mist():
+        _get_storm().update(dt)
+
+
+def _get_storm():
+    if _storm[0] is None:
+        import title_storm
+        _storm[0] = title_storm.Storm()
+    return _storm[0]
 
 
 def _weather():
@@ -117,14 +128,18 @@ def _weather():
 
 
 def _draw_terminal():
-    """'mist' 스킨 제목 화면 (2026-11-27 확정 B 감시 단말): 슬럼 배경·비·주인공은 철판과 같고, 글자 뒤에 어둠(글자에서 멀어질수록
-    옅어지는 빛 층 시트 light/title_shade, tools/make_ui_mist.py), 주사선, 네 귀퉁이 꺾쇠, 감시 머리글과 표시등, 색이 어긋난 인광
-    로고(PixelLab). 고른 메뉴는 글자 폭만큼 색을 뒤집고 앞에 커서. 띠·판·줄무늬로 감싸지 않는다."""
-    import sprites
-    assets.draw_image(assets.image('backgrounds/title_plate.png'), W // 2, 0)
+    """'mist' 스킨 제목 화면 (2026-11-27 확정 B 감시 단말): 슬럼 배경(발판·주인공 없이)과 비, 가끔 치는 번개(배경 층에만:
+    흰 하늘 + 검은 실루엣 대비 판 -> 잔광, title_storm), 글자 뒤에 어둠(글자에서 멀어질수록 옅어지는 빛 층 시트 light/title_shade),
+    주사선, 네 귀퉁이 꺾쇠, 감시 머리글, 색이 어긋난 인광 로고(PixelLab). 고른 메뉴는 글자 폭만큼 색을 뒤집고 앞에 커서.
+    띠·판·줄무늬로 감싸지 않는다. 11/27 사용자: 왼쪽 아래 발판과 주인공, 오른쪽 위 등 판은 지운다."""
+    storm = _get_storm()
+    phase = storm.phase()
+    assets.draw_image(assets.image('backgrounds/title_mist.png'), W // 2, 0)     # tools/make_ui_mist.py
+    if phase == 'flash':                                  # 번쩍: 미리 구운 대비 판 (흰 하늘, 검은 실루엣, 먼 하늘의 번갯줄기)
+        assets.draw_image(assets.image(f'backgrounds/title_flash_{storm.flash_plate() + 1}.png'), W // 2, 0)
+    elif phase == 'glow':                                 # 잔광: 조금 밝은 푸른 판을 옅게 덮어 원래대로
+        assets.draw_image_tinted(assets.image('backgrounds/title_glow.png'), W // 2, 0, '', (255, 255, 255), storm.glow_alpha())
     _weather().draw()
-    n = int(age / config.IDLE_FRAME_TIME) % sprites.count('n09_idle') + 1
-    sprites.draw('n09_idle', n, HERO_X, HERO_Y, 1)
     shade = assets.image('light/title_shade.png')         # 절반 크기 그림을 2배로 (빛 층 예외: 부드러운 알파)
     assets.draw_clip(shade, 0, 0, shade.w, shade.h, 0, 0, scale=2)
     for y in range(0, H, SCAN_STEP):
@@ -136,8 +151,6 @@ def _draw_terminal():
     hx, hy = TERM_HEAD
     kit.text(hx, hy, 'TOWER SURVEILLANCE // INMATE N-09', PH, small=True)
     kit.text(hx, hy - 26, 'CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM, small=True)
-    lamps = assets.image('ui/um_lamps.png')
-    assets.draw_image(lamps, W - 200, H - 92)
     assets.draw_image(assets.image('ui/um_logo_title.png'), W // 2, LOGO_Y)
     kit.text(W // 2, LOGO_Y - 28, '헤이즈', PH, center=True)
     cur = assets.image('ui/um_cursor.png')

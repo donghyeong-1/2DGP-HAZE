@@ -8,7 +8,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
   등급 색: 보통 회백(원본 그대로), 진화 청록, 합성 금, 저주 빨강 — A 장식선(PixelLab)의 색 셋으로 밝기 단계를 바꿔 끼운다.
   고른 카드(_hot)는 한 단계씩 밝게.
 - A 장식선 um_divider_<색>.png, 고른 카드 아래 안개 um_mist_pool.png (ui_concepts_v2/a_mist). 장식선은 선 줄이 그림의
-  세로 가운데 도트에 오도록 위아래를 비워 둔다(테두리 선 위에 바로 얹게).
+  세로 가운데 도트에, 가운데 장식이 가로 가운데에 오도록 비워 둔다(테두리 선 위 카드 가운데에 바로 얹게).
 - B 타이틀: um_logo_title.png(64색으로 줄임), um_cursor.png, um_lamps.png, um_bracket.png (ui_concepts_v2/b_terminal)
 - 타이틀 글자 뒤 어둠 assets/light/title_shade.png (960x540, 화면에는 2배): 빛 층과 같은 예외로 부드러운 알파.
   로고·메뉴·머리글·판번호 글자 상자에서 멀어질수록 옅어진다(exp(-(d/sigma)^2)). 체크무늬 디더 없음, 화면 가장자리는 0.
@@ -103,7 +103,14 @@ def centered_divider(src, name):
     pad = max(above, below)
     out = np.zeros((2 * pad + 1, a.shape[1], 4), np.uint8)
     out[pad - row:pad - row + a.shape[0]] = a
-    return save2(out, name)
+    # 가로: 가운데 장식(가장 키 큰 세로 줄들의 가운데)이 그림 가운데에 오게 한쪽을 비운다 (흰 장식선은 원본이 왼쪽으로 치우쳐 있었다)
+    col = (out[:, :, 3] > 0).sum(axis=0)
+    mid = int(round(np.nonzero(col == col.max())[0].mean()))
+    left, right = mid, out.shape[1] - 1 - mid
+    side = max(left, right)
+    wide = np.zeros((out.shape[0], 2 * side + 1, 4), np.uint8)
+    wide[:, side - mid:side - mid + out.shape[1]] = out
+    return save2(wide, name)
 
 
 def copy_part(src, name, max_colors=64):
@@ -126,7 +133,7 @@ def parts():
     for c in ('white', 'cyan', 'gold', 'red'):
         made.append(centered_divider(os.path.join(CON, 'a_mist', 'parts', f'divider_{c}.png'), f'um_divider_{c}.png'))
     made.append(copy_part(os.path.join(CON, 'a_mist', 'parts', 'mist_pool.png'), 'um_mist_pool.png'))
-    for src, dst in (('logo', 'logo_title'), ('cursor', 'cursor'), ('lamps', 'lamps'), ('bracket', 'bracket')):
+    for src, dst in (('logo', 'logo_title'), ('cursor', 'cursor'), ('bracket', 'bracket')):     # 표시등 판은 11/27 사용자가 지웠다
         made.append(copy_part(os.path.join(CON, 'b_terminal', 'parts', f'{src}.png'), f'um_{dst}.png'))
     return made
 
@@ -174,8 +181,82 @@ def title_shade(scale=2):
     return 'light/title_shade.png'
 
 
+# ----- 타이틀 배경과 번개 (2026-11-27) -----
+BG = os.path.join(ROOT, 'assets', 'backgrounds')
+SKY_WHITE = (196, 208, 242)            # 번쩍일 때 하늘 (푸른 흰색, 번갯줄기의 흰 심이 보이게 순백보다 조금 낮다)
+BOLT_SPOTS = ((1090, 84), (760, 84), (420, 250))
+# 밝은 하늘 위에서 줄기가 보이게 대비 판 안에서만 바깥 단계를 한 단계 어둡게 (PixelLab 줄기 팔레트의 #5d74b8 쪽으로). 흰 심은 그대로
+BOLT_ON_SKY = {(159, 182, 238): (93, 116, 184), (220, 232, 255): (159, 182, 238)}   # 대비 판마다 번갯줄기 자리 (화면 x 가운데, 위에서 내려온 거리)
+SILHOUETTE = (6, 8, 15)                # 번쩍일 때 건물·전선·탑
+GLOW_ADD = (30, 40, 66)                # 잔광 판: 원래 그림에 더하는 푸른 빛 (조금 밝은 푸른 톤)
+
+
+def skyline(far, T=36, smooth=9):
+    """원경 그림(far_cell)의 하늘 아래 경계: 열마다 위에서 처음 세로 밝기 차이가 T를 넘는 줄(지붕·성벽 윗선).
+    빗줄기(세로 줄)는 세로 차이가 작아 걸리지 않는다. 가운데값·열고 닫기로 튀는 줄을 고른다."""
+    from scipy import ndimage
+    a = far.astype(int)
+    g = ndimage.uniform_filter1d(np.abs(np.diff(a, axis=0)).sum(2).astype(float), 3, axis=1)
+    h, w = g.shape
+    line = np.full(w, h + 1)
+    for x in range(w):
+        ys = np.nonzero(g[:, x] > T)[0]
+        if len(ys):
+            line[x] = ys[0]
+    line = ndimage.median_filter(line, size=smooth)
+    line = ndimage.grey_closing(ndimage.grey_opening(line, size=5), size=5)
+    return line
+
+
+def title_backgrounds():
+    """title_mist.png(발판 없는 배경), title_flash_<n>.png(대비 판 셋, 번갯줄기 자리만 다르다), title_glow.png(잔광 판). 1920x1080, 불투명."""
+    import make_title_plate as tp
+    base = tp.background(ledge=False)
+    base.save(os.path.join(BG, 'title_mist.png'))
+    W, H = base.size
+    far = np.array(Image.open(os.path.join(BG, 'far_cell.png')).convert('RGB'))
+    mid = np.array(Image.open(os.path.join(BG, 'mid_cell.png')).convert('RGBA'))
+    line = skyline(far)
+    sky = np.zeros((H, W), bool)
+    sky[:tp.FAR_DROP] = True                                   # 원경을 내린 위쪽 빈 곳 = 하늘
+    rows = np.arange(H - tp.FAR_DROP)[:, None]
+    sky[tp.FAR_DROP:] = rows < line[None, :W]
+    off = (mid.shape[1] - W) // 2
+    sky &= mid[:, off:off + W, 3] == 0                         # 중경(지붕·전선·관)은 실루엣
+    flash = np.where(sky[:, :, None], SKY_WHITE, SILHOUETTE).astype(np.uint8)
+    made = []
+    for n, (bx, top) in enumerate(BOLT_SPOTS, 1):         # 번갯줄기는 하늘이 보이는 곳에만 (건물·전선 뒤에서 친다)
+        plate = flash.copy()
+        b = np.array(Image.open(os.path.join(UI, f'um_bolt_{n}.png')).convert('RGBA'))
+        x0 = bx - b.shape[1] // 2
+        region = plate[top:top + b.shape[0], x0:x0 + b.shape[1]]
+        on = (b[:, :, 3] > 0) & sky[top:top + b.shape[0], x0:x0 + b.shape[1]]
+        rgb = b[:, :, :3].copy()
+        for src, dst in BOLT_ON_SKY.items():
+            rgb[(rgb == src).all(axis=2)] = dst
+        region[on] = rgb[on]
+        Image.fromarray(plate, 'RGB').save(os.path.join(BG, f'title_flash_{n}.png'), optimize=True)
+        made.append(f'backgrounds/title_flash_{n}.png')
+    glow = np.clip(np.array(base).astype(int) + GLOW_ADD + (np.array(base).astype(int) * 0.25).astype(int), 0, 255)
+    # RGBA로 저장한다: RGB 그림은 텍스처 섞기가 꺼져 실행 중 불투명도(opacify)가 먹지 않는다 (잔광이 서서히 옅어져야 한다)
+    Image.fromarray(glow.astype(np.uint8), 'RGB').convert('RGBA').save(os.path.join(BG, 'title_glow.png'), optimize=True)
+    return ['backgrounds/title_mist.png', 'backgrounds/title_glow.png'] + made
+
+
+def bolts():
+    """번갯줄기 셋 (PixelLab create_image_pro_flash 64x160, seed 31~33) -> ui/um_bolt_<n>.png (2배)."""
+    made = []
+    for n, seed in enumerate((31, 32, 33), 1):
+        a = load(os.path.join(PX, 'ui_mist_v1', 'raw', f'bolt_s{seed}.png'))
+        a[a[:, :, 3] < 128] = 0
+        a[a[:, :, 3] > 0, 3] = 255
+        ys, xs = np.nonzero(a[:, :, 3])
+        made.append(save2(a[ys.min():ys.max() + 1, xs.min():xs.max() + 1], f'um_bolt_{n}.png'))
+    return made
+
+
 def main():
-    made = card_frames() + parts()
+    made = card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     print(len(made), '개:', ', '.join(made))
 

@@ -32,7 +32,8 @@ def wall_cell(atlas, mask, quad):
     return atlas.crop((mask * T, quad * T, mask * T + T, quad * T + T))
 
 
-def background():
+def background(ledge=True):
+    """ledge=False: 주인공이 서는 벽 덩어리 없이 (mist 스킨 타이틀, 2026-11-27 사용자: 발판·주인공 지우기)."""
     far = Image.open(os.path.join(BG, 'far_cell.png')).convert('RGBA')
     mid = Image.open(os.path.join(BG, 'mid_cell.png')).convert('RGBA')
     img = Image.new('RGBA', (W, H), tuple(int(v) for v in np.array(far)[:6].reshape(-1, 4).mean(0)[:3]) + (255,))
@@ -50,7 +51,7 @@ def background():
     img = Image.fromarray(a, 'RGBA')
     # 벽 덩어리 (왼쪽 아래): 맨 윗줄은 위가 드러난 칸, 오른쪽 끝 열은 오른쪽이 드러난 칸
     atlas = Image.open(os.path.join(ROOT, 'assets', 'tiles', 'tile_set_cell.png')).convert('RGBA')
-    for r in range(LEDGE_ROWS):
+    for r in range(LEDGE_ROWS if ledge else 0):
         for c in range(LEDGE_COLS):
             mask = (1 if r == 0 else 0) | (2 if c == LEDGE_COLS - 1 else 0)
             quad = (c % 2) + 2 * (r % 2)

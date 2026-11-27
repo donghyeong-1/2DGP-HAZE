@@ -343,3 +343,6 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 
 ## 2026-11-27 UI 'mist' 증강 카드 테두리 (PixelLab create_image_pro_flash 128x176)
 "Minimalist card border frame for a dark game UI: one single thin 1-pixel pale grey-white line forming a tall rectangle, with a small white diamond ornament centered on the top edge and on the bottom edge, and tiny short accent ticks at each of the four corners. The inside of the rectangle and the outside are fully transparent. Flat clean lines, elegant and quiet. No fill, no metal, no rivets, no thick border, no bevel." 팔레트 #eef1f5 #b8c0cc #6e7888 #343c4a, 화풍 기준 = A 흰 장식선, seed 21·22 중 22. 기록 `assets/sprites/pixellab/ui_mist_v1/GENERATION_LOG.md`.
+
+## 2026-11-27 타이틀 번갯줄기 (PixelLab create_image_pro_flash 64x160)
+"A single thin jagged lightning bolt striking downward from the top edge, pixel art. One main crooked channel one to two pixels wide with a few thinner forking side branches that split off and fade. Bright white core with a pale blue edge. Transparent background, no clouds, no glow blob, no ground." 팔레트 #ffffff #dce8ff #9fb6ee #5d74b8, seed 31·32·33 모두 씀. 기록 `assets/sprites/pixellab/ui_mist_v1/GENERATION_LOG.md`.

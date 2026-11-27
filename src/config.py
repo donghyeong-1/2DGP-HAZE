@@ -698,6 +698,14 @@ AURA_STUN = 'aura-stun'      # 오버로드 기절 중: 몸에서 새어 올라 
 # 소리
 SOUND_ENABLED = False      # main이 오디오를 켠 뒤 True로 바꾼다 (테스트·창 없는 실행에서는 꺼져 있다)
 SFX_VOLUME = 64            # 0~128
+# S2-2 (2026-11-27, 사용자 "효과음은 다 별로 ... 다시 해줘"): 효과음 묶음. 'v3' = 녹음 원본 바탕 새 묶음(assets/sfx_v3,
+# tools/make_sfx_v3.py), 'v2' = 예전 묶음(assets/sfx, 합성 + Kenney). v3에 없는 이름은 예전 파일을 쓴다.
+# 들어 보고 별로면 'v2'로 바꾸면 예전 소리로 돌아간다.
+SFX_SET = 'v3'
+SFX_DIRS = {'v2': 'sfx', 'v3': 'sfx_v3'}
+SFX_FALLBACK = {'potion': 'enhance'}     # 묶음에 그 이름이 없을 때 대신 쓰는 소리 (예전 묶음의 물약 = 강화 소리)
+SFX_GAIN_V3 = {}                         # v3는 종류별 목표 크기를 파일에 구웠다: 소리별 보정 없음 (예전 SFX_GAIN은 v2 파일에만)
+SFX_V3_LEVEL = 1.4                       # v3 파일 전체 배율(+2.9dB): 파일은 최대값 여유(-1.2dBFS)를 두고 구워 예전보다 작다. 타격 중앙값을 예전과 맞춤
 MUSIC_VOLUME = 44          # 0~128 (효과음보다 작게 깔린다)
 
 # 개발용

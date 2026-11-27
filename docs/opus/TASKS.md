@@ -1138,3 +1138,41 @@ Codex는 이 PC에서 모델 오류로 시작하지 못했고, Antigravity(Gemin
 - 안내: 패드 조작표 '물약 마시기 (키보드만)' 줄의 키 'Q' -> '십자↑', 설명 '물약 마시기 (체력 회복)'(키보드 표와 같은 말). `input_device.PAD_LABELS['potion']` '-' -> '십자↑'(타이틀 조작 줄 등 `keybinds.label('potion')`을 쓰는 곳). 물약 관련 처음 안내·알림은 키 이름을 적지 않아 바뀐 곳이 없다. HUD 물약 병에는 키 배지가 없다.
 - 테스트 먼저 `tests/test_s2_pad_potion.py` 4개(실패 확인): 십자 위 -> 물약 한 병·체력 회복·누르고 있어도 한 번, 십자 위는 이동이 아님(스틱 아래 유지), 메뉴에서는 ↑이고 물약이 그대로, 패드 조작표·키 이름.
 - 실제 패드로는 확인하지 못했다.
+
+## S2-2 효과음 다시 만들기 (2026-11-27, 사용자 "효과음은 다 별로인데 아까 준 사이트에서도 효과음 좀 가지고 와서 다시 해줘")
+### 음원 구하기 (사이트 Free Game Dev Assets, 저장소 TMHSDigital/Free-Game-Dev-Assets의 `catalog/audio/*.md` 41개를 모두 읽음)
+- 효과음 아님 17: 음악(ccMixter, Eric Skiff, Filmmusic, FMA, FreePD, Incompetech, Kenney Music Jingles, Musopen, Mutopia, Purple Planet, Soundimage, SubspaceAudio, Tallbeard), 잔향 임펄스(Adventure Kid, Convology XT, EchoThief, Voxengo).
+- 쓴 것 4: Kenney Impact Sounds·Interface Sounds·RPG Audio·Sci-fi Sounds (CC0, 목록 status active). 같은 작가·같은 CC0인 Digital Audio도 같이(목록에는 없다).
+  사용자가 11/24에 kenney.nl에서 받은 압축 다섯(`Downloads/kenney_*.zip`)을 새 빈 폴더에 음원·License.txt만 풀어 썼다. 원본 130개(11/27에 51개 더함)만 저장소에.
+- 라이선스로 뺀 것 15: needs-review 6(DailySounds, PacDV, Retro FPS SFX, SFXMint, Soundza, Yetiancai), CC가 아닌 자체 라이선스 6(Fesliyan, Mixkit, Octave, Pixabay, Sonniss GDC, Zapsplat),
+  항목마다 다르고 출처 확인이 안 되는 모음 2(Freesound: 로그인 필요, SoundBible: 올린 사람이 녹음한 사람인지 모름), AI 생성 1(BudgetPixel, CC BY 4.0이지만 생성 음원).
+- 막혀서 못 받은 것 5 (우회하지 않음): BigSoundBank(CC0, robots.txt가 음원 폴더 `/UPLOAD/`를 모든 로봇·AI에 막음), OpenGameArt의 발소리 둘(gboxmikefozzy CC0, congusbongus CC-BY 3.0: robots.txt가 Claude 에이전트를 막음),
+  Kenney UI Audio(CC0, kenney.nl이 자동 요청에 403), Pulselite UI SFX(CC-BY 4.0, itch.io 내려받기를 robots.txt가 막음).
+- **사용자가 직접 받아 줘야 하는 것** (받아 주면 레시피에 넣어 다시 굽는다. CC0만):
+  1. BigSoundBank https://bigsoundbank.com — 'Free and Royalty Free' 표시가 있는 것: 쇠 부딪힘·쇠사슬·주먹·총성·증기·철문. 파일과 각 페이지 주소를 `assets/sfx_src/bigsoundbank/`에(+ `SOURCE.md`에 주소).
+  2. OpenGameArt "Footsteps" (gboxmikefozzy, CC0) https://opengameart.org/content/footsteps-0 -> `assets/sfx_src/opengameart_footsteps/`.
+  3. Kenney UI Audio https://kenney.nl/assets/ui-audio -> 압축 그대로 `Downloads/`(다른 Kenney 묶음처럼).
+- 새 외부 출처가 없어 크레딧의 Kenney 줄은 그대로다.
+
+### 소리 이벤트 표와 만든 것
+- 표: `shots/review/S2_sfx_table.md`(117종: 묶음, 변주 수, 쓴 원본, 예전/새 길이·크기·최대·앞 무음·밝기·저음·몸통, 밸런스 봇 재생 빈도), 그림 `shots/review/S2_sfx_wave.png`(주요 20개 예전|새 파형·스펙트로그램), 효과음 듣기 화면 `shots/review/S2_sfx_room.png`.
+  봇 빈도 상위: impact_pistol 11%, shot 6%, hit_armor 6%, shot_awake 4%, hit_boss_crystal 4%, impact_pipe 3.5%, hit_flesh 3.3%, absorb_* 각 2.5%, dash 3%, chain_latch 2.9%.
+- **바꾼 묶음: 여덟 모두**(① 타격 52, ② 주인공 움직임 7(물약 새로), ③ 적 13, ④ 게이지 11, ⑤ 줍기·보상 14, ⑥ 메뉴 3, ⑦ 보스·궁극기 13, ⑧ 환경 4 = 117종, 변주 포함 파일 171개). 둔 묶음 없음.
+- 만든 방법 `tools/make_sfx_v3.py`: 레시피 표(원본·구간·음 높이·필터·크기·겹치는 시각), 같은 방 잔향 하나(0.38초), 종류별 목표 크기(가장 큰 50ms RMS: 타격 -10, 재질 -13, 총 -14, 휘두르기 -16, 움직임 -19~-21, 메뉴 -20, 환경 -24) + 재생 배율 `config.SFX_V3_LEVEL` 1.4,
+  최대값 -1.2dBFS 아래(부드러운 리미터), 앞 무음 0.5ms 안. 타격 = 쇠/주먹 녹음(몸통) + 판·쇠 울림(꼬리) + 낮은 사인(보조). 휘두르기 = 칼 바람 녹음을 0.5~0.85배로 낮춰 솟았다 사라지는 모양 + 천 스침.
+  쌍권총 = 폭발 녹음의 첫 0.1초(탕) + 쇠 찰칵. 사슬 = 칼 바람 + 동전 녹음을 0.72배로 낮춘 짤랑임. 자주 나는 27종은 변주 셋(Kenney가 같은 소리를 5번 녹음한 다른 컷 + 음 높이 0.95·1.05).
+- 물약: 전에는 강화 소리를 빌려 썼다. `potion`(유리병 + 물 + 작은 회복 소리)을 새로 만들고 `drink_potion`이 부른다. 예전 묶음에는 없어 강화 소리(`config.SFX_FALLBACK`).
+- 되돌리기: `src/config.py`의 `SFX_SET = 'v3'`을 `'v2'`로. 효과음 듣기에서 V로 같은 소리의 예전 것과 새 것을 번갈아 듣는다(표시는 `sfx_review.json`의 `marks_v3`).
+  주의: 11/24 기록의 '효과음 v3'(tests/test_sfx_v3.py)는 예전 묶음 안의 손질 이름이다. 이번 묶음 'v3'의 테스트는 `tests/test_sfx_s2.py`.
+
+### 수치로 확인한 것 (아무도 듣지 않았다)
+- 117종 모두 44.1kHz 16비트 모노, 최대 -1.2dBFS 이하·잘림 없음, 앞 무음 0.5ms 이하, 변주 셋은 서로 다르다(스펙트럼 차이 평균 2.3~5.3). 실제 창(모니터 2)에서 두 묶음 모두 못 읽은 소리 0.
+- 묶음별 재생 크기 중앙값 예전→새: 타격 -10.6→-10.3, 움직임 -11.7→-14.6, 적 -12.7→-11.1, 게이지 -8.4→-9.1, 보상 -9.0→-11.3, 메뉴 -15.7→-16.1, 보스 -7.0→-7.1, 환경 -23.0→-21.1. 같은 묶음 안 크기 퍼짐은 적 15.8→6.3dB, 게이지 11.0→7.1dB로 줄었다(타격은 일부러 색 소리를 작게 둬 11.4→12.8).
+- 밝기: 휘두르기 5900→2300Hz(예전은 쉬익 하는 높은 잡음), 환경 5800→440Hz. 몸통(60~400Hz) 중앙값 타격 0.30→0.54.
+- **타격음의 저음은 늘지 않았다**: 예전 무기 타격음은 합성한 낮은 사인이 거의 전부라 200Hz 아래 비율이 0.95~0.97이었다(impact_pipe 0.97→0.84, gauntlet 0.95→0.89). 새 것은 녹음의 타격 순간·중음이 들어가 비율은 조금 줄었다. 묵직함이 모자라게 들리면 낮은 사인 보조를 올린다.
+- 총성 `shot`은 예전보다 5dB 크다(-16.2→-11.1). 자주 나는 소리라 크게 들리면 'shot' 목표를 내린다.
+
+### 사용자가 귀로 확인해야 하는 것 (이 순서로)
+1. 철파이프 타격(impact_pipe·_heavy)과 휘두르기(swing_1~3): 묵직한지, 칼 소리처럼 들리지 않는지.
+2. 쌍권총 shot·impact_pistol: 총처럼 들리는지, 연사할 때 시끄럽지 않은지. 3. 건틀릿·사슬(impact_gauntlet, chain_throw·latch).
+4. 적 맞는 소리(hit_flesh·armor·mech), 적 예고(windup_*: 예전보다 '빨아들이는' 소리), 5. 대시·점프·착지·피격·물약, 6. 메뉴, 오버로드·연속 처치.

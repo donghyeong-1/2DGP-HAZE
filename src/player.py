@@ -556,7 +556,7 @@ class Player(TileBody):
         self.potion_cool = config.POTION_COOLDOWN
         healed = min(self.max_hp, self.hp + config.POTION_HEAL) - self.hp
         self.hp += healed
-        assets.play_sound('enhance')
+        assets.play_sound('potion')                          # S2-2: 물약 소리 (예전 묶음에는 없어 강화 소리, config.SFX_FALLBACK)
         cx, cy = self.center
         effects.spawn_bloom(cx, cy, (120, 255, 170), big=True, life=0.35, strength=0.6)
         effects.float_text(cx, cy + 90, f'+{int(healed)}', (130, 255, 170), big=True)

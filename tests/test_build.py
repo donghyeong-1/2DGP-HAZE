@@ -26,7 +26,7 @@ def test_resource_root_uses_bundle_folder_when_frozen():
 def test_build_includes_every_folder_the_game_reads():
     src = ''.join(open(p, encoding='utf-8').read() for p in glob.glob(os.path.join(ROOT, 'src', '*.py')))
     used = set(re.findall(r"'((?:sprites/unified|backgrounds|placeholder|props|decor|portraits|tiles|ui|effects|sfx|music|fonts))[/']", src))
-    used |= {'sfx', 'music', 'fonts', 'effects'}                                 # os.path.join(ASSET_DIR, 'sfx', ...) 형태
+    used |= {'sfx', 'sfx_v3', 'music', 'fonts', 'effects'}                       # os.path.join(ASSET_DIR, 'sfx', ...) 형태 (S2-2: 새 효과음 묶음 sfx_v3)
     for folder in used:
         assert 'assets/' + folder in build_exe.INCLUDE, folder
     assert 'data' in build_exe.INCLUDE

@@ -4,12 +4,14 @@
 Claude는 소리를 들을 수 없다: 사용자가 '바꿔'로 표시한 것만 다시 만든다.
 
 A/D 종류, W/S 소리, Enter·Space 듣기, G 좋음, B 바꿔, X 표시 지우기, Esc·F 닫기.
+S2-2 (11/27): 효과음 v3(config.SFX_SET). V로 듣는 묶음을 새 것 <-> 예전 것(v2)으로 바꿔 같은 소리를 번갈아 들어 본다.
+표시는 게임이 쓰는 묶음(config.SFX_SET)의 것으로 남는다: v2는 'marks', 그 밖은 'marks_<묶음>'.
 """
 import json
 import os
 
 from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_DOWN, SDLK_ESCAPE, SDLK_LEFT, SDLK_RETURN, SDLK_RIGHT, SDLK_SPACE,
-                    SDLK_UP, SDLK_a, SDLK_b, SDLK_d, SDLK_f, SDLK_g, SDLK_s, SDLK_w, SDLK_x, clear_canvas, get_events,
+                    SDLK_UP, SDLK_a, SDLK_b, SDLK_d, SDLK_f, SDLK_g, SDLK_s, SDLK_v, SDLK_w, SDLK_x, clear_canvas, get_events,
                     update_canvas)
 
 import assets
@@ -28,7 +30,7 @@ PATH = os.path.join(os.path.dirname(assets.ASSET_DIR), 'sfx_review.json')     # 
 GROUPS = [('swing', '휘두르기'), ('impact', '타격'), ('hit', '맞는 소리'), ('shot', '총'), ('throw', '던지기'), ('chain', '사슬'),
           ('ult', '궁극기'), ('enhance', '강화'), ('overload', '오버로드'), ('kill', '연속 처치'), ('absorb', '흡수'),
           ('dash', '대시'), ('jump', '점프'), ('land', '착지'), ('windup', '적 예고'), ('ark', '아크'), ('amb', '환경'),
-          ('warn', '경고'), ('ui', '메뉴')]
+          ('warn', '경고'), ('ui', '메뉴'), ('potion', '물약')]
 OTHER = '기타'
 MARKS = {'good': ('좋음', (150, 240, 170)), 'bad': ('다시 만들기', (255, 130, 130))}
 cat = 0
@@ -36,13 +38,14 @@ row = 0
 marks = {}
 _catalog = None
 _under = None
+listen = None                  # 지금 듣는 묶음 (None이면 게임이 쓰는 묶음 config.SFX_SET). V로 예전 'v2'와 번갈아
 
 
 def catalog():
     """[(종류 이름, [소리 이름...])]: assets/sfx의 wav를 파일 이름 첫 낱말로 묶는다. 빈 종류는 뺀다."""
     global _catalog
     if _catalog is None:
-        names = sorted(f[:-4] for f in os.listdir(os.path.join(assets.ASSET_DIR, 'sfx')) if f.endswith('.wav'))
+        names = assets.sfx_names()                         # S2-2: 예전 묶음 + 새 묶음의 이름
         labels = dict(GROUPS)
         buckets = {label: [] for _, label in GROUPS}
         buckets[OTHER] = []
@@ -52,28 +55,42 @@ def catalog():
     return _catalog
 
 
-def load():
-    global marks
+def mark_key(prefix='marks'):
+    """표시를 적는 칸 이름: 게임이 쓰는 묶음이 v2면 'marks'(예전 그대로), 그 밖은 'marks_v3'처럼."""
+    return prefix if config.SFX_SET == 'v2' else f'{prefix}_{config.SFX_SET}'
+
+
+def _read():
     try:
         with open(PATH, encoding='utf-8') as f:
             data = json.load(f)
-        marks = {k: v for k, v in data.get('marks', {}).items() if v in MARKS}
-    except (OSError, ValueError, AttributeError):
-        marks = {}
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def load():
+    global marks
+    data = _read()
+    got = data.get(mark_key(), {})
+    marks = {k: v for k, v in got.items() if v in MARKS} if isinstance(got, dict) else {}
     return marks
 
 
 def save():
-    """표시를 저장한다. '바꿔'인 것은 종류별 목록으로도 적어 둔다(읽기 쉽게)."""
+    """표시를 저장한다. '바꿔'인 것은 종류별 목록으로도 적어 둔다(읽기 쉽게). 다른 묶음의 표시는 그대로 둔다."""
     redo = {}
     for label, names in catalog():
         bad = [n for n in names if marks.get(n) == 'bad']
         if bad:
             redo[label] = bad
+    data = _read()
+    data[mark_key()] = marks
+    data[mark_key('redo')] = redo
     tmp = PATH + '.tmp'
     try:
         with open(tmp, 'w', encoding='utf-8') as f:
-            json.dump({'marks': marks, 'redo': redo}, f, ensure_ascii=False, indent=1)
+            json.dump(data, f, ensure_ascii=False, indent=1)
         os.replace(tmp, PATH)
     except OSError as e:                                   # 쓸 수 없는 폴더(실행 파일 등): 표시는 이번 실행 동안만, 게임은 계속
         import log
@@ -96,18 +113,44 @@ def current():
     return names[min(row, len(names) - 1)]
 
 
+def listening():
+    """지금 듣는 묶음: V를 누르지 않았으면 게임이 쓰는 묶음."""
+    return listen or config.SFX_SET
+
+
+def toggle_listen():
+    """V: 새 묶음 <-> 예전 묶음(v2). 게임이 v2를 쓰면 바꿀 것이 없다."""
+    global listen
+    if config.SFX_SET == 'v2':
+        listen = None
+        return listening()
+    listen = 'v2' if listening() != 'v2' else None
+    return listening()
+
+
 def play(name):
-    """그 파일 그대로 들려준다 (게임 중의 변형 고르기·소리별 크기 보정 없이, 설정의 효과음 크기만)."""
-    wav = assets.sound(name)
+    """그 파일 그대로 들려준다 (게임 중의 변형 고르기 없이). 크기는 설정의 효과음 크기 x 게임에서와 같은 소리별 균형
+    (S2-2: 예전과 새 것을 같은 조건으로 비교하려고. 예전 묶음은 파일마다 SFX_GAIN, 새 묶음은 SFX_V3_LEVEL)."""
+    s = listening()
+    wav = assets.sound(name, s)
     if wav is not None:
         import options
-        wav.set_volume(options.volume(config.SFX_VOLUME, options.sfx_level))
+        wav.set_volume(options.volume(config.SFX_VOLUME * assets.sfx_gain(name, s), options.sfx_level))
         wav.play()
 
 
+def listen_label():
+    """화면 한 줄: 지금 듣는 묶음 (게임이 v2만 쓰면 빈 글)."""
+    if config.SFX_SET == 'v2':
+        return ''
+    return '지금 듣는 소리: 예전 소리' if listening() == 'v2' else '지금 듣는 소리: 새 소리'
+
+
+
 def enter():
-    global cat, row, _under
+    global cat, row, _under, listen
     cat = row = 0
+    listen = None
     load()
     _under = game_framework.stack[-2] if len(game_framework.stack) >= 2 else None
 
@@ -155,13 +198,17 @@ def handle_events():
             mark(current(), 'bad')
         elif k == SDLK_x:
             mark(current(), None)
+        elif k == SDLK_v:
+            toggle_listen()
+            play(current())
 
 
 def update():
     pass
 
 
-FOOTER = [('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '다시 만들기'), ('X', '표시 지우기'), ('Esc', '닫기')]
+FOOTER = [('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('V', '예전과 비교'), ('G', '좋음'), ('B', '다시 만들기'),
+          ('X', '표시 지우기'), ('Esc', '닫기')]
 
 
 def draw():
@@ -196,7 +243,9 @@ def draw():
             kit.text(PANEL_X + PANEL_W - 34, cy, text, color, small=True, right=True)
     if len(names) > VISIBLE:
         kit.text(PANEL_X + PANEL_W - 10, TOP_Y - VISIBLE * ROW_STEP + 14, f'{row + 1}/{len(names)}', kit.FAINT, small=True, right=True)
-    kit.footer([('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '다시 만들기'), ('X', '표시 지우기'), ('Esc', '닫기')])
+    if listen_label():
+        kit.text(PANEL_X + PANEL_W, H - 150, listen_label(), (255, 230, 150), small=True, right=True)
+    kit.footer(FOOTER)
     update_canvas()
 
 
@@ -219,6 +268,8 @@ def _draw_mist():
     mm.terminal([('TOWER SURVEILLANCE // AUDIO CHECK', mm.PH)])
     mm.title(PANEL_X, H - 150, '효과음 듣기')
     kit.text(PANEL_X + 2, H - 192, f'표시 {done}/{total} · 다시 만들기 {bad}', mm.PH_SOFT, small=True)
+    if listen_label():
+        kit.text(PANEL_X + PANEL_W, H - 192, listen_label(), mm.PH if listening() != 'v2' else mm.PH_SOFT, small=True, right=True)
     kit.text(PANEL_X + PANEL_W // 2, H - 220, f'<  {label}  ({cat + 1}/{len(groups)})  >', mm.PH, center=True)
     for j, name in enumerate(shown):
         i = first + j

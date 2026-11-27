@@ -19,7 +19,7 @@ NAME = 'Haze'
 # 게임 코드가 읽는 폴더 (tests/test_build.py가 src를 훑어 빠진 것이 없는지 본다)
 INCLUDE = (
     'assets/sprites/unified', 'assets/backgrounds', 'assets/placeholder', 'assets/props', 'assets/decor', 'assets/portraits', 'assets/tiles',
-    'assets/ui', 'assets/effects', 'assets/sfx', 'assets/music', 'assets/fonts', 'data',
+    'assets/ui', 'assets/effects', 'assets/sfx', 'assets/sfx_v3', 'assets/music', 'assets/fonts', 'data',
 )
 # 게임 실행에 필요 없는데 딸려 들어오는 큰 패키지 (numpy는 소리·그림 만드는 도구에서만 쓴다)
 EXCLUDE = ('IPython', 'jedi', 'parso', 'numpy', 'scipy', 'matplotlib', 'tkinter', 'pytest', 'pygments', 'prompt_toolkit', 'zmq')

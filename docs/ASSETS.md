@@ -5,6 +5,7 @@
 ## 지금 게임이 쓰는 에셋 (2026-11-27 기준, 이 표가 최신이다)
 아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트, 효과음 녹음 원본(Kenney), 배경음악(OpenGameArt)이다.
 2026-11-27 R2에서 게임이 실제로 불러오는 파일(`src/sprites.py`의 SKIN·skin_*.json, 그리는 코드의 그림 경로)과 원본 폴더를 맞대어 고쳤다(전에는 11-19 상태라 캐릭터를 Codex로 적고 있었다).
+2026-11-27 S2-2에서 효과음을 녹음 원본 바탕의 새 묶음(`assets/sfx_v3`)으로 바꾸고 효과음 줄을 고쳤다.
 2026-11-27 Q1에서 소품(무기 걸이·연습장 표지판·장치 셋·진열대·은신처 모루와 화로)을 PixelLab 그림으로 바꾸고 이 표를 고쳤다.
 2026-11-27 I1에서 무기 아이콘 넷·아이템 아이콘 10종을 PixelLab 그림으로 바꾸고(형태·분노 아이콘은 새 그림에서 코드로) 이 표를 고쳤다.
 2026-11-27 I1-fix에서 무기 아이콘 밝기, 공격력·균열의 분노(따로 뽑음)·흡수·결핍 방지를 고치고 이 표를 고쳤다.
@@ -39,7 +40,7 @@
 | 무기 그림(식칼·건틀릿 충격파 투사체) | `assets/sprites/unified/proj_*`, 옛 `assets/ui/icon_w_knife.png`(부르는 코드 없음) | `tools/make_weapons.py`, `tools/make_codeart.py` (code-drawn). 사슬 줄·갈고리·탄환은 실행 중 코드로 그림. 무기 아이콘 넷은 I1부터 PixelLab(위 줄) | 자체 제작 |
 | 피해 숫자 픽셀 글꼴 | `assets/ui/dmg_tiny·small·big.png` | `tools/make_digits.py` (코드 그림) | 자체 제작 |
 | 화면 분위기·빛 | `assets/ui/vignette.png`, `assets/backgrounds/fog_strip.png`, `assets/light/` | `tools/make_atmosphere.py`, `make_light.py`, `make_glow.py` (code-drawn) | 자체 제작 |
-| 효과음 116종 | `assets/sfx/` | `tools/make_sfx.py`(numpy 합성) + `tools/make_sfx_v2.py`(Kenney 녹음 원본 74개를 자르고 겹치고 합성음을 더함, 원본 `assets/sfx_src/kenney/`) (11-24 줄) | 자체 제작 + Kenney (kenney.nl) **CC0 1.0** |
+| 효과음 117종 (기본 묶음 v3) | `assets/sfx_v3/` (예전 묶음 `assets/sfx/`는 되돌리기용으로 그대로, `config.SFX_SET`) | `tools/make_sfx_v3.py`: Kenney 녹음 원본 130개를 자르고·음 높이를 바꾸고·겹쳐 가공, 같은 방 잔향·종류별 목표 크기. 합성(numpy)은 낮은 울림·바람 한 줄 보조만. 원본 `assets/sfx_src/kenney/`(`SOURCE.md`, 묶음마다 `License.txt`), 소리별 원본은 `assets/sfx_v3/MANIFEST.json` (11-27 줄). 예전 묶음: `tools/make_sfx.py`(합성) + `tools/make_sfx_v2.py`(Kenney 74개) | 자체 가공 + Kenney (kenney.nl) **CC0 1.0** |
 | 배경음악 8곡 | `assets/music/` | OpenGameArt.org에서 받은 곡 (11-24 줄: 곡명·작곡가·라이선스. CC-BY 3.0 곡 셋은 크레딧에 표시). 예전 합성 곡은 지웠다 | **CC-BY 3.0** 3곡 · **CC0** 5곡 |
 | 단색 점 | `assets/placeholder/px_*.png` | `tools/make_placeholder_assets.py` | 자체 제작 |
 | 폰트 | `assets/fonts/Galmuri11.ttf`, `Galmuri14.ttf` | 갈무리 v2.40.4 (Lee Minseo) | **SIL OFL 1.1** (`assets/fonts/OFL.txt`) |
@@ -425,3 +426,4 @@ OpenAI 내장 이미지 생성 도구로 직접 생성(모델명 미제공, 이�
 - 2026-11-26: 보스 이름 카드 `assets/backgrounds/boss_card_(crasher|ark|gatekeeper|heart).png`(1920x400): 인물은 **PixelLab**(유료 구독 Tier 1, MCP `create_image_pro_flash`) 상반신 `assets/sprites/pixellab/boss_cards_v6/raw_gen/`(고른 것 crasher_2·ark_1·gatekeeper_1), 배경은 기존 `zone_<테마>.png`를 어둡게(code), 심장은 기존 v6 본체·손 그림. 굽기 `tools/apply_pixellab_boss_cards.py`, 기록 `boss_cards_v6/GENERATION_LOG.md`. 예전 카드(Codex T34·T47)는 `assets/concept/boss_cards_old/`로 옮김.
 - 2026-11-26 (2차): 보스 카드 인물을 **PixelLab** 가슴 위 클로즈업으로 교체(`boss_cards_v6/raw_gen/crasher_c1·ark_c4·gatekeeper_c1.png`, 기준 그림은 1차 선택 시안, 기록은 같은 GENERATION_LOG.md).
 - 2026-11-26: 주인공 대화 초상화 `assets/portraits/n09_1~2.png`: **PixelLab**(유료 구독 Tier 1, MCP. `create_image_pro_flash` + `edit_image_pro_flash`)으로 새로 생성. 기준으로 넣은 그림은 우리 그림인 예전 주인공 초상화(Gemini G04 원화를 줄인 것). 이제 게임의 대화 초상화 8장은 모두 PixelLab 생성물이다. 원본·프롬프트·고른 시안은 `assets/sprites/pixellab/portraits_v6/GENERATION_LOG.md`. 이용 조건은 PixelLab 약관, 맨 끝 표의 PixelLab 칸과 같다.
+- 2026-11-27: 효과음 v3 `assets/sfx_v3/*.wav`(117종, 변주 포함 171개 파일, 44.1kHz 16비트 모노): **Kenney**(Kenney Vleugels, kenney.nl) Impact Sounds·Interface Sounds·Sci-fi Sounds·RPG Audio·Digital Audio, **CC0 1.0**(압축 안 License.txt: "You may use these assets in personal and commercial projects. Credit ... would be nice but is not mandatory."). 받은 날짜 2026-11-24(사용자가 kenney.nl에서 받은 압축 다섯, 11-27에 같은 압축에서 더 꺼냄). 쓴 원본 130개만 `assets/sfx_src/kenney/<묶음>/`(11-27에 51개 더함). 가공 `tools/make_sfx_v3.py`(레시피 표), 소리별 원본·수치 `assets/sfx_v3/MANIFEST.json`. 사이트 Free Game Dev Assets(tmhsdigital.github.io/Free-Game-Dev-Assets) 오디오 목록 41개 항목을 훑었고 그 가운데 Kenney 묶음만 썼다: BigSoundBank(CC0)는 robots.txt가 음원 폴더 `/UPLOAD/`를 모든 로봇에 막고, OpenGameArt(발소리 CC0·CC-BY)는 robots.txt가 Claude 에이전트를 막고, kenney.nl은 자동 요청에 403, itch.io 내려받기는 robots.txt가 막아 우회하지 않았다(사용자가 받아 줄 목록은 `docs/opus/TASKS.md` S2-2). 새 외부 출처는 없다(크레딧의 Kenney 줄 그대로).

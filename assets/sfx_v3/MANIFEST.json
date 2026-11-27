@@ -1,0 +1,3155 @@
+{
+ "note": "tools/make_sfx_v3.py가 굽는다. sounds: 이름 -> 묶음·쓴 원본(assets/sfx_src 아래)·합성 보조·수치",
+ "sources": {
+  "kenney": {
+   "title": "Kenney Impact Sounds · Interface Sounds · Sci-fi Sounds · RPG Audio · Digital Audio",
+   "author": "Kenney Vleugels (Kenney.nl)",
+   "url": "https://kenney.nl/assets/impact-sounds , /interface-sounds , /sci-fi-sounds , /rpg-audio , /digital-audio",
+   "license": "CC0 1.0",
+   "license_text": "License (Creative Commons Zero, CC0) http://creativecommons.org/publicdomain/zero/1.0/ You may use these assets in personal and commercial projects. Credit (Kenney or www.kenney.nl) would be nice but is not mandatory.",
+   "got": "2026-11-24 (사용자가 kenney.nl에서 받은 압축 파일 다섯. 11-27에 같은 압축에서 더 꺼냄)",
+   "site_entry": "Free Game Dev Assets catalog/audio: kenney-impact-sounds, kenney-interface-sounds, kenney-sci-fi-sounds, kenney-rpg-audio (모두 license CC0, status active). Digital Audio는 같은 작가·같은 라이선스"
+  }
+ },
+ "sounds": {
+  "swing": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing": {
+     "length": 0.24,
+     "peak_db": -5.12,
+     "loud_db": -16.0,
+     "rms_db": -19.22,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2375.45,
+     "low": 0.01
+    },
+    "swing_v2": {
+     "length": 0.24,
+     "peak_db": -4.77,
+     "loud_db": -16.0,
+     "rms_db": -19.2,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1580.74,
+     "low": 0.0
+    },
+    "swing_v3": {
+     "length": 0.24,
+     "peak_db": -5.73,
+     "loud_db": -16.0,
+     "rms_db": -19.38,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2653.73,
+     "low": 0.01
+    }
+   }
+  },
+  "swing_1": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_1": {
+     "length": 0.24,
+     "peak_db": -5.98,
+     "loud_db": -16.0,
+     "rms_db": -19.37,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2290.03,
+     "low": 0.01
+    },
+    "swing_1_v2": {
+     "length": 0.24,
+     "peak_db": -4.64,
+     "loud_db": -16.0,
+     "rms_db": -19.48,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1602.7,
+     "low": 0.0
+    },
+    "swing_1_v3": {
+     "length": 0.24,
+     "peak_db": -5.29,
+     "loud_db": -16.0,
+     "rms_db": -19.39,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2552.62,
+     "low": 0.0
+    }
+   }
+  },
+  "swing_2": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_2": {
+     "length": 0.27,
+     "peak_db": -5.03,
+     "loud_db": -16.0,
+     "rms_db": -19.42,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2179.72,
+     "low": 0.01
+    },
+    "swing_2_v2": {
+     "length": 0.27,
+     "peak_db": -3.31,
+     "loud_db": -16.02,
+     "rms_db": -19.45,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1618.2,
+     "low": 0.0
+    },
+    "swing_2_v3": {
+     "length": 0.27,
+     "peak_db": -5.6,
+     "loud_db": -16.0,
+     "rms_db": -19.62,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2483.63,
+     "low": 0.01
+    }
+   }
+  },
+  "swing_3": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air",
+    "sub"
+   ],
+   "files": {
+    "swing_3": {
+     "length": 0.34,
+     "peak_db": -6.46,
+     "loud_db": -14.5,
+     "rms_db": -19.69,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 871.71,
+     "low": 0.58
+    },
+    "swing_3_v2": {
+     "length": 0.34,
+     "peak_db": -7.51,
+     "loud_db": -14.5,
+     "rms_db": -20.03,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 382.14,
+     "low": 0.79
+    },
+    "swing_3_v3": {
+     "length": 0.34,
+     "peak_db": -5.41,
+     "loud_db": -14.5,
+     "rms_db": -19.64,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 947.44,
+     "low": 0.6
+    }
+   }
+  },
+  "swing_air": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_air": {
+     "length": 0.26,
+     "peak_db": -4.05,
+     "loud_db": -16.0,
+     "rms_db": -18.82,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2776.41,
+     "low": 0.0
+    },
+    "swing_air_v2": {
+     "length": 0.26,
+     "peak_db": -3.55,
+     "loud_db": -16.01,
+     "rms_db": -18.84,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1688.11,
+     "low": 0.0
+    },
+    "swing_air_v3": {
+     "length": 0.26,
+     "peak_db": -5.88,
+     "loud_db": -16.0,
+     "rms_db": -18.72,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 3181.18,
+     "low": 0.0
+    }
+   }
+  },
+  "swing_dash": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_000.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_002.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_004.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_dash": {
+     "length": 0.22,
+     "peak_db": -3.04,
+     "loud_db": -16.02,
+     "rms_db": -18.76,
+     "lead_ms": 0.43,
+     "clip": false,
+     "centroid": 2875.81,
+     "low": 0.0
+    },
+    "swing_dash_v2": {
+     "length": 0.22,
+     "peak_db": -3.93,
+     "loud_db": -16.01,
+     "rms_db": -18.87,
+     "lead_ms": 0.39,
+     "clip": false,
+     "centroid": 1738.94,
+     "low": 0.0
+    },
+    "swing_dash_v3": {
+     "length": 0.22,
+     "peak_db": -4.75,
+     "loud_db": -16.0,
+     "rms_db": -18.68,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 3225.57,
+     "low": 0.0
+    }
+   }
+  },
+  "swing_plunge": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg"
+   ],
+   "synth": [
+    "air",
+    "sub"
+   ],
+   "files": {
+    "swing_plunge": {
+     "length": 0.34,
+     "peak_db": -5.64,
+     "loud_db": -14.5,
+     "rms_db": -19.79,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 531.49,
+     "low": 0.74
+    }
+   }
+  },
+  "swing_fade": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_fade": {
+     "length": 0.22,
+     "peak_db": -7.59,
+     "loud_db": -18.0,
+     "rms_db": -21.3,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1518.59,
+     "low": 0.02
+    },
+    "swing_fade_v2": {
+     "length": 0.22,
+     "peak_db": -6.2,
+     "loud_db": -18.0,
+     "rms_db": -21.47,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1249.68,
+     "low": 0.0
+    },
+    "swing_fade_v3": {
+     "length": 0.22,
+     "peak_db": -7.28,
+     "loud_db": -18.0,
+     "rms_db": -21.14,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1633.31,
+     "low": 0.02
+    }
+   }
+  },
+  "swing_awake": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/interface-sounds/glass_004.ogg",
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_awake": {
+     "length": 0.28,
+     "peak_db": -5.62,
+     "loud_db": -16.0,
+     "rms_db": -19.29,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2925.48,
+     "low": 0.0
+    },
+    "swing_awake_v2": {
+     "length": 0.28,
+     "peak_db": -5.78,
+     "loud_db": -16.0,
+     "rms_db": -20.55,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2798.29,
+     "low": 0.0
+    },
+    "swing_awake_v3": {
+     "length": 0.28,
+     "peak_db": -6.51,
+     "loud_db": -16.0,
+     "rms_db": -18.99,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 3224.06,
+     "low": 0.0
+    }
+   }
+  },
+  "swing_critical": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_critical": {
+     "length": 0.3,
+     "peak_db": -4.92,
+     "loud_db": -15.0,
+     "rms_db": -18.1,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2200.48,
+     "low": 0.0
+    },
+    "swing_critical_v2": {
+     "length": 0.3,
+     "peak_db": -3.34,
+     "loud_db": -15.02,
+     "rms_db": -19.13,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1696.02,
+     "low": 0.0
+    },
+    "swing_critical_v3": {
+     "length": 0.3,
+     "peak_db": -4.61,
+     "loud_db": -15.0,
+     "rms_db": -18.12,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2545.75,
+     "low": 0.0
+    }
+   }
+  },
+  "swing_enhanced": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_enhanced": {
+     "length": 0.42,
+     "peak_db": -6.85,
+     "loud_db": -13.0,
+     "rms_db": -17.78,
+     "lead_ms": 0.48,
+     "clip": false,
+     "centroid": 738.37,
+     "low": 0.67
+    }
+   }
+  },
+  "swing_enh1": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/forceField_000.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_enh1": {
+     "length": 0.42,
+     "peak_db": -7.59,
+     "loud_db": -13.0,
+     "rms_db": -17.79,
+     "lead_ms": 0.48,
+     "clip": false,
+     "centroid": 631.62,
+     "low": 0.02
+    }
+   }
+  },
+  "swing_enh2": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/forceField_003.ogg",
+    "kenney/sci-fi-sounds/laserLarge_002.ogg"
+   ],
+   "synth": [
+    "air"
+   ],
+   "files": {
+    "swing_enh2": {
+     "length": 0.5,
+     "peak_db": -6.57,
+     "loud_db": -12.5,
+     "rms_db": -17.5,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 751.88,
+     "low": 0.03
+    }
+   }
+  },
+  "swing_enh3": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/forceField_004.ogg",
+    "kenney/sci-fi-sounds/laserLarge_004.ogg"
+   ],
+   "synth": [
+    "air",
+    "sub"
+   ],
+   "files": {
+    "swing_enh3": {
+     "length": 0.58,
+     "peak_db": -5.68,
+     "loud_db": -12.0,
+     "rms_db": -17.07,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 810.15,
+     "low": 0.07
+    }
+   }
+  },
+  "accent_awake": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/digital-audio/phaserUp1.ogg",
+    "kenney/interface-sounds/glass_004.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "accent_awake": {
+     "length": 0.28,
+     "peak_db": -12.76,
+     "loud_db": -21.01,
+     "rms_db": -26.63,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 5207.23,
+     "low": 0.0
+    }
+   }
+  },
+  "accent_critical": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/digital-audio/zap1.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "accent_critical": {
+     "length": 0.28,
+     "peak_db": -10.65,
+     "loud_db": -21.01,
+     "rms_db": -25.7,
+     "lead_ms": 0.29,
+     "clip": false,
+     "centroid": 1362.12,
+     "low": 0.0
+    }
+   }
+  },
+  "impact_pipe": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_000.ogg",
+    "kenney/impact-sounds/impactMetal_heavy_002.ogg",
+    "kenney/impact-sounds/impactMetal_heavy_004.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_000.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_001.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_003.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_001.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_pipe": {
+     "length": 0.3,
+     "peak_db": -2.82,
+     "loud_db": -10.2,
+     "rms_db": -14.99,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 112.14,
+     "low": 0.84
+    },
+    "impact_pipe_v2": {
+     "length": 0.3,
+     "peak_db": -2.76,
+     "loud_db": -10.16,
+     "rms_db": -15.06,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 131.49,
+     "low": 0.85
+    },
+    "impact_pipe_v3": {
+     "length": 0.3,
+     "peak_db": -2.48,
+     "loud_db": -10.24,
+     "rms_db": -14.69,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 153.9,
+     "low": 0.84
+    }
+   }
+  },
+  "impact_pipe_heavy": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_000.ogg",
+    "kenney/impact-sounds/impactMining_004.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_002.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "impact_pipe_heavy": {
+     "length": 0.5,
+     "peak_db": -2.53,
+     "loud_db": -8.86,
+     "rms_db": -14.67,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 79.07,
+     "low": 0.97
+    }
+   }
+  },
+  "impact_pipe_dash": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_000.ogg",
+    "kenney/impact-sounds/impactMetal_heavy_002.ogg",
+    "kenney/impact-sounds/impactMetal_heavy_004.ogg",
+    "kenney/impact-sounds/impactMetal_light_000.ogg",
+    "kenney/impact-sounds/impactMetal_light_001.ogg",
+    "kenney/impact-sounds/impactMetal_light_003.ogg",
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_pipe_dash": {
+     "length": 0.3,
+     "peak_db": -2.67,
+     "loud_db": -10.27,
+     "rms_db": -14.52,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 543.44,
+     "low": 0.43
+    },
+    "impact_pipe_dash_v2": {
+     "length": 0.3,
+     "peak_db": -2.32,
+     "loud_db": -10.41,
+     "rms_db": -14.57,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 669.05,
+     "low": 0.37
+    },
+    "impact_pipe_dash_v3": {
+     "length": 0.3,
+     "peak_db": -2.69,
+     "loud_db": -10.28,
+     "rms_db": -14.57,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 491.1,
+     "low": 0.34
+    }
+   }
+  },
+  "impact_pipe_air": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_medium_000.ogg",
+    "kenney/impact-sounds/impactMetal_medium_001.ogg",
+    "kenney/impact-sounds/impactMetal_medium_003.ogg",
+    "kenney/impact-sounds/impactPlate_light_000.ogg",
+    "kenney/impact-sounds/impactPlate_light_002.ogg",
+    "kenney/impact-sounds/impactPlate_light_003.ogg",
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_pipe_air": {
+     "length": 0.28,
+     "peak_db": -2.39,
+     "loud_db": -10.7,
+     "rms_db": -14.91,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 274.47,
+     "low": 0.35
+    },
+    "impact_pipe_air_v2": {
+     "length": 0.28,
+     "peak_db": -2.48,
+     "loud_db": -10.74,
+     "rms_db": -15.09,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 397.42,
+     "low": 0.27
+    },
+    "impact_pipe_air_v3": {
+     "length": 0.28,
+     "peak_db": -2.42,
+     "loud_db": -10.74,
+     "rms_db": -15.1,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 421.1,
+     "low": 0.22
+    }
+   }
+  },
+  "impact_pipe_plunge": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_003.ogg",
+    "kenney/impact-sounds/impactMining_000.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_004.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_pipe_plunge": {
+     "length": 0.55,
+     "peak_db": -2.73,
+     "loud_db": -8.67,
+     "rms_db": -15.87,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 142.16,
+     "low": 0.92
+    }
+   }
+  },
+  "impact_enh1": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_002.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_001.ogg",
+    "kenney/sci-fi-sounds/forceField_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_enh1": {
+     "length": 0.6,
+     "peak_db": -2.34,
+     "loud_db": -9.37,
+     "rms_db": -14.24,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 172.86,
+     "low": 0.59
+    }
+   }
+  },
+  "impact_enh2": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_003.ogg",
+    "kenney/sci-fi-sounds/forceField_003.ogg",
+    "kenney/sci-fi-sounds/laserLarge_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_enh2": {
+     "length": 0.72,
+     "peak_db": -2.43,
+     "loud_db": -8.81,
+     "rms_db": -14.41,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 191.24,
+     "low": 0.79
+    }
+   }
+  },
+  "impact_enh3": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_001.ogg",
+    "kenney/impact-sounds/impactMetal_heavy_000.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_002.ogg",
+    "kenney/sci-fi-sounds/forceField_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_enh3": {
+     "length": 0.88,
+     "peak_db": -2.64,
+     "loud_db": -8.23,
+     "rms_db": -12.88,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 171.46,
+     "low": 0.41
+    }
+   }
+  },
+  "impact_gauntlet": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactPlate_medium_001.ogg",
+    "kenney/impact-sounds/impactPlate_medium_003.ogg",
+    "kenney/impact-sounds/impactPlate_medium_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_001.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_003.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_000.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_002.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_004.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "impact_gauntlet": {
+     "length": 0.32,
+     "peak_db": -2.66,
+     "loud_db": -10.36,
+     "rms_db": -15.54,
+     "lead_ms": 0.25,
+     "clip": false,
+     "centroid": 91.65,
+     "low": 0.89
+    },
+    "impact_gauntlet_v2": {
+     "length": 0.32,
+     "peak_db": -2.52,
+     "loud_db": -10.23,
+     "rms_db": -15.78,
+     "lead_ms": 0.36,
+     "clip": false,
+     "centroid": 97.77,
+     "low": 0.9
+    },
+    "impact_gauntlet_v3": {
+     "length": 0.32,
+     "peak_db": -2.73,
+     "loud_db": -10.14,
+     "rms_db": -15.77,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 104.74,
+     "low": 0.93
+    }
+   }
+  },
+  "impact_knife": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_000.ogg",
+    "kenney/impact-sounds/impactMetal_light_001.ogg",
+    "kenney/impact-sounds/impactMetal_light_003.ogg",
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_knife": {
+     "length": 0.2,
+     "peak_db": -2.66,
+     "loud_db": -11.13,
+     "rms_db": -14.96,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 1667.74,
+     "low": 0.25
+    },
+    "impact_knife_v2": {
+     "length": 0.2,
+     "peak_db": -2.71,
+     "loud_db": -11.1,
+     "rms_db": -14.97,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 1495.64,
+     "low": 0.18
+    },
+    "impact_knife_v3": {
+     "length": 0.2,
+     "peak_db": -2.75,
+     "loud_db": -11.12,
+     "rms_db": -14.91,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 2020.97,
+     "low": 0.18
+    }
+   }
+  },
+  "impact_pistol": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_medium_000.ogg",
+    "kenney/impact-sounds/impactMetal_medium_001.ogg",
+    "kenney/impact-sounds/impactMetal_medium_003.ogg",
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "impact_pistol": {
+     "length": 0.16,
+     "peak_db": -2.79,
+     "loud_db": -14.15,
+     "rms_db": -17.16,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 401.64,
+     "low": 0.31
+    },
+    "impact_pistol_v2": {
+     "length": 0.16,
+     "peak_db": -2.83,
+     "loud_db": -14.12,
+     "rms_db": -16.95,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 468.89,
+     "low": 0.29
+    },
+    "impact_pistol_v3": {
+     "length": 0.16,
+     "peak_db": -2.65,
+     "loud_db": -14.14,
+     "rms_db": -17.11,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 491.42,
+     "low": 0.2
+    }
+   }
+  },
+  "shot": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_000.ogg",
+    "kenney/impact-sounds/impactMetal_light_001.ogg",
+    "kenney/impact-sounds/impactMetal_light_003.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_001.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_003.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "shot": {
+     "length": 0.2,
+     "peak_db": -3.39,
+     "loud_db": -14.05,
+     "rms_db": -17.62,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 773.25,
+     "low": 0.48
+    },
+    "shot_v2": {
+     "length": 0.2,
+     "peak_db": -2.93,
+     "loud_db": -14.08,
+     "rms_db": -17.8,
+     "lead_ms": 0.2,
+     "clip": false,
+     "centroid": 995.36,
+     "low": 0.36
+    },
+    "shot_v3": {
+     "length": 0.2,
+     "peak_db": -2.81,
+     "loud_db": -14.08,
+     "rms_db": -17.78,
+     "lead_ms": 0.29,
+     "clip": false,
+     "centroid": 689.92,
+     "low": 0.53
+    }
+   }
+  },
+  "shot_fade": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_000.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "shot_fade": {
+     "length": 0.2,
+     "peak_db": -4.31,
+     "loud_db": -16.01,
+     "rms_db": -19.51,
+     "lead_ms": 0.25,
+     "clip": false,
+     "centroid": 400.3,
+     "low": 0.5
+    }
+   }
+  },
+  "shot_awake": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_000.ogg",
+    "kenney/sci-fi-sounds/laserRetro_002.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "shot_awake": {
+     "length": 0.2,
+     "peak_db": -3.22,
+     "loud_db": -14.05,
+     "rms_db": -17.6,
+     "lead_ms": 0.27,
+     "clip": false,
+     "centroid": 820.82,
+     "low": 0.47
+    }
+   }
+  },
+  "shot_critical": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "shot_critical": {
+     "length": 0.2,
+     "peak_db": -3.34,
+     "loud_db": -13.57,
+     "rms_db": -17.24,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 916.9,
+     "low": 0.41
+    }
+   }
+  },
+  "shot_big": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_001.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "shot_big": {
+     "length": 0.6,
+     "peak_db": -2.24,
+     "loud_db": -10.19,
+     "rms_db": -15.11,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 194.18,
+     "low": 0.86
+    }
+   }
+  },
+  "chain_throw": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/beltHandle1.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_throw": {
+     "length": 0.34,
+     "peak_db": -2.24,
+     "loud_db": -14.06,
+     "rms_db": -16.3,
+     "lead_ms": 0.45,
+     "clip": false,
+     "centroid": 5759.39,
+     "low": 0.0
+    }
+   }
+  },
+  "chain_throw_fade": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/beltHandle1.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_throw_fade": {
+     "length": 0.34,
+     "peak_db": -3.91,
+     "loud_db": -16.01,
+     "rms_db": -20.64,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2334.05,
+     "low": 0.0
+    }
+   }
+  },
+  "chain_throw_awake": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/interface-sounds/glass_004.ogg",
+    "kenney/rpg-audio/beltHandle1.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_throw_awake": {
+     "length": 0.34,
+     "peak_db": -3.84,
+     "loud_db": -14.01,
+     "rms_db": -19.05,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 5964.93,
+     "low": 0.0
+    }
+   }
+  },
+  "chain_throw_critical": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/beltHandle1.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_throw_critical": {
+     "length": 0.34,
+     "peak_db": -2.52,
+     "loud_db": -13.61,
+     "rms_db": -17.35,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 5188.37,
+     "low": 0.0
+    }
+   }
+  },
+  "chain_throw_enhanced": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/rpg-audio/beltHandle1.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_throw_enhanced": {
+     "length": 0.34,
+     "peak_db": -5.23,
+     "loud_db": -13.0,
+     "rms_db": -17.1,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 539.42,
+     "low": 0.85
+    }
+   }
+  },
+  "chain_latch": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_002.ogg",
+    "kenney/rpg-audio/handleCoins2.ogg",
+    "kenney/rpg-audio/metalLatch.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_latch": {
+     "length": 0.25,
+     "peak_db": -2.72,
+     "loud_db": -12.37,
+     "rms_db": -16.57,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 4551.65,
+     "low": 0.02
+    }
+   }
+  },
+  "chain_latch_heavy": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_001.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_004.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/rpg-audio/metalLatch.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_latch_heavy": {
+     "length": 0.35,
+     "peak_db": -2.67,
+     "loud_db": -10.79,
+     "rms_db": -16.28,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 1088.87,
+     "low": 0.68
+    }
+   }
+  },
+  "chain_clash": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_002.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_000.ogg",
+    "kenney/rpg-audio/handleCoins.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "chain_clash": {
+     "length": 0.4,
+     "peak_db": -2.35,
+     "loud_db": -10.19,
+     "rms_db": -16.34,
+     "lead_ms": 0.32,
+     "clip": false,
+     "centroid": 1065.49,
+     "low": 0.61
+    }
+   }
+  },
+  "enemy_hit": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg",
+    "kenney/impact-sounds/impactSoft_medium_001.ogg",
+    "kenney/impact-sounds/impactSoft_medium_002.ogg",
+    "kenney/impact-sounds/impactSoft_medium_004.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "enemy_hit": {
+     "length": 0.26,
+     "peak_db": -3.73,
+     "loud_db": -13.04,
+     "rms_db": -16.87,
+     "lead_ms": 0.45,
+     "clip": false,
+     "centroid": 214.58,
+     "low": 0.5
+    },
+    "enemy_hit_v2": {
+     "length": 0.26,
+     "peak_db": -4.49,
+     "loud_db": -13.01,
+     "rms_db": -16.98,
+     "lead_ms": 0.43,
+     "clip": false,
+     "centroid": 219.66,
+     "low": 0.44
+    },
+    "enemy_hit_v3": {
+     "length": 0.26,
+     "peak_db": -6.28,
+     "loud_db": -13.0,
+     "rms_db": -17.27,
+     "lead_ms": 0.39,
+     "clip": false,
+     "centroid": 250.6,
+     "low": 0.35
+    }
+   }
+  },
+  "hit_flesh": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg",
+    "kenney/impact-sounds/impactSoft_medium_001.ogg",
+    "kenney/impact-sounds/impactSoft_medium_002.ogg",
+    "kenney/impact-sounds/impactSoft_medium_004.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_flesh": {
+     "length": 0.26,
+     "peak_db": -4.41,
+     "loud_db": -13.01,
+     "rms_db": -17.14,
+     "lead_ms": 0.45,
+     "clip": false,
+     "centroid": 209.15,
+     "low": 0.44
+    },
+    "hit_flesh_v2": {
+     "length": 0.26,
+     "peak_db": -4.45,
+     "loud_db": -13.01,
+     "rms_db": -17.19,
+     "lead_ms": 0.45,
+     "clip": false,
+     "centroid": 212.54,
+     "low": 0.39
+    },
+    "hit_flesh_v3": {
+     "length": 0.26,
+     "peak_db": -6.78,
+     "loud_db": -13.0,
+     "rms_db": -17.48,
+     "lead_ms": 0.39,
+     "clip": false,
+     "centroid": 238.4,
+     "low": 0.32
+    }
+   }
+  },
+  "hit_beast": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_000.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_002.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_004.ogg",
+    "kenney/rpg-audio/dropLeather.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_beast": {
+     "length": 0.26,
+     "peak_db": -5.88,
+     "loud_db": -13.0,
+     "rms_db": -17.56,
+     "lead_ms": 0.32,
+     "clip": false,
+     "centroid": 139.74,
+     "low": 0.84
+    },
+    "hit_beast_v2": {
+     "length": 0.26,
+     "peak_db": -5.69,
+     "loud_db": -13.0,
+     "rms_db": -17.89,
+     "lead_ms": 0.32,
+     "clip": false,
+     "centroid": 114.58,
+     "low": 0.89
+    },
+    "hit_beast_v3": {
+     "length": 0.26,
+     "peak_db": -5.45,
+     "loud_db": -13.0,
+     "rms_db": -17.66,
+     "lead_ms": 0.29,
+     "clip": false,
+     "centroid": 142.04,
+     "low": 0.83
+    }
+   }
+  },
+  "hit_small": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactGeneric_light_001.ogg",
+    "kenney/impact-sounds/impactGeneric_light_003.ogg",
+    "kenney/impact-sounds/impactGeneric_light_004.ogg",
+    "kenney/impact-sounds/impactSoft_medium_001.ogg",
+    "kenney/impact-sounds/impactSoft_medium_002.ogg",
+    "kenney/impact-sounds/impactSoft_medium_004.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_small": {
+     "length": 0.2,
+     "peak_db": -3.19,
+     "loud_db": -13.13,
+     "rms_db": -14.78,
+     "lead_ms": 0.2,
+     "clip": false,
+     "centroid": 179.42,
+     "low": 0.91
+    },
+    "hit_small_v2": {
+     "length": 0.2,
+     "peak_db": -2.84,
+     "loud_db": -13.23,
+     "rms_db": -13.87,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 206.39,
+     "low": 0.85
+    },
+    "hit_small_v3": {
+     "length": 0.2,
+     "peak_db": -2.93,
+     "loud_db": -13.21,
+     "rms_db": -14.43,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 309.87,
+     "low": 0.52
+    }
+   }
+  },
+  "hit_armor": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_medium_000.ogg",
+    "kenney/impact-sounds/impactMetal_medium_001.ogg",
+    "kenney/impact-sounds/impactMetal_medium_003.ogg",
+    "kenney/impact-sounds/impactPlate_medium_001.ogg",
+    "kenney/impact-sounds/impactPlate_medium_003.ogg",
+    "kenney/impact-sounds/impactPlate_medium_004.ogg",
+    "kenney/impact-sounds/impactPunch_medium_000.ogg",
+    "kenney/impact-sounds/impactPunch_medium_001.ogg",
+    "kenney/impact-sounds/impactPunch_medium_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_armor": {
+     "length": 0.26,
+     "peak_db": -2.73,
+     "loud_db": -13.13,
+     "rms_db": -16.97,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 378.14,
+     "low": 0.43
+    },
+    "hit_armor_v2": {
+     "length": 0.26,
+     "peak_db": -2.82,
+     "loud_db": -13.11,
+     "rms_db": -17.46,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 301.0,
+     "low": 0.58
+    },
+    "hit_armor_v3": {
+     "length": 0.26,
+     "peak_db": -2.78,
+     "loud_db": -13.07,
+     "rms_db": -16.96,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 354.89,
+     "low": 0.52
+    }
+   }
+  },
+  "hit_mech": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_medium_000.ogg",
+    "kenney/impact-sounds/impactMetal_medium_001.ogg",
+    "kenney/impact-sounds/impactMetal_medium_003.ogg",
+    "kenney/impact-sounds/impactTin_medium_000.ogg",
+    "kenney/impact-sounds/impactTin_medium_002.ogg",
+    "kenney/impact-sounds/impactTin_medium_004.ogg",
+    "kenney/rpg-audio/metalClick.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_mech": {
+     "length": 0.26,
+     "peak_db": -2.68,
+     "loud_db": -13.43,
+     "rms_db": -16.94,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 1822.05,
+     "low": 0.04
+    },
+    "hit_mech_v2": {
+     "length": 0.26,
+     "peak_db": -2.63,
+     "loud_db": -13.49,
+     "rms_db": -17.42,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 2009.03,
+     "low": 0.03
+    },
+    "hit_mech_v3": {
+     "length": 0.26,
+     "peak_db": -2.62,
+     "loud_db": -13.53,
+     "rms_db": -16.94,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 1944.81,
+     "low": 0.02
+    }
+   }
+  },
+  "hit_armor_crystal": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactGlass_medium_001.ogg",
+    "kenney/impact-sounds/impactPlate_medium_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_armor_crystal": {
+     "length": 0.26,
+     "peak_db": -2.63,
+     "loud_db": -13.3,
+     "rms_db": -17.34,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 521.17,
+     "low": 0.59
+    }
+   }
+  },
+  "hit_crystal": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactGlass_light_001.ogg",
+    "kenney/impact-sounds/impactGlass_medium_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_crystal": {
+     "length": 0.26,
+     "peak_db": -2.71,
+     "loud_db": -13.3,
+     "rms_db": -16.85,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 1623.47,
+     "low": 0.02
+    }
+   }
+  },
+  "hit_ethereal": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactGlass_light_003.ogg",
+    "kenney/sci-fi-sounds/forceField_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_ethereal": {
+     "length": 0.32,
+     "peak_db": -3.34,
+     "loud_db": -13.05,
+     "rms_db": -17.95,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 703.19,
+     "low": 0.0
+    }
+   }
+  },
+  "hit_boss_metal": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_004.ogg",
+    "kenney/impact-sounds/impactMining_002.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_boss_metal": {
+     "length": 0.34,
+     "peak_db": -2.47,
+     "loud_db": -13.26,
+     "rms_db": -17.69,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 251.12,
+     "low": 0.75
+    }
+   }
+  },
+  "hit_boss_crystal": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactGlass_heavy_000.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_boss_crystal": {
+     "length": 0.34,
+     "peak_db": -2.58,
+     "loud_db": -13.27,
+     "rms_db": -17.4,
+     "lead_ms": 0.27,
+     "clip": false,
+     "centroid": 202.64,
+     "low": 0.77
+    }
+   }
+  },
+  "hit_organic": {
+   "group": "① 타격",
+   "sources": [
+    "kenney/impact-sounds/impactSoft_heavy_003.ogg",
+    "kenney/sci-fi-sounds/slime_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit_organic": {
+     "length": 0.3,
+     "peak_db": -5.17,
+     "loud_db": -13.0,
+     "rms_db": -18.03,
+     "lead_ms": 0.32,
+     "clip": false,
+     "centroid": 96.8,
+     "low": 0.99
+    }
+   }
+  },
+  "dash": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_000.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_002.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_004.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "dash": {
+     "length": 0.24,
+     "peak_db": -3.24,
+     "loud_db": -16.02,
+     "rms_db": -18.45,
+     "lead_ms": 0.32,
+     "clip": false,
+     "centroid": 1831.99,
+     "low": 0.39
+    },
+    "dash_v2": {
+     "length": 0.24,
+     "peak_db": -3.63,
+     "loud_db": -16.01,
+     "rms_db": -19.49,
+     "lead_ms": 0.34,
+     "clip": false,
+     "centroid": 3075.2,
+     "low": 0.16
+    },
+    "dash_v3": {
+     "length": 0.24,
+     "peak_db": -2.91,
+     "loud_db": -16.0,
+     "rms_db": -18.39,
+     "lead_ms": 0.2,
+     "clip": false,
+     "centroid": 5554.33,
+     "low": 0.19
+    }
+   }
+  },
+  "jump": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/footstep01.ogg",
+    "kenney/rpg-audio/footstep03.ogg",
+    "kenney/rpg-audio/footstep08.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "jump": {
+     "length": 0.18,
+     "peak_db": -7.13,
+     "loud_db": -21.0,
+     "rms_db": -23.67,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 677.97,
+     "low": 0.23
+    },
+    "jump_v2": {
+     "length": 0.18,
+     "peak_db": -8.24,
+     "loud_db": -21.0,
+     "rms_db": -23.02,
+     "lead_ms": 0.41,
+     "clip": false,
+     "centroid": 696.81,
+     "low": 0.25
+    },
+    "jump_v3": {
+     "length": 0.18,
+     "peak_db": -8.77,
+     "loud_db": -21.0,
+     "rms_db": -23.93,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 653.61,
+     "low": 0.06
+    }
+   }
+  },
+  "double_jump": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/interface-sounds/glass_002.ogg",
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "double_jump": {
+     "length": 0.28,
+     "peak_db": -4.08,
+     "loud_db": -19.01,
+     "rms_db": -22.95,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1111.52,
+     "low": 0.02
+    }
+   }
+  },
+  "land": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/impact-sounds/footstep_concrete_001.ogg",
+    "kenney/impact-sounds/footstep_concrete_002.ogg",
+    "kenney/impact-sounds/footstep_concrete_004.ogg",
+    "kenney/impact-sounds/impactSoft_medium_001.ogg",
+    "kenney/impact-sounds/impactSoft_medium_002.ogg",
+    "kenney/impact-sounds/impactSoft_medium_004.ogg",
+    "kenney/rpg-audio/footstep01.ogg",
+    "kenney/rpg-audio/footstep03.ogg",
+    "kenney/rpg-audio/footstep08.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "land": {
+     "length": 0.2,
+     "peak_db": -8.63,
+     "loud_db": -21.01,
+     "rms_db": -23.61,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 455.04,
+     "low": 0.37
+    },
+    "land_v2": {
+     "length": 0.2,
+     "peak_db": -6.15,
+     "loud_db": -21.01,
+     "rms_db": -23.76,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 518.84,
+     "low": 0.35
+    },
+    "land_v3": {
+     "length": 0.2,
+     "peak_db": -9.79,
+     "loud_db": -21.0,
+     "rms_db": -23.89,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 493.26,
+     "low": 0.17
+    }
+   }
+  },
+  "hit": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_001.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_003.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_000.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_002.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_004.ogg",
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "hit": {
+     "length": 0.3,
+     "peak_db": -2.65,
+     "loud_db": -9.67,
+     "rms_db": -15.16,
+     "lead_ms": 0.41,
+     "clip": false,
+     "centroid": 91.43,
+     "low": 0.88
+    },
+    "hit_v2": {
+     "length": 0.3,
+     "peak_db": -2.48,
+     "loud_db": -9.82,
+     "rms_db": -15.43,
+     "lead_ms": 0.43,
+     "clip": false,
+     "centroid": 109.07,
+     "low": 0.88
+    },
+    "hit_v3": {
+     "length": 0.3,
+     "peak_db": -2.66,
+     "loud_db": -9.69,
+     "rms_db": -15.44,
+     "lead_ms": 0.39,
+     "clip": false,
+     "centroid": 118.23,
+     "low": 0.91
+    }
+   }
+  },
+  "death": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/impact-sounds/footstep_wood_002.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_002.ogg",
+    "kenney/impact-sounds/impactSoft_heavy_001.ogg",
+    "kenney/rpg-audio/dropLeather.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "death": {
+     "length": 0.98,
+     "peak_db": -2.75,
+     "loud_db": -8.71,
+     "rms_db": -17.08,
+     "lead_ms": 0.34,
+     "clip": false,
+     "centroid": 200.31,
+     "low": 0.88
+    }
+   }
+  },
+  "potion": {
+   "group": "② 주인공 움직임",
+   "sources": [
+    "kenney/interface-sounds/glass_001.ogg",
+    "kenney/sci-fi-sounds/forceField_003.ogg",
+    "kenney/sci-fi-sounds/slime_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "potion": {
+     "length": 0.45,
+     "peak_db": -3.6,
+     "loud_db": -14.04,
+     "rms_db": -19.66,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 516.74,
+     "low": 0.0
+    }
+   }
+  },
+  "enemy_die": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/impact-sounds/impactSoft_heavy_002.ogg",
+    "kenney/rpg-audio/dropLeather.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "enemy_die": {
+     "length": 0.42,
+     "peak_db": -4.09,
+     "loud_db": -11.02,
+     "rms_db": -17.33,
+     "lead_ms": 0.34,
+     "clip": false,
+     "centroid": 231.08,
+     "low": 0.85
+    }
+   }
+  },
+  "windup_slum": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/beltHandle1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "windup_slum": {
+     "length": 0.29,
+     "peak_db": -3.41,
+     "loud_db": -14.01,
+     "rms_db": -17.31,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 3560.62,
+     "low": 0.0
+    }
+   }
+  },
+  "windup_thrower": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/metalClick.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "windup_thrower": {
+     "length": 0.26,
+     "peak_db": -2.36,
+     "loud_db": -15.37,
+     "rms_db": -19.44,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1160.14,
+     "low": 0.01
+    }
+   }
+  },
+  "windup_hound": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/creak3.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "windup_hound": {
+     "length": 0.36,
+     "peak_db": -8.13,
+     "loud_db": -14.0,
+     "rms_db": -19.6,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 658.52,
+     "low": 0.01
+    }
+   }
+  },
+  "windup_guard": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/impact-sounds/impactPlate_light_004.ogg",
+    "kenney/rpg-audio/beltHandle2.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg",
+    "kenney/rpg-audio/metalLatch.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "windup_guard": {
+     "length": 0.4,
+     "peak_db": -2.96,
+     "loud_db": -13.02,
+     "rms_db": -16.99,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 3441.12,
+     "low": 0.01
+    }
+   }
+  },
+  "windup_drone": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/metalClick.ogg",
+    "kenney/sci-fi-sounds/computerNoise_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "windup_drone": {
+     "length": 0.5,
+     "peak_db": -10.98,
+     "loud_db": -15.0,
+     "rms_db": -18.13,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 1323.19,
+     "low": 0.0
+    }
+   }
+  },
+  "windup_cart": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/creak1.ogg",
+    "kenney/rpg-audio/creak2.ogg",
+    "kenney/rpg-audio/metalPot2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "windup_cart": {
+     "length": 0.8,
+     "peak_db": -5.66,
+     "loud_db": -14.0,
+     "rms_db": -20.71,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2258.74,
+     "low": 0.0
+    }
+   }
+  },
+  "drone_torch": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/sci-fi-sounds/forceField_002.ogg",
+    "kenney/sci-fi-sounds/thrusterFire_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "drone_torch": {
+     "length": 0.6,
+     "peak_db": -5.78,
+     "loud_db": -14.0,
+     "rms_db": -18.83,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2899.23,
+     "low": 0.05
+    }
+   }
+  },
+  "throw": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/cloth2.ogg",
+    "kenney/rpg-audio/cloth3.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/rpg-audio/knifeSlice2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "throw": {
+     "length": 0.2,
+     "peak_db": -2.75,
+     "loud_db": -16.23,
+     "rms_db": -18.74,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1604.93,
+     "low": 0.03
+    },
+    "throw_v2": {
+     "length": 0.2,
+     "peak_db": -2.33,
+     "loud_db": -16.41,
+     "rms_db": -18.63,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1037.17,
+     "low": 0.02
+    },
+    "throw_v3": {
+     "length": 0.2,
+     "peak_db": -3.38,
+     "loud_db": -16.03,
+     "rms_db": -18.02,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 1862.16,
+     "low": 0.06
+    }
+   }
+  },
+  "throw_fade": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "throw_fade": {
+     "length": 0.2,
+     "peak_db": -2.43,
+     "loud_db": -17.35,
+     "rms_db": -19.57,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 795.42,
+     "low": 0.04
+    }
+   }
+  },
+  "throw_awake": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/interface-sounds/glass_004.ogg",
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "throw_awake": {
+     "length": 0.2,
+     "peak_db": -2.44,
+     "loud_db": -15.19,
+     "rms_db": -18.17,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 1992.38,
+     "low": 0.03
+    }
+   }
+  },
+  "throw_critical": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "throw_critical": {
+     "length": 0.2,
+     "peak_db": -2.69,
+     "loud_db": -15.22,
+     "rms_db": -17.75,
+     "lead_ms": 0.27,
+     "clip": false,
+     "centroid": 1627.5,
+     "low": 0.03
+    }
+   }
+  },
+  "throw_enhanced": {
+   "group": "③ 적",
+   "sources": [
+    "kenney/rpg-audio/cloth1.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "throw_enhanced": {
+     "length": 0.2,
+     "peak_db": -2.62,
+     "loud_db": -14.02,
+     "rms_db": -16.61,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 497.64,
+     "low": 0.01
+    }
+   }
+  },
+  "warn_low": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/interface-sounds/bong_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "warn_low": {
+     "length": 0.5,
+     "peak_db": -6.05,
+     "loud_db": -15.0,
+     "rms_db": -19.89,
+     "lead_ms": 0.36,
+     "clip": false,
+     "centroid": 108.51,
+     "low": 1.0
+    }
+   }
+  },
+  "warn_high": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/interface-sounds/error_003.ogg",
+    "kenney/interface-sounds/error_007.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "warn_high": {
+     "length": 0.36,
+     "peak_db": -2.78,
+     "loud_db": -14.04,
+     "rms_db": -18.17,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 2094.03,
+     "low": 0.01
+    }
+   }
+  },
+  "zone_awake": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/phaserUp3.ogg",
+    "kenney/interface-sounds/glass_004.ogg",
+    "kenney/sci-fi-sounds/forceField_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "zone_awake": {
+     "length": 0.55,
+     "peak_db": -9.47,
+     "loud_db": -15.0,
+     "rms_db": -20.01,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 436.13,
+     "low": 0.0
+    }
+   }
+  },
+  "heartbeat": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/impact-sounds/impactSoft_medium_001.ogg",
+    "kenney/impact-sounds/impactSoft_medium_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "heartbeat": {
+     "length": 0.42,
+     "peak_db": -8.9,
+     "loud_db": -15.0,
+     "rms_db": -20.16,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 53.89,
+     "low": 1.0
+    }
+   }
+  },
+  "overload": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/zap1.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_001.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "overload": {
+     "length": 0.98,
+     "peak_db": -2.68,
+     "loud_db": -7.89,
+     "rms_db": -14.5,
+     "lead_ms": 0.29,
+     "clip": false,
+     "centroid": 315.73,
+     "low": 0.7
+    }
+   }
+  },
+  "overload_zap": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/zap2.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "overload_zap": {
+     "length": 0.4,
+     "peak_db": -3.68,
+     "loud_db": -10.02,
+     "rms_db": -16.26,
+     "lead_ms": 0.32,
+     "clip": false,
+     "centroid": 469.11,
+     "low": 0.0
+    }
+   }
+  },
+  "stun_end": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/phaserUp1.ogg",
+    "kenney/rpg-audio/cloth1.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "stun_end": {
+     "length": 0.25,
+     "peak_db": -2.29,
+     "loud_db": -14.1,
+     "rms_db": -16.26,
+     "lead_ms": 0.39,
+     "clip": false,
+     "centroid": 397.82,
+     "low": 0.62
+    }
+   }
+  },
+  "enhance": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/powerUp3.ogg",
+    "kenney/impact-sounds/impactPlate_light_001.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "enhance": {
+     "length": 0.6,
+     "peak_db": -7.27,
+     "loud_db": -12.0,
+     "rms_db": -18.1,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 235.72,
+     "low": 0.9
+    }
+   }
+  },
+  "enhance_1": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/powerUp3.ogg",
+    "kenney/impact-sounds/impactPlate_light_001.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "enhance_1": {
+     "length": 0.7,
+     "peak_db": -6.67,
+     "loud_db": -12.0,
+     "rms_db": -17.63,
+     "lead_ms": 0.25,
+     "clip": false,
+     "centroid": 274.52,
+     "low": 0.88
+    }
+   }
+  },
+  "enhance_2": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/powerUp3.ogg",
+    "kenney/impact-sounds/impactPlate_light_001.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg",
+    "kenney/sci-fi-sounds/laserLarge_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "enhance_2": {
+     "length": 0.85,
+     "peak_db": -5.51,
+     "loud_db": -11.0,
+     "rms_db": -16.35,
+     "lead_ms": 0.25,
+     "clip": false,
+     "centroid": 203.09,
+     "low": 0.95
+    }
+   }
+  },
+  "enhance_3": {
+   "group": "④ 게이지",
+   "sources": [
+    "kenney/digital-audio/powerUp3.ogg",
+    "kenney/impact-sounds/impactBell_heavy_001.ogg",
+    "kenney/impact-sounds/impactPlate_light_001.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg",
+    "kenney/sci-fi-sounds/laserLarge_001.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "enhance_3": {
+     "length": 0.95,
+     "peak_db": -4.04,
+     "loud_db": -10.01,
+     "rms_db": -16.0,
+     "lead_ms": 0.25,
+     "clip": false,
+     "centroid": 217.96,
+     "low": 0.89
+    }
+   }
+  },
+  "pickup": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/glass_002.ogg",
+    "kenney/rpg-audio/handleCoins2.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "pickup": {
+     "length": 0.35,
+     "peak_db": -2.81,
+     "loud_db": -15.17,
+     "rms_db": -19.9,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 4950.45,
+     "low": 0.0
+    }
+   }
+  },
+  "absorb_1": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/drop_001.ogg",
+    "kenney/interface-sounds/glass_005.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "absorb_1": {
+     "length": 0.16,
+     "peak_db": -2.98,
+     "loud_db": -18.17,
+     "rms_db": -19.99,
+     "lead_ms": 0.11,
+     "clip": false,
+     "centroid": 1826.02,
+     "low": 0.0
+    }
+   }
+  },
+  "absorb_2": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/drop_001.ogg",
+    "kenney/interface-sounds/glass_005.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "absorb_2": {
+     "length": 0.16,
+     "peak_db": -2.76,
+     "loud_db": -18.22,
+     "rms_db": -19.91,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 2190.12,
+     "low": 0.0
+    }
+   }
+  },
+  "absorb_3": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/drop_001.ogg",
+    "kenney/interface-sounds/glass_005.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "absorb_3": {
+     "length": 0.16,
+     "peak_db": -2.55,
+     "loud_db": -18.33,
+     "rms_db": -19.63,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 2246.84,
+     "low": 0.0
+    }
+   }
+  },
+  "absorb_4": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/drop_001.ogg",
+    "kenney/interface-sounds/glass_005.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "absorb_4": {
+     "length": 0.16,
+     "peak_db": -2.47,
+     "loud_db": -18.38,
+     "rms_db": -20.03,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 2506.73,
+     "low": 0.0
+    }
+   }
+  },
+  "absorb_5": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/drop_001.ogg",
+    "kenney/interface-sounds/glass_005.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "absorb_5": {
+     "length": 0.16,
+     "peak_db": -2.41,
+     "loud_db": -18.45,
+     "rms_db": -19.85,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 2782.45,
+     "low": 0.0
+    }
+   }
+  },
+  "absorb_done": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/interface-sounds/confirmation_001.ogg",
+    "kenney/interface-sounds/glass_004.ogg",
+    "kenney/sci-fi-sounds/forceField_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "absorb_done": {
+     "length": 0.5,
+     "peak_db": -6.28,
+     "loud_db": -14.0,
+     "rms_db": -19.06,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 706.32,
+     "low": 0.0
+    }
+   }
+  },
+  "kill_streak_1": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/interface-sounds/glass_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_streak_1": {
+     "length": 0.36,
+     "peak_db": -4.59,
+     "loud_db": -14.5,
+     "rms_db": -18.82,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 461.13,
+     "low": 0.57
+    }
+   }
+  },
+  "kill_streak_2": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/interface-sounds/glass_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_streak_2": {
+     "length": 0.4,
+     "peak_db": -3.97,
+     "loud_db": -14.01,
+     "rms_db": -18.34,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 535.05,
+     "low": 0.58
+    }
+   }
+  },
+  "kill_streak_3": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/interface-sounds/glass_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_streak_3": {
+     "length": 0.44,
+     "peak_db": -4.22,
+     "loud_db": -13.51,
+     "rms_db": -17.94,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 579.21,
+     "low": 0.56
+    }
+   }
+  },
+  "kill_streak_4": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/interface-sounds/glass_001.ogg",
+    "kenney/sci-fi-sounds/forceField_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_streak_4": {
+     "length": 0.47,
+     "peak_db": -2.99,
+     "loud_db": -13.03,
+     "rms_db": -18.29,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 520.92,
+     "low": 0.23
+    }
+   }
+  },
+  "kill_streak_5": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/interface-sounds/glass_001.ogg",
+    "kenney/sci-fi-sounds/forceField_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_streak_5": {
+     "length": 0.51,
+     "peak_db": -3.5,
+     "loud_db": -12.51,
+     "rms_db": -18.05,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 542.86,
+     "low": 0.2
+    }
+   }
+  },
+  "kill_streak_6": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_000.ogg",
+    "kenney/interface-sounds/glass_001.ogg",
+    "kenney/sci-fi-sounds/forceField_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_streak_6": {
+     "length": 0.56,
+     "peak_db": -3.38,
+     "loud_db": -12.02,
+     "rms_db": -17.78,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 533.23,
+     "low": 0.17
+    }
+   }
+  },
+  "kill_last": {
+   "group": "⑤ 줍기·보상",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_001.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_002.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "kill_last": {
+     "length": 0.95,
+     "peak_db": -2.42,
+     "loud_db": -9.04,
+     "rms_db": -14.55,
+     "lead_ms": 0.23,
+     "clip": false,
+     "centroid": 110.28,
+     "low": 0.91
+    }
+   }
+  },
+  "ui_move": {
+   "group": "⑥ 메뉴",
+   "sources": [
+    "kenney/interface-sounds/tick_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_move": {
+     "length": 0.07,
+     "peak_db": -2.58,
+     "loud_db": -21.46,
+     "rms_db": -16.14,
+     "lead_ms": 0.09,
+     "clip": false,
+     "centroid": 3195.35,
+     "low": 0.0
+    }
+   }
+  },
+  "ui_select": {
+   "group": "⑥ 메뉴",
+   "sources": [
+    "kenney/interface-sounds/select_006.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_select": {
+     "length": 0.16,
+     "peak_db": -9.98,
+     "loud_db": -18.0,
+     "rms_db": -20.84,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 634.9,
+     "low": 0.0
+    }
+   }
+  },
+  "ui_back": {
+   "group": "⑥ 메뉴",
+   "sources": [
+    "kenney/interface-sounds/back_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ui_back": {
+     "length": 0.09,
+     "peak_db": -6.43,
+     "loud_db": -19.02,
+     "rms_db": -19.76,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 698.26,
+     "low": 0.19
+    }
+   }
+  },
+  "ark_bullet": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/sci-fi-sounds/laserRetro_002.ogg",
+    "kenney/sci-fi-sounds/laserSmall_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ark_bullet": {
+     "length": 0.25,
+     "peak_db": -2.74,
+     "loud_db": -14.09,
+     "rms_db": -18.34,
+     "lead_ms": 0.14,
+     "clip": false,
+     "centroid": 2584.89,
+     "low": 0.01
+    }
+   }
+  },
+  "ark_teleport": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/digital-audio/phaseJump1.ogg",
+    "kenney/sci-fi-sounds/forceField_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ark_teleport": {
+     "length": 0.49,
+     "peak_db": -3.83,
+     "loud_db": -11.0,
+     "rms_db": -13.62,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 362.19,
+     "low": 0.12
+    }
+   }
+  },
+  "ark_roar": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/rpg-audio/creak1.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_000.ogg",
+    "kenney/sci-fi-sounds/spaceEngineLarge_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ark_roar": {
+     "length": 0.9,
+     "peak_db": -2.62,
+     "loud_db": -9.25,
+     "rms_db": -13.29,
+     "lead_ms": 0.43,
+     "clip": false,
+     "centroid": 416.69,
+     "low": 0.69
+    }
+   }
+  },
+  "ark_absorb": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/sci-fi-sounds/computerNoise_001.ogg",
+    "kenney/sci-fi-sounds/forceField_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ark_absorb": {
+     "length": 0.8,
+     "peak_db": -4.62,
+     "loud_db": -10.5,
+     "rms_db": -16.41,
+     "lead_ms": 0.39,
+     "clip": false,
+     "centroid": 274.17,
+     "low": 0.79
+    }
+   }
+  },
+  "ark_burst": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/digital-audio/zap1.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_003.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ark_burst": {
+     "length": 0.7,
+     "peak_db": -2.46,
+     "loud_db": -10.3,
+     "rms_db": -15.83,
+     "lead_ms": 0.34,
+     "clip": false,
+     "centroid": 369.05,
+     "low": 0.75
+    }
+   }
+  },
+  "ark_field": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/sci-fi-sounds/forceField_003.ogg",
+    "kenney/sci-fi-sounds/slime_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ark_field": {
+     "length": 0.8,
+     "peak_db": -4.28,
+     "loud_db": -12.0,
+     "rms_db": -16.85,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 315.57,
+     "low": 0.83
+    }
+   }
+  },
+  "ult_cast": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/digital-audio/powerUp1.ogg",
+    "kenney/impact-sounds/impactBell_heavy_001.ogg",
+    "kenney/sci-fi-sounds/forceField_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ult_cast": {
+     "length": 0.9,
+     "peak_db": -4.15,
+     "loud_db": -10.0,
+     "rms_db": -13.82,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 156.89,
+     "low": 0.92
+    }
+   }
+  },
+  "ult_hit": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_002.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_001.ogg",
+    "kenney/sci-fi-sounds/forceField_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "ult_hit": {
+     "length": 0.45,
+     "peak_db": -3.04,
+     "loud_db": -10.63,
+     "rms_db": -16.34,
+     "lead_ms": 0.18,
+     "clip": false,
+     "centroid": 139.38,
+     "low": 0.76
+    }
+   }
+  },
+  "ult_final_pipe": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/impact-sounds/impactBell_heavy_000.ogg",
+    "kenney/impact-sounds/impactMetal_heavy_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "ult_final_pipe": {
+     "length": 0.95,
+     "peak_db": -2.61,
+     "loud_db": -8.26,
+     "rms_db": -14.43,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 96.3,
+     "low": 0.93
+    }
+   }
+  },
+  "ult_final_knife": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_light_003.ogg",
+    "kenney/rpg-audio/knifeSlice.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "ult_final_knife": {
+     "length": 0.95,
+     "peak_db": -2.33,
+     "loud_db": -8.4,
+     "rms_db": -13.89,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 2131.67,
+     "low": 0.41
+    }
+   }
+  },
+  "ult_final_pistol": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/sci-fi-sounds/explosionCrunch_000.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_001.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_003.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "ult_final_pistol": {
+     "length": 0.95,
+     "peak_db": -2.39,
+     "loud_db": -8.35,
+     "rms_db": -14.23,
+     "lead_ms": 0.2,
+     "clip": false,
+     "centroid": 123.82,
+     "low": 0.94
+    }
+   }
+  },
+  "ult_final_gauntlet": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/impact-sounds/impactPlate_heavy_004.ogg",
+    "kenney/impact-sounds/impactPunch_heavy_002.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "ult_final_gauntlet": {
+     "length": 0.95,
+     "peak_db": -2.62,
+     "loud_db": -8.44,
+     "rms_db": -15.9,
+     "lead_ms": 0.48,
+     "clip": false,
+     "centroid": 90.44,
+     "low": 0.96
+    }
+   }
+  },
+  "ult_final_chain": {
+   "group": "⑦ 보스·궁극기",
+   "sources": [
+    "kenney/impact-sounds/impactMetal_heavy_003.ogg",
+    "kenney/impact-sounds/impactPlate_heavy_002.ogg",
+    "kenney/rpg-audio/handleCoins.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_004.ogg",
+    "kenney/sci-fi-sounds/lowFrequency_explosion_001.ogg"
+   ],
+   "synth": [
+    "sub"
+   ],
+   "files": {
+    "ult_final_chain": {
+     "length": 0.95,
+     "peak_db": -2.38,
+     "loud_db": -8.38,
+     "rms_db": -14.64,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 270.24,
+     "low": 0.92
+    }
+   }
+  },
+  "amb_drip": {
+   "group": "⑧ 환경",
+   "sources": [
+    "kenney/interface-sounds/drop_002.ogg",
+    "kenney/interface-sounds/drop_003.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "amb_drip": {
+     "length": 0.5,
+     "peak_db": -15.52,
+     "loud_db": -24.01,
+     "rms_db": -29.22,
+     "lead_ms": 0.16,
+     "clip": false,
+     "centroid": 451.18,
+     "low": 0.0
+    }
+   }
+  },
+  "amb_steam": {
+   "group": "⑧ 환경",
+   "sources": [
+    "kenney/sci-fi-sounds/thrusterFire_000.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "amb_steam": {
+     "length": 0.8,
+     "peak_db": -7.86,
+     "loud_db": -24.0,
+     "rms_db": -29.6,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 14388.88,
+     "low": 0.0
+    }
+   }
+  },
+  "amb_wind": {
+   "group": "⑧ 환경",
+   "sources": [
+    "kenney/sci-fi-sounds/spaceEngineSmall_001.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "amb_wind": {
+     "length": 0.95,
+     "peak_db": -10.65,
+     "loud_db": -24.0,
+     "rms_db": -28.36,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 436.35,
+     "low": 0.06
+    }
+   }
+  },
+  "amb_forge": {
+   "group": "⑧ 환경",
+   "sources": [
+    "kenney/rpg-audio/metalPot1.ogg",
+    "kenney/sci-fi-sounds/explosionCrunch_002.ogg"
+   ],
+   "synth": [],
+   "files": {
+    "amb_forge": {
+     "length": 0.6,
+     "peak_db": -15.4,
+     "loud_db": -25.0,
+     "rms_db": -31.9,
+     "lead_ms": 0.5,
+     "clip": false,
+     "centroid": 353.79,
+     "low": 0.02
+    }
+   }
+  }
+ }
+}

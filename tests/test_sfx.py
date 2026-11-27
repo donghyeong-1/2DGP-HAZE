@@ -190,13 +190,15 @@ def test_enemies_warn_with_their_own_windup_sound():
 
 
 def test_mix_keeps_frequent_sounds_quieter_than_big_moves():
+    """예전 묶음(v2)의 소리별 배율 표. S2-2(11/27)부터 기본 묶음 v3는 크기를 파일에 구워 표가 없다:
+    v3의 균형은 tests/test_sfx_s2.py(test_mix_targets_keep_hits_above_swings_and_movement)가 파일 크기로 본다."""
     import assets
-    base = assets.sfx_gain('pickup')
+    base = assets.sfx_gain('pickup', 'v2')
     assert base == 1.0                                      # 표에 없는 소리는 그대로
     for quiet in ('land', 'jump', 'swing', 'enemy_hit'):
-        assert assets.sfx_gain(quiet) < 1.0, quiet          # 자주 나는 소리는 작게
+        assert assets.sfx_gain(quiet, 'v2') < 1.0, quiet    # 자주 나는 소리는 작게
     for loud in ('ult_cast', 'ult_final_pipe', 'overload', 'ark_roar'):
-        assert assets.sfx_gain(loud) >= 1.0, loud           # 큰 기술은 줄이지 않는다
+        assert assets.sfx_gain(loud, 'v2') >= 1.0, loud     # 큰 기술은 줄이지 않는다
 
 
 def test_each_stage_and_the_hideout_have_their_own_music():

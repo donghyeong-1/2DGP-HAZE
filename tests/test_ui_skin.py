@@ -773,6 +773,8 @@ def test_m1_unchanged_screens_draw_the_same_in_every_skin():
         if skin_name == 'mist':                            # S1(11/27)이 mist의 NPC 창·연습·효과음을 바꿨다: 카드만 그대로
             want = {k: v for k, v in want.items() if k.startswith('cards_')}
             got = {k: v for k, v in got.items() if k in want}
+        want = {k: v for k, v in want.items() if not k.startswith('sfx')}   # S2-2(11/27): 효과음 듣기에 'V 예전과 비교' 안내와 듣는 묶음 줄을 더했다
+        got = {k: v for k, v in got.items() if k in want}
         assert got == want, (skin_name, [k for k in want if got.get(k) != want[k]])
 
 
@@ -1030,6 +1032,8 @@ def test_s1_old_skins_draw_the_same():
     """(3) 'plate'·'plate_code'·'crystal'에서 S1 화면(NPC 넷·연습·효과음·보스 대사 띠·진열대)의 그리기 기록이 고치기 전과 같다."""
     for skin_name, want in S1_DIGEST.items():
         got = {k: v.digest() for k, v in _s1_logs(skin_name).items()}
+        want = {k: v for k, v in want.items() if not k.startswith('sfx')}   # S2-2(11/27): 효과음 듣기에 'V 예전과 비교' 안내와 듣는 묶음 줄을 더했다
+        got = {k: v for k, v in got.items() if k in want}
         assert got == want, (skin_name, [k for k in want if got.get(k) != want[k]])
 
 

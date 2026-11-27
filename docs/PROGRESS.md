@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-27 [Claude Code]
 
 ## 진행 중
-- [Claude Code] S2-2 효과음 다시 만들기 / assets/sfx_v3/, assets/sfx_src/, tools/make_sfx_v3.py, src/assets.py, src/sfx_mode.py, src/config.py, src/credits_mode.py, tests/test_sfx*.py
+- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -27,7 +27,7 @@
 4. [ ] **(사용자) 데모 촬영 → YouTube 업로드 → e-class 제출.** CC-BY 곡을 쓰면 영상 설명란에 곡명·작가·라이선스.
 5. [ ] **(사용자, 제출 전 필수)** `docs/ASSETS.md` 맨 끝 표의 빈칸(이미지 생성 도구의 모델명·이용 조건). **주인공 동작을 PixelLab 체험판 계정으로 만들었다: 체험판 생성물을 공개 영상·저장소에 써도 되는지 확인.** 채워지면 크레딧 문구를 고친다.
 6. [x] **이벤트 방 그림**: 떠돌이 죄수·헤이즈 샘을 PixelLab v6 그림으로 바꿈(11/25). Codex T51·T52는 격자가 달라 게임에 쓰지 않았다. **앞으로 캐릭터 옆에 서는 도트 그림은 PixelLab으로 만든다(사용자 결정)**. 은신처 NPC 셋(정비사·보관인·기록관)도 11/25에 PixelLab으로 바꿈. 일반 적 5종(무당·쥐·감시 눈·망령·수레)도 11/25에 바꿈. 아크·헤이즈 심장도 11/25에 바꿈. 주인공의 남은 두 세트(궁극기 시전·맨손)도 11/25에 연결. **게임이 그리는 캐릭터 그림은 모두 PixelLab v6.** 대화 초상화도 11/25에 새 몸 그림에 맞춤. 남은 것: 발표 그림을 한 번에 다시 찍기.
-7. [ ] **(사용자) 효과음 검토**: 연습장 F 메뉴 → '효과음 듣기'. 표시한 소리부터 Claude Code가 다시 만든다(`sfx_review.json`).
+7. [ ] **(사용자) 효과음 검토 (새 묶음 v3, 11/27 S2-2)**: 효과음 117종을 녹음 원본(Kenney CC0) 바탕으로 다시 만들었다. 연습장 F 메뉴 → '효과음 듣기'에서 듣고 G 좋음·B 다시 만들기, **V로 같은 소리의 예전 것과 번갈아** 듣는다. 들어 볼 순서와 수치는 `docs/opus/TASKS.md` S2-2. 전체가 별로면 `src/config.py`의 `SFX_SET = 'v2'`로 예전 소리. 사이트에서 막혀 못 받은 CC0 음원(BigSoundBank·OpenGameArt 발소리·Kenney UI Audio)을 받아 주면 더 넣는다.
 8. [ ] **(사용자 결정)** 주인공 이름(화면에는 'N-09'만 나온다). 대화 초상화는 11/25~26에 여덟 장 모두 PixelLab으로 만들었다(주인공은 11/26). Gemini G04 초상화 5장은 11/26 사용자 결정으로 게임에 쓰지 않고 원화로 보관(지금 초상화 유지).
 9. [ ] **(사용자)** 실행 파일을 파이썬 없는 PC에서 켜 보기, 게임패드가 있으면 몇 방.
 10. [ ] **(Claude Code, 여유가 있으면)** plan_v8 4-5 색 정리, 벽 튕김을 다른 무기에도, 움직이는 발판·부서지는 발판. UI 개편(C안)은 11/25에 G06 부품을 게임에 적용함(HUD·메뉴 공통·증강 카드). 남은 UI 일: 사용자가 직접 보고 고칠 곳 말해 주기, 안 쓰는 예전 UI 그림 정리, 발표 그림은 **변경이 다 끝난 뒤 한 번에** 다시 찍는다(사용자 11/25: 또 바뀔 수 있으니 그때 같이. `demo3_crasher_fight`는 크래셔가 화면 밖이라 그때 보이게). v6 새 화풍은 G01 시안이 오면. **이펙트**: 11/26에 적·보스 쪽 사각형 이펙트를 구운 시트로 바꿈. 같은 날 주인공 쪽(탄환·총구 섬광·돌진 궤적·도탄 잔상)도 바꿈. 보스 충격파 시트(shockwave)도 11/26에 make_fx2로 다시 구움. 남은 것은 아이콘 종류(표식·조준 꺾쇠). **11/26 세션을 둘로 나눔: 기획·검토는 Fable 세션, 구현은 Opus 작업 세션. 작업 세션의 할 일은 `docs/opus/TASKS.md`(O2-1 보스 등장 정적·체력바 -> O1 실루엣 컷인·궁극기 각성 증강 -> O3 빛줄기 -> O2-2 크래셔 착지 등장).** **UI: 11/26 철판 컨셉은 접고 11/27 'mist'로 확정(타이틀 감시 단말 + 증강 카드 안개 미니멀). 나머지 화면도 11/27에 H1·M1·S1 세 묶음으로 모두 맞춤(`docs/opus/TASKS.md` 4차), 사용자 확인 남음. 그림을 멈추는 날 11/29 밤, 그 뒤 발표 그림 재촬영.**
@@ -49,7 +49,7 @@
 - **저주 증강(11/26)의 수치도 플레이 전 값**: 나올 확률 30%, 기간 2~3방, 공격력 -20%·흡수 -40%·한계 -30·피해 2배. 등급 3 저주가 실제로 얼마나 위험한지 모른다(`docs/DECISIONS.md` 11/26).
 - v8에서 넣은 수치는 모두 플레이 전 값이다(문지기, 적 빈틈, 도전방 시간, 큰 방 무리 수, 장치 피해, 합성 증강 배율, 초보자 모드 배율). 시뮬레이션 근거는 `docs/project/balance.md`.
 - 합성 증강 빈도는 쟀다(11/25 augment_sim, 11/26 자세히: `docs/project/balance.md` '증강이 열리는 빈도'). 갈래를 챙겨 끝까지 깨면 49%가 합성을 보지만 짝이 정해진 6종이 합쳐 3%였다 -> 11/26 카드 뽑기를 손봐 focus 10%, 카드의 '합성 짝' 안내를 따르면 약 50%. 실제 플레이에서 체감이 어떤지는 아직 모른다.
-- 음악·효과음을 직접 들어 본 평가가 없다.
+- 음악·효과음을 직접 들어 본 평가가 없다. 효과음은 11/27에 새 묶음(v3)으로 바꿨고 수치로만 확인했다.
 - PixelLab 체험판 생성물의 이용 조건.
 
 ## 작업 로그
@@ -459,3 +459,4 @@
 2026-11-27 [Claude Code] I1-fix 아이콘 밝기와 뜻: 무기 넷 HUD 칸 대비를 I1 전 이상으로(테스트 먼저, 바깥 외곽선 두고 안쪽 밝기 펴기, 생성 없음), 공격력·균열의 분노를 서로 다른 그림으로 다시 뽑음(10회), 흡수·결핍 방지는 I1 다른 후보로 / assets/ui/icon_w_*·icon_f_*·icon_absorb·steady·power·fury.png, assets/sprites/pixellab/icons_v6/, tools/apply_pixellab_icons.py, tools/make_fury_icon.py, tests/test_i1_icons.py, docs/*
 2026-11-27 [Claude Code] A1 화면 일러스트 적용: Gemini G08이 주인공을 다시 그린 사망·탈출·크레딧(1·3) 그림 검토(인물 밖 차이는 팔레트 수준)·credits_3 목도리 끝 청록 손질·적용, 맡길 물건 칸 묶음이 그림의 인물을 피하게(테스트 먼저), 크레딧 Codex·Gemini 줄 / assets/backgrounds/credits_1·credits_3·screen_death·screen_ending.png, assets/sprites/gemini/illust_v2/, docs/gemini/reports/G08.md, tools/apply_g08_illust.py, tools/a1_illust_shots.py, src/ending_mode.py, src/credits_mode.py, tests/test_ui_skin.py, docs/*
 2026-11-27 [Claude Code] S2-1 게임패드 물약 = 십자 위(사용자 결정): 플레이 중 십자 위로 물약, 십자 위는 플레이 이동에서 뺌, 메뉴에서는 그대로 ↑, 패드 조작표·키 이름 '십자↑', 테스트 먼저 / src/gamepad.py·input_device.py·pause_mode.py, tests/test_s2_pad_potion.py(새), docs/opus/TASKS.md, docs/DECISIONS.md
+2026-11-27 [Claude Code] S2-2 효과음 다시 만들기: 사이트 오디오 목록 41개 검토(쓴 것 Kenney CC0 넷, 라이선스로 뺀 것 15, 막힌 것 5는 우회하지 않고 사용자 목록), 녹음 원본 바탕 새 묶음 v3 117종(171파일, 물약 소리 새로) 테스트 먼저, SFX_SET으로 예전 묶음 되돌리기, 효과음 듣기 V 비교, 이벤트 표·파형 비교판 / tools/make_sfx_v3.py·sfx_metrics.py(새)·build_exe.py, assets/sfx_v3/(새), assets/sfx_src/kenney/(원본 51개·SOURCE.md), src/assets.py·config.py·sfx_mode.py·player.py·credits_mode.py, tests/test_sfx_s2.py(새)·test_sfx.py·test_sfx_room.py·test_ui_skin.py·test_options.py·test_build.py, docs/*

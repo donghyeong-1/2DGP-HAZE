@@ -206,33 +206,68 @@ FONT_MULTIPLES = {'normal': 1, 'small': 1, 'big': 3}  # 종류별 추가 배수 
 _sounds = {}
 
 
-def sfx_gain(name):
-    """효과음 음량 균형 배율 (config.SFX_GAIN, 없으면 1.0)."""
+def _sfx_set(sfx_set=None):
     import config
+    return sfx_set or config.SFX_SET
+
+
+def sfx_path(name, sfx_set=None):
+    """효과음 파일 경로 (S2-2). 'v3'은 assets/sfx_v3에 있으면 그것, 없으면 예전 assets/sfx. 'v2'는 예전 것만.
+    둘 다 없으면 config.SFX_FALLBACK의 대신 소리. 그래도 없으면 None."""
+    import config
+    s = _sfx_set(sfx_set)
+    order = [config.SFX_DIRS[s]] + ([config.SFX_DIRS['v2']] if s != 'v2' else [])
+    for folder in order:
+        p = os.path.join(ASSET_DIR, folder, name + '.wav')
+        if os.path.exists(p):
+            return p
+    alt = config.SFX_FALLBACK.get(name)
+    return sfx_path(alt, s) if alt else None
+
+
+def sfx_gain(name, sfx_set=None):
+    """효과음 음량 균형 배율. 예전 파일(assets/sfx)이면 config.SFX_GAIN, v3 파일이면 config.SFX_GAIN_V3 (없으면 1.0)."""
+    import config
+    p = sfx_path(name, sfx_set)
+    if p and os.path.basename(os.path.dirname(p)) == config.SFX_DIRS['v3']:
+        return config.SFX_V3_LEVEL * config.SFX_GAIN_V3.get(name, 1.0)
     return config.SFX_GAIN.get(name, 1.0)
 
 
 _channels_ready = [False]
 
 
-def sound(name):
-    """assets/sfx/<name>.wav 를 불러와 캐시한다. 오디오를 쓸 수 없으면 None."""
-    if name not in _sounds:
+def sound(name, sfx_set=None):
+    """효과음 파일(sfx_path)을 불러와 캐시한다. 오디오를 쓸 수 없거나 파일이 없으면 None."""
+    path = sfx_path(name, sfx_set)
+    key = path or ('?', name)
+    if key not in _sounds:
         try:
             if not _channels_ready[0]:                 # v7 효과음 v3: 휘두르기·무기·재질·처치 소리가 겹친다 (기본 8 -> 32)
                 _channels_ready[0] = True
                 from sdl2.sdlmixer import Mix_AllocateChannels
                 Mix_AllocateChannels(32)
             from pico2d import load_wav
-            wav = load_wav(os.path.join(ASSET_DIR, 'sfx', name + '.wav'))
+            wav = load_wav(path) if path else None
             if wav is not None:
                 import config
                 import options
-                wav.set_volume(options.volume(config.SFX_VOLUME * sfx_gain(name), options.sfx_level))
-            _sounds[name] = wav
+                wav.set_volume(options.volume(config.SFX_VOLUME * sfx_gain(name, sfx_set), options.sfx_level))
+            _sounds[key] = wav
         except Exception:
-            _sounds[name] = None
-    return _sounds[name]
+            _sounds[key] = None
+    return _sounds[key]
+
+
+def sfx_names():
+    """지금 묶음에서 부를 수 있는 소리 이름 (예전 묶음 + v3 묶음의 파일 이름)."""
+    import config
+    names = set()
+    for s in {config.SFX_DIRS['v2'], config.SFX_DIRS[_sfx_set()]}:
+        folder = os.path.join(ASSET_DIR, s)
+        if os.path.isdir(folder):
+            names |= {f[:-4] for f in os.listdir(folder) if f.endswith('.wav')}
+    return sorted(names)
 
 
 PRELOAD_FOLDERS = ('sprites/unified', 'effects', 'props', 'props/boss', 'decor', 'tiles', 'ui', 'backgrounds', 'portraits', 'placeholder')
@@ -252,8 +287,8 @@ def preload(sounds=True):
         if name.startswith(('enemy_', 'boss_')):           # 적 테두리(얇은 테두리·정예) 판도 미리 만든다 (싸우는 중 끊기지 않게)
             silhouette('sprites/unified/' + name)
     if sounds:
-        for path in sorted(glob.glob(os.path.join(ASSET_DIR, 'sfx', '*.wav'))):
-            sound(os.path.basename(path)[:-4])
+        for name in sfx_names():
+            sound(name)
     return count
 
 
@@ -261,7 +296,7 @@ _variant_turn = {}
 
 
 def variant_of(name):
-    """자주 나는 소리는 3버전을 차례로 돌린다 (같은 소리가 기관총처럼 반복되지 않게). 그 밖의 소리는 그대로."""
+    """자주 나는 소리는 3버전을 차례로 돌린다 (같은 소리가 기관총처럼 반복되지 않게, 직전과 늘 다르다). 그 밖의 소리는 그대로."""
     import config
     if name not in config.SFX_VARIANTS:
         return name

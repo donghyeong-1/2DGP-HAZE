@@ -693,14 +693,15 @@ def _other_logs(skin_name):
 # R2(11/27): credits_mid(세 옛 스킨) = 크레딧 '아이템 아이콘'·PixelLab 셋째 줄·'그래픽' 캐릭터 줄 (R2 전 f8b78f59f4fceb53)
 # Q1(11/27): credits_mid(세 옛 스킨) = 크레딧 PixelLab 첫 줄 끝에 ', 소품' (Q1 전 e40b84a73a1f011c)
 # I1(11/27): credits_mid(세 옛 스킨) = 크레딧 아이콘 출처 세 줄(Codex 줄 '아이템 아이콘' 뺌, PixelLab 줄 '증강 갈래·무기·아이템 아이콘', 코드 그림 줄 '무기 아이콘' 뺌) (I1 전 d19ea4512e2eaa47)
+# A1(11/27): credits_mid(세 옛 스킨) = 크레딧 Codex 둘째 줄 '사망·탈출·크레딧 장면의 배경', Gemini 줄 '장면 일러스트의 주인공' (A1 전 df21ce0506bb971b)
 # R1(11/27)이 바꾼 값: credits_mid(세 옛 스킨 같은 값) = 크레딧 'AI 도구'·'그래픽' 절 문구(묶음 4, 스킨과 상관없는 글. 전 7896f4a09436720a),
 # mist cards_augment·cards_curse = 증강 카드 진행 칸 up_step_off -> um_step_off/on(묶음 3. 전 c56ed617c57c2389·f791b2981770fab9),
 # mist 0_flash·2_flash = 번쩍이는 프레임에 머리글 첫 줄을 그리지 않음(묶음 1. 전 c11c65208d8510e7·683ccfdbc9a80c9c).
 # 평소·줄기·잔광 프레임(0_None·0_bolt·0_glow·0_dark 등)과 옛 스킨의 타이틀은 그대로
 MENU_DIGEST = {
-    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '706591185f320235', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'e809b1aed949b1e7', 'options_music': '4a5c635c99969c33', 'options_keys': '03b79cf26b0d7eb7', 'options_back': '1f2e4b40983c98e9', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'a985340e9be7c1eb', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'df21ce0506bb971b'},
-    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '56fb50d25fed5cee', 'pause_ask': '89feb0a901922810', 'options_0': '41004424fdb518d0', 'options_music': 'd4c8fe3e6e5321e2', 'options_keys': '1aa92a0e36cf6276', 'options_back': '66055eccd274a98a', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'e3eda8690d84a844', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'df21ce0506bb971b'},
-    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': '39793beeefa30d40', 'pause_ask': '7db77125d2deef6c', 'options_0': '38d78469ad29cea7', 'options_music': '468fd5ac30476515', 'options_keys': '9833fd855e4d574a', 'options_back': '51ba81883930b500', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': '0fcf2c183f4d832b', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'df21ce0506bb971b'},
+    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '706591185f320235', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'e809b1aed949b1e7', 'options_music': '4a5c635c99969c33', 'options_keys': '03b79cf26b0d7eb7', 'options_back': '1f2e4b40983c98e9', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'a985340e9be7c1eb', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': '84f02b404495be52'},
+    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '56fb50d25fed5cee', 'pause_ask': '89feb0a901922810', 'options_0': '41004424fdb518d0', 'options_music': 'd4c8fe3e6e5321e2', 'options_keys': '1aa92a0e36cf6276', 'options_back': '66055eccd274a98a', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'e3eda8690d84a844', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': '84f02b404495be52'},
+    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': '39793beeefa30d40', 'pause_ask': '7db77125d2deef6c', 'options_0': '38d78469ad29cea7', 'options_music': '468fd5ac30476515', 'options_keys': '9833fd855e4d574a', 'options_back': '51ba81883930b500', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': '0fcf2c183f4d832b', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': '84f02b404495be52'},
 }
 OTHER_DIGEST = {
     'mist': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': '4403ee234fef16ee', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '58361502e50533c1', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '3da451f159297ebc', 'cards_form': '5d1f396d9b756037', 'cards_curse': 'e3f25c236caf0183'},
@@ -947,7 +948,7 @@ MIST_DONE_DIGEST = {
     'pause_0': 'c909b5ac2529364b', 'pause_build_2': '589f69d74ed45a67', 'pause_ask': '2655e1c8ff2c502a',
     'keys_0': 'b44b597ad20c63dc', 'keys_listen': '42a3e9d4960cc1df', 'keys_buttons': 'f8a8e1e10811752c',
     'ending_dead_choose': '9b644f1cc7af2a1a', 'ending_dead': '12ef159e411d165d', 'ending_clear': 'f10f4ce355a6fb13',
-    'credits_0': 'c7ea34876ff69204', 'credits_mid': 'cb6be0f8e9e980d7',   # I1(11/27): 크레딧 아이콘 출처 세 줄 (I1 전 e877d54422d17aa2, Q1 전 67cc436ab00bde72)
+    'credits_0': 'c7ea34876ff69204', 'credits_mid': '2845c7de02c8c345',   # A1(11/27): Codex 둘째 줄·Gemini 줄 (A1 전 cb6be0f8e9e980d7, I1 전 e877d54422d17aa2, Q1 전 67cc436ab00bde72)
     # H2(11/27)이 mist HUD 다섯 장면을 바꿨다: 위험·페이드 맥박이 바깥 띠 대신 게이지 테두리(critical·fade_items_curse),
     # 들지 않은 무기 칸 테두리 dim -> line·아이콘·숫자 밝게(모든 장면), 켜지 않았지만 쓸 수 있는 E 칸 테두리 e1 -> line(enhanced 밖의 장면).
     # S1 전 값: normal 8efe4fcd6336eccb, critical b31072f9b278ac7c, fade_items_curse 3bb41f6c79aa52a0, enhanced 865db9d39038e5d6, boss 00693a953f9a52ad
@@ -1724,8 +1725,11 @@ def test_r1_npc_back_button_has_its_own_shade_in_mist():
                and row[2] <= cy - 14 and row[2] + row[4] >= cy + 14 for row in shades), shades
 
 
-# 사망 결과 일러스트(screen_death.png)의 쓰러진 주인공 머리 상자 (화면 좌표, 아래가 0): 원래 크기 그림에서 잰 값 (x 605~765, 위에서 745~855)
-DEAD_HEAD = (605, 1080 - 855, 765, 1080 - 745)
+# 사망 결과 일러스트(screen_death.png)의 쓰러진 주인공 머리 상자 (화면 좌표, 아래가 0): 원래 크기 그림에서 잰 값
+# A1(11/27): Gemini G08로 다시 그린 그림에서 다시 잼 (흰 머리 x 605~766, 위에서 739~872. 그 전 Codex 그림은 x 605~765, 위에서 745~855)
+DEAD_HEAD = (605, 1080 - 872, 766, 1080 - 739)
+# A1: 탈출 결과 일러스트(screen_ending.png)의 걸어 나가는 주인공(날리는 목도리 끝 포함)이 칸 높이에서 차지하는 상자 (x 1385~, 위에서 300~1040)
+ESCAPE_FIGURE = (1385, 1080 - 1040, 1700, 1080 - 300)
 DEAD_CLEAR = 16                                    # 머리와 떨어뜨릴 거리 (px)
 
 
@@ -1761,6 +1765,38 @@ def test_r1_dead_result_item_group_clears_the_fallen_hero():
             assert len(boxes) > 4, boxes
             for b in boxes:
                 assert _boxes_apart(b, DEAD_HEAD, DEAD_CLEAR), (choices, choice, b)
+
+
+def test_a1_keepsake_cells_clear_the_illustration_for_any_count():
+    """A1(11/27): 맡길 물건은 들고 있던 아이템·무기 수만큼 늘어 최대 13칸(아이템 11 + 무기 + 없음)이 된다. 칸이 화면 가운데에 놓이면
+    사망 화면은 6칸부터 쓰러진 주인공 머리에, 탈출 화면은 많을 때 걸어 나가는 주인공에 닿았다. 몇 칸이든 칸·커서·고른 이름이
+    그림의 인물에서 DEAD_CLEAR px 이상 떨어지고 화면 안에 있다 (키로만 고르는 화면이라 보이는 자리만 옮긴다)."""
+    import ending_mode as em
+    import items
+    ids = [i for i in items.ITEMS if not i.startswith('f_')][:12]
+    for result, figure in (('dead', DEAD_HEAD), ('clear', ESCAPE_FIGURE)):
+        for n in range(1, 13):
+            choices = ids[:n] + [None]
+            for choice in (0, len(choices) - 1):
+                def prep():
+                    em.result, em.reward = result, 12
+                    em.summary = [('도달한 구역', '구역 2 · 공장'), ('걸린 시간', '12:34'), ('클리어한 방', '9'), ('처치한 적', '41'),
+                                  ('처치한 보스·관문', '1'), ('받은 헤이즈 결정', '+12'), ('사망 원인', '크래셔의 강타')]
+                    em.choices, em.choice, em.choosing, em.kept = list(choices), choice, True, None
+                    em.ending_line, em.easy_hint = '', ''
+                r = _with_skin('mist', lambda: _draw_log(em, prep))
+                boxes = []
+                for row in r.log:
+                    if row[0] == 'draw_rect_color' and len(row) > 5 and row[5] == mm_ph() and row[4] >= 20:
+                        boxes.append((row[1], row[2], row[1] + row[3], row[2] + row[4]))
+                    if row[0] == 'draw_image' and row[1] == 'ui/um_cursor.png':
+                        boxes.append((row[2] - 13, row[3], row[2] + 13, row[3] + 42))
+                    if row[0] == 'draw_clip' and row[1].startswith('ui/um_hud_frame_ph'):
+                        boxes.append((row[6], row[7], row[6] + 8, row[7] + 8))
+                assert len(boxes) > 4, (result, n)
+                for b in boxes:
+                    assert _boxes_apart(b, figure, DEAD_CLEAR), (result, n, choice, b)
+                    assert 0 <= b[0] and b[2] <= 1920, (result, n, b)
 
 
 def mm_ph():

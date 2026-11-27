@@ -1101,3 +1101,33 @@
 - **흡수·결핍 방지 (생성 없음)**: I1에서 뽑아 둔 같은 프롬프트의 다른 장(`items_big_s11`)으로: 손바닥·엄지가 보이는 손, 체크 무늬 없는 모래.
 - 비교판(예전 / I1 / 이번, 같은 장면): `shots/review/I1fix_hud.png`(무기 넷 든 칸·들지 않은 칸, 어두운 방·밝은 벽 방, 3배), `I1fix_items.png`(HUD 아이템 줄, 일시정지, 정비방 선반, 사망 결과, 네 아이콘 4배).
 - 남은 약점: 공격력의 주황 충격이 아이템 줄에서 다른 아이콘보다 눈에 띈다. 균열의 분노는 균열방 진열대에서 찍지 않았다(아이콘 4배와 테스트로만).
+
+## A1 화면 일러스트 적용 (2026-11-27)
+사용자(11/27): "엔딩 크레딧에서 나오는 배경보면 지금 이전 주인공 에셋이 나오는데 이런 것들 확인해서 다시 제작에 들어가자. codex나 antigravity를 써도 좋을듯?"
+Codex는 이 PC에서 모델 오류로 시작하지 못했고, Antigravity(Gemini)가 G08로 다시 그렸다(보고 `docs/gemini/reports/G08.md`). 지휘 쪽이 비교판을 보고 붙여도 된다고 판단, 이 작업에서 검토·손질·적용.
+
+### 검토
+- 네 장(credits_1·credits_3·screen_death·screen_ending)을 원래 크기로 열어 봄: 인물이 지금 디자인(뻗친 흰 머리·목도리·검은 재킷·청록 바이알)으로 바뀌었고, 오려 붙인 띠·그림자 없는 경계·뭉개진 손·얼굴은 보이지 않는다. 배경·구도·빛은 그대로.
+- 원본(`assets/backgrounds/`)과의 차이 (전체에서 바뀐 픽셀 / 평균 |차이|, 편집 상자 밖에서 16 넘게 / 48 넘게 바뀐 픽셀): credits_1 66.8% / 2.67, 밖 0.59% / 0.049%. credits_3 95.4% / 3.43, 밖 2.39% / 0.388%. screen_death 49.7% / 2.09, 밖 0.16% / 0.010%. screen_ending 64.0% / 2.10, 밖 0.17% / 0.023%.
+  편집 상자 밖 차이는 32색을 다시 고르며 생긴 점 단위 색 차이다(그 전 셋은 인물만 픽셀화해 564~674색이었다). credits_3의 도시를 원래 크기로 나란히 놓아도 구별되지 않는다. 비교판 `shots/review/A1_diff.png`.
+- G08이 적은 약점: (1) credits_3 목도리 끝이 하늘색 -> **손질**(아래). (2) credits_1 목도리 끝이 왼쪽 결정과 가까움 -> 둠(원래 크기에서 어두운 목도리와 결정이 따로 읽힌다). (3) screen_ending 바닥 그림자에 목도리 꼬리 없음 -> 둠(그림자는 문 안 바닥으로 길게 뻗고 목도리는 문 쪽 벽 앞에서 날려, 1배에서 빈 데가 보이지 않는다). (4) screen_death 맡길 물건 5~6칸에서 머리 끝과 가까움 -> **칸 자리 고침**(아래).
+
+### 손질과 적용
+- `tools/apply_g08_illust.py`: 예전 그림 넷을 `assets/sprites/gemini/illust_v2/before/`에 복사(credits_3만 Codex 원본 `forge/credits_scenes_v1/`과 같고 나머지 셋은 인물 픽셀화 판이라 forge에 없다) -> 새 그림을 예전과 같은 모드로 `assets/backgrounds/`의 같은 이름에. credits_3은 목도리 끝 상자 (262,608)-(306,668) 안의 하늘색 168칸만 헤이즈 청록 단계로(32 -> 36색).
+- **사망 결과 맡길 물건 칸** (`src/ending_mode.py`, mist): 맡길 물건은 들고 있던 아이템·무기 수만큼 늘어 최대 12칸(아이템 10 + 무기 + 없음)이다. 예전에는 칸 묶음이 화면 가운데라 물건 4개 + 없음(5칸)부터 쓰러진 주인공 머리에 걸쳤고, 탈출 화면에서도 많으면 걸어 나가는 주인공에 닿았다. `_slot_xs`가 묶음을 가운데에 두되 그림의 인물을 피한 구간(`CHOOSE_ROOM`: 사망 x 782~1900, 탈출 x 16~1364) 안으로 밀고, 그래도 넓으면 간격을 76까지 줄인다. 가운데일 때 그리기는 예전과 똑같다(그리기 기록 같음). 고른 이름·안내는 가운데 그대로, 묶음이 밀렸을 때만 뒤 어둠 판이 이름까지 넓어진다. 키로만 고르는 화면이라 보이는 자리만 옮겼다. 테스트를 먼저 썼다(`test_a1_keepsake_cells_clear_the_illustration_for_any_count`: 1~12개 x 사망·탈출, 실패 확인). 옛 스킨은 칸이 머리 위(아래에서 370)라 그대로.
+- 머리 상자는 새 그림에서 다시 잼(`tests/test_ui_skin.py` `DEAD_HEAD`: x 605~766, 위에서 739~872. 그 전 605~765, 745~855).
+- 크레딧 (`src/credits_mode.py` 두 줄):
+  - Codex 둘째 줄 `'은신처 배경 · 사망·탈출·크레딧 장면 · 초기 캐릭터 원화'` -> `'은신처 배경 · 사망·탈출·크레딧 장면의 배경 · 초기 캐릭터 원화'`
+  - Gemini 줄 `'Gemini (Google) - 주인공 디자인 시안 · 초상화 원화 (PixelLab 기준 그림)'` -> `'Gemini (Google) - 주인공 디자인 시안 · 초상화 원화 · 장면 일러스트의 주인공'`
+
+### 확인
+- 실제 창(모니터 2, 설정·저장 임시 폴더) 전·후: `shots/review/A1_screens.png`(사망·탈출·크레딧 세 장면·크레딧 'AI 도구' 절), `A1_death_cells.png`(맡길 물건 1·4·6·11개, 탈출 6개), `A1_diff.png`. 다시 찍기 `python tools/a1_illust_shots.py <폴더>`, 비교판 `--board <전> <후> shots/review`.
+- 전체 테스트 통과(새 1개, 크레딧 그리기 기록 새 값과 전 값 주석).
+- 확인 못 한 것: 크레딧이 흐르는 동안 장면이 바뀌는 순간(멈춘 그림으로만), 옛 스킨 사망 화면.
+
+### 게임 밖에서 예전 주인공이 나오는 그림 (고치지 않음, 발표 준비 때)
+- 실행 파일 아이콘: `tools/build_exe.py`의 `ICON_SOURCE = 'assets/sprites/unified/n09_idle_1.png'`(옛 Codex 주인공).
+- 상점 그림 `assets/store/capsule_main·header·small·vertical.png`(옛 주인공, capsule_main은 옛 아크도), 원본 `assets/sprites/forge/store_art_v1/`.
+- 게임에서 쓰지 않는 것: `assets/backgrounds/screen_title.png`(옛 'crystal' 스킨에서만 그림, 기본 mist·plate는 안 씀), `assets/ui/ult_cutin.png`(`src/`에서 부르지 않음), `forge/boss_cards_v1/`·`forge/portraits_v1/`(보관).
+- 발표 자료(`docs/presentation_3rd.pptx` 등)의 화면 그림은 발표 그림 다시 찍기 때 함께.
+- 커밋하지 않은 것: `assets/sprites/gemini/illust_v2/work/`(합성 중간물 11MB, 보고서가 가리키는 중간 파일. 최종 그림·AI 원본 `raw/`·비교판은 커밋).

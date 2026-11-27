@@ -149,8 +149,24 @@ CHOOSE_FOOTER = [('A D', '선택'), ('Enter', '맡기기')]
 # 일러스트의 쓰러진 주인공 머리에 닿았다 -> 이름을 안내 줄과 칸 사이로 올리고 칸 간격을 96 -> 88로 좁혀 첫 칸을 머리에서 떼었다.
 # 이 화면은 키(A D·Enter)로만 고른다: 마우스로 누르는 자리가 따로 없다
 CHOOSE_PROMPT_Y, CHOOSE_NAME_Y, CHOOSE_SLOT_Y, CHOOSE_GAP = 480, 428, 318, 88
+# A1(11/27): 맡길 물건은 들고 있던 아이템·무기 수만큼 늘어 최대 13칸이 된다. 칸 높이에서 그림의 인물을 피하는 가로 구간 (칸 가장자리 기준):
+# 사망 = 쓰러진 주인공 머리 오른쪽 끝(x 766) + 16 부터, 탈출 = 걸어 나가는 주인공의 날리는 목도리 끝(x 1385) - 16 까지.
+# 묶음은 화면 가운데에 두되 구간을 넘으면 구간 안으로 밀고, 그래도 넓으면 칸 간격을 줄인다(칸 폭 72 + 4 아래로는 줄이지 않는다)
+CHOOSE_ROOM = {'dead': (782, 1900), 'clear': (16, 1364)}     # 칸 테두리 오른쪽 모서리 조각이 4px 더 나온다
+CHOOSE_MIN_GAP = 76
 MIST_HEAD = {'dead': [('TOWER SURVEILLANCE // SIGNAL LOST', mm.PH), ('INMATE N-09 · 사망 기록', mm.PH_DIM)],
              'clear': [('TOWER SURVEILLANCE // INMATE ESCAPED', mm.PH), ('INMATE N-09 · 탈출 기록', mm.PH_DIM)]}
+
+
+def _slot_xs(n, cx):
+    """맡길 물건 칸 n개의 가운데 x들 (mist): 화면 가운데(cx)에 두되 CHOOSE_ROOM 구간 안으로."""
+    lo, hi = CHOOSE_ROOM['clear' if result == 'clear' else 'dead']
+    gap = CHOOSE_GAP
+    if n > 1 and (n - 1) * gap + 72 > hi - lo:
+        gap = max(CHOOSE_MIN_GAP, (hi - lo - 72) // (n - 1))
+    half = (n - 1) * gap // 2
+    center = min(max(cx, lo + 36 + half), hi - 36 - half)
+    return [center - half + i * gap for i in range(n)]
 
 
 def _summary_box():
@@ -208,9 +224,11 @@ def draw_mist():
     if choosing:
         prompt = '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)'
         mm.text_shade(cx, 480 + dy, prompt, center=True, pad=8)
-        n = len(choices)
-        half = (n - 1) * CHOOSE_GAP // 2 + 36
-        mm.shade(cx - half, CHOOSE_SLOT_Y - 24 + dy, cx + half, CHOOSE_NAME_Y + 18 + dy)
+        xs = _slot_xs(len(choices), cx)                    # A1: 칸 묶음은 그림의 인물을 피한 자리 (이름·안내는 가운데 그대로)
+        left, right = xs[0] - 36, xs[-1] + 36
+        if (xs[0] + xs[-1]) // 2 != cx:                   # 묶음이 옆으로 밀렸으면 가운데의 고른 이름까지 덮는다
+            left, right = min(left, cx - 200), max(right, cx + 200)
+        mm.shade(left, CHOOSE_SLOT_Y - 24 + dy, right, CHOOSE_NAME_Y + 18 + dy)
         mm.footer_shade(CHOOSE_FOOTER, y=256 + dy)
         if easy_hint:
             mm.text_shade(cx, 206 + dy, easy_hint, small=True, center=True, pad=8)
@@ -229,12 +247,8 @@ def draw_mist():
     dy = min(0, _draw_summary_mist(cx) - SUM_BASE)
     if choosing:
         kit.text(cx, 480 + dy, '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)', mm.PH_TEXT, center=True)
-        n = len(choices)
-        gap = CHOOSE_GAP
-        x0 = cx - (n - 1) * gap // 2
         sy = CHOOSE_SLOT_Y + dy
-        for i, item_id in enumerate(choices):
-            x = x0 + i * gap
+        for i, (item_id, x) in enumerate(zip(choices, _slot_xs(len(choices), cx))):
             hot = i == choice
             mm.frame(x - 36, sy, 72, 72, 'ph' if hot else 'ph_dim')
             if hot:                                   # 고른 칸: 밝은 테두리 + 아래 가는 밑줄 (설정의 고른 값과 같은 표시)

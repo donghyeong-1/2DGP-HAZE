@@ -1,0 +1,62 @@
+{
+  "credits_1": {
+    "size": [
+      1920,
+      1080
+    ],
+    "colors": 32,
+    "alpha": [
+      255,
+      255
+    ],
+    "sha256": "795e01fb8e8ead547f8fc12d334d7e10e1a2531dfdf957fd1af89fe3242c6bf9",
+    "lower_center_luma_p50": 0.0082,
+    "lower_center_luma_p95": 0.0082,
+    "lower_center_luma_max": 0.0133
+  },
+  "credits_3": {
+    "size": [
+      1920,
+      1080
+    ],
+    "colors": 32,
+    "alpha": [
+      255,
+      255
+    ],
+    "sha256": "4eadc8cd474817127c3a9f66a24c3f1f06641294b4a5d0e36159b24d8b606508",
+    "lower_center_luma_p50": 0.0101,
+    "lower_center_luma_p95": 0.0101,
+    "lower_center_luma_max": 0.0245
+  },
+  "screen_death": {
+    "size": [
+      1920,
+      1080
+    ],
+    "colors": 32,
+    "alpha": [
+      255,
+      255
+    ],
+    "sha256": "d302170fe7c609cd5a1b3212539960a14294dcd16e990dc5c87bff2a1337bbcb",
+    "title_luma_p95": 0.0141,
+    "summary_luma_p95": 0.0119,
+    "slots_luma_p95": 0.3407
+  },
+  "screen_ending": {
+    "size": [
+      1920,
+      1080
+    ],
+    "colors": 32,
+    "alpha": [
+      255,
+      255
+    ],
+    "sha256": "b9cc2998aea28f557d53bfcc4ddab4ffadd25db271e17b7ac02ecbfec28e3484",
+    "title_luma_p95": 0.0066,
+    "summary_luma_p95": 0.0174,
+    "slots_luma_p95": 0.0066
+  }
+}

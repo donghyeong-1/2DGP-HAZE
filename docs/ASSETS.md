@@ -8,6 +8,7 @@
 2026-11-27 Q1에서 소품(무기 걸이·연습장 표지판·장치 셋·진열대·은신처 모루와 화로)을 PixelLab 그림으로 바꾸고 이 표를 고쳤다.
 2026-11-27 I1에서 무기 아이콘 넷·아이템 아이콘 10종을 PixelLab 그림으로 바꾸고(형태·분노 아이콘은 새 그림에서 코드로) 이 표를 고쳤다.
 2026-11-27 I1-fix에서 무기 아이콘 밝기, 공격력·균열의 분노(따로 뽑음)·흡수·결핍 방지를 고치고 이 표를 고쳤다.
+2026-11-27 A1에서 사망·탈출·크레딧(1·3) 장면의 주인공을 Gemini G08 그림으로 바꾸고 이 표를 고쳤다(배경은 Codex 그대로).
 
 | 구분 | 위치 | 만든 방법 | 출처·라이선스 |
 |---|---|---|---|
@@ -19,8 +20,8 @@
 | 보스 이름 카드 4장 | `assets/backgrounds/boss_card_<보스>.png` | 인물은 PixelLab 클로즈업, 배경은 구역 카드(Codex T33)를 어둡게, `tools/apply_pixellab_boss_cards.py` (11-26 줄) | AI 생성물 (PixelLab + Codex) |
 | 원경·중경 배경판 | `assets/backgrounds/far_<테마>.png`, `mid_<테마>.png` | Codex T49(내장 image_gen) → `tools/apply_backdrops_v6.py`(정수 2배). gold·shop·boss는 같은 판에 테마 색 (11-25 줄) | AI 생성물 (Codex) |
 | 은신처 원경 | `assets/backgrounds/far_hideout.png` | Codex T22 (`generate2dmap`, 내장 image_gen) | AI 생성물 (Codex) |
-| 사망·탈출 화면 | `assets/backgrounds/screen_death.png`, `screen_ending.png` | Codex T11 (`generate2dmap`), 캐릭터 영역만 `tools/pixelize_chars.py`로 픽셀화 (11-22 줄) | AI 생성물 (Codex) |
-| 엔딩 크레딧 장면 3장 | `assets/backgrounds/credits_1~3.png` | Codex T35 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
+| 사망·탈출 화면 | `assets/backgrounds/screen_death.png`, `screen_ending.png` | 배경 Codex T11 (`generate2dmap`), 인물은 11-27 Gemini G08(Antigravity 내장 image-generator, 모델 `gemini-3.1-flash-image`)이 지금 주인공으로 다시 그려 합성, `generate2dmap` `hibit_plate.py` 32색 마감 -> `tools/apply_g08_illust.py`. 보고 `docs/gemini/reports/G08.md`, 원본 `assets/sprites/gemini/illust_v2/`, 예전 그림 `illust_v2/before/` (그 전: 캐릭터 영역만 `tools/pixelize_chars.py`로 픽셀화, 11-22 줄) | AI 생성물 (Codex 배경 + Gemini 인물) |
+| 엔딩 크레딧 장면 3장 | `assets/backgrounds/credits_1~3.png` | Codex T35 (내장 image_gen, hibit 마감). credits_1·credits_3의 주인공은 11-27 Gemini G08이 다시 그림(위 줄과 같은 방법, credits_3 목도리 끝은 `apply_g08_illust.py`가 청록으로 손질). credits_2(은신처 NPC 셋)는 그대로 | AI 생성물 (Codex 배경 + Gemini 인물) |
 | 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
 | 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py`로 2배 규격 | AI 생성물 (Codex) |
 | 움직이는 배경 소품 10종 x 4장 (은신처 모루·화로는 위 소품 줄) | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py` | AI 생성물 (Codex) |

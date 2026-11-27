@@ -603,3 +603,31 @@
   비교판 `shots/review/P1_compare_dark.png`·`P1_compare_bright.png`(가로 코드·PixelLab, 원래 크기), `P1_weapons.png`, `P1_full.png`, `P1_set.png`, `P1_parts.png`(4배).
 - 바꾼 파일: `src/weapon_panel.py`(`_art`·`_put_art`), `src/config.py`(`HUD_WEAPON_ART`), `tools/make_ui_mist.py`(`px_parts`), `tools/ui_w1_shots.py`(`rowpx`, `--board6`), `tests/test_ui_skin.py`,
   `assets/ui/um_wpx_*.png`(새 14장), `assets/sprites/pixellab/ui_wp_v1/`(원본 9장·화풍 기준·기록).
+
+## W6 무기·E 패널 그림 확정과 빈 틈 줄이기
+지휘 쪽 추천은 "결정과 소켓만 PixelLab, 무기 칸 틀은 코드"였다. 사용자(11/27):
+- **"결정·소켓(결정 소켓은 원래 것을 사용하자.)만 PixelLab으로 하고 빈 틈도 줄여줘,"**
+- (지휘 쪽이 '원래 것'의 뜻을 묻자) **"결정을 둘러싼 테두리(소켓)은 기본(코드), 나머지 다른 소켓은 pixelLab"**
+
+지휘 쪽이 읽은 표(사용자는 칸을 '소켓'이라고 부른다): E 안의 결정 = PixelLab / 결정을 둘러싼 마름모 테두리 = 코드(W4 기본) / 무기 칸 틀(든 칸·들지 않은 칸·빈 칸) = PixelLab /
+키 배지·단계 숫자 배지·'강화' 꼬리표·콤보 칸 = 코드. 틀·결정 다듬기는 지휘 쪽 판단(사용자가 이 틀을 골랐으므로 쓸 만하게).
+- **기본값 `config.HUD_WEAPON_ART = 'mix'`** (`weapon_panel.MIX_ART`: 결정·무기 칸 틀만 PixelLab). `'code'`(전부 코드)·`'px'`(전부 PixelLab)는 값으로 남겼다.
+- 무기 칸 틀 다듬기(`tools/make_ui_mist.py` `_px_slots`, 새로 생성하지 않고 P1 원본 `raw/slot_s64.png`): 원본은 변마다 밝기가 달라(아래 변만 밝다) 무기 색 줄이 위·오른쪽에만 보였다.
+  깎인 두 모서리 둘레(도트 합 9 안쪽)는 원본 색(사선 표시)을 그대로 두고, 나머지 변은 W4 규칙대로 다시 칠했다: 든 칸 = 겉 한 줄 밝은 회백 + 둘째 줄 무기 색(네 변 고르게),
+  들지 않은 칸 = 같은 모양으로 겉 한 줄 회백(밝기 약 127) + 둘째 줄 어두운 남회색, 모서리 표시는 0.62배로 어둡게. 들지 않은 칸(72x56)은 모서리 8도트를 통째로 둔 9칸 줄이기라 깎인 모서리·사선 표시가 든 칸과 같다.
+- 결정 단계 색(`_px_crystal`): P1의 '밝기 순서대로 사다리 끼우기'는 탁했다 -> 원본 청록 결정의 도트마다 밝기를 1.2배(250 상한)로 지키며 색만 단계 색으로(단계 색보다 어두우면 단계 색을 그 밝기로 낮추고, 밝으면 흰색 쪽으로).
+  실루엣은 그대로, 밝기 폭은 청록의 0.8배 이상.
+- 결정 자리: 코드 마름모 테두리(88) 가운데에 PixelLab 결정(28x56, 원본 13도트 폭이라 한 줄 비워 14도트)을 그림 크기로 맞춰 놓는다. 13도트가 홀수라 결정이 1px 왼쪽에 있다(2px 격자 안에서 더 맞출 수 없다).
+  남은 시간에 따라 위에서부터 빠지는 동작은 그대로.
+- 빈 틈: 이름은 평소 든 칸 윗변 위 22px(W4 간격, 글자 상자 아랫변과 칸 사이 10px). 설명 줄이 뜨는 동안만 40px로 올라가고 설명 줄(16px)이 그 아래 틈에 들어온다.
+  오르내림은 30px 한 단계를 0.05초 거친다(바뀐 직후 0.05초는 이름만 30에, 설명 줄은 아직 그리지 않는다 / 사라진 뒤 0.05초 30 -> 22). 지휘 쪽 제안 그대로다.
+  설명 줄을 이름 옆에 두는 안은 W5에서 본 대로 2번을 들 때 '강화' 꼬리표와 부딪혀 쓰지 않았다.
+- PixelLab은 더 쓰지 않았다(잔액 705.70 그대로).
+- 확인: 테스트 5개를 먼저 쓰고 실패를 본 뒤 고쳤다(`tests/test_ui_skin.py` test_w6_*: 기본 'mix'의 부품 조합, 든 칸 틀 네 변의 무기 색, 들지 않은 칸 모서리 알파가 든 칸과 같음,
+  단계 색 결정 실루엣·밝기 폭, 평소 이름과 칸 사이 ≤ 12px·설명 줄이 뜬 프레임에서 이름이 위). W4 검사는 코드 그림(`art='code'`)을, W5 검사는 이름이 올라간 뒤(0.06초)를 보게 맞췄다.
+  기본 모습이 바뀌어 mist HUD 해시와 'code' row 기록(`ROW_DIGEST`)을 갱신했다(이름 자리 손질은 그림 값과 상관없이 row 배치 전체에 들어갔다).
+  실제 창 촬영 `W1_ONLY=row,rowpx,rowmix W1_EXTRA=row,rowpx,rowmix W5_OFF=row,rowpx,rowmix python tools/ui_w1_shots.py <폴더>` 후 `--board7`, 세 번(1회차: 촬영 도구가 update만 돌려
+  패널이 바뀜을 grab 때 처음 알아채 설명 줄이 안 찍힘 -> 상태를 바꾼 뒤 한 번 그리고 찍음 / 3회차: 단계 색 결정이 소켓 안에서 어두움 -> 한 단 밝게).
+  비교판 `shots/review/W6_compare_dark.png`·`W6_compare_bright.png`(가로 전부 코드·전부 PixelLab·섞음), `W6_weapons.png`, `W6_parts.png`, `W6_hint.png`, `W6_full.png`.
+- 바꾼 파일: `src/weapon_panel.py`(`MIX_ART`, `_row_hint_state`), `src/config.py`(`HUD_WEAPON_ART = 'mix'`), `tools/make_ui_mist.py`(`_px_slots`, `_px_crystal`), `tools/ui_w1_shots.py`(`rowmix`, `--board7`),
+  `tests/test_ui_skin.py`, `assets/ui/um_wpx_slot_*.png`·`um_wpx_crystal_e1~e3.png`(다시 구움).

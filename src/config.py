@@ -150,7 +150,7 @@ ULT_BASE_DAMAGE = 20         # 궁극기 기본 피해: 무기와 상관없이 �
 ULT_BOSS_CAP = 0.15          # 궁극기 한 번이 보스에게 줄 수 있는 피해 = 최대 체력의 15%
 # O1 (2026-11-26): 실루엣 컷인(src/cut_in.py)과 강화 갈래 진화 '궁극기 각성'
 UI_SKIN = 'mist'             # 2026-11-27 'mist' 타이틀 감시 단말 + 증강 선택 안개 미니멀(um_*, 나머지 화면은 plate와 같다) / 'plate' PixelLab 철판(upx_*) / 'plate_code' 코드 철판(up_*) / 'crystal' 예전 결정형(uc_*). hud_kit.skin()
-HUD_WEAPON_ART = 'code'     # 2026-11-27 P1 시험: 무기·E 패널 'row'의 그림 — 'code' 코드로 구운 그림(기본) / 'px' PixelLab 그림(um_wpx_*, 없는 부품은 코드 그림). 배치·동작은 같다
+HUD_WEAPON_ART = 'mix'      # 2026-11-27 W6 확정: 무기·E 패널 'row'의 그림 — 'mix' 결정·무기 칸 틀은 PixelLab, 마름모 테두리·배지·꼬리표·콤보 칸은 코드(기본, 사용자 결정) / 'code' 전부 코드 / 'px' 전부 PixelLab(P1 시험). 배치·동작은 같다
 WEAPON_HINT_TIME = 2.0      # 2026-11-27 W5: 무기·E 패널 'row'의 공격 설명 줄을 무기를 바꾸거나 강화를 켜거나 형태가 바뀌거나 방에 들어선 뒤 이만큼(초)만 보여 준다
 HUD_WEAPON_STYLE = 'row'    # 2026-11-27 W4 무기·E 패널 (mist 스킨에서만): 'row' 한 줄 1·2·E + 결정 소켓(기본, 사용자 '조사해서 세팅을 해줘', docs/REFERENCES.md) / 남겨 둔 값: 'da' W3 · 'flat' W1 전 모습 · 'a' 결정 소켓 · 'b' 감시 단말 · 'c' 문장 · 'd' 떠 있는 칸. src/weapon_panel.py
 CUT_IN = True                # False면 보스 페이즈 전환·궁극기 각성의 컷인을 끈다

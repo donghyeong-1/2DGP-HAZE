@@ -4,6 +4,9 @@ config.HUD_WEAPON_STYLE을 'flat'·'a'·'b'·'c'로 바꿔 가며 같은 시드�
 
   python tools/ui_w1_shots.py <출력 폴더>                 장면 찍기: w1_<시안>_<방>_<상태>.png, w1_<시안>_cards.png
   W1_ONLY=da,row W1_EXTRA=da,row python tools/ui_w1_shots.py <출력 폴더>  후
+  W1_ONLY=row,rowpx,rowmix W1_EXTRA=row,rowpx,rowmix W5_OFF=row,rowpx,rowmix python tools/ui_w1_shots.py <출력 폴더>  후
+  python tools/ui_w1_shots.py --board7 <출력 폴더> <비교판 폴더>
+        W6(확정 섞음 rowmix): W6_compare_dark/bright.png(가로 전부 코드·전부 PixelLab·섞음), W6_weapons.png, W6_parts.png, W6_hint.png, W6_full.png
   W1_ONLY=row,rowpx W1_EXTRA=row,rowpx W5_OFF=row,rowpx python tools/ui_w1_shots.py <출력 폴더>  후
   python tools/ui_w1_shots.py --board6 <출력 폴더> <비교판 폴더>
         P1(PixelLab 그림 시험, rowpx = row + HUD_WEAPON_ART 'px'): P1_compare_dark/bright.png, P1_weapons.png, P1_full.png, P1_set.png, P1_parts.png
@@ -119,11 +122,12 @@ def shoot(out):
         p.gauge.zone = p.gauge._zone_of(v)
 
     default_style = config.HUD_WEAPON_STYLE
+    default_art = config.HUD_WEAPON_ART
     extra = os.environ.get('W1_EXTRA', '').split(',')
     w5_off = os.environ.get('W5_OFF', '').split(',')
     for style in os.environ.get('W1_ONLY', ','.join(STYLES)).split(','):   # W1_ONLY=flat,a,d 로 일부만
-        config.HUD_WEAPON_STYLE = 'row' if style == 'rowpx' else style      # 'rowpx' = row 배치 + PixelLab 그림 (P1)
-        config.HUD_WEAPON_ART = 'px' if style == 'rowpx' else 'code'
+        config.HUD_WEAPON_STYLE = 'row' if style in ('rowpx', 'rowmix') else style      # 'rowpx' = row 배치 + 전부 PixelLab 그림 (P1), 'rowmix' = 확정 섞음 (W6)
+        config.HUD_WEAPON_ART = {'rowpx': 'px', 'rowmix': 'mix'}.get(style, 'code')
         for room, (seed, target) in ROOMS.items():
             for state in SLOT_STATES + (EXTRA_STATES if style in extra else ()):
                 p = new_run(seed)
@@ -143,7 +147,8 @@ def shoot(out):
                 if state == 'g_on3':
                     p.gauge.use_enhance()
                 p.mouse_screen = (1180, 520)
-                run(1)
+                play_mode.draw()                           # W6: 패널은 그릴 때 바뀜을 알아챈다 (run은 update만 돌린다)
+                run(4)                                     # 바뀐 직후 이름이 한 단계 올라가는 0.05초가 지나 설명 줄이 뜬 프레임
                 p.aura_time = 0.1
                 grab(play_mode, f'{style}_{room}_{state}')
                 if style in w5_off:
@@ -163,7 +168,7 @@ def shoot(out):
         mutation_mode.selected = 1
         grab(mutation_mode, f'{style}_cards')
     config.HUD_WEAPON_STYLE = default_style
-    config.HUD_WEAPON_ART = 'code'
+    config.HUD_WEAPON_ART = default_art
     close_canvas()
     print('ok', out)
 
@@ -198,6 +203,62 @@ def _full_and_set(src, out, style, prefix):
     im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_cards.png')), f'{style.upper()} cards'), (W + 20, 0))
     im.save(os.path.join(out, f'{prefix}_set_{style}.png'))
     return [f'{prefix}_full_{style}.png', f'{prefix}_set_{style}.png']
+
+
+def board7(src, out):
+    """W6: 가로 전부 코드(row)·전부 PixelLab(rowpx)·확정 섞음(rowmix) x 세로 상태(원래 크기, 설명 줄이 사라진 뒤), 무기 넷(섞음),
+    확정 부품 4배, 설명 줄 뜬 순간 / 2초 뒤(섞음), 전체 화면 두 장(평소, 강화 켬)."""
+    import glob as _glob
+    os.makedirs(out, exist_ok=True)
+    made = []
+    cw, ch = PANEL_BOX[2] - PANEL_BOX[0], PANEL_BOX[3] - PANEL_BOX[1]
+    states = ('a_ready', 'b_on1', 'c_on2', 'g_on3', 'd_low', 'e_slot2', 'f_empty')
+    cols = (('row', 'ALL CODE'), ('rowpx', 'ALL PIXELLAB'), ('rowmix', 'MIX (default)'))
+    for room in ROOMS:
+        im = Image.new('RGB', ((cw + 20) * len(cols) - 20, (ch + 10) * len(states)), (20, 20, 24))
+        for r, s in enumerate(states):
+            for c, (style, label) in enumerate(cols):
+                im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_{room}_{s}_off.png')).crop(PANEL_BOX), f'{label} {s}'), (c * (cw + 20), r * (ch + 10)))
+        im.save(os.path.join(out, f'W6_compare_{room}.png'))
+        made.append(f'W6_compare_{room}.png')
+    weapons = EXTRA_STATES[1:]
+    im = Image.new('RGB', ((cw + 20) * len(weapons) - 20, (ch + 10) * len(ROOMS)), (20, 20, 24))
+    for r, room in enumerate(ROOMS):
+        for c, s in enumerate(weapons):
+            im.paste(_label(Image.open(os.path.join(src, f'w1_rowmix_{room}_{s}_off.png')).crop(PANEL_BOX), f'MIX {room} {s}'), (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'W6_weapons.png'))
+    made.append('W6_weapons.png')
+    names = (sorted(_glob.glob(os.path.join(ROOT, 'assets', 'ui', 'um_wpx_crystal_*.png'))) + sorted(_glob.glob(os.path.join(ROOT, 'assets', 'ui', 'um_wpx_slot_*.png')))
+             + sorted(_glob.glob(os.path.join(ROOT, 'assets', 'ui', 'um_wp_row_socket_*.png'))))
+    parts = [Image.open(f).convert('RGBA') for f in names]
+    pw = sum(p.width for p in parts) + 8 * len(parts)
+    ph = max(p.height for p in parts)
+    sheet = Image.new('RGBA', (pw, ph), (40, 52, 64, 255))
+    x = 0
+    for p in parts:
+        sheet.alpha_composite(p, (x, 0))
+        x += p.width + 8
+    sheet = sheet.resize((pw * 4, ph * 4), Image.NEAREST).convert('RGB')
+    rows = (sheet.width + 2399) // 2400
+    board = Image.new('RGB', (2400, (sheet.height + 10) * rows), (20, 20, 24))
+    for r in range(rows):
+        board.paste(sheet.crop((r * 2400, 0, min(sheet.width, (r + 1) * 2400), sheet.height)), (0, r * (sheet.height + 10)))
+    board.save(os.path.join(out, 'W6_parts.png'))
+    made.append('W6_parts.png')
+    rows = [(room, s) for room in ROOMS for s in W5_HINT_STATES]
+    im = Image.new('RGB', ((cw + 20) * 2 - 20, (ch + 10) * len(rows)), (20, 20, 24))
+    for r, (room, s) in enumerate(rows):
+        for c, tail in enumerate(('', '_off')):
+            im.paste(_label(Image.open(os.path.join(src, f'w1_rowmix_{room}_{s}{tail}.png')).crop(PANEL_BOX), f'{room} {s} {"shown" if not tail else "after 2s"}'),
+                     (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'W6_hint.png'))
+    made.append('W6_hint.png')
+    im = Image.new('RGB', (W, H * 2 + 20), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_rowmix_dark_a_ready_off.png')), 'MIX dark a_ready'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_rowmix_dark_c_on2_off.png')), 'MIX dark c_on2'), (0, H + 20))
+    im.save(os.path.join(out, 'W6_full.png'))
+    made.append('W6_full.png')
+    print(len(made), '장:', ', '.join(made))
 
 
 def board6(src, out):
@@ -399,7 +460,9 @@ def board(src, out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--board6':
+    if sys.argv[1] == '--board7':
+        board7(*sys.argv[2:4])
+    elif sys.argv[1] == '--board6':
         board6(*sys.argv[2:4])
     elif sys.argv[1] == '--board5':
         board5(*sys.argv[2:5])

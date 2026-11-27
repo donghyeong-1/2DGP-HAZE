@@ -973,13 +973,15 @@ def _px_crystal():
     solid = base[:, :, 3] > 0
     cols = sorted({tuple(int(v) for v in px[:3]) for px in base[solid]}, key=lambda t: 0.299 * t[0] + 0.587 * t[1] + 0.114 * t[2])
     made = [save2(base, 'um_wpx_crystal_haze.png')]
-    for lv, tone in WP_TIER.items():                                  # 밝기 순서대로 단계 색 사다리(윤곽 -> 그늘 -> 몸 -> 밝음 -> 흰 빛)
-        light, body, shade, rim = _tier_ramp(tone)
-        ramp = [rim, shade, body, light, _mix(light, (255, 255, 255), 0.5)]
+    lum = lambda t: 0.299 * t[0] + 0.587 * t[1] + 0.114 * t[2]
+    for lv, tone in WP_TIER.items():                                  # W6: 밝기를 그대로 지키며 색만 단계 색으로 (사다리 끼우기는 탁했다)
+        lt = lum(tone)
         out = base.copy()
-        for i, col in enumerate(cols):
+        for col in cols:
             mk = solid & (base[:, :, :3] == col).all(axis=2)
-            out[mk, :3] = ramp[min(len(ramp) - 1, i * len(ramp) // len(cols))]
+            lc = min(250.0, lum(col) * 1.2)                             # 한 단 밝게 (청록보다 어두운 단계 색은 소켓 안에서 탁해 보였다)
+            new = tuple(int(v * lc / lt) for v in tone) if lc <= lt else _mix(tone, (255, 255, 255), (lc - lt) / max(1, 255 - lt))
+            out[mk, :3] = new
         made.append(save2(out, f'um_wpx_crystal_e{lv}.png'))
     empty = np.zeros_like(base)                                       # 빈 결정: 같은 실루엣, 어두운 속 + 흐린 회백 윤곽
     empty[solid] = _rgba(WP_WELL)
@@ -1012,23 +1014,42 @@ def _px_nine(a, w, h, c):
     return out
 
 
+PX_SLOT_ZONE = 9                                                    # 깎인 모서리(왼쪽 위·오른쪽 아래)에서 이 도트 합 안쪽은 PixelLab 원본 색을 남긴다 (사선 표시)
+PX_SLOT_CORNER = 8                                                  # 들지 않은 칸 9칸 줄이기의 모서리 (도트. 깎인 모서리·사선 표시가 통째로 들어간다)
+
+
 def _px_slots():
+    """W6(11/27): PixelLab 칸 틀 정리. 원본은 변마다 밝기가 달라(아래 변만 밝다) 무기 색 줄이 위·오른쪽에만 보였다.
+    깎인 모서리 둘레(PX_SLOT_ZONE)는 원본 색 그대로 두고, 나머지 변은 W4 규칙대로 다시 칠한다:
+    든 칸 = 겉 한 줄 밝은 회백 + 둘째 줄 무기 색(네 변 고르게), 들지 않은 칸 = 같은 모양으로 겉 한 줄 회백 D_IDLE, 둘째 줄 어두운 한 줄, 모서리 표시는 어둡게.
+    속은 비운다(row의 반투명 바탕이 보이게). 들지 않은 칸(72x56)은 모서리 8도트를 그대로 둔 9칸 줄이기."""
     raw = _px_load('slot_s64.png')
     key = (raw[:, :, :3] == (255, 0, 255)).all(axis=2)
     raw[key] = 0
+    H, W = raw.shape[:2]
     shape = raw[:, :, 3] > 0
-    second = _edge(shape & ~_edge(shape))                              # 바깥에서 둘째 줄
-    raw = _px_clear_inside(raw, 2)
+    outer = _edge(shape)
+    second = _edge(shape & ~outer)
+    third = _edge(shape & ~outer & ~second)
+    yy, xx = np.mgrid[0:H, 0:W]
+    zone = (xx + yy < PX_SLOT_ZONE) | ((W - 1 - xx) + (H - 1 - yy) < PX_SLOT_ZONE)
+    keep = zone & (outer | second | third) & ~np.array([[tuple(int(v) for v in px[:3]) in PX_FILL for px in row] for row in raw])
     made = []
-    for wid, c in _weapon_colors().items():                            # 든 칸: 원본 그대로 + 안쪽 둘째 줄에 무기 색 한 줄 (흰 모서리 표시는 남긴다)
-        a = raw.copy()
-        outer = _edge(shape) & ~(a[:, :, :3] == (238, 241, 245)).all(axis=2)
-        a[outer & (a[:, :, 3] > 0)] = _rgba((196, 204, 216))           # 든 칸 겉선은 밝게 (원본 남회색은 어두운 방에서 묻힌다)
-        a[second & ~(a[:, :, :3] == (238, 241, 245)).all(axis=2)] = _rgba(c)
+    for wid, c in _weapon_colors().items():
+        a = np.zeros_like(raw)
+        a[outer & ~zone] = _rgba(WP_HOT)
+        a[second & ~zone] = _rgba(c)
+        a[keep] = raw[keep]
+        a[zone & outer & ~keep] = _rgba(WP_HOT)                         # 깎인 모서리의 변도 끊기지 않게
         made.append(save2(a, f'um_wpx_slot_{wid}.png'))
-    small = _px_nine(raw, ROW_SMALL[0], ROW_SMALL[1], 6)                # 들지 않은 칸: 9칸으로 줄이고 밝은 색을 회백 한 단계 아래로
-    small = _px_tone(small, [(238, 241, 245), (196, 204, 216)], D_IDLE)
-    small = _px_tone(small, [(138, 147, 163)], (96, 104, 120))
+    a = np.zeros_like(raw)                                              # 들지 않은 칸: 같은 모양, 한 단계 어둡게 (둘째 줄은 어두운 남회색 한 줄)
+    a[outer & ~zone] = _rgba(D_IDLE)
+    a[second & ~zone] = _rgba((44, 50, 64))
+    a[zone & outer & ~keep] = _rgba(D_IDLE)
+    dim = raw.copy()
+    dim[:, :, :3] = (raw[:, :, :3].astype(int) * 0.62).astype(np.uint8)
+    a[keep] = dim[keep]
+    small = _px_nine(a, ROW_SMALL[0], ROW_SMALL[1], PX_SLOT_CORNER)
     made.append(save2(small, 'um_wpx_slot_line.png'))
     return made
 

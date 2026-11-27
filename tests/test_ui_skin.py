@@ -941,8 +941,9 @@ MIST_DONE_DIGEST = {
     # W4(11/27): 무기·E 패널 기본값이 'da' -> 'row'(한 줄 1·2·E)라 HUD 다섯 장면이 다시 바뀌었다. 'flat' 값은 FLAT_MIST_HUD_DIGEST, 'da'는 DA_DIGEST가 본다
     # (W4 전 = da: normal 0983bb8e8fb070bd, critical 45af07c556566555, fade_items_curse 0b3e5f39d920eddc, enhanced b2965326972bc329, boss 6ef6c177c0925d67)
     # W5(11/27): row의 공격 설명 줄은 잠깐만(첫 프레임에는 보인다)·콤보 칸은 든 칸 안이라 다시 바뀌었다 (W5 전 = W4 row: normal 0cee15bba614f447, critical d91b8f349ea0d637, fade_items_curse c93403d845b463d6, enhanced beba88515de4feb2, boss 0efed2a7de8aeab8)
-    'hud_normal': 'f0f62e71a80383f5', 'hud_critical': '401cad53cd7ce33a', 'hud_fade_items_curse': '545badf1b23d2033',
-    'hud_enhanced': '09fc099fa437c13e', 'hud_boss': '7d9bbe677ca8d9b1', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    # W6(11/27): 기본 그림 'mix'(결정·무기 칸 틀 PixelLab)와 이름 자리 손질로 다시 바뀌었다 (W6 전: normal f0f62e71a80383f5, critical 401cad53cd7ce33a, fade_items_curse 545badf1b23d2033, enhanced 09fc099fa437c13e, boss 7d9bbe677ca8d9b1)
+    'hud_normal': '4686e809587db610', 'hud_critical': '834c88ae5ec2a70f', 'hud_fade_items_curse': '218265a74db90ef2',
+    'hud_enhanced': '922fbb1129555a59', 'hud_boss': '29c828bbbb8a8b77', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # 무기·E 패널 'flat'일 때의 mist HUD 다섯 장면 (W3 전 기본값. W3부터 기본값 'da'라 MIST_DONE_DIGEST의 hud_*는 da 값)
 FLAT_MIST_HUD_DIGEST = {
@@ -2055,8 +2056,8 @@ ROW_MARGIN_RIGHT = 28        # 오른쪽 여백 = 미니맵(오른쪽 위)과 �
 ROW_MARGIN_BOTTOM = 40       # 아래 여백 (키 배지·소켓 꼭짓점까지 포함)
 
 
-def _row_panel_log(prep, style='row'):
-    """mist에서 오른쪽 아래 무기·E 패널만 그린 기록 (GameUI._draw_actions)."""
+def _row_panel_log(prep, style='row', art='code'):
+    """mist에서 오른쪽 아래 무기·E 패널만 그린 기록 (GameUI._draw_actions). W4 검사는 코드 그림(art='code')을 본다 (W6부터 기본값은 'mix')."""
     import ui
 
     def go():
@@ -2066,7 +2067,7 @@ def _row_panel_log(prep, style='row'):
         with _Recorder() as r:
             ui.GameUI(p, st)._draw_actions()
         return r, p
-    return _with_skin('mist', lambda: _with_style(style, go))
+    return _with_skin('mist', lambda: _with_style(style, lambda: _with_art(art, go)))
 
 
 def _img_size(path):
@@ -2132,7 +2133,7 @@ def test_w4_row_draws_every_state_without_plate_parts():
     """(2) 'row'에서 무기 칸 세 상태 x E 다섯 상태가 오류 없이 그려지고 row 부품(과 D 키·단계 배지, W3 꼬리표·결정)만 쓰며 철판·경고 노랑이 없다.
     무기 이름·빈 칸·'강화 -25%'/'강화 30%+'·키 글자(1·2·E)가 그대로 나오고, E 상태는 결정으로 갈린다(못 씀 = 빈 윤곽, 쓸 수 있음 = 청록, 켬 = 단계 색 + 숫자 배지)."""
     for key, prep in _w1_preps().items():
-        r, p = _w1_log('row', prep)
+        r, p = _with_art('code', lambda: _w1_log('row', prep))          # 코드 그림 (W6부터 기본값은 'mix')
         _assert_no_plate(('row', key), r, PLATE_ICONS_OK)
         wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
         assert wp and all(x.startswith(ROW_OK) for x in wp), (key, wp)
@@ -2265,6 +2266,16 @@ def _w5_draw(u):
     return _with_skin('mist', lambda: _with_style('row', go))
 
 
+W5_SETTLE = 0.06             # W6: 바뀐 직후 이름이 한 단계 올라가는 동안(0.05초)은 설명 줄을 아직 그리지 않는다
+
+
+def _w5_shown(u):
+    """바뀜을 알아채는 한 프레임을 그린 뒤 W5_SETTLE만큼 지나 다시 그린 기록 (설명 줄이 뜬 프레임)."""
+    _w5_draw(u)
+    u.update(W5_SETTLE)
+    return _w5_draw(u)
+
+
 def _w5_texts(r):
     return [row[3] for row in r.log if row[0] == 'draw_text' and row[4] != hud_kit.SHADOW]
 
@@ -2278,25 +2289,25 @@ def test_w5_hint_shows_after_swap_and_enhance_then_hides():
     """(1) 공격 설명 줄: 처음(방에 들어선 직후)·무기를 바꾼 직후·강화를 켠 직후·단계가 바뀐 직후에는 그려지고, WEAPON_HINT_TIME이 지나면 그려지지 않는다."""
     u, p = _w5_ui(_w1_preps()[('one', 'ready')])
     hint = _w5_hint(u, p)
-    assert hint in _w5_texts(_w5_draw(u))                              # 첫 프레임 = 방에 들어선 직후
+    assert hint in _w5_texts(_w5_shown(u))                             # 첫 프레임 = 방에 들어선 직후
     u.update(config.WEAPON_HINT_TIME + 0.1)
     assert hint not in _w5_texts(_w5_draw(u))
     p.swap_weapon(1)                                                     # 무기를 바꾼 직후
     hint = _w5_hint(u, p)
-    assert hint in _w5_texts(_w5_draw(u)), hint
+    assert hint in _w5_texts(_w5_shown(u)), hint
     u.update(config.WEAPON_HINT_TIME + 0.1)
     assert hint not in _w5_texts(_w5_draw(u))
     p.gauge.value = 95
     p.gauge.zone = p.gauge._zone_of(95)
     assert p.gauge.use_enhance()                                         # 강화를 켠 직후
     hint = _w5_hint(u, p)
-    assert hint.startswith('강화 1단계') and hint in _w5_texts(_w5_draw(u)), hint
+    assert hint.startswith('강화 1단계') and hint in _w5_texts(_w5_shown(u)), hint
     u.update(config.WEAPON_HINT_TIME + 0.1)
     assert hint not in _w5_texts(_w5_draw(u))
     assert p.gauge.use_enhance()                                         # 단계가 바뀐 직후
     hint = _w5_hint(u, p)
-    assert hint.startswith('강화 2단계') and hint in _w5_texts(_w5_draw(u)), hint
-    u.update(config.WEAPON_HINT_TIME - 0.05)                             # 사라지기 직전 (단계 페이드: 글자 색이 어두워진다)
+    assert hint.startswith('강화 2단계') and hint in _w5_texts(_w5_shown(u)), hint
+    u.update(config.WEAPON_HINT_TIME - 0.05 - W5_SETTLE)                           # 사라지기 직전 (단계 페이드: 글자 색이 어두워진다)
     r = _w5_draw(u)
     rows = [row for row in r.log if row[0] == 'draw_text' and row[3] == hint and row[4] != hud_kit.SHADOW]
     assert rows and _luma(rows[0][4]) < _luma(config.ENHANCE_LEVEL_COLOR[2]) - 20, rows
@@ -2359,7 +2370,7 @@ def test_w5_hint_line_does_not_overlap_the_tag_socket_or_slots():
             u, p = _w5_ui(_w1_preps()[(slot, e)])
             u._attack_text = lambda w, g: (LONGEST_HINT, (150, 165, 190))
             hint = _w5_hint(u, p)
-            r = _w5_draw(u)
+            r = _w5_shown(u)
             boxes = _row_boxes(r)
             hint_box = [bx for row, bx in boxes if row[0] == 'draw_text' and row[3] == hint and row[4] != hud_kit.SHADOW]
             name_box = [bx for row, bx in boxes if row[0] == 'draw_text' and row[3] == p.weapon.name and row[4] != hud_kit.SHADOW]
@@ -2380,22 +2391,23 @@ def test_w5_hint_line_does_not_overlap_the_tag_socket_or_slots():
 # ----- 2026-11-27 P1 무기·E 패널 그림 PixelLab 시험 (사용자 "여기에서 pixelLab을 이용해서 에셋을 뽑는건 어떤가?". docs/opus/TASKS.md '4차' P1) -----
 # config.HUD_WEAPON_ART = 'code'(기본, 코드로 구운 그림) / 'px'(PixelLab 부품 um_wpx_*, 없는 것은 코드 그림). 배치·크기·동작은 같다.
 # W5 뒤(3e5b528)의 'row' 그리기 기록 (열다섯 상태). 'code'이면 그대로여야 한다
+# W6(11/27): 이름이 평소 칸 바로 위·설명 줄이 뜰 때만 올라가도록 row 배치를 손봐 'code' 기록도 바뀌었다 (W5 끝 값은 git 3e5b528의 이 줄)
 ROW_DIGEST = {
-    'one_low': '8d37639fdf78aacb',
-    'one_ready': 'c60b69862adeabd1',
-    'one_on1': '8efd007dbe85fa01',
-    'one_on2': '8d27db9f8cf9d2d6',
-    'one_on3': 'a2cfd11bc2f2ce18',
-    'two_low': '7ac5672f0da872eb',
-    'two_ready': 'cc10f2d71251d43f',
-    'two_on1': 'fe8f3eae395daa55',
-    'two_on2': '22e2e43b163f7cd4',
-    'two_on3': 'aba5730d69e9410d',
-    'empty_low': '8fe4989b4b0352e2',
-    'empty_ready': 'd54ddce1ff5895da',
-    'empty_on1': '7e81dc35451e11bc',
-    'empty_on2': '0647a3bbdff27944',
-    'empty_on3': '130a15d2058033e3',
+    'one_low': '04dc6074ef387329',
+    'one_ready': '6ff47bf18bb4caab',
+    'one_on1': '9f3c6e0a1285dcf9',
+    'one_on2': '1cfefbee87bacb9d',
+    'one_on3': '27dca984d22e5e63',
+    'two_low': '7cb0228b3b8356a6',
+    'two_ready': '999e19ff2b6c3adc',
+    'two_on1': 'dab716669d6e3be6',
+    'two_on2': '20272f6e7c83c91f',
+    'two_on3': '2ec4a30b1f0cdcc3',
+    'empty_low': '4004778e1f5b2a74',
+    'empty_ready': 'adde10a173eaeb68',
+    'empty_on1': '6017decf7eefed81',
+    'empty_on2': 'c52f7aae2f1bb5e8',
+    'empty_on3': 'b9f6b11e73d1024d',
 }
 PX_OK = ROW_OK + ('um_wpx_',)
 
@@ -2410,8 +2422,7 @@ def _with_art(art, fn):
 
 
 def test_p1_code_art_is_default_and_draws_the_same():
-    """(1) 기본값은 'code'이고, 'code'이면 'row' 열다섯 상태의 그리기 기록이 W5 끝과 같다(PixelLab 부품을 부르지 않는다)."""
-    assert config.HUD_WEAPON_ART == 'code'
+    """(1) 'code'이면 'row' 열다섯 상태의 그리기 기록이 ROW_DIGEST와 같다(PixelLab 부품을 부르지 않는다). W6부터 기본값은 'mix'."""
     got = {'_'.join(k): _with_art('code', lambda: _w1_log('row', prep))[0].digest() for k, prep in _w1_preps().items()}
     assert got == ROW_DIGEST, [k for k in ROW_DIGEST if got.get(k) != ROW_DIGEST[k]]
 
@@ -2458,6 +2469,92 @@ def test_p1_px_parts_follow_pixel_rules_and_crystals_share_one_silhouette():
     size = lambda n: Image.open(os.path.join(UI, n)).size
     assert size('um_wpx_slot_pipe.png') == (96, 72) and size('um_wpx_slot_line.png') == (72, 56), (size('um_wpx_slot_pipe.png'), size('um_wpx_slot_line.png'))
     assert size('um_wpx_socket_line.png') == (96, 96)
+
+
+
+# ----- 2026-11-27 W6 무기·E 패널 그림 확정과 빈 틈 줄이기 (사용자 "결정·소켓(결정 소켓은 원래 것을 사용하자.)만 PixelLab으로 하고 빈 틈도 줄여줘,"
+# / "결정을 둘러싼 테두리(소켓)은 기본(코드), 나머지 다른 소켓은 pixelLab". docs/opus/TASKS.md '4차' W6) -----
+# HUD_WEAPON_ART 기본값 'mix': 결정·무기 칸 틀 = PixelLab(um_wpx_), 마름모 테두리·키 배지·단계 배지·꼬리표·콤보 칸 = 코드.
+# 이름은 평소 든 칸 바로 위(ROW_NAME_DY), 설명 줄이 뜨는 동안만 한 줄 위(ROW_NAME_UP)로 두 단계에 걸쳐 올라간다.
+W6_NAME_GAP = 12             # 평소 프레임: 이름 글자 상자 아랫변과 든 칸 윗변 사이 (이하)
+
+
+def test_w6_default_art_is_mix_with_the_agreed_parts():
+    """(1) 기본값 'mix': 결정은 PixelLab, 마름모 테두리는 코드, 무기 칸 틀(든 칸·들지 않은 칸·빈 칸)은 PixelLab, 키 배지·단계 배지는 코드 (열다섯 상태)."""
+    assert config.HUD_WEAPON_ART == 'mix'
+    for key, prep in _w1_preps().items():
+        r, p = _w1_log('row', prep)
+        _assert_no_plate(('mix', key), r, PLATE_ICONS_OK)
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp' in x}
+        assert any(x.startswith('um_wpx_crystal_') for x in wp) and not any(x.startswith(('um_wp_a_crystal_', 'um_wp_da_crystal_')) for x in wp), (key, wp)
+        assert any(x.startswith('um_wp_row_socket_') for x in wp) and not any(x.startswith('um_wpx_socket_') for x in wp), (key, wp)
+        assert any(x.startswith('um_wpx_slot_') for x in wp) and not any(x.startswith('um_wp_row_slot_') for x in wp), (key, wp)
+        assert any(x.startswith('um_wp_d_key_') for x in wp) and not any(x.startswith('um_wpx_key_') for x in wp), (key, wp)
+        if key[1].startswith('on'):
+            assert f'um_wp_d_lv_e{key[1][2]}.png' in wp and f'um_wpx_crystal_e{key[1][2]}.png' in wp, (key, wp)
+
+
+def _dots(name):
+    return np.array(Image.open(os.path.join(UI, name)).convert('RGBA'))[::2, ::2]
+
+
+def test_w6_held_frame_shows_its_weapon_colour_on_all_four_sides():
+    """(2) PixelLab 든 칸 틀(um_wpx_slot_<무기>): 무기 색이 네 변(모서리 8도트를 뺀 가운데)에 모두 있다(위·오른쪽에만 보이던 것을 고쳤다)."""
+    import combo
+    for wid, c in combo.COLORS.items():
+        a = _dots(f'um_wpx_slot_{wid}.png')
+        h, w = a.shape[:2]
+        hit = (a[:, :, 3] > 0) & (a[:, :, :3] == c).all(axis=2)
+        sides = {'top': hit[:4, 8:w - 8], 'bottom': hit[h - 4:, 8:w - 8], 'left': hit[8:h - 8, :4], 'right': hit[8:h - 8, w - 4:]}
+        for side, band in sides.items():
+            n = int(band.sum())
+            assert n >= band.shape[0] * band.shape[1] // 4 // 2, (wid, side, n)
+
+
+def test_w6_idle_frame_keeps_the_held_frame_corners():
+    """(3) 들지 않은 칸 틀(um_wpx_slot_line, 72x56)의 네 모서리(6x6도트) 알파 모양이 든 칸 틀과 같다(깎인 모서리·사선 표시가 남는다). 밝기는 든 칸보다 낮다."""
+    held, idle = _dots('um_wpx_slot_pipe.png'), _dots('um_wpx_slot_line.png')
+    H, W = held.shape[:2]
+    h, w = idle.shape[:2]
+    c = 6
+    for (hs, ws), (is_, iw) in (((slice(0, c), slice(0, c)), (slice(0, c), slice(0, c))),
+                                 ((slice(0, c), slice(W - c, W)), (slice(0, c), slice(w - c, w))),
+                                 ((slice(H - c, H), slice(0, c)), (slice(h - c, h), slice(0, c))),
+                                 ((slice(H - c, H), slice(W - c, W)), (slice(h - c, h), slice(w - c, w)))):
+        assert ((held[hs, ws, 3] > 0) == (idle[is_, iw, 3] > 0)).all(), (hs, ws)
+    lum = lambda a: max(_luma(tuple(int(v) for v in px[:3])) for px in a[a[:, :, 3] > 0])
+    assert lum(idle) < lum(held), (lum(idle), lum(held))
+    assert _luma(_outer_color('um_wpx_slot_line.png')) >= IDLE_MIN_LUMA
+
+
+def test_w6_tier_crystals_are_as_clear_as_the_haze_crystal():
+    """(4) PixelLab 단계 색 결정(보라·금·빨강)은 청록 결정과 실루엣이 같고, 밝기 폭(가장 밝은 - 가장 어두운)이 청록의 0.8배 이상이다(탁하지 않다)."""
+    base = _dots('um_wpx_crystal_haze.png')
+    def span(a):
+        ls = [_luma(tuple(int(v) for v in px[:3])) for px in a[a[:, :, 3] > 0]]
+        return max(ls) - min(ls)
+    for lv in (1, 2, 3):
+        a = _dots(f'um_wpx_crystal_e{lv}.png')
+        assert ((a[:, :, 3] > 0) == (base[:, :, 3] > 0)).all(), lv
+        assert span(a) >= 0.8 * span(base), (lv, span(a), span(base))
+
+
+def test_w6_name_sits_on_the_slot_and_rises_only_for_the_hint():
+    """(5) 평소 프레임(설명 줄 없음): 무기 이름 글자 상자의 아랫변이 든 칸 윗변에서 W6_NAME_GAP 이하로 붙어 있다(1번·2번 듦).
+    설명 줄이 뜬 프레임: 이름이 설명 줄보다 위에 있고 둘이 겹치지 않으며, 설명 줄이 든 칸과도 겹치지 않는다."""
+    for slot in ('one', 'two'):
+        u, p = _w5_ui(_w1_preps()[(slot, 'ready')])
+        x, y, w, h = _w5_slot_rect(p)
+        r = _w5_shown(u)
+        boxes = _row_boxes(r)
+        name = [bx for row, bx in boxes if row[0] == 'draw_text' and row[3] == p.weapon.name and row[4] != hud_kit.SHADOW]
+        hint = [bx for row, bx in boxes if row[0] == 'draw_text' and row[3] == _w5_hint(u, p) and row[4] != hud_kit.SHADOW]
+        assert name and hint, slot
+        assert name[0][1] >= hint[0][3] and not _rect_overlap(name[0], hint[0]) and hint[0][1] >= y + h, (slot, name, hint)
+        u.update(config.WEAPON_HINT_TIME + 0.5)
+        r = _w5_draw(u)
+        name = [bx for row, bx in _row_boxes(r) if row[0] == 'draw_text' and row[3] == p.weapon.name and row[4] != hud_kit.SHADOW]
+        assert name and 0 <= name[0][1] - (y + h) <= W6_NAME_GAP, (slot, name, y + h)
 
 
 if __name__ == '__main__':

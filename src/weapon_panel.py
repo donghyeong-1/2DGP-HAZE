@@ -402,7 +402,10 @@ ROW_ALPHA_HELD, ROW_ALPHA_IDLE, ROW_ALPHA_SOCKET = 0.9, 0.72, 0.86    # 바탕 �
 ROW_ICON_IDLE = ((172, 180, 196), 0.6)        # 들지 않은 칸 아이콘: 회백 곱, 불투명도 0.6
 
 
-ROW_NAME_DY = 40                              # 무기 이름 줄 (든 칸 윗변에서 위로)
+ROW_NAME_DY = 22                              # 무기 이름 줄 (든 칸 윗변에서 위로). W6: 평소에는 칸 바로 위 (W5의 40은 설명 줄이 없을 때 이름이 떠 보였다)
+ROW_NAME_UP = 40                              # 설명 줄이 뜨는 동안의 이름 줄 (설명 줄이 이름과 칸 사이에 들어온다)
+ROW_NAME_MID = 30                             # 오르내리는 중간 한 단계
+ROW_RISE_STEP = 0.05                          # 한 단계 시간(초)
 ROW_HINT_DY = 16                              # 공격 설명 줄 (이름 바로 아래, 든 칸 윗변과의 틈)
 ROW_MARK = 10                                 # 든 칸 안 무기 표시 한 칸 (화면 px, um_wp_row_combo_*)
 ROW_HINT_STEPS = ((0.3, 0.6), (0.15, 0.3))    # 사라지기 전 남은 시간 -> 밝기 (단계 페이드: 1 -> 0.6 -> 0.3 -> 없음)
@@ -429,9 +432,11 @@ def _row_meter(w, x, y, sw, sh):
         _put(f'row_combo_{m}', mx, my + i * (ROW_MARK + 2))
 
 
-def _row_hint(u, x, y, right):
-    """공격 설명 줄: 무기를 바꾸거나 강화를 켜거나(단계가 바뀌거나) 형태가 바뀌거나 방에 들어선 직후 config.WEAPON_HINT_TIME초만.
-    사라지기 전 두 단계로 어두워진다. 반투명 바탕(꼬리표와 같은 색) 위에 쓰고, 오른쪽 끝은 right('강화' 꼬리표 앞)를 넘지 않게 왼쪽으로 민다."""
+def _row_hint_state(u):
+    """설명 줄과 이름 자리 (W6): 무기를 바꾸거나 강화를 켜거나(단계가 바뀌거나) 형태가 바뀌거나 방에 들어선 직후부터 잰다.
+    돌려주는 것: (이름 줄 높이 = 든 칸 윗변에서 위로, 설명 줄 밝기 0이면 그리지 않음).
+    이름은 평소 든 칸 바로 위(ROW_NAME_DY). 바뀐 직후 ROW_RISE_STEP초에 한 단계(ROW_NAME_MID), 그 뒤 ROW_NAME_UP까지 올라가 설명 줄이 그 아래 틈에 뜬다.
+    config.WEAPON_HINT_TIME이 지나면 설명 줄이 두 단계로 어두워져 사라지고, 이름이 같은 두 단계로 칸 위에 내려온다. 움직임은 짝수 픽셀."""
     import forms
     p = u.player
     w, g = p.weapon, p.gauge
@@ -440,13 +445,24 @@ def _row_hint(u, x, y, right):
     clock = getattr(u, 'clock', 0.0)
     if getattr(u, 'hint_key', None) != key:
         u.hint_key, u.hint_start = key, clock
-    left = config.WEAPON_HINT_TIME - (clock - u.hint_start)
-    if left <= 0:
-        return
+    age = clock - u.hint_start
+    T = config.WEAPON_HINT_TIME
+    if age < ROW_RISE_STEP or T <= age < T + ROW_RISE_STEP:
+        return ROW_NAME_MID, 0.0
+    if age >= T:
+        return ROW_NAME_DY, 0.0
     level = 1.0
     for t, lv in ROW_HINT_STEPS:
-        if left <= t:
+        if T - age <= t:
             level = lv
+    return ROW_NAME_UP, level
+
+
+def _row_hint(u, x, y, right, level):
+    """공격 설명 줄 (level: 밝기, 사라지기 전 두 단계로 어두워진다). 반투명 바탕(꼬리표와 같은 색) 위에 쓰고,
+    오른쪽 끝은 right('강화' 꼬리표 앞)를 넘지 않게 왼쪽으로 민다."""
+    if level <= 0:
+        return
     text, color = _attack_line(u)
     tw = assets.text_width(text, True)
     x0 = min(x, right - tw)
@@ -456,13 +472,16 @@ def _row_hint(u, x, y, right):
 
 # P1(11/27) 시험: HUD_WEAPON_ART = 'px'이면 row가 PixelLab 부품을 쓴다 (코드 부품 이름 -> PixelLab 부품 이름). 없는 것은 코드 그림
 PX_ART = {'row_slot_': 'slot_', 'row_socket_': 'socket_', 'a_crystal_': 'crystal_', 'da_crystal_': 'crystal_', 'd_key_': 'key_'}
+# W6(11/27) 확정 'mix' (사용자 "결정을 둘러싼 테두리(소켓)은 기본(코드), 나머지 다른 소켓은 pixelLab"): 결정·무기 칸 틀만 PixelLab
+MIX_ART = ('row_slot_', 'a_crystal_', 'da_crystal_')
 
 
 def _art(name):
-    """row 부품 이름 -> 지금 그림 값('code'·'px')에 맞는 assets/ui 경로 꼬리 ('wp_<이름>' 또는 'wpx_<이름>')."""
-    if getattr(config, 'HUD_WEAPON_ART', 'code') == 'px':
+    """row 부품 이름 -> 지금 그림 값('code'·'px'·'mix')에 맞는 assets/ui 경로 꼬리 ('wp_<이름>' 또는 'wpx_<이름>')."""
+    art = getattr(config, 'HUD_WEAPON_ART', 'code')
+    if art in ('px', 'mix'):
         for head, px in PX_ART.items():
-            if name.startswith(head):
+            if name.startswith(head) and (art == 'px' or head in MIX_ART):
                 cand = 'wpx_' + px + name[len(head):]
                 if cand not in _PX_HAVE:
                     import os
@@ -561,9 +580,9 @@ def draw_row(u):
     top = hy + hh_
     _row_meter(w, hx, hy, hw, hh_)
     # 늘 떠 있는 글은 무기 이름(든 칸 위, 든 칸을 따라간다)과 '강화' 꼬리표뿐. 공격 설명 줄은 이름 바로 아래(든 칸 윗변과의 틈)에 잠깐만
-    name_y = top + ROW_NAME_DY
-    kit.text(hx, name_y, w.name, WHITE, small=True)
-    _row_hint(u, hx, top + ROW_HINT_DY, tag_x - 18)      # 꼬리표 글자와 붙어 보이지 않게 18px 띄운다
+    name_dy, level = _row_hint_state(u)
+    kit.text(hx, top + name_dy, w.name, WHITE, small=True)
+    _row_hint(u, hx, top + ROW_HINT_DY, tag_x - 18, level)      # 꼬리표 글자와 붙어 보이지 않게 18px 띄운다
 
 
 DRAW = {'a': draw_a, 'b': draw_b, 'c': draw_c, 'd': draw_d, 'da': draw_da, 'row': draw_row}

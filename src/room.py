@@ -491,6 +491,6 @@ class Room:
         dx = 110 if ch == 'L' else -110 if ch == 'R' else 0
         dy = 40 if ch in 'LR' else (-260 if ch == 'U' else 120)
         x, y = int(cx + dx - w // 2), int(bottom + t // 2 + dy)
-        kit.panel('plate', x, y, w, h)
+        kit.hud_panel('plate', x, y, w, h)                  # H1: mist는 가는 테두리 + 어두운 바탕 (다른 스킨은 철판 그대로)
         assets.draw_image(img, x + w // 2, y + 32)
         kit.text(x + w // 2, y + 18, name, color, small=True, center=True)

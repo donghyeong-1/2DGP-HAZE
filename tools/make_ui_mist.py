@@ -13,11 +13,14 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
 - 타이틀 글자 뒤 어둠 assets/light/title_shade.png (960x540, 화면에는 2배): 빛 층과 같은 예외로 부드러운 알파.
   로고·메뉴·머리글·판번호 글자 상자에서 멀어질수록 옅어진다(exp(-(d/sigma)^2)). 체크무늬 디더 없음, 화면 가장자리는 0.
   title_shade_flash.png: 대비 판(번쩍) 때 쓰는 것. 왼쪽 위 머리글 뒤 어둠만 뺐다(흰 하늘 위 회색 얼룩, 11/27 L1).
+- 플레이 중 HUD (11/27 H1): um_hud_frame_<색>.png(9칸 테두리 한 줄, 속 투명), um_fill_<색>_<높이>.png(막대 속: 한 색 + 위 밝은 줄),
+  um_dash_on/off·um_combo_on/off/fin·um_dot_off(작은 표시). PixelLab 원본 없이 코드로 굽는다(단색 바탕과 2px 테두리).
 - 타이틀 배경 title_mist.png, 대비 판 title_flash_<n>.png, 잔광 판 title_glow.png, 줄기 판 title_bolt_<n>.png (assets/backgrounds).
   줄기 판: 대비 판 n과 같은 자리의 번갯줄기만(나머지는 알파 0). 번쩍이기 직전·두 깜빡임 사이에 원래 배경 위에 얹는다.
   줄기 모양은 PixelLab 원본 그대로, 색만 BOLT_COLORS(흰 심 + 옅은 푸른 흰 가장자리)로 바꾼다. 대비 판의 줄기도 같은 색.
 
-사용: python tools/make_ui_mist.py
+사용: python tools/make_ui_mist.py          (전부)
+      python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
 """
 import math
 import os
@@ -272,8 +275,97 @@ def bolts():
     return made
 
 
+# ----- 플레이 중 HUD (2026-11-27 H1, docs/opus/TASKS.md '4차'): 증강 카드(A 안개 미니멀)와 같은 말투 -----
+# 판 = 가는 테두리 한 줄(도트 1칸 = 화면 2px) + 안쪽 어두운 바탕. 바탕은 실행 중 코드가 한 장으로 깐다(카드와 같은 색·불투명도).
+# 리벳·두꺼운 금속 틀·입체 테두리·경고 줄무늬·잘린 철판 모서리 없음. 테두리 색: 기본 회백 한 가지, 지금 것 = 밝은 회백,
+# 청록 = 헤이즈에만, 빨강 = 위험·저주에만, 금 = 합성·보상에만, 강화 단계 색 = E 칸(1~3단계). 경고 노랑은 쓰지 않는다.
+HUD_FRAME = 8                                   # 9칸 테두리 그림 한 변 (1배 도트. 화면 16px). 모서리 2도트(화면 4px)
+HUD_TONES = {
+    'line': (128, 137, 152),                    # 기본: 차분한 회백
+    'dim': (70, 78, 94),                        # 들고 있지 않은 칸·준비 안 된 칸
+    'hot': (222, 228, 236),                     # 지금 것 (든 무기 칸)
+    'red': (226, 58, 72),                       # 위험·저주
+    'cyan': (46, 230, 214),                     # 헤이즈
+    'gold': (240, 180, 50),                     # 합성·보상
+    'e1': (200, 160, 255), 'e2': (255, 206, 92), 'e3': (255, 96, 110),   # config.ENHANCE_LEVEL_COLOR (E 칸 강화 단계)
+}
+# 막대 속: 한 색 + 위 1도트 밝은 줄 (철판 막대의 마디·아래 그늘 없이). 색은 철판 막대의 바탕색 그대로(뜻이 같게)
+HUD_FILLS = {
+    'red': ((226, 58, 72), (255, 120, 128)), 'orange': ((236, 128, 48), (255, 178, 100)),
+    'gray': ((128, 137, 152), (170, 178, 192)), 'cyan': ((46, 230, 214), (160, 248, 238)),
+    'white': ((216, 221, 230), (240, 244, 250)), 'boss': ((214, 52, 52), (255, 120, 110)),
+    'blue': ((92, 134, 220), (140, 176, 240)), 'violet': ((150, 118, 236), (196, 170, 255)),
+    'empty': ((22, 26, 36), (22, 26, 36)),
+}
+FILL_W = 512                                    # 1배 도트 (화면 1024px, 철판 막대와 같은 길이)
+HUD_FILL_HEIGHTS = (8, 12, 16, 20, 24)
+INK = (8, 10, 16)                               # 작은 표시의 어두운 윤곽 (밝은 벽 위에서도 보이게)
+
+
+def _rgba(c):
+    return (*c, 255)
+
+
+def hud_frames():
+    """um_hud_frame_<tone>.png: 테두리 한 줄만, 속은 투명 (바탕은 hud_kit이 한 장으로 깐다)."""
+    made = []
+    n = HUD_FRAME
+    for tone, c in HUD_TONES.items():
+        a = np.zeros((n, n, 4), np.uint8)
+        a[0, :], a[-1, :], a[:, 0], a[:, -1] = _rgba(c), _rgba(c), _rgba(c), _rgba(c)
+        made.append(save2(a, f'um_hud_frame_{tone}.png'))
+    return made
+
+
+def hud_fills():
+    made = []
+    for name, (main, light) in HUD_FILLS.items():
+        for h in HUD_FILL_HEIGHTS:
+            a = np.zeros((h // 2, FILL_W, 4), np.uint8)
+            a[:, :] = _rgba(main)
+            a[0, :] = _rgba(light)
+            made.append(save2(a, f'um_fill_{name}_{h}.png'))
+    return made
+
+
+def hud_marks():
+    """작은 표시: 대시 칸(켜짐·꺼짐), 철파이프 콤보 칸(켜짐·꺼짐·마무리), E 강화 단계 점 자리. 철판 것과 크기가 같다."""
+    made = []
+    line, dim, hot = HUD_TONES['line'], HUD_TONES['dim'], HUD_TONES['hot']
+    well = (9, 12, 21)
+
+    def box(w, h, edge, inside):
+        a = np.zeros((h, w, 4), np.uint8)
+        a[:, :] = _rgba(edge)
+        a[1:-1, 1:-1] = _rgba(inside)
+        return a
+
+    for on in (True, False):                     # 대시 칸 14x9 도트: 가는 테두리 + 겹친 꺾쇠 둘(>>)
+        a = box(14, 9, hot if on else dim, well)
+        chev = hot if on else dim
+        for ox in (4, 8):
+            for dy, dx in ((-2, 0), (-1, 1), (0, 2), (1, 1), (2, 0)):
+                a[4 + dy, ox + dx] = _rgba(chev)
+        made.append(save2(a, f'um_dash_{"on" if on else "off"}.png'))
+    # 콤보 칸 11x11 도트: 켜짐 = 밝은 회백 속, 꺼짐 = 어두운 속 + 흐린 테두리, 마무리 = 빨강 속 (철판과 같은 뜻)
+    for name, edge, inside in (('on', INK, hot), ('off', dim, well), ('fin', INK, (226, 58, 72))):
+        a = np.zeros((11, 11, 4), np.uint8)
+        a[1:10, 1:10] = _rgba(edge)
+        a[2:9, 2:9] = _rgba(inside)
+        made.append(save2(a, f'um_combo_{name}.png'))
+    a = np.zeros((5, 5, 4), np.uint8)             # 단계 점 자리 5x5 도트: 흐린 테두리
+    a[:, :] = _rgba(dim)
+    a[1:4, 1:4] = _rgba(well)
+    made.append(save2(a, 'um_dot_off.png'))
+    return made
+
+
 def main():
-    made = card_frames() + parts() + bolts() + title_backgrounds()
+    made = hud_frames() + hud_fills() + hud_marks()
+    if '--hud' in sys.argv:                       # HUD 부품만 (타이틀·카드 그림은 그대로 둔다)
+        print(len(made), '개:', ', '.join(made))
+        return
+    made += card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     made.append(title_shade(flash=True))
     print(len(made), '개:', ', '.join(made))

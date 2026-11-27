@@ -110,11 +110,18 @@ class Tutorial:
         h = 58 + 32 * len(lines) + 14
         x = ui.MARGIN - int((1 - k) * (w + ui.MARGIN))
         y = ui.HINT_TOP - h
+        left = max(0.0, self.left / config.HINT_TIME)
+        if kit.is_mist():                          # H1 mist: HUD와 같은 가는 테두리 판. 청록 띠 없이(청록은 헤이즈에만), 제목은 밝은 회백
+            kit.hud_panel('panel', x // 2 * 2, y // 2 * 2, w // 2 * 2, h // 2 * 2)
+            kit.text(x + 30, y + h - 30, title, (236, 240, 246))
+            for i, line in enumerate(lines):
+                kit.text(x + 30, y + h - 68 - 32 * i, line, (205, 213, 228), small=True)
+            assets.draw_rect_color(x // 2 * 2 + 4, y // 2 * 2 + 4, int((w - 8) * left) // 2 * 2, 2, (128, 137, 152))   # 남은 시간
+            return
         assets.draw_rect_color(x, y, w, h, (46, 56, 82))
         assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, (12, 17, 30))
         assets.draw_rect_color(x + 2, y + 2, 8, h - 4, (130, 235, 225))           # 왼쪽 띠
         kit.text(x + 30, y + h - 30, title, (130, 235, 225))
         for i, line in enumerate(lines):
             kit.text(x + 30, y + h - 68 - 32 * i, line, (225, 232, 245), small=True)
-        left = max(0.0, self.left / config.HINT_TIME)
         assets.draw_rect_color(x + 10, y + 2, int((w - 12) * left), 4, (90, 150, 170))   # 남은 시간

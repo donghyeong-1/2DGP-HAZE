@@ -14,7 +14,7 @@ ART = 'ui/uc_'                 # 예전(결정형) 부품 그림 접두 (assets/
 #   'plate_code' 코드로 그린 철판 (assets/ui/up_*.png, tools/make_ui_plate.py)
 #   'crystal'    예전 결정형 (uc_*, Gemini G06)
 # 2026-11-27 UI 컨셉 확정 'mist': 타이틀 = B 감시 단말, 증강 선택 = A 안개 미니멀 (um_*, tools/make_ui_mist.py).
-#   그 밖의 화면(HUD·일시정지·설정·상점·결과)은 아직 'plate'와 같다 (upx_*, 없으면 up_)
+#   플레이 중 HUD는 11/27 H1부터 '가는 선 + 어두운 바탕'(아래 hud_* 함수). 그 밖의 화면(일시정지·설정·상점·결과)은 아직 'plate'와 같다 (upx_*, 없으면 up_)
 # 이름·크기가 같아 접두만 바꿔 끼운다. 예전 그림은 지우지 않는다.
 SKIN_PREFIX = {'mist': 'upx_', 'plate': 'upx_', 'plate_code': 'up_', 'crystal': 'uc_'}
 FALLBACK = {'mist': 'up_', 'plate': 'up_'}                  # 이 스킨에 없는 부품은 이 접두로
@@ -27,7 +27,7 @@ def skin():
 
 
 def is_plate():
-    """철판 계열 스킨인가 (PixelLab·코드 둘 다: 노란 꺾쇠, 청록은 헤이즈에만, 결정 장식 없음). 'mist'도 타이틀·증강 밖은 철판."""
+    """철판 계열 스킨인가 (PixelLab·코드 둘 다: 노란 꺾쇠, 청록은 헤이즈에만, 결정 장식 없음). 'mist'도 타이틀·증강·HUD 밖은 철판."""
     return skin() in ('mist', 'plate', 'plate_code')
 
 
@@ -354,3 +354,84 @@ def card(x, y, w, h, title=None):
         icon('uc_crystal', x + w - 24, y + h - 20)
     if title:
         text(x + 28, y + h - 34, title, (216, 221, 230) if is_plate() else (159, 247, 238))
+
+
+# ----- 2026-11-27 H1: 플레이 중 HUD (docs/opus/TASKS.md '4차' H1 HUD) -----
+# 'mist'에서 HUD는 철판을 걷고 '가는 선 + 어두운 바탕'(증강 카드 A 안개 미니멀과 같은 말투). 부품 um_hud_*·um_fill_*·작은 표시
+# (tools/make_ui_mist.py --hud). HUD(ui.GameUI·문 위 보상 판·처음 안내 카드)만 아래 hud_* 함수를 부른다.
+# 메뉴·고르는 화면이 쓰는 panel()·bar()·fill()·tag()·keycap() 등은 그대로라 그 화면들은 모양이 변하지 않는다.
+# 다른 스킨에서 hud_*는 예전 함수를 그대로 부른다 (픽셀 단위로 같은 화면).
+HUD_WELL, HUD_WELL_ALPHA = (9, 12, 21), 0.94      # 안쪽 바탕: 증강 카드 바탕과 같은 색·불투명도 (mutation_mode.MIST_WELL)
+HUD_EDGE = 4                                       # 9칸 테두리 그림의 모서리 (화면 px). 선은 2px
+MIST_MARKS = ('uc_dash_on', 'uc_dash_off', 'uc_combo_on', 'uc_combo_off', 'uc_combo_fin', 'uc_dot_off')
+
+
+def hud_panel(kind, x, y, w, h, tone='line', alpha=HUD_WELL_ALPHA):
+    """HUD 판. mist: 바탕 한 장 + 테두리 한 줄(um_hud_frame_<tone>: line 회백 / dim / hot 지금 것 / red / cyan / gold / e1~e3).
+    alpha는 바탕 불투명도 (미니맵은 1.0: 뒤 벽이 비치면 방 칸처럼 보인다). 다른 스킨: panel(kind, ...) 그대로."""
+    if not is_mist():
+        panel(kind, x, y, w, h)
+        return
+    x, y, w, h = int(x), int(y), max(int(w), 8), max(int(h), 8)
+    assets.draw_rect_color(x + 2, y + 2, w - 4, h - 4, HUD_WELL, alpha)
+    img = assets.image(f'ui/um_hud_frame_{tone}.png')
+    size, c = img.w, HUD_EDGE
+    m = size - 2 * c
+    for along in range(0, w - 2 * c, m):
+        seg = min(m, w - 2 * c - along)
+        assets.draw_clip(img, c, size - c, seg, c, x + c + along, y + h - c)
+        assets.draw_clip(img, c, 0, seg, c, x + c + along, y)
+    for along in range(0, h - 2 * c, m):
+        seg = min(m, h - 2 * c - along)
+        assets.draw_clip(img, 0, c, c, seg, x, y + c + along)
+        assets.draw_clip(img, size - c, c, c, seg, x + w - c, y + c + along)
+    for (l, b, dx, dy) in ((0, size - c, 0, h - c), (size - c, size - c, w - c, h - c), (0, 0, 0, 0), (size - c, 0, w - c, 0)):
+        assets.draw_clip(img, l, b, c, c, x + dx, y + dy)
+
+
+def hud_fill(color, x, y, w, h):
+    """HUD 막대 속. mist: 한 색 + 위 밝은 줄 (um_fill_<색>_<높이>). 다른 스킨: fill()."""
+    if not is_mist():
+        fill(color, x, y, w, h)
+        return
+    w = int(w)
+    if w <= 0:
+        return
+    img = assets.image(f'ui/um_fill_{color}_{h}.png')
+    assets.draw_clip(img, 0, 0, min(w, img.w), h, int(x), int(y))
+
+
+def hud_bar(color, x, y, w, h, ratio, empty='empty', tone='line'):
+    """HUD 막대: mist는 가는 테두리 판 안에 빈 칸과 채움 / 다른 스킨은 bar()."""
+    if not is_mist():
+        bar(color, x, y, w, h, ratio, empty)
+        return
+    hud_panel('frame', x - 4, y - 4, w + 8, h + 8, tone)
+    hud_fill(empty, x, y, w, h)
+    hud_fill(color, x, y, round(w * max(0.0, min(1.0, ratio))), h)
+
+
+def hud_icon(name, x, y):
+    """HUD 작은 표시: mist에서 대시·콤보·단계 점은 가는 선 그림(um_*), 그 밖(하트·물약·조준점 등)은 icon()과 같다."""
+    if is_mist() and name in MIST_MARKS:
+        img = assets.image(f'ui/um_{name[3:]}.png')
+        assets.draw_image(img, int(x) + img.w // 2, int(y))
+        return img.w, img.h
+    return icon(name, x, y)
+
+
+def hud_tag(x, y, w, tone='line'):
+    """HUD 이름표 띠 (높이 40, 게이지 아래 구간 이름·저주): mist는 가는 테두리 판 / 다른 스킨은 tag()."""
+    if not is_mist():
+        tag(x, y, w)
+        return
+    hud_panel('plate', int(x) // 2 * 2, int(y), max(int(w) // 2 * 2, 32), 40, tone)
+
+
+def hud_keycap(x, y, label, hot=True):
+    """HUD 칸 안의 키 글자: mist는 판 없이 글자만(칸이 이미 어둡다. 판 안에 판을 겹치지 않는다) / 다른 스킨은 keycap()."""
+    if not is_mist():
+        return keycap(x, y, label, hot)
+    w = max(34, assets.text_width(label, True) + 16) // 2 * 2
+    text(int(x) + w // 2, int(y) + 16, label, (242, 246, 250) if hot else FAINT, small=True, center=True)
+    return w

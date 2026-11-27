@@ -163,7 +163,7 @@ class GameUI:
         kit.text(W // 2, TOAST_Y + 60, '오버로드!', (255, 120, 128), center=True, big=True)
         bw = 420                                                # 기절 남은 시간
         bx, by = (W - bw) // 2, TOAST_Y - 10
-        kit.bar('red', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
+        kit.hud_bar('red', bx, by, bw, 12, p.gauge.stun_timer / config.OVERLOAD_STUN)
         kit.text(W // 2, by - 22, f'기절 {p.gauge.stun_timer:.1f}초', (255, 190, 190), small=True, center=True)
 
     # ----- 가운데 위: 헤이즈 게이지 -----
@@ -182,21 +182,26 @@ class GameUI:
             pulse = 0.5 + 0.5 * math.sin(self.player.aura_time * (9 if g.zone == CRITICAL else 6))
             if pulse > 0.5:
                 assets.draw_rect_color(BAR_X - 4, BAR_Y - 10, BAR_W + 8, BAR_H + 20, ZONE_COLOR[g.zone])
-        body = assets.image(kit.art('gauge_body.png'))              # 몸통 틀: 흰 윗선·밑선 + 남색 그림자, 가로로 이어 붙인다
-        for along in range(0, BAR_W, body.w):
-            assets.draw_clip(body, 0, 0, min(body.w, BAR_W - along), body.h, BAR_X + along, BAR_Y - 6)
+        mist = kit.is_mist()
+        if mist:                                                 # H1 mist: 가는 테두리 판 하나 (철판 몸통·양끝 쇠고리 없음)
+            kit.hud_panel('frame', BAR_X - 4, BAR_Y - 4, BAR_W + 8, BAR_H + 8)
+        else:
+            body = assets.image(kit.art('gauge_body.png'))          # 몸통 틀: 흰 윗선·밑선 + 남색 그림자, 가로로 이어 붙인다
+            for along in range(0, BAR_W, body.w):
+                assets.draw_clip(body, 0, 0, min(body.w, BAR_W - along), body.h, BAR_X + along, BAR_Y - 6)
         bounds = self._bounds()
         for lo, hi, zone in bounds:                              # 구간마다 자기 색. 아직 안 찬 부분은 같은 색을 어둡게 덮는다
             x0, x1 = round(self._x_of(lo)) // 2 * 2, round(self._x_of(hi)) // 2 * 2
-            kit.fill(ZONE_FILL[zone], x0, BAR_Y, x1 - x0, BAR_H)
+            kit.hud_fill(ZONE_FILL[zone], x0, BAR_Y, x1 - x0, BAR_H)
             xv = max(x0, min(x1, round(self._x_of(g.value)) // 2 * 2))
             if xv < x1:
                 assets.draw_rect_color(xv, BAR_Y, x1 - xv, BAR_H, (13, 18, 31), 0.78)
         for lo, _hi, _zone in bounds[1:]:                        # 구간 경계 눈금: 흰 세로선 (몸통 높이)
             x = round(self._x_of(lo)) // 2 * 2
             assets.draw_rect_color(x - 2, BAR_Y - 6, 4, BAR_H + 12, (242, 246, 250))
-        kit.icon('uc_gauge_l', BAR_X - 26, BAR_Y - 15)           # 양끝 결정 첨탑 (왼쪽 빨강 조각 = 페이드, 오른쪽 주황 = 위험)
-        kit.icon('uc_gauge_r', BAR_X + BAR_W - 6, BAR_Y - 15)
+        if not mist:
+            kit.icon('uc_gauge_l', BAR_X - 26, BAR_Y - 15)       # 양끝 결정 첨탑 (왼쪽 빨강 조각 = 페이드, 오른쪽 주황 = 위험)
+            kit.icon('uc_gauge_r', BAR_X + BAR_W - 6, BAR_Y - 15)
         kit.icon('uc_needle', round(self._x_of(g.value)) // 2 * 2 - 4, BAR_Y - 12)   # 현재 값 바늘
         # 아래 한 줄: [구간 이름 %] [배율] [강화 상태]
         label = f'{ZONE_LABEL[g.zone]} {int(g.value)}%'
@@ -211,7 +216,7 @@ class GameUI:
         lw = assets.text_width(label, False)
         ew = assets.text_width(extra, True) + 24 if extra else 0
         x0 = W // 2 - (lw + ew) // 2
-        kit.tag(x0 - 30, LABEL_Y - 20, lw + ew + 60)             # 이름표 띠
+        kit.hud_tag(x0 - 30, LABEL_Y - 20, lw + ew + 60)         # 이름표 띠
         kit.text(x0, LABEL_Y, label, ZONE_COLOR[g.zone])
         if extra:
             kit.text(x0 + lw + 24, LABEL_Y - 1, extra, ecolor, small=True)
@@ -220,28 +225,34 @@ class GameUI:
         if cid:                                                    # 저주 증강: 걸린 저주와 남은 전투방 (이름표 띠 아래)
             text = f'저주 · {curse.CURSES[cid]["short"]} · 전투방 {curse.rooms_left(self.player)}'
             tw = assets.text_width(text, True)
-            kit.tag(W // 2 - tw // 2 - 30, LABEL_Y - 62, tw + 60)
+            kit.hud_tag(W // 2 - tw // 2 - 30, LABEL_Y - 62, tw + 60, tone='red')   # mist: 저주는 빨간 테두리
             kit.text(W // 2, LABEL_Y - 43, text, curse.COLOR, small=True, center=True)
 
     # ----- 왼쪽 위: 체력·대시·업그레이드 -----
     def _draw_vitals(self):
         p = self.player
+        mist = kit.is_mist()
         kit.icon('uc_heart', MARGIN, HP_Y - 1)
-        kit.icon('uc_gem', MARGIN + 26, HP_Y - 10)                           # 하트 옆 작은 결정
         ratio = max(0.0, p.hp) / max(1, p.max_hp)
-        kit.fill('empty', HP_X, HP_Y, HP_W, 24)
+        blink = ratio <= 0.3 and int(p.aura_time * 4) % 2 == 0             # 체력이 적으면 테두리가 깜빡인다
+        if mist:                                                             # H1 mist: 가는 테두리 판 (깜빡일 때는 테두리가 빨강)
+            kit.hud_panel('frame', HP_X - 4, HP_Y - 4, HP_W + 8, HP_H + 8, 'red' if blink else 'line')
+        else:
+            kit.icon('uc_gem', MARGIN + 26, HP_Y - 10)                       # 하트 옆 작은 결정
+        kit.hud_fill('empty', HP_X, HP_Y, HP_W, 24)
         ghost = max(ratio, self.hp_ghost)
-        kit.fill('orange', HP_X, HP_Y, int(HP_W * ghost) // 2 * 2, 24)       # 방금 깎인 만큼
-        kit.fill('red', HP_X, HP_Y, int(HP_W * ratio) // 2 * 2, 24)
-        kit.icon('uc_hp_frame', HP_X - 2, HP_Y - 2)                          # 틀: 흰 1점 선, 오른쪽 끝 사선
-        if ratio <= 0.3 and int(p.aura_time * 4) % 2 == 0:                 # 체력이 적으면 테두리가 깜빡인다
+        kit.hud_fill('orange', HP_X, HP_Y, int(HP_W * ghost) // 2 * 2, 24)   # 방금 깎인 만큼
+        kit.hud_fill('red', HP_X, HP_Y, int(HP_W * ratio) // 2 * 2, 24)
+        if not mist:
+            kit.icon('uc_hp_frame', HP_X - 2, HP_Y - 2)                      # 틀: 흰 1점 선, 오른쪽 끝 사선
+        if blink and not mist:
             for oy in (-2, HP_H + 2):
                 assets.draw_rect_color(HP_X - 2, HP_Y + oy, HP_W + 4, 2, (255, 90, 90))
         hp_text = f'{int(p.hp)} / {p.max_hp}'                              # 숫자는 막대 안 오른쪽 (게이지와 겹치지 않게)
         kit.text(HP_X + HP_W - 12, HP_Y + 12, hp_text, WHITE, small=True, right=True)
         for i in range(p.dash_max):                                          # 대시 칸 (충전 중인 칸은 차오른다)
             x = HP_X + i * 34
-            kit.icon('uc_dash_on' if i < p.dash_slots else 'uc_dash_off', x, DASH_Y)
+            kit.hud_icon('uc_dash_on' if i < p.dash_slots else 'uc_dash_off', x, DASH_Y)
             if i == p.dash_slots and p.dash_slots < p.dash_max:
                 import mutations
                 k = min(1.0, p.dash_charge / max(0.01, mutations.dash_recharge_time(p)))
@@ -261,9 +272,12 @@ class GameUI:
         counts = {}
         for item_id in self.player.items:
             counts[item_id] = counts.get(item_id, 0) + 1
+        if kit.is_mist() and counts:                     # H1 mist: 칸마다 판을 두지 않고 줄 전체에 판 하나
+            kit.hud_panel('plate', MARGIN, ITEM_Y, len(counts) * 60 - 4, 56)
         for i, (item_id, n) in enumerate(counts.items()):
             ix, iy = MARGIN + i * 60, ITEM_Y
-            kit.panel('plate', ix, iy, 56, 56)
+            if not kit.is_mist():
+                kit.panel('plate', ix, iy, 56, 56)
             kit.icon(f'icon_{item_id}', ix + 4, iy + 4)
             if n > 1:
                 kit.text(ix + 46, iy + 10, f'{n}', WHITE, small=True, center=True)
@@ -278,9 +292,13 @@ class GameUI:
         for i, wp in enumerate(slots):                                       # 무기 두 칸
             x, y = xs[i], ACT_Y
             active = i == p.slot
-            if active and g.enhanced and not kit.is_plate():                 # 강화 중: 든 칸 둘레에 단계 색 (철판은 든 칸 = 노란 꺾쇠만, 단계 색은 E 칸에)
+            if kit.is_mist():                                                # H1 mist: 든 칸 = 테두리가 밝아진다 (꺾쇠·띠 없음)
+                kit.hud_panel('slot', x, y, SLOT, SLOT, 'hot' if active else 'dim')
+            elif active and g.enhanced and not kit.is_plate():                 # 강화 중: 든 칸 둘레에 단계 색 (철판은 든 칸 = 노란 꺾쇠만, 단계 색은 E 칸에)
                 assets.draw_rect_color(x - 4, y - 4, SLOT + 8, SLOT + 8, config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))])
-            if kit.is_plate():                                               # 철판: 든 칸 = 일반 칸 + 노란 꺾쇠 (E 칸의 강화 단계 색과 구별)
+            if kit.is_mist():
+                pass
+            elif kit.is_plate():                                             # 철판: 든 칸 = 일반 칸 + 노란 꺾쇠 (E 칸의 강화 단계 색과 구별)
                 kit.panel('slot', x, y, SLOT, SLOT)
                 if active:
                     kit.select_mark(x, y, SLOT, SLOT, None, L=26, t=4, o=4)
@@ -295,7 +313,7 @@ class GameUI:
             else:
                 assets.draw_image_tinted(img, x + SLOT // 2, y + (SLOT - img.h) // 2, '', (120, 130, 150), 0.7)
             import keybinds
-            keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active)
+            kit.hud_keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active)
             if not active and p.weapons[p.slot] is not None:               # v8 교체기: 이 칸으로 바꾸면 기술이 나간다. 칸 위쪽 막대 = 쿨다운(다 차면 그 무기 색)
                 import combo
                 ratio = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))   # v8 교체 연무는 짧다
@@ -305,7 +323,10 @@ class GameUI:
         ex = xs[0] - SLOT - 26
         ready = g.can_enhance()
         hot = g.enhanced
-        if kit.is_plate():                                                   # 철판: E 칸은 노란 꺾쇠를 쓰지 않고 강화 단계 색 테 (든 무기 칸과 구별)
+        if kit.is_mist():                                                    # H1 mist: 준비·강화 중이면 테두리가 강화 단계 색 (두꺼운 테 없음)
+            lv = max(1, min(3, g.enhance_level)) if hot else 1
+            kit.hud_panel('slot', ex, ACT_Y, SLOT, SLOT, f'e{lv}' if hot or ready else 'dim')
+        elif kit.is_plate():                                                 # 철판: E 칸은 노란 꺾쇠를 쓰지 않고 강화 단계 색 테 (든 무기 칸과 구별)
             if hot or ready:
                 lv = max(1, min(3, g.enhance_level)) if hot else 1
                 assets.draw_rect_color(ex - 6, ACT_Y - 6, SLOT + 12, SLOT + 12, (6, 7, 10))
@@ -321,11 +342,11 @@ class GameUI:
         else:
             assets.draw_image_tinted(img, ex + SLOT // 2 + 8, ACT_Y + 24, '', (110, 120, 140), 0.6)
         import keybinds
-        keycap(ex + 4, ACT_Y + SLOT - 34, keybinds.label('enhance', first=True)[:3], hot=ready or hot)
+        kit.hud_keycap(ex + 4, ACT_Y + SLOT - 34, keybinds.label('enhance', first=True)[:3], hot=ready or hot)
         for i in range(config.ENHANCE_MAX_LEVEL):                            # 쌓인 단계 점 (칸 아래쪽)
             on = i < g.enhance_level and hot
             px = ex + 20 + i * 20
-            kit.icon('uc_dot_off', px, ACT_Y + 8)                              # 단계 점 자리
+            kit.hud_icon('uc_dot_off', px, ACT_Y + 8)                          # 단계 점 자리
             if on:
                 assets.draw_rect_color(px + 2, ACT_Y + 10, 6, 6, config.ENHANCE_LEVEL_COLOR[i + 1])
         if hot:
@@ -346,7 +367,7 @@ class GameUI:
         kit.text(right, top + 46, w.name, WHITE, right=True)
         ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)
         bx = xs[0]
-        kit.bar('white' if w.ready else 'yellow', bx, ACT_Y + SLOT + 12, right - bx, 8, ratio)
+        kit.hud_bar('white' if w.ready else ('gray' if kit.is_mist() else 'yellow'), bx, ACT_Y + SLOT + 12, right - bx, 8, ratio)   # mist: 노랑 대신 회색
         meter_x = right - assets.text_width(w.name, False) - 24
         self._draw_weapon_meter(meter_x - 130, top + 34)
 
@@ -356,14 +377,14 @@ class GameUI:
         if w.weapon_id == 'pipe':
             for i in range(3):
                 lit = i < w.combo
-                kit.icon(('uc_combo_fin' if i == 2 else 'uc_combo_on') if lit else 'uc_combo_off', x + 40 + i * 28, y)
+                kit.hud_icon(('uc_combo_fin' if i == 2 else 'uc_combo_on') if lit else 'uc_combo_off', x + 40 + i * 28, y)
         elif w.weapon_id == 'gauntlet':
             r = w.charge_ratio
-            kit.bar('cyan' if r >= 1.0 else 'white', x + 10, y + 5, 110, 12, r)
+            kit.hud_bar('cyan' if r >= 1.0 else 'white', x + 10, y + 5, 110, 12, r)
         else:
             count, _, hot = w.grip() if w.weapon_id == 'chain' else w.volley()
             for i in range(min(count, 4)):
-                kit.icon('uc_combo_fin' if hot else 'uc_combo_on', x + 20 + i * 26, y)
+                kit.hud_icon('uc_combo_fin' if hot else 'uc_combo_on', x + 20 + i * 26, y)
 
     @staticmethod
     def _attack_text(w, g):
@@ -413,7 +434,7 @@ class GameUI:
         cols, rows = max(xs) - min(xs) + 1, max(ys) - min(ys) + 1
         pw, ph = cols * (cell_w + gap) + 36, rows * (cell_h + gap) + 36
         px, py = W - MARGIN - pw, H - MARGIN - ph
-        kit.panel('plate', px, py, pw, ph)
+        kit.hud_panel('plate', px, py, pw, ph, alpha=1.0)
         base_x, base_y = px + 18 + gap // 2, py + 18 + gap // 2
         colors = {'current': (242, 246, 250), 'cleared': (30, 160, 156), 'visited': (72, 86, 116), 'unknown': (34, 44, 69)}
         borders = {'gold': (242, 210, 116), 'boss': (226, 90, 100), 'shop': (110, 160, 240), 'gate': (240, 150, 60),
@@ -424,6 +445,9 @@ class GameUI:
             borders = {'gold': (240, 180, 50), 'boss': (226, 58, 72), 'shop': (216, 221, 230), 'gate': (226, 58, 72),
                        'rift': (46, 230, 214), 'event': (216, 221, 230)}
             well = (6, 7, 10)
+        if kit.is_mist():                                 # H1 mist: 지금 방 = 밝은 회백 (경고 노랑을 쓰지 않는다), 나머지는 철판과 같다
+            colors['current'] = (242, 246, 250)
+            well = kit.HUD_WELL
         for (cx, cy), state, kind, high in cells:
             x = base_x + (cx - min(xs)) * (cell_w + gap)
             y = base_y + (cy - min(ys)) * (cell_h + gap)
@@ -443,7 +467,7 @@ class GameUI:
         x, y = right - w, top - 40
         w += w % 2
         x = right - w
-        kit.panel('plate', x, y, w, 40)
+        kit.hud_panel('plate', x, y, w, 40)
         if icon:
             kit.icon(icon, x + 14, y + 8)
         kit.text(x + w - 14 - tw, y + 20, text, color, small=True)
@@ -483,21 +507,25 @@ class GameUI:
         if phase > 1:
             kit.text(x + BOSS_W, y + 32, f'{phase}페이즈', (255, 120, 110), small=True, right=True)
         frame = kit.art('boss_frame.png')
-        if kit.is_pixellab_plate() and frame.startswith('ui/upx_'):           # PixelLab 철판: 양끝 쇠고리가 있는 막대 틀 (막대는 그 위에)
+        mist = kit.is_mist()
+        if mist:                                                        # H1 mist: 가는 테두리 판 (양끝 쇠고리·결정 없음)
+            kit.hud_panel('frame', x - 4, y - 4, BOSS_W + 8, BOSS_H + 8)
+        elif kit.is_pixellab_plate() and frame.startswith('ui/upx_'):           # PixelLab 철판: 양끝 쇠고리가 있는 막대 틀 (막대는 그 위에)
             kit.icon(frame[3:-4], x - 8, y - 6)
         elif kit.is_plate():                                            # 철판: 위 밝은 테·아래 어두운 테
             assets.draw_rect_color(x, y - 4, BOSS_W, BOSS_H + 8, (6, 7, 10))
             assets.draw_rect_color(x, y + BOSS_H + 2, BOSS_W, 2, (59, 67, 82))
         else:
             assets.draw_rect_color(x, y - 2, BOSS_W, BOSS_H + 4, (242, 246, 250))   # 위아래 흰 1점 선
-        kit.icon('uc_boss_l', x - 6, y - 2)                                   # 양끝 작은 결정
-        kit.icon('uc_boss_r', x + BOSS_W, y - 2)
+        if not mist:
+            kit.icon('uc_boss_l', x - 6, y - 2)                               # 양끝 작은 결정
+            kit.icon('uc_boss_r', x + BOSS_W, y - 2)
         ratio = max(0.0, boss.hp) / boss.max_hp
-        kit.fill('empty', x, y, BOSS_W, 16)
+        kit.hud_fill('empty', x, y, BOSS_W, 16)
         ghost = self.boss_ghost if self.boss_ref is boss else ratio
         fill = boss_intro.bar_fill()                                      # O2-1: 등장씬이 끝나면 0에서 차오른다
-        kit.fill('orange', x, y, int(BOSS_W * max(ratio, ghost) * fill), 16)    # 방금 깎인 만큼 (따라 줄어든다)
-        kit.fill('boss', x, y, int(BOSS_W * ratio * fill), 16)
+        kit.hud_fill('orange', x, y, int(BOSS_W * max(ratio, ghost) * fill), 16)    # 방금 깎인 만큼 (따라 줄어든다)
+        kit.hud_fill('boss', x, y, int(BOSS_W * ratio * fill), 16)
         for m in boss_phase_marks(kind):                                   # 페이즈 경계 눈금
             assets.draw_rect_color(x + int(BOSS_W * m) // 2 * 2 - 2, y - 6, 4, BOSS_H + 12, (242, 246, 250))
 
@@ -527,7 +555,7 @@ class GameUI:
         k = min(1.0, age / 0.15, left / 0.2)                   # 올라오고 내려가는 정도
         y = int(PICKUP_Y - (1 - k) * (PICKUP_H + PICKUP_Y))
         x = (W - PICKUP_W) // 2
-        kit.panel('panel', x, y, PICKUP_W, PICKUP_H)
+        kit.hud_panel('panel', x, y, PICKUP_W, PICKUP_H)
         img = assets.image(icon)
         assets.draw_image(img, x + 60, y + (PICKUP_H - img.h) // 2)
         kit.text(x + 120, y + PICKUP_H - 34, name, GOLD)

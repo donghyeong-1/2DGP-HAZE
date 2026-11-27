@@ -349,3 +349,23 @@
 - 찾았지만 고치지 않은 것: 대비 판에서 로고 뒤 어둠도 흰 하늘 위에 회색 둥근 그늘로 보인다(지시: 로고·메뉴 뒤 어둠은 건드리지 않는다). `shots/review/L1_logo_shade_note.png`.
 - 바꾼 파일: `src/title_storm.py`, `src/title_mode.py`, `tools/make_ui_mist.py`, `tools/title_storm_shots.py`(새 촬영 스크립트), `tests/test_title_storm.py`(3개 추가, 2개 고침),
   `assets/backgrounds/title_flash_1~3.png`, `assets/backgrounds/title_bolt_1~3.png`(새), `assets/light/title_shade_flash.png`(새).
+
+## H1 HUD
+사용자 결정(11/27): 나머지 화면을 확정된 두 컨셉에 맞추는 제안에 "제안대로 전부". HUD 몫은 한 줄 **"HUD는 철판을 걷고 가는 선 + 어두운 바탕."**
+순서는 HUD -> 메뉴 화면 -> 고르는 화면, 묶음마다 사용자에게 그림을 보여 준 뒤 다음으로. 그림은 "코드 우선, 필요할 때만 PixelLab"(이번에는 생성 없음).
+- 디자인 기준(지휘 쪽 해석): 증강 카드 A와 같은 말투. 판 = 가는 테두리 한 줄(화면 2px) + 거의 불투명한 어두운 바탕(카드와 같은 (9,12,21), 0.94).
+  테두리 기본 회백 한 가지, 청록 = 헤이즈, 빨강 = 위험·저주, 금 = 합성·보상, 경고 노랑 안 씀. 판 안의 판은 한 겹으로, 조준점·적 체력·데미지 숫자에는 판 없음.
+  막대는 평평한 색 + 가는 테두리(게이지 구간 색·눈금·바늘, 보스 페이즈 눈금·깎인 자국은 그대로). 고른 것 = 테두리가 밝아짐.
+- 한 것: 부품 `um_hud_frame_<색>`(9칸 테두리 한 줄, 속 투명: line·dim·hot·red·cyan·gold·e1~e3), `um_fill_<색>_<높이>`(한 색 + 위 밝은 줄),
+  `um_dash_on/off`·`um_combo_on/off/fin`·`um_dot_off`(철판 것과 같은 크기)를 `tools/make_ui_mist.py --hud`로 코드로 구웠다.
+  `hud_kit`에 HUD 전용 `hud_panel`·`hud_fill`·`hud_bar`·`hud_icon`·`hud_tag`·`hud_keycap`을 더했다: mist면 새 부품, 다른 스킨이면 예전 함수를 그대로 부른다.
+  예전 함수(panel·bar·tag·keycap 등)는 손대지 않아 일시정지·설정·상점·형태 선택·결과·크레딧·은신처 메뉴·대화는 이번에 변하지 않는다.
+  HUD(`ui.GameUI`)·문 위 보상 판(`room._draw_reward`)·처음 안내 카드(`tutorial`)가 hud_*를 부른다.
+  mist에서: 게이지·체력·보스 막대는 가는 테두리 판 하나(철판 몸통·양끝 쇠고리·하트 옆 결정·결정 끝장식 없음), 체력이 적어 깜빡일 때는 테두리가 빨강.
+  무기 칸은 든 칸 = 밝은 테두리, 다른 칸 = 흐린 테두리(노란 꺾쇠 없음). E 칸은 준비·강화 중이면 테두리가 강화 단계 색(두꺼운 테 없음).
+  칸 안 키 글자는 판 없이 글자만. 아이템 줄은 칸마다 판 대신 줄 전체에 판 하나. 재충전 막대는 노랑 대신 회색. 미니맵 지금 방은 노랑 대신 밝은 회백, 미니맵 바탕은 불투명(뒤 벽이 방 칸처럼 비쳐서).
+  저주 표시는 빨간 테두리. 처음 안내 카드는 청록 띠를 빼고 제목을 밝은 회백으로. 자리·크기·글자 문구는 그대로(옮긴 것 없음).
+- 확인: 테스트 5개(`tests/test_ui_skin.py`: 부품 픽셀 규칙, 테두리 한 줄·한 색·바탕 한 장, mist HUD가 철판 판·틀을 부르지 않음, 옛 스킨 셋의 HUD 그리기 호출이
+  고치기 전과 같음, 메뉴·고르는 화면이 쓰는 hud_kit 함수가 네 스킨 모두에서 고치기 전과 같음). 실제 창 촬영 `tools/ui_hud_shots.py`(장면 아홉, 전·후 비교판 `shots/review/H1_*`).
+  옛 스킨 셋은 고치기 전 코드와 픽셀 단위로 같다(되풀이해도 같은 보스·상점 장면에서 확인).
+- 바꾼 파일: `src/hud_kit.py`, `src/ui.py`, `src/room.py`, `src/tutorial.py`, `tools/make_ui_mist.py`, `tools/ui_hud_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_(hud_frame|fill|dash|combo|dot)_*.png`(새 60장).

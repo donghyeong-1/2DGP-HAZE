@@ -36,7 +36,7 @@
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
 ## 열린 질문
-- (사용자) 두 화면 방향은 확정(11/27). 카드 잔손질 확인, 나머지 화면(HUD·일시정지·설정·상점·결과)을 어느 컨셉으로 맞출지. 다시 찍기는 `python tools/ui_mist_shots.py <폴더>`.
+- (사용자) 나머지 화면 맞추기("제안대로 전부", 11/27): **HUD 끝남(H1, 가는 선 + 어두운 바탕)** — 비교판 `shots/review/H1_*`을 보고 확인. 남은 것: 메뉴 화면(일시정지·설정·결과·크레딧, 타이틀 모양) -> 고르는 화면(상점·형태 선택, 증강 카드 모양). 다시 찍기는 `python tools/ui_hud_shots.py <폴더>`, `python tools/ui_mist_shots.py <폴더>`.
 - (사용자) 타이틀 번개: 11/27 L1에서 줄기 단계(번쩍이기 직전 1~2프레임)를 넣고 감시 글자 뒤 회색 얼룩을 뺐다. 움직이는 화면에서 줄기 1~2프레임이 눈에 띄는지는 실제로 켜 보고 판단해야 한다. 대비 판에서 로고 뒤 어둠도 흰 하늘 위에 회색 둥근 그늘로 보인다(지시대로 고치지 않음, `shots/review/L1_logo_shade_note.png`). 고칠지 사용자 결정. 다시 찍기는 `python tools/title_storm_shots.py <폴더>`. 천둥 소리는 넣지 않는다(사용자 결정).
 - 3차 발표의 형식과 제출 마감 시각(날짜는 12/2).
 - 주인공 이름("화이트"는 임시, 화면에는 'N-09'만).
@@ -429,3 +429,4 @@
 2026-11-27 [Claude Code] UI 두 화면 확정 뒤 손질: 타이틀(mist)에서 발판·주인공·등 판 제거(발판 없는 배경 title_mist), 타이틀 배경 번개(미리 구운 대비 판 셋 + 잔광 판, PixelLab 번갯줄기, 간격 6~14초·두 번 깜빡임·약한 번개·번쩍임 줄이기 따름), 증강 카드 안 고른 카드 밝게·흰 장식선 가운데 맞춤. 테스트 8개, 실제 창 촬영(평소·대비·잔광·번개 한 번 띠) / src/(title_storm, title_mode, mutation_mode).py, tools/(make_ui_mist, make_title_plate, ui_mist_shots).py, tests/(test_title_storm, test_ui_skin).py, assets/backgrounds/title_(mist|glow|flash_1~3).png, assets/ui/um_*.png, assets/sprites/pixellab/ui_mist_v1/, docs/(PROGRESS, DECISIONS, ASSETS, image_prompts, opus/TASKS).md
 2026-11-27 [Claude Code] Orca 인계 문서 작성(사용자 요청: 작업 지휘를 Orca로 옮김). 역할 나눔(지휘·작업), 지시문 쓰는 법과 검토 순서, 커밋 규칙, 메모리에 있던 사용자 약속, 손대지 않는 것, 멈춘 자리(번갯줄기 손질·나머지 화면 맞추기는 사용자 결정 대기) / docs/orca/HANDOFF.md, AGENTS.md, docs/PROGRESS.md
 2026-11-27 [Claude Code] L1 번갯줄기(Orca 작업): 센 번개 맨 앞에 줄기 단계 'bolt' 1~2프레임(어두운 하늘 + 흰 번갯줄기, 대비 판과 같은 자리), 두 깜빡임 사이 'dark'에도 줄기가 남게, 줄기 색 흰 심 + 옅은 푸른 흰 가장자리(대비 판도 같은 색, 대비 판 하늘 196,208,242 -> 176,190,232), 대비 판일 때 머리글 뒤 어둠을 뺀 시트(회색 얼룩 제거). 테스트 3개 추가·1개 고침, 실제 창 촬영 비교판 shots/review/L1_* / src/(title_storm, title_mode).py, tools/(make_ui_mist, title_storm_shots).py, tests/test_title_storm.py, assets/backgrounds/title_(flash_1~3|bolt_1~3).png, assets/light/title_shade_flash.png, docs/(PROGRESS, DECISIONS, ASSETS, opus/TASKS).md
+2026-11-27 [Claude Code] H1 HUD(Orca 작업): mist 스킨의 플레이 중 HUD를 철판에서 가는 선 + 어두운 바탕으로. 부품 um_hud_frame·um_fill·작은 표시 60장을 코드로 굽고(make_ui_mist --hud), hud_kit에 HUD 전용 hud_* 함수(다른 스킨은 예전 함수 그대로), 게이지·체력·보스 막대·무기 칸·E 칸·미니맵·칩·이름표·아이템 띠·문 위 보상 판·처음 안내 카드. 테스트 5개 추가, 실제 창 비교판 shots/review/H1_* / src/(hud_kit, ui, room, tutorial).py, tools/(make_ui_mist, ui_hud_shots).py, tests/test_ui_skin.py, assets/ui/um_*(60장), docs/(PROGRESS, DECISIONS, ASSETS, opus/TASKS).md

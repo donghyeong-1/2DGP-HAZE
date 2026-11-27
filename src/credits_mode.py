@@ -138,8 +138,58 @@ def update():
         _to_title()
 
 
+# ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌. 내용·순서·속도·빨리 감기는 그대로 -----
+MIST_COLOR = {'title': 'PH', 'head': 'PH', 'line': 'PH_TEXT', 'small': 'PH_SOFT'}
+EDGE = 70                      # 아래 안내 줄·위 머리글 자리: 올라오는 글자가 이 둘레에서 어둠 속으로 사라진다
+
+
+def _visible_lines(H):
+    """화면에 보이는 줄: [(종류, 글자, y)]. 그리는 자리는 draw와 같다."""
+    out = []
+    y = int(scroll) - 40
+    for kind, text in CREDITS:
+        if STYLE[kind][1] is not None and -60 < y < H + 60:
+            out.append((kind, text, y))
+        y -= STYLE[kind][0]
+    return out
+
+
+def draw_mist():
+    """'mist' 크레딧: 탈출 뒤 장면 위에 줄마다 글자 뒤 어둠(줄과 함께 올라간다), 위아래 가장자리는 어둠으로 풀어 글자가
+    사라지게, 주사선·네 귀퉁이 꺾쇠·감시 머리글. 절 제목은 청록 대신 인광색(청록은 헤이즈에만)."""
+    import mist_menu as mm
+    W, H = config.SCREEN_W, config.SCREEN_H
+    assets.draw_image(assets.image(f'backgrounds/{_scene}.png'), W // 2, 0)
+    assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.5)
+    lines = _visible_lines(H)
+    for kind, text, y in lines:
+        _step, _color, big, small = STYLE[kind]
+        mm.text_shade(W // 2, y, text, small=small, big=big, center=True, pad=6, kind='wide')   # 넓게 번져 줄끼리 이어진다
+    for kind, text, y in lines:
+        _step, _color, big, small = STYLE[kind]
+        kit_text(W // 2, y, text, getattr(mm, MIST_COLOR[kind]), big, small)
+    # 위아래 가장자리: 어둠을 두 겹(가장자리는 거의 검게) 깔아 올라오는 글자가 안내 줄·머리글 둘레에서 부드럽게 사라진다
+    for _ in range(2):
+        mm.shade(-200, -200, W + 200, EDGE)
+        mm.shade(-200, H - EDGE - 40, W + 200, H + 200)
+    mm.terminal([('TOWER SURVEILLANCE // CREDITS', mm.PH), ('CAM 04 · 기록 재생', mm.PH_DIM)])
+    kit_text(W // 2, 34, '키를 누르고 있으면 빨리 감기   Esc 타이틀로', mm.PH_SOFT, False, True)
+
+
+def kit_text(x, y, s, color, big, small):
+    import hud_kit as kit
+    kit.text(x, y, s, color, small=small, center=True, big=big)
+
+
 def draw():
     clear_canvas()
+    import hud_kit as kit
+    if kit.is_mist():
+        draw_mist()
+        import transition
+        transition.draw()
+        update_canvas()
+        return
     W, H = config.SCREEN_W, config.SCREEN_H
     assets.draw_image(assets.image(f'backgrounds/{_scene}.png'), W // 2, 0)   # 탈출 뒤 장면 (Codex T35)
     assets.draw_rect_color(0, 0, W, H, (6, 9, 18), 0.5)           # 그림 위에서도 글자가 읽히게 어둡게 덮는다

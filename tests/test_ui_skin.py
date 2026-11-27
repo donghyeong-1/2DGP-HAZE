@@ -472,6 +472,351 @@ def test_h1_menus_and_pickers_keep_their_parts_in_every_skin():
     for skin_name, want in KIT_DIGEST.items():
         assert _kit_log(skin_name).digest() == want, skin_name
 
+
+# ----- 2026-11-27 M1 메뉴 화면: 일시정지·설정·키 설정·결과·크레딧 (docs/opus/TASKS.md '4차' M1) -----
+# 화면마다 draw()를 그리기 호출 기록기로 감싸 부른다. 아래에 깔리는 화면(멈춘 게임·타이틀)은 빼고 그 화면이 그리는 것만.
+def _quiet(mod):
+    """그 모드의 clear_canvas·update_canvas를 잠시 비운다 (창 없이 draw()를 부르려고)."""
+    saved = {n: getattr(mod, n) for n in ('clear_canvas', 'update_canvas') if hasattr(mod, n)}
+    for n in saved:
+        setattr(mod, n, lambda: None)
+    return saved
+
+
+def _restore(mod, saved):
+    for n, f in saved.items():
+        setattr(mod, n, f)
+
+
+def _temp_saves():
+    import tempfile
+    import meta
+    import options
+    meta.PATH = os.path.join(tempfile.mkdtemp(), 'save.json')
+    options.PATH = os.path.join(tempfile.mkdtemp(), 'opt.json')
+    meta.reset()
+    options.ensure_loaded()
+
+
+def _draw_log(mod, prepare=None, under=None):
+    """mod.draw()의 호출 기록. prepare()로 상태를 맞춘다. under: 아래에 깔리는 화면 (없으면 None)."""
+    import transition
+    _temp_saves()
+    saved = _quiet(mod)
+    old_under = getattr(mod, '_under', None)
+    try:
+        if hasattr(mod, '_under'):
+            mod._under = under
+        if prepare:
+            prepare()
+        transition._left = 0.0
+        with _Recorder() as r:
+            mod.draw()
+        return r
+    finally:
+        _restore(mod, saved)
+        if hasattr(mod, '_under'):
+            mod._under = old_under
+
+
+def _pause_log(skin_name, sel=0, build=False, ask=None):
+    import pause_mode as pm
+    import play_mode
+
+    def go():
+        p = st = None
+        if build:
+            p, st, _pick = dict(_hud_states())['fade_items_curse']()
+        old = getattr(play_mode, 'player', None), getattr(play_mode, 'stage', None), pm.draw_frozen
+        play_mode.player, play_mode.stage = p, st
+        pm.draw_frozen = lambda: None                              # 멈춘 게임 화면은 빼고
+        try:
+            def prep():
+                pm.enter()
+                pm.selected = sel
+                if ask:
+                    pm.run(ask)                                    # '포기하려면 한 번 더 누르세요'
+            return _draw_log(pm, prep)
+        finally:
+            play_mode.player, play_mode.stage, pm.draw_frozen = old
+    return _with_skin(skin_name, go)
+
+
+def _options_log(skin_name, sel=0):
+    import options_mode as om
+
+    def prep():
+        om.selected = sel
+    return _with_skin(skin_name, lambda: _draw_log(om, prep))
+
+
+def _keys_log(skin_name, row=0, col=0, listen=False, message=''):
+    import keybinds
+    import keys_mode as km
+
+    def prep():
+        km.row, km.col, km.message = row, col, message
+        km.listening = (keybinds.IDS[row], col) if listen else None
+    return _with_skin(skin_name, lambda: _draw_log(km, prep))
+
+
+def _ending_log(skin_name, result='dead', choosing=False, kept=None, line='', hint=''):
+    import ending_mode as em
+
+    def prep():
+        em.result = result
+        em.reward = 12
+        em.summary = [('도달한 구역', '구역 2 · 공장'), ('걸린 시간', '12:34'), ('클리어한 방', '9'), ('처치한 적', '41'),
+                      ('처치한 보스·관문', '1'), ('받은 헤이즈 결정', '+12')] + ([('사망 원인', '크래셔의 강타')] if result == 'dead' else [])
+        em.choices = ['absorb', 'power', None] if choosing else []
+        em.choice = 1 if choosing else 0
+        em.choosing = choosing
+        em.kept = kept
+        em.ending_line = line
+        em.easy_hint = hint
+    return _with_skin(skin_name, lambda: _draw_log(em, prep))
+
+
+def _credits_log(skin_name, scroll=0.0):
+    import credits_mode as cm
+
+    def prep():
+        cm.scroll = scroll
+        cm._scene = cm.scene_for(scroll)
+    return _with_skin(skin_name, lambda: _draw_log(cm, prep))
+
+
+class _FakeStorm:
+    """타이틀 번개를 원하는 단계에 세워 둔다."""
+    def __init__(self, phase):
+        self._phase = phase
+
+    def phase(self):
+        return self._phase
+
+    def flash_plate(self):
+        return 1 if self._phase == 'flash' else None
+
+    def bolt_plate(self):
+        return 2 if self._phase in ('bolt', 'dark') else None
+
+    def glow_alpha(self):
+        return 0.5 if self._phase == 'glow' else 0.0
+
+    def update(self, dt):
+        pass
+
+
+def _title_log(skin_name, sel=0, phase=None):
+    import title_mode as tm
+
+    def go():
+        import sprites
+        old = tm._storm[0], tm._rain[0], tm.selected, tm.age, sprites.draw
+        tm._storm[0], tm._rain[0], tm.selected, tm.age = _FakeStorm(phase), None, sel, 1.25
+        try:
+            with _Recorder() as r:
+                sprites.draw = lambda *a, **k: r.log.append(('sprite',) + a)      # 철판 타이틀의 주인공 (창 없이는 외곽선을 못 굽는다)
+                tm.draw_frozen()
+            return r
+        finally:
+            tm._storm[0], tm._rain[0], tm.selected, tm.age, sprites.draw = old
+    return _with_skin(skin_name, go)
+
+
+def _menu_logs(skin_name):
+    """네 화면(+키 설정)의 장면별 기록 {장면: 기록}."""
+    import keybinds
+    return {
+        'pause_0': _pause_log(skin_name, 0), 'pause_build_2': _pause_log(skin_name, 2, build=True),
+        'pause_ask': _pause_log(skin_name, 3, ask='title'),
+        'options_0': _options_log(skin_name, 0), 'options_music': _options_log(skin_name, 2),
+        'options_keys': _options_log(skin_name, 10), 'options_back': _options_log(skin_name, 11),
+        'keys_0': _keys_log(skin_name), 'keys_listen': _keys_log(skin_name, 3, 1, listen=True),
+        'keys_buttons': _keys_log(skin_name, len(keybinds.IDS), 1, message='기본 키로 되돌렸습니다'),
+        'ending_dead_choose': _ending_log(skin_name, 'dead', choosing=True, hint='초보자 모드 안내'),
+        'ending_dead': _ending_log(skin_name, 'dead', kept='absorb', hint='초보자 모드 안내'),
+        'ending_clear': _ending_log(skin_name, 'clear', line='탈출 뒤 한 줄'),
+        'credits_0': _credits_log(skin_name, 0.0), 'credits_mid': _credits_log(skin_name, 1400.0),
+    }
+
+
+def _other_logs(skin_name):
+    """이번에 바꾸지 않는 화면: 은신처 NPC 넷, 연습 메뉴, 효과음 듣기, 증강·형태·저주 카드."""
+    import curse
+    import forms
+    import mutation_mode as mm
+    import mutations as mu
+    import npc_mode
+    import practice_mode
+    import sfx_mode
+    out = {}
+    for kind in ('mechanic', 'keeper', 'armory', 'archivist'):
+        def prep(kind=kind):
+            npc_mode.kind, npc_mode.selected, npc_mode.note, npc_mode.result = kind, 1, '', None
+        out['npc_' + kind] = _with_skin(skin_name, lambda: _draw_log(npc_mode, prep))
+
+    p = dict(_hud_states())['normal']()[0]
+
+    def prac():
+        practice_mode.selected, practice_mode.player = 2, p
+    out['practice'] = _with_skin(skin_name, lambda: _draw_log(practice_mode, prac))
+
+    def sfx():
+        sfx_mode.cat, sfx_mode.row, sfx_mode.marks = 0, 1, {}
+    out['sfx'] = _with_skin(skin_name, lambda: _draw_log(sfx_mode, sfx))
+    ids_sets = {'augment': list(mu.MUTATIONS)[:3],
+                'form': [forms.CARD + w for w in list(forms.FORMS)[:2]],
+                'curse': list(mu.MUTATIONS)[3:5] + [curse.CARD + next(iter(curse.CURSES))]}
+    for name, ids in ids_sets.items():
+        def mut(ids=ids):
+            mm.setup(p, ids)
+            mm.age = 5.0
+            mm.selected = 1
+        out['cards_' + name] = _with_skin(skin_name, lambda: _draw_log(mm, mut))
+    return out
+
+
+# 고치기 전(2026-11-27, 712637e)의 기록 (위 _menu_logs·_other_logs·_title_log). M1 뒤에도 이 값 그대로여야 한다
+MENU_DIGEST = {
+    'plate': {'pause_0': 'b19ee9dc864b0a01', 'pause_build_2': '6ae6f7ab6ef0d0b7', 'pause_ask': '66ee9d32b8a33b9f', 'options_0': '8cbd7f0df2cfc6fc', 'options_music': 'a419f76afd494218', 'options_keys': '9f7173efe3492c98', 'options_back': '8a5eee2d0a367c12', 'keys_0': 'ef308dbcb9260879', 'keys_listen': 'd295e3923ad3762e', 'keys_buttons': '752615646c0755d4', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '457569a5e2438d30', 'credits_0': '172500abe524364a', 'credits_mid': '7896f4a09436720a'},
+    'plate_code': {'pause_0': '8df4193d19bdfbf2', 'pause_build_2': '34455f35d14d2f5a', 'pause_ask': '5082a77b5ab0160b', 'options_0': 'ab08bd79454e75cb', 'options_music': 'ef857f40dc5b69ea', 'options_keys': '4cb748417456d6c2', 'options_back': '24a49e43e2c2a66d', 'keys_0': 'fed31c421bb366af', 'keys_listen': '2a3a765ce28e8d3a', 'keys_buttons': '05357bebb0facb1d', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': 'e1b2c56e58772ddf', 'credits_0': '172500abe524364a', 'credits_mid': '7896f4a09436720a'},
+    'crystal': {'pause_0': '79c408f0d295d530', 'pause_build_2': '9987c6242ccd28c0', 'pause_ask': '333c32d83894f2d4', 'options_0': 'a0c7365cc9e7ffbb', 'options_music': '5634f126abf58c51', 'options_keys': 'c21e3299723bf298', 'options_back': 'bc0eff4b8c851f33', 'keys_0': '6dd4d230b55172a7', 'keys_listen': '59e8301e6d732c38', 'keys_buttons': 'f002538b74e0e07a', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': 'd88bb8f7622d7c31', 'credits_0': '172500abe524364a', 'credits_mid': '7896f4a09436720a'},
+}
+OTHER_DIGEST = {
+    'mist': {'npc_mechanic': '28af8461a02c3229', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '21e97898001e6a97', 'practice': 'e9559cc8d678474f', 'sfx': '9a9457b7fddf7a23', 'cards_augment': 'c56ed617c57c2389', 'cards_form': 'c34bc28ac9fe489b', 'cards_curse': 'f791b2981770fab9'},
+    'plate': {'npc_mechanic': '28af8461a02c3229', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '21e97898001e6a97', 'practice': 'e9559cc8d678474f', 'sfx': '9a9457b7fddf7a23', 'cards_augment': '66dde66425db532b', 'cards_form': 'ae0723bb82b4dcb0', 'cards_curse': '555cccc3b76312d3'},
+    'plate_code': {'npc_mechanic': '716d1cbb76959899', 'npc_keeper': '9bd792190691bf5d', 'npc_armory': '6c2ed9b37c52f713', 'npc_archivist': 'e1b19db44dcbd2fd', 'practice': '00d90b22a3d76598', 'sfx': 'eadf10acbcbf4be4', 'cards_augment': '56c1d0b20659a32a', 'cards_form': '5a00a1cd20b36e53', 'cards_curse': 'a6935aa1ce7013cb'},
+    'crystal': {'npc_mechanic': '96e7246516e9d3e3', 'npc_keeper': '31561871fca6e4e8', 'npc_armory': '85f7f3ec6f0c1355', 'npc_archivist': '14ba1e5f05411fc7', 'practice': '65851386c8f25102', 'sfx': '0275367891d27066', 'cards_augment': '290c43e803d5ea39', 'cards_form': 'f159e81d34c0a9f9', 'cards_curse': 'f89e823a62aa03ca'},
+}
+TITLE_DIGEST = {
+    'mist': {'0_None': '96332275734e9873', '0_bolt': 'a3d2af5695e9fdb6', '0_flash': 'c11c65208d8510e7', '0_glow': 'bb61df4537c82835', '0_dark': 'a3d2af5695e9fdb6', '2_None': 'fa00c5dac1455141', '2_bolt': '76a420dda14b725f', '2_flash': '683ccfdbc9a80c9c', '2_glow': 'e4aac5e20e64b8b0', '2_dark': '76a420dda14b725f'},
+    'plate': {'0_None': '7953c8af79829697', '2_None': '07ca9bb3cb141af2'},
+    'plate_code': {'0_None': '7a88abf1168794ce', '2_None': 'ee4dabfe94a926ac'},
+    'crystal': {'0_None': 'cd03ff02e3c5e164', '2_None': '50542a0ca7b7705d'},
+}
+MENU_PLATE_OK = ('up_mut_',)                     # mist 메뉴 화면에서도 쓰는 철판 쪽 그림: 증강 갈래 아이콘(일시정지 '이번 판')
+
+
+def test_m1_mist_menus_call_no_plate_parts():
+    """(1) mist일 때 일시정지·설정·키 설정·결과·크레딧이 철판 판·띠·키캡·커서(upx_*, up_*)와 노란 꺾쇠(경고 노랑)를 부르지 않는다.
+    타이틀과 같은 틀(네 귀퉁이 꺾쇠 um_bracket)과 글자 뒤 어둠(light/menu_shade_*)을 쓴다."""
+    for scene, r in _menu_logs('mist').items():
+        paths = r.paths()
+        for path in paths:
+            name = os.path.basename(path)
+            assert not name.startswith(('upx_', 'uc_')), (scene, path)
+            assert not name.startswith('up_') or name.startswith(MENU_PLATE_OK), (scene, path)
+        for row in r.log:
+            assert hud_kit.YELLOW not in row and hud_kit.YELLOW_LO not in row, (scene, row)
+        assert 'ui/um_bracket.png' in paths, scene
+        assert any(p.startswith('light/menu_shade_') for p in paths), scene
+
+
+def _inverted_blocks(r):
+    """기록에서 색 뒤집힌 블록(인광색 사각형)과 바로 뒤에 그 위에 쓴 어두운 글자: [(블록 폭, 글자 폭)]."""
+    import mist_menu as mm
+    out = []
+    for i, row in enumerate(r.log):
+        if row[0] != 'draw_rect_color' or row[5:6] != (mm.PH,) or row[4] < 20:       # 2px 밑줄·선은 뒤집힘이 아니다
+            continue
+        nxt = next(x for x in r.log[i + 1:] if x[0] == 'draw_text')
+        assert nxt[4] == mm.PH_BG, (row, nxt)
+        small = ('small', True) in nxt
+        out.append((row[3], len(nxt[3]) * (14 if small else 20)))       # _Recorder의 글자 폭 어림과 같은 식
+    return out
+
+
+def test_m1_selected_item_is_inverted_only_as_wide_as_its_text():
+    """(2) 고른 항목은 글자 폭 + 양옆 8px만 색을 뒤집는다 (길게 뻗는 띠 금지). 키 칸은 키캡 최소 폭 34px까지."""
+    logs = _menu_logs('mist')
+    for scene in ('pause_0', 'pause_build_2', 'pause_ask', 'options_0', 'options_music', 'options_keys', 'options_back',
+                  'keys_0', 'keys_listen', 'keys_buttons', 'ending_dead_choose'):
+        blocks = _inverted_blocks(logs[scene])
+        assert blocks, scene
+        for bw, tw in blocks:
+            assert bw <= max(34, tw + 16), (scene, bw, tw)
+
+
+def test_m1_old_skins_draw_the_same_menus():
+    """(3) 'plate'·'plate_code'·'crystal'에서 네 화면(+키 설정)의 그리기 기록이 고치기 전과 같다."""
+    for skin_name, want in MENU_DIGEST.items():
+        got = {k: v.digest() for k, v in _menu_logs(skin_name).items()}
+        assert got == want, (skin_name, [k for k in want if got.get(k) != want[k]])
+
+
+def test_m1_unchanged_screens_draw_the_same_in_every_skin():
+    """(4) 이번에 바꾸지 않는 화면(은신처 NPC 넷, 연습 메뉴, 효과음 듣기, 증강·형태·저주 카드)은 네 스킨 모두 고치기 전과 같다.
+    HUD·문 위 보상 판·처음 안내 카드·메뉴 공통 hud_kit 함수(대화 창의 키캡·글자 포함)는 위 H1 테스트가 본다."""
+    for skin_name, want in OTHER_DIGEST.items():
+        got = {k: v.digest() for k, v in _other_logs(skin_name).items()}
+        assert got == want, (skin_name, [k for k in want if got.get(k) != want[k]])
+
+
+def test_m1_title_draws_the_same():
+    """(5) 타이틀은 공통 부품을 꺼낸 뒤에도 고치기 전과 같다 (네 스킨, mist는 번개 단계마다, 고른 메뉴 둘)."""
+    for skin_name, want in TITLE_DIGEST.items():
+        got = {}
+        for key in want:
+            sel, ph = key.split('_', 1)
+            got[key] = _title_log(skin_name, int(sel), None if ph == 'None' else ph).digest()
+        assert got == want, (skin_name, [k for k in want if got[k] != want[k]])
+
+
+def test_m1_menu_parts_follow_pixel_rules_and_shade_is_soft():
+    """(6) 새 그림: 인광 테두리·막대 속(um_hud_frame_ph*, um_fill_phos_*)은 픽셀 규칙(알파 0/255, 2px 격자, 64색 이하),
+    테두리는 한 줄·한 색·속 투명. 글자 뒤 어둠 조각 시트(빛 층 예외)는 가운데가 가장 진하고(k) 가장자리는 0, 체크무늬 없이 부드럽다."""
+    import mist_menu as mm
+    for n in ['um_hud_frame_ph', 'um_hud_frame_ph_dim'] + [f'um_fill_phos_{h}' for h in hud_kit.FILL_HEIGHTS]:
+        a = np.array(Image.open(os.path.join(UI, n + '.png')).convert('RGBA'))
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, n
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), n
+        assert len({tuple(c) for c in a[a[:, :, 3] > 0][:, :3]}) <= 64, n
+        if 'frame' in n:
+            h, w = a.shape[:2]
+            assert len(np.nonzero(a[h // 2, :, 3])[0]) == 4 and not a[2:h - 2, 2:w - 2, 3].any(), n
+            assert len({tuple(c) for c in a[a[:, :, 3] > 0][:, :3]}) == 1, n
+        else:
+            assert Image.open(os.path.join(UI, f'um_fill_cyan_{n.rsplit("_", 1)[1]}.png')).size == (a.shape[1], a.shape[0]), n
+    for kind, k in mm.SHADE_K.items():
+        a = np.array(Image.open(os.path.join(ROOT, 'assets', 'light', f'menu_shade_{kind}.png')).convert('RGBA'))
+        n = a.shape[0]
+        assert a.shape[:2] == (n, n) and (n - mm.SHADE_MID) % 2 == 0, kind
+        al = a[:, :, 3].astype(int)
+        c = n // 2
+        assert abs(al[c, c] - round(k * 255)) <= 1, kind                     # 가운데 = k (실행 중 사각형 한 장과 같다)
+        assert al[0, :].max() == 0 and al[:, 0].max() == 0 and al[-1, :].max() == 0, kind
+        row = al[c, :c]
+        assert (np.diff(row) >= 0).all(), kind                              # 가장자리에서 가운데로 점점 진해진다 (디더 없음)
+        assert len(np.unique(al)) > 40, kind                                # 계단 몇 개가 아니라 부드러운 알파
+        assert (a[al > 0][:, :3] == mm.SHADE_COLOR).all(), kind
+        r = (n - mm.SHADE_MID) // 2                                          # 변 조각은 길이 방향으로 같은 값 (이어 붙여도 이음매 없음)
+        assert (al[:r, r:r + mm.SHADE_MID] == al[:r, r:r + 1]).all(), kind
+
+
+def test_m1_menu_shade_tiles_without_gaps():
+    """글자 뒤 어둠을 큰 상자로 깔아도 9칸 조각이 빈틈·겹침 없이 맞물린다 (그린 칸들 = 상자 + 둘레 번짐, 한 번씩)."""
+    import mist_menu as mm
+
+    def go():
+        with _Recorder() as r:
+            mm.shade(101, 203, 1377, 911)
+        return r
+    r = _with_skin('mist', go)
+    R = Image.open(os.path.join(ROOT, 'assets', 'light', 'menu_shade_soft.png')).size[0] - mm.SHADE_MID   # 둘레 번짐 (화면 px)
+    cover = np.zeros((1400, 1900), int)
+    for row in r.log:
+        if row[0] == 'draw_rect_color':
+            x, y, w, h = row[1:5]
+        else:
+            x, y, w, h = row[6], row[7], row[4] * 2, row[5] * 2
+        cover[y + 200:y + 200 + h, x + 200:x + 200 + w] += 1
+    x0, y0, x1, y1 = 100, 202, 1378, 912
+    want = np.zeros_like(cover)
+    want[y0 - R + 200:y1 + R + 200, x0 - R + 200:x1 + R + 200] = 1
+    assert (cover == want).all()
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

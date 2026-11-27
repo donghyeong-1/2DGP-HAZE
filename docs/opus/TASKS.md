@@ -369,3 +369,18 @@
   고치기 전과 같음, 메뉴·고르는 화면이 쓰는 hud_kit 함수가 네 스킨 모두에서 고치기 전과 같음). 실제 창 촬영 `tools/ui_hud_shots.py`(장면 아홉, 전·후 비교판 `shots/review/H1_*`).
   옛 스킨 셋은 고치기 전 코드와 픽셀 단위로 같다(되풀이해도 같은 보스·상점 장면에서 확인).
 - 바꾼 파일: `src/hud_kit.py`, `src/ui.py`, `src/room.py`, `src/tutorial.py`, `tools/make_ui_mist.py`, `tools/ui_hud_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_(hud_frame|fill|dash|combo|dot)_*.png`(새 60장).
+
+## M1 메뉴 화면
+사용자 결정(11/27): 나머지 화면 맞추기 "제안대로 전부". 메뉴 화면 몫은 한 줄 **"메뉴 화면(일시정지·설정·결과·크레딧)은 타이틀 모양."** 그림은 "코드 우선, 필요할 때만 PixelLab"(이번에는 생성 없음).
+- 디자인 기준(지휘 쪽 해석): 판을 걷고 글자. 글자 뒤 어둠은 타이틀처럼 글자에서 멀어질수록 옅게(네모 판·띠로 보이지 않게), 뒤에 게임이 비치면 먼저 전체를 어둡게.
+  고른 항목은 글자 폭만 색 뒤집기 + 커서. 타이틀의 틀(주사선·네 귀퉁이 꺾쇠·감시 머리글)을 같이 쓴다. 설정 값은 고른 값만 밝은 글자 + 밑줄, 음량 막대·키 판은 H1의 가는 테두리.
+- 한 것: 타이틀 `_draw_terminal`이 직접 그리던 주사선·꺾쇠·머리글·색 뒤집힌 항목을 `src/mist_menu.py`로 꺼냈다(타이틀은 그리기 호출이 그대로).
+  글자 뒤 어둠은 조각 시트 `light/menu_shade_soft|wide`를 9칸 이어 붙여 상자마다 깐다(화면별로 굽지 않는다: 일시정지 '이번 판'·결과 기록·크레딧처럼 글 길이·자리가 바뀌는 곳에도 맞는다).
+  일시정지(조작·이번 판은 판 없이 절 제목 + 가는 선 한 줄), 설정·키 설정(타이틀에서 열면 타이틀 배경과 비 위, 일시정지에서 열면 멈춘 게임 위), 사망·탈출 결과(기록은 카드 대신 위아래 가는 선, 맡길 물건 칸은 가는 테두리 + 고른 칸 밑줄, 고른 물건 이름 뒤집기),
+  크레딧(줄마다 어둠이 줄과 함께 올라가고 위아래 가장자리에서 어둠 속으로 사라진다). 머리글 문구: 일시정지 `TOWER SURVEILLANCE // FEED PAUSED` / `CAM 04 · 화면 정지 · HOLD`,
+  설정 `TOWER SURVEILLANCE // TERMINAL CONFIG`, 키 설정 `TOWER SURVEILLANCE // INPUT MAP`, 사망 `TOWER SURVEILLANCE // SIGNAL LOST` / `INMATE N-09 · 사망 기록`,
+  탈출 `TOWER SURVEILLANCE // SUBJECT ESCAPED` / `INMATE N-09 · 탈출 기록`, 크레딧 `TOWER SURVEILLANCE // CREDITS` / `CAM 04 · 기록 재생`. 그 밖의 화면 문구는 그대로.
+- 확인: 테스트 7개(`tests/test_ui_skin.py`: mist 네 화면이 철판 부품·경고 노랑을 부르지 않음, 뒤집힘 폭 ≤ 글자 + 16px, 옛 스킨 셋의 네 화면·바꾸지 않은 화면·타이틀의 그리기 기록이 고치기 전과 같음, 새 그림 픽셀 규칙·어둠 시트가 부드러움, 9칸 이음매 없음).
+  실제 창 촬영 `tools/ui_menu_shots.py`(장면 열, 비교판 `shots/review/M1_*`).
+- 바꾼 파일: `src/mist_menu.py`(새), `src/title_mode.py`, `src/pause_mode.py`, `src/options_mode.py`, `src/keys_mode.py`, `src/ending_mode.py`, `src/credits_mode.py`, `tools/make_ui_mist.py`(`--menu`), `tools/ui_menu_shots.py`(새),
+  `tests/test_ui_skin.py`, `assets/light/menu_shade_(soft|wide).png`, `assets/ui/um_hud_frame_ph(_dim).png`, `assets/ui/um_fill_phos_*.png`.

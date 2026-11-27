@@ -16,6 +16,7 @@ import config
 import display
 import game_framework
 import hud_kit as kit
+import mist_menu as mm
 import options
 
 W, H = config.SCREEN_W, config.SCREEN_H
@@ -245,6 +246,60 @@ def draw_panel():
     kit.footer([('W S', '항목'), ('A D', '값 변경'), ('Enter', '확인'), ('Esc', '돌아가기')])
 
 
+# ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌 -----
+MIST_HEAD_Y = PANEL_Y + PANEL_H - 68   # 제목 (왼쪽 위 머리글과 겹치지 않게 28px 내린다. 첫 줄보다는 위)
+FOOTER = [('W S', '항목'), ('A D', '값 변경'), ('Enter', '확인'), ('Esc', '돌아가기')]
+
+
+def draw_scene():
+    """위에 쌓인 키 설정 창(mist)이 깔 배경: 이 창 아래 화면의 배경 (타이틀 배경 또는 멈춘 게임)."""
+    if _under is not None and hasattr(_under, 'draw_scene'):
+        _under.draw_scene()
+    elif _under is not None and hasattr(_under, 'draw_frozen'):
+        _under.draw_frozen()
+
+
+def draw_mist_panel():
+    """'mist' 설정 화면: 판·줄 띠·알약 칸 없이 글자. 고른 줄은 이름만 글자 폭으로 색 뒤집기 + 커서,
+    각 줄의 지금 값은 밝은 글자 + 가는 밑줄(다른 값은 흐린 글자), 음량은 H1과 같은 가는 테두리 막대.
+    값 칸·막대·돌아가기의 자리(마우스로 누르는 자리)는 그대로."""
+    current_of = {'shake': options.shake_level, 'flash': options.reduce_flash,
+                  'resolution': options.resolution, 'confine': options.confine_mouse, 'hints': options.show_hints,
+                  'damage': options.show_damage, 'easy': options.easy_mode, 'test': options.test_mode}
+    mm.shade(PANEL_X - 10, MIST_HEAD_Y - 24, PANEL_X + 160, MIST_HEAD_Y + 24)
+    mm.shade(PANEL_X, ROW_Y[-1] - 32, PANEL_X + PANEL_W, ROW_Y[0] + 32)
+    bx = back_button.x + back_button.w // 2
+    by = back_button.y + back_button.h // 2
+    mm.text_shade(bx, by, back_button.label, center=True)
+    mm.footer_shade(FOOTER)
+    mm.terminal([('TOWER SURVEILLANCE // TERMINAL CONFIG', mm.PH)])
+    mm.title(PANEL_X, MIST_HEAD_Y, '설정')
+    for i, item in enumerate(ROWS):
+        cy = ROW_Y[i]
+        on = i == selected
+        # 이름은 2px 올리고 설명은 4px 내린다 (철판보다): 뒤집힌 이름 블록과 설명 글자 사이를 띄운다
+        mm.pick(PANEL_X + 34, cy + 13, NAMES[item], on, mm.PH_SOFT, center=False)
+        kit.text(PANEL_X + 34, cy - 21, DESCS[item], mm.PH_SOFT if on else mm.PH_MENU, small=True)
+        if item == 'keys':
+            kit.text(VALUE_X + (VALUE_W - 8) // 2, cy + 2, f'열기 ({keys_summary()})  >', mm.PH if on else mm.PH_SOFT,
+                     small=True, center=True)
+        elif item in SEGMENTED:
+            current = current_of[item]
+            for value, label, x, w in _segments(item):
+                cx = x + w // 2
+                if value == current:
+                    kit.text(cx, cy + 2, label, mm.PH, small=True, center=True)
+                    mm.underline(cx, cy - 18, label, mm.PH if on else mm.PH_MENU)
+                else:
+                    kit.text(cx, cy + 2, label, mm.PH_SOFT if on else mm.PH_DIM_TEXT, small=True, center=True)
+        else:
+            level = options.music_level if item == 'music' else options.sfx_level
+            mm.bar(VALUE_X, cy - 6, VALUE_W - 70, 12, level / options.VOLUME_MAX, hot=on)
+            kit.text(VALUE_X + VALUE_W - 24, cy, str(level), mm.PH if on else mm.PH_TEXT, center=True)
+    mm.pick(bx, by, back_button.label, selected == len(ROWS))
+    mm.footer(FOOTER)
+
+
 def draw_frozen():
     """키 바꾸기 창이 아래에 깔 때: 아래 화면 + 설정 판."""
     if _under is not None and hasattr(_under, 'draw_frozen'):
@@ -255,6 +310,12 @@ def draw_frozen():
 
 def draw():
     clear_canvas()
+    if kit.is_mist():
+        draw_scene()
+        mm.dim(mm.scene_dim(_under))
+        draw_mist_panel()
+        update_canvas()
+        return
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()                       # 멈춘 화면 위에 덮는다
     kit.backdrop(0.97)

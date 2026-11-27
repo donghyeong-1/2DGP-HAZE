@@ -10,6 +10,7 @@ import assets
 import config
 import game_framework
 import hud_kit as kit
+import mist_menu as mm
 
 W, H = config.SCREEN_W, config.SCREEN_H
 BUTTON_W, BUTTON_H, GAP = 420, 62, 16
@@ -36,14 +37,12 @@ HERO_X, HERO_Y = 330, 180                  # 철판 스킨: 주인공 발 위치
 LOGO_Y = 600                               # 로고 아래 가장자리
 MENU_PANEL = (W // 2 - 260, 150, 520, 340)  # 철판 스킨: 메뉴 뒤 철판 (x, y, w, h)
 # 'mist' 스킨: 감시 단말 (2026-11-27 확정). 인광 글자색, 왼쪽 위 머리글, 오른쪽 아래 판번호 자리 (어둠 시트도 이 자리에 맞춰 굽는다)
-PH = (168, 240, 200)                       # 인광 글자
-PH_DIM = (60, 110, 100)
-PH_MENU = (112, 170, 150)                  # 고르지 않은 메뉴 (어둠 위에서 읽히게 PH_DIM보다 밝게)
-PH_BG = (10, 16, 20)                       # 고른 항목의 뒤집힌 글자
-TERM_HEAD = (110, H - 60)                  # 머리글 첫 줄 (왼쪽, 글자 가운데 y)
+# 주사선·꺾쇠·머리글·색 뒤집힌 항목은 메뉴 화면과 같이 쓰려고 mist_menu로 꺼냈다 (11/27 M1. 이 화면은 픽셀 단위로 그대로)
+PH, PH_DIM, PH_MENU, PH_BG = mm.PH, mm.PH_DIM, mm.PH_MENU, mm.PH_BG
+TERM_HEAD = mm.TERM_HEAD                   # 머리글 첫 줄 (왼쪽, 글자 가운데 y)
 TERM_MARGIN = 110                          # 오른쪽 아래 판번호의 오른쪽 여백
-BRACKET_MARGIN = 24                        # 화면 네 귀퉁이 꺾쇠
-SCAN_STEP, SCAN_ALPHA = 4, 0.16            # 주사선: 4px마다 2px 어두운 줄
+BRACKET_MARGIN = mm.BRACKET_MARGIN         # 화면 네 귀퉁이 꺾쇠
+SCAN_STEP, SCAN_ALPHA = mm.SCAN_STEP, mm.SCAN_ALPHA
 
 
 def enter():
@@ -134,7 +133,7 @@ def _draw_terminal():
     띠·판·줄무늬로 감싸지 않는다. 11/27 사용자: 왼쪽 아래 발판과 주인공, 오른쪽 위 등 판은 지운다."""
     storm = _get_storm()
     phase = storm.phase()
-    assets.draw_image(assets.image('backgrounds/title_mist.png'), W // 2, 0)     # tools/make_ui_mist.py
+    _draw_mist_background()
     if phase == 'flash':                                  # 번쩍: 미리 구운 대비 판 (흰 하늘, 검은 실루엣, 먼 하늘의 번갯줄기)
         assets.draw_image(assets.image(f'backgrounds/title_flash_{storm.flash_plate() + 1}.png'), W // 2, 0)
     elif phase == 'glow':                                 # 잔광: 조금 밝은 푸른 판을 옅게 덮어 원래대로
@@ -146,28 +145,29 @@ def _draw_terminal():
     # (11/27 L1: 흰 하늘 위에서 머리글 뒤 어둠이 회색 얼룩으로 보였다. 머리글은 글자 그림자만으로 판 위에 둔다)
     shade = assets.image('light/title_shade_flash.png' if phase == 'flash' else 'light/title_shade.png')
     assets.draw_clip(shade, 0, 0, shade.w, shade.h, 0, 0, scale=2)
-    for y in range(0, H, SCAN_STEP):
-        assets.draw_rect_color(0, y, W, 2, (0, 0, 0), SCAN_ALPHA)
-    b = assets.image('ui/um_bracket.png')
-    m = BRACKET_MARGIN
-    for x, y, flip in ((m, H - m - b.h, ''), (W - m - b.w, H - m - b.h, 'h'), (m, m, 'v'), (W - m - b.w, m, 'hv')):
-        assets.draw_image(b, x + b.w // 2, y, flip)
-    hx, hy = TERM_HEAD
-    kit.text(hx, hy, 'TOWER SURVEILLANCE // INMATE N-09', PH, small=True)
-    kit.text(hx, hy - 26, 'CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM, small=True)
+    mm.scanlines()
+    mm.brackets()
+    mm.header([('TOWER SURVEILLANCE // INMATE N-09', PH), ('CAM 04 · 제9구역 폐기물 슬럼 · REC', PH_DIM)])
     assets.draw_image(assets.image('ui/um_logo_title.png'), W // 2, LOGO_Y)
     kit.text(W // 2, LOGO_Y - 28, '헤이즈', PH, center=True)
-    cur = assets.image('ui/um_cursor.png')
-    for i, btn in enumerate(MENU):
-        cy = btn.y + btn.h // 2
-        tw = assets.text_width(btn.label, False)
-        if i == selected:                                 # 색 뒤집기: 글자 폭 + 양옆 8px만 (길게 뻗는 띠 아님)
-            assets.draw_rect_color(W // 2 - tw // 2 - 8, cy - 18, tw + 16, 36, PH)
-            assets.draw_text(W // 2, cy, btn.label, PH_BG, center=True)
-            assets.draw_image(cur, W // 2 - tw // 2 - 34, cy - 21)
-        else:
-            kit.text(W // 2, cy, btn.label, PH_MENU, center=True)
+    for i, btn in enumerate(MENU):                        # 색 뒤집기: 글자 폭 + 양옆 8px만 (길게 뻗는 띠 아님)
+        mm.pick(W // 2, btn.y + btn.h // 2, btn.label, i == selected, PH_MENU)
     kit.text(W - TERM_MARGIN, 60, VERSION, PH_DIM, small=True, right=True)
+
+
+def _draw_mist_background():
+    """감시 단말 배경 그림 (tools/make_ui_mist.py): 발판·주인공 없는 슬럼."""
+    assets.draw_image(assets.image('backgrounds/title_mist.png'), W // 2, 0)
+
+
+def draw_scene():
+    """위에 쌓인 메뉴 화면(설정·키 설정, mist)이 깔 배경: 타이틀의 배경과 비만 (로고·메뉴·글자 뒤 어둠·번개 없이).
+    번개는 설정 창이 떠 있는 동안 멈춰 있어서 (흰 대비 판에서 멈출 수 있다) 그리지 않는다."""
+    if kit.is_mist():
+        _draw_mist_background()
+        _weather().draw()
+        return
+    draw_frozen()
 
 
 def _draw_plate():

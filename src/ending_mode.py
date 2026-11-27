@@ -13,6 +13,7 @@ import game_framework
 import hud_kit as kit
 import items
 import meta
+import mist_menu as mm
 import talk
 
 result = 'dead'  # 'clear' 또는 'dead'. 모드로 들어가기 전에 play_mode가 정한다.
@@ -139,8 +140,126 @@ def _draw_summary(cx):
     return y
 
 
+# ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌. 일러스트(screen_death·screen_ending)는 그대로 -----
+CHOOSE_FOOTER = [('A D', '선택'), ('Enter', '맡기기')]
+MIST_HEAD = {'dead': [('TOWER SURVEILLANCE // SIGNAL LOST', mm.PH), ('INMATE N-09 · 사망 기록', mm.PH_DIM)],
+             'clear': [('TOWER SURVEILLANCE // SUBJECT ESCAPED', mm.PH), ('INMATE N-09 · 탈출 기록', mm.PH_DIM)]}
+
+
+def _summary_box():
+    """판 기록 자리 (x, y, h): 카드와 같은 자리·크기 (_draw_summary)."""
+    wide = [e for e in summary if e[0] in FULL_ROWS]
+    rest = [e for e in summary if e[0] not in FULL_ROWS]
+    h = 70 + (len(wide) + (len(rest) + 1) // 2) * SUM_ROW
+    return config.SCREEN_W // 2 - SUM_W // 2, 790 - h, h
+
+
+def _draw_summary_mist(cx):
+    """판 기록 (mist): 카드 없이 같은 자리에 글자 (뒤 어둠은 draw_mist가 먼저 깐다). 이름은 작은 흐린 글자, 값은 본문,
+    사망 원인 빨강·받은 결정 금·보유 결정 청록은 그대로. 위아래에 가는 선 한 줄씩."""
+    if not summary:
+        return SUM_BASE
+    x, y, h = _summary_box()
+    wide = [e for e in summary if e[0] in FULL_ROWS]
+    rest = [e for e in summary if e[0] not in FULL_ROWS]
+    mm.rule(x + 24, y + h - 4, SUM_W - 48)
+    mm.rule(x + 24, y + 2, SUM_W - 48)
+    top = y + h - 40
+    for i, (name, value) in enumerate(wide):
+        ty = top - i * SUM_ROW
+        kit.text(x + 34, ty, name, mm.PH_SOFT, small=True)
+        kit.text(x + SUM_W - 34, ty, value, (255, 150, 140) if name == '사망 원인' else mm.PH_TEXT, right=True)
+    half = SUM_W // 2
+    for i, (name, value) in enumerate(rest):
+        col, row = i % 2, i // 2 + len(wide)
+        ty = top - row * SUM_ROW
+        lx = x + 34 + col * half
+        kit.text(lx, ty, name, mm.PH_SOFT, small=True)
+        kit.text(lx + half - 60, ty, value, (255, 225, 140) if '결정' in name else mm.PH_TEXT, right=True)
+    kit.text(cx, y + 24, f'보유 헤이즈 결정 {meta.state.get("crystals", 0)}', (130, 235, 225), small=True, center=True)
+    return y
+
+
+def draw_mist():
+    """'mist' 결과 화면: 일러스트 위에 글자 뒤 어둠, 주사선, 네 귀퉁이 꺾쇠, 감시 머리글. 판 기록은 카드 없이 글자,
+    맡길 물건 칸은 가는 테두리(고른 칸은 밝은 인광 테두리), 고른 물건 이름은 글자 폭으로 색 뒤집기 + 커서.
+    자리·문구·키 조작은 그대로."""
+    cx = config.SCREEN_W // 2
+    nxt = '크레딧' if result == 'clear' else '은신처로'
+    clear = result == 'clear'
+    assets.draw_image(assets.image('backgrounds/screen_ending.png' if clear else 'backgrounds/screen_death.png'), cx, 0)
+    title, sub = ('탈출 성공', '안개를 뚫고 감옥을 벗어났습니다') if clear else (
+        '사망', '이번 판은 여기까지입니다. 영구 강화는 그대로 남습니다')
+    # 글자 뒤 어둠: 제목 두 줄, 판 기록, 아래 글자들 (자리를 먼저 계산해 글자보다 먼저 깐다)
+    mm.text_shade(cx, 880, title, big=True, center=True, pad=16, kind='wide')
+    mm.text_shade(cx, 830, sub, center=True, pad=8)
+    dy = 0
+    if summary:
+        x, y, h = _summary_box()
+        mm.shade(x + 10, y + 4, x + SUM_W - 10, y + h - 6)
+        dy = min(0, y - SUM_BASE)
+    if choosing:
+        prompt = '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)'
+        mm.text_shade(cx, 480 + dy, prompt, center=True, pad=8)
+        n = len(choices)
+        half = (n - 1) * 96 // 2 + 36
+        mm.shade(cx - half, 300 + dy, cx + half, 446 + dy)
+        mm.footer_shade(CHOOSE_FOOTER, y=256 + dy)
+        if easy_hint:
+            mm.text_shade(cx, 206 + dy, easy_hint, small=True, center=True, pad=8)
+    else:
+        lines = []
+        if kept:
+            lines.append((470 + dy, f'맡긴 물건: {items.ITEMS[kept]["name"]}'))
+        if ending_line or easy_hint:
+            lines.append(((425 if kept else 450) + dy, ending_line or easy_hint))
+        for ty, s in lines:
+            mm.text_shade(cx, ty, s, center=True, pad=8)
+        mm.footer_shade([('아무 키', nxt)], y=380 + dy)
+    mm.terminal(MIST_HEAD['clear' if clear else 'dead'])
+    mm.title(cx, 880, title, mm.PH if clear else (225, 90, 100), center=True)
+    kit.text(cx, 830, sub, mm.PH_TEXT, center=True)
+    dy = min(0, _draw_summary_mist(cx) - SUM_BASE)
+    if choosing:
+        kit.text(cx, 480 + dy, '보관인에게 맡길 물건을 선택하세요 (다음 판 시작 때 돌려받습니다)', mm.PH_TEXT, center=True)
+        n = len(choices)
+        gap = 96
+        x0 = cx - (n - 1) * gap // 2
+        for i, item_id in enumerate(choices):
+            x = x0 + i * gap
+            hot = i == choice
+            mm.frame(x - 36, 370 + dy, 72, 72, 'ph' if hot else 'ph_dim')
+            if hot:                                   # 고른 칸: 밝은 테두리 + 아래 가는 밑줄 (설정의 고른 값과 같은 표시)
+                assets.draw_rect_color(x - 36, 360 + dy, 72, 2, mm.PH)
+            if item_id is None:
+                kit.text(x, 406 + dy, '없음', mm.PH if hot else mm.PH_SOFT, small=True, center=True)
+            else:
+                assets.draw_image(assets.image(_icon_of(item_id)), x, 382 + dy)
+        sel = choices[choice]
+        name = '맡기지 않기' if sel is None else items.ITEMS[sel]['name'] + (
+            ' (1단계로)' if sel in items.UPGRADES else '')
+        mm.pick(cx, 330 + dy, name, True)                     # 고른 물건 이름: 글자 폭으로 색 뒤집기 + 커서
+        mm.footer(CHOOSE_FOOTER, y=256 + dy)
+        if easy_hint:
+            kit.text(cx, 206 + dy, easy_hint, (255, 225, 140), center=True, small=True)
+    else:
+        if kept:
+            kit.text(cx, 470 + dy, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
+        if ending_line:
+            kit.text(cx, (425 if kept else 450) + dy, ending_line, mm.PH_TEXT, center=True)
+        if easy_hint:
+            kit.text(cx, (425 if kept else 450) + dy, easy_hint, (255, 225, 140), center=True)
+        mm.footer([('아무 키', nxt)], y=380 + dy)
+
+
 def draw():
     clear_canvas()
+    if kit.is_mist():
+        draw_mist()
+        import transition
+        transition.draw()
+        update_canvas()
+        return
     cx = config.SCREEN_W // 2
     nxt = '크레딧' if result == 'clear' else '은신처로'
     if result == 'clear':

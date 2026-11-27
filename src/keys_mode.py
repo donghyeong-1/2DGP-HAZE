@@ -13,6 +13,7 @@ import assets
 import config
 import game_framework
 import hud_kit as kit
+import mist_menu as mm
 import keybinds
 
 W, H = config.SCREEN_W, config.SCREEN_H
@@ -177,8 +178,55 @@ def draw_panel():
         kit.footer([('W S', '줄'), ('A D', '칸'), ('Enter', '변경'), ('Esc', '돌아가기')])
 
 
+# ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌 -----
+KEYS_FOOTER = [('W S', '줄'), ('A D', '칸'), ('Enter', '변경'), ('Esc', '돌아가기')]
+LISTEN_FOOTER = [('아무 키', '그 칸에 넣기'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')]
+
+
+def draw_mist_panel():
+    """'mist' 키 설정: 판·줄 띠 없이 글자. 고른 줄은 이름 앞 커서 + 밝은 이름, 고른 칸(또는 키를 기다리는 칸)은 키 글자 판을
+    인광색으로 채워 뒤집는다. 키 글자 판은 H1과 같은 가는 테두리. 칸·버튼 자리(마우스로 누르는 자리)는 그대로."""
+    head_y = PANEL_Y + PANEL_H - 22
+    mm.shade(PANEL_X - 10, head_y - 60, PANEL_X + 900, head_y + 24)
+    mm.shade(PANEL_X, ROW_Y[-1] - 28, PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 96)
+    for b in buttons:
+        mm.text_shade(b.x + b.w // 2, b.y + b.h // 2, b.label, center=True)
+    if message:
+        mm.text_shade(W // 2, PANEL_Y + 150, message, small=True, center=True)
+    mm.footer_shade(LISTEN_FOOTER if listening else KEYS_FOOTER)
+    mm.terminal([('TOWER SURVEILLANCE // INPUT MAP', mm.PH)])
+    mm.title(PANEL_X, head_y, '키 설정')
+    kit.text(PANEL_X + 2, head_y - 42, '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (바꿀 수 없습니다)', mm.PH_SOFT, small=True)
+    kit.text(SLOT_X[0] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '기본', mm.PH_MENU, small=True, center=True)
+    kit.text(SLOT_X[1] + SLOT_W // 2, PANEL_Y + PANEL_H - 112, '보조', mm.PH_MENU, small=True, center=True)
+    for i, action in enumerate(keybinds.IDS):
+        cy = ROW_Y[i]
+        on = i == row
+        if on:
+            mm.cursor(PANEL_X + 34, cy)
+        kit.text(PANEL_X + 34, cy, keybinds.NAMES[action], mm.PH if on else mm.PH_SOFT)
+        for s in (0, 1):
+            wait = listening == (action, s)
+            hot = wait or (on and col == s)
+            label = '키를 누르세요' if wait else keybinds.key_name(keybinds.keys(action)[s])
+            w = max(34, assets.text_width(label, True) + 16) // 2 * 2
+            mm.keycap(SLOT_X[s] + SLOT_W // 2 - w // 2, cy - 15, label, hot=on, inverted=hot)
+    if message:
+        kit.text(W // 2, PANEL_Y + 150, message, mm.PH, small=True, center=True)
+    for i, b in enumerate(buttons):
+        mm.pick(b.x + b.w // 2, b.y + b.h // 2, b.label, row == BUTTON_ROW and col == i)
+    mm.footer(LISTEN_FOOTER if listening else KEYS_FOOTER)
+
+
 def draw():
     clear_canvas()
+    if kit.is_mist():
+        if _under is not None and hasattr(_under, 'draw_scene'):
+            _under.draw_scene()
+        mm.dim(mm.scene_dim(_under))
+        draw_mist_panel()
+        update_canvas()
+        return
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
     kit.backdrop(1.0)                # 설정 화면 위에 겹치므로 완전히 가린다

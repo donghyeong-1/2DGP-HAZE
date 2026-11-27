@@ -9,6 +9,7 @@ import config
 import game_framework
 import game_world
 import hud_kit as kit
+import mist_menu as mm
 
 W, H = config.SCREEN_W, config.SCREEN_H
 LEFT_X = 150                       # 메뉴 줄 왼쪽 (11/22 메뉴 v2: 큰 판 없이 화면 전체를 덮는다)
@@ -123,23 +124,51 @@ def draw_frozen():
     assets.draw_offset = (0, 0)
 
 
+def draw_scene():
+    """위에 쌓인 설정 창(mist)이 깔 배경: 멈춘 게임 화면."""
+    draw_frozen()
+
+
+# 'mist'(11/27 M1): 판 없이 글자. 색은 타이틀 인광색 (mist_menu), 뜻이 있는 색(갈래·저주·형태·금)은 그대로
+def _faint():
+    return mm.PH_SOFT if kit.is_mist() else kit.FAINT
+
+
+def _body():
+    return mm.PH_TEXT if kit.is_mist() else (235, 242, 252)
+
+
+def _note():
+    return mm.PH_TEXT if kit.is_mist() else (205, 215, 235)
+
+
+def _section(x, y, w, h, title):
+    """조작·이번 판 묶음의 머리. 철판·결정형: 정보 카드 / mist: 판 없이 제목 글자 + 가는 선 한 줄."""
+    if not kit.is_mist():
+        kit.card(x, y, w, h, title)
+        return
+    kit.text(x + 28, y + h - 34, title, mm.PH)
+    mm.rule(x + 28, y + h - 62, w - 56)
+
+
 def _key_tokens(keys):
     """'A  D', 'S + Space' -> 키 글자 판으로 그릴 조각들 ('+'는 글자 그대로)."""
     return [k for k in keys.replace('/', ' ').split() if k]
 
 
 def _draw_controls(x, y, w, h):
-    kit.card(x, y, w, h, '조작')
+    _section(x, y, w, h, '조작')
+    keycap = mm.keycap if kit.is_mist() else kit.keycap
     for i, (keys, what) in enumerate(controls()):
         ry = y + h - 110 - i * 50
         kx = x + 28
         for tok in _key_tokens(keys):
             if tok == '+':
-                kit.text(kx + 2, ry + 15, '+', kit.FAINT, small=True)
+                kit.text(kx + 2, ry + 15, '+', _faint(), small=True)
                 kx += 22
                 continue
-            kx += kit.keycap(kx, ry, tok) + 6
-        kit.text(x + 250, ry + 15, what, (205, 215, 235), small=True)
+            kx += keycap(kx, ry, tok) + 6
+        kit.text(x + 250, ry + 15, what, _note(), small=True)
 
 
 def form_rows(p):
@@ -201,8 +230,8 @@ def _draw_forms(p, x, ty, w):
     kit.text(x + 28, ty + 20, '무기 형태', forms.COLOR, small=True)
     ty -= 34
     for name, weapon, on in rows:
-        kit.text(x + 48, ty + 15, name, (255, 225, 140) if on else kit.FAINT, small=True)
-        kit.text(x + w - 28, ty + 15, weapon if on else f'{weapon} 미장착', kit.FAINT, small=True, right=True)
+        kit.text(x + 48, ty + 15, name, (255, 225, 140) if on else _faint(), small=True)
+        kit.text(x + w - 28, ty + 15, weapon if on else f'{weapon} 미장착', _faint(), small=True, right=True)
         ty -= 34
     return ty - 18
 
@@ -213,12 +242,12 @@ def _draw_build(x, y, w, h):
     import items
     import mutations as mu
     p = play_mode.player
-    kit.card(x, y, w, h, '이번 판')
+    _section(x, y, w, h, '이번 판')
     ty = y + h - 110
     muts = list(getattr(p, 'mutations', [])) if p is not None else []
     if not has_build(p):
-        kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', kit.FAINT, small=True)
-        kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', kit.FAINT, small=True)
+        kit.text(x + 28, ty + 15, '아직 아이템이 없습니다', _faint(), small=True)
+        kit.text(x + 28, ty - 12, '진열대에서 얻을 수 있습니다', _faint(), small=True)
         return
     ty = _draw_curse(p, x, ty, w)                                  # 걸린 저주가 맨 위 (2026-11-26)
     ty = _draw_forms(p, x, ty, w)
@@ -233,14 +262,14 @@ def _draw_build(x, y, w, h):
         kit.text(x + 28, ty + 20, head, color, small=True)
         if not on:
             weapon = mu.WEAPON_NAMES.get(fam.get('weapon'), '')
-            kit.text(x + w - 28, ty + 20, f'{weapon} 미장착', kit.FAINT, small=True, right=True)
+            kit.text(x + w - 28, ty + 20, f'{weapon} 미장착', _faint(), small=True, right=True)
         ty -= 34
         for mid in mids:
             if ty < y + 40:
                 break
             star = {'evo': '진화 ', 'duo': '합성 '}.get(mu.tier(mid), '')
             kit.text(x + 48, ty + 15, star + mu.MUTATIONS[mid]['name'],
-                     ((255, 225, 140) if star else (235, 242, 252)) if on else kit.FAINT, small=True)
+                     ((255, 225, 140) if star else _body()) if on else _faint(), small=True)
             ty -= 34
         ty -= 8
     if muts:
@@ -252,12 +281,49 @@ def _draw_build(x, y, w, h):
         if ty < y + 20:
             break
         kit.icon(f'icon_{item_id}', x + 24, ty - 12)
-        kit.text(x + 84, ty + 15, items.ITEMS[item_id]['name'] + (f' x{n}' if n > 1 else ''), (205, 215, 235), small=True)
+        kit.text(x + 84, ty + 15, items.ITEMS[item_id]['name'] + (f' x{n}' if n > 1 else ''), _note(), small=True)
         ty -= 58
+
+
+FOOTER = [('Esc', '계속'), ('O', '설정'), ('H', '은신처로'), ('Q', '타이틀로'), ('W S', '선택'), ('Enter', '확인')]
+MIST_DIM = mm.DIM_GAME         # mist: 멈춘 게임 화면 전체를 어둡게 (그 위 글자 둘레는 글자 뒤 어둠이 한 번 더)
+CONTROLS_X, BUILD_X, CONTROLS_W = 660, 1390, 700
+
+
+def _draw_mist():
+    """'mist' 일시정지 (11/27 M1, 타이틀 감시 단말과 한 벌): 멈춘 게임을 어둡게 한 위에 글자 뒤 어둠, 주사선, 네 귀퉁이 꺾쇠,
+    감시 머리글. 판·띠·노란 꺾쇠 없이 메뉴는 고른 항목만 글자 폭으로 색 뒤집기 + 커서. 조작·이번 판도 판 없이 글자."""
+    import play_mode
+    draw_frozen()
+    mm.dim(MIST_DIM)
+    st = getattr(play_mode, 'stage', None)
+    sub = getattr(st, 'title', '') or None
+    hy = H - 150
+    widths = [assets.text_width(b.label, False) for b in MENU]
+    tx = LEFT_X + 40
+    # 제목·부제와 메뉴 줄을 한 기둥으로 (사이에 비치는 처음 안내 카드 글자가 메뉴 글자와 겹쳐 보이지 않게)
+    mm.shade(LEFT_X - 10, MENU[-1].y + 14, max(tx + max(widths) + 20, LEFT_X + 330), hy + 24)
+    top = CARD_Y + CARD_H - 10
+    mm.shade(CONTROLS_X + 12, CARD_Y + 140, CONTROLS_X + CONTROLS_W - 20, top)        # 조작 (열 줄)
+    mm.shade(BUILD_X + 12, CARD_Y + 140, BUILD_X + BUILD_W - 20, top)                 # 이번 판
+    mm.footer_shade(FOOTER)
+    mm.terminal([('TOWER SURVEILLANCE // FEED PAUSED', mm.PH), ('CAM 04 · 화면 정지 · HOLD', mm.PH_DIM)])
+    mm.title(LEFT_X, hy, '일시정지')
+    if sub:
+        kit.text(LEFT_X + 2, hy - 42, sub, mm.PH_SOFT, small=True)
+    for i, b in enumerate(MENU):
+        mm.pick(tx, b.y + b.h // 2, b.label, i == selected, center=False)
+    _draw_controls(CONTROLS_X, CARD_Y, CONTROLS_W, CARD_H)
+    _draw_build(BUILD_X, CARD_Y, BUILD_W, CARD_H)
+    mm.footer(FOOTER)
 
 
 def draw():
     clear_canvas()
+    if kit.is_mist():
+        _draw_mist()
+        update_canvas()
+        return
     draw_frozen()
     kit.backdrop(0.9)
     import play_mode
@@ -267,5 +333,5 @@ def draw():
         b.draw(i == selected, left=True)
     _draw_controls(660, CARD_Y, 700, CARD_H)
     _draw_build(1390, CARD_Y, BUILD_W, CARD_H)
-    kit.footer([('Esc', '계속'), ('O', '설정'), ('H', '은신처로'), ('Q', '타이틀로'), ('W S', '선택'), ('Enter', '확인')])
+    kit.footer(FOOTER)
     update_canvas()

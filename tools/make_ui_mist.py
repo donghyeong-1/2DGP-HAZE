@@ -19,8 +19,12 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
   줄기 판: 대비 판 n과 같은 자리의 번갯줄기만(나머지는 알파 0). 번쩍이기 직전·두 깜빡임 사이에 원래 배경 위에 얹는다.
   줄기 모양은 PixelLab 원본 그대로, 색만 BOLT_COLORS(흰 심 + 옅은 푸른 흰 가장자리)로 바꾼다. 대비 판의 줄기도 같은 색.
 
+- 메뉴 화면 (11/27 M1): 글자 뒤 어둠 조각 시트 assets/light/menu_shade_<soft|wide>.png(9칸으로 이어 붙인다),
+  키 글자 판·음량 막대의 인광색 테두리 um_hud_frame_ph·ph_dim, 막대 속 um_fill_phos_<높이>.
+
 사용: python tools/make_ui_mist.py          (전부)
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
+      python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
 """
 import math
 import os
@@ -360,7 +364,62 @@ def hud_marks():
     return made
 
 
+# ----- 메뉴 화면 (2026-11-27 M1, docs/opus/TASKS.md '4차'): 일시정지·설정·키 설정·결과·크레딧을 타이틀(감시 단말)과 한 벌로 -----
+# 글자 뒤 어둠 조각 시트 assets/light/menu_shade_<이름>.png: 타이틀 title_shade와 같은 식(글자 상자에서 거리 d만큼 떨어지면
+# k * exp(-(d/sigma)^2))을 한 상자에 대해 굽고, 9칸(네 모서리·네 변·가운데)으로 나눠 어떤 크기 상자에도 이어 붙인다(src/mist_menu.shade).
+# 변 조각은 길이 방향으로 값이 같아 이어 붙여도 이음매가 없고, 가운데는 k 한 색이라 실행 중 사각형 한 장으로 깐다.
+# 겹치는 상자는 같은 색을 알파로 겹쳐 1 - (1-a1)(1-a2)... (타이틀 시트를 구울 때와 같은 식). 절반 크기로 굽고 화면에는 2배 (빛 층 예외).
+MENU_SHADES = {'soft': (0.80, 64), 'wide': (0.80, 130)}       # 이름 -> (가장 진한 곳 k, 번지는 거리 sigma 화면 px)
+SHADE_MID = 64                                               # 시트 가운데(상자) 한 변 (절반 크기 px. 화면 128px)
+# 키 글자 판·음량 막대 테두리와 속: 타이틀 인광색 (title_mode.PH 계열, src/mist_menu.py)
+MENU_TONES = {'ph': (168, 240, 200), 'ph_dim': (60, 110, 100)}
+MENU_FILLS = {'phos': ((112, 170, 150), (168, 240, 200))}
+
+
+def shade_radius(sigma):
+    """조각 시트의 번지는 폭 (절반 크기 px): exp(-(d/sigma)^2)가 1/255 아래로 떨어지는 거리까지."""
+    return int(math.ceil(2.4 * sigma / 2))
+
+
+def menu_shade(name):
+    k, sigma = MENU_SHADES[name]
+    r, m = shade_radius(sigma), SHADE_MID
+    n = 2 * r + m
+    idx = (np.arange(n) + 0.5) * 2                               # 화면 px (가운데 = 상자 [2r, 2r+2m])
+    lo, hi = 2 * r, 2 * (r + m)
+    dx = np.maximum(np.maximum(lo - idx, idx - hi), 0)
+    d = np.sqrt(dx[None, :] ** 2 + dx[:, None] ** 2)
+    alpha = k * np.exp(-(d / sigma) ** 2)
+    a8 = np.round(alpha * 255).astype(np.uint8)
+    a8[a8 < 3] = 0
+    out = np.zeros((n, n, 4), np.uint8)
+    out[:, :, :3] = SHADE_COLOR
+    out[:, :, 3] = a8
+    Image.fromarray(out, 'RGBA').save(os.path.join(LIGHT, f'menu_shade_{name}.png'), optimize=True)
+    return f'light/menu_shade_{name}.png'
+
+
+def menu_parts():
+    made = [menu_shade(name) for name in MENU_SHADES]
+    n = HUD_FRAME
+    for tone, c in MENU_TONES.items():                           # um_hud_frame_ph·ph_dim: HUD 테두리와 같은 한 줄
+        a = np.zeros((n, n, 4), np.uint8)
+        a[0, :], a[-1, :], a[:, 0], a[:, -1] = _rgba(c), _rgba(c), _rgba(c), _rgba(c)
+        made.append(save2(a, f'um_hud_frame_{tone}.png'))
+    for name, (main, light) in MENU_FILLS.items():               # um_fill_phos_<높이>: HUD 막대 속과 같은 모양
+        for h in HUD_FILL_HEIGHTS:
+            a = np.zeros((h // 2, FILL_W, 4), np.uint8)
+            a[:, :] = _rgba(main)
+            a[0, :] = _rgba(light)
+            made.append(save2(a, f'um_fill_{name}_{h}.png'))
+    return made
+
+
 def main():
+    if '--menu' in sys.argv:                      # 메뉴 화면 부품만 (M1)
+        made = menu_parts()
+        print(len(made), '개:', ', '.join(made))
+        return
     made = hud_frames() + hud_fills() + hud_marks()
     if '--hud' in sys.argv:                       # HUD 부품만 (타이틀·카드 그림은 그대로 둔다)
         print(len(made), '개:', ', '.join(made))
@@ -368,6 +427,7 @@ def main():
     made += card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     made.append(title_shade(flash=True))
+    made += menu_parts()
     print(len(made), '개:', ', '.join(made))
 
 

@@ -125,11 +125,23 @@ def key_name(key):
 
 
 def label(action, first=False):
-    """안내 글자: 'Space/W'. first면 기본 칸만."""
+    """안내 글자: 'Space/W'. first면 기본 칸만. 마지막으로 쓴 장치가 게임패드면 패드 버튼 이름 (N1-3, input_device)."""
+    import input_device
+    if input_device.is_pad():
+        return input_device.PAD_LABELS.get(action, '-')
     ks = [k for k in _keys[action] if k is not None]
     if first:
         ks = ks[:1]
     return '/'.join(key_name(k) for k in ks)
+
+
+def badge(action):
+    """HUD 동그란 키 배지 글자 (지름 32px에 한 글자). 키보드는 기본 칸 키 이름의 앞 세 글자(전과 같다).
+    패드(N1-3): 강화는 'R'(RB·RT 모두 강화), 무기 칸은 ''(패드는 LB 하나로 번갈아 바꿔 칸마다 키가 없다: 배지를 그리지 않는다)."""
+    import input_device
+    if input_device.is_pad():
+        return {'enhance': 'R'}.get(action, '')
+    return label(action, first=True)[:3]
 
 
 def to_json():

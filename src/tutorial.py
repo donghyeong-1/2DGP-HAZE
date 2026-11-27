@@ -26,10 +26,18 @@ HINTS = {
 }
 
 
+# 게임패드로 할 때 줄이 달라지는 안내 (N1-3: 마우스·숫자 키가 없다). 나머지는 {동작}이 패드 버튼 이름으로 바뀐다
+PAD_HINTS = {
+    'move': ('조작', ['L스틱 이동 · A 점프 · B 대시', 'R스틱 조준 · X 공격 · Y 말 걸기·줍기']),
+    'weapon': ('무기 두 개', ['LB 버튼으로 무기를 교체합니다', '교체하는 순간 교체기가 나갑니다']),
+}
+
+
 def hint_text(hid):
-    """(제목, 줄들)에 지금 키 설정의 키 이름을 넣는다."""
+    """(제목, 줄들)에 지금 키 설정의 키 이름을 넣는다. 마지막 장치가 패드면 패드 버튼 이름 (N1-3)."""
+    import input_device
     names = {a: keybinds.label(a, first=a not in ('jump',)) for a in keybinds.IDS}
-    title, lines = HINTS[hid]
+    title, lines = PAD_HINTS[hid] if input_device.is_pad() and hid in PAD_HINTS else HINTS[hid]
     return title.format(**names), [line.format(**names) for line in lines]
 
 

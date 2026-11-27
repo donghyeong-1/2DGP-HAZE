@@ -54,7 +54,7 @@ def _weapon_in_slot(p, i, x, y, w, h, icon_cx, icon_bottom, key_x, key_y, bar):
     else:
         assets.draw_image_tinted(img, icon_cx, icon_bottom, '', IDLE, 0.85)
     import keybinds
-    kit.hud_keycap(key_x, key_y, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active, dim_color=IDLE)
+    kit.hud_keycap(key_x, key_y, keybinds.badge(f'weapon{i + 1}'), hot=active, dim_color=IDLE)
     if not active and p.weapons[p.slot] is not None:                # v8 교체기 (flat과 같은 뜻)
         import combo
         ratio = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
@@ -98,7 +98,7 @@ def _cost(g, x, y, center=True, right=False):
 
 def _e_key(g, x, y):
     import keybinds
-    kit.hud_keycap(x, y, keybinds.label('enhance', first=True)[:3], hot=g.can_enhance() or g.enhanced, dim_color=IDLE)
+    kit.hud_keycap(x, y, keybinds.badge('enhance'), hot=g.can_enhance() or g.enhanced, dim_color=IDLE)
 
 
 # ----- a 결정 소켓 -----
@@ -245,6 +245,8 @@ def _well(name, left, bottom, alpha=D_ALPHA):
 
 def _key_badge(label, cx, cy, hot, text_color, art=False):
     """칸 바깥에 반쯤 걸친 동그란 키 배지 (불투명). 글자는 가운데. art: row에서 그림 값(HUD_WEAPON_ART)을 따른다."""
+    if not label:                                   # N1-3: 패드의 무기 칸 (칸마다 키가 없다)
+        return
     (_put_art if art else _put)('d_key_hot' if hot else 'd_key_line', cx - D_KEY // 2, cy - D_KEY // 2)
     kit.text(cx, cy, label, text_color, small=True, center=True)
 
@@ -282,7 +284,7 @@ def draw_d(u):
     if hot:
         r = max(0.0, min(1.0, g.enhance_timer / config.ENHANCE_TIME))
         assets.draw_rect_color(ex + 16, ey + D_E - 10, _even((D_E - 30) * r), 4, config.ENHANCE_LEVEL_COLOR[lv])
-    _key_badge(keybinds.label('enhance', first=True)[:3], ex + D_E // 2, ey, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
+    _key_badge(keybinds.badge('enhance'), ex + D_E // 2, ey, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
     if hot or ready:                                               # 모서리 단계 배지 (켬 = 단계 색 + 숫자, 쓸 수 있음 = 빈 배지, 못 씀 = 없음)
         bx, by = ex + D_E - D_LV + 8, ey + D_E - D_LV + 8
         _put(f'd_lv_e{lv}' if hot else 'd_lv_off', bx, by)
@@ -320,7 +322,7 @@ def _d_weapon_slot(p, i, x, y):
                 import combo
                 r = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
                 assets.draw_rect_color(x + 22, y + 6, _even((D_SLOT_W - 32) * r), 4, combo.COLORS[wp.weapon_id] if r >= 1.0 else COOL)
-    _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x, cy, active, (242, 246, 250) if active else IDLE)
+    _key_badge(keybinds.badge(f'weapon{i + 1}'), x, cy, active, (242, 246, 250) if active else IDLE)
 
 
 # ----- da = D 배치 + A 결정 소켓 (2026-11-27 W3, 기본값) -----
@@ -370,7 +372,7 @@ def draw_da(u):
             assets.draw_clip(img, 0, 0, img.w, hh, cl, cb)
     else:
         _put('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)       # 쓸 수 있음: A보다 한 단 어두운 청록 (든 무기 칸이 먼저 읽히게)
-    _key_badge(keybinds.label('enhance', first=True)[:3], cx, cy - DA_SOCKET // 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
+    _key_badge(keybinds.badge('enhance'), cx, cy - DA_SOCKET // 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
     if hot:                                                        # 단계 배지: 소켓 오른쪽 위 변에 걸쳐서, 켰을 때만
         bx, by = cx + 24, cy + 24
         _put(f'd_lv_e{lv}', bx, by)
@@ -564,7 +566,7 @@ def draw_row(u):
                     import combo
                     r = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
                     assets.draw_rect_color(x + 16, y + 6, _even((sw - 24) * r), 4, combo.COLORS[wp.weapon_id] if r >= 1.0 else COOL)
-        _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x + 2, y + 2, active, (242, 246, 250) if active else IDLE, art=True)
+        _key_badge(keybinds.badge(f'weapon{i + 1}'), x + 2, y + 2, active, (242, 246, 250) if active else IDLE, art=True)
     # E 결정 소켓 (W3과 같은 뜻)
     ready, hot = g.can_enhance(), g.enhanced
     lv = _tier(g)
@@ -579,7 +581,7 @@ def draw_row(u):
             assets.draw_clip(img, 0, 0, img.w, hh, cl, cb)
     else:
         _put_art('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)
-    _key_badge(keybinds.label('enhance', first=True)[:3], cx - 8, ROW_BASE + 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE, art=True)
+    _key_badge(keybinds.badge('enhance'), cx - 8, ROW_BASE + 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE, art=True)
     if hot:                                                        # 단계 숫자 배지: 소켓 오른쪽 위 변에 걸쳐서, 켰을 때만
         bx, by = cx + 18 + (ROW_MIX_LV_DX if mix else 0), cy + 18
         _put(f'd_lv_e{lv}', bx, by)

@@ -177,7 +177,7 @@ def draw_panel():
     for i, b in enumerate(buttons):
         b.draw(row == BUTTON_ROW and col == i)
     if listening:
-        kit.footer([('아무 키', '키 지정'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')])
+        kit.footer([('아무 키', '키 지정'), ('Backspace', '보조 칸 비우기'), ('Esc', '취소')], raw=True)   # 키보드 키를 기다린다 (N1-3)
     else:
         kit.footer([('W S', '줄'), ('A D', '칸'), ('Enter', '변경'), ('Esc', '돌아가기')])
 
@@ -197,7 +197,7 @@ def draw_mist_panel():
         mm.text_shade(b.x + b.w // 2, b.y + b.h // 2, b.label, center=True)
     if message:
         mm.text_shade(W // 2, PANEL_Y + 150, message, small=True, center=True)
-    mm.footer_shade(LISTEN_FOOTER if listening else KEYS_FOOTER)
+    mm.footer_shade(LISTEN_FOOTER if listening else KEYS_FOOTER, raw=bool(listening))   # 기다림: 키보드 키 그대로 (N1-3)
     mm.terminal([('TOWER SURVEILLANCE // INPUT MAP', mm.PH)])
     mm.title(PANEL_X, head_y, '키 설정')
     kit.text(PANEL_X + 2, head_y - 42, '마우스: 조준 · 좌클릭 공격 · 우클릭 대시 (변경할 수 없습니다)', mm.PH_SOFT, small=True)
@@ -219,7 +219,7 @@ def draw_mist_panel():
         kit.text(W // 2, PANEL_Y + 150, message, mm.PH, small=True, center=True)
     for i, b in enumerate(buttons):
         mm.pick(b.x + b.w // 2, b.y + b.h // 2, b.label, row == BUTTON_ROW and col == i)
-    mm.footer(LISTEN_FOOTER if listening else KEYS_FOOTER)
+    mm.footer(LISTEN_FOOTER if listening else KEYS_FOOTER, raw=bool(listening))
 
 
 def draw():

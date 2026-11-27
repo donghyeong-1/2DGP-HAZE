@@ -20,8 +20,10 @@ music_level = VOLUME_DEFAULT
 sfx_level = VOLUME_DEFAULT
 FLASH_SCALE = 0.25        # 번쩍임 줄이기를 켰을 때 화면 섬광 세기 배율
 # 해상도 (이름, 창 너비, 높이). 0은 전체 화면(모니터 크기). 게임은 언제나 1920x1080 논리 화면에 그린다 (display.py)
-RESOLUTIONS = (('1280x720', 1280, 720), ('1600x900', 1600, 900), ('1920x1080', 1920, 1080), ('전체 화면', 0, 0))
-RESOLUTION_DEFAULT = 2
+# N1-4: 960x540을 맨 앞에 더했다(1920의 정확히 절반: 2px 도트가 1px로 고르게 줄고 갈무리 글자가 원래 크기 11·14px이 된다).
+RESOLUTIONS = (('960x540', 960, 540), ('1280x720', 1280, 720), ('1600x900', 1600, 900), ('1920x1080', 1920, 1080), ('전체 화면', 0, 0))
+OLD_RESOLUTIONS = ('1280x720', '1600x900', '1920x1080', '전체 화면')   # N1 전 저장 파일의 번호 순서 (이름 없이 번호만 저장했다)
+RESOLUTION_DEFAULT = 3                                                  # 1920x1080 (그대로)
 resolution = RESOLUTION_DEFAULT
 show_hints = True         # 처음 하는 사람 안내판 (11/21 계획 2-5)
 show_damage = True        # 피해 숫자 (11/21 타격감)
@@ -158,9 +160,13 @@ def load(path=None):
             v = int(data.get(key, globals()[key]))
             if 0 <= v <= VOLUME_MAX:
                 globals()[key] = v
-        v = int(data.get('resolution', resolution))
-        if 0 <= v < len(RESOLUTIONS):
-            resolution = v
+        names = [n for n, _w, _h in RESOLUTIONS]
+        if data.get('resolution_name') in names:                # N1-4: 이름으로 저장한 파일
+            resolution = names.index(data['resolution_name'])
+        elif 'resolution' in data:                              # N1 전 파일: 옛 순서의 번호
+            v = int(data['resolution'])
+            if 0 <= v < len(OLD_RESOLUTIONS):
+                resolution = names.index(OLD_RESOLUTIONS[v])
         confine_mouse = bool(data.get('confine_mouse', confine_mouse))
         show_hints = bool(data.get('show_hints', show_hints))
         show_damage = bool(data.get('show_damage', show_damage))
@@ -173,7 +179,7 @@ def load(path=None):
 def save(path=None):
     return safe_io.write_json(path or PATH, {
         'shake_level': shake_level, 'reduce_flash': reduce_flash, 'music_level': music_level, 'sfx_level': sfx_level,
-        'resolution': resolution, 'confine_mouse': confine_mouse, 'show_hints': show_hints, 'show_damage': show_damage,
+        'resolution': resolution, 'resolution_name': resolution_name(), 'confine_mouse': confine_mouse, 'show_hints': show_hints, 'show_damage': show_damage,
         'easy_mode': easy_mode, 'keys': keybinds.to_json()})
 
 

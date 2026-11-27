@@ -167,6 +167,8 @@ def tick(mode, dt):
     state = read()
     if state is None:
         return
+    import input_device
+    input_device.note_pad(state)                           # N1-3: 키 안내가 패드 버튼 이름으로
     import play_mode
     is_play = mode is play_mode
     if is_play != _was_play:                                # 모드가 바뀌면 누르고 있던 버튼을 새로 누른 것으로 보지 않는다

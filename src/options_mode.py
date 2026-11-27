@@ -32,10 +32,11 @@ VALUE_W = 800
 NAMES = {'shake': '화면 흔들림', 'flash': '번쩍임 줄이기', 'music': '배경음악 음량', 'sfx': '효과음 음량',
          'resolution': '해상도', 'confine': '마우스 가두기', 'hints': '처음 안내', 'damage': '피해 숫자', 'easy': '초보자 모드', 'test': '테스트 모드', 'keys': '키 설정'}
 # 설명은 '~합니다' 한 문장 (U1 2026-11-27: 전에는 명사형과 '~하게'로 끝나는 줄이 섞여 있었다)
+# N1-4: 해상도 설명은 가장 선명한 크기만 (전 '창 크기를 변경합니다 …'. 값 칸이 다섯이 되어 짧게)
 _EASY = (100 - round(config.EASY_DAMAGE_MULT * 100), 100 - round(config.EASY_GAUGE_LOSS_MULT * 100))
 DESCS = {'shake': '타격과 폭발 때 화면이 흔들리는 세기를 정합니다', 'flash': '오버로드 섬광과 큰 폭발을 약하게 합니다',
          'music': '구역·전투·보스 곡에 적용합니다', 'sfx': '타격·발소리·경고음에 적용합니다',
-         'resolution': '창 크기를 변경합니다 (게임 화면 비율은 그대로)', 'confine': '마우스가 게임 창 밖으로 나가지 않게 합니다',
+         'resolution': '1920x1080에서 가장 선명합니다', 'confine': '마우스가 게임 창 밖으로 나가지 않게 합니다',
          'hints': '처음 보는 상황에 짧은 안내를 띄웁니다', 'damage': '적이 맞은 자리에 피해 숫자를 띄웁니다',
          'easy': (f'받는 피해와 게이지 감소량이 {_EASY[0]}% 줄어듭니다' if _EASY[0] == _EASY[1] else
                   f'받는 피해가 {_EASY[0]}%, 게이지 감소량이 {_EASY[1]}% 줄어듭니다'),
@@ -256,6 +257,7 @@ def draw_panel():
 MIST_HEAD_Y = PANEL_Y + PANEL_H - 68   # 제목 (왼쪽 위 머리글과 겹치지 않게 28px 내린다. 첫 줄보다는 위)
 FOOTER = [('W S', '항목'), ('A D', '값 변경'), ('Enter', '확인'), ('Esc', '돌아가기')]
 MIST_NAME_DY, MIST_DESC_DY = 12, -16   # 항목 이름·설명의 글자 가운데 y (줄 가운데 ROW_Y 기준). M1은 13·-21
+MIST_NAME_MID_DY = 2                   # N1-2: 고르지 않은 줄(설명 없음)의 이름 글자 가운데 y. 값 글자(cy + 2)와 같은 높이
 MIST_PICK_SPAN = (14, 18)              # 고른 항목 이름의 뒤집힌 블록: 줄 가운데에서 아래 14·위 18 (S1-fix. 아래 18이면 붙인 설명 글자를 덮고,
                                        # S1의 위아래 14는 이름 윗줄을 잘랐다. 갈무리 28px 글자 픽셀은 y-12 ~ y+15)
 
@@ -288,8 +290,12 @@ def draw_mist_panel():
         on = i == selected
         # 11/27 S1 묶음 5: 이름과 설명을 붙이고(글자 사이 7px) 항목 사이를 벌린다(16px). 전에는 이름·설명·다음 이름이 거의 같은 간격(34·32px)이라
         # 어느 설명이 어느 항목 것인지 묶이지 않았다. 줄의 가운데(ROW_Y)·누르는 자리는 그대로, 묶음만 줄 가운데에 모은다
-        mm.pick(PANEL_X + 34, cy + MIST_NAME_DY, NAMES[item], on, mm.PH_SOFT, center=False, span=MIST_PICK_SPAN)
-        kit.text(PANEL_X + 34, cy + MIST_DESC_DY, DESCS[item], mm.PH_SOFT if on else mm.PH_MENU, small=True)
+        # N1-2: 고른 줄만 설명을 보인다(이름은 설명 위 전과 같은 자리). 고르지 않은 줄은 이름만 줄 가운데(값 글자와 같은 높이)에.
+        # 줄의 가운데(ROW_Y)·누르는 자리는 그대로라 고른 줄이 바뀌어도 다른 줄은 움직이지 않는다
+        mm.pick(PANEL_X + 34, cy + (MIST_NAME_DY if on else MIST_NAME_MID_DY), NAMES[item], on, mm.PH_SOFT, center=False,
+                span=MIST_PICK_SPAN)
+        if on:
+            kit.text(PANEL_X + 34, cy + MIST_DESC_DY, DESCS[item], mm.PH_SOFT, small=True)
         if item == 'keys':
             kit.text(VALUE_X + (VALUE_W - 8) // 2, cy + 2, f'열기 ({keys_summary()})  >', mm.PH if on else mm.PH_SOFT,
                      small=True, center=True)

@@ -56,6 +56,15 @@ def _tick_gamepad(mode):
         print('게임패드를 끕니다:', e)
 
 
+def _scan_input():
+    """N1-3: 이번 프레임의 키보드·마우스 이벤트를 엿봐 마지막으로 쓴 장치를 정한다 (키 안내가 따른다)."""
+    try:
+        import input_device
+        input_device.scan()
+    except Exception:            # noqa: BLE001 (안내 글자만의 일이라 게임을 멈추지 않는다)
+        pass
+
+
 def run(start_mode, max_seconds=None):
     """max_seconds가 있으면 그 시간이 지난 뒤 자동으로 끝낸다 (개발용 실행 확인)."""
     global running, frame_time
@@ -71,6 +80,7 @@ def run(start_mode, max_seconds=None):
             break
         top = stack[-1]
         _tick_gamepad(top)
+        _scan_input()
         top.handle_events()
         top.update()
         top.draw()

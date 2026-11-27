@@ -332,9 +332,13 @@ def keycap(x, y, label, hot=True):
     return w
 
 
-def footer(pairs, y=34):
-    """화면 아래 가운데 키 안내: [(키, 설명)] -> 키 글자 판 + 설명, 사이 간격."""
+def footer(pairs, y=34, raw=False):
+    """화면 아래 가운데 키 안내: [(키, 설명)] -> 키 글자 판 + 설명, 사이 간격.
+    N1-3: 마지막 장치가 패드면 패드 버튼으로 바꾼다(input_device.footer). raw면 그대로 (키보드로만 하는 키 설정 기다림)."""
     import config
+    import input_device
+    if not raw:
+        pairs = input_device.footer(pairs)
     widths = [max(34, assets.text_width(k, True) + 16) + 10 + assets.text_width(d, True) for k, d in pairs]
     total = sum(widths) + 44 * (len(pairs) - 1)
     x = (config.SCREEN_W - total) // 2
@@ -452,6 +456,8 @@ def hud_keycap(x, y, label, hot=True, framed=False, dim_color=None):
     """HUD 칸 안의 키 글자: mist는 판 없이 글자만(칸이 이미 어둡다. 판 안에 판을 겹치지 않는다) / 다른 스킨은 keycap().
     framed: 칸 밖에 홀로 놓이는 키 판(보스 대사 띠의 Enter, 11/27 S1). mist는 가는 테두리 한 줄 + 어두운 바탕(누를 수 있으면 회백,
     아직이면 흐린 테두리). 폭·자리는 keycap()과 같다. dim_color: mist에서 hot이 아닐 때 글자 색(H2: 들지 않은 무기 칸 숫자. 없으면 FAINT)."""
+    if not label:                                   # N1-3: 패드의 무기 칸처럼 키가 없으면 그리지 않는다
+        return 0
     if not is_mist():
         return keycap(x, y, label, hot)
     w = max(34, assets.text_width(label, True) + 16) // 2 * 2

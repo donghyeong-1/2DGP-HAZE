@@ -389,6 +389,7 @@ def _hint_log(skin_name):
 #   mist ending_dead·ending_dead_choose·ending_clear: 결과의 '받은 헤이즈 결정' 값은 청록(보유 결정·NPC 창과 같게), 권하는 글은 본문색.
 # N1(11/27, 이름·대사 변경): 네 스킨 같은 글이라 함께 바뀜. pause_build_2·ending_dead_choose('기본 성장: 공격력' -> '공격력 강화'), npc_keeper·npc_archivist(대사),
 #   ped_rift(진열대 이름), two_on3(쌍권총 궁극기 '록온 난사' -> '일제 사격'). 그림·자리·색은 그대로. 전 값은 1b3106f.
+# N1-4: 옛 스킨 options_*: 해상도 칸에 960x540이 맨 앞에 더해지고(칸 다섯) 해상도 설명이 바뀜. 전 값은 9dab359.
 HUD_DIGEST = {('plate', 'normal'): '26f48c155b548dbc', ('plate', 'critical'): 'c7c9e8dc8033946b',
               ('plate', 'fade_items_curse'): '507c647ff1e06ab9', ('plate', 'enhanced'): '9f3eb5f4c7a35eea', ('plate', 'boss'): '0689f767b9a0460d',
               ('plate_code', 'normal'): '3c4cf4184ede1ad8', ('plate_code', 'critical'): '6803fdc3f439077d',
@@ -696,9 +697,9 @@ def _other_logs(skin_name):
 # mist 0_flash·2_flash = 번쩍이는 프레임에 머리글 첫 줄을 그리지 않음(묶음 1. 전 c11c65208d8510e7·683ccfdbc9a80c9c).
 # 평소·줄기·잔광 프레임(0_None·0_bolt·0_glow·0_dark 등)과 옛 스킨의 타이틀은 그대로
 MENU_DIGEST = {
-    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '706591185f320235', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'baed5c4e11369fac', 'options_music': '1382968b63b6b9e3', 'options_keys': '690d89f14401eccc', 'options_back': '88322c21baa5b7f1', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'a985340e9be7c1eb', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
-    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '56fb50d25fed5cee', 'pause_ask': '89feb0a901922810', 'options_0': '6f7c97363f0fecdb', 'options_music': 'ea31a03ee2067e98', 'options_keys': '27837dded66ff392', 'options_back': '17cb8512e37de282', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'e3eda8690d84a844', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
-    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': '39793beeefa30d40', 'pause_ask': '7db77125d2deef6c', 'options_0': '40ec2e254f4cb802', 'options_music': 'b29f84307aa857d1', 'options_keys': '3b2506b0fcf156dd', 'options_back': 'c0cdf902cc0b60eb', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': '0fcf2c183f4d832b', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '706591185f320235', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'e809b1aed949b1e7', 'options_music': '4a5c635c99969c33', 'options_keys': '03b79cf26b0d7eb7', 'options_back': '1f2e4b40983c98e9', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'a985340e9be7c1eb', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '56fb50d25fed5cee', 'pause_ask': '89feb0a901922810', 'options_0': '41004424fdb518d0', 'options_music': 'd4c8fe3e6e5321e2', 'options_keys': '1aa92a0e36cf6276', 'options_back': '66055eccd274a98a', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'e3eda8690d84a844', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': '39793beeefa30d40', 'pause_ask': '7db77125d2deef6c', 'options_0': '38d78469ad29cea7', 'options_music': '468fd5ac30476515', 'options_keys': '9833fd855e4d574a', 'options_back': '51ba81883930b500', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': '0fcf2c183f4d832b', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
 }
 OTHER_DIGEST = {
     'mist': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': '4403ee234fef16ee', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '58361502e50533c1', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '3da451f159297ebc', 'cards_form': '5d1f396d9b756037', 'cards_curse': 'e3f25c236caf0183'},
@@ -1094,10 +1095,10 @@ def test_s1_mist_options_rows_group_name_and_description():
     """묶음 5: mist 설정에서 한 항목의 이름과 설명은 붙어 있고(사이가 좁다), 항목과 항목 사이는 그보다 넓다.
     이름·설명은 누르는 자리(ROW_Y 줄 가운데 ±30px) 안에 있다."""
     import options_mode as om
-    r = _options_log('mist', 0)
-    texts = [row for row in r.log if row[0] == 'draw_text']
+    # N1-2(11/27): mist는 고른 줄의 설명만 보인다(고르지 않은 줄은 이름만 줄 가운데). 그래서 줄마다 그 줄을 골라서 잰다
     gaps_in, gaps_out = [], []
     for i, item in enumerate(om.ROWS):
+        texts = [row for row in _options_log('mist', i).log if row[0] == 'draw_text']
         name = next(t for t in texts if t[3] == om.NAMES[item])
         desc = next(t for t in texts if t[3] == om.DESCS[item])
         name_y, desc_y = name[2], desc[2]

@@ -374,7 +374,7 @@ class GameUI:
             else:
                 assets.draw_image_tinted(img, x + SLOT // 2, y + (SLOT - img.h) // 2, '', (120, 130, 150), 0.7)
             import keybinds
-            kit.hud_keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active,
+            kit.hud_keycap(x + 4, y + SLOT - 34, keybinds.badge(f'weapon{i + 1}'), hot=active,
                            dim_color=IDLE if kit.is_mist() else None)
             if not active and p.weapons[p.slot] is not None:               # v8 교체기: 이 칸으로 바꾸면 기술이 나간다. 칸 위쪽 막대 = 쿨다운(다 차면 그 무기 색)
                 import combo
@@ -408,7 +408,7 @@ class GameUI:
         else:
             assets.draw_image_tinted(img, ex + SLOT // 2 + 8, ACT_Y + 24, '', (110, 120, 140), 0.6)
         import keybinds
-        kit.hud_keycap(ex + 4, ACT_Y + SLOT - 34, keybinds.label('enhance', first=True)[:3], hot=ready or hot)
+        kit.hud_keycap(ex + 4, ACT_Y + SLOT - 34, keybinds.badge('enhance'), hot=ready or hot)
         for i in range(config.ENHANCE_MAX_LEVEL):                            # 쌓인 단계 점 (칸 아래쪽)
             on = i < g.enhance_level and hot
             px = ex + 20 + i * 20

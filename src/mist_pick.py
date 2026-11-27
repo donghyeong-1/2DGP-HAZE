@@ -66,7 +66,9 @@ def pick(x, cy, label, hot, color=SOFT, small=False, center=False, ok=True, mark
 
 
 def keys(pairs, y=49):
-    """화면 아래 가운데 키 안내: 키 판 없이 글자만 (증강 선택 화면과 같은 모양). pairs = [(키, 설명)]."""
+    """화면 아래 가운데 키 안내: 키 판 없이 글자만 (증강 선택 화면과 같은 모양). pairs = [(키, 설명)]. 패드면 패드 버튼 (N1-3)."""
+    import input_device
+    pairs = input_device.footer(pairs)
     kit.text(W // 2, y, '        '.join(f'{k}  {d}' for k, d in pairs), FAINT, center=True, small=True)
 
 

@@ -199,7 +199,7 @@ def test_resolution_and_mouse_confine_save_round_trip():
     old = options.PATH
     options.PATH = os.path.join(tempfile.mkdtemp(), 'r.json')
     try:
-        options.set_resolution(0)
+        options.set_resolution(1)                                             # N1-4: 0은 960x540, 1이 1280x720
         options.toggle_confine()
         options.reset()
         options.load()
@@ -227,7 +227,7 @@ def test_options_click_sets_resolution_and_confine():
     options.PATH = os.path.join(tempfile.mkdtemp(), 'd.json')
     try:
         row = options_mode.ITEMS.index('resolution')
-        _v, _t, x, w = options_mode._segments('resolution')[1]
+        _v, _t, x, w = options_mode._segments('resolution')[2]               # N1-4: 맨 앞에 960x540이 생겨 1600x900은 셋째 칸
         assert options_mode.click(x + 5, options_mode.ROW_Y[row])
         assert options.resolution_name() == '1600x900'
         row = options_mode.ITEMS.index('confine')

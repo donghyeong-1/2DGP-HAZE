@@ -20,8 +20,29 @@ CARD_H = 140 + 50 * 10            # 오른쪽 카드 두 장: 조작 / 이번 �
 CARD_Y = H - 314 - CARD_H + 66
 
 
+def pad_controls():
+    """게임패드 조작표 (N1-3). gamepad.PLAY_BUTTONS와 같은 배치. 물약은 패드 버튼이 없어 키보드 키를 적는다."""
+    import keybinds
+    potion = keybinds.key_name(keybinds.keys('potion')[0])
+    return [
+        ('L스틱', '좌우 이동'),
+        ('A', '점프 (2단, 짧게 누르면 낮게)'),
+        ('↓ + A', '얇은 발판 아래로'),
+        ('R스틱', '조준'),
+        ('X', '공격 (공중·대시 중에는 특수 공격)'),
+        ('B  LT', '대시 (아래로 겨누면 발판 통과)'),
+        ('RB  RT', '강화 (게이지 25%, 세 번이면 궁극기)'),
+        ('LB', '무기 교체 (교체하는 순간 교체기)'),
+        ('Y', '말 걸기·줍기·구매'),
+        (potion, '물약 마시기 (키보드만)'),
+    ]
+
+
 def controls():
-    """(키, 설명) 목록. 키 이름은 키 설정(설정 > 키 바꾸기)을 따른다."""
+    """(키, 설명) 목록. 키 이름은 키 설정(설정 > 키 바꾸기)을 따른다. 마지막 장치가 패드면 패드 조작표 (N1-3)."""
+    import input_device
+    if input_device.is_pad():
+        return pad_controls()
     import keybinds
     k = keybinds.label
     j = keybinds.label('jump').replace('/', '  ')

@@ -151,7 +151,9 @@ def value_label(item):
 
 def footer():
     """아래 키 안내. 닫기 키는 Esc와 상호작용 키 (U1-2: 'F' 고정이었다)."""
-    return [(f"Esc {keybinds.label('interact', first=True)}", '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')]
+    import input_device
+    close = 'Esc' if input_device.is_pad() else f"Esc {keybinds.label('interact', first=True)}"   # 패드: B로 닫는다 (N1-3)
+    return [(close, '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')]
 
 
 def draw():

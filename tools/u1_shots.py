@@ -584,7 +584,11 @@ def resolutions(s):
     import options_mode
     import play_mode
     import title_mode
-    for level, tag in ((0, '1280'), (1, '1600'), (2, '1920')):
+    names = [n for n, _w, _h in options.RESOLUTIONS]
+    for name, tag in (('960x540', '960'), ('1280x720', '1280'), ('1600x900', '1600'), ('1920x1080', '1920')):
+        if name not in names:                           # N1 전 코드 (960x540 없음)
+            continue
+        level = names.index(name)
         options.set_resolution(level)
         display.apply()
         s.gf.stack[:] = [title_mode]
@@ -600,8 +604,77 @@ def resolutions(s):
         p.mouse_screen = (1180, 520)
         s.run(2)
         _grab_window(s, f'res_{tag}_hud', play_mode)
-    options.set_resolution(2)
+        import mutation_mode
+        s.gf.stack[:] = [play_mode, mutation_mode]
+        mutation_mode.setup(p, ['ult_awaken', 'link_bind', 'dshot_load'])
+        mutation_mode.enter()
+        mutation_mode.age, mutation_mode.selected = 5.0, 1
+        _grab_window(s, f'res_{tag}_cards', mutation_mode)
+    options.set_resolution(names.index('1920x1080'))
     display.apply()
+
+
+# ----- N1: 설정 설명·패드 안내 -----
+@scene
+def n1_options(s):
+    """설정(타이틀 위): 맨 위·가운데·맨 아래 줄을 골랐을 때."""
+    import options_mode
+    import title_mode
+    for sel, tag in ((0, 'top'), (5, 'mid'), (len(options_mode.ROWS) - 1, 'bottom')):
+        s.gf.stack[:] = [title_mode]
+        title_mode.enter()
+        s.gf.stack.append(options_mode)
+        options_mode.enter()
+        options_mode.selected = sel
+        s.grab(f'n1_options_{tag}', options_mode)
+
+
+@scene
+def n1_pad(s):
+    """같은 장면을 키보드 안내와 패드 안내로: 일시정지, 진열대 상호작용, 처음 안내, 증강 카드, NPC 창, 설정, 보스 대사 넘기기."""
+    import camera
+    try:
+        import input_device
+    except ImportError:                                 # N1 전 코드: 키보드 안내만
+        input_device = None
+    import npc_mode
+    import options_mode
+    import pause_mode
+    import play_mode
+    import mutation_mode
+    import tutorial
+    import game_world
+    for dev in ('kb', 'pad'):
+        if input_device is not None:
+            input_device.use(input_device.PAD if dev == 'pad' else input_device.KEYBOARD)
+        elif dev == 'pad':
+            continue
+        p, st = _room(s, 67, 'stage1', 'shop')
+        ped = next(d for d in st.pedestals if d.item_id != 'heal')
+        p.x, p.y = ped.x, ped.y
+        camera.snap(p, st.room)
+        t = next(o for o in game_world.world[game_world.LAYER_UI] if isinstance(o, tutorial.Tutorial))
+        t.current, t.left = 'move', 2.0
+        s.run(2, hints=True)
+        t.current, t.left = 'move', 2.0
+        s.grab(f'n1_pad_hud_{dev}')
+        s.gf.stack[:] = [play_mode, pause_mode]
+        pause_mode.enter()
+        s.grab(f'n1_pad_pause_{dev}', pause_mode)
+        s.gf.stack[:] = [play_mode, mutation_mode]
+        mutation_mode.setup(p, ['combo_speed', 'link_bind', 'dshot_load'])
+        mutation_mode.enter()
+        mutation_mode.age, mutation_mode.selected = 5.0, 1
+        s.grab(f'n1_pad_cards_{dev}', mutation_mode)
+        npc_mode.kind, npc_mode.player = 'mechanic', p
+        s.gf.stack[:] = [play_mode, npc_mode]
+        npc_mode.enter()
+        s.grab(f'n1_pad_npc_{dev}', npc_mode)
+        s.gf.stack[:] = [play_mode, pause_mode, options_mode]
+        options_mode.enter()
+        s.grab(f'n1_pad_options_{dev}', options_mode)
+    if input_device is not None:
+        input_device.use(input_device.KEYBOARD)
 
 
 def main():

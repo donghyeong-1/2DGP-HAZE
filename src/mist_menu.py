@@ -167,15 +167,22 @@ def footer_widths(pairs):
     return [max(34, assets.text_width(k, True) + 16) + 10 + assets.text_width(d, True) for k, d in pairs]
 
 
-def footer_shade(pairs, y=34):
+def footer_shade(pairs, y=34, raw=False):
     """키 안내 뒤의 어둠. 어둠은 둘레 글자까지 덮으므로 글자를 쓰기 전에 (다른 어둠과 함께) 먼저 깐다."""
+    import input_device
+    if not raw:
+        pairs = input_device.footer(pairs)                 # N1-3: footer와 같은 목록으로 폭을 잰다
     total = sum(footer_widths(pairs)) + 44 * (len(pairs) - 1)
     x = (W - total) // 2
     shade(x - 6, y - 4, x + total + 6, y + 34)
 
 
-def footer(pairs, y=34):
-    """화면 아래 가운데 키 안내 (자리·간격은 hud_kit.footer와 같다): 가는 테두리 키 + 설명. 뒤 어둠은 footer_shade로 먼저."""
+def footer(pairs, y=34, raw=False):
+    """화면 아래 가운데 키 안내 (자리·간격은 hud_kit.footer와 같다): 가는 테두리 키 + 설명. 뒤 어둠은 footer_shade로 먼저.
+    N1-3: 마지막 장치가 패드면 패드 버튼으로 (raw면 그대로)."""
+    import input_device
+    if not raw:
+        pairs = input_device.footer(pairs)
     widths = footer_widths(pairs)
     total = sum(widths) + 44 * (len(pairs) - 1)
     x = (W - total) // 2

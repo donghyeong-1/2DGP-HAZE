@@ -399,7 +399,9 @@ def draw():
     for i, mid in enumerate(choices):
         _draw_card(i, mid)
     if kit.is_mist():                                     # 안개 미니멀: 키 판 없이 글자만
-        kit.text(W // 2, CARD_Y - 80, 'A D  선택        Enter  확인', (150, 165, 190), center=True, small=True)
+        import input_device
+        hint = '        '.join(f'{k}  {d}' for k, d in input_device.footer([('A D', '선택'), ('Enter', '확인')]))   # N1-3: 패드면 패드 버튼
+        kit.text(W // 2, CARD_Y - 80, hint, (150, 165, 190), center=True, small=True)
     else:
         kit.footer([('A D', '선택'), ('Enter', '확인')], y=CARD_Y - 80)
     update_canvas()

@@ -10,6 +10,9 @@ import items
 
 INTERACT_RANGE = 110   # 가로 거리 (px)
 INTERACT_HEIGHT = 170  # 세로 거리 (px)
+# 아이콘을 놓는 높이(발에서 px): 받침 가운데 윗면에서 아이콘 아래 빈 줄(2~6px)만큼 내린 자리 (Q1 2026-11-27, PixelLab 진열대.
+# 그 전 Codex 진열대는 둘 다 66이었다)
+ICON_Y = {'gold': 44, 'shop': 56}
 EDGE = 24              # 이름·설명 글자가 화면 가장자리에서 떨어지는 거리 (px)
 
 
@@ -42,10 +45,11 @@ class Pedestal:
 
     def draw(self):
         info = self.info
-        kind = 'gone' if self.gone else 'gold' if self.mode == 'rift' else self.mode   # gold(제단) / shop(선반) / gone(품절), 균열방은 제단
-        assets.draw_image(assets.image(f'ui/pedestal_{kind}.png'), self.x, self.y)
-        if not self.gone:                                              # 받침 위 보관함에 아이템 아이콘 (1배)
-            assets.draw_image(assets.image(f'ui/icon_{self.item_id}.png'), self.x, self.y + 66)
+        base = 'shop' if self.mode == 'shop' else 'gold'                # gold(제단: 황금방·균열방) / shop(선반)
+        art = ('gone_shop' if base == 'shop' else 'gone') if self.gone else base   # 품절·가져감: 같은 그림을 어둡게 (Q1)
+        assets.draw_image(assets.image(f'ui/pedestal_{art}.png'), self.x, self.y)
+        if not self.gone:                                              # 받침 윗면에 아이템 아이콘 (1배)
+            assets.draw_image(assets.image(f'ui/icon_{self.item_id}.png'), self.x, self.y + ICON_Y[base])
         import game_world
         if game_world.quiet:                                           # R1: mist 메뉴 창 뒤에 깔린 멈춘 화면에서는 이름판·안내를 빼고
             return

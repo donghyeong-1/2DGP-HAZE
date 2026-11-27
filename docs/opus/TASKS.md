@@ -699,3 +699,56 @@
 - 바꾼 파일: `src/weapon_panel.py`, `src/npc.py`, `src/credits_mode.py`, `tools/make_ui_mist.py`(`--socket`, `BOLT_END`, `title_sky`, `bolt_on_sky`), `tools/ui_r2_shots.py`(새),
   `tests/test_ui_skin.py`, `tests/test_title_storm.py`, `tests/test_options.py`, `assets/ui/um_wp_row_socket_mix_*.png`(새 5장), `assets/backgrounds/title_bolt_3.png`·`title_flash_3.png`,
   `docs/ASSETS.md`, `docs/image_prompts.md`.
+
+## Q1 소품 그림 다시 뽑기 (2026-11-27)
+사용자의 말: "무기 걸이와 같은 조금 퀄리티 떨어지는 것들 pixellab으로 다시 에셋을 뽑아서 적용 해줘", "실제 스팀 게임 수준으로 올리는 것이 목표이다. ai티가 안나도록 잘 해줘".
+무기 걸이 말고 어느 것이 대상인지는 지휘 쪽 해석(게임 화면에 놓이는 소품·물건, 캐릭터·타일·배경·이펙트·UI·아이콘은 빼고)이다.
+
+### 조사표 (점수 = 눈에 띔 1~5 x 품질 차이 1~5, 높은 순)
+조사 비교판 `shots/review/Q1_audit.png`(Q1 전, 실제 창 원래 크기, 주인공과 같이).
+| 물건 | 파일 (그 전) | 그리는 곳 | 만든 방법 (그 전) | 크기 | 나오는 곳 | 점수 | 결과 |
+|---|---|---|---|---|---|---|---|
+| 무기 걸이 | 없음(사각형) + `ui/icon_w_*` | `src/npc.py` `_draw_rack` | 코드 사각형 틀 + 무기 아이콘 셋(철파이프 없음) | 192x116 | 은신처, 매 판 | 5x5=25 | **바꿈** (사용자 지정) |
+| 연습장 표지판 | 없음(사각형) | `src/npc.py` `_draw_sign` | 코드 사각형 과녁 | 68x116 | 은신처, 매 판 | 5x4=20 | **바꿈** |
+| 상자 (+부서짐) | `ui/device_crate*.png` | `src/devices.py` Crate | 코드 그림 (v8 5일 차) | 60x60 | 슬럼 전투방 대부분 | 4x4=16 | **바꿈** |
+| 증기 분출구 (+달아오름) | `ui/device_vent*.png` | `src/devices.py` Vent | 코드 그림 | 72x20 | 공장 전투방 대부분 | 4x4=16 | **바꿈** |
+| 은신처 모루 (4장) | `props/hideout_anvil_1~4.png` | `src/props_anim.py` | Codex T28 (평면 갈색, 명암 약함) | 132x117 | 은신처, 정비사 옆 | 5x3=15 | **바꿈** |
+| 은신처 화로 둘 (4장) | `props/hideout_brazier_1~4.png` | `src/props_anim.py` | Codex T28 (평면 갈색 불꽃) | 99x120 | 은신처 | 5x3=15 | **바꿈** |
+| 감시 레이저 머리 | `ui/device_laser.png` | `src/devices.py` Laser | 코드 그림 | 52x32 | 탑 전투방 | 3x4=12 | **바꿈** |
+| 진열대 셋 (제단·선반·품절) | `ui/pedestal_*.png` | `src/pedestal.py` | Codex T14 (평면, 2px 격자 일치 0.94~0.96) | 120x150 | 황금방·정비방·균열방 | 3x3=9 | **바꿈** (품절은 제단·선반 따로) |
+| 멈춘 방 장식 18종 | `decor/<테마>_*.png` | `src/room.py` | Codex T31 (hibit) | 50~133px | 전투방마다 | 4x2=8 | 둠 |
+| 움직이는 배경 소품 10종 | `props/<테마>_*_1~4.png` | `src/room.py` | Codex T28 | 52~146px | 전투방마다 | 3x2=6 | 둠 |
+| 부서지는 발판 금 | `ui/device_crack.png` | `src/devices.py` Crumble | 코드 (2색 선) | 60x12 | 슬럼 일부 | 3x2=6 | 둠 |
+| 보스방 지형 소품 4종 | `props/boss/*.png` | `src/boss_terrain.py` | Codex T43 | 90~180px | 보스방 | 2x2=4 | 둠 |
+| 헤이즈 샘·떠돌이 죄수 | `ui/event_spring_*`, `npc_drifter_*` | `src/events.py` | PixelLab (11/25) | | 이벤트 방 | 0 | 이미 PixelLab |
+
+둔 까닭: 방 장식·배경 소품은 원경·중경(Codex T49)과 같은 손에서 나온 배경 층이라, 몇 개만 PixelLab으로 바꾸면 배경과 어긋난다(바꾼다면 테마 한 벌을 한꺼번에). 발판 금은 타일 위에 얹는 표시라 타일(범위 밖)과 함께 본다. 보스방 소품은 드물게 나온다.
+
+### 바꾼 것 (PixelLab 121회, 잔액 705.70 -> 584.70. 물건별 횟수·프롬프트·버린 시안은 `assets/sprites/pixellab/props_v6/GENERATION_LOG.md`)
+화풍 기준은 간수 그림(style_image), 도트 2px, 간수와 같은 남색 외곽선·왼쪽 위 빛. `tools/apply_pixellab_props.py`가 색을 물건마다 32색으로 고정하고 간수 색과 가까운 색은 간수 색으로 맞추며, 떠 있는 점(3칸 이하)을 지운다.
+상태 그림은 같은 그림에서 코드로 만든다(분출구 달아오름 = 격자 틈만 주황, 품절 진열대 = 어둡고 차갑게). 부서진 상자만 같은 시안의 PixelLab 편집.
+- **무기 걸이**: 나무·쇠 틀에 네 무기(철파이프는 왼쪽 기둥에 기댐, 쌍권총, 건틀릿, 사슬)가 걸린 한 장. 지금 두 칸에 든 무기 아래 가로대에 표시 줄(mist 회백). 그 전에는 철파이프가 걸이에 없었고(두 칸 자유가 된 뒤) 아이콘이 허공에 떠 있었다. 남은 약점: 철파이프가 가늘어 기둥의 일부처럼 보일 때가 있다. 표시 줄은 코드 사각형이다.
+- **연습장 표지판**: 모래주머니 받침 위 나무 기둥 + 둥근 과녁. 원본 외곽선이 흐려 남색 바깥 외곽선 1도트를 둘렀다. 남은 약점: 어두운 은신처 바닥에서 외곽선은 거의 안 보이고(캐릭터도 같다), 예전 평면 과녁보다 멀리서 덜 튄다. 과녁 무늬에 작은 점(흠집)이 몇 있다.
+- **상자**: 쇠 모서리·대각 버팀목, 틈 사이로 청록 결정이 비친다(조각을 주는 상자). 부서짐은 아래 1/3만 남고 판자가 흩어진 그림. 62x62(전 60x60).
+- **증기 분출구**: 녹슨 테두리의 쇠 격자 + 옆 배관. 달아오름은 틈 넷만 위에서 아래로 흰 주황 -> 붉은 주황. 92x24(전 72x20). 남은 약점: 낮은 위에서 본 모양이라 살짝 사다리꼴이다.
+- **감시 레이저 머리**: 납작한 장갑 머리 + 붉은 렌즈. 처음 고른 키 큰 머리(62px)는 천장 바로 아래 통과 발판 그림에 가려 버리고 한 칸(40px) 안에 드는 64x30으로 다시 뽑았다. 남은 약점: 렌즈가 작다(빛줄기·붉은 빛 번짐이 위치를 알려 준다).
+- **진열대**: 제단 = 돌 계단 + 놋쇠 받침판·뿔(황금방·균열방), 선반 = 쇠판 작업대 + 나무 윗판 + 가격표 + 청록 등(정비방). 품절은 각자의 어두운 그림(`pedestal_gone`, 새 `pedestal_gone_shop`). 아이콘 높이를 받침 윗면에 맞춤(`pedestal.ICON_Y`: 제단 44, 선반 56. 전 66으로 떠 있었다). 캔버스 120x150 그대로.
+- **은신처 모루**: 쇠 모루(뿔 오른쪽, 아치 받침). 불똥은 옛 네 장의 자리 그대로 달군 쇠 색으로. 발 가운데·발 밑 그대로.
+- **은신처 화로**: 쇠 그릇(구멍이 안에서 빛남) + 불꽃 4장(PixelLab 움직임). 그릇·다리는 장마다 같다. 불꽃이 높아 캔버스 99x120 -> 99x130, `props_anim.ANCHOR['brazier']` y 112 -> 126(바닥에 닿는 자리 그대로).
+- 크레딧: PixelLab 첫 줄 `'PixelLab (pixellab.ai) - 주인공·적·보스·NPC 동작, 대화 초상화'` -> `'..., 대화 초상화, 소품'`. 이 작업에서 고친 화면 글은 이 한 줄뿐이다. **Codex 줄의 '진열대'는 이제 맞지 않는데 고치지 않았다(지시: PixelLab 줄만).**
+
+### 확인
+- 테스트: 새 `tests/test_q1_props.py` 8개(픽셀 규칙, 기준점, 상태 그림 같은 모양, 누르는·닿는 자리 그대로, 걸이·표지판이 새 그림을 부름, 아이콘이 윗면에, 품절 선반, 모루·화로 발 자리). 고친 테스트: `test_ui_skin.py`(R2 걸이 표시 줄 둘, S1 진열대 기록·크레딧 기록 새 값 + 전 값 주석), `test_options.py`(진열대는 Codex 원본과 더는 같지 않음, PixelLab 줄에 '소품'). 전체 91개 파일 995개 통과.
+- 실제 창(모니터 2, 설정·저장 임시 폴더) 전·후 같은 장면: `python tools/q1_props_shots.py <폴더>` / `--board <전> <후> shots/review` / `--audit <전> shots/review/Q1_audit.png`.
+  비교판 `shots/review/Q1_audit.png`, `Q1_armory.png`, `Q1_practice.png`, `Q1_crate.png`, `Q1_vent.png`, `Q1_laser.png`, `Q1_pedestal_gold.png`, `Q1_pedestal_shop.png`, `Q1_anvil.png`, `Q1_brazier.png`, `Q1_hideout.png`, `Q1_rooms.png`.
+- 확인 못 한 것: 움직이는 화면(화로 불꽃·모루 불똥의 흐름, 분출구가 달아오르는 순간, 상자가 부서지는 순간)은 멈춘 그림으로만 봤다. 부서진 상자·품절 진열대·달아오른 분출구는 실제 창에서 찍지 않았다(테스트와 원래 크기 그림으로만 봄).
+
+### 범위 밖이지만 품질이 떨어져 보인 것 (바꾸지 않음)
+- 무기 아이콘 `ui/icon_w_*`(코드 그림, 밝은 평면): 이제 걸이의 PixelLab 무기와 화풍이 다르다(HUD·창에서 쓴다).
+- 아이템 아이콘(Codex T13): 진열대 위에 놓이면 새 진열대보다 평면적이다(특히 모래시계·물약).
+- 은신처 원경 `far_hideout`(Codex T22): 따뜻한 갈색 평면이라 새 쇠 소품(남회색)과 색 온도가 다르다.
+- 감시 레이저 빛줄기·바닥 자국(코드 사각형, 이펙트), 부서지는 발판 금(코드 2색 선).
+- 방 장식 18종·배경 소품 10종(Codex): 위 '둔 까닭'.
+- 바꾼 파일: `src/npc.py`, `src/pedestal.py`, `src/props_anim.py`, `src/credits_mode.py`(한 줄), `tools/apply_pixellab_props.py`(새), `tools/q1_props_shots.py`(새),
+  `tests/test_q1_props.py`(새), `tests/test_ui_skin.py`, `tests/test_options.py`, `assets/ui/hideout_armory·hideout_practice·device_crate·device_crate_broken·device_vent·device_vent_hot·device_laser·pedestal_gold·pedestal_shop·pedestal_gone·pedestal_gone_shop.png`,
+  `assets/props/hideout_anvil_1~4.png`, `hideout_brazier_1~4.png`, `assets/sprites/pixellab/props_v6/`(원본·기록), `docs/ASSETS.md`, `docs/image_prompts.md`, `docs/DECISIONS.md`, `docs/PROGRESS.md`.

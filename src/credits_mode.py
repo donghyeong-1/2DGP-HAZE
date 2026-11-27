@@ -26,7 +26,7 @@ CREDITS = [
     ('line', 'Codex (OpenAI) 내장 이미지 생성 - 배경판, 장식·소품, 구역 카드, 장면 일러스트'),
     ('line', '은신처 배경 · 사망·탈출·크레딧 장면 · 아이템 아이콘 · 진열대 · 초기 캐릭터 원화'),
     ('small', '이미지 모델명은 도구가 제공하지 않았다. 생성 기록: docs/image_prompts.md'),
-    ('line', 'PixelLab (pixellab.ai) - 주인공·적·보스·NPC 동작, 대화 초상화'),
+    ('line', 'PixelLab (pixellab.ai) - 주인공·적·보스·NPC 동작, 대화 초상화, 소품'),
     ('line', '보스 카드 인물 · 증강 갈래 아이콘 · 증강 카드 테두리'),
     ('line', '타이틀 로고 · 번갯줄기 · HUD 결정과 무기 칸 틀'),
     ('line', 'Gemini (Google) - 주인공 디자인 시안 · 초상화 원화 (PixelLab 기준 그림)'),

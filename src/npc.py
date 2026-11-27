@@ -18,6 +18,11 @@ COLORS = {'mechanic': (240, 150, 60), 'keeper': (170, 160, 255), 'archivist': (1
           'practice': (140, 235, 170), 'drifter': (240, 190, 120)}
 # 임시 모습: (몸 폭, 키, 소품 색)
 SHAPES = {'mechanic': (58, 126, (120, 128, 140)), 'keeper': (44, 117, (150, 110, 70)), 'archivist': (40, 111, (200, 180, 120)), 'armory': (192, 116, None), 'practice': (60, 120, None), 'drifter': (44, 117, (150, 110, 70))}
+# 사람이 아닌 것의 그림 (Q1 2026-11-27, PixelLab, tools/apply_pixellab_props.py): 가운데 아래 기준점, 이름표는 그림 위 끝 위로
+THING_ART = {'armory': 'ui/hideout_armory.png', 'practice': 'ui/hideout_practice.png'}
+# 무기 걸이 그림에 걸린 무기 넷의 자리: (기준점에서 가로 px, 표시 폭 px). 왼쪽부터 철파이프(왼쪽 기둥에 기댐)·쌍권총·건틀릿·사슬
+RACK_SLOTS = {'pipe': (-62, 20), 'pistol': (-30, 52), 'gauntlet': (22, 28), 'chain': (54, 24)}
+RACK_MARK_Y = 16        # 표시 줄: 걸이 아래 가로대 윗면 (발에서 px)
 
 
 THINGS = ('armory', 'practice')    # 사람이 아닌 것 (무기 걸이·연습장 표지판): mist에서 이름표가 인물 색 대신 밝은 회백 (R2)
@@ -64,7 +69,10 @@ class NPC:
             return
         import hud_kit as kit
         color = PROMPT_MIST if self.kind in THINGS and kit.is_mist() else COLORS[self.kind]   # R2: 사람 NPC는 인물 색 그대로
-        top = self.y + (132 if self._art else SHAPES[self.kind][1])
+        if self.kind in THING_ART:
+            top = self.y + assets.image(THING_ART[self.kind]).h
+        else:
+            top = self.y + (132 if self._art else SHAPES[self.kind][1])
         assets.draw_text(self.x, top + 34, self.name, color, small=True, center=True)
         if self.player is not None and self.near(self.player):
             draw_prompt(self.x, top + 70, f'F {ROLES[self.kind]}')
@@ -74,7 +82,7 @@ class NPC:
             self._draw_rack()
             return
         if self.kind == 'practice':
-            self._draw_sign()
+            assets.draw_image(assets.image(THING_ART['practice']), self.x, self.y)
             return
         """그림이 오기 전 임시 모습: 외곽선 있는 몸통·머리와 하는 일을 보여 주는 소품 하나 (왼쪽을 본다)."""
         w, h, prop = SHAPES[self.kind]
@@ -95,34 +103,15 @@ class NPC:
             assets.draw_rect_color(x - w // 2 - 6, y + 40, 26, 30, prop)
         assets.draw_rect_color(x - w // 2, y + 2, w, 6, COLORS[self.kind])   # 하는 일 색 띠
 
-    def _draw_sign(self):
-        """연습장 표지판 (그림이 오기 전 임시): 나무 기둥 + 과녁 판. 2배 픽셀 사각형."""
-        x, y = int(self.x) // 2 * 2, int(self.y)
-        ink = (11, 16, 32)
-        assets.draw_rect_color(x - 6, y, 12, 80, ink)
-        assets.draw_rect_color(x - 4, y, 8, 78, (120, 90, 60))                 # 기둥
-        assets.draw_rect_color(x - 34, y + 62, 68, 54, ink)
-        assets.draw_rect_color(x - 32, y + 64, 64, 50, (150, 115, 75))         # 판
-        for r, c in ((20, (230, 230, 220)), (14, (200, 70, 60)), (8, (230, 230, 220)), (3, (200, 70, 60))):
-            assets.draw_rect_color(x - r, y + 89 - r, r * 2, r * 2, c)          # 과녁 (사각 동심)
-
     def _draw_rack(self):
-        """무기 걸이 (코드로 그림, 2026-11-23): 나무 틀에 무기 셋이 걸려 있고, 고른 무기 아래에 불이 켜진다."""
+        """무기 걸이 (Q1 2026-11-27, PixelLab 그림 한 장): 네 무기가 걸려 있고, 지금 두 칸에 든 무기 아래 가로대에 불이 켜진다."""
         import meta
         x, y = int(self.x), int(self.y)
-        wood, dark = (96, 66, 44), (11, 16, 32)
-        assets.draw_rect_color(x - 92, y, 10, 112, dark)                     # 기둥 두 개 (외곽선 포함)
-        assets.draw_rect_color(x + 82, y, 10, 112, dark)
-        assets.draw_rect_color(x - 90, y + 2, 6, 108, wood)
-        assets.draw_rect_color(x + 84, y + 2, 6, 108, wood)
-        assets.draw_rect_color(x - 96, y + 104, 192, 12, dark)              # 위 가로대
-        assets.draw_rect_color(x - 94, y + 106, 188, 8, wood)
-        assets.draw_rect_color(x - 92, y + 18, 184, 6, dark)                # 아래 받침
-        now = meta.state.get('start_weapon') if meta.state else None
-        for i, wid in enumerate(meta.START_WEAPONS):
-            cx = x - 52 + i * 52
-            img = assets.image(f'ui/icon_w_{wid}.png')
-            assets.draw_image(img, cx, y + 34)
-            if wid == now:                                               # R2: mist는 옅은 노랑 대신 회백 밑줄
-                import hud_kit as kit
-                assets.draw_rect_color(cx - 18, y + 26, 36, 4, PROMPT_MIST if kit.is_mist() else COLORS['armory'])
+        assets.draw_image(assets.image(THING_ART['armory']), x, y)
+        state = meta.state or {}
+        chosen = {state.get('start_first', 'pipe'), state.get('start_weapon')}
+        import hud_kit as kit
+        color = PROMPT_MIST if kit.is_mist() else COLORS['armory']
+        for wid, (dx, w) in RACK_SLOTS.items():
+            if wid in chosen:
+                assets.draw_rect_color(x + dx - w // 2, y + RACK_MARK_Y - 4, w, 4, color)

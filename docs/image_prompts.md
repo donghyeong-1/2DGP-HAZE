@@ -362,3 +362,6 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 - 무기 칸 틀(씀, 48x36 seed 64, 팔레트 + 열쇠색 #ff00ff, 배경 지우기 끔): "Pixel art HUD item slot frame, 1-pixel scale, a wide rectangle filling the canvas edge to edge. Bright pale white 1-pixel outline clearly visible, the top-left and bottom-right corners cut off diagonally by 4 pixels, a short bright tick mark beside each cut corner, a faint grey inner line two pixels inside the outline. Inside the frame is plain flat dark navy, empty. Outside the frame (the cut corner triangles) is solid magenta #ff00ff. No metal, no rivets, no bolts, no stripes, no text."
 - 버린 것(소켓 96x96 s41·48x48 s51, 결정 64x64 s42, 칸 틀 96x72 s43·48x36 s53, 키 배지 16x16 s65)의 프롬프트는 위와 같은 말투이고 기록 파일에 까닭을 적었다.
 - (W6, 11/27) 게임 기본 모습('mix')에 쓰는 것은 위 P1의 결정(32x32 seed 52)과 무기 칸 틀(48x36 seed 64) 두 장이다. 새로 생성하지 않았다.
+
+## 2026-11-27 소품 Q1 (PixelLab create_image_pro_flash·edit_image_pro_flash·animate_image_pixminimax, 화풍 기준 = 간수 `guard_v6/raw/base.png`. 기록 `assets/sprites/pixellab/props_v6/GENERATION_LOG.md`)
+- 무기 걸이·연습장 표지판·상자(+부서짐 편집)·증기 분출구·감시 레이저 머리·진열대(제단·선반)·은신처 모루·화로(+불꽃 4장). 프롬프트 원문과 고른 seed·버린 시안·까닭은 기록 파일에 모두 적었다. 프롬프트는 모두 "Side view game prop, no character. ..."로 시작해 "Muted ... colours, dark navy outline, soft shading lit from the upper left."로 끝난다. 121회.

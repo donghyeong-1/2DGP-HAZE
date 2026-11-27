@@ -5,12 +5,14 @@
 ## 지금 게임이 쓰는 에셋 (2026-11-27 기준, 이 표가 최신이다)
 아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트, 효과음 녹음 원본(Kenney), 배경음악(OpenGameArt)이다.
 2026-11-27 R2에서 게임이 실제로 불러오는 파일(`src/sprites.py`의 SKIN·skin_*.json, 그리는 코드의 그림 경로)과 원본 폴더를 맞대어 고쳤다(전에는 11-19 상태라 캐릭터를 Codex로 적고 있었다).
+2026-11-27 Q1에서 소품(무기 걸이·연습장 표지판·장치 셋·진열대·은신처 모루와 화로)을 PixelLab 그림으로 바꾸고 이 표를 고쳤다.
 
 | 구분 | 위치 | 만든 방법 | 출처·라이선스 |
 |---|---|---|---|
 | 주인공 N-09 모든 동작 | `assets/sprites/unified/hero6_*.png`, `hero6.json` (게임은 `n09_*` 이름을 고르고 `sprites.SKIN`이 `hero6_*`로 바꿔 그린다) | PixelLab(`create_image_pixflux`·`edit_image_pro_flash` 디자인, `animate_with_skeleton_v3`·`animate_image_pixminimax` 동작) → `tools/apply_pixellab_hero.py`(알파 정리, 기준 그림 색으로 다시 칠함, 최근접 2배). 기준 그림은 Gemini G01 A안. 기록 `assets/sprites/pixellab/hero_v6_test/GENERATION_LOG.md` (11-23·11-24·11-25 줄) | AI 생성물 (PixelLab) |
 | 일반 적 11종·보스 넷(문지기·크래셔·아크·헤이즈 심장) | `assets/sprites/unified/v6_<이름>_*.png`, `boss_gatekeeper_*.png`, `skin_<이름>.json` 15개 | PixelLab(`create_image_pro_flash` 디자인, `animate_with_skeleton_v3`·`animate_image_pixminimax` 동작) → `tools/apply_pixellab_char.py`(색 고정, PixelLab이 그린 효과 지우기, 최근접 2배), 심장은 `tools/apply_pixellab_heart.py`. 기록 `assets/sprites/pixellab/<이름>_v6/GENERATION_LOG.md` (11-23·11-25 줄) | AI 생성물 (PixelLab) |
 | 은신처 NPC 셋·떠돌이 죄수, 헤이즈 샘 | `assets/sprites/unified/npc_<이름>_idle_1~2.png`, `assets/ui/event_spring_*.png` | PixelLab → `tools/apply_pixellab_event.py` (11-25 줄) | AI 생성물 (PixelLab) |
+| 소품: 은신처 무기 걸이·연습장 표지판, 상자(+부서짐)·증기 분출구(+달아오름)·감시 레이저 머리, 진열대(제단·선반·품절 둘), 은신처 모루·화로(4장씩) | `assets/ui/hideout_armory.png`, `hideout_practice.png`, `device_crate*.png`, `device_vent*.png`, `device_laser.png`, `pedestal_gold·shop·gone·gone_shop.png`, `assets/props/hideout_anvil_1~4.png`, `hideout_brazier_1~4.png` | PixelLab(`create_image_pro_flash`, 부서진 상자는 `edit_image_pro_flash`, 화로 불꽃은 `animate_image_pixminimax`, 화풍 기준 = 간수) -> `tools/apply_pixellab_props.py`(색 고정, 떠 있는 점 지우기, 최근접 2배, 달아오름·품절은 같은 그림을 코드로 다시 칠함, 모루 불똥은 옛 Codex T28 장의 자리). 기록 `assets/sprites/pixellab/props_v6/GENERATION_LOG.md` (11-27 Q1). 그 전: 무기 걸이·표지판·장치는 코드 그림, 진열대·모루·화로는 Codex | AI 생성물 (PixelLab) |
 | 대화 초상화 8장 | `assets/portraits/<인물>_1~2.png` | PixelLab(`create_image_pro_flash` + `edit_image_pro_flash`), 기준 그림은 Gemini G04 주인공 초상화 (11-25·11-26 줄) | AI 생성물 (PixelLab) |
 | 보스 이름 카드 4장 | `assets/backgrounds/boss_card_<보스>.png` | 인물은 PixelLab 클로즈업, 배경은 구역 카드(Codex T33)를 어둡게, `tools/apply_pixellab_boss_cards.py` (11-26 줄) | AI 생성물 (PixelLab + Codex) |
 | 원경·중경 배경판 | `assets/backgrounds/far_<테마>.png`, `mid_<테마>.png` | Codex T49(내장 image_gen) → `tools/apply_backdrops_v6.py`(정수 2배). gold·shop·boss는 같은 판에 테마 색 (11-25 줄) | AI 생성물 (Codex) |
@@ -19,8 +21,8 @@
 | 엔딩 크레딧 장면 3장 | `assets/backgrounds/credits_1~3.png` | Codex T35 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
 | 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
 | 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py`로 2배 규격 | AI 생성물 (Codex) |
-| 움직이는 배경 소품 12종 x 4장 | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py` | AI 생성물 (Codex) |
-| 아이템 아이콘 10종, 진열대 3종 | `assets/ui/icon_<아이템>.png`, `assets/ui/pedestal_<gold·shop·gone>.png` | Codex T13·T14 결과를 그대로 복사(2026-11-17, 커밋 `06746a8`). `assets/sprites/forge/icons_v1/`·`props_v1/`의 원본과 픽셀까지 같다(R2에서 비교, `tests/test_options.py`). 그 전의 `tools/make_icons.py` 코드 그림은 쓰지 않는다 | AI 생성물 (Codex) |
+| 움직이는 배경 소품 10종 x 4장 (은신처 모루·화로는 위 소품 줄) | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py` | AI 생성물 (Codex) |
+| 아이템 아이콘 10종 | `assets/ui/icon_<아이템>.png` | Codex T13 결과를 그대로 복사(2026-11-17, 커밋 `06746a8`). `assets/sprites/forge/icons_v1/`의 원본과 픽셀까지 같다(R2에서 비교, `tests/test_options.py`). 그 전의 `tools/make_icons.py` 코드 그림은 쓰지 않는다. 진열대(Codex T14)는 11-27 Q1에 PixelLab으로 바뀌었다(위 소품 줄) | AI 생성물 (Codex) |
 | 균열의 분노 아이콘 | `assets/ui/icon_fury.png` | `tools/make_fury_icon.py`: Codex T13 공격력 아이콘의 색을 보라로 돌림 (11-19 줄) | Codex 그림을 코드로 가공 |
 | 스팀 상점 그림 (캡슐 4장·라이브러리 배경·로고) | `assets/store/` | Codex T29 + `tools/make_store_art.py`. 게임 안에서는 쓰지 않는다 | AI 생성물 (Codex) |
 | UI 'mist' 스킨 (기본): 증강 카드 테두리·장식선·안개, 타이틀 로고·커서·꺾쇠, 번갯줄기 조각 | `assets/ui/um_card_*`, `um_divider_*`, `um_mist_pool`, `um_logo_title`, `um_cursor`, `um_bracket`, `um_bolt_1~3` | PixelLab(`create_image_pro_flash`·`create_ui_asset`) 원본을 `tools/make_ui_mist.py`가 자르고 색만 바꿈 (11-26·11-27 줄) | AI 생성물 (PixelLab) |

@@ -243,9 +243,9 @@ def _well(name, left, bottom, alpha=D_ALPHA):
     assets.draw_image_tinted(img, left + img.w // 2, bottom, '', (255, 255, 255), alpha)
 
 
-def _key_badge(label, cx, cy, hot, text_color):
-    """칸 바깥에 반쯤 걸친 동그란 키 배지 (불투명). 글자는 가운데."""
-    _put('d_key_hot' if hot else 'd_key_line', cx - D_KEY // 2, cy - D_KEY // 2)
+def _key_badge(label, cx, cy, hot, text_color, art=False):
+    """칸 바깥에 반쯤 걸친 동그란 키 배지 (불투명). 글자는 가운데. art: row에서 그림 값(HUD_WEAPON_ART)을 따른다."""
+    (_put_art if art else _put)('d_key_hot' if hot else 'd_key_line', cx - D_KEY // 2, cy - D_KEY // 2)
     kit.text(cx, cy, label, text_color, small=True, center=True)
 
 
@@ -454,6 +454,33 @@ def _row_hint(u, x, y, right):
     kit.text(x0, y, text, tuple(int(c * level + v * (1 - level)) for c, v in zip(color, kit.HUD_WELL)), small=True)
 
 
+# P1(11/27) 시험: HUD_WEAPON_ART = 'px'이면 row가 PixelLab 부품을 쓴다 (코드 부품 이름 -> PixelLab 부품 이름). 없는 것은 코드 그림
+PX_ART = {'row_slot_': 'slot_', 'row_socket_': 'socket_', 'a_crystal_': 'crystal_', 'da_crystal_': 'crystal_', 'd_key_': 'key_'}
+
+
+def _art(name):
+    """row 부품 이름 -> 지금 그림 값('code'·'px')에 맞는 assets/ui 경로 꼬리 ('wp_<이름>' 또는 'wpx_<이름>')."""
+    if getattr(config, 'HUD_WEAPON_ART', 'code') == 'px':
+        for head, px in PX_ART.items():
+            if name.startswith(head):
+                cand = 'wpx_' + px + name[len(head):]
+                if cand not in _PX_HAVE:
+                    import os
+                    _PX_HAVE[cand] = os.path.exists(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets', 'ui', f'um_{cand}.png'))
+                if _PX_HAVE[cand]:
+                    return cand
+    return 'wp_' + name
+
+
+_PX_HAVE = {}                   # PixelLab 부품이 있는지 (한 번만 찾아본다)
+
+
+def _put_art(name, left, bottom):
+    img = assets.image(f'ui/um_{_art(name)}.png')
+    assets.draw_image(img, left + img.w // 2, bottom)
+    return img
+
+
 def row_layout(held):
     """칸 자리 [(왼쪽, 아래, 폭, 높이) 1번, 2번], 소켓 가운데 (cx, cy). held = 든 칸 번호(0·1)."""
     R = ui.ACT_RIGHT
@@ -491,7 +518,7 @@ def draw_row(u):
     for i, (x, y, sw, sh) in enumerate(spots):
         wp = p.weapons[i]
         active = i == p.slot and wp is not None
-        _put(f'row_slot_{wp.weapon_id}' if active else 'row_slot_line', x, y)
+        _put_art(f'row_slot_{wp.weapon_id}' if active else 'row_slot_line', x, y)
         if wp is None:
             kit.text(x + sw // 2, y + sh // 2, '빈 칸', IDLE, small=True, center=True)
         else:
@@ -508,21 +535,22 @@ def draw_row(u):
                     import combo
                     r = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
                     assets.draw_rect_color(x + 16, y + 6, _even((sw - 24) * r), 4, combo.COLORS[wp.weapon_id] if r >= 1.0 else COOL)
-        _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x + 2, y + 2, active, (242, 246, 250) if active else IDLE)
+        _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x + 2, y + 2, active, (242, 246, 250) if active else IDLE, art=True)
     # E 결정 소켓 (W3과 같은 뜻)
     ready, hot = g.can_enhance(), g.enhanced
     lv = _tier(g)
-    _put(f'row_socket_e{lv}' if hot else 'row_socket_line', cx - ROW_SOCKET // 2, cy - ROW_SOCKET // 2)
-    cl, cb = cx - 12, cy - 26
+    _put_art(f'row_socket_e{lv}' if hot else 'row_socket_line', cx - ROW_SOCKET // 2, cy - ROW_SOCKET // 2)
+    probe = assets.image(f'ui/um_{_art("a_crystal_empty")}.png')       # 결정 그림 크기 (코드 24x52, PixelLab 28x56): 소켓 가운데에
+    cl, cb = cx - probe.w // 2, cy - probe.h // 2
     if hot:
-        _put('a_crystal_empty', cl, cb)
-        img = assets.image(f'ui/um_wp_a_crystal_e{lv}.png')
+        _put_art('a_crystal_empty', cl, cb)
+        img = assets.image(f'ui/um_{_art(f"a_crystal_e{lv}")}.png')
         hh = _even(img.h * max(0.0, min(1.0, g.enhance_timer / config.ENHANCE_TIME)))
         if hh > 0:
             assets.draw_clip(img, 0, 0, img.w, hh, cl, cb)
     else:
-        _put('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)
-    _key_badge(keybinds.label('enhance', first=True)[:3], cx - 8, ROW_BASE + 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
+        _put_art('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)
+    _key_badge(keybinds.label('enhance', first=True)[:3], cx - 8, ROW_BASE + 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE, art=True)
     if hot:                                                        # 단계 숫자 배지: 소켓 오른쪽 위 변에 걸쳐서, 켰을 때만
         bx, by = cx + 18, cy + 18
         _put(f'd_lv_e{lv}', bx, by)

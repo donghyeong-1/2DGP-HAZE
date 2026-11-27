@@ -2376,6 +2376,90 @@ def test_w5_hint_line_does_not_overlap_the_tag_socket_or_slots():
                 assert not _rect_overlap(hb, s), (slot, e, hb, s)
 
 
+
+# ----- 2026-11-27 P1 무기·E 패널 그림 PixelLab 시험 (사용자 "여기에서 pixelLab을 이용해서 에셋을 뽑는건 어떤가?". docs/opus/TASKS.md '4차' P1) -----
+# config.HUD_WEAPON_ART = 'code'(기본, 코드로 구운 그림) / 'px'(PixelLab 부품 um_wpx_*, 없는 것은 코드 그림). 배치·크기·동작은 같다.
+# W5 뒤(3e5b528)의 'row' 그리기 기록 (열다섯 상태). 'code'이면 그대로여야 한다
+ROW_DIGEST = {
+    'one_low': '8d37639fdf78aacb',
+    'one_ready': 'c60b69862adeabd1',
+    'one_on1': '8efd007dbe85fa01',
+    'one_on2': '8d27db9f8cf9d2d6',
+    'one_on3': 'a2cfd11bc2f2ce18',
+    'two_low': '7ac5672f0da872eb',
+    'two_ready': 'cc10f2d71251d43f',
+    'two_on1': 'fe8f3eae395daa55',
+    'two_on2': '22e2e43b163f7cd4',
+    'two_on3': 'aba5730d69e9410d',
+    'empty_low': '8fe4989b4b0352e2',
+    'empty_ready': 'd54ddce1ff5895da',
+    'empty_on1': '7e81dc35451e11bc',
+    'empty_on2': '0647a3bbdff27944',
+    'empty_on3': '130a15d2058033e3',
+}
+PX_OK = ROW_OK + ('um_wpx_',)
+
+
+def _with_art(art, fn):
+    old = getattr(config, 'HUD_WEAPON_ART', 'code')
+    try:
+        config.HUD_WEAPON_ART = art
+        return fn()
+    finally:
+        config.HUD_WEAPON_ART = old
+
+
+def test_p1_code_art_is_default_and_draws_the_same():
+    """(1) 기본값은 'code'이고, 'code'이면 'row' 열다섯 상태의 그리기 기록이 W5 끝과 같다(PixelLab 부품을 부르지 않는다)."""
+    assert config.HUD_WEAPON_ART == 'code'
+    got = {'_'.join(k): _with_art('code', lambda: _w1_log('row', prep))[0].digest() for k, prep in _w1_preps().items()}
+    assert got == ROW_DIGEST, [k for k in ROW_DIGEST if got.get(k) != ROW_DIGEST[k]]
+
+
+def test_p1_px_art_draws_every_state_without_plate_parts():
+    """(2) 'px'이면 열다섯 상태가 오류 없이 그려지고 PixelLab 부품(um_wpx_*)을 쓰며 철판 판·틀과 경고 노랑을 부르지 않는다.
+    소켓·결정·무기 칸 틀이 PixelLab 것이고(키 배지는 코드 그림), E 상태(못 씀 = 빈 결정, 쓸 수 있음 = 청록, 켬 = 단계 색)가 갈린다."""
+    for key, prep in _w1_preps().items():
+        r, p = _with_art('px', lambda: _w1_log('row', prep))
+        _assert_no_plate(('px', key), r, PLATE_ICONS_OK)
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp' in x}
+        assert all(x.startswith(PX_OK) for x in wp), (key, wp)
+        assert any(x.startswith('um_wpx_socket_') for x in wp) and any(x.startswith('um_wpx_slot_') for x in wp), (key, wp)
+        assert 'um_wp_d_key_hot.png' in wp or 'um_wp_d_key_line.png' in wp, (key, wp)        # 키 배지는 코드 그림 (PixelLab 것은 버림)
+        e = key[1]
+        if e == 'low':
+            assert 'um_wpx_crystal_empty.png' in wp and 'um_wpx_crystal_haze.png' not in wp, wp
+        elif e == 'ready':
+            assert 'um_wpx_crystal_haze.png' in wp, wp
+        else:
+            assert f'um_wpx_crystal_e{e[2]}.png' in wp and f'um_wpx_socket_e{e[2]}.png' in wp, wp
+        texts = [row[3] for row in r.log if row[0] == 'draw_text']
+        assert p.weapon.name in texts and '1' in texts and '2' in texts and 'E' in texts, (key, texts)
+
+
+def test_p1_px_parts_follow_pixel_rules_and_crystals_share_one_silhouette():
+    """(3) PixelLab 부품 um_wpx_*: 알파 0/255, 2px 격자, 64색 이하, 경고 노랑 없음. 결정의 색 변형(청록·단계 셋·빈 결정)은 알파 모양이 같다.
+    부품 크기는 코드 그림과 같은 자리에 맞는다(칸 96x72 / 72x56, 소켓 96)."""
+    files = sorted(glob.glob(os.path.join(UI, 'um_wpx_*.png')))
+    names = {os.path.basename(f) for f in files}
+    want = ({f'um_wpx_crystal_{k}.png' for k in ('haze', 'empty', 'e1', 'e2', 'e3')} | {f'um_wpx_socket_{k}.png' for k in ('line', 'e1', 'e2', 'e3')} |
+            {f'um_wpx_slot_{k}.png' for k in ('line', 'pipe', 'pistol', 'gauntlet', 'chain')})
+    assert want <= names, want - names
+    for f in files:
+        a = np.array(Image.open(f).convert('RGBA'))
+        name = os.path.basename(f)
+        assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, name
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), name
+        cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+        assert len(cols) <= 64 and hud_kit.YELLOW not in cols, name
+    masks = [np.array(Image.open(os.path.join(UI, f'um_wpx_crystal_{k}.png')).convert('RGBA'))[:, :, 3] > 0 for k in ('haze', 'empty', 'e1', 'e2', 'e3')]
+    assert all((m == masks[0]).all() for m in masks), '결정 실루엣이 다르다'
+    size = lambda n: Image.open(os.path.join(UI, n)).size
+    assert size('um_wpx_slot_pipe.png') == (96, 72) and size('um_wpx_slot_line.png') == (72, 56), (size('um_wpx_slot_pipe.png'), size('um_wpx_slot_line.png'))
+    assert size('um_wpx_socket_line.png') == (96, 96)
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

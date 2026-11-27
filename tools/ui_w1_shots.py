@@ -4,6 +4,9 @@ config.HUD_WEAPON_STYLE을 'flat'·'a'·'b'·'c'로 바꿔 가며 같은 시드�
 
   python tools/ui_w1_shots.py <출력 폴더>                 장면 찍기: w1_<시안>_<방>_<상태>.png, w1_<시안>_cards.png
   W1_ONLY=da,row W1_EXTRA=da,row python tools/ui_w1_shots.py <출력 폴더>  후
+  W1_ONLY=row,rowpx W1_EXTRA=row,rowpx W5_OFF=row,rowpx python tools/ui_w1_shots.py <출력 폴더>  후
+  python tools/ui_w1_shots.py --board6 <출력 폴더> <비교판 폴더>
+        P1(PixelLab 그림 시험, rowpx = row + HUD_WEAPON_ART 'px'): P1_compare_dark/bright.png, P1_weapons.png, P1_full.png, P1_set.png, P1_parts.png
   W1_ONLY=row W1_EXTRA=row W5_OFF=row python tools/ui_w1_shots.py <출력 폴더>  후
   python tools/ui_w1_shots.py --board5 <출력 폴더> <W4 촬영 폴더(전)> <비교판 폴더>
         W5: W5_hint.png(설명 줄 뜬 순간 / 2초 뒤), W5_combo.png(무기 넷 콤보 칸 W4 전·후), W5_full.png
@@ -119,7 +122,8 @@ def shoot(out):
     extra = os.environ.get('W1_EXTRA', '').split(',')
     w5_off = os.environ.get('W5_OFF', '').split(',')
     for style in os.environ.get('W1_ONLY', ','.join(STYLES)).split(','):   # W1_ONLY=flat,a,d 로 일부만
-        config.HUD_WEAPON_STYLE = style
+        config.HUD_WEAPON_STYLE = 'row' if style == 'rowpx' else style      # 'rowpx' = row 배치 + PixelLab 그림 (P1)
+        config.HUD_WEAPON_ART = 'px' if style == 'rowpx' else 'code'
         for room, (seed, target) in ROOMS.items():
             for state in SLOT_STATES + (EXTRA_STATES if style in extra else ()):
                 p = new_run(seed)
@@ -142,7 +146,7 @@ def shoot(out):
                 run(1)
                 p.aura_time = 0.1
                 grab(play_mode, f'{style}_{room}_{state}')
-                if style in w5_off and (state in W5_HINT_STATES or state.startswith('w_')):
+                if style in w5_off:
                     run(150)                                   # 설명 줄이 사라진 뒤 (WEAPON_HINT_TIME 2초 + 여유)
                     p.aura_time = 0.1
                     grab(play_mode, f'{style}_{room}_{state}_off')
@@ -159,6 +163,7 @@ def shoot(out):
         mutation_mode.selected = 1
         grab(mutation_mode, f'{style}_cards')
     config.HUD_WEAPON_STYLE = default_style
+    config.HUD_WEAPON_ART = 'code'
     close_canvas()
     print('ok', out)
 
@@ -193,6 +198,59 @@ def _full_and_set(src, out, style, prefix):
     im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_cards.png')), f'{style.upper()} cards'), (W + 20, 0))
     im.save(os.path.join(out, f'{prefix}_set_{style}.png'))
     return [f'{prefix}_full_{style}.png', f'{prefix}_set_{style}.png']
+
+
+def board6(src, out):
+    """P1: 가로 코드 그림(row)·PixelLab 그림(rowpx) x 세로 상태(원래 크기), 무기 넷(PixelLab), 전체 화면 두 장, PixelLab HUD | 증강 카드, 부품 4배."""
+    os.makedirs(out, exist_ok=True)
+    made = []
+    cw, ch = PANEL_BOX[2] - PANEL_BOX[0], PANEL_BOX[3] - PANEL_BOX[1]
+    states = ('a_ready', 'b_on1', 'c_on2', 'g_on3', 'd_low', 'e_slot2', 'f_empty')
+    for room in ROOMS:
+        im = Image.new('RGB', ((cw + 20) * 2 - 20, (ch + 10) * len(states)), (20, 20, 24))
+        for r, s in enumerate(states):
+            for c, style in enumerate(('row', 'rowpx')):
+                path = os.path.join(src, f'w1_{style}_{room}_{s}_off.png')
+                if not os.path.exists(path):
+                    path = os.path.join(src, f'w1_{style}_{room}_{s}.png')
+                im.paste(_label(Image.open(path).crop(PANEL_BOX), f'{"CODE" if c == 0 else "PIXELLAB"} {s}'), (c * (cw + 20), r * (ch + 10)))
+        im.save(os.path.join(out, f'P1_compare_{room}.png'))
+        made.append(f'P1_compare_{room}.png')
+    weapons = EXTRA_STATES[1:]
+    im = Image.new('RGB', ((cw + 20) * len(weapons) - 20, (ch + 10) * len(ROOMS)), (20, 20, 24))
+    for r, room in enumerate(ROOMS):
+        for c, s in enumerate(weapons):
+            path = os.path.join(src, f'w1_rowpx_{room}_{s}_off.png')
+            im.paste(_label(Image.open(path).crop(PANEL_BOX), f'PIXELLAB {room} {s}'), (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'P1_weapons.png'))
+    made.append('P1_weapons.png')
+    im = Image.new('RGB', (W, H * 2 + 20), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_row_dark_a_ready_off.png')), 'CODE dark a_ready'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_rowpx_dark_a_ready_off.png')), 'PIXELLAB dark a_ready'), (0, H + 20))
+    im.save(os.path.join(out, 'P1_full.png'))
+    made.append('P1_full.png')
+    im = Image.new('RGB', (W * 2 + 20, H), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_rowpx_bright_a_ready_off.png')), 'PIXELLAB HUD'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_rowpx_cards.png')), 'PIXELLAB cards'), (W + 20, 0))
+    im.save(os.path.join(out, 'P1_set.png'))
+    made.append('P1_set.png')
+    import glob as _glob
+    parts = [Image.open(f).convert('RGBA') for f in sorted(_glob.glob(os.path.join(ROOT, 'assets', 'ui', 'um_wpx_*.png')))]
+    pw = sum(p.width for p in parts) + 8 * len(parts)
+    ph = max(p.height for p in parts)
+    sheet = Image.new('RGBA', (pw, ph), (40, 52, 64, 255))
+    x = 0
+    for p in parts:
+        sheet.alpha_composite(p, (x, 0))
+        x += p.width + 8
+    sheet = sheet.resize((pw * 4, ph * 4), Image.NEAREST).convert('RGB')
+    rows = (sheet.width + 2399) // 2400
+    board = Image.new('RGB', (2400, sheet.height * rows + 10 * rows), (20, 20, 24))
+    for r in range(rows):
+        board.paste(sheet.crop((r * 2400, 0, min(sheet.width, (r + 1) * 2400), sheet.height)), (0, r * (sheet.height + 10)))
+    board.save(os.path.join(out, 'P1_parts.png'))
+    made.append('P1_parts.png')
+    print(len(made), '장:', ', '.join(made))
 
 
 def board5(src, before, out):
@@ -341,7 +399,9 @@ def board(src, out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--board5':
+    if sys.argv[1] == '--board6':
+        board6(*sys.argv[2:4])
+    elif sys.argv[1] == '--board5':
         board5(*sys.argv[2:5])
     elif sys.argv[1] == '--board4':
         board4(*sys.argv[2:4])

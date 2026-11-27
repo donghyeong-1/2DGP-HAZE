@@ -27,7 +27,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
       python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
-      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2)·um_wp_da_*(W3)·um_wp_row_*(W4))
+      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2)·um_wp_da_*(W3)·um_wp_row_*(W4)·um_wpx_*(P1 PixelLab))
       python tools/make_ui_mist.py --storm  (타이틀 배경·대비 판·줄기 판·잔광 판·글자 뒤 어둠만, R1)
       python tools/make_ui_mist.py --step   (증강 카드 진행 칸 um_step_off·um_step_on만, R1)
 """
@@ -926,6 +926,129 @@ def row_parts():
     return made
 
 
+# ----- P1 무기·E 패널 그림 PixelLab 시험 (2026-11-27, docs/opus/TASKS.md '4차' P1): config.HUD_WEAPON_ART = 'px' -----
+# 원본: assets/sprites/pixellab/ui_wp_v1/raw/ (create_image_pro_flash, 1배 도트로 받은 것. 기록은 같은 폴더 GENERATION_LOG.md).
+# 상태·색 변형은 새로 뽑지 않고 여기서 만든다: 결정은 한 장의 밝기 순서를 단계 색 사다리에 바꿔 끼우고(실루엣이 같다), 빈 결정은 같은 실루엣을 어둡게 채우고 윤곽만 흐린 회백.
+# 소켓·칸 틀은 속(어두운 남색 바탕)을 비워 row의 반투명 바탕이 보이게 하고, 테두리 색만 상태별로 바꾼다. 들지 않은 칸(72x56)은 든 칸 원본을 9칸으로 나눠 줄인다(확대·축소 없음).
+PX_RAW = os.path.join(PX, 'ui_wp_v1', 'raw')
+PX_FILL = {(20, 26, 38), (11, 14, 22), (35, 43, 58)}            # PixelLab 원본의 어두운 속 색 (테두리 안쪽에서 비운다)
+
+
+def _px_load(name):
+    return np.array(Image.open(os.path.join(PX_RAW, name)).convert('RGBA'))
+
+
+def _px_clear_inside(a, keep):
+    """불투명 영역의 가장자리에서 keep 도트 안쪽에 있는 어두운 속 색 도트를 투명으로."""
+    solid = a[:, :, 3] > 0
+    ring = np.zeros_like(solid)
+    m = solid.copy()
+    for _ in range(keep):
+        e = _edge(m)
+        ring |= e
+        m &= ~e
+    dark = np.array([[tuple(int(v) for v in px[:3]) in PX_FILL for px in row] for row in a])
+    out = a.copy()
+    out[m & dark] = 0
+    return out
+
+
+def _px_tone(a, src_colors, dst):
+    """src_colors(원본 색 목록)의 도트를 dst 색으로."""
+    out = a.copy()
+    for c in src_colors:
+        mk = (a[:, :, 3] > 0) & (a[:, :, :3] == c).all(axis=2)
+        out[mk, :3] = dst
+    return out
+
+
+def _px_crystal():
+    raw = _px_load('crystal_s52.png')
+    ys, xs = np.nonzero(raw[:, :, 3])
+    c = raw[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    h, w = c.shape[:2]
+    W, H = w + (w % 2), h + (h % 2)                                  # 짝수 폭·높이 (2배 뒤 가운데 자리가 짝수 좌표)
+    base = np.zeros((H, W, 4), np.uint8)
+    base[:h, :w] = c
+    solid = base[:, :, 3] > 0
+    cols = sorted({tuple(int(v) for v in px[:3]) for px in base[solid]}, key=lambda t: 0.299 * t[0] + 0.587 * t[1] + 0.114 * t[2])
+    made = [save2(base, 'um_wpx_crystal_haze.png')]
+    for lv, tone in WP_TIER.items():                                  # 밝기 순서대로 단계 색 사다리(윤곽 -> 그늘 -> 몸 -> 밝음 -> 흰 빛)
+        light, body, shade, rim = _tier_ramp(tone)
+        ramp = [rim, shade, body, light, _mix(light, (255, 255, 255), 0.5)]
+        out = base.copy()
+        for i, col in enumerate(cols):
+            mk = solid & (base[:, :, :3] == col).all(axis=2)
+            out[mk, :3] = ramp[min(len(ramp) - 1, i * len(ramp) // len(cols))]
+        made.append(save2(out, f'um_wpx_crystal_e{lv}.png'))
+    empty = np.zeros_like(base)                                       # 빈 결정: 같은 실루엣, 어두운 속 + 흐린 회백 윤곽
+    empty[solid] = _rgba(WP_WELL)
+    empty[_edge(solid)] = _rgba(WP_GHOST)
+    made.append(save2(empty, 'um_wpx_crystal_empty.png'))
+    return made
+
+
+def _px_socket():
+    raw = _px_clear_inside(_px_load('socket_s61.png'), 3)
+    rim = [(70, 81, 106), (35, 43, 58)]
+    made = []
+    for name, tone in (('line', (112, 122, 142)), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):
+        a = _px_tone(raw, rim, tone)
+        if name != 'line':                                            # 켬: 십자 마디의 밝은 회백도 단계 색 쪽으로
+            a = _px_tone(a, [(196, 204, 216), (238, 241, 245)], _mix(tone, (255, 255, 255), 0.55))
+        made.append(save2(a, f'um_wpx_socket_{name}.png'))
+    return made
+
+
+def _px_nine(a, w, h, c):
+    """9칸 줄이기: 모서리 c 도트는 그대로, 변은 가운데를 잘라 붙인다 (확대·축소 없음)."""
+    H, W = a.shape[:2]
+    out = np.zeros((h, w, 4), np.uint8)
+    out[:c, :c], out[:c, w - c:], out[h - c:, :c], out[h - c:, w - c:] = a[:c, :c], a[:c, W - c:], a[H - c:, :c], a[H - c:, W - c:]
+    out[:c, c:w - c] = a[:c, c:c + w - 2 * c]
+    out[h - c:, c:w - c] = a[H - c:, c:c + w - 2 * c]
+    out[c:h - c, :c] = a[c:c + h - 2 * c, :c]
+    out[c:h - c, w - c:] = a[c:c + h - 2 * c, W - c:]
+    return out
+
+
+def _px_slots():
+    raw = _px_load('slot_s64.png')
+    key = (raw[:, :, :3] == (255, 0, 255)).all(axis=2)
+    raw[key] = 0
+    shape = raw[:, :, 3] > 0
+    second = _edge(shape & ~_edge(shape))                              # 바깥에서 둘째 줄
+    raw = _px_clear_inside(raw, 2)
+    made = []
+    for wid, c in _weapon_colors().items():                            # 든 칸: 원본 그대로 + 안쪽 둘째 줄에 무기 색 한 줄 (흰 모서리 표시는 남긴다)
+        a = raw.copy()
+        outer = _edge(shape) & ~(a[:, :, :3] == (238, 241, 245)).all(axis=2)
+        a[outer & (a[:, :, 3] > 0)] = _rgba((196, 204, 216))           # 든 칸 겉선은 밝게 (원본 남회색은 어두운 방에서 묻힌다)
+        a[second & ~(a[:, :, :3] == (238, 241, 245)).all(axis=2)] = _rgba(c)
+        made.append(save2(a, f'um_wpx_slot_{wid}.png'))
+    small = _px_nine(raw, ROW_SMALL[0], ROW_SMALL[1], 6)                # 들지 않은 칸: 9칸으로 줄이고 밝은 색을 회백 한 단계 아래로
+    small = _px_tone(small, [(238, 241, 245), (196, 204, 216)], D_IDLE)
+    small = _px_tone(small, [(138, 147, 163)], (96, 104, 120))
+    made.append(save2(small, 'um_wpx_slot_line.png'))
+    return made
+
+
+def _px_keys():
+    raw = _px_load('key_s65.png')
+    solid = raw[:, :, 3] > 0
+    made = []
+    for name, tone in (('hot', WP_HOT), ('line', D_IDLE)):
+        a = raw.copy()
+        a[_edge(solid)] = _rgba(tone)                                 # 바깥 한 줄만 상태 색 (속·안쪽 고리·빛은 원본)
+        made.append(save2(a, f'um_wpx_key_{name}.png'))
+    return made
+
+
+def px_parts():
+    # 키 배지(_px_keys, raw/key_s65.png)는 1회차 촬영에서 안쪽 고리가 숫자를 가려(1이 Θ처럼 보임) 버렸다. 키 배지는 코드 그림을 쓴다
+    return _px_crystal() + _px_socket() + _px_slots()
+
+
 def wp_parts():
     made = []
     # a 결정 소켓
@@ -965,6 +1088,7 @@ def wp_parts():
     made += d_parts()                             # W2 시안 D
     made += da_parts()                            # W3 확정 da (D 배치 + A 결정 소켓)
     made += row_parts()                           # W4 한 줄 배치 row (기본값)
+    made += px_parts()                            # P1 PixelLab 시험 (HUD_WEAPON_ART = 'px')
     return made
 
 

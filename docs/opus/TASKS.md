@@ -586,3 +586,20 @@
   실제 창 촬영 `W1_ONLY=row W1_EXTRA=row W5_OFF=row python tools/ui_w1_shots.py <폴더>` 후 `--board5 <폴더> <W4 폴더> <비교판 폴더>`, 두 번 돌며 고침(설명 줄이 꼬리표 글자와 붙어 보임 -> 18px 띄움, 건틀릿 빈 막대가 안 보임 -> 밝게).
   비교판 `shots/review/W5_hint.png`(뜬 순간 / 2초 뒤), `W5_combo.png`(W4 전·후), `W5_full.png`.
 - 바꾼 파일: `src/weapon_panel.py`(`_row_meter`, `_row_hint`), `src/ui.py`(`GameUI.clock`), `src/config.py`(`WEAPON_HINT_TIME`), `tools/make_ui_mist.py`, `tools/ui_w1_shots.py`(`W5_OFF`, `--board5`), `tests/test_ui_skin.py`, `assets/ui/um_wp_row_combo_*.png`(새 3장).
+
+## P1 무기·E 패널 그림 PixelLab 시험
+사용자(11/27): **"여기에서 pixelLab을 이용해서 에셋을 뽑는건 어떤가?"** (의견을 물은 것). 지휘 쪽이 "해 볼 만하다, 상한을 두고 시험해서 코드 그림과 나란히 보여 드리겠다"고 답했다.
+그래서 시험이다: 기본 모습은 바꾸지 않았고 쓸지 말지는 사용자가 그림을 보고 정한다.
+- 고르는 법: `src/config.py`의 `HUD_WEAPON_ART`를 `'px'`로(기본 `'code'`). 'row' 배치·크기·자리·동작은 같고 그림만 바뀐다. 없는 부품은 코드 그림으로 떨어진다(`weapon_panel._art`).
+- PixelLab: `create_image_pro_flash`, 화풍 기준 = 갈래 아이콘 `up_mut_bloom`. 잔액 750.70 -> 705.70(45회, 상한 60). 뽑은 9장 중 셋을 썼다(결정, 소켓, 무기 칸 틀). 키 배지는 촬영에서 숫자를 가려 버렸다.
+  96px 캔버스는 1px 도트로 나와 게임의 2px 도트와 맞지 않았다 -> 1배 크기(48x48, 32x32, 48x36)로 뽑아 최근접 2배. 테두리가 바탕에 묻히는 것은 팔레트를 고정해 풀었다. 기록 `assets/sprites/pixellab/ui_wp_v1/GENERATION_LOG.md`.
+- 정리(`tools/make_ui_mist.py --wp`의 `px_parts`, 부품 `um_wpx_*` 14장): 결정은 한 장을 밝기 순서대로 단계 색 사다리에 바꿔 끼워 청록·보라·금·빨강, 같은 실루엣을 어둡게 채워 빈 결정(실루엣이 같다).
+  소켓·칸 틀은 속을 비워 row의 반투명 바탕이 보이게, 테두리 색만 상태별로. 든 칸 = 겉선 밝게 + 둘째 줄 무기 색, 들지 않은 칸 = 9칸으로 72x56에 맞춰 줄이고 한 단 어둡게.
+- 코드 그림과 비교(지휘 쪽·사용자 판단용, 작업 쪽 의견): 나은 점 = 소켓 네 꼭짓점의 밝은 십자 마디와 결정의 면·흰 모서리가 코드 그림보다 손으로 그린 맛이 있다, 칸 틀의 깎인 모서리 사선 표시.
+  못한 점 = 칸 틀의 변 밝기가 고르지 않다(아래 변이 밝고 위·오른쪽이 어둡다. 무기 색 줄이 위·오른쪽에만 보인다), 들지 않은 칸은 코드 그림과 거의 같다, 단계 색 결정은 사다리를 바꿔 끼워 코드 결정보다 조금 탁하다.
+  공사장 느낌(리벳·철판·줄무늬)은 없다. 든 무기는 여전히 가장 먼저 읽힌다.
+- 확인: 테스트 3개(`tests/test_ui_skin.py` test_p1_*: 기본 'code'이면 row 그리기 기록이 W5 끝과 같음, 'px'이면 열다섯 상태가 철판 없이 PixelLab 부품으로, 새 부품 픽셀 규칙·결정 실루엣이 같음·크기).
+  실제 창 촬영 `W1_ONLY=row,rowpx W1_EXTRA=row,rowpx W5_OFF=row,rowpx python tools/ui_w1_shots.py <폴더>` 후 `--board6`, 두 번(1회차: PixelLab 키 배지가 숫자를 가림 -> 버림).
+  비교판 `shots/review/P1_compare_dark.png`·`P1_compare_bright.png`(가로 코드·PixelLab, 원래 크기), `P1_weapons.png`, `P1_full.png`, `P1_set.png`, `P1_parts.png`(4배).
+- 바꾼 파일: `src/weapon_panel.py`(`_art`·`_put_art`), `src/config.py`(`HUD_WEAPON_ART`), `tools/make_ui_mist.py`(`px_parts`), `tools/ui_w1_shots.py`(`rowpx`, `--board6`), `tests/test_ui_skin.py`,
+  `assets/ui/um_wpx_*.png`(새 14장), `assets/sprites/pixellab/ui_wp_v1/`(원본 9장·화풍 기준·기록).

@@ -25,6 +25,9 @@ ZONE_LABEL = {FADE: '페이드', NORMAL: '노멀', AWAKE: '각성', CRITICAL: '�
 ZONE_COLOR = {FADE: (240, 96, 104), NORMAL: (196, 206, 224), AWAKE: (110, 235, 225),
               CRITICAL: (250, 165, 80), OVERLOAD: (250, 220, 90), DEAD: (240, 96, 104)}
 ZONE_FILL = {FADE: 'red', NORMAL: 'gray', AWAKE: 'cyan', CRITICAL: 'orange'}    # G06: 노멀은 옅은 회색
+# H2(11/27) mist: 위험·페이드 맥박은 바깥 띠 대신 게이지 테두리 자체가 구간 색(ZONE_COLOR와 같은 색, um_hud_frame_<tone>)으로 바뀐다
+PULSE_TONE = {CRITICAL: 'crit', FADE: 'fade'}
+IDLE = (160, 170, 188)       # H2 mist: 들지 않은 무기 칸의 아이콘 색 곱·숫자·'빈 칸' 글자 (H1은 (120,130,150) 0.7 / FAINT라 어두운 방에서 사라졌다)
 WHITE = (235, 240, 250)
 TEAL = (130, 235, 225)
 DIM = (150, 165, 190)
@@ -178,13 +181,20 @@ class GameUI:
 
     def _draw_gauge(self):
         g = self.player.gauge
+        mist = kit.is_mist()
+        lit = False
         if g.zone in (FADE, CRITICAL):                           # 양끝 위험 구간: 게이지 둘레가 맥박처럼 깜빡인다
             pulse = 0.5 + 0.5 * math.sin(self.player.aura_time * (9 if g.zone == CRITICAL else 6))
-            if pulse > 0.5:
+            lit = pulse > 0.5
+            if lit and not mist:
                 assets.draw_rect_color(BAR_X - 4, BAR_Y - 10, BAR_W + 8, BAR_H + 20, ZONE_COLOR[g.zone])
-        mist = kit.is_mist()
         if mist:                                                 # H1 mist: 가는 테두리 판 하나 (철판 몸통·양끝 쇠고리 없음)
-            kit.hud_panel('frame', BAR_X - 4, BAR_Y - 4, BAR_W + 8, BAR_H + 8)
+            # H2: 맥박이 켜진 프레임에는 바깥 띠 대신 이 테두리가 구간 색 (가는 테두리 위 띠는 테두리가 두 겹으로 보였다).
+            # 2px 색 테두리만으로는 예전 6px 띠보다 경고가 약해 그 순간만 바깥으로 2px 더 굵게(4px). 안쪽 틈 2px는 그대로
+            if lit:
+                kit.hud_panel('frame', BAR_X - 6, BAR_Y - 6, BAR_W + 12, BAR_H + 12, PULSE_TONE[g.zone] + '_thick')
+            else:
+                kit.hud_panel('frame', BAR_X - 4, BAR_Y - 4, BAR_W + 8, BAR_H + 8)
         else:
             body = assets.image(kit.art('gauge_body.png'))          # 몸통 틀: 흰 윗선·밑선 + 남색 그림자, 가로로 이어 붙인다
             for along in range(0, BAR_W, body.w):
@@ -293,7 +303,7 @@ class GameUI:
             x, y = xs[i], ACT_Y
             active = i == p.slot
             if kit.is_mist():                                                # H1 mist: 든 칸 = 테두리가 밝아진다 (꺾쇠·띠 없음)
-                kit.hud_panel('slot', x, y, SLOT, SLOT, 'hot' if active else 'dim')
+                kit.hud_panel('slot', x, y, SLOT, SLOT, 'hot' if active else 'line')   # H2: 들지 않은 칸은 기본 회백 (dim은 어두운 방에서 사라졌다)
             elif active and g.enhanced and not kit.is_plate():                 # 강화 중: 든 칸 둘레에 단계 색 (철판은 든 칸 = 노란 꺾쇠만, 단계 색은 E 칸에)
                 assets.draw_rect_color(x - 4, y - 4, SLOT + 8, SLOT + 8, config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))])
             if kit.is_mist():
@@ -305,15 +315,18 @@ class GameUI:
             else:
                 kit.panel('slot_hot' if active else 'slot', x, y, SLOT, SLOT)
             if wp is None:
-                kit.text(x + SLOT // 2, y + SLOT // 2, '빈 칸', FAINT, small=True, center=True)
+                kit.text(x + SLOT // 2, y + SLOT // 2, '빈 칸', IDLE if kit.is_mist() else FAINT, small=True, center=True)
                 continue
             img = assets.image(f'ui/icon_w_{wp.weapon_id}.png')
             if active:
                 assets.draw_image(img, x + SLOT // 2, y + (SLOT - img.h) // 2)
+            elif kit.is_mist():                                              # H2: 들지 않은 칸 아이콘도 조금 밝게 (든 칸은 원래 색 그대로라 구분된다)
+                assets.draw_image_tinted(img, x + SLOT // 2, y + (SLOT - img.h) // 2, '', IDLE, 0.85)
             else:
                 assets.draw_image_tinted(img, x + SLOT // 2, y + (SLOT - img.h) // 2, '', (120, 130, 150), 0.7)
             import keybinds
-            kit.hud_keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active)
+            kit.hud_keycap(x + 4, y + SLOT - 34, keybinds.label(f'weapon{i + 1}', first=True)[:3], hot=active,
+                           dim_color=IDLE if kit.is_mist() else None)
             if not active and p.weapons[p.slot] is not None:               # v8 교체기: 이 칸으로 바꾸면 기술이 나간다. 칸 위쪽 막대 = 쿨다운(다 차면 그 무기 색)
                 import combo
                 ratio = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))   # v8 교체 연무는 짧다
@@ -323,9 +336,11 @@ class GameUI:
         ex = xs[0] - SLOT - 26
         ready = g.can_enhance()
         hot = g.enhanced
-        if kit.is_mist():                                                    # H1 mist: 준비·강화 중이면 테두리가 강화 단계 색 (두꺼운 테 없음)
-            lv = max(1, min(3, g.enhance_level)) if hot else 1
-            kit.hud_panel('slot', ex, ACT_Y, SLOT, SLOT, f'e{lv}' if hot or ready else 'dim')
+        if kit.is_mist():                                                    # H1 mist: 강화 중이면 테두리가 강화 단계 색 (두꺼운 테 없음)
+            # H2: 쓸 수 있지만 켜지 않은 평소에는 다른 칸과 같은 기본 회백 (색 테두리라 든 무기 칸보다 먼저 눈에 띄었다).
+            # 켠 순간(강화 준비)만 단계 색, 게이지가 모자라면 흐린 테두리
+            tone = f'e{max(1, min(3, g.enhance_level))}' if hot else ('line' if ready else 'dim')
+            kit.hud_panel('slot', ex, ACT_Y, SLOT, SLOT, tone)
         elif kit.is_plate():                                                 # 철판: E 칸은 노란 꺾쇠를 쓰지 않고 강화 단계 색 테 (든 무기 칸과 구별)
             if hot or ready:
                 lv = max(1, min(3, g.enhance_level)) if hot else 1

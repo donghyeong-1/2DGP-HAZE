@@ -927,8 +927,11 @@ MIST_DONE_DIGEST = {
     'keys_0': '89e6b6949d456e3d', 'keys_listen': 'e52db5bf5ec26c81', 'keys_buttons': '793b1540dbcb3f05',
     'ending_dead_choose': 'b9e6f5c9ad866e37', 'ending_dead': '52682eb733096be5', 'ending_clear': '11eef79b43905daf',
     'credits_0': '9806d3b1e8a2a935', 'credits_mid': '0b0823fe314bdbc0',
-    'hud_normal': '8efe4fcd6336eccb', 'hud_critical': 'b31072f9b278ac7c', 'hud_fade_items_curse': '3bb41f6c79aa52a0',
-    'hud_enhanced': '865db9d39038e5d6', 'hud_boss': '00693a953f9a52ad', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    # H2(11/27)이 mist HUD 다섯 장면을 바꿨다: 위험·페이드 맥박이 바깥 띠 대신 게이지 테두리(critical·fade_items_curse),
+    # 들지 않은 무기 칸 테두리 dim -> line·아이콘·숫자 밝게(모든 장면), 켜지 않았지만 쓸 수 있는 E 칸 테두리 e1 -> line(enhanced 밖의 장면).
+    # S1 전 값: normal 8efe4fcd6336eccb, critical b31072f9b278ac7c, fade_items_curse 3bb41f6c79aa52a0, enhanced 865db9d39038e5d6, boss 00693a953f9a52ad
+    'hud_normal': '23b4e49a3fc1f2c2', 'hud_critical': 'c4f647940e7a08a6', 'hud_fade_items_curse': 'bdaf7e221ef01150',
+    'hud_enhanced': '9d1b7738804e202b', 'hud_boss': 'f572fa1d75edfce9', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # mist에서도 쓰는 철판 쪽 작은 그림 (판·틀·띠·키·노란 표시가 아니다). up_step_off는 증강 카드의 진행 칸(이미 끝난 화면이라 그대로 둔다)
 MIST_PLATE_ICONS_OK = PLATE_ICONS_OK + ('up_step_off',)
@@ -1134,6 +1137,165 @@ def test_s1fix_inverted_block_holds_its_whole_text():
     for scene, r in logs.items():                       # 다른 화면은 고치지 않는다: 잘리지 않는지(1px 이상)만. 효과음 듣기의 영문 소문자
         n += _inverted_text_fits(r, (mm.PH, mp.HOT_BG, mp.HOT_OFF), (mm.PH_BG, mp.HOT_FG), scene, margin=1)   # g 아래가 1px 여유
     assert n > 20, n
+
+
+# ----- 2026-11-27 H2 HUD 손질 셋 (지휘 쪽 검토 셋, 사용자 "HUD 세 가지 다 고쳐줘". docs/opus/TASKS.md '4차' H2) -----
+def _h2_log(state, aura=None, prep=None):
+    """mist에서 _hud_states의 한 장면을 aura_time·준비를 바꿔 그린 기록."""
+    import ui
+
+    def go():
+        p, st, _pick = state()
+        if prep:
+            prep(p)
+        if aura is not None:
+            p.aura_time = aura
+        with _Recorder() as r:
+            ui.GameUI(p, st).draw()
+        return r, p
+    return _with_skin('mist', go)
+
+
+def _frame_at(r, x, y):
+    """(x, y)에 왼쪽 아래 모서리를 그린 테두리 그림 경로 (hud_panel의 9칸 중 왼쪽 아래 조각)."""
+    got = [row[1] for row in r.log if row[0] == 'draw_clip' and row[1].startswith('ui/um_hud_frame_')
+           and row[6] == x and row[7] == y]
+    return got[0] if got else None
+
+
+def _h2_state(name):
+    return dict(_hud_states())[name]
+
+
+def _gauge_frame(r):
+    import ui
+    for d in (4, 6):                                     # 기본 2px 테두리는 바깥 4px 자리, 굵어진 테두리는 6px 자리
+        f = _frame_at(r, ui.BAR_X - d, ui.BAR_Y - d)
+        if f:
+            return f
+    return None
+
+
+def test_h2_gauge_pulse_tints_the_frame_without_an_outer_band():
+    """(1) mist 위험·페이드: 게이지 판 바깥에 색 띠(사각형)를 그리지 않는다. 맥박이 켜진 프레임에는 게이지 테두리가 구간 색 부품으로,
+    꺼진 프레임에는 기본 테두리. 노멀·각성은 늘 기본 테두리."""
+    import math
+    import ui
+    from haze_gauge import AWAKE, CRITICAL, FADE, NORMAL
+    cases = [('critical', CRITICAL, math.pi / 18, 3 * math.pi / 18), ('fade_items_curse', FADE, math.pi / 12, 3 * math.pi / 12)]
+    for name, zone, on, off in cases:
+        for aura, lit in ((on, True), (off, False)):
+            r, p = _h2_log(_h2_state(name), aura)
+            assert p.gauge.zone == zone, (name, p.gauge.zone)
+            for row in r.log:                            # 구간 색 사각형(옛 띠: 판 위아래 6px 바깥)을 그리지 않는다
+                assert not (row[0] == 'draw_rect_color' and row[5] == ui.ZONE_COLOR[zone]), (name, row)
+            frame = _gauge_frame(r)
+            want = 'ui/um_hud_frame_' + ui.PULSE_TONE[zone]
+            assert frame is not None, name
+            if lit:
+                assert frame.startswith(want), (name, frame)
+            else:
+                assert frame == 'ui/um_hud_frame_line.png', (name, frame)
+
+    def awake(p):
+        p.gauge.value = 70
+        p.gauge.zone = p.gauge._zone_of(70)
+    for prep, zone in ((None, NORMAL), (awake, AWAKE)):
+        for aura in (math.pi / 18, math.pi / 12, 0.1):
+            r, p = _h2_log(_h2_state('normal'), aura, prep)
+            assert p.gauge.zone == zone
+            assert _gauge_frame(r) == 'ui/um_hud_frame_line.png', (zone, aura)
+
+
+def _e_slot_x():
+    import ui
+    return ui.ACT_RIGHT - 2 * ui.SLOT - 14 - ui.SLOT - 26
+
+
+def test_h2_e_slot_is_plain_until_enhance_is_on():
+    """(2) mist E 칸 테두리: 쓸 수 있지만 켜지 않음 = 기본 테두리(line), 켬 = 강화 단계 색(e1~e3), 게이지가 모자라 못 씀 = 흐린 테두리(dim)."""
+    import ui
+
+    def gauge_to(v):
+        def f(p):
+            p.gauge.value = v
+            p.gauge.zone = p.gauge._zone_of(v)
+        return f
+
+    def enhance(n):
+        def f(p):
+            gauge_to(90)(p)
+            for _ in range(n):
+                assert p.gauge.use_enhance()
+        return f
+    r, p = _h2_log(_h2_state('normal'), 0.1, gauge_to(62))
+    assert p.gauge.can_enhance() and not p.gauge.enhanced
+    assert _frame_at(r, _e_slot_x(), ui.ACT_Y) == 'ui/um_hud_frame_line.png'
+    for n in (1, 2, 3):
+        r, p = _h2_log(_h2_state('normal'), 0.1, enhance(n))
+        assert p.gauge.enhanced and p.gauge.enhance_level == n
+        assert _frame_at(r, _e_slot_x(), ui.ACT_Y) == f'ui/um_hud_frame_e{n}.png', n
+    r, p = _h2_log(_h2_state('normal'), 0.1, gauge_to(22))
+    assert not p.gauge.can_enhance() and not p.gauge.enhanced
+    assert _frame_at(r, _e_slot_x(), ui.ACT_Y) == 'ui/um_hud_frame_dim.png'
+
+
+def _luma(c):
+    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+
+
+def _frame_color(path):
+    a = np.array(Image.open(os.path.join(ROOT, 'assets', path)).convert('RGBA'))
+    return tuple(int(v) for v in a[a[:, :, 3] > 0][0][:3])
+
+
+IDLE_MIN_LUMA = 120          # 들지 않은 칸 테두리: 어두운 방에서도 칸으로 읽히는 밝기 (11/27 H1의 dim은 약 78)
+IDLE_GAP_LUMA = 60           # 든 칸(밝은 회백, 약 227)과 이만큼 이상 차이
+
+
+def test_h2_idle_weapon_slot_reads_as_a_slot_but_stays_below_the_held_one():
+    """(3) mist에서 들지 않은 무기 칸(빈 칸 포함)의 테두리 밝기가 IDLE_MIN_LUMA 이상이고, 든 칸 테두리보다 IDLE_GAP_LUMA 이상 어둡다.
+    들지 않은 칸의 아이콘·숫자, '빈 칸' 글자도 예전(H1)보다 밝다."""
+    import ui
+    xs = [ui.ACT_RIGHT - 2 * ui.SLOT - 14, ui.ACT_RIGHT - ui.SLOT]
+
+    def empty(p):
+        p.set_loadout('pipe')
+    for prep, idle in ((None, 0), (empty, 1)):
+        r, p = _h2_log(_h2_state('normal'), 0.1, prep)
+        held = p.slot
+        assert held != idle
+        idle_c = _frame_color(_frame_at(r, xs[idle], ui.ACT_Y))
+        held_c = _frame_color(_frame_at(r, xs[held], ui.ACT_Y))
+        assert _luma(idle_c) >= IDLE_MIN_LUMA, idle_c
+        assert _luma(held_c) - _luma(idle_c) >= IDLE_GAP_LUMA, (held_c, idle_c)
+        texts = [row for row in r.log if row[0] == 'draw_text' and xs[idle] <= row[1] <= xs[idle] + ui.SLOT and row[2] <= ui.ACT_Y + ui.SLOT
+                 and row[4] != hud_kit.SHADOW]                # 글자 그림자는 뺀다
+        assert texts, idle
+        for row in texts:                                  # 칸 안 숫자 / '빈 칸'
+            assert _luma(row[4]) >= 145, row
+        if idle == 0:
+            tint = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1].startswith('ui/icon_w_')]
+            assert tint and _luma(tint[0][5]) >= 145 and tint[0][6] >= 0.8, tint
+
+
+H2_NEW_TONES = ('crit', 'fade')
+
+
+def test_h2_new_frame_parts_follow_pixel_rules():
+    """(4) 새 테두리 부품(위험·페이드 구간 색)이 픽셀 규칙(알파 0/255, 2px 격자, 한 색)을 지키고 속이 비었으며 색이 구간 색과 같다."""
+    import ui
+    from haze_gauge import CRITICAL, FADE
+    for zone in (CRITICAL, FADE):
+        tone = ui.PULSE_TONE[zone]
+        for path in glob.glob(os.path.join(UI, f'um_hud_frame_{tone}*.png')):
+            a = np.array(Image.open(path).convert('RGBA'))
+            assert set(np.unique(a[:, :, 3])) <= {0, 255}, path
+            assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), path
+            assert {tuple(c) for c in a[a[:, :, 3] > 0][:, :3]} == {tuple(ui.ZONE_COLOR[zone])}, path
+            h, w = a.shape[:2]
+            assert not a[4:h - 4, 4:w - 4, 3].any(), path
+        assert os.path.exists(os.path.join(UI, f'um_hud_frame_{tone}.png')), tone
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

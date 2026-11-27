@@ -412,3 +412,19 @@
 - 바꾼 파일: `src/mist_pick.py`(새), `src/npc_mode.py`, `src/practice_mode.py`, `src/sfx_mode.py`, `src/boss_intro.py`, `src/pedestal.py`, `src/hud_kit.py`, `src/mist_menu.py`, `src/options_mode.py`,
   `tools/make_ui_mist.py`(`--pick`), `tools/ui_pick_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_pick_cursor(_off).png`(새).
 - S1-fix(11/27, 지휘 쪽 검토): 설정에서 고른 이름의 뒤집힌 블록을 위아래 14(28px)로 줄인 탓에 갈무리 28px 글자(실제 픽셀 y-12 ~ y+15) 윗줄이 잘려 보였다. 블록을 아래 14·위 18(32px, `mist_menu.pick(span=)`, `options_mode.MIST_PICK_SPAN`)로: 글자 위아래 여유 3px(실제 창에서 잼), 설명을 덮지 않고 이름·설명 자리는 그대로. 다른 화면은 그대로(효과음 듣기의 영문 소문자 g 아래만 1px 여유, 잘리지는 않음). 테스트 `test_s1fix_inverted_block_holds_its_whole_text`(SDL_ttf로 실제 글자 픽셀을 잼), 비교판 `shots/review/S1fix_options_*.png`.
+
+
+## H2 HUD 손질 셋
+사용자 결정(11/27): 지휘 쪽이 H1 결과를 보고 알린 세 가지("위험 구간 맥박 띠가 테두리와 두 겹으로 보임, E 칸이 지금 무기 칸보다 눈에 띔, 들지 않은 무기 칸이 거의 안 보임")에 **"HUD 세 가지 다 고쳐줘"**. 고치는 방법은 지휘 쪽 제안.
+- 한 것 (mist만, `src/ui.py`)
+  - 맥박: 바깥 6px 색 띠를 mist에서 그리지 않는다. 맥박이 켜진 프레임(위험 sin(9t) > 0, 페이드 sin(6t) > 0, 박자·켜짐/꺼짐 그대로)에 게이지 테두리 자체가 구간 색 `ui.PULSE_TONE`(위험 `crit` (250,165,80), 페이드 `fade` (240,96,104) = 예전 띠 색).
+    처음에는 2px 색 테두리만 바꿨는데 실제 창에서 예전 6px 띠보다 경고가 눈에 띄게 약했다 -> 켜진 순간만 바깥으로 2px 더 굵게(4px, 판 `BAR_X-6`, `um_hud_frame_<tone>_thick`). 안쪽 2px 틈은 그대로라 막대가 색 판에 싸여 보이지 않는다.
+    구간 표시 판 테두리는 같이 맥박시키지 않았다(4px 테두리로 충분히 또렷하고, 판이 둘 다 깜빡이면 다시 두 겹처럼 보인다). 번쩍임 줄이기는 이 맥박에 걸려 있지 않았다(그대로).
+  - E 칸: 쓸 수 있지만 켜지 않음 = 기본 회백 `line` (128,137,152), 켬 = 강화 단계 색 `e1~e3`(그대로), 못 씀 = `dim`(그대로). 단계 점·아이콘·'강화 -25%'·재충전 막대는 그대로.
+  - 들지 않은 무기 칸(빈 칸 포함): 테두리 `dim` (70,78,94) -> `line` (128,137,152). 밝기(0.299R+0.587G+0.114B) 약 78 -> 136, 든 칸 `hot` 약 227. 아이콘 색 곱 (120,130,150)·0.7 -> `ui.IDLE` (160,170,188)·0.85, 숫자 FAINT (120,134,160) -> (160,170,188)(`hud_kit.hud_keycap(dim_color=)`, 기본값은 그대로라 보스 대사 띠 키 판은 같다), '빈 칸' 글자 (105,118,145) -> (160,170,188).
+  - 새 부품 `assets/ui/um_hud_frame_crit|fade(_thick).png` 4장(`tools/make_ui_mist.py --hud`, 기존 부품은 바이트 단위로 같게 다시 구워짐).
+- 확인: 테스트 4개(`tests/test_ui_skin.py` test_h2_*: 위험·페이드에 구간 색 사각형 없음 + 켜진 프레임 = 구간 색 테두리·꺼진 프레임·노멀·각성 = 기본, E 칸 세 상태와 1~3단계, 들지 않은 칸 밝기 ≥ 120이고 든 칸보다 60 이상 어두움 + 아이콘·숫자·빈 칸 글자 밝기 ≥ 145, 새 부품 픽셀 규칙).
+  mist HUD 다섯 장면의 그리기 기록 해시만 바뀌었다(`MIST_DONE_DIGEST`, 주석에 이유). 옛 스킨 셋·메뉴·고르는 화면·타이틀 해시는 그대로.
+  실제 창 촬영 `tools/ui_hud2_shots.py`(새: 위험·페이드 맥박 켜짐/꺼짐 4장 + 무기 칸 여섯 상태 x 어두운 방·밝은 벽 방 12장), 비교판 `shots/review/H2_gauge_pulse.png`, `H2_slots_dark.png`, `H2_slots_bright.png`, `H2_full_critical.png`, `H2_full_normal.png`.
+- 찾았지만 고치지 않은 것: 게이지가 모자라 E를 못 쓸 때(`dim`)의 E 칸은 어두운 방에서 예전 들지 않은 칸처럼 흐리다(지시: 지금처럼 흐리게). 구간 경계 흰 눈금이 굵어진 색 테두리 위아래를 가로지른다(예전 띠 위에서도 같았다).
+- 바꾼 파일: `src/ui.py`, `src/hud_kit.py`, `tools/make_ui_mist.py`, `tools/ui_hud2_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_hud_frame_(crit|fade)(_thick).png`(새 4장).

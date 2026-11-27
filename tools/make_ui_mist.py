@@ -294,7 +294,10 @@ HUD_TONES = {
     'cyan': (46, 230, 214),                     # 헤이즈
     'gold': (240, 180, 50),                     # 합성·보상
     'e1': (200, 160, 255), 'e2': (255, 206, 92), 'e3': (255, 96, 110),   # config.ENHANCE_LEVEL_COLOR (E 칸 강화 단계)
+    # H2(11/27): 위험·페이드 맥박이 켜진 프레임의 게이지 테두리 (ui.ZONE_COLOR와 같은 색. 예전 바깥 띠가 쓰던 색)
+    'crit': (250, 165, 80), 'fade': (240, 96, 104),
 }
+PULSE_THICK = ('crit', 'fade')                  # 이 색들은 굵은 테두리(um_hud_frame_<색>_thick, 선 2도트)도 굽는다
 # 막대 속: 한 색 + 위 1도트 밝은 줄 (철판 막대의 마디·아래 그늘 없이). 색은 철판 막대의 바탕색 그대로(뜻이 같게)
 HUD_FILLS = {
     'red': ((226, 58, 72), (255, 120, 128)), 'orange': ((236, 128, 48), (255, 178, 100)),
@@ -320,6 +323,11 @@ def hud_frames():
         a = np.zeros((n, n, 4), np.uint8)
         a[0, :], a[-1, :], a[:, 0], a[:, -1] = _rgba(c), _rgba(c), _rgba(c), _rgba(c)
         made.append(save2(a, f'um_hud_frame_{tone}.png'))
+    for tone in PULSE_THICK:                      # H2: 맥박이 켜진 프레임의 게이지 테두리는 그 순간만 한 단계 굵게 (도트 2칸 = 화면 4px)
+        c = HUD_TONES[tone]
+        a = np.zeros((n, n, 4), np.uint8)
+        a[:2, :], a[-2:, :], a[:, :2], a[:, -2:] = _rgba(c), _rgba(c), _rgba(c), _rgba(c)
+        made.append(save2(a, f'um_hud_frame_{tone}_thick.png'))
     return made
 
 

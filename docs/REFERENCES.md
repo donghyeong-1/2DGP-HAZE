@@ -57,3 +57,25 @@ npx skills add gamedev-skills/awesome-gamedev-agent-skills --skill game-feel --a
   색 면의 수명은 2~3프레임, 화면 정지는 한 번도 없음, 처형 전 0.3초 암전. 측정값과 장면별 관찰은
   `.claude/skills/haze-inari/references/inari-analysis.md`, 기법과 우리 도구의 대응은 `.claude/skills/haze-inari/SKILL.md`. 영상의 프레임은 저장하지 않았다.
 
+## 2026-11-27 HUD 행동 칸 배치 조사 (무기·E 패널 W4)
+사용자 "배치를 새로 짜는 것으로 현재 비슷한 장르 게임들의 ui 배치나, 색, 반투명도, 크기 등을 조사해서 세팅을 해줘"에 따라 지휘 쪽이 조사했다.
+**아래 글들은 웹 검색 결과의 요약으로 확인한 것이다.** 일부 사이트는 자동 접근을 막아 본문을 직접 읽지 못했고, 게임 화면을 직접 보지도 못했다. 다시 받아 오려고 하지 않는다.
+
+확인된 것 (출처 있음):
+1. 능력 칸·무기 선택·빠른 사용 칸은 보통 화면 아래 가운데나 아래 귀퉁이에 둔다. 화면 한가운데에 늘 떠 있는 HUD는 시선을 전투에서 떼어 놓는다.
+   ([abratabia.com HUD 설계 글](https://www.abratabia.com/game-ui-design/hud-design.php), [medium.com/my-games-company HUD 글](https://medium.com/my-games-company/heads-up-an-in-depth-dissection-of-one-of-the-most-important-gaming-ui-elements-the-hud-6aa139510804))
+2. 성공한 액션 게임의 HUD는 늘 떠 있는 요소가 3~5개이고 나머지는 필요할 때만 나온다. 자리가 좁으면 숫자·글보다 아이콘으로 알린다. (같은 두 글)
+3. 색만으로 정보를 알리지 않는다. 아이콘·모양·글자를 함께 쓴다. 준비됨/재충전 중 같은 상태에 특히. ([uxdesign.cc "how to not overwhelm players"](https://uxdesign.cc/how-to-not-overwhelm-players-c0e1d14c6b4c), 일반 UI 지침)
+4. 쿨다운 표시가 화면 가운데에서 멀면 플레이어가 전투에서 눈을 떼야 하고, 결국 보지 않고 연타하게 된다는 플레이어 의견이 있다. 제안된 대책은 준비됐을 때의 소리와 캐릭터 가까이의 신호.
+   ([Steam 토론 글](https://steamcommunity.com/app/572220/discussions/0/3476238687974367021))
+5. 1080p의 제목 안전 영역은 좌우 96px, 위아래 40px 안쪽이다. TV 기준이라 PC 창 게임에는 느슨하게 적용한다. ([Xbox GDK 'screen areas'](https://devdocs.xbox.com/build/core-features/graphics/overviews/screen-areas))
+6. 하데스 계열은 체력과 그에 딸린 자원(게이지, 탄약)을 한 귀퉁이에 붙여 둔다: "God Gauge가 체력 막대 아래에", "탄약이 체력 막대 오른쪽에", Hades II는 체력·마력이 화면 왼쪽 아래 가장자리.
+   ([Hades 위키 Gameplay mechanics](https://hades.fandom.com/wiki/Gameplay_mechanics), [pixeltwelve.com Hades II HUD 안내](https://pixeltwelve.com/guides/hades-ii-life-magick-armor-hud))
+
+확인하지 못한 것 (지휘 쪽이 아는 장르 관습. **근거가 약하다**):
+- 횡스크롤 액션 로그라이크의 행동 칸은 한 줄로 가지런히, 아랫변을 맞춰 놓는 경우가 많고, 칸의 순서가 키 순서와 같으며, 무기를 바꿔도 칸의 자리는 움직이지 않는다(자리가 곧 기억이다).
+- 칸 크기는 1080p에서 한 변 56~72px쯤(화면 높이의 5~7%), 지금 쓰는 것이 다른 것보다 1.2~1.4배 크다.
+- 칸 바탕은 어두운 반투명(불투명도 0.6~0.85). 지금 쓰는 칸은 더 불투명하고 밝게, 쓰지 않는 칸은 아이콘을 0.5~0.7로 흐리게.
+- 이름·설명 글은 늘 띄워 두지 않고 작게 두거나 바뀔 때만 잠깐 보여 준다.
+
+우리에게 적용한 것: 무기·E 패널 'row'(`docs/opus/TASKS.md` '4차' W4). 다른 게임의 화면을 흉내 내지 않고 구성 원리만 가져왔다.

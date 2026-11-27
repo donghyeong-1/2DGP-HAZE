@@ -938,10 +938,10 @@ MIST_DONE_DIGEST = {
     # S1 전 값: normal 8efe4fcd6336eccb, critical b31072f9b278ac7c, fade_items_curse 3bb41f6c79aa52a0, enhanced 865db9d39038e5d6, boss 00693a953f9a52ad
     # R1(11/27): ending_dead_choose = 맡길 물건 이름을 칸 위로·칸 간격 88(묶음 6, 전 b9e6f5c9ad866e37), credits_mid = 크레딧 문구(묶음 4, 전 0b0823fe314bdbc0),
     # hud_critical·hud_fade_items_curse = 맥박이 켜진 프레임의 구간 눈금을 테두리 안쪽까지만(묶음 5, 전 c4f647940e7a08a6·bdaf7e221ef01150)
-    # W3(11/27): 무기·E 패널 기본값이 'flat' -> 'da'(D 배치 + A 결정 소켓)라 HUD 다섯 장면이 바뀌었다. 'flat' 값은 FLAT_MIST_HUD_DIGEST
-    # (W3 전: normal 23b4e49a3fc1f2c2, critical 9fb9d92670150de6, fade_items_curse b14964aa31ca37d3, enhanced 9d1b7738804e202b, boss f572fa1d75edfce9)
-    'hud_normal': '0983bb8e8fb070bd', 'hud_critical': '45af07c556566555', 'hud_fade_items_curse': '0b3e5f39d920eddc',
-    'hud_enhanced': 'b2965326972bc329', 'hud_boss': '6ef6c177c0925d67', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    # W4(11/27): 무기·E 패널 기본값이 'da' -> 'row'(한 줄 1·2·E)라 HUD 다섯 장면이 다시 바뀌었다. 'flat' 값은 FLAT_MIST_HUD_DIGEST, 'da'는 DA_DIGEST가 본다
+    # (W4 전 = da: normal 0983bb8e8fb070bd, critical 45af07c556566555, fade_items_curse 0b3e5f39d920eddc, enhanced b2965326972bc329, boss 6ef6c177c0925d67)
+    'hud_normal': '0cee15bba614f447', 'hud_critical': 'd91b8f349ea0d637', 'hud_fade_items_curse': 'c93403d845b463d6',
+    'hud_enhanced': 'beba88515de4feb2', 'hud_boss': '0efed2a7de8aeab8', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # 무기·E 패널 'flat'일 때의 mist HUD 다섯 장면 (W3 전 기본값. W3부터 기본값 'da'라 MIST_DONE_DIGEST의 hud_*는 da 값)
 FLAT_MIST_HUD_DIGEST = {
@@ -1920,9 +1920,8 @@ DA_OK = ('um_wp_da_', 'um_wp_d_', 'um_wp_a_crystal_')      # da가 쓰는 부품
 
 
 def test_w3_default_is_da_and_other_values_still_work():
-    """(1) 기본값은 'da'(mist에서만, 다른 스킨은 'flat'). 'flat'·'a'·'b'·'c'·'d'는 남아 있고 그리기 기록이 그대로다."""
-    assert config.HUD_WEAPON_STYLE == 'da'
-    assert _with_skin('mist', hud_kit.weapon_style) == 'da'
+    """(1) 'da'는 고를 수 있는 값이다(mist에서만, 다른 스킨은 'flat'. W3에서 기본값이었고 W4부터 기본값은 'row'). 'flat'·'a'·'b'·'c'·'d'는 남아 있고 그리기 기록이 그대로다."""
+    assert _with_skin('mist', lambda: _with_style('da', hud_kit.weapon_style)) == 'da'      # W4부터 기본값은 'row'
     for skin_name in ('plate', 'plate_code', 'crystal'):
         assert _with_skin(skin_name, hud_kit.weapon_style) == 'flat'
     for name, st in _hud_states():
@@ -2025,6 +2024,220 @@ def test_w3_da_parts_follow_pixel_rules():
     r, _p = _w1_log('da', _w1_preps()[('one', 'ready')])
     wells = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1].endswith('_well.png')]
     assert len(wells) == 4 and all(0.6 <= row[6] < 1.0 for row in wells), wells
+
+
+
+# ----- 2026-11-27 W4 무기·E 패널 배치 다시 짜기 = 'row' (사용자 "배치를 새로 짜는 것으로 현재 비슷한 장르 게임들의 ui 배치나, 색, 반투명도, 크기 등을
+# 조사해서 세팅을 해줘". docs/opus/TASKS.md '4차' W4, 조사는 docs/REFERENCES.md) -----
+# 한 줄, 아랫변 맞춤, 왼쪽부터 1·2·E. 자리 고정, 든 칸은 그 자리에서 커지고(크기·바탕 불투명도·아이콘 밝기·밝은 겉 테두리로 동시에 구분),
+# 무기 색은 안쪽 줄과 재충전 줄에만. E는 W3의 결정 소켓을 줄였다. 글은 줄였다(이름은 든 칸 위 작게).
+# W3 뒤(824eb15)의 'da' 그리기 기록 (열다섯 상태). 'row'를 더하고 기본값으로 바꿔도 그대로여야 한다
+DA_DIGEST = {
+    'one_low': '1b64cb7e5aa09769',
+    'one_ready': 'f67e3a36655b269f',
+    'one_on1': '43489531beb17133',
+    'one_on2': 'd1b285bea5dac023',
+    'one_on3': 'b025662409a78e96',
+    'two_low': '4a5362c7392e3095',
+    'two_ready': 'ec77b174955ca544',
+    'two_on1': '9b4d0eda19ce5933',
+    'two_on2': '85725af50b4235cf',
+    'two_on3': '4a19b2ee5f1e869c',
+    'empty_low': '7d9403f9ebf40807',
+    'empty_ready': '71a635c840b1f2fd',
+    'empty_on1': '60af987fd4fbe162',
+    'empty_on2': 'b844ba93299ca7c2',
+    'empty_on3': '55998cb265eafb8e',
+}
+ROW_OK = ('um_wp_row_', 'um_wp_d_key_', 'um_wp_d_lv_', 'um_wp_da_crystal_', 'um_wp_a_crystal_')
+ROW_MARGIN_RIGHT = 28        # 오른쪽 여백 = 미니맵(오른쪽 위)과 같은 ui.MARGIN
+ROW_MARGIN_BOTTOM = 40       # 아래 여백 (키 배지·소켓 꼭짓점까지 포함)
+
+
+def _row_panel_log(prep, style='row'):
+    """mist에서 오른쪽 아래 무기·E 패널만 그린 기록 (GameUI._draw_actions)."""
+    import ui
+
+    def go():
+        p, st, _pick = _h2_state('normal')()
+        prep(p)
+        p.aura_time = 0.1
+        with _Recorder() as r:
+            ui.GameUI(p, st)._draw_actions()
+        return r, p
+    return _with_skin('mist', lambda: _with_style(style, go))
+
+
+def _img_size(path):
+    full = os.path.join(ROOT, 'assets', path)
+    return Image.open(full).size
+
+
+def _row_boxes(r):
+    """그리기 기록 한 줄마다 화면 상자 (왼쪽, 아래, 오른쪽, 위). 글자는 기록기의 글자 폭 어림(작은 글자 14px/자)과 높이 ±12."""
+    out = []
+    for row in r.log:
+        kind = row[0]
+        if kind in ('draw_image', 'draw_image_tinted'):
+            w, h = _img_size(row[1])
+            left = int(round(row[2])) - w // 2
+            out.append((row, (left, row[3], left + w, row[3] + h)))
+        elif kind == 'draw_clip':
+            out.append((row, (row[6], row[7], row[6] + row[4], row[7] + row[5])))
+        elif kind == 'draw_rect_color':
+            out.append((row, (row[1], row[2], row[1] + row[3], row[2] + row[4])))
+        elif kind == 'draw_text':
+            kw = dict(x for x in row if isinstance(x, tuple) and len(x) == 2 and isinstance(x[0], str))
+            tw = len(row[3]) * (14 if kw.get('small') else 20)
+            left = row[1] - tw // 2 if kw.get('center') else row[1]
+            out.append((row, (left, row[2] - 12, left + tw, row[2] + 12)))
+    return out
+
+
+def _row_frames(r):
+    """무기 칸 테두리 기록 [(부품 이름, 왼쪽, 아래, 폭, 높이)], 그린 차례(1번, 2번)."""
+    out = []
+    for row in r.log:
+        if row[0] == 'draw_image' and os.path.basename(row[1]).startswith('um_wp_row_slot_'):
+            w, h = _img_size(row[1])
+            out.append((os.path.basename(row[1]), int(row[2]) - w // 2, row[3], w, h))
+    return out
+
+
+def _row_socket(r):
+    got = [(int(row[2]), row[3]) for row in r.log if row[0] == 'draw_image' and os.path.basename(row[1]).startswith('um_wp_row_socket_')
+           and not row[1].endswith('_well.png')]
+    assert len(got) == 1, got
+    return got[0]
+
+
+def test_w4_default_is_row_and_other_values_still_work():
+    """(1) 기본값은 'row'(mist에서만, 다른 스킨은 'flat'). 'flat'·'a'·'b'·'c'·'d'·'da'는 남아 있고 그리기 기록이 그대로다."""
+    assert config.HUD_WEAPON_STYLE == 'row'
+    assert _with_skin('mist', hud_kit.weapon_style) == 'row'
+    for skin_name in ('plate', 'plate_code', 'crystal'):
+        assert _with_skin(skin_name, hud_kit.weapon_style) == 'flat'
+    for name, st in _hud_states():
+        assert _with_style('flat', lambda: _hud_log('mist', st)).digest() == FLAT_MIST_HUD_DIGEST['hud_' + name], name
+    for style, want in list(W1_DIGEST.items()) + [('d', D_DIGEST), ('da', DA_DIGEST)]:
+        got = {'_'.join(k): _w1_log(style, prep)[0].digest() for k, prep in _w1_preps().items()}
+        assert got == want, (style, [k for k in want if got.get(k) != want[k]])
+    for name, st in _hud_states():                                      # 옛 스킨은 'row'여도 그대로
+        for skin_name in ('plate', 'plate_code', 'crystal'):
+            assert _with_style('row', lambda: _hud_log(skin_name, st)).digest() == HUD_DIGEST[(skin_name, name)], (skin_name, name)
+
+
+def test_w4_row_draws_every_state_without_plate_parts():
+    """(2) 'row'에서 무기 칸 세 상태 x E 다섯 상태가 오류 없이 그려지고 row 부품(과 D 키·단계 배지, W3 꼬리표·결정)만 쓰며 철판·경고 노랑이 없다.
+    무기 이름·빈 칸·'강화 -25%'/'강화 30%+'·키 글자(1·2·E)가 그대로 나오고, E 상태는 결정으로 갈린다(못 씀 = 빈 윤곽, 쓸 수 있음 = 청록, 켬 = 단계 색 + 숫자 배지)."""
+    for key, prep in _w1_preps().items():
+        r, p = _w1_log('row', prep)
+        _assert_no_plate(('row', key), r, PLATE_ICONS_OK)
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
+        assert wp and all(x.startswith(ROW_OK) for x in wp), (key, wp)
+        texts = [row[3] for row in r.log if row[0] == 'draw_text']
+        assert p.weapon.name in texts and '1' in texts and '2' in texts and 'E' in texts, (key, texts)
+        assert ('빈 칸' in texts) == (key[0] == 'empty'), key
+        if key[1] == 'low':
+            assert any(t.startswith('강화 ') and t.endswith('%+') for t in texts), (key, texts)
+            assert 'um_wp_a_crystal_empty.png' in wp and 'um_wp_da_crystal_haze.png' not in wp, wp
+        else:
+            assert any(t.startswith('강화 -') for t in texts), (key, texts)
+        if key[1] == 'ready':
+            assert 'um_wp_da_crystal_haze.png' in wp, wp
+        if key[1].startswith('on'):
+            n = int(key[1][2])
+            assert f'um_wp_row_socket_e{n}.png' in wp and f'um_wp_a_crystal_e{n}.png' in wp and f'um_wp_d_lv_e{n}.png' in wp, (key, wp)
+        else:
+            assert not any(x.startswith('um_wp_d_lv_') for x in wp), (key, wp)
+
+
+def test_w4_slots_keep_their_order_and_the_socket_stays_put_when_swapping():
+    """(3) 1번을 들든 2번을 들든 칸은 왼쪽부터 1·2·E 순서이고, E 소켓의 자리는 그대로다. 줄의 왼쪽 끝도 그대로다(든 칸이 그 자리에서 커진다)."""
+    preps = _w1_preps()
+    seen = []
+    for slot in ('one', 'two', 'empty'):
+        r, p = _row_panel_log(preps[(slot, 'ready')])
+        frames = _row_frames(r)
+        assert len(frames) == 2, frames
+        (n1, x1, y1, w1, h1), (n2, x2, y2, w2, h2) = frames
+        sx, sy = _row_socket(r)
+        assert x1 + w1 <= x2 and x2 + w2 <= sx, (frames, sx)
+        assert y1 == y2, frames                                        # 아랫변 맞춤
+        seen.append((x1, sx, sy))
+    assert len({s[0] for s in seen}) == 1 and len({s[1:] for s in seen}) == 1, seen
+
+
+def test_w4_held_slot_is_bigger_more_opaque_and_brighter_with_one_light_outer_frame():
+    """(4) 든 칸은 들지 않은 칸보다 가로·세로 모두 크고, 바탕 불투명도와 아이콘 밝기도 높다. 든 칸의 겉 테두리 색은 무기와 상관없이 같은 밝은 회백이고
+    (색만으로 알리지 않는다), 무기 색은 안쪽 줄에만 있다. 들지 않은 칸 테두리는 IDLE_MIN_LUMA 이상(어두운 방에서도 칸으로 보인다)."""
+    import combo
+    preps = _w1_preps()
+    for slot in ('one', 'two'):
+        r, p = _row_panel_log(preps[(slot, 'ready')])
+        frames = _row_frames(r)
+        held, idle = frames[p.slot], frames[1 - p.slot]
+        assert held[0] == f'um_wp_row_slot_{p.weapon.weapon_id}.png' and idle[0] == 'um_wp_row_slot_line.png', frames
+        assert held[3] > idle[3] and held[4] > idle[4], frames
+        wells = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1].startswith('ui/um_wp_row_well_')]
+        big = [row[6] for row in wells if 'big' in row[1]]
+        small = [row[6] for row in wells if 'small' in row[1]]
+        assert big and small and big[0] > small[0] and all(0.5 <= a < 1.0 for a in big + small), wells
+        icons = [row for row in r.log if row[0] in ('draw_image', 'draw_image_tinted') and row[1].startswith('ui/icon_w_')]
+        held_icon = [row for row in icons if row[1] == f'ui/icon_w_{p.weapon.weapon_id}.png' and row[0] == 'draw_image']
+        idle_icon = [row for row in icons if row[0] == 'draw_image_tinted']
+        assert held_icon and idle_icon and idle_icon[0][6] < 1.0, icons
+    outers = set()
+    for wid, c in combo.COLORS.items():
+        a = np.array(Image.open(os.path.join(UI, f'um_wp_row_slot_{wid}.png')).convert('RGBA'))
+        mid = a.shape[0] // 2
+        row = np.nonzero(a[mid, :, 3])[0]
+        outer = tuple(int(v) for v in a[mid, row[0], :3])
+        inner = tuple(int(v) for v in a[mid, row[0] + 2, :3])
+        outers.add(outer)
+        assert inner != outer, wid
+        cols = {tuple(int(v) for v in x) for x in a[a[:, :, 3] > 0][:, :3]}
+        assert any(abs(x[0] - c[0]) + abs(x[1] - c[1]) + abs(x[2] - c[2]) < 120 for x in cols - {outer}), (wid, cols)
+    assert len(outers) == 1 and _luma(next(iter(outers))) >= 200, outers
+    assert _luma(_outer_color('um_wp_row_slot_line.png')) >= IDLE_MIN_LUMA
+    assert _luma(next(iter(outers))) - _luma(_outer_color('um_wp_row_slot_line.png')) >= IDLE_GAP_LUMA
+
+
+def test_w4_panel_stays_inside_the_screen_margins():
+    """(5) 패널의 모든 그리기(키 배지·소켓 꼭짓점·글자 포함)가 화면 오른쪽 끝에서 ROW_MARGIN_RIGHT, 아래 끝에서 ROW_MARGIN_BOTTOM 안쪽에 있다.
+    바깥 상자는 W3(da)보다 낮고 flat보다 좁다."""
+    import ui
+    for key, prep in _w1_preps().items():
+        r, _p = _row_panel_log(prep)
+        boxes = _row_boxes(r)
+        assert boxes, key
+        for row, (l, b, rt, t) in boxes:
+            assert rt <= ui.W - ROW_MARGIN_RIGHT and b >= ROW_MARGIN_BOTTOM, (key, row, (l, b, rt, t))
+    r, _p = _row_panel_log(_w1_preps()[('one', 'on2')])
+    boxes = [bx for _row, bx in _row_boxes(r)]
+    top = max(bx[3] for bx in boxes)
+    r2, _p = _row_panel_log(_w1_preps()[('one', 'on2')], style='da')
+    top_da = max(bx[3] for _row, bx in _row_boxes(r2))
+    assert top < top_da, (top, top_da)
+
+
+def test_w4_row_parts_follow_pixel_rules():
+    """(6) 새 부품 um_wp_row_*: 알파 0/255, 2px 격자, 64색 이하, 경고 노랑·카드 청록 없음. 바탕(_well)은 한 색이고 실행 중 반투명으로 그린다."""
+    files = sorted(glob.glob(os.path.join(UI, 'um_wp_row_*.png')))
+    names = {os.path.basename(f) for f in files}
+    want = ({'um_wp_row_well_big.png', 'um_wp_row_well_small.png', 'um_wp_row_slot_line.png', 'um_wp_row_tag_well.png', 'um_wp_row_socket_well.png', 'um_wp_row_socket_line.png'} |
+            {f'um_wp_row_slot_{w}.png' for w in ('pipe', 'pistol', 'gauntlet', 'chain')} | {f'um_wp_row_socket_e{n}.png' for n in (1, 2, 3)})
+    assert want <= names, want - names
+    for f in files:
+        a = np.array(Image.open(f).convert('RGBA'))
+        name = os.path.basename(f)
+        assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, name
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), name
+        cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+        assert len(cols) <= 64 and hud_kit.YELLOW not in cols and CYAN not in cols, name
+        if name.endswith(('_well.png', '_well_big.png', '_well_small.png')):
+            assert len(cols) == 1, name
 
 
 if __name__ == '__main__':

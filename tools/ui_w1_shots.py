@@ -3,6 +3,9 @@ config.HUD_WEAPON_STYLE을 'flat'·'a'·'b'·'c'로 바꿔 가며 같은 시드�
 설정·저장 파일은 임시 폴더로 돌린다(사용자 파일을 건드리지 않는다). tools/ui_hud2_shots.py의 방식을 잇는다.
 
   python tools/ui_w1_shots.py <출력 폴더>                 장면 찍기: w1_<시안>_<방>_<상태>.png, w1_<시안>_cards.png
+  W1_ONLY=da,row W1_EXTRA=da,row python tools/ui_w1_shots.py <출력 폴더>  후
+  python tools/ui_w1_shots.py --board4 <출력 폴더> <비교판 폴더>
+        W4(row): W4_compare_dark/bright.png(가로 da·row), W4_weapons.png, W4_swap.png, W4_full.png, W4_corners.png
   W1_ONLY=d,a,da W1_EXTRA=da python tools/ui_w1_shots.py <출력 폴더>  후
   python tools/ui_w1_shots.py --board3 <출력 폴더> <비교판 폴더>
         W3(확정 da): W3_compare_dark.png·W3_compare_bright.png(가로 D·A·da, 세로 상태 여섯 + 강화 3단계), W3_weapons.png, W3_full.png, W3_set.png
@@ -27,9 +30,10 @@ os.chdir(ROOT)
 from PIL import Image, ImageDraw  # noqa: E402
 
 W, H = 1920, 1080
-STYLES = ('flat', 'a', 'b', 'c', 'd', 'da')
+STYLES = ('flat', 'a', 'b', 'c', 'd', 'da', 'row')
+W4_STYLES = ('da', 'row')                    # W4 비교판의 가로 (da·새 배치)
 W3_STYLES = ('d', 'a', 'da')                 # W3 비교판의 가로 (D·A·합친 것)
-EXTRA_STATES = ('g_on3', 'w_pipe', 'w_pistol', 'w_gauntlet', 'w_chain')   # W3: 강화 3단계 켬, 무기 넷을 각각 든 모습 (W1_EXTRA=da 인 시안만)
+EXTRA_STATES = ('g_on3', 'w_pipe', 'w_pistol', 'w_gauntlet', 'w_chain')   # W3·W4: 강화 3단계 켬, 무기 넷을 각각 든 모습 (W1_EXTRA에 적은 시안만)
 W2_STYLES = ('flat', 'a', 'd')               # W2 비교판의 가로 (flat·A·D)
 SLOT_STATES = ('a_ready', 'b_on1', 'c_on2', 'd_low', 'e_slot2', 'f_empty')
 ROOMS = {'dark': (11, 'stage1'), 'bright': (12, 'stage3')}
@@ -182,6 +186,66 @@ def _full_and_set(src, out, style, prefix):
     return [f'{prefix}_full_{style}.png', f'{prefix}_set_{style}.png']
 
 
+def board4(src, out):
+    """W4: 가로 da·row x 세로 상태(평소·강화 1~3단계·게이지 모자람·2번 듦·빈 칸, 원래 크기), 무기 넷, 1번 듦/2번 듦(자리), 전체 화면 두 장, 네 귀퉁이 여백."""
+    from PIL import ImageFont
+    os.makedirs(out, exist_ok=True)
+    made = []
+    cw, ch = PANEL_BOX[2] - PANEL_BOX[0], PANEL_BOX[3] - PANEL_BOX[1]
+    states = ('a_ready', 'b_on1', 'c_on2', 'g_on3', 'd_low', 'e_slot2', 'f_empty')
+    for room in ROOMS:
+        im = Image.new('RGB', ((cw + 20) * len(W4_STYLES) - 20, (ch + 10) * len(states)), (20, 20, 24))
+        for r, s in enumerate(states):
+            for c, style in enumerate(W4_STYLES):
+                im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_{room}_{s}.png')).crop(PANEL_BOX), f'{style.upper()} {s}'),
+                         (c * (cw + 20), r * (ch + 10)))
+        im.save(os.path.join(out, f'W4_compare_{room}.png'))
+        made.append(f'W4_compare_{room}.png')
+    weapons = EXTRA_STATES[1:]
+    im = Image.new('RGB', ((cw + 20) * len(weapons) - 20, (ch + 10) * len(ROOMS)), (20, 20, 24))
+    for r, room in enumerate(ROOMS):
+        for c, s in enumerate(weapons):
+            im.paste(_label(Image.open(os.path.join(src, f'w1_row_{room}_{s}.png')).crop(PANEL_BOX), f'ROW {room} {s}'), (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'W4_weapons.png'))
+    made.append('W4_weapons.png')
+    # 1번 듦 / 2번 듦: 같은 자리에 세로로 (칸 왼쪽 끝·E 소켓이 그대로인지 세로선으로 짚는다)
+    box = (1560, 900, 1920, 1080)
+    bw, bh = box[2] - box[0], box[3] - box[1]
+    im = Image.new('RGB', (bw * 2 + 20, bh * 2 + 10), (20, 20, 24))
+    for c, room in enumerate(ROOMS):
+        for r, s in enumerate(('a_ready', 'e_slot2')):
+            im.paste(_label(Image.open(os.path.join(src, f'w1_row_{room}_{s}.png')).crop(box), f'ROW {room} {s}'), (c * (bw + 20), r * (bh + 10)))
+    d = ImageDraw.Draw(im)
+    for c in range(2):
+        for x in (1604, 1800, 1888):                     # 줄 왼쪽 끝, 소켓 왼쪽·오른쪽 꼭짓점 (화면 x)
+            px = c * (bw + 20) + x - box[0]
+            d.line((px, 0, px, im.height), fill=(255, 236, 120), width=1)
+    im.save(os.path.join(out, 'W4_swap.png'))
+    made.append('W4_swap.png')
+    im = Image.new('RGB', (W, H * 2 + 20), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_row_dark_a_ready.png')), 'ROW dark a_ready'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_row_dark_c_on2.png')), 'ROW dark c_on2'), (0, H + 20))
+    im.save(os.path.join(out, 'W4_full.png'))
+    made.append('W4_full.png')
+    # 네 귀퉁이 여백: 화면 끝에서 HUD 가장자리까지 (왼쪽 위 체력 28·36, 오른쪽 위 미니맵 28·28, 오른쪽 아래 패널 28·40)
+    im = Image.open(os.path.join(src, 'w1_row_bright_a_ready.png')).convert('RGB')
+    d = ImageDraw.Draw(im)
+    font = ImageFont.truetype(os.path.join(ROOT, 'assets', 'fonts', 'Galmuri11.ttf'), 22)
+    Y = (255, 236, 120)
+    marks = [  # (선 x0, y0, x1, y1, 글자, 글자 x, y)  PIL 좌표 (위가 0)
+        (0, 36, 140, 36, '위 36 (체력 판)', 150, 24), (28, 0, 28, 120, '왼 28', 36, 120),
+        (W - 28, 0, W - 28, 200, '오른 28 (미니맵)', W - 230, 200), (W - 200, 28, W, 28, '위 28', W - 270, 16),
+        (W - 28, H - 320, W - 28, H, '오른 28 (무기·E 패널 그림 끝)', W - 380, H - 340), (1100, H - 40, W, H - 40, '아래 40 (키 배지·소켓 꼭짓점 포함)', 1110, H - 72),
+    ]
+    for x0, y0, x1, y1, t, tx, ty in marks:
+        d.line((x0, y0, x1, y1), fill=Y, width=2)
+        d.text((tx + 1, ty + 1), t, fill=(0, 0, 0), font=font)
+        d.text((tx, ty), t, fill=Y, font=font)
+    im.save(os.path.join(out, 'W4_corners.png'))
+    made.append('W4_corners.png')
+    print(len(made), '장:', ', '.join(made))
+
+
 def board3(src, out):
     """W3: 가로 D·A·da x 세로 상태 여섯 + 강화 3단계(원래 크기), 무기 넷을 든 모습, 전체 화면 두 장(평소·강화 켬), HUD | 증강 카드."""
     os.makedirs(out, exist_ok=True)
@@ -239,7 +303,9 @@ def board(src, out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--board3':
+    if sys.argv[1] == '--board4':
+        board4(*sys.argv[2:4])
+    elif sys.argv[1] == '--board3':
         board3(*sys.argv[2:4])
     elif sys.argv[1] == '--board2':
         board2(*sys.argv[2:4])

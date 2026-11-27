@@ -386,7 +386,110 @@ def draw_da(u):
     u._draw_weapon_meter(left + tw + 14 - {'pipe': 40, 'gauntlet': 10}.get(w.weapon_id, 20), name_y - 12)
 
 
-DRAW = {'a': draw_a, 'b': draw_b, 'c': draw_c, 'd': draw_d, 'da': draw_da}
+# ----- row = 한 줄 배치 (2026-11-27 W4, 기본값) -----
+# 사용자: "배치를 새로 짜는 것으로 현재 비슷한 장르 게임들의 ui 배치나, 색, 반투명도, 크기 등을 조사해서 세팅을 해줘". 조사 요지는 docs/REFERENCES.md.
+# 규칙: ① 자리 고정 ② 키 순서대로 한 줄(왼쪽부터 1·2·E, 아랫변 맞춤) ③ 든 칸은 크기·바탕 불투명도·아이콘 밝기·밝은 겉 테두리로 동시에 구분(색만 쓰지 않는다)
+#       ④ 글은 줄이고 아이콘·모양으로 ⑤ 상태 변화는 큰 모양 변화로(결정이 비고 차고 색이 바뀐다) ⑥ 가장자리 여백(오른쪽 28 = 미니맵과 같은 ui.MARGIN, 아래 40 이상).
+# 든 칸이 그 자리에서 커지고 줄의 왼쪽 끝·E 소켓은 움직이지 않는다(1번 칸 왼쪽 끝과 2번 칸 오른쪽 끝이 고정, 두 칸의 경계만 24px 움직인다).
+# 무기 색은 든 칸 안쪽 줄과 재충전 줄에만. W3의 결정 소켓(못 씀 = 빈 윤곽, 쓸 수 있음 = 청록, 켬 = 단계 색이 남은 시간만큼)과 단계 숫자 배지·키 배지는 그대로.
+ROW_BIG, ROW_SMALL = (96, 72), (72, 56)       # 든 칸 / 들지 않은 칸 (약 1.3 : 1)
+ROW_GAP = 18                                  # 칸 사이 (키 배지가 칸 사이 틈에 들어가게. 소켓과의 틈은 ROW_SOCKET_GAP)
+ROW_SOCKET_GAP = 10
+ROW_TAG_W = 104                               # '강화' 꼬리표 (소켓 위, 2번 칸 위 이름 줄과 겹치지 않는 폭)
+ROW_BASE = 56                                 # 칸 아랫변. 키 배지(지름 32)가 반쯤 걸쳐 아래 끝이 40
+ROW_SOCKET = 96                               # 소켓 그림 (마름모 88, 둘레 4px)
+ROW_ALPHA_HELD, ROW_ALPHA_IDLE, ROW_ALPHA_SOCKET = 0.9, 0.72, 0.86    # 바탕 불투명도
+ROW_ICON_IDLE = ((172, 180, 196), 0.6)        # 들지 않은 칸 아이콘: 회백 곱, 불투명도 0.6
+
+
+def row_layout(held):
+    """칸 자리 [(왼쪽, 아래, 폭, 높이) 1번, 2번], 소켓 가운데 (cx, cy). held = 든 칸 번호(0·1)."""
+    R = ui.ACT_RIGHT
+    cx = R - 48                                               # 소켓 그림(96)의 오른쪽 끝 = 화면 오른쪽 여백 끝 (꼭짓점은 4px 안)
+    cy = ROW_BASE - 8 + 44                                    # 아래 꼭짓점이 줄 아랫변보다 8px 아래로 (어긋남)
+    right = cx - 44 - ROW_SOCKET_GAP                          # 2번 칸 오른쪽 끝 (고정)
+    w1, h1 = ROW_BIG if held == 0 else ROW_SMALL
+    w2, h2 = ROW_BIG if held == 1 else ROW_SMALL
+    left = right - (ROW_BIG[0] + ROW_GAP + ROW_SMALL[0])      # 1번 칸 왼쪽 끝 (고정)
+    return [(left, ROW_BASE, w1, h1), (left + w1 + ROW_GAP, ROW_BASE, w2, h2)], (cx, cy)
+
+
+def _meter_span(w):
+    """무기 표시(_draw_weapon_meter)가 원점에서 차지하는 오른쪽 끝 (철파이프 콤보 칸 셋, 건틀릿 충전 막대, 사슬·쌍권총 개수 칸)."""
+    if w.weapon_id == 'pipe':
+        return 118
+    if w.weapon_id == 'gauntlet':
+        return 120
+    count = (w.grip() if w.weapon_id == 'chain' else w.volley())[0]
+    return 20 + 26 * (max(1, min(count, 4)) - 1) + 22
+
+
+def draw_row(u):
+    import keybinds
+    p = u.player
+    w, g = p.weapon, p.gauge
+    R = ui.ACT_RIGHT
+    spots, (cx, cy) = row_layout(p.slot)
+    tag_x, tag_y = R - ROW_TAG_W, cy + 44 + 6
+    for i, (x, y, sw, sh) in enumerate(spots):                 # 바탕 먼저 (칸마다 따로 반투명. 든 칸이 더 불투명)
+        big = i == p.slot
+        _well(f'row_well_{"big" if big else "small"}', x, y, ROW_ALPHA_HELD if big else ROW_ALPHA_IDLE)
+    _well('row_socket_well', cx - ROW_SOCKET // 2, cy - ROW_SOCKET // 2, ROW_ALPHA_SOCKET)
+    _well('row_tag_well', tag_x, tag_y, ROW_ALPHA_SOCKET)
+    for i, (x, y, sw, sh) in enumerate(spots):
+        wp = p.weapons[i]
+        active = i == p.slot and wp is not None
+        _put(f'row_slot_{wp.weapon_id}' if active else 'row_slot_line', x, y)
+        if wp is None:
+            kit.text(x + sw // 2, y + sh // 2, '빈 칸', IDLE, small=True, center=True)
+        else:
+            img = assets.image(f'ui/icon_w_{wp.weapon_id}.png')
+            icx, iby = x + sw // 2 + 4, y + (sh - img.h) // 2
+            if active:
+                assets.draw_image(img, icx, iby)
+                ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)   # 재충전: 든 칸 안쪽 아래 줄 (다 차면 무기 색)
+                import combo
+                assets.draw_rect_color(x + 20, y + 6, _even((sw - 28) * ratio), 4, combo.COLORS[wp.weapon_id] if w.ready else COOL)
+            else:
+                assets.draw_image_tinted(img, icx, iby, '', *ROW_ICON_IDLE)
+                if p.weapons[p.slot] is not None:                   # 교체기 (flat과 같은 뜻: 다 차면 그 무기 색)
+                    import combo
+                    r = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
+                    assets.draw_rect_color(x + 16, y + 6, _even((sw - 24) * r), 4, combo.COLORS[wp.weapon_id] if r >= 1.0 else COOL)
+        _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x + 2, y + 2, active, (242, 246, 250) if active else IDLE)
+    # E 결정 소켓 (W3과 같은 뜻)
+    ready, hot = g.can_enhance(), g.enhanced
+    lv = _tier(g)
+    _put(f'row_socket_e{lv}' if hot else 'row_socket_line', cx - ROW_SOCKET // 2, cy - ROW_SOCKET // 2)
+    cl, cb = cx - 12, cy - 26
+    if hot:
+        _put('a_crystal_empty', cl, cb)
+        img = assets.image(f'ui/um_wp_a_crystal_e{lv}.png')
+        hh = _even(img.h * max(0.0, min(1.0, g.enhance_timer / config.ENHANCE_TIME)))
+        if hh > 0:
+            assets.draw_clip(img, 0, 0, img.w, hh, cl, cb)
+    else:
+        _put('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)
+    _key_badge(keybinds.label('enhance', first=True)[:3], cx - 8, ROW_BASE + 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
+    if hot:                                                        # 단계 숫자 배지: 소켓 오른쪽 위 변에 걸쳐서, 켰을 때만
+        bx, by = cx + 18, cy + 18
+        _put(f'd_lv_e{lv}', bx, by)
+        _lv_number(g, bx, by)
+    _cost(g, tag_x + ROW_TAG_W // 2, tag_y + DA_TAG_H // 2)
+    # 든 칸 위: 무기 표시(콤보 칸 등)는 윗변에 걸쳐 오른쪽, 이름은 작게 왼쪽 위, 공격 줄은 그 위 (든 칸이 바뀌면 따라간다)
+    hx, hy, hw, hh_ = spots[p.slot] if p.weapons[p.slot] is not None else spots[0]
+    top = hy + hh_
+    if w.weapon_id == 'gauntlet':                                 # 건틀릿 충전 막대는 칸 폭에 맞춰 윗변에 (flat 막대 110px은 칸 밖으로 길게 나왔다)
+        kit.hud_bar('cyan' if w.charge_ratio >= 1.0 else 'white', hx + 12, top - 4, hw - 24, 8, w.charge_ratio)
+    else:
+        u._draw_weapon_meter(hx + hw - 6 - _meter_span(w), top - 11)
+    name_y = top + 22
+    kit.text(hx, name_y, w.name, WHITE, small=True)
+    text, color = _attack_line(u)
+    kit.text(min(hx, R - 2 - assets.text_width(text, True)), name_y + 32, text, color, small=True)   # 긴 글은 왼쪽으로 민다 (그림자 2px까지 여백 안)
+
+
+DRAW = {'a': draw_a, 'b': draw_b, 'c': draw_c, 'd': draw_d, 'da': draw_da, 'row': draw_row}
 
 
 def draw(u, style):

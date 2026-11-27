@@ -27,7 +27,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
       python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
-      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2)·um_wp_da_*(W3))
+      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2)·um_wp_da_*(W3)·um_wp_row_*(W4))
       python tools/make_ui_mist.py --storm  (타이틀 배경·대비 판·줄기 판·잔광 판·글자 뒤 어둠만, R1)
       python tools/make_ui_mist.py --step   (증강 카드 진행 칸 um_step_off·um_step_on만, R1)
 """
@@ -883,6 +883,44 @@ def da_parts():
     return made
 
 
+# ----- W4 무기·E 패널 배치 다시 짜기 'row' (2026-11-27, docs/opus/TASKS.md '4차' W4, 조사 docs/REFERENCES.md) -----
+# 한 줄, 아랫변 맞춤, 왼쪽부터 1·2·E. 든 칸은 크기(48x36 / 36x28 도트)·바탕 불투명도·아이콘 밝기·겉 테두리로 동시에 구분한다(색만 쓰지 않는다).
+# 든 칸 테두리 = 밝은 회백 겉선(무기와 상관없이 같다) + 무기 색 안쪽 한 줄. 들지 않은 칸 = 회백 한 줄(밝기 약 127).
+# E 결정 소켓은 W3(da)의 것을 한 변 88로 줄였다(마름모 반지름 22도트, 자리 선 18도트).
+ROW_BIG, ROW_SMALL = (48, 36), (36, 28)     # 칸 (도트: 폭, 높이). 화면 96x72 / 72x56
+ROW_SOCKET = 48                             # 소켓 캔버스 (도트. 화면 96, 마름모 88)
+
+
+def _socket_small(tone, n=ROW_SOCKET, r=22, seat=18):
+    """W3 소켓을 줄인 것: 겉선 한 줄 + 자리 선, 단계 색이면 바깥 그늘 한 줄. 속은 비어 있다(바탕은 따로)."""
+    tier = tone in WP_TIER.values()
+    c = n / 2
+    outer = _diamond(n, n, c, c, r, r)
+    a = np.zeros((n, n, 4), np.uint8)
+    _put(a, _edge(outer), tone)
+    _put(a, _edge(_diamond(n, n, c, c, seat, seat)), _mix(tone, WP_WELL, 0.55) if tier else WP_DIM)
+    if tier:
+        _put(a, _edge(_diamond(n, n, c, c, r + 1.5, r + 1.5)) & ~outer, _mix(tone, (0, 0, 0), 0.45))
+    return a
+
+
+def row_parts():
+    made = []
+    for (w, h), kind, rad in ((ROW_BIG, 'big', 3), (ROW_SMALL, 'small', 2)):
+        made.append(save2(_well_only(_round_rect(h, w, rad)), f'um_wp_row_well_{kind}.png'))
+    small = _round_rect(ROW_SMALL[1], ROW_SMALL[0], 2)
+    made.append(save2(_frame_only(small, D_IDLE), 'um_wp_row_slot_line.png'))
+    big = _round_rect(ROW_BIG[1], ROW_BIG[0], 3)
+    for wid, c in _weapon_colors().items():                        # 든 칸: 밝은 회백 겉선(같은 색) + 무기 색 안쪽 한 줄
+        made.append(save2(_frame_only(big, WP_HOT, c), f'um_wp_row_slot_{wid}.png'))
+    made.append(save2(_well_only(_round_rect(14, 52, 3)), 'um_wp_row_tag_well.png'))   # '강화' 꼬리표 104x28
+    n = ROW_SOCKET
+    made.append(save2(_well_only(_diamond(n, n, n / 2, n / 2, 22, 22)), 'um_wp_row_socket_well.png'))
+    for name, tone in (('line', WP_LINE), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):
+        made.append(save2(_socket_small(tone), f'um_wp_row_socket_{name}.png'))
+    return made
+
+
 def wp_parts():
     made = []
     # a 결정 소켓
@@ -921,6 +959,7 @@ def wp_parts():
     made.append(save2(_pip(None, False), 'um_wp_c_pip_off.png'))
     made += d_parts()                             # W2 시안 D
     made += da_parts()                            # W3 확정 da (D 배치 + A 결정 소켓)
+    made += row_parts()                           # W4 한 줄 배치 row (기본값)
     return made
 
 

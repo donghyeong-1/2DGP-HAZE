@@ -336,3 +336,16 @@
   `tools/make_ui_mist.py`(발판 없는 배경·대비 판 셋·잔광 판·줄기, 장식선 가로 가운데 맞춤), `tools/make_title_plate.py`(`background(ledge=False)`),
   `tests/test_title_storm.py`(7개), `tests/test_ui_skin.py`(장식선 가운데 1개).
 
+
+# 4차 (2026-11-27): Orca로 옮긴 뒤
+
+## L1 번갯줄기
+사용자 결정: 지휘 쪽 질문 둘(번갯줄기가 하얀 하늘 위 가는 푸른 선이라 안 보인다 / 번쩍일 때 왼쪽 위 감시 글자 뒤 어둠이 회색 얼룩)에 "둘 다 고침".
+- 한 것: 센 번개 맨 앞에 줄기 단계 `'bolt'` 1~2프레임(원래 배경 + 흰 번갯줄기). 줄기 판 `title_bolt_<n>`은 같은 번호 대비 판의 줄기와 픽셀 단위로 같은 자리·같은 색(하늘 가림도 같다).
+  두 깜빡임 사이 `'dark'`에도 줄기를 그린다(머리말 "번갯줄기는 남는다"에 맞춤). 줄기 색은 PixelLab 원본 모양 그대로 흰 심 + 옅은 푸른 흰 가장자리.
+  대비 판의 줄기도 같은 색으로 바꾸고 하늘을 (196,208,242) -> (176,190,232)로 조금 낮춰 줄기가 하늘보다 밝게 보인다(전에는 가장자리를 어두운 파랑으로 바꿔 가는 푸른 선이었다).
+  대비 판일 때는 머리글 뒤 어둠을 뺀 시트 `light/title_shade_flash.png`를 쓴다. 머리글 첫 줄은 글자 그림자만으로 흰 하늘 위에 놓이고, 둘째 줄은 검은 들보 위라 그대로 읽힌다.
+  평소 화면은 고치기 전과 픽셀 단위로 같다. 약한 번개·번쩍임 줄이기·간격·0.6초·1초 세 번 규칙은 그대로.
+- 찾았지만 고치지 않은 것: 대비 판에서 로고 뒤 어둠도 흰 하늘 위에 회색 둥근 그늘로 보인다(지시: 로고·메뉴 뒤 어둠은 건드리지 않는다). `shots/review/L1_logo_shade_note.png`.
+- 바꾼 파일: `src/title_storm.py`, `src/title_mode.py`, `tools/make_ui_mist.py`, `tools/title_storm_shots.py`(새 촬영 스크립트), `tests/test_title_storm.py`(3개 추가, 2개 고침),
+  `assets/backgrounds/title_flash_1~3.png`, `assets/backgrounds/title_bolt_1~3.png`(새), `assets/light/title_shade_flash.png`(새).

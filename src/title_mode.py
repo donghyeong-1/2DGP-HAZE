@@ -139,8 +139,12 @@ def _draw_terminal():
         assets.draw_image(assets.image(f'backgrounds/title_flash_{storm.flash_plate() + 1}.png'), W // 2, 0)
     elif phase == 'glow':                                 # 잔광: 조금 밝은 푸른 판을 옅게 덮어 원래대로
         assets.draw_image_tinted(assets.image('backgrounds/title_glow.png'), W // 2, 0, '', (255, 255, 255), storm.glow_alpha())
+    elif storm.bolt_plate() is not None:                  # 번쩍이기 직전·두 깜빡임 사이: 어두운 하늘에 흰 번갯줄기 (대비 판과 같은 자리)
+        assets.draw_image(assets.image(f'backgrounds/title_bolt_{storm.bolt_plate() + 1}.png'), W // 2, 0)
     _weather().draw()
-    shade = assets.image('light/title_shade.png')         # 절반 크기 그림을 2배로 (빛 층 예외: 부드러운 알파)
+    # 글자 뒤 어둠: 절반 크기 그림을 2배로 (빛 층 예외: 부드러운 알파). 대비 판일 때는 머리글 뒤 어둠을 뺀 시트
+    # (11/27 L1: 흰 하늘 위에서 머리글 뒤 어둠이 회색 얼룩으로 보였다. 머리글은 글자 그림자만으로 판 위에 둔다)
+    shade = assets.image('light/title_shade_flash.png' if phase == 'flash' else 'light/title_shade.png')
     assets.draw_clip(shade, 0, 0, shade.w, shade.h, 0, 0, scale=2)
     for y in range(0, H, SCAN_STEP):
         assets.draw_rect_color(0, y, W, 2, (0, 0, 0), SCAN_ALPHA)

@@ -12,6 +12,10 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
 - B 타이틀: um_logo_title.png(64색으로 줄임), um_cursor.png, um_lamps.png, um_bracket.png (ui_concepts_v2/b_terminal)
 - 타이틀 글자 뒤 어둠 assets/light/title_shade.png (960x540, 화면에는 2배): 빛 층과 같은 예외로 부드러운 알파.
   로고·메뉴·머리글·판번호 글자 상자에서 멀어질수록 옅어진다(exp(-(d/sigma)^2)). 체크무늬 디더 없음, 화면 가장자리는 0.
+  title_shade_flash.png: 대비 판(번쩍) 때 쓰는 것. 왼쪽 위 머리글 뒤 어둠만 뺐다(흰 하늘 위 회색 얼룩, 11/27 L1).
+- 타이틀 배경 title_mist.png, 대비 판 title_flash_<n>.png, 잔광 판 title_glow.png, 줄기 판 title_bolt_<n>.png (assets/backgrounds).
+  줄기 판: 대비 판 n과 같은 자리의 번갯줄기만(나머지는 알파 0). 번쩍이기 직전·두 깜빡임 사이에 원래 배경 위에 얹는다.
+  줄기 모양은 PixelLab 원본 그대로, 색만 BOLT_COLORS(흰 심 + 옅은 푸른 흰 가장자리)로 바꾼다. 대비 판의 줄기도 같은 색.
 
 사용: python tools/make_ui_mist.py
 """
@@ -154,19 +158,22 @@ def shade_boxes():
         cy = b.y + b.h // 2
         boxes.append((W // 2 - 80, cy - 16, W // 2 + 80, cy + 16, 0.74, 150))                    # 메뉴 한 줄 (글자 폭 정도)
     hx, hy = tm.TERM_HEAD
-    boxes.append((hx, hy - 30, hx + 520, hy + 6, 0.62, 110))                                  # 왼쪽 위 머리글 두 줄
+    boxes.append((hx, hy - 30, hx + 520, hy + 6, 0.62, 110, 'head'))                          # 왼쪽 위 머리글 두 줄
     boxes.append((W - tm.TERM_MARGIN - 130, 54, W - tm.TERM_MARGIN, 66, 0.55, 80))                  # 오른쪽 아래 판번호
     return boxes
 
 
-def title_shade(scale=2):
+def title_shade(scale=2, flash=False):
+    """flash면 머리글('head') 상자를 빼고 굽는다 (대비 판 위에서 회색 얼룩으로 보여서)."""
     import config
     W, H = config.SCREEN_W // scale, config.SCREEN_H // scale
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     xx = (xx + 0.5) * scale
     yy = (H - 1 - yy + 0.5) * scale                        # 그림 줄 0 = 화면 맨 위
     keep = np.ones((H, W), np.float32)                  # 겹치는 곳은 부드럽게 더 진하게: 1 - (1-a1)(1-a2)...
-    for x0, y0, x1, y1, k, sigma in shade_boxes():
+    for x0, y0, x1, y1, k, sigma, *tag in shade_boxes():
+        if flash and tag == ['head']:
+            continue
         dx = np.maximum(np.maximum(x0 - xx, xx - x1), 0)
         dy = np.maximum(np.maximum(y0 - yy, yy - y1), 0)
         d = np.sqrt(dx * dx + dy * dy)
@@ -177,16 +184,20 @@ def title_shade(scale=2):
     out = np.zeros((H, W, 4), np.uint8)
     out[:, :, :3] = SHADE_COLOR
     out[:, :, 3] = a8
-    Image.fromarray(out, 'RGBA').save(os.path.join(LIGHT, 'title_shade.png'), optimize=True)
-    return 'light/title_shade.png'
+    name = 'title_shade_flash.png' if flash else 'title_shade.png'
+    Image.fromarray(out, 'RGBA').save(os.path.join(LIGHT, name), optimize=True)
+    return 'light/' + name
 
 
 # ----- 타이틀 배경과 번개 (2026-11-27) -----
 BG = os.path.join(ROOT, 'assets', 'backgrounds')
-SKY_WHITE = (196, 208, 242)            # 번쩍일 때 하늘 (푸른 흰색, 번갯줄기의 흰 심이 보이게 순백보다 조금 낮다)
-BOLT_SPOTS = ((1090, 84), (760, 84), (420, 250))
-# 밝은 하늘 위에서 줄기가 보이게 대비 판 안에서만 바깥 단계를 한 단계 어둡게 (PixelLab 줄기 팔레트의 #5d74b8 쪽으로). 흰 심은 그대로
-BOLT_ON_SKY = {(159, 182, 238): (93, 116, 184), (220, 232, 255): (159, 182, 238)}   # 대비 판마다 번갯줄기 자리 (화면 x 가운데, 위에서 내려온 거리)
+SKY_WHITE = (176, 190, 232)            # 번쩍일 때 하늘 (푸른 흰색. 11/27 L1: 196,208,242에서 낮췄다. 줄기의 흰 심과 옅은 가장자리가 하늘보다 밝게)
+BOLT_SPOTS = ((1090, 84), (760, 84), (420, 250))   # 대비 판마다 번갯줄기 자리 (화면 x 가운데, 위에서 내려온 거리)
+# 줄기 색 (PixelLab 줄기 팔레트 -> 흰 심 + 옅은 푸른 흰 가장자리). 어두운 하늘(줄기 판)과 대비 판에 같은 색을 쓴다
+# (11/27 L1: 전에는 대비 판에서 가장자리를 더 어두운 파랑으로 바꿔 '흰 하늘 위 가는 푸른 선'으로 보였다)
+BOLT_EDGE = (208, 222, 252)
+BOLT_COLORS = {(255, 255, 255): (255, 255, 255), (220, 232, 255): (255, 255, 255),
+               (159, 182, 238): BOLT_EDGE, (93, 116, 184): BOLT_EDGE}
 SILHOUETTE = (6, 8, 15)                # 번쩍일 때 건물·전선·탑
 GLOW_ADD = (30, 40, 66)                # 잔광 판: 원래 그림에 더하는 푸른 빛 (조금 밝은 푸른 톤)
 
@@ -209,7 +220,8 @@ def skyline(far, T=36, smooth=9):
 
 
 def title_backgrounds():
-    """title_mist.png(발판 없는 배경), title_flash_<n>.png(대비 판 셋, 번갯줄기 자리만 다르다), title_glow.png(잔광 판). 1920x1080, 불투명."""
+    """title_mist.png(발판 없는 배경), title_flash_<n>.png(대비 판 셋, 번갯줄기 자리만 다르다), title_glow.png(잔광 판). 1920x1080, 불투명.
+    title_bolt_<n>.png: 대비 판 n의 줄기만 같은 자리에 (1920x1080, 줄기 밖은 알파 0, 알파 0/255)."""
     import make_title_plate as tp
     base = tp.background(ledge=False)
     base.save(os.path.join(BG, 'title_mist.png'))
@@ -229,14 +241,19 @@ def title_backgrounds():
         plate = flash.copy()
         b = np.array(Image.open(os.path.join(UI, f'um_bolt_{n}.png')).convert('RGBA'))
         x0 = bx - b.shape[1] // 2
-        region = plate[top:top + b.shape[0], x0:x0 + b.shape[1]]
-        on = (b[:, :, 3] > 0) & sky[top:top + b.shape[0], x0:x0 + b.shape[1]]
+        box = (slice(top, top + b.shape[0]), slice(x0, x0 + b.shape[1]))
+        on = (b[:, :, 3] > 0) & sky[box]
         rgb = b[:, :, :3].copy()
-        for src, dst in BOLT_ON_SKY.items():
-            rgb[(rgb == src).all(axis=2)] = dst
-        region[on] = rgb[on]
+        for src, dst in BOLT_COLORS.items():
+            rgb[(b[:, :, :3] == src).all(axis=2)] = dst
+        assert all(tuple(c) in BOLT_COLORS for c in b[b[:, :, 3] > 0][:, :3]), '줄기 원본에 모르는 색'
+        plate[box][on] = rgb[on]
         Image.fromarray(plate, 'RGB').save(os.path.join(BG, f'title_flash_{n}.png'), optimize=True)
         made.append(f'backgrounds/title_flash_{n}.png')
+        only = np.zeros((H, W, 4), np.uint8)                # 같은 자리, 같은 하늘 가림의 줄기만
+        only[box][on] = np.concatenate([rgb, np.full(rgb.shape[:2] + (1,), 255, np.uint8)], axis=2)[on]
+        Image.fromarray(only, 'RGBA').save(os.path.join(BG, f'title_bolt_{n}.png'), optimize=True)
+        made.append(f'backgrounds/title_bolt_{n}.png')
     glow = np.clip(np.array(base).astype(int) + GLOW_ADD + (np.array(base).astype(int) * 0.25).astype(int), 0, 255)
     # RGBA로 저장한다: RGB 그림은 텍스처 섞기가 꺼져 실행 중 불투명도(opacify)가 먹지 않는다 (잔광이 서서히 옅어져야 한다)
     Image.fromarray(glow.astype(np.uint8), 'RGB').convert('RGBA').save(os.path.join(BG, 'title_glow.png'), optimize=True)
@@ -258,6 +275,7 @@ def bolts():
 def main():
     made = card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
+    made.append(title_shade(flash=True))
     print(len(made), '개:', ', '.join(made))
 
 

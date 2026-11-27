@@ -1,7 +1,8 @@
 """타이틀 배경 번개 (2026-11-27 사용자: "실제 번개처럼 번쩍하고 흰검으로 대비 한번씩 빡"). 창 없이: python tests/test_title_storm.py
 
 - 간격 6~14초, 타이틀에 들어오고 처음 3초는 치지 않는다.
-- 한 번의 번개: 대비 판 2~3프레임 -> 원래 화면 2~3프레임 -> 대비 판 3~4프레임 -> 잔광 0.3초. 전체 0.6초 안쪽.
+- 한 번의 번개: 줄기 1~2프레임(어두운 하늘에 흰 번갯줄기) -> 대비 판 2~3프레임 -> 원래 화면 2~3프레임(줄기는 남는다)
+  -> 대비 판 3~4프레임 -> 잔광 0.3초. 전체 0.6초 안쪽. 줄기 단계의 판 번호 = 뒤따르는 대비 판 번호 (L1 번갯줄기, 11/27).
 - 셋에 하나쯤은 약한 번개(잔광만). 1초에 세 번 넘게 번쩍이지 않는다. 번쩍임 줄이기면 대비 판 없이 약한 잔광만.
 - 번쩍임은 배경 층에만: 글자 뒤 어둠·로고·메뉴·감시 글자는 번쩍임 위에 그려진다.
 """
@@ -46,16 +47,62 @@ def test_quiet_start_and_interval_range():
     assert ts.FIRST_QUIET >= 2.5 and (ts.GAP_MIN, ts.GAP_MAX) == (6.0, 14.0)
 
 
-def test_one_full_strike_is_flash_dark_flash_glow_within_06s():
+def test_one_full_strike_is_bolt_flash_dark_flash_glow_within_06s():
+    """센 번개의 첫 단계는 줄기 단계(1~2프레임), 그 뒤 대비 판 -> 원래 화면 -> 대비 판 -> 잔광. 전체 0.6초 안쪽."""
+    lens = set()
     for seed in range(40):
         s = ts.Storm(seed=seed)
         seq = s.make_strike(weak=False)
         kinds = [k for k, _d in seq]
-        assert kinds == ['flash', 'dark', 'flash', 'glow'], kinds
+        assert kinds == ['bolt', 'flash', 'dark', 'flash', 'glow'], kinds
         frames = [round(d * 60) for _k, d in seq]
-        assert 2 <= frames[0] <= 3 and 2 <= frames[1] <= 3 and 3 <= frames[2] <= 4, frames
-        assert abs(seq[3][1] - 0.3) < 0.051
+        assert 1 <= frames[0] <= 2 and 2 <= frames[1] <= 3 and 2 <= frames[2] <= 3 and 3 <= frames[3] <= 4, frames
+        lens.add(frames[0])
+        assert abs(seq[4][1] - 0.3) < 0.051
         assert sum(d for _k, d in seq) <= 0.6
+    assert lens == {1, 2}
+
+
+def test_bolt_phase_only_in_strong_strikes():
+    """약한 번개(잔광만)와 번쩍임 줄이기에는 줄기 단계가 없다."""
+    assert [k for k, _d in ts.Storm(seed=2).make_strike(weak=True)] == ['glow']
+    old = options.reduce_flash
+    try:
+        options.reduce_flash = True
+        s = ts.Storm(seed=4)
+        for _ in range(120 * 60):
+            s.update(FRAME)
+            assert s.phase() != 'bolt' and s.bolt_plate() is None
+    finally:
+        options.reduce_flash = old
+    s = ts.Storm(seed=6)
+    for _ in range(200 * 60):
+        s.update(FRAME)
+        if s.phase() == 'glow' and s.strength < 1.0:          # 약한 번개 도중
+            assert s.bolt_plate() is None
+
+
+def test_bolt_plate_matches_following_flash_plate_and_stays_in_dark():
+    """줄기 단계의 판 번호 = 뒤따르는 대비 판 번호 (줄기 자리가 같다). 두 깜빡임 사이(dark)에도 같은 줄기가 남는다."""
+    checked = 0
+    for seed in range(12):
+        s = ts.Storm(seed=seed)
+        bolt = None
+        for _ in range(90 * 60):
+            s.update(FRAME)
+            ph = s.phase()
+            if ph == 'bolt':
+                bolt = s.bolt_plate()
+                assert bolt is not None and 0 <= bolt < ts.FLASH_PLATES
+                assert s.flash_plate() is None
+            elif ph == 'flash':
+                assert bolt is not None and s.flash_plate() == bolt, (seed, bolt, s.flash_plate())
+                checked += 1
+            elif ph == 'dark':
+                assert s.bolt_plate() == bolt
+            elif ph is None:
+                bolt = None
+    assert checked
 
 
 def test_weak_strikes_are_glow_only_about_one_in_three():
@@ -91,7 +138,7 @@ def test_reduce_flash_has_no_contrast_plate():
             alphas.append(s.glow_alpha())
             assert s.flash_plate() is None
         assert strikes(frames)
-        assert all(ph in (None, 'glow') for _t, ph in frames)
+        assert all(ph in (None, 'glow') for _t, ph in frames)          # 줄기 단계도 대비 판도 없다
         assert 0 < max(alphas) <= ts.REDUCED_GLOW
     finally:
         options.reduce_flash = old
@@ -140,17 +187,24 @@ def test_flash_is_drawn_under_the_text_layers():
             def draw(self):
                 calls.append('rain')
         tm._weather = lambda: Rain()
-        for phase in ('flash', 'glow'):
+        plates = {'flash': 'backgrounds/title_flash_1.png', 'glow': 'backgrounds/title_glow.png',
+                  'bolt': 'backgrounds/title_bolt_1.png', 'dark': 'backgrounds/title_bolt_1.png'}
+        for phase, plate in plates.items():
             calls.clear()
             tm._storm[0] = ts.Storm(seed=1)
             tm._storm[0].force(phase)
             tm._draw_terminal()
-            plate = 'backgrounds/title_flash_1.png' if phase == 'flash' else 'backgrounds/title_glow.png'
             assert plate in calls, (phase, calls[:6])
             i = calls.index(plate)
-            assert calls.index('backgrounds/title_mist.png') < i
-            for later in ('light/title_shade.png', 'ui/um_logo_title.png', 'text:TOWER SURVEILLANCE // INMATE N-09', 'text:' + tm.MENU[1].label):
-                assert calls.index(later) > i, (phase, later)
+            assert calls.index('backgrounds/title_mist.png') < i < calls.index('rain')
+            # 대비 판일 때는 머리글 뒤 어둠을 뺀 시트 (흰 하늘 위 회색 얼룩, L1)
+            shade = 'light/title_shade_flash.png' if phase == 'flash' else 'light/title_shade.png'
+            assert shade in calls and ('light/title_shade.png' if phase == 'flash' else 'light/title_shade_flash.png') not in calls
+            for later in (shade, 'ui/um_logo_title.png', 'TOWER SURVEILLANCE // INMATE N-09', tm.MENU[1].label):
+                hit = [n for n, c in enumerate(calls) if c == later or (isinstance(c, str) and c.startswith('text:') and c.endswith(later))]
+                assert hit and hit[0] > i, (phase, later)
+            if phase in ('flash', 'glow'):
+                assert not any('title_bolt' in str(c) for c in calls), phase
             assert 'ui/um_lamps.png' not in calls                  # 오른쪽 위 등 판은 지웠다 (11/27)
             assert not any('n09' in str(c) for c in calls)          # 주인공도
     finally:

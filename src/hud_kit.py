@@ -428,10 +428,16 @@ def hud_tag(x, y, w, tone='line'):
     hud_panel('plate', int(x) // 2 * 2, int(y), max(int(w) // 2 * 2, 32), 40, tone)
 
 
-def hud_keycap(x, y, label, hot=True):
-    """HUD 칸 안의 키 글자: mist는 판 없이 글자만(칸이 이미 어둡다. 판 안에 판을 겹치지 않는다) / 다른 스킨은 keycap()."""
+def hud_keycap(x, y, label, hot=True, framed=False):
+    """HUD 칸 안의 키 글자: mist는 판 없이 글자만(칸이 이미 어둡다. 판 안에 판을 겹치지 않는다) / 다른 스킨은 keycap().
+    framed: 칸 밖에 홀로 놓이는 키 판(보스 대사 띠의 Enter, 11/27 S1). mist는 가는 테두리 한 줄 + 어두운 바탕(누를 수 있으면 회백,
+    아직이면 흐린 테두리). 폭·자리는 keycap()과 같다."""
     if not is_mist():
         return keycap(x, y, label, hot)
     w = max(34, assets.text_width(label, True) + 16) // 2 * 2
+    if framed:
+        hud_panel('key', int(x), int(y), w, 30, 'line' if hot else 'dim')
+        assets.draw_text(int(x) + w // 2, int(y) + 16, label, (242, 246, 250) if hot else FAINT, small=True, center=True)
+        return w
     text(int(x) + w // 2, int(y) + 16, label, (242, 246, 250) if hot else FAINT, small=True, center=True)
     return w

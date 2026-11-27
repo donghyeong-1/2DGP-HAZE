@@ -144,10 +144,17 @@ def value_label(item):
     return ''
 
 
+FOOTER = [('Esc F', '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')]
+
+
 def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
+    if kit.is_mist():
+        _draw_mist()
+        update_canvas()
+        return
     kit.backdrop(0.9)
     kit.heading(PANEL_X, H - 150, '연습 메뉴', '연습장')
     for i, item in enumerate(ROWS):
@@ -160,3 +167,25 @@ def draw():
             kit.text(PANEL_X + PANEL_W - 34, cy, label, (255, 230, 150) if on else (170, 182, 205), small=True, right=True)
     kit.footer([('Esc F', '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')])
     update_canvas()
+
+
+def _draw_mist():
+    """'mist' (11/27 S1): M1 메뉴 화면과 같은 감시 단말 모양. 판·줄 띠·키캡 없이 글자, 고른 줄은 이름만 글자 폭으로 뒤집기 + 커서.
+    줄의 자리·값 글자는 그대로."""
+    import mist_menu as mm
+    mm.dim(mm.DIM_GAME)
+    bottom = TOP_Y - (len(ROWS) - 1) * ROW_STEP
+    mm.shade(PANEL_X - 10, H - 150 - 66, PANEL_X + 300, H - 150 + 24)
+    mm.shade(PANEL_X, bottom - 32, PANEL_X + PANEL_W, TOP_Y + 32)
+    mm.footer_shade(FOOTER)
+    mm.terminal([('TOWER SURVEILLANCE // TRAINING YARD', mm.PH)])
+    mm.title(PANEL_X, H - 150, '연습 메뉴')
+    kit.text(PANEL_X + 2, H - 192, '연습장', mm.PH_SOFT, small=True)
+    for i, item in enumerate(ROWS):
+        cy = TOP_Y - i * ROW_STEP
+        on = i == selected
+        mm.pick(PANEL_X + 34, cy, NAMES[item], on, mm.PH_SOFT, center=False)
+        label = value_label(item)
+        if label:
+            kit.text(PANEL_X + PANEL_W - 34, cy, label, mm.PH if on else mm.PH_MENU, small=True, right=True)
+    mm.footer(FOOTER)

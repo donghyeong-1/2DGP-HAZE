@@ -461,7 +461,7 @@ class BossIntro:
             kit.text(w // 2, BAR_H - 26, info['speaker'], info['color'], small=True, center=True)
             kit.text(w // 2, 44, self.line()[:self.typed()], (236, 240, 248), center=True)
             done = self.typed() >= len(self.line())
-            kw = kit.keycap(w - 300, 30, 'Enter', hot=done)
+            kw = kit.hud_keycap(w - 300, 30, 'Enter', hot=done, framed=True)    # S1: mist는 가는 테두리 키 판 (다른 스킨은 철판 키캡 그대로)
             kit.text(w - 300 + kw + 10, 45, '넘기기', kit.FAINT, small=True)
         elif self.step is None:
             self._draw_bark()

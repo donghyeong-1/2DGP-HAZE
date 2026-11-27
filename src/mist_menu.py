@@ -52,12 +52,13 @@ def header(lines):
         kit.text(hx, hy - 26 * i, s, color, small=True)
 
 
-def pick(x, cy, label, hot, color=PH_MENU, center=True, small=False, mark=True):
+def pick(x, cy, label, hot, color=PH_MENU, center=True, small=False, mark=True, hh=None):
     """메뉴 항목. 고른 항목은 글자 폭 + 양옆 8px만 색을 뒤집고 앞에 커서(um_cursor). 길게 뻗는 띠 아님.
-    center면 x가 글자 가운데, 아니면 글자 왼쪽 끝. 돌려주는 값은 (뒤집힌 블록의 왼쪽 x, 폭) — 고르지 않았으면 글자 자리."""
+    center면 x가 글자 가운데, 아니면 글자 왼쪽 끝. 돌려주는 값은 (뒤집힌 블록의 왼쪽 x, 폭) — 고르지 않았으면 글자 자리.
+    hh: 뒤집힌 블록의 위아래 반 높이 (기본 큰 글자 18·작은 글자 14. 설정 화면은 설명과 붙이려고 14, 11/27 S1)."""
     tw = assets.text_width(label, small)
     left = x - tw // 2 if center else x
-    hh = 14 if small else 18
+    hh = hh or (14 if small else 18)
     if hot:
         assets.draw_rect_color(left - 8, cy - hh, tw + 16, 2 * hh, PH)
         if small:

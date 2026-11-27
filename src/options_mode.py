@@ -249,6 +249,8 @@ def draw_panel():
 # ----- 'mist' (11/27 M1): 타이틀 감시 단말과 한 벌 -----
 MIST_HEAD_Y = PANEL_Y + PANEL_H - 68   # 제목 (왼쪽 위 머리글과 겹치지 않게 28px 내린다. 첫 줄보다는 위)
 FOOTER = [('W S', '항목'), ('A D', '값 변경'), ('Enter', '확인'), ('Esc', '돌아가기')]
+MIST_NAME_DY, MIST_DESC_DY = 12, -16   # 항목 이름·설명의 글자 가운데 y (줄 가운데 ROW_Y 기준). M1은 13·-21
+MIST_PICK_HH = 14                      # 고른 항목 이름의 뒤집힌 블록 반 높이 (기본 18이면 붙인 설명 글자 윗부분을 덮는다)
 
 
 def draw_scene():
@@ -277,9 +279,10 @@ def draw_mist_panel():
     for i, item in enumerate(ROWS):
         cy = ROW_Y[i]
         on = i == selected
-        # 이름은 2px 올리고 설명은 4px 내린다 (철판보다): 뒤집힌 이름 블록과 설명 글자 사이를 띄운다
-        mm.pick(PANEL_X + 34, cy + 13, NAMES[item], on, mm.PH_SOFT, center=False)
-        kit.text(PANEL_X + 34, cy - 21, DESCS[item], mm.PH_SOFT if on else mm.PH_MENU, small=True)
+        # 11/27 S1 묶음 5: 이름과 설명을 붙이고(글자 사이 7px) 항목 사이를 벌린다(16px). 전에는 이름·설명·다음 이름이 거의 같은 간격(34·32px)이라
+        # 어느 설명이 어느 항목 것인지 묶이지 않았다. 줄의 가운데(ROW_Y)·누르는 자리는 그대로, 묶음만 줄 가운데에 모은다
+        mm.pick(PANEL_X + 34, cy + MIST_NAME_DY, NAMES[item], on, mm.PH_SOFT, center=False, hh=MIST_PICK_HH)
+        kit.text(PANEL_X + 34, cy + MIST_DESC_DY, DESCS[item], mm.PH_SOFT if on else mm.PH_MENU, small=True)
         if item == 'keys':
             kit.text(VALUE_X + (VALUE_W - 8) // 2, cy + 2, f'열기 ({keys_summary()})  >', mm.PH if on else mm.PH_SOFT,
                      small=True, center=True)

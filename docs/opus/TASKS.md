@@ -384,3 +384,30 @@
   실제 창 촬영 `tools/ui_menu_shots.py`(장면 열, 비교판 `shots/review/M1_*`).
 - 바꾼 파일: `src/mist_menu.py`(새), `src/title_mode.py`, `src/pause_mode.py`, `src/options_mode.py`, `src/keys_mode.py`, `src/ending_mode.py`, `src/credits_mode.py`, `tools/make_ui_mist.py`(`--menu`), `tools/ui_menu_shots.py`(새),
   `tests/test_ui_skin.py`, `assets/light/menu_shade_(soft|wide).png`, `assets/ui/um_hud_frame_ph(_dim).png`, `assets/ui/um_fill_phos_*.png`.
+
+
+## S1 고르는 화면과 남은 화면
+사용자 결정(11/27): 나머지 화면 맞추기 "제안대로 전부". 이 묶음 몫은 한 줄 **"고르는 화면(상점·형태 선택)은 증강 카드 모양."** 그림은 "코드 우선, 필요할 때만 PixelLab"(이번에는 생성 없음).
+증강 선택 확정 때 사용자: "증강 선택은 그래도 테두리 정도는 있어야할듯." 철판 시안 때: "공사장 느낌 너무 나는데."
+- 지휘 쪽 판단(사용자가 "전부"라고 했고 M1 보고가 철판으로 남았다고 알림): 연습장 F 메뉴·효과음 듣기·보스 대사 띠의 키 판·진열대 표시를 이 묶음에 넣고, M1 설정 화면의 줄 묶음 손질(묶음 5)을 더했다.
+  디자인 기준의 세부(줄마다 판 대신 목록 판 하나 + 글자 폭 뒤집기, 테두리 색 쓰임, 진열대 = 문 위 보상 판 모양)도 지휘 쪽 해석이다.
+- 한 것
+  - 은신처 NPC 창 넷(`npc_mode._draw_mist`, 부품 `src/mist_pick.py`): 세로 목록이라 가로 카드로 바꾸지 않고 **목록 전체를 가는 테두리 판 하나**에 담았다
+    (줄마다 판을 두면 고른 줄의 밝은 테두리가 화면 폭의 긴 띠처럼 보인다). 무기 걸이는 두 열을 한 판에 담고 가운데 세로 선으로 나눴다.
+    줄 사이는 아주 옅은 가는 선. 고른 줄은 이름만 글자 폭으로 뒤집기(카드의 밝은 회백 (222,228,236)) + 앞에 삼각 커서 `um_pick_cursor`.
+    살 수 없는 줄(결정 모자람·다 올림·첫 칸과 같은 무기)은 흐린 글자, 고르면 흐린 회색 뒤집힘 + 흐린 커서. 결정 값(헤이즈)은 청록, 단계(0/5)는 회색으로 나눠 그린다.
+    지금 건 무기 '선택'은 밝은 글자 + 밑줄. 알림 글은 실패면 옅은 빨강, 성공이면 밝은 회백(경고 노랑 대신). 키 안내는 증강 화면처럼 키 판 없이 글자만.
+    제목·결정 수·한마디·초상화·무기 그림·줄과 버튼 자리(누르는 자리)·문구는 그대로.
+  - 연습장 F 메뉴·효과음 듣기: M1 메뉴 화면과 같은 감시 단말 모양(`mist_menu`). 머리글 `TOWER SURVEILLANCE // TRAINING YARD`, `TOWER SURVEILLANCE // AUDIO CHECK`(새 문구).
+    효과음 듣기는 연습 메뉴에 `draw_frozen`이 없어 뒤가 빈 화면이었다: mist에서는 그 아래 멈춘 연습장을 깐다.
+  - 보스 대사 띠의 Enter 키 판: `hud_kit.hud_keycap(framed=True)` = 가는 테두리 키 판(누를 수 있으면 회백, 아직이면 흐린 테두리).
+  - 진열대(정비방·황금방·균열방) 이름·설명·안내: 문 위 보상 판과 같은 가는 테두리 판 하나(`Pedestal._draw_mist_info`). 황금방 = 금 테두리, 나머지 회백.
+    'F 구매 (n조각)'은 청록(조각 = 헤이즈), 'F 획득'은 밝은 회백. 판이 진열대 아이콘과 겹치지 않게 글자 묶음을 12~14px 올렸다.
+  - 묶음 5 설정: 이름과 설명을 붙이고(글자 사이 약 7px) 항목 사이를 벌렸다(약 16px). 고른 이름의 뒤집힌 블록 반 높이 18 -> 14(`mist_menu.pick(hh=)`, 기본값은 그대로).
+    `ROW_Y`·값 칸·막대 자리 그대로(누르는 자리 변함 없음).
+  - 이제 mist에서 철판 판·틀·띠·키캡·커서·노란 표시를 부르는 화면이 없다. 남은 철판 쪽 작은 그림: 갈래 아이콘 `up_mut_*`, HUD의 하트·물약·조준점·미니맵 표시·조각·고농도·바늘(H1에서 판이 아니라고 둔 것),
+    증강 카드의 진행 칸 `up_step_off`(끝난 화면이라 그대로).
+- 확인: 테스트 8개(`tests/test_ui_skin.py` test_s1_*: 다섯 화면이 철판 부품·경고 노랑을 안 부름, mist 전체 화면 훑기, 옛 스킨 셋이 고치기 전과 같음, 끝난 화면의 mist 기록이 그대로,
+  새 그림 픽셀 규칙, 뒤집힘 폭 ≤ 글자 + 16px, 살 수 있는 줄·없는 줄이 다르게 보임, 설정 이름·설명 묶음). 실제 창 촬영 `tools/ui_pick_shots.py`(장면 열셋 + 카드 둘, 비교판 `shots/review/S1_*`).
+- 바꾼 파일: `src/mist_pick.py`(새), `src/npc_mode.py`, `src/practice_mode.py`, `src/sfx_mode.py`, `src/boss_intro.py`, `src/pedestal.py`, `src/hud_kit.py`, `src/mist_menu.py`, `src/options_mode.py`,
+  `tools/make_ui_mist.py`(`--pick`), `tools/ui_pick_shots.py`(새), `tests/test_ui_skin.py`, `assets/ui/um_pick_cursor(_off).png`(새).

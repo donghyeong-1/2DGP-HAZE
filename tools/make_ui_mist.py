@@ -21,10 +21,12 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
 
 - 메뉴 화면 (11/27 M1): 글자 뒤 어둠 조각 시트 assets/light/menu_shade_<soft|wide>.png(9칸으로 이어 붙인다),
   키 글자 판·음량 막대의 인광색 테두리 um_hud_frame_ph·ph_dim, 막대 속 um_fill_phos_<높이>.
+- 고르는 화면 (11/27 S1): 고른 줄 앞 삼각 커서 um_pick_cursor(밝은 회백)·um_pick_cursor_off(살 수 없는 줄, 흐린 회색). 코드로 찍는다.
 
 사용: python tools/make_ui_mist.py          (전부)
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
+      python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
 """
 import math
 import os
@@ -415,7 +417,27 @@ def menu_parts():
     return made
 
 
+# ----- 고르는 화면 (2026-11-27 S1, docs/opus/TASKS.md '4차'): 은신처 NPC 창 넷을 증강 카드와 한 벌로 -----
+# 줄 고르기는 M1처럼 글자 폭만 색을 뒤집고 앞에 커서. 감시 단말 커서(um_cursor, 청록·인광)는 카드 말투와 맞지 않아
+# 카드의 밝은 회백(고른 카드 테두리 um_hud_frame_hot과 같은 색)으로 작은 삼각 커서를 코드로 찍는다. _off는 살 수 없는 줄.
+PICK_TONES = {'um_pick_cursor': (222, 228, 236), 'um_pick_cursor_off': (112, 120, 138)}   # src/mist_pick.HOT_BG / HOT_OFF
+
+
+def pick_parts():
+    made = []
+    for name, c in PICK_TONES.items():
+        a = np.zeros((11, 6, 4), np.uint8)                        # 도트 6x11 (화면 12x22): 오른쪽을 가리키는 삼각
+        for y in range(11):
+            a[y, :min(y, 10 - y) + 1] = _rgba(c)
+        made.append(save2(a, f'{name}.png'))
+    return made
+
+
 def main():
+    if '--pick' in sys.argv:                      # 고르는 화면 부품만 (S1)
+        made = pick_parts()
+        print(len(made), '개:', ', '.join(made))
+        return
     if '--menu' in sys.argv:                      # 메뉴 화면 부품만 (M1)
         made = menu_parts()
         print(len(made), '개:', ', '.join(made))
@@ -427,7 +449,7 @@ def main():
     made += card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     made.append(title_shade(flash=True))
-    made += menu_parts()
+    made += menu_parts() + pick_parts()
     print(len(made), '개:', ', '.join(made))
 
 

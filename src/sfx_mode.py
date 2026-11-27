@@ -160,10 +160,20 @@ def update():
     pass
 
 
+FOOTER = [('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '바꿔'), ('X', '표시 지우기'), ('Esc', '닫기')]
+
+
 def draw():
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
+    if kit.is_mist():
+        frozen = getattr(_under, '_under', None)                 # 연습 메뉴 아래의 멈춘 연습장 (연습 메뉴에는 draw_frozen이 없다)
+        if not (_under is not None and hasattr(_under, 'draw_frozen')) and frozen is not None and hasattr(frozen, 'draw_frozen'):
+            frozen.draw_frozen()
+        _draw_mist()
+        update_canvas()
+        return
     kit.backdrop(0.92)
     groups = catalog()
     total = sum(len(names) for _, names in groups)
@@ -187,3 +197,37 @@ def draw():
         kit.text(PANEL_X + PANEL_W - 10, TOP_Y - VISIBLE * ROW_STEP + 14, f'{row + 1}/{len(names)}', kit.FAINT, small=True, right=True)
     kit.footer([('A D', '종류'), ('W S', '선택'), ('Enter', '듣기'), ('G', '좋음'), ('B', '바꿔'), ('X', '표시 지우기'), ('Esc', '닫기')])
     update_canvas()
+
+
+def _draw_mist():
+    """'mist' (11/27 S1): M1 메뉴 화면과 같은 감시 단말 모양. 판·줄 띠·키캡 없이 글자, 고른 소리는 이름만 글자 폭으로 뒤집기 + 커서.
+    표시(좋음·바꿔)의 글자와 색, 줄의 자리는 그대로."""
+    import mist_menu as mm
+    groups = catalog()
+    total = sum(len(names) for _, names in groups)
+    done = sum(1 for names in (g[1] for g in groups) for n in names if n in marks)
+    bad = sum(1 for v in marks.values() if v == 'bad')
+    label, names = groups[cat]
+    first = max(0, min(row - VISIBLE // 2, len(names) - VISIBLE))
+    shown = names[first:first + VISIBLE]
+    mm.dim(mm.DIM_GAME)
+    mm.shade(PANEL_X - 10, H - 150 - 66, PANEL_X + 420, H - 150 + 24)
+    mm.text_shade(PANEL_X + PANEL_W // 2, H - 220, f'<  {label}  ({cat + 1}/{len(groups)})  >', center=True)
+    mm.shade(PANEL_X, TOP_Y - (len(shown) - 1) * ROW_STEP - 28, PANEL_X + PANEL_W, TOP_Y + 28)
+    mm.footer_shade(FOOTER)
+    mm.terminal([('TOWER SURVEILLANCE // AUDIO CHECK', mm.PH)])
+    mm.title(PANEL_X, H - 150, '효과음 듣기')
+    kit.text(PANEL_X + 2, H - 192, f'표시 {done}/{total} · 바꿔 {bad}', mm.PH_SOFT, small=True)
+    kit.text(PANEL_X + PANEL_W // 2, H - 220, f'<  {label}  ({cat + 1}/{len(groups)})  >', mm.PH, center=True)
+    for j, name in enumerate(shown):
+        i = first + j
+        cy = TOP_Y - j * ROW_STEP
+        on = i == row
+        mm.pick(PANEL_X + 34, cy, name, on, mm.PH_SOFT, center=False, small=True)
+        m = marks.get(name)
+        if m:
+            text, color = MARKS[m]
+            kit.text(PANEL_X + PANEL_W - 34, cy, text, color, small=True, right=True)
+    if len(names) > VISIBLE:
+        kit.text(PANEL_X + PANEL_W - 10, TOP_Y - VISIBLE * ROW_STEP + 14, f'{row + 1}/{len(names)}', mm.PH_MENU, small=True, right=True)
+    mm.footer(FOOTER)

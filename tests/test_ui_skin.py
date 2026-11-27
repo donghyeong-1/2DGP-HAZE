@@ -750,6 +750,9 @@ def test_m1_unchanged_screens_draw_the_same_in_every_skin():
     HUD·문 위 보상 판·처음 안내 카드·메뉴 공통 hud_kit 함수(대화 창의 키캡·글자 포함)는 위 H1 테스트가 본다."""
     for skin_name, want in OTHER_DIGEST.items():
         got = {k: v.digest() for k, v in _other_logs(skin_name).items()}
+        if skin_name == 'mist':                            # S1(11/27)이 mist의 NPC 창·연습·효과음을 바꿨다: 카드만 그대로
+            want = {k: v for k, v in want.items() if k.startswith('cards_')}
+            got = {k: v for k, v in got.items() if k in want}
         assert got == want, (skin_name, [k for k in want if got.get(k) != want[k]])
 
 
@@ -816,6 +819,262 @@ def test_m1_menu_shade_tiles_without_gaps():
     want[y0 - R + 200:y1 + R + 200, x0 - R + 200:x1 + R + 200] = 1
     assert (cover == want).all()
 
+
+
+# ----- 2026-11-27 S1 고르는 화면과 남은 화면 (docs/opus/TASKS.md '4차' S1) -----
+def _npc_log(skin_name, kind, sel=1, crystals=0, levels=None, note='', result=None, keeper=False, keepsake=None):
+    """은신처 NPC 창 한 장면의 기록 (멈춘 은신처 화면은 빼고)."""
+    import meta
+    import npc_mode
+
+    def prep():
+        meta.state['crystals'] = crystals
+        meta.state['keeper'], meta.state['keepsake'] = keeper, keepsake
+        for k, v in (levels or {}).items():
+            meta.state['levels'][k] = v
+        npc_mode.kind, npc_mode.selected, npc_mode.note, npc_mode.result = kind, sel, note, result
+    return _with_skin(skin_name, lambda: _draw_log(npc_mode, prep))
+
+
+def _practice_log(skin_name, sel=2):
+    import practice_mode
+    p = dict(_hud_states())['normal']()[0]
+
+    def prep():
+        practice_mode.selected, practice_mode.player = sel, p
+    return _with_skin(skin_name, lambda: _draw_log(practice_mode, prep))
+
+
+def _sfx_log(skin_name, row=1, marks=None):
+    import sfx_mode
+
+    def prep():
+        sfx_mode.cat, sfx_mode.row = 0, row
+        sfx_mode.marks = dict(marks or {})
+    return _with_skin(skin_name, lambda: _draw_log(sfx_mode, prep))
+
+
+class _FakeBoss:
+    kind = 'gatekeeper'
+
+
+def _boss_lines_log(skin_name, done=True):
+    """보스 등장씬 대사 단계 (위아래 검은 띠 + 이름·대사 + Enter 키 판)."""
+    import boss_intro
+
+    def go():
+        b = boss_intro.BossIntro.__new__(boss_intro.BossIntro)
+        b.step, b.t, b.age, b.landed = 'lines', 0.4, 3.0, True
+        b.boss = _FakeBoss()
+        b.lines = list(boss_intro.LINES['gatekeeper']['intro'])
+        b.line_index = 0
+        b.line_t = 99.0 if done else 0.3
+        with _Recorder() as r:
+            b.draw()
+        return r
+    return _with_skin(skin_name, go)
+
+
+def _pedestal_log(skin_name, mode='shop', item='cap', gone=False):
+    """진열대 하나 (가까이 선 주인공에게 이름·설명·안내가 뜬다)."""
+    import camera
+    import pedestal
+
+    def go():
+        p = dict(_hud_states())['normal']()[0]
+        camera.x = camera.y = 0.0
+        ped = pedestal.Pedestal(800, 300, item, mode, price=6 if mode == 'shop' else 0)
+        ped.gone = gone
+        p.x, p.y = 810, 310
+        ped.player = p
+        with _Recorder() as r:
+            ped.draw()
+        return r
+    return _with_skin(skin_name, go)
+
+
+def _s1_logs(skin_name):
+    """S1에서 바꾸는 화면의 장면별 기록 {장면: 기록}."""
+    import meta
+    full = {k: meta.UPGRADES[k]['max'] for k in meta.ORDER[:1]}
+    return {
+        'npc_mech_buy': _npc_log(skin_name, 'mechanic', 0, crystals=40),
+        'npc_mech_no': _npc_log(skin_name, 'mechanic', 0, crystals=3, levels=full, note='헤이즈 결정이 부족합니다', result='fail'),
+        'npc_keeper_shut': _npc_log(skin_name, 'keeper', 0, crystals=3),
+        'npc_keeper_open': _npc_log(skin_name, 'keeper', 0, crystals=30, keeper=True, keepsake='absorb'),
+        'npc_archivist': _npc_log(skin_name, 'archivist', 1, crystals=14),
+        'npc_archivist_last': _npc_log(skin_name, 'archivist', 3, crystals=14),
+        'npc_armory_first': _npc_log(skin_name, 'armory', 0),
+        'npc_armory_second': _npc_log(skin_name, 'armory', 5, note='시작 무기 변경: 철파이프 + 쌍권총', result='ok'),
+        'npc_back': _npc_log(skin_name, 'mechanic', 4, crystals=40),
+        'practice': _practice_log(skin_name, 2), 'practice_gauge': _practice_log(skin_name, 3),
+        'sfx': _sfx_log(skin_name, 1, {}), 'sfx_marked': _sfx_log(skin_name, 12, {'swing_1': 'good', 'swing_2': 'bad'}),
+        'boss_lines': _boss_lines_log(skin_name, True), 'boss_typing': _boss_lines_log(skin_name, False),
+        'ped_shop': _pedestal_log(skin_name, 'shop', 'cap'), 'ped_gold': _pedestal_log(skin_name, 'gold', 'fury'),
+        'ped_rift': _pedestal_log(skin_name, 'rift', 'power'), 'ped_gone': _pedestal_log(skin_name, 'shop', 'cap', gone=True),
+    }
+
+
+# 고치기 전(2026-11-27, 50fe67f)의 기록. 옛 스킨 셋은 S1 뒤에도 그대로 (진열대는 스킨과 상관없이 같았다)
+S1_DIGEST = {
+    'plate': {'npc_mech_buy': '4f5314f76e2a7077', 'npc_mech_no': '314c821562203ae9', 'npc_keeper_shut': 'cd5b7b541c40af84', 'npc_keeper_open': 'da7ac678eccaed13', 'npc_archivist': '47e437d979fc63a6', 'npc_archivist_last': '62942550f5f69262', 'npc_armory_first': '439dbba3040724d4', 'npc_armory_second': '3a5475ae22ca8613', 'npc_back': '690d068c83a433aa', 'practice': 'e9559cc8d678474f', 'practice_gauge': 'e911e4a65c1f79b8', 'sfx': '9a9457b7fddf7a23', 'sfx_marked': '39f7bcd9fda783a2', 'boss_lines': '9445d045dbf72914', 'boss_typing': '4df1020eed768fb9', 'ped_shop': '5394f43bf2ddc69a', 'ped_gold': 'b9ccfd9ddf62aaf9', 'ped_rift': 'f8879eb6c068b907', 'ped_gone': 'b0aa35ea40c8f3da'},
+    'plate_code': {'npc_mech_buy': 'a16b6f9acf87dba7', 'npc_mech_no': 'cdfce17098319efb', 'npc_keeper_shut': 'fa73aa9e2755d0a6', 'npc_keeper_open': '04ef54d251b5c3f6', 'npc_archivist': '8892a3890506d8dd', 'npc_archivist_last': 'ff610a6c0a2a804d', 'npc_armory_first': 'b51e81b3684ed7f8', 'npc_armory_second': '1f4d63b47d9ee1df', 'npc_back': '34c1c9b2a44f09a7', 'practice': '00d90b22a3d76598', 'practice_gauge': '0be357627f8b97ad', 'sfx': 'eadf10acbcbf4be4', 'sfx_marked': '2788a1090e92b50e', 'boss_lines': 'fcbf4a962eb2cf83', 'boss_typing': '7e3e0e9e9beaf4ee', 'ped_shop': '5394f43bf2ddc69a', 'ped_gold': 'b9ccfd9ddf62aaf9', 'ped_rift': 'f8879eb6c068b907', 'ped_gone': 'b0aa35ea40c8f3da'},
+    'crystal': {'npc_mech_buy': 'ec2ce8adf2918287', 'npc_mech_no': 'c518c1d107af02f3', 'npc_keeper_shut': '2dac496e4cfbcc38', 'npc_keeper_open': '10d3aa716277ef56', 'npc_archivist': '45b6a919d4ae55c9', 'npc_archivist_last': '674a9500a6e90d8a', 'npc_armory_first': 'db08a46a8785814f', 'npc_armory_second': '78c1966cca357d0c', 'npc_back': 'b89dc61c26fc6a37', 'practice': '65851386c8f25102', 'practice_gauge': '9a55970123f3455d', 'sfx': '0275367891d27066', 'sfx_marked': '86df89ba8866a045', 'boss_lines': '483a93bf8c0527e7', 'boss_typing': '076b56e29120a179', 'ped_shop': '5394f43bf2ddc69a', 'ped_gold': 'b9ccfd9ddf62aaf9', 'ped_rift': 'f8879eb6c068b907', 'ped_gone': 'b0aa35ea40c8f3da'},
+}
+# 이미 끝난 화면의 mist 기록 (S1 전, 50fe67f). 설정(options_*)은 묶음 5로 바뀌므로 뺀다
+MIST_DONE_DIGEST = {
+    'pause_0': '7c2a8885d1b28a99', 'pause_build_2': 'f9913e8d78a0b16a', 'pause_ask': '78b44769b58dffa7',
+    'keys_0': '89e6b6949d456e3d', 'keys_listen': 'e52db5bf5ec26c81', 'keys_buttons': '793b1540dbcb3f05',
+    'ending_dead_choose': 'b9e6f5c9ad866e37', 'ending_dead': '52682eb733096be5', 'ending_clear': '11eef79b43905daf',
+    'credits_0': '9806d3b1e8a2a935', 'credits_mid': '0b0823fe314bdbc0',
+    'hud_normal': '8efe4fcd6336eccb', 'hud_critical': 'b31072f9b278ac7c', 'hud_fade_items_curse': '3bb41f6c79aa52a0',
+    'hud_enhanced': '865db9d39038e5d6', 'hud_boss': '00693a953f9a52ad', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+}
+# mist에서도 쓰는 철판 쪽 작은 그림 (판·틀·띠·키·노란 표시가 아니다). up_step_off는 증강 카드의 진행 칸(이미 끝난 화면이라 그대로 둔다)
+MIST_PLATE_ICONS_OK = PLATE_ICONS_OK + ('up_step_off',)
+PICK_PARTS = ('um_pick_cursor', 'um_pick_cursor_off')
+
+
+def _mist_done_logs():
+    out = {k: v for k, v in _menu_logs('mist').items() if not k.startswith('options_')}
+    for name, st in _hud_states():
+        out['hud_' + name] = _hud_log('mist', st)
+    out['room_reward'] = _room_reward_log('mist')
+    out['hint'] = _hint_log('mist')
+    return out
+
+
+def _assert_no_plate(scene, r, ok=('up_mut_',)):
+    for path in r.paths():
+        name = os.path.basename(path)
+        assert not name.startswith(('upx_', 'uc_')), (scene, path)
+        assert not name.startswith('up_') or name.startswith(ok), (scene, path)
+    for row in r.log:
+        assert hud_kit.YELLOW not in row and hud_kit.YELLOW_LO not in row, (scene, row)
+
+
+def test_s1_mist_pick_screens_call_no_plate_parts():
+    """(1) mist일 때 은신처 NPC 창 넷·연습 메뉴·효과음 듣기·보스 대사 띠·진열대 표시가 철판 판·틀·띠·키캡·커서(upx_*, up_*, uc_*)와
+    경고 노랑을 부르지 않는다. NPC 창과 진열대는 가는 테두리 판(um_hud_frame_*), 연습·효과음은 감시 단말 틀(um_bracket)을 쓴다."""
+    logs = _s1_logs('mist')
+    for scene, r in logs.items():
+        _assert_no_plate(scene, r)
+        paths = r.paths()
+        if scene.startswith('npc_'):
+            assert any(p.startswith('ui/um_hud_frame_') for p in paths), scene
+        if scene.startswith(('practice', 'sfx')):
+            assert 'ui/um_bracket.png' in paths and any(p.startswith('light/menu_shade_') for p in paths), scene
+        if scene.startswith('ped_') and scene != 'ped_gone':
+            assert any(p.startswith('ui/um_hud_frame_') for p in paths), scene
+    assert 'ui/um_hud_frame_gold.png' in logs['ped_gold'].paths()                 # 황금방 = 특별 보상 = 금 테두리
+    assert any(p.startswith('ui/um_hud_frame_') for p in logs['boss_lines'].paths())   # Enter 키 판 = 가는 테두리
+
+
+def test_s1_no_mist_screen_calls_plate_parts():
+    """(2) mist에서 철판 판·틀·띠·키캡·노란 표시를 부르는 화면이 없다: 지금 그려 볼 수 있는 화면 전부
+    (타이틀·번개 단계, 일시정지·설정·키 설정·결과·크레딧, HUD 다섯 장면, 문 위 보상 판, 안내 카드, 증강·형태·저주 카드, 이번 S1 화면)."""
+    logs = dict(_s1_logs('mist'))
+    logs.update(_menu_logs('mist'))
+    logs.update(_mist_done_logs())
+    logs.update({'other_' + k: v for k, v in _other_logs('mist').items()})
+    for key in TITLE_DIGEST['mist']:
+        sel, ph = key.split('_', 1)
+        logs['title_' + key] = _title_log('mist', int(sel), None if ph == 'None' else ph)
+    assert len(logs) >= 55, len(logs)
+    for scene, r in logs.items():
+        _assert_no_plate(scene, r, MIST_PLATE_ICONS_OK)
+
+
+def test_s1_old_skins_draw_the_same():
+    """(3) 'plate'·'plate_code'·'crystal'에서 S1 화면(NPC 넷·연습·효과음·보스 대사 띠·진열대)의 그리기 기록이 고치기 전과 같다."""
+    for skin_name, want in S1_DIGEST.items():
+        got = {k: v.digest() for k, v in _s1_logs(skin_name).items()}
+        assert got == want, (skin_name, [k for k in want if got.get(k) != want[k]])
+
+
+def test_s1_finished_mist_screens_draw_the_same():
+    """(4) 이미 끝난 화면(일시정지·키 설정·결과·크레딧·HUD·문 위 보상 판·안내 카드)은 mist에서도 S1 전과 같다.
+    타이틀과 증강·형태·저주 카드는 test_m1_title_draws_the_same·test_m1_unchanged_screens_draw_the_same_in_every_skin이 본다."""
+    got = {k: v.digest() for k, v in _mist_done_logs().items()}
+    assert got == MIST_DONE_DIGEST, [k for k in MIST_DONE_DIGEST if got.get(k) != MIST_DONE_DIGEST[k]]
+
+
+def test_s1_pick_parts_follow_pixel_rules():
+    """(5) 새 그림(고르는 화면의 커서)은 픽셀 규칙(알파 0/255, 2px 격자, 64색 이하)을 지키고 경고 노랑·청록을 쓰지 않는다."""
+    for n in PICK_PARTS:
+        a = np.array(Image.open(os.path.join(UI, n + '.png')).convert('RGBA'))
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, n
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), n
+        rgb = a[a[:, :, 3] > 0][:, :3].astype(int)
+        assert 0 < len({tuple(c) for c in rgb}) <= 64, n
+        assert not (rgb == hud_kit.YELLOW).all(axis=1).any(), n
+        assert not ((rgb[:, 1] > 150) & (rgb[:, 2] > 150) & (rgb[:, 0] < 120)).any(), n
+
+
+def _pick_blocks(r):
+    """고르는 화면의 색 뒤집힌 블록과 그 위 글자: [(블록 폭, 글자 폭)]."""
+    import mist_pick as mp
+    out = []
+    for i, row in enumerate(r.log):
+        if row[0] != 'draw_rect_color' or row[5:6] not in ((mp.HOT_BG,), (mp.HOT_OFF,)) or row[4] < 20:
+            continue
+        nxt = next(x for x in r.log[i + 1:] if x[0] == 'draw_text')
+        assert nxt[4] == mp.HOT_FG, (row, nxt)
+        small = ('small', True) in nxt
+        out.append((row[3], len(nxt[3]) * (14 if small else 20)))
+    return out
+
+
+def test_s1_selected_row_is_inverted_only_as_wide_as_its_text():
+    """고른 줄은 글자 폭 + 양옆 8px만 색을 뒤집는다 (긴 띠 금지): NPC 창은 카드 색, 연습·효과음은 감시 단말 색(M1과 같은 식)."""
+    logs = _s1_logs('mist')
+    for scene, r in logs.items():
+        if not scene.startswith('npc_'):
+            continue
+        blocks = _pick_blocks(r)
+        assert blocks, scene
+        for bw, tw in blocks:
+            assert bw <= tw + 16, (scene, bw, tw)
+    for scene in ('practice', 'practice_gauge', 'sfx', 'sfx_marked'):
+        blocks = _inverted_blocks(logs[scene])
+        assert blocks, scene
+        for bw, tw in blocks:
+            assert bw <= tw + 16, (scene, bw, tw)
+
+
+def test_s1_unbuyable_row_looks_different_from_buyable():
+    """정비사: 고른 줄이 살 수 있으면 밝은 뒤집힘, 살 수 없으면(다 올림·결정 모자람) 흐린 뒤집힘. 값 글자도 다른 색."""
+    import mist_pick as mp
+    buy, no = _s1_logs('mist')['npc_mech_buy'], _s1_logs('mist')['npc_mech_no']
+    hot = lambda r: [row[5] for row in r.log if row[0] == 'draw_rect_color' and row[5:6] in ((mp.HOT_BG,), (mp.HOT_OFF,)) and row[4] >= 20]  # noqa: E731
+    assert hot(buy) == [mp.HOT_BG] and hot(no) == [mp.HOT_OFF]
+    value = lambda r, s: [row[4] for row in r.log if row[0] == 'draw_text' and row[3] == s][-1]  # noqa: E731  (앞은 그림자)
+    assert value(buy, '10 결정') != value(no, '10 결정')
+
+
+def test_s1_mist_options_rows_group_name_and_description():
+    """묶음 5: mist 설정에서 한 항목의 이름과 설명은 붙어 있고(사이가 좁다), 항목과 항목 사이는 그보다 넓다.
+    이름·설명은 누르는 자리(ROW_Y 줄 가운데 ±30px) 안에 있다."""
+    import options_mode as om
+    r = _options_log('mist', 0)
+    texts = [row for row in r.log if row[0] == 'draw_text']
+    gaps_in, gaps_out = [], []
+    for i, item in enumerate(om.ROWS):
+        name = next(t for t in texts if t[3] == om.NAMES[item])
+        desc = next(t for t in texts if t[3] == om.DESCS[item])
+        name_y, desc_y = name[2], desc[2]
+        gaps_in.append((name_y - 14) - (desc_y + 11))                 # 이름 글자 아래 ~ 설명 글자 위
+        if i + 1 < len(om.ROWS):
+            nxt = next(t for t in texts if t[3] == om.NAMES[om.ROWS[i + 1]])
+            gaps_out.append((desc_y - 11) - (nxt[2] + 14))           # 설명 아래 ~ 다음 이름 위
+        assert abs(name_y - om.ROW_Y[i]) <= 30 and abs(desc_y - om.ROW_Y[i]) <= 30, item
+    assert max(gaps_in) + 8 <= min(gaps_out), (gaps_in, gaps_out)
+    import mist_menu as mm
+    for sel in range(len(om.ROWS)):                                   # 고른 이름의 뒤집힌 블록이 설명 글자를 덮지 않는다
+        r = _options_log('mist', sel)
+        block = next(row for row in r.log if row[0] == 'draw_rect_color' and row[5:6] == (mm.PH,) and row[4] >= 20)
+        desc = [t for t in r.log if t[0] == 'draw_text' and t[3] == om.DESCS[om.ROWS[sel]]][-1]
+        assert block[2] >= desc[2] + 11 - 2, (sel, block, desc)
 
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]

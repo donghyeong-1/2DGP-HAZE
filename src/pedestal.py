@@ -51,6 +51,10 @@ class Pedestal:
             if self.mode == 'rift' and self.item_id in items.UPGRADES:   # 두 단계를 한꺼번에: 'N단계' -> 'N~N+1단계'
                 n = items.level(self.player, self.item_id) + 1
                 desc = '두 단계 한꺼번에 · ' + desc.replace(f'{n}단계', f'{n}~{n + 1}단계', 1)
+            import hud_kit as kit
+            if kit.is_mist():
+                self._draw_mist_info(info, desc)
+                return
             x = self.x + text_shift(self.x, max(assets.text_width(info['name']), assets.text_width(desc, True)))
             assets.draw_text(x, self.y + 190, info['name'], info['color'], center=True)
             assets.draw_text(x, self.y + 156, desc, (200, 210, 230), small=True, center=True)
@@ -58,3 +62,21 @@ class Pedestal:
             assets.draw_text(self.x, self.y + 128, prompt, (255, 240, 150), small=True, center=True)
         elif self.gone and self.mode == 'shop':
             assets.draw_text(self.x, self.y + 128, '품절', (130, 140, 160), small=True, center=True)
+
+
+    def _draw_mist_info(self, info, desc):
+        """'mist' (11/27 S1): 이름·설명·안내를 H1 문 위 보상 판과 같은 가는 테두리 판 하나에 담는다.
+        황금방(하나만 무료로 고르는 특별 보상)은 금 테두리, 나머지는 회백. 조각 값(헤이즈)은 청록, 경고 노랑은 쓰지 않는다.
+        판 아래 진열대 아이콘과 겹치지 않게 글자 묶음을 철판 때보다 12~14px 올린다. 문구는 그대로."""
+        import hud_kit as kit
+        prompt = f'F 구매 ({self.price}조각)' if self.mode == 'shop' else 'F 획득'
+        w = max(assets.text_width(info['name']), assets.text_width(desc, True), assets.text_width(prompt, True)) + 48
+        w = w // 2 * 2
+        x = int(self.x + text_shift(self.x, w))
+        kit.hud_panel('plate', x - w // 2, self.y + MIST_INFO_Y, w, MIST_INFO_H, 'gold' if self.mode == 'gold' else 'line')
+        kit.text(x, self.y + 204, info['name'], info['color'], center=True)
+        kit.text(x, self.y + 172, desc, (205, 215, 235), small=True, center=True)
+        kit.text(x, self.y + 142, prompt, (130, 235, 225) if self.mode == 'shop' else (236, 240, 248), small=True, center=True)
+
+
+MIST_INFO_Y, MIST_INFO_H = 122, 106      # mist 이름판: 진열대 발 위 122px부터 (아이콘 위 끝 +114 위), 높이

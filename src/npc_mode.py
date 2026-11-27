@@ -193,11 +193,28 @@ def update():
     pass
 
 
+def available(key):
+    """그 줄을 지금 고를 수 있는가 (살 수 있음·바꿀 수 있음). 동작이 없는 안내 줄은 True."""
+    if key is None:
+        return True
+    if key == 'unlock':
+        return meta.state['crystals'] >= config.META_KEEPER_PRICE
+    if key in meta.UPGRADES:
+        return meta.can_buy(key)
+    if kind == 'armory' and key.startswith('w_') and key != 'w_none':
+        return key[2:] != meta.state['start_first']          # 둘째 칸에 첫 칸과 같은 무기는 걸 수 없다
+    return True
+
+
 def draw():
     """NPC 창 (11/22 메뉴 v2): 덮개 + 큰 이름 제목 + 줄 카드, 양옆 대화 초상화, 결정 수는 오른쪽 위."""
     clear_canvas()
     if _under is not None and hasattr(_under, 'draw_frozen'):
         _under.draw_frozen()
+    if kit.is_mist():
+        _draw_mist()
+        update_canvas()
+        return
     kit.backdrop(0.9)
     color = npc_mod.COLORS[kind]
     kit.heading(PANEL_X, PANEL_Y + PANEL_H - 50, npc_mod.NAMES[kind], npc_mod.ROLES[kind], color=color)
@@ -236,3 +253,71 @@ def draw():
         kit.text(W // 2, PANEL_Y + 120, note, (255, 240, 150), center=True)
     kit.footer([('W S', '선택'), ('Enter', '확인'), ('Esc', '닫기')])
     update_canvas()
+
+
+# ----- 'mist' (11/27 S1): 증강 카드와 한 벌 (src/mist_pick.py) -----
+def _draw_mist():
+    """mist NPC 창: 목록 전체를 가는 테두리 판 하나에 담고(무기 걸이는 칸마다 하나씩, 둘), 고른 줄은 이름만 글자 폭으로 뒤집기 + 커서.
+    살 수 없는 줄은 흐린 글자. 제목·결정 수·한마디·초상화·값·무기 그림과 줄·버튼의 자리(마우스로 누르는 자리)는 그대로."""
+    import mist_pick as mp
+    mp.backdrop()
+    color = npc_mod.COLORS[kind]
+    kit.text(PANEL_X, PANEL_Y + PANEL_H - 50, npc_mod.NAMES[kind], color, big=True)
+    kit.text(PANEL_X + 2, PANEL_Y + PANEL_H - 92, npc_mod.ROLES[kind], mp.FAINT, small=True)
+    kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 50, f'헤이즈 결정 {meta.state["crystals"]}', mp.HAZE, right=True)
+    line = speech()
+    if line:
+        kit.text(PANEL_X + PANEL_W, PANEL_Y + PANEL_H - 92, f'"{line}"', (235, 228, 205), right=True)
+    buttons = _buttons()
+    rs = rows()
+    groups = [range(0, 4), range(4, len(rs))] if kind == 'armory' else [range(len(rs))]
+    lo = min(buttons[i].y for i in range(len(rs)))               # 목록 판 하나 (무기 걸이는 두 열을 함께, 가운데 세로 선으로 나눈다)
+    hi = buttons[0].y + buttons[0].h
+    left, right = buttons[0].x, max(buttons[i].x + buttons[i].w for i in range(len(rs)))
+    pad_y = 8 if kind == 'armory' else mp.PAD_Y                 # 무기 걸이: 판 바로 아래에 고른 줄 설명이 온다
+    mp.panel(left - mp.PAD, lo - pad_y, right - left + 2 * mp.PAD, hi - lo + 2 * pad_y)
+    if kind == 'armory':
+        gap = buttons[4].x - (buttons[0].x + buttons[0].w)
+        mp.vsep(buttons[0].x + buttons[0].w + gap // 2 - 1, lo + 8, hi - lo - 16)
+    for g in groups:
+        for i in g[:-1]:                                         # 줄 사이 옅은 선 (다음 줄과의 틈 가운데)
+            b = buttons[i]
+            mp.sep(b.x + 16, b.y - (b.y - buttons[i + 1].y - buttons[i + 1].h) // 2 - 1, b.w - 32)
+    for i, (title, value, desc, key) in enumerate(rs):
+        b = buttons[i]
+        hot = i == selected
+        ok = available(key)
+        if kind == 'armory':                                     # 두 열: 이름·무기 그림·지금 건 무기 표시, 설명은 고른 줄 것만 아래에
+            mp.pick(b.x + 28, b.y + b.h // 2, title, hot, mp.TEXT if ok else mp.OFF, ok=ok)
+            if key != 'w_none':
+                img = assets.image(f'ui/icon_w_{key[2:]}.png')
+                assets.draw_image(img, b.x + b.w - 116, b.y + (b.h - img.h) // 2)
+            if hot and desc:
+                kit.text(W // 2, PANEL_Y + 152, desc, mp.SOFT if ok else mp.OFF, small=True, center=True)
+            if value:
+                vx = b.x + b.w - 16 - assets.text_width(value) // 2
+                kit.text(vx, b.y + b.h // 2, value, mp.TEXT, center=True)
+                mp.underline(vx, b.y + b.h // 2 - 18, value)
+            continue
+        story = key is None and kind == 'archivist'
+        # 이름은 철판보다 4px 올리고 설명은 2px 내린다: 뒤집힌 이름 블록(글자 위아래 18px)과 설명 글자가 붙지 않게
+        mp.pick(b.x + 34, b.y + b.h - 26, title, hot, (mp.BODY if story else mp.TEXT) if ok else mp.OFF, small=story, ok=ok)
+        if desc:
+            kit.text(b.x + 34, b.y + 20, desc, mp.OFF if not ok else mp.BODY if hot else mp.SOFT, small=True)
+        if value:
+            vx, vy = b.x + b.w - 30, b.y + b.h // 2
+            if key in meta.UPGRADES:                             # 정비사: 단계(회색)와 값(결정 = 헤이즈 = 청록)을 나눠서. 문구는 그대로 한 줄
+                step, _sp, cost = value.partition('  ')
+                kit.text(vx, vy, cost, (mp.HAZE if ok else mp.OFF) if meta.price(key) is not None else mp.SOFT, right=True)
+                kit.text(vx - assets.text_width(cost) - assets.text_width('  '), vy, step, mp.SOFT if ok else mp.OFF, right=True)
+            else:
+                kit.text(vx, vy, value, (mp.HAZE if ok else mp.OFF) if key == 'unlock' else mp.TEXT, right=True)
+    back = buttons[-1]
+    mp.pick(back.x + back.w // 2, back.y + back.h // 2, back.label, selected == len(buttons) - 1, mp.SOFT, center=True)
+    for (x, y), name in zip(portrait_spots(), faces()):
+        if name is None:
+            continue
+        assets.draw_image(assets.image(f'portraits/{name}.png'), x + PORTRAIT // 2, y)
+    if note:
+        kit.text(W // 2, PANEL_Y + 120, note, mp.FAIL if result == 'fail' else mp.TEXT if result == 'ok' else mp.SOFT, center=True)
+    mp.keys([('W S', '선택'), ('Enter', '확인'), ('Esc', '닫기')])

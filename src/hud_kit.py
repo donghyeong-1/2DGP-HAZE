@@ -41,6 +41,15 @@ def is_mist():
     return skin() == 'mist'
 
 
+WEAPON_STYLES = ('flat', 'a', 'b', 'c')
+
+
+def weapon_style():
+    """HUD 오른쪽 아래 무기·E 패널 시안 (2026-11-27 W1). mist 스킨에서만 config.HUD_WEAPON_STYLE을 따르고, 다른 스킨은 늘 'flat'."""
+    style = getattr(config, 'HUD_WEAPON_STYLE', 'flat')
+    return style if is_mist() and style in WEAPON_STYLES else 'flat'
+
+
 def prefix():
     return SKIN_PREFIX[skin()]
 

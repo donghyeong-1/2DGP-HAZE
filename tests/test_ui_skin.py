@@ -1297,6 +1297,153 @@ def test_h2_new_frame_parts_follow_pixel_rules():
             assert not a[4:h - 4, 4:w - 4, 3].any(), path
         assert os.path.exists(os.path.join(UI, f'um_hud_frame_{tone}.png')), tone
 
+
+# ----- 2026-11-27 W1 무기·E 패널 시안 셋 (사용자 "무기, E 나오는 UI창이 너무 밋밋하게 변경이 되었는데 조금의 특색이 들어가면 좋겠다".
+# docs/opus/TASKS.md '4차' W1). config.HUD_WEAPON_STYLE = 'flat'(기본, 지금 모습) / 'a' 결정 소켓 / 'b' 감시 단말 / 'c' 문장 -----
+W1_STYLES = ('a', 'b', 'c')
+
+
+def _with_style(style, fn):
+    old = getattr(config, 'HUD_WEAPON_STYLE', 'flat')
+    try:
+        config.HUD_WEAPON_STYLE = style
+        return fn()
+    finally:
+        config.HUD_WEAPON_STYLE = old
+
+
+def _w1_preps():
+    """무기 칸 상태(1번 듦·2번 듦·둘째 칸 빈 칸) x E 상태(못 씀·쓸 수 있음·켬 1~3단계) = 15가지 준비 함수."""
+    def gauge_to(p, v):
+        p.gauge.value = v
+        p.gauge.zone = p.gauge._zone_of(v)
+
+    def make(slot, e):
+        def f(p):
+            if slot == 'empty':
+                p.set_loadout('pipe')
+            else:
+                p.set_loadout('pipe', 'pistol')
+                p.swap_weapon(0 if slot == 'one' else 1)
+                p.swap_cool = 0.3
+            if e == 'low':
+                gauge_to(p, 22)
+            elif e == 'ready':
+                gauge_to(p, 62)
+            else:
+                gauge_to(p, 95)
+                for _ in range(int(e[2])):
+                    assert p.gauge.use_enhance()
+        return f
+    return {(slot, e): make(slot, e) for slot in ('one', 'two', 'empty') for e in ('low', 'ready', 'on1', 'on2', 'on3')}
+
+
+def _w1_log(style, prep):
+    return _with_style(style, lambda: _h2_log(_h2_state('normal'), 0.1, prep))
+
+
+def test_w1_default_style_is_flat_and_flat_draws_the_same_hud():
+    """(1) 기본값은 'flat'이고, 'flat'이면 mist HUD 다섯 장면의 그리기 기록이 지금(771abb4)과 같다. 다른 스킨에서는 시안 값이 무엇이든 'flat'."""
+    assert config.HUD_WEAPON_STYLE == 'flat'
+    for name, st in _hud_states():
+        got = _with_style('flat', lambda: _hud_log('mist', st)).digest()
+        assert got == MIST_DONE_DIGEST['hud_' + name], name
+    for skin_name in ('plate', 'plate_code', 'crystal'):
+        for style in W1_STYLES:
+            assert _with_skin(skin_name, lambda: _with_style(style, hud_kit.weapon_style)) == 'flat'
+    for style in W1_STYLES:
+        assert _with_skin('mist', lambda: _with_style(style, hud_kit.weapon_style)) == style
+
+
+def test_w1_styles_draw_every_state_without_plate_parts():
+    """(2) 'a'·'b'·'c'에서 무기 칸 세 상태 x E 다섯 상태가 오류 없이 그려지고, 그 시안의 부품(um_wp_<시안>_)을 쓰며
+    철판 판·틀(upx_*, up_ 판, uc_*)과 경고 노랑, 다른 시안의 부품을 부르지 않는다. 든 무기 칸은 밝은(hot) 부품이다.
+    무기 이름, 빈 칸 글자, '강화 -25%'(쓸 수 있음·켬) / '강화 30%+'(못 씀)가 그대로 나온다."""
+    preps = _w1_preps()
+    for style in W1_STYLES:
+        for key, prep in preps.items():
+            r, p = _w1_log(style, prep)
+            _assert_no_plate((style, key), r, PLATE_ICONS_OK)
+            wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
+            assert wp and all(x.startswith(f'um_wp_{style}_') for x in wp), (style, key, wp)
+            if style in ('a', 'c'):
+                assert any('_big_hot' in x for x in wp) and not any('_big_line' in x or '_small_hot' in x for x in wp), (style, key, wp)
+            else:
+                assert 'um_wp_b_bracket_hot.png' in wp and 'um_wp_b_bracket_line.png' in wp, (style, key, wp)
+            texts = [row[3] for row in r.log if row[0] == 'draw_text']
+            assert p.weapon.name in texts, (style, key)
+            if key[0] == 'empty':
+                assert '빈 칸' in texts, (style, key)
+            if key[1] == 'low':
+                assert any(t.startswith('강화 ') and t.endswith('%+') for t in texts), (style, key, texts)
+            else:
+                assert any(t.startswith('강화 -') for t in texts), (style, key, texts)
+
+
+def _e_part(style, wp):
+    """그 장면에서 E 칸 판으로 쓴 부품 이름."""
+    head = {'a': 'um_wp_a_socket_', 'b': 'um_wp_b_dial_', 'c': 'um_wp_c_crest_'}[style]
+    got = [x for x in wp if x.startswith(head)]
+    assert len(got) == 1, (style, got)
+    return got[0]
+
+
+def test_w1_e_states_differ_by_shape_and_low_e_outline_stays_visible():
+    """(3) E 칸: 켬 1~3단계는 그 단계 색 부품이고, 못 씀은 단계 색·청록이 없는 빈 모양이다(a는 빈 소켓 = 빈 결정).
+    못 씀일 때 E의 겉 윤곽 밝기(0.299R+0.587G+0.114B)가 IDLE_MIN_LUMA 이상이라 어두운 방에서도 윤곽이 보인다(H2의 dim은 약 78)."""
+    preps = _w1_preps()
+    tiers = {tuple(c) for c in config.ENHANCE_LEVEL_COLOR.values()}
+    for style in W1_STYLES:
+        seen = {}
+        for e in ('low', 'ready', 'on1', 'on2', 'on3'):
+            r, _p = _w1_log(style, preps[('one', e)])
+            wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
+            part = _e_part(style, wp)
+            seen[e] = part
+            if e.startswith('on'):
+                assert part.endswith(f'_e{e[2]}.png'), (style, e, part)
+            if e == 'low':
+                a = np.array(Image.open(os.path.join(UI, part)).convert('RGBA'))
+                mid = a.shape[0] // 2
+                row = np.nonzero(a[mid, :, 3])[0]
+                outer = tuple(int(v) for v in a[mid, row[0], :3])
+                assert _luma(outer) >= IDLE_MIN_LUMA, (style, part, outer)
+                cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+                assert not cols & tiers and CYAN not in cols, (style, part)
+                if style == 'a':                                   # 빈 소켓: 결정이 차 있지 않다
+                    assert 'um_wp_a_crystal_empty.png' in wp and 'um_wp_a_crystal_haze.png' not in wp, wp
+        if style == 'a':                                           # a는 못 씀·쓸 수 있음이 같은 소켓, 결정(빈 / 참)으로 가른다
+            assert seen['low'] == seen['ready'] and len(set(seen.values())) == 4, seen
+        else:
+            assert len(set(seen.values())) == 5, (style, seen)
+
+
+def test_w1_old_skins_ignore_the_style():
+    """(4) 'plate'·'plate_code'·'crystal'은 HUD_WEAPON_STYLE이 무엇이든 HUD를 고치기 전과 똑같이 그린다."""
+    for style in W1_STYLES:
+        for name, st in _hud_states():
+            for skin_name in ('plate', 'plate_code', 'crystal'):
+                got = _with_style(style, lambda: _hud_log(skin_name, st)).digest()
+                assert got == HUD_DIGEST[(skin_name, name)], (style, skin_name, name)
+
+
+def test_w1_new_parts_follow_pixel_rules():
+    """(5) 새 부품 um_wp_*: 알파 0/255, 2px 격자, 64색 이하, 경고 노랑 없음. 청록은 a의 헤이즈 결정에만."""
+    files = sorted(glob.glob(os.path.join(UI, 'um_wp_*.png')))
+    assert len(files) >= 40, len(files)
+    for f in files:
+        a = np.array(Image.open(f).convert('RGBA'))
+        name = os.path.basename(f)
+        assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, name
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), name
+        cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+        assert len(cols) <= 64, name
+        assert hud_kit.YELLOW not in cols, name
+        if not name.startswith('um_wp_a_crystal_haze'):
+            assert CYAN not in cols, name
+
+
 if __name__ == '__main__':
     tests = [v for k, v in sorted(globals().items()) if k.startswith('test_')]
     for t in tests:

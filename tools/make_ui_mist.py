@@ -27,6 +27,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
       python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
+      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*, W1)
 """
 import math
 import os
@@ -441,6 +442,266 @@ def pick_parts():
     return made
 
 
+# ----- 무기·E 패널 시안 셋 (2026-11-27 W1, docs/opus/TASKS.md '4차' W1): config.HUD_WEAPON_STYLE = 'a'·'b'·'c' -----
+# 사용자 "무기, E 나오는 UI창이 너무 밋밋하게 변경이 되었는데 조금의 특색이 들어가면 좋겠다". 네모 셋 대신 실루엣·크기의 위계·세계의 소재.
+# 판은 모두 테두리 한 줄(도트 1칸 = 화면 2px) + 속까지 칠한 불투명한 어두운 바탕(카드와 같은 색)을 한 장으로 굽는다(실행 중 겹쳐 그리지 않는다).
+# 색: 기본 회백 line, 지금 것 hot, 흐린 것, 헤이즈 결정만 청록, 강화 단계 색은 강화에만. 경고 노랑·리벳·철판 없음.
+#  a '결정 소켓': E = 마름모 소켓에 박힌 헤이즈 결정(쓸 수 있음 = 결정이 참, 못 씀 = 빈 소켓, 켬 = 단계 색). 단계 = 소켓 둘레 결정 조각 셋.
+#                무기 칸 = 두 모서리를 깎은 결정 면(든 칸이 크다).
+#  b '감시 단말': 칸을 닫지 않고 네 귀퉁이 꺾쇠(타이틀 um_bracket 말투) + 주사선 바탕. 든 칸 = 긴 꺾쇠, 다른 칸 = 짧은 꺾쇠.
+#                E = 둥근 조준 계기(못 씀 = 끊긴 원, 쓸 수 있음 = 이어진 원 + 눈금, 켬 = 단계 색). 단계 = 원 위 호 셋.
+#  c '문장':     세 칸을 한 덩어리로. 가운데 마름모 E 문장 앞에, 양옆에 방패 모양 무기 칸이 물리고(든 칸이 크다),
+#                증강 카드의 장식선 말투로 가로선이 덩어리 위를 지나 무기 이름 줄과 잇는다. 단계 = 가로선 위 작은 마름모 셋.
+WP_WELL = (9, 12, 21)
+WP_SCAN = (14, 19, 31)                                  # b 주사선 (바탕보다 조금 밝은 줄)
+WP_LINE, WP_DIM, WP_HOT = HUD_TONES['line'], HUD_TONES['dim'], HUD_TONES['hot']
+WP_GHOST = (96, 106, 124)                               # 빈 결정·꺼진 단계 표시의 윤곽 (색 없는 빈 모양. 어두운 방에서도 보이게 dim보다 밝게)
+WP_TIER = {1: HUD_TONES['e1'], 2: HUD_TONES['e2'], 3: HUD_TONES['e3']}
+# 헤이즈 결정 (쓸 수 있음): 카드 청록 단계를 한 단 낮춰 든 무기 칸보다 눈에 덜 띄게
+WP_HAZE = ((92, 210, 200), (26, 146, 140), (12, 96, 94), (6, 52, 56))
+
+
+def _mix(c, d, t):
+    return tuple(int(round(a + (b - a) * t)) for a, b in zip(c, d))
+
+
+def _tier_ramp(c):
+    """강화 단계 색 -> (밝음, 몸, 그늘, 윤곽)."""
+    return (_mix(c, (255, 255, 255), 0.5), c, _mix(c, (0, 0, 0), 0.42), _mix(c, (0, 0, 0), 0.72))
+
+
+def _grid(h, w):
+    yy, xx = np.mgrid[0:h, 0:w]
+    return yy + 0.5, xx + 0.5
+
+
+def _edge(mask):
+    """마스크의 바깥 한 줄 (4방향 이웃 중 하나라도 밖이면 가장자리)."""
+    m = np.pad(mask, 1)
+    inner = m[1:-1, 1:-1] & m[:-2, 1:-1] & m[2:, 1:-1] & m[1:-1, :-2] & m[1:-1, 2:]
+    return mask & ~inner
+
+
+def _put(a, mask, c):
+    a[mask] = _rgba(c)
+
+
+def _diamond(h, w, cy, cx, ry, rx):
+    yy, xx = _grid(h, w)
+    return np.abs(yy - cy) / ry + np.abs(xx - cx) / rx <= 1.0 + 1e-6
+
+
+def _plate(mask, line, well=WP_WELL):
+    """테두리 한 줄 + 속은 불투명한 바탕."""
+    a = np.zeros(mask.shape + (4,), np.uint8)
+    _put(a, mask, well)
+    _put(a, _edge(mask), line)
+    return a
+
+
+def _crystal(ramp, hollow=False):
+    """헤이즈 결정 12x26 도트 (위아래가 뾰족한 육각 기둥). 왼쪽 면 밝음, 오른쪽 면 몸, 가운데 모서리 밝은 줄, 윤곽 그늘.
+    hollow: 속을 비운 윤곽만 (빈 소켓). 이때 ramp는 한 색."""
+    h, w = 26, 12
+    yy, xx = _grid(h, w)
+    d = np.abs(xx - 6)
+    mask = ((yy >= 6) & (yy <= 20)) | ((yy < 6) & (d <= yy)) | ((yy > 20) & (d <= 26 - yy))
+    a = np.zeros((h, w, 4), np.uint8)
+    edge = _edge(mask)
+    if hollow:
+        _put(a, edge, ramp)
+        return a
+    light, body, shade, rim = ramp
+    _put(a, mask & (xx < 6), light)
+    _put(a, mask & (xx >= 6), body)
+    _put(a, mask & (np.abs(xx - 6.5) < 0.6) & (yy > 4) & (yy < 22), _mix(light, (255, 255, 255), 0.4))
+    _put(a, edge & (xx >= 6), shade)
+    _put(a, edge & (xx < 6), _mix(light, shade, 0.5))
+    _put(a, edge & ((yy < 2) | (yy > 24)), rim)
+    return a
+
+
+def _shard(c, on):
+    """작은 결정 조각 6x11 도트 (단계 표시). on: 단계 색으로 참 / off: 흐린 윤곽 + 어두운 속."""
+    m = _diamond(11, 6, 5.5, 3.0, 5.5, 3.0)
+    if not on:
+        return _plate(m, WP_GHOST)
+    light, body, shade, rim = _tier_ramp(c)
+    yy, xx = _grid(11, 6)
+    a = np.zeros((11, 6, 4), np.uint8)
+    _put(a, m, body)
+    _put(a, m & (xx < 3.0), light)
+    _put(a, _edge(m) & (xx > 3.0), shade)
+    return a
+
+
+def _facet(n, line):
+    """a 무기 칸: n x n 도트, 오른쪽 위·왼쪽 아래 모서리를 4도트 비스듬히 깎은 결정 면."""
+    yy, xx = _grid(n, n)
+    k = 5
+    mask = ~(((n - xx) + yy < k) | (xx + (n - yy) < k))          # 그림의 위 = 화면 위: 오른쪽 위 / 왼쪽 아래를 깎는다
+    return _plate(mask, line)
+
+
+def _socket(tone):
+    """a E 소켓: 56x56 도트 캔버스 가운데 52x52 마름모. 겉 테두리 한 줄 + 5도트 안쪽에 흐린 자리 선(결정이 박히는 자리).
+    단계 색이면 겉에 그늘 색 한 줄을 더 둘러 빛나 보이게."""
+    n = 56
+    tier = tone in WP_TIER.values()
+    outer = _diamond(n, n, 28, 28, 26, 26)
+    seat = _diamond(n, n, 28, 28, 21, 21)
+    a = _plate(outer, tone)
+    _put(a, _edge(seat), _mix(tone, WP_WELL, 0.55) if tier else WP_DIM)
+    if tier:
+        halo = _diamond(n, n, 28, 28, 27.5, 27.5)
+        _put(a, _edge(halo) & ~outer, _mix(tone, (0, 0, 0), 0.45))
+    return a
+
+
+def _brackets(n, arm, c):
+    """b 꺾쇠 넷: n x n 도트 캔버스의 네 귀퉁이에 팔 길이 arm 도트, 두께 1 도트. 속은 비어 있다."""
+    a = np.zeros((n, n, 4), np.uint8)
+    for ys, xs in ((0, 0), (0, n - arm), (n - 1, 0), (n - 1, n - arm)):
+        a[ys, xs:xs + arm] = _rgba(c)
+    for xs, ys in ((0, 0), (n - 1, 0), (0, n - arm), (n - 1, n - arm)):
+        a[ys:ys + arm, xs] = _rgba(c)
+    return a
+
+
+def _scan(n):
+    """b 칸 바탕: 불투명한 어두운 바탕 + 세 도트마다 한 줄 조금 밝은 주사선."""
+    a = np.zeros((n, n, 4), np.uint8)
+    a[:, :] = _rgba(WP_WELL)
+    a[1::3, :] = _rgba(WP_SCAN)
+    return a
+
+
+def _dial(state):
+    """b E 계기: 56x56 도트 캔버스, 반지름 23.5 원(두께 1) + 속은 불투명한 바탕. 상하좌우 안쪽 눈금 3도트.
+    state: 'low' = 끊긴 원(30도마다 20도 선, 10도 틈) 회백, 눈금 없음 / 'line' = 이어진 원 + 눈금 / 단계 색 = 그 색 원 + 눈금 + 바깥 그늘."""
+    n, c, r = 56, 28.0, 23.5
+    yy, xx = _grid(n, n)
+    d = np.hypot(yy - c, xx - c)
+    disk = d <= r + 0.5
+    ring = _edge(disk)
+    a = np.zeros((n, n, 4), np.uint8)
+    _put(a, disk, WP_WELL)
+    if state == 'low':
+        ang = (np.degrees(np.arctan2(yy - c, xx - c)) + 360 + 10) % 360
+        _put(a, ring & ((ang % 30) < 20), WP_LINE)
+        return a
+    col = WP_LINE if state == 'line' else state
+    _put(a, ring, col)
+    tick = _mix(col, WP_WELL, 0.25)
+    for k in range(4):                                         # 상하좌우 눈금: 원 안쪽에서 가운데 쪽으로 4도트, 굵기 2도트
+        a[6 + k, 27:29] = a[49 - k, 27:29] = _rgba(tick)
+        a[27:29, 6 + k] = a[27:29, 49 - k] = _rgba(tick)
+    if state != 'line':
+        _put(a, _edge(d <= r + 1.5) & ~disk, _mix(col, (0, 0, 0), 0.45))
+    return a
+
+
+def _arc(i, c):
+    """b 단계 호: 계기와 같은 56x56 캔버스, 반지름 26~28의 원 위쪽 호 하나(두께 2도트) (i = 0 왼쪽, 1 가운데, 2 오른쪽). 각 26도."""
+    n, cc = 56, 28.0
+    yy, xx = _grid(n, n)
+    d = np.hypot(yy - cc, xx - cc)
+    ang = np.degrees(np.arctan2(cc - yy, xx - cc))               # 위 = 90도
+    mid = (138, 90, 42)[i]
+    m = (d >= 25.8) & (d <= 27.9) & (np.abs(ang - mid) <= 13)
+    a = np.zeros((n, n, 4), np.uint8)
+    _put(a, m, c)
+    return a
+
+
+def _shield(w, h, line):
+    """c 무기 칸: 방패 모양 (위 평평, 옆은 아래 0.62까지 곧고, 거기서 아래 가운데 뾰족 끝으로)."""
+    yy, xx = _grid(h, w)
+    k = h * 0.62
+    half = w / 2
+    lim = np.where(yy <= k, half, half * (h - yy) / (h - k))
+    return _plate(np.abs(xx - half) <= lim + 1e-6, line)
+
+
+def _crest(tone, inner):
+    """c E 문장: 48x58 도트 마름모. 겉 테두리 + (inner면) 안쪽 마름모 한 줄. 단계 색이면 속 마름모를 단계 색 그늘로 칠한다."""
+    h, w = 58, 48
+    tier = tone in WP_TIER.values()
+    outer = _diamond(h, w, 29, 24, 29, 24)
+    core = _diamond(h, w, 29, 24, 23.5, 19.4)
+    a = _plate(outer, tone)
+    if tier:
+        _put(a, core, _mix(tone, WP_WELL, 0.78))
+        _put(a, _edge(core), _mix(tone, WP_WELL, 0.35))
+    elif inner:
+        _put(a, _edge(core), WP_DIM)
+    return a
+
+
+def _rule(c, ends=True):
+    """c 가로선 122x7 도트: 가운데 줄 한 줄 + 양끝 장식(증강 카드 장식선 말투: 끝에서 떨어진 점 둘). ends=False면 줄만 (강화 시간 채움)."""
+    w, h = 122, 7
+    a = np.zeros((h, w, 4), np.uint8)
+    a[3, 8:w - 8] = _rgba(c)
+    if ends:
+        for x0, x1 in ((1, 2), (4, 6), (w - 6, w - 4), (w - 2, w - 1)):
+            a[3, x0:x1] = _rgba(c)
+    return a
+
+
+def _pip(c, on):
+    """c 단계 표시 7x7 도트 마름모."""
+    m = _diamond(7, 7, 3.5, 3.5, 3.5, 3.5)
+    if not on:
+        return _plate(m, WP_GHOST)
+    a = np.zeros((7, 7, 4), np.uint8)
+    _put(a, m, c)
+    _put(a, _diamond(7, 7, 3.5, 3.5, 1.5, 1.5), _mix(c, (255, 255, 255), 0.5))
+    return a
+
+
+WP_SIZES = {'a': (48, 38), 'b': (46,), 'c': ((50, 54), (38, 42))}     # 칸 크기 (도트). a·c는 (든 칸, 다른 칸), c는 (폭, 높이)
+
+
+def wp_parts():
+    made = []
+    # a 결정 소켓
+    for n, kind in zip(WP_SIZES['a'], ('big', 'small')):
+        for tone in ('hot', 'line'):
+            made.append(save2(_facet(n, HUD_TONES[tone]), f'um_wp_a_slot_{kind}_{tone}.png'))
+    for name, tone in (('line', WP_LINE), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):
+        made.append(save2(_socket(tone), f'um_wp_a_socket_{name}.png'))
+    made.append(save2(_crystal(WP_HAZE), 'um_wp_a_crystal_haze.png'))
+    made.append(save2(_crystal(WP_GHOST, hollow=True), 'um_wp_a_crystal_empty.png'))
+    for lv, c in WP_TIER.items():
+        made.append(save2(_crystal(_tier_ramp(c)), f'um_wp_a_crystal_e{lv}.png'))
+        made.append(save2(_shard(c, True), f'um_wp_a_shard_e{lv}.png'))
+    made.append(save2(_shard(None, False), 'um_wp_a_shard_off.png'))
+    # b 감시 단말
+    n = WP_SIZES['b'][0]
+    made.append(save2(_scan(n), 'um_wp_b_well.png'))
+    made.append(save2(_brackets(n, 11, WP_HOT), 'um_wp_b_bracket_hot.png'))
+    made.append(save2(_brackets(n, 5, WP_LINE), 'um_wp_b_bracket_line.png'))
+    for name, st in (('low', 'low'), ('line', 'line'), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):
+        made.append(save2(_dial(st), f'um_wp_b_dial_{name}.png'))
+    for i in range(3):
+        made.append(save2(_arc(i, WP_GHOST), f'um_wp_b_arc{i}_off.png'))
+        made.append(save2(_arc(i, WP_TIER[i + 1]), f'um_wp_b_arc{i}_on.png'))
+    # c 문장
+    for (w, h), kind in zip(WP_SIZES['c'], ('big', 'small')):
+        for tone in ('hot', 'line'):
+            made.append(save2(_shield(w, h, HUD_TONES[tone]), f'um_wp_c_shield_{kind}_{tone}.png'))
+    made.append(save2(_crest(WP_LINE, True), 'um_wp_c_crest_line.png'))
+    made.append(save2(_crest(WP_LINE, False), 'um_wp_c_crest_low.png'))
+    for lv, c in WP_TIER.items():
+        made.append(save2(_crest(c, True), f'um_wp_c_crest_e{lv}.png'))
+        made.append(save2(_rule(c, ends=False), f'um_wp_c_rule_e{lv}.png'))
+        made.append(save2(_pip(c, True), f'um_wp_c_pip_e{lv}.png'))
+    made.append(save2(_rule(WP_LINE), 'um_wp_c_rule_line.png'))
+    made.append(save2(_pip(None, False), 'um_wp_c_pip_off.png'))
+    return made
+
+
 def main():
     if '--pick' in sys.argv:                      # 고르는 화면 부품만 (S1)
         made = pick_parts()
@@ -450,6 +711,10 @@ def main():
         made = menu_parts()
         print(len(made), '개:', ', '.join(made))
         return
+    if '--wp' in sys.argv:                        # 무기·E 패널 시안 부품만 (W1)
+        made = wp_parts()
+        print(len(made), '개:', ', '.join(made))
+        return
     made = hud_frames() + hud_fills() + hud_marks()
     if '--hud' in sys.argv:                       # HUD 부품만 (타이틀·카드 그림은 그대로 둔다)
         print(len(made), '개:', ', '.join(made))
@@ -457,7 +722,7 @@ def main():
     made += card_frames() + parts() + bolts() + title_backgrounds()
     made.append(title_shade())
     made.append(title_shade(flash=True))
-    made += menu_parts() + pick_parts()
+    made += menu_parts() + pick_parts() + wp_parts()
     print(len(made), '개:', ', '.join(made))
 
 

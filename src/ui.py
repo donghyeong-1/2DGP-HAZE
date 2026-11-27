@@ -294,6 +294,11 @@ class GameUI:
 
     # ----- 오른쪽 아래: 행동 칸 (E 강화 / 무기 두 칸) -----
     def _draw_actions(self):
+        style = kit.weapon_style()
+        if style != 'flat':                                                  # W1 시안 a·b·c (mist에서만, src/weapon_panel.py)
+            import weapon_panel
+            weapon_panel.draw(self, style)
+            return
         p = self.player
         w, g = p.weapon, p.gauge
         right = ACT_RIGHT

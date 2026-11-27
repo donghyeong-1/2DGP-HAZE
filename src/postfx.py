@@ -92,6 +92,14 @@ def stop():
     _keys = []
 
 
+def clear():
+    """남은 연출을 모두 끈다 (색 번짐·렌즈·고리와 보스 막타 줌). 새 판·구역 이동·방 이동 때 play_mode가 부른다.
+    연출은 실제 시간으로 약 1초 돌다 스스로 꺼지지만, 그 사이 화면이 바뀌면 새 화면이 갈라진 채 보였다 (U1-3)."""
+    global _zoom
+    stop()
+    _zoom = None
+
+
 def state():
     """지금의 (bulge, chroma, ring, 지난 시간). 연출 중이 아니면 None."""
     if not _keys:

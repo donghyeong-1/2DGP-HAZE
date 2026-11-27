@@ -949,3 +949,17 @@
 - 테스트: 새 `tests/test_u1_ui.py` 9개(닫기 키 넷, 메뉴 소리, 은신처 HUD, 방 클리어 안내, 기절 중 알림 자리, 포기 확인; 먼저 9개 실패 확인). `tests/test_ui_skin.py` 기록: mist 장면과 글이 바뀐 일시정지 확인 장면만(파일 머리 주석). 옛 스킨 HUD·메뉴의 그림 기록은 그대로(pause_ask는 네 스킨 같은 글이라 함께 바뀜).
 - 바꾼 파일: `src/keybinds.py`, `src/npc_mode.py`, `src/practice_mode.py`, `src/sfx_mode.py`, `src/ending_mode.py`, `src/options_mode.py`, `src/keys_mode.py`, `src/pause_mode.py`, `src/ui.py`, `src/mist_menu.py`, `src/boss_terrain.py`, `tools/u1_shots.py`, `tests/test_u1_ui.py`(새), `tests/test_ui_skin.py`.
 - 확인하지 못한 것: 게임패드로 모든 화면 다니기(패드 없음), 메뉴 소리의 느낌, 움직이는 화면(기절·방 클리어 글자가 뜨고 사라지는 흐름), 보스 컷인. 디자인 토큰은 값을 모두 한곳으로 모으지 않았다(다른 스킨 기록이 바뀐다): 이번에 고친 곳만 mist 의미 색(TOAST_TEXT·CLEAR_TEXT·HUB_CRYSTAL·hud_kit.FAINT)으로 썼다.
+
+## U1-3 색 번짐 확인 (2026-11-27)
+지휘 쪽이 U1 비교판(`U1_hideout_hud.png`, `U1_flow.png`의 '2 은신처'·'5 방 클리어')에서 화면 전체 색이 갈라진 것을 찾았다. 촬영 탓인지 게임 버그인지 가렸다.
+- **무엇이었나**: `src/postfx.py`의 화면 연출(볼록 렌즈·색 번짐·굴절 고리, 보스 막타 줌)은 **실제 시간**으로 돈다. 오버로드는 1.05초(`effects.py` 오버로드 연출), 처형·궁극기 마무리는 0.5초, 보스 막타 줌은 0.6초 돌고 스스로 꺼진다.
+  U1 촬영 도구는 프레임을 실제 시간보다 훨씬 빨리 돌려서, `hud_overload`·`hud_overload_toast`에서 켜진 오버로드 연출이 1초 안에 찍힌 다음 장면들(은신처, 방 클리어, 이벤트 방 등)에 그대로 남았다. 촬영 탓이 맞다.
+- **게임에서도 생기는가: 생긴다(짧게).** 새 판 시작(`play_mode.enter`), 구역 이동(`_go_stage`·다음 구역·테스트 바로가기), 방 이동(`Stage.enter_room`) 어디에서도 연출을 비우지 않았다.
+  밟을 수 있는 순서: 오버로드가 터진 직후 Esc -> '판 포기하고 은신처로'를 두 번 누르면(1초 안) 은신처 첫 화면이 남은 시간만큼 갈라진 채 보인다. 오버로드 중에는 기절(1.5초)이라 문으로 방을 옮기는 경우는 드물고, 처형(0.5초) 직후 문을 지나면 다음 방 첫 순간이 휜다.
+  멈춘 화면(일시정지·NPC 창·증강 카드 뒤 배경)은 `play_mode.draw_frozen`이 후처리를 거치지 않아 갈라지지 않는다(코드로 확인). 실제 시간이라 메뉴를 연 동안에도 연출 시간은 지나간다.
+- **번쩍임 줄이기**: `postfx.play`가 `options.reduce_flash`이면 켜지 않는다(색 번짐·렌즈·고리 모두. 테스트로 확인). 보스 막타 줌은 번쩍임과 상관없이 `config.BOSS_KILL_ZOOM_ON`으로만 끈다(그대로 보고만 함).
+- **고친 것**(테스트 먼저 `tests/test_u1_postfx.py` 5개, 고치기 전 셋 실패 확인): `postfx.clear()`(남은 연출과 줌을 끈다)를 새 판·구역 이동·`Stage.enter_room`에서 부른다. 같은 방 안에서는 연출이 끝까지 돈다(테스트). 연출의 모양·세기·길이는 그대로.
+  촬영 도구 `tools/u1_shots.py`도 장면마다 후처리를 비운다(고치기 전 코드로 찍는 '전' 그림도 같은 조건이 되게).
+- **다시 찍은 것**: `shots/u1/before/u1__*`·`shots/u1/after/u1__*`(31장면씩), 비교판 `shots/review/U1_hideout_hud.png`, `U1_room_clear.png`, `U1_overload_toast.png`, `U1_ult_ready.png`, `U1_flow.png`, `U1_res.png`(나머지 `U1_*`는 다른 촬영 도구 그림이라 색 번짐이 없었다. `U1_text_*`도 오버로드 장면이 없는 차례라 깨끗했다).
+  다시 찍은 그림에서 U1-2 표에 덧붙일 새 문제는 찾지 못했다. 촬영 도구에서만 생기는 '은신처' 알림 남음(U1-2 표 아래 줄)은 그대로다.
+- 바꾼 파일: `src/postfx.py`, `src/play_mode.py`, `src/stage.py`, `tools/u1_shots.py`, `tests/test_u1_postfx.py`(새).

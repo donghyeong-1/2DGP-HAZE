@@ -28,6 +28,8 @@ def enter():
     hide_cursor()  # 화면의 조준점(십자)을 대신 쓴다
     game_world.clear()
     effects.reset()
+    import postfx
+    postfx.clear()                                   # U1-3: 지난 판(오버로드 직후 포기 등)의 화면 연출을 새 판에 남기지 않는다
     import drama
     drama.reset()
     clear_notice = 0.0
@@ -252,6 +254,8 @@ def update():
             return
         stage = nxt
         room = stage.room
+        import postfx
+        postfx.clear()                                   # U1-3: 구역이 바뀌면 화면 연출을 끈다
         for obj in game_world.world[game_world.LAYER_UI]:
             if hasattr(obj, 'stage'):
                 obj.stage = stage
@@ -274,6 +278,8 @@ def _go_stage(name):
     global stage, room
     import stage as stage_mod
     stage = stage_mod.jump_to(stage, name)
+    import postfx
+    postfx.clear()                               # U1-3
     player.no_death = name == 'practice'         # 연습장: 불러낸 적에게 맞아도 쓰러지지 않는다
     room = stage.room
     for obj in game_world.world[game_world.LAYER_UI]:
@@ -294,6 +300,8 @@ def _test_jump(target):
         stage.enter_room(coord, 'L')
     else:
         stage = stage_mod.jump_to(stage, target)
+    import postfx
+    postfx.clear()                               # U1-3
     room = stage.room
     for obj in game_world.world[game_world.LAYER_UI]:
         if hasattr(obj, 'stage'):

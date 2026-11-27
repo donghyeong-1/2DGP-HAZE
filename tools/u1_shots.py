@@ -551,7 +551,10 @@ def main():
     want = sys.argv[2:] or SCENES
     s = Shooter(out)
     g = globals()
+    import postfx
     for name in want:
+        postfx.stop()                                   # U1-3: 앞 장면의 화면 연출(실제 시간 약 1초)이 다음 장면에 남지 않게
+        postfx._zoom = None
         g[name](s)
         print('찍음', name)
     from pico2d import close_canvas

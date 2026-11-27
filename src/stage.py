@@ -352,6 +352,8 @@ class Stage:
     # ----- 방 입장 -----
     def enter_room(self, coord, from_dir=None):
         """방을 새로 읽고 적·진열대를 세운 뒤 플레이어를 입구에 놓는다. from_dir은 들어온 쪽 문(왼쪽 문으로 들어오면 'L')."""
+        import postfx
+        postfx.clear()                                   # U1-3: 방을 옮기면 앞 방의 화면 연출(색 번짐·렌즈·줌)을 끈다
         info = self.layout[coord]
         self.coord = coord
         if self.choose_lane(coord):                      # v8 갈림길: 이 길을 골랐다

@@ -500,6 +500,67 @@ def easy_flash(s):
         options.easy_mode, options.reduce_flash = False, False
 
 
+# ----- N1: 바뀐 이름·대사 -----
+@scene
+def n1_cards(s):
+    import curse
+    import forms
+    for name, ids in (('n1_cards_a', ['dashcut_refund', 'ric_evo', 'ric_more']),
+                      ('n1_cards_b', ['charge_fast', 'dashcut_power', 'gather_more']),
+                      ('n1_cards_c', ['rapid_speed', 'rapid_extra', 'dshot_load']),
+                      ('n1_cards_d', ['duo_vortex_collapse', 'duo_bolt_bowl', curse.CARD + 'lock']),
+                      ('n1_cards_e', [curse.CARD + 'doom', forms.CARD + 'gauntlet', 'dashcut_wide'])):
+        s.cards(name, ids)
+
+
+@scene
+def n1_pedestal(s):
+    """정비방 진열대 앞: '공격력 강화'."""
+    import camera
+    p, st = _room(s, 64, 'stage1', 'shop')
+    ped = st.pedestals[0]
+    ped.item_id = 'power'
+    p.x, p.y = ped.x, ped.y
+    camera.snap(p, st.room)
+    s.run(3)
+    s.grab('n1_pedestal')
+
+
+@scene
+def n1_floats(s):
+    """궁극기 이름(쌍권총), 완벽 회피, 격발·교체기 글자."""
+    import combo
+    import effects
+    p, st = _room(s, 65, 'stage1', 'combat', ('pistol', 'pipe'))
+    _clear_enemies()
+    _gauge(p, 95)
+    for _ in range(3):
+        p.gauge.use_enhance()
+    p.mouse_screen = (1180, 520)
+    cx, cy = p.center
+    effects.float_text(cx + 300, cy + 90, '완벽 회피!', (150, 245, 255), big=True, life=3.0)
+    effects.float_text(cx + 650, cy + 150, '격발 · ' + combo.NAMES['pipe'], (240, 248, 255), big=True, life=3.0)
+    effects.float_text(cx + 650, cy + 60, '강화 ' + combo.STRIKE_NAMES['pipe'], (240, 248, 255), life=3.0)
+    s.run(2)
+    s.grab('n1_floats')
+
+
+@scene
+def n1_barks(s):
+    """보스 대사 띠: 바뀐 줄을 한 줄씩."""
+    import boss_intro
+    lines = [('gatekeeper', boss_intro.LINES['gatekeeper']['intro'][1]), ('ark', boss_intro.LINES['ark']['phase2']),
+             ('heart', boss_intro.LINES['heart']['intro'][0]), ('heart', boss_intro.LINES['heart']['intro'][2]),
+             ('heart', boss_intro.LINES['heart']['phase2'])]
+    p, st = _room(s, 66, 'stage3', 'combat')
+    for i, (kind, text) in enumerate(lines):
+        info = boss_intro.LINES[kind]
+        boss_intro._bark[0] = [info['speaker'], text, info['color'], 9.0]
+        s.run(2)
+        s.grab(f'n1_bark_{i}')
+    boss_intro._bark[0] = None
+
+
 def _grab_window(s, name, mod):
     """창 크기 그대로 읽는다 (해상도 장면: 논리 화면 1920x1080을 SDL이 창에 맞춰 줄인 결과)."""
     import play_mode

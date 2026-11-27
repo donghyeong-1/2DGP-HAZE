@@ -683,7 +683,7 @@ class Player(TileBody):
         effects.request_flash(0.12)
         cx, cy = self.center
         effects.spawn('surge', self.x, self.y, duration=0.4)
-        effects.float_text(cx, cy + 90, '저스트!', (150, 245, 255), big=True, life=0.8)
+        effects.float_text(cx, cy + 90, '완벽 회피!', (150, 245, 255), big=True, life=0.8)
         assets.play_sound('zone_awake')
         import mutations
         mutations.on_just_dash(self)                    # v7 쌍권총 '장전 회피'

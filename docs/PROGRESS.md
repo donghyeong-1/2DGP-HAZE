@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-27 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Claude Code] N1 이름·대사 변경(C), 설정 설명, 게임패드 안내, 해상도 / src/, data/, tests/, tools/, docs/
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -37,7 +37,7 @@
 
 ## 열린 질문
 - (사용자) **U1-2 UI·UX 검토의 결정 셋**: 작은 해상도(1280x720·1600x900의 도트·작은 글자), 설정 설명을 고른 줄만 보일지, 게임패드 키 안내. 선택지와 권함은 `docs/opus/TASKS.md` U1-2 '사용자 결정이 필요한 것'. 비교판 `shots/review/U1_*.png`(한 판 흐름 `U1_flow.png`, 해상도 `U1_res.png`). 게임패드로 모든 화면 다니기는 사람이 확인해야 한다.
-- (사용자) **글 검토 C 32건(이름·대사 변경)** 결정 대기: `docs/project/text_review_1127.md` 2절 표의 C 행. A·B는 U1-1에서 반영(비교판 `shots/review/U1_text_*.png`, 처리 표 `docs/opus/TASKS.md` U1-1).
+- (사용자) 글 검토 C는 N1-1에서 추천대로 반영. 하나만 남김: 균열방 아이템 '균열의 분노'(추천 '균열 과부하'는 오버로드와 헷갈려 두었다. 대신 '균열의 힘'?). '연쇄 ~' 이름이 넷이 된 것도 괜찮은지(`docs/opus/TASKS.md` N1-1).
 - (사용자) Q1 소품 그림(11/27) 확인: 비교판 `shots/review/Q1_*.png`(은신처 무기 걸이·표지판·모루·화로, 상자·분출구·레이저 머리, 진열대). 크레딧 Codex 줄의 '진열대'는 U1-1에서 뺐다. 방 장식 18종·배경 소품 10종(Codex)은 원경과 한 벌이라 두었다: 바꾼다면 테마 한 벌을 한꺼번에(`docs/opus/TASKS.md` Q1).
 - (사용자) 나머지 화면 맞추기("제안대로 전부", 11/27): **세 묶음 모두 끝남** — HUD(H1, 가는 선 + 어두운 바탕), 메뉴 화면(M1: 일시정지·설정·키 설정·사망·탈출 결과·크레딧을 타이틀 감시 단말 모양으로), 고르는 화면과 남은 화면(S1: 은신처 NPC 창 넷을 증강 카드 말투로, 연습 메뉴·효과음 듣기는 감시 단말, 보스 대사 띠 키 판·진열대 이름판은 가는 테두리, 설정 화면 줄 묶음 손질). mist에서 철판 부품을 부르는 화면은 이제 없다. 11/27 H2에서 HUD 세 가지 손질(맥박 = 게이지 테두리, 평소 E 칸 회백, 들지 않은 칸 밝게, 비교판 `shots/review/H2_*`). **남은 것: 사용자 확인** — 비교판 `shots/review/H1_*`, `shots/review/H2_*`, `shots/review/M1_*`, `shots/review/S1_*`(한 벌 비교 `S1_set.png`). 다시 찍기는 `python tools/ui_pick_shots.py <폴더>`, `python tools/ui_menu_shots.py <폴더>`, `python tools/ui_hud_shots.py <폴더>`, `python tools/ui_mist_shots.py <폴더>`.
 - (사용자) R1·R2 손질(11/27) 확인: 비교판 `shots/review/R1_*.png`, `shots/review/R2_*.png`(E 결정 소켓, 패널, 번개 판 셋, 은신처 이름표, 크레딧). **크레딧 'AI 도구'·'그래픽' 절**(전·후 줄과 근거는 `docs/opus/TASKS.md` R1·R2)을 읽고 맞는지 확인. ASSETS 맨 위 표는 R2에서 11-27 상태로 다시 썼다. R2의 E 마름모가 좁아져 2번 칸과의 틈이 넓어졌다(배치는 그대로 둠, 옮길지 사용자 결정). 남은 흠 전체 표는 `docs/opus/TASKS.md` 'R2' 절.
@@ -451,3 +451,4 @@
 2026-11-27 [Claude Code] U1-1 글 검토 A·B 반영: A 36건 모두, B 36건(3건은 이유를 적고 둠), 동작 버그 넷(충격파 사망 원인·물약 가득·균열방 두 단계 알림·예약 키 알림) 테스트 먼저, 키 안내가 키 설정을 따름, 증강 카드 세 줄 설명 자리 / src/*.py 다수, data/dialogue.py, tests/test_u1_text.py(새)·test_ui_skin.py 외, tools/u1_shots.py(새), docs/opus/TASKS.md, docs/project/text_review_1127.md, docs/DECISIONS.md
 2026-11-27 [Claude Code] U1-2 UI·UX 검토(스킬 일곱: design-critique·game-ui-ux·accessibility-review·design-system·ux-copy·input-systems·game-feel): 화면 120장 촬영, 29건(상 2·중 17·하 10) 중 상·중 16건 고침(닫기 키가 키 설정을 따름, 메뉴 소리, 은신처 HUD, 기절 중 알림 자리, 방 클리어 안내, 알림·결정 색, 명암비, 포기 확인), 사용자 결정 3 / src/ui.py·keybinds.py·npc_mode.py·practice_mode.py·sfx_mode.py·ending_mode.py·options_mode.py·keys_mode.py·pause_mode.py·mist_menu.py·boss_terrain.py, tests/test_u1_ui.py(새)·test_ui_skin.py, tools/u1_shots.py, docs/opus/TASKS.md, docs/DECISIONS.md
 2026-11-27 [Claude Code] U1-3 색 번짐 확인: U1 비교판의 색 번짐은 촬영 탓(실제 시간 연출이 빠르게 돌린 다음 장면에 남음)이었고, 게임에서도 오버로드 직후 판 포기 등으로 다음 화면에 남을 수 있어 새 판·구역·방 이동 때 postfx를 비움, 비교판 다시 찍음 / src/postfx.py, src/play_mode.py, src/stage.py, tools/u1_shots.py, tests/test_u1_postfx.py(새), docs/opus/TASKS.md, docs/DECISIONS.md
+2026-11-27 [Claude Code] N1-1 이름·대사 변경(글 검토 C 추천대로): 이름 열여덟 + 완벽 회피, 대사 아홉, 쌍권총 궁극기 '일제 사격'·저주 '벼랑 끝'·심장 대사(지휘 쪽 해석), '균열의 분노'는 둠 / src/mutations.py·forms.py·combo.py·items.py·curse.py·player.py·weapon.py·boss_intro.py·npc_mode.py, data/dialogue.py, tests/test_ui_skin.py, tools/u1_shots.py, docs/*

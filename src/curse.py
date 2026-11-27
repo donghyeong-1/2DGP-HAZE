@@ -25,9 +25,9 @@ CURSES = {
                'short': '게이지 흡수 감소'},
     'lowcap': {'grade': 2, 'rooms': 3, 'name': '좁아진 한계', 'desc': f'게이지 한계 -{LOWCAP}%. 일찍 오버로드됩니다',
                'short': '게이지 한계 감소'},
-    'lock': {'grade': 2, 'rooms': 3, 'name': '굳은 손', 'desc': '무기를 교체할 수 없습니다', 'short': '무기 교체 잠김'},
+    'lock': {'grade': 2, 'rooms': 3, 'name': '무기 봉인', 'desc': '무기를 교체할 수 없습니다', 'short': '무기 교체 잠김'},
     'frail': {'grade': 3, 'rooms': 2, 'name': '유리 몸', 'desc': '받는 피해가 2배가 됩니다', 'short': '받는 피해 2배'},
-    'doom': {'grade': 3, 'rooms': 2, 'name': '시한폭탄', 'desc': '오버로드하면 사망합니다', 'short': '오버로드 시 사망'},
+    'doom': {'grade': 3, 'rooms': 2, 'name': '벼랑 끝', 'desc': '오버로드하면 사망합니다', 'short': '오버로드 시 사망'},
 }
 REWARD_NAMES = {1: '기본 증강 둘', 2: '진화', 3: '합성'}
 

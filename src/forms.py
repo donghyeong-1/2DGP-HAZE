@@ -22,7 +22,7 @@ import game_world
 FORMS = {
     'pipe': dict(name='중량 타격', desc='길게 누르면 모아서 강타하고, 짧게 누르면 느리고 묵직하게 칩니다'),
     'pistol': dict(name='산탄', desc='가까이 5발을 부채꼴로 쏘고, 쏠 때마다 반동으로 밀립니다'),
-    'gauntlet': dict(name='연타', desc='빠른 잽을 연달아 칩니다. 3타 뒤에도 누르고 있으면 돌진합니다'),
+    'gauntlet': dict(name='연속 권격', desc='빠른 잽을 연달아 칩니다. 3타 뒤에도 누르고 있으면 돌진합니다'),
     'chain': dict(name='갈고리 이동', desc='적에게 사슬을 걸고 그쪽으로 날아가 걷어찹니다'),
 }
 COLOR = (255, 214, 120)            # 형태 카드·안내의 색 (금색)

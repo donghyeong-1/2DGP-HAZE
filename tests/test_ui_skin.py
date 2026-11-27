@@ -387,6 +387,8 @@ def _hint_log(skin_name):
 # U1-2(11/27, UI·UX 검토): pause_ask(판 포기 확인이 어디로 가는지 말한다, 네 스킨 같은 글), mist hud_boss·hud_fade_items_curse
 #   (보스 별칭·'강화 30%+'의 흐린 글자를 명암비 4.5:1 넘는 hud_kit.FAINT로), on3 장면('궁극기 준비!' -> '궁극기 준비'). 옛 스킨 HUD 기록은 그대로. 전 값은 10da4d6.
 #   mist ending_dead·ending_dead_choose·ending_clear: 결과의 '받은 헤이즈 결정' 값은 청록(보유 결정·NPC 창과 같게), 권하는 글은 본문색.
+# N1(11/27, 이름·대사 변경): 네 스킨 같은 글이라 함께 바뀜. pause_build_2·ending_dead_choose('기본 성장: 공격력' -> '공격력 강화'), npc_keeper·npc_archivist(대사),
+#   ped_rift(진열대 이름), two_on3(쌍권총 궁극기 '록온 난사' -> '일제 사격'). 그림·자리·색은 그대로. 전 값은 1b3106f.
 HUD_DIGEST = {('plate', 'normal'): '26f48c155b548dbc', ('plate', 'critical'): 'c7c9e8dc8033946b',
               ('plate', 'fade_items_curse'): '507c647ff1e06ab9', ('plate', 'enhanced'): '9f3eb5f4c7a35eea', ('plate', 'boss'): '0689f767b9a0460d',
               ('plate_code', 'normal'): '3c4cf4184ede1ad8', ('plate_code', 'critical'): '6803fdc3f439077d',
@@ -694,15 +696,15 @@ def _other_logs(skin_name):
 # mist 0_flash·2_flash = 번쩍이는 프레임에 머리글 첫 줄을 그리지 않음(묶음 1. 전 c11c65208d8510e7·683ccfdbc9a80c9c).
 # 평소·줄기·잔광 프레임(0_None·0_bolt·0_glow·0_dark 등)과 옛 스킨의 타이틀은 그대로
 MENU_DIGEST = {
-    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '039f1d56d5a2893a', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'baed5c4e11369fac', 'options_music': '1382968b63b6b9e3', 'options_keys': '690d89f14401eccc', 'options_back': '88322c21baa5b7f1', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
-    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '8e9ae868998c1719', 'pause_ask': '89feb0a901922810', 'options_0': '6f7c97363f0fecdb', 'options_music': 'ea31a03ee2067e98', 'options_keys': '27837dded66ff392', 'options_back': '17cb8512e37de282', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
-    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': 'e2048855c68b0601', 'pause_ask': '7db77125d2deef6c', 'options_0': '40ec2e254f4cb802', 'options_music': 'b29f84307aa857d1', 'options_keys': '3b2506b0fcf156dd', 'options_back': 'c0cdf902cc0b60eb', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '706591185f320235', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'baed5c4e11369fac', 'options_music': '1382968b63b6b9e3', 'options_keys': '690d89f14401eccc', 'options_back': '88322c21baa5b7f1', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'a985340e9be7c1eb', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '56fb50d25fed5cee', 'pause_ask': '89feb0a901922810', 'options_0': '6f7c97363f0fecdb', 'options_music': 'ea31a03ee2067e98', 'options_keys': '27837dded66ff392', 'options_back': '17cb8512e37de282', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'e3eda8690d84a844', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': '39793beeefa30d40', 'pause_ask': '7db77125d2deef6c', 'options_0': '40ec2e254f4cb802', 'options_music': 'b29f84307aa857d1', 'options_keys': '3b2506b0fcf156dd', 'options_back': 'c0cdf902cc0b60eb', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': '0fcf2c183f4d832b', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
 }
 OTHER_DIGEST = {
-    'mist': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '71556d70a17ad372', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '3da451f159297ebc', 'cards_form': '5d1f396d9b756037', 'cards_curse': 'e3f25c236caf0183'},
-    'plate': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '71556d70a17ad372', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '66dde66425db532b', 'cards_form': 'caf3d6e618f401b5', 'cards_curse': 'dddfb9245c9ee76e'},
-    'plate_code': {'npc_mechanic': '53e9731cdb6d0d1a', 'npc_keeper': '9bd792190691bf5d', 'npc_armory': '6c2ed9b37c52f713', 'npc_archivist': '01443986f564cb88', 'practice': '94076e03390392f9', 'sfx': 'dbff211c37372fa2', 'cards_augment': '56c1d0b20659a32a', 'cards_form': 'f8c3003f42ce5da6', 'cards_curse': 'f4e04ff275846b59'},
-    'crystal': {'npc_mechanic': '2296d9ff50c42621', 'npc_keeper': '31561871fca6e4e8', 'npc_armory': '85f7f3ec6f0c1355', 'npc_archivist': 'bdca16cc533f9378', 'practice': 'ee791d71529e7aaa', 'sfx': 'd0e2801e95720bf9', 'cards_augment': '290c43e803d5ea39', 'cards_form': 'f946d90561f820f0', 'cards_curse': 'd69cba64404e7582'},
+    'mist': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': '4403ee234fef16ee', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '58361502e50533c1', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '3da451f159297ebc', 'cards_form': '5d1f396d9b756037', 'cards_curse': 'e3f25c236caf0183'},
+    'plate': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': '4403ee234fef16ee', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '58361502e50533c1', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '66dde66425db532b', 'cards_form': 'caf3d6e618f401b5', 'cards_curse': 'dddfb9245c9ee76e'},
+    'plate_code': {'npc_mechanic': '53e9731cdb6d0d1a', 'npc_keeper': 'bd7e82e19215afbf', 'npc_armory': '6c2ed9b37c52f713', 'npc_archivist': 'c5334c3aa349e111', 'practice': '94076e03390392f9', 'sfx': 'dbff211c37372fa2', 'cards_augment': '56c1d0b20659a32a', 'cards_form': 'f8c3003f42ce5da6', 'cards_curse': 'f4e04ff275846b59'},
+    'crystal': {'npc_mechanic': '2296d9ff50c42621', 'npc_keeper': '6867bc0e99f46b59', 'npc_armory': '85f7f3ec6f0c1355', 'npc_archivist': '6dd7762ea9f4e3d5', 'practice': 'ee791d71529e7aaa', 'sfx': 'd0e2801e95720bf9', 'cards_augment': '290c43e803d5ea39', 'cards_form': 'f946d90561f820f0', 'cards_curse': 'd69cba64404e7582'},
 }
 TITLE_DIGEST = {
     'mist': {'0_None': '96332275734e9873', '0_bolt': 'a3d2af5695e9fdb6', '0_flash': '79b7ac365eda8ccc', '0_glow': 'bb61df4537c82835', '0_dark': 'a3d2af5695e9fdb6', '2_None': 'fa00c5dac1455141', '2_bolt': '76a420dda14b725f', '2_flash': 'ca21b8b008e2359b', '2_glow': 'e4aac5e20e64b8b0', '2_dark': '76a420dda14b725f'},
@@ -934,15 +936,15 @@ def _s1_logs(skin_name):
 # Q1(11/27): 진열대 넷(ped_*)은 PixelLab 진열대로 아이콘 높이가 66 -> 제단 44·선반 56, 품절 선반은 pedestal_gone_shop
 # (Q1 전: ped_shop 5394f43bf2ddc69a, ped_gold b9ccfd9ddf62aaf9, ped_rift f8879eb6c068b907, ped_gone b0aa35ea40c8f3da)
 S1_DIGEST = {
-    'plate': {'npc_mech_buy': '9f2a0beb9a28c23d', 'npc_mech_no': 'd6b1e44d1a1630af', 'npc_keeper_shut': 'cd5b7b541c40af84', 'npc_keeper_open': 'da7ac678eccaed13', 'npc_archivist': 'fda50a9ec2b180ea', 'npc_archivist_last': '60e020644c10da7e', 'npc_armory_first': '439dbba3040724d4', 'npc_armory_second': '3a5475ae22ca8613', 'npc_back': '53cf95233a15450a', 'practice': '0959cb55ced9d876', 'practice_gauge': '6df9f28cbc2a54f7', 'sfx': '28653647e3ffb732', 'sfx_marked': 'fc7666d2d11bd6f9', 'boss_lines': '9445d045dbf72914', 'boss_typing': '4df1020eed768fb9', 'ped_shop': 'a194a09ca4051aba', 'ped_gold': '7dfed109d9900764', 'ped_rift': '0a3beaeaa0ab66af', 'ped_gone': 'b549e69d11b10558'},
-    'plate_code': {'npc_mech_buy': 'f05fd4acc01204b4', 'npc_mech_no': 'dfc48bf52842def1', 'npc_keeper_shut': 'fa73aa9e2755d0a6', 'npc_keeper_open': '04ef54d251b5c3f6', 'npc_archivist': '4edb4952ad690aea', 'npc_archivist_last': 'db0019da02b1c8c4', 'npc_armory_first': 'b51e81b3684ed7f8', 'npc_armory_second': '1f4d63b47d9ee1df', 'npc_back': '04475ad9a407af87', 'practice': '94076e03390392f9', 'practice_gauge': '39df7af502d628f4', 'sfx': 'dbff211c37372fa2', 'sfx_marked': '17c7fe5c6584f2d3', 'boss_lines': 'fcbf4a962eb2cf83', 'boss_typing': '7e3e0e9e9beaf4ee', 'ped_shop': 'a194a09ca4051aba', 'ped_gold': '7dfed109d9900764', 'ped_rift': '0a3beaeaa0ab66af', 'ped_gone': 'b549e69d11b10558'},
-    'crystal': {'npc_mech_buy': '900e6781baf62817', 'npc_mech_no': '4c760b5cc9629a7a', 'npc_keeper_shut': '2dac496e4cfbcc38', 'npc_keeper_open': '10d3aa716277ef56', 'npc_archivist': '276f6c9f2bf71280', 'npc_archivist_last': 'a72d3c09444c2039', 'npc_armory_first': 'db08a46a8785814f', 'npc_armory_second': '78c1966cca357d0c', 'npc_back': 'c786854c9b5207e0', 'practice': 'ee791d71529e7aaa', 'practice_gauge': '1c9f9aa90505585d', 'sfx': 'd0e2801e95720bf9', 'sfx_marked': '059e12e7ce668bb3', 'boss_lines': '483a93bf8c0527e7', 'boss_typing': '076b56e29120a179', 'ped_shop': 'a194a09ca4051aba', 'ped_gold': '7dfed109d9900764', 'ped_rift': '0a3beaeaa0ab66af', 'ped_gone': 'b549e69d11b10558'},
+    'plate': {'npc_mech_buy': '9f2a0beb9a28c23d', 'npc_mech_no': 'd6b1e44d1a1630af', 'npc_keeper_shut': 'd94fad20fd6f0a30', 'npc_keeper_open': 'dd7653c58cb14d66', 'npc_archivist': '192932e287c59c58', 'npc_archivist_last': '83e7be628cfa5994', 'npc_armory_first': '439dbba3040724d4', 'npc_armory_second': '3a5475ae22ca8613', 'npc_back': '53cf95233a15450a', 'practice': '0959cb55ced9d876', 'practice_gauge': '6df9f28cbc2a54f7', 'sfx': '28653647e3ffb732', 'sfx_marked': 'fc7666d2d11bd6f9', 'boss_lines': '9445d045dbf72914', 'boss_typing': '4df1020eed768fb9', 'ped_shop': 'a194a09ca4051aba', 'ped_gold': '7dfed109d9900764', 'ped_rift': '5519909755419551', 'ped_gone': 'b549e69d11b10558'},
+    'plate_code': {'npc_mech_buy': 'f05fd4acc01204b4', 'npc_mech_no': 'dfc48bf52842def1', 'npc_keeper_shut': '289d7c3c976712ab', 'npc_keeper_open': 'de8d321cf357cbc7', 'npc_archivist': '26d76cd41a59e35f', 'npc_archivist_last': '7a94cb8d0ec0d6b0', 'npc_armory_first': 'b51e81b3684ed7f8', 'npc_armory_second': '1f4d63b47d9ee1df', 'npc_back': '04475ad9a407af87', 'practice': '94076e03390392f9', 'practice_gauge': '39df7af502d628f4', 'sfx': 'dbff211c37372fa2', 'sfx_marked': '17c7fe5c6584f2d3', 'boss_lines': 'fcbf4a962eb2cf83', 'boss_typing': '7e3e0e9e9beaf4ee', 'ped_shop': 'a194a09ca4051aba', 'ped_gold': '7dfed109d9900764', 'ped_rift': '5519909755419551', 'ped_gone': 'b549e69d11b10558'},
+    'crystal': {'npc_mech_buy': '900e6781baf62817', 'npc_mech_no': '4c760b5cc9629a7a', 'npc_keeper_shut': 'e0198921b8567125', 'npc_keeper_open': '82dc1320094aa4f0', 'npc_archivist': 'd9a62504c21bbba7', 'npc_archivist_last': 'a6561641232f9dcc', 'npc_armory_first': 'db08a46a8785814f', 'npc_armory_second': '78c1966cca357d0c', 'npc_back': 'c786854c9b5207e0', 'practice': 'ee791d71529e7aaa', 'practice_gauge': '1c9f9aa90505585d', 'sfx': 'd0e2801e95720bf9', 'sfx_marked': '059e12e7ce668bb3', 'boss_lines': '483a93bf8c0527e7', 'boss_typing': '076b56e29120a179', 'ped_shop': 'a194a09ca4051aba', 'ped_gold': '7dfed109d9900764', 'ped_rift': '5519909755419551', 'ped_gone': 'b549e69d11b10558'},
 }
 # 이미 끝난 화면의 mist 기록 (S1 전, 50fe67f). 설정(options_*)은 묶음 5로 바뀌므로 뺀다
 MIST_DONE_DIGEST = {
-    'pause_0': 'c909b5ac2529364b', 'pause_build_2': 'b90812644e9c8d16', 'pause_ask': '2655e1c8ff2c502a',
+    'pause_0': 'c909b5ac2529364b', 'pause_build_2': '589f69d74ed45a67', 'pause_ask': '2655e1c8ff2c502a',
     'keys_0': 'b44b597ad20c63dc', 'keys_listen': '42a3e9d4960cc1df', 'keys_buttons': 'f8a8e1e10811752c',
-    'ending_dead_choose': 'cbf7e9b63a88ea38', 'ending_dead': '12ef159e411d165d', 'ending_clear': 'f10f4ce355a6fb13',
+    'ending_dead_choose': '9b644f1cc7af2a1a', 'ending_dead': '12ef159e411d165d', 'ending_clear': 'f10f4ce355a6fb13',
     'credits_0': 'c7ea34876ff69204', 'credits_mid': 'e877d54422d17aa2',   # Q1(11/27): 크레딧 PixelLab 첫 줄에 ', 소품' (Q1 전 67cc436ab00bde72)
     # H2(11/27)이 mist HUD 다섯 장면을 바꿨다: 위험·페이드 맥박이 바깥 띠 대신 게이지 테두리(critical·fade_items_curse),
     # 들지 않은 무기 칸 테두리 dim -> line·아이콘·숫자 밝게(모든 장면), 켜지 않았지만 쓸 수 있는 E 칸 테두리 e1 -> line(enhanced 밖의 장면).
@@ -1785,9 +1787,9 @@ def test_r1_sfx_inverted_block_has_two_px_under_every_name():
 # 든 칸만 그 무기 색으로 밝고, 칸 바깥에 반쯤 걸친 동그란 키 배지(1·2·E), E 칸 모서리에 강화 단계 숫자 배지.
 # W1 뒤(3eccbd5)의 시안 a·b·c 그리기 기록. D를 더해도 그대로여야 한다 (_w1_preps의 열다섯 상태)
 W1_DIGEST = {
-    'a': {'one_low': '575a2568228c8d3f', 'one_ready': 'cbe06e3e973d2244', 'one_on1': '753f0b860479f938', 'one_on2': '09ed9121359490e0', 'one_on3': '94a9392444a266dd', 'two_low': 'a4a6e6363197a925', 'two_ready': '2de3d1069c05cb6f', 'two_on1': '4d9b88ff50bcb7d1', 'two_on2': '696e6b7f2ab1bac1', 'two_on3': '32f5762191549807', 'empty_low': '01ca5531c2a393c5', 'empty_ready': '79397b8cdda97cd9', 'empty_on1': '5e36eb491d6d709f', 'empty_on2': '33a8fe0255db268a', 'empty_on3': '26bd0964226ccf59'},
-    'b': {'one_low': '8beda36e772d14c7', 'one_ready': '5d54f1a260560dca', 'one_on1': '0e215b42fa0818a4', 'one_on2': '0eb85465443cd057', 'one_on3': 'e86fd2320e611eeb', 'two_low': '1af57f80f3d51c34', 'two_ready': '73c699e980542268', 'two_on1': '7c1a800032182465', 'two_on2': 'cb14145c87be9f9c', 'two_on3': '9436480ded00adc0', 'empty_low': '388011f7ca0eac53', 'empty_ready': 'af9067898a443c47', 'empty_on1': '0b9a844183baf8e5', 'empty_on2': '2587f3659ff94dc1', 'empty_on3': 'dde675c31acf18d5'},
-    'c': {'one_low': 'c5ef5e612ce26ed1', 'one_ready': 'f126fe8b0531f261', 'one_on1': 'a2e06b17b396bdbd', 'one_on2': 'ee45898155a1ad85', 'one_on3': '5a7ccea43ca5f0cb', 'two_low': 'c9d82a4cd8b5c420', 'two_ready': '2e7c6866c108d8bf', 'two_on1': 'fcf9f3fb427cfbe5', 'two_on2': 'f54eb6babe2f3a22', 'two_on3': 'c207a55ec9528a8e', 'empty_low': 'c08c4c6a3e92f93f', 'empty_ready': '38b0207eb697f21e', 'empty_on1': '0f4688f1ff5597b9', 'empty_on2': '9ad743c131fed7d0', 'empty_on3': '1c1034a373df4a4c'},
+    'a': {'one_low': '575a2568228c8d3f', 'one_ready': 'cbe06e3e973d2244', 'one_on1': '753f0b860479f938', 'one_on2': '09ed9121359490e0', 'one_on3': '94a9392444a266dd', 'two_low': 'a4a6e6363197a925', 'two_ready': '2de3d1069c05cb6f', 'two_on1': '4d9b88ff50bcb7d1', 'two_on2': '696e6b7f2ab1bac1', 'two_on3': 'e44a886cbde9f6a7', 'empty_low': '01ca5531c2a393c5', 'empty_ready': '79397b8cdda97cd9', 'empty_on1': '5e36eb491d6d709f', 'empty_on2': '33a8fe0255db268a', 'empty_on3': '26bd0964226ccf59'},
+    'b': {'one_low': '8beda36e772d14c7', 'one_ready': '5d54f1a260560dca', 'one_on1': '0e215b42fa0818a4', 'one_on2': '0eb85465443cd057', 'one_on3': 'e86fd2320e611eeb', 'two_low': '1af57f80f3d51c34', 'two_ready': '73c699e980542268', 'two_on1': '7c1a800032182465', 'two_on2': 'cb14145c87be9f9c', 'two_on3': '1e1a8c935e900584', 'empty_low': '388011f7ca0eac53', 'empty_ready': 'af9067898a443c47', 'empty_on1': '0b9a844183baf8e5', 'empty_on2': '2587f3659ff94dc1', 'empty_on3': 'dde675c31acf18d5'},
+    'c': {'one_low': 'c5ef5e612ce26ed1', 'one_ready': 'f126fe8b0531f261', 'one_on1': 'a2e06b17b396bdbd', 'one_on2': 'ee45898155a1ad85', 'one_on3': '5a7ccea43ca5f0cb', 'two_low': 'c9d82a4cd8b5c420', 'two_ready': '2e7c6866c108d8bf', 'two_on1': 'fcf9f3fb427cfbe5', 'two_on2': 'f54eb6babe2f3a22', 'two_on3': 'a983ef0adbc96187', 'empty_low': 'c08c4c6a3e92f93f', 'empty_ready': '38b0207eb697f21e', 'empty_on1': '0f4688f1ff5597b9', 'empty_on2': '9ad743c131fed7d0', 'empty_on3': '1c1034a373df4a4c'},
 }
 
 
@@ -1924,7 +1926,7 @@ D_DIGEST = {
     'two_ready': '1fe3c46b70d6e283',
     'two_on1': '4a695b84e30f7724',
     'two_on2': '2832779d5a0f2cd4',
-    'two_on3': 'ce858f20c545e5f1',
+    'two_on3': '1a048cf95c93eef6',
     'empty_low': 'f650fc61d2a79bc7',
     'empty_ready': '9f7638518fb3e1e6',
     'empty_on1': '2fdfdcc21b4104c9',
@@ -2057,7 +2059,7 @@ DA_DIGEST = {
     'two_ready': 'ec77b174955ca544',
     'two_on1': '9b4d0eda19ce5933',
     'two_on2': '85725af50b4235cf',
-    'two_on3': '14c622da924fbba7',
+    'two_on3': '669d156f680c259c',
     'empty_low': '7d9403f9ebf40807',
     'empty_ready': '71a635c840b1f2fd',
     'empty_on1': '60af987fd4fbe162',

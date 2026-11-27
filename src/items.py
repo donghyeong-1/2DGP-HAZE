@@ -17,8 +17,8 @@ ITEMS = {
     'enhance': dict(name='강화 효율', glyph='강', desc='강화 비용 감소', price=6, color=(240, 150, 60)),
     'resist':  dict(name='오버로드 내성', glyph='내', desc='오버로드 피해 -5%p', price=5, color=(250, 220, 90)),
     'dash':    dict(name='대시 강화', glyph='대', desc='대시 칸 +1 (최대 5)', price=7, color=(170, 200, 255)),
-    'power':   dict(name='기본 성장: 공격력', glyph='공', desc='공격력 +20%', price=6, color=(255, 120, 120)),
-    'vigor':   dict(name='기본 성장: 체력', glyph='체', desc='최대 체력 +25, 그만큼 회복', price=6, color=(255, 150, 170)),
+    'power':   dict(name='공격력 강화', glyph='공', desc='공격력 +20%', price=6, color=(255, 120, 120)),
+    'vigor':   dict(name='최대 체력 강화', glyph='체', desc='최대 체력 +25, 그만큼 회복', price=6, color=(255, 150, 170)),
     'heal':    dict(name='물약', glyph='약', desc='물약 한 병을 채웁니다 (정비방 전용)', price=3, color=(120, 235, 150)),
     'fury':    dict(name='균열의 분노', glyph='분', desc='이번 판 공격력 +30% (균열방 전용)', price=0, color=(200, 130, 255)),
     # 무기: 두 번째 칸에 들어가고 바로 든다 (Q·1·2로 철파이프와 바꾼다). 이미 다른 무기가 있으면 바뀐다

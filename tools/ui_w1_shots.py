@@ -4,6 +4,9 @@ config.HUD_WEAPON_STYLE을 'flat'·'a'·'b'·'c'로 바꿔 가며 같은 시드�
 
   python tools/ui_w1_shots.py <출력 폴더>                 장면 찍기: w1_<시안>_<방>_<상태>.png, w1_<시안>_cards.png
   W1_ONLY=da,row W1_EXTRA=da,row python tools/ui_w1_shots.py <출력 폴더>  후
+  W1_ONLY=row W1_EXTRA=row W5_OFF=row python tools/ui_w1_shots.py <출력 폴더>  후
+  python tools/ui_w1_shots.py --board5 <출력 폴더> <W4 촬영 폴더(전)> <비교판 폴더>
+        W5: W5_hint.png(설명 줄 뜬 순간 / 2초 뒤), W5_combo.png(무기 넷 콤보 칸 W4 전·후), W5_full.png
   python tools/ui_w1_shots.py --board4 <출력 폴더> <비교판 폴더>
         W4(row): W4_compare_dark/bright.png(가로 da·row), W4_weapons.png, W4_swap.png, W4_full.png, W4_corners.png
   W1_ONLY=d,a,da W1_EXTRA=da python tools/ui_w1_shots.py <출력 폴더>  후
@@ -31,7 +34,8 @@ from PIL import Image, ImageDraw  # noqa: E402
 
 W, H = 1920, 1080
 STYLES = ('flat', 'a', 'b', 'c', 'd', 'da', 'row')
-W4_STYLES = ('da', 'row')                    # W4 비교판의 가로 (da·새 배치)
+W4_STYLES = ('da', 'row')
+W5_HINT_STATES = ('a_ready', 'e_slot2', 'b_on1', 'g_on3')   # W5: 설명 줄이 뜬 순간과 2초 뒤를 같이 찍는 상태 (W5_OFF에 적은 시안만)                    # W4 비교판의 가로 (da·새 배치)
 W3_STYLES = ('d', 'a', 'da')                 # W3 비교판의 가로 (D·A·합친 것)
 EXTRA_STATES = ('g_on3', 'w_pipe', 'w_pistol', 'w_gauntlet', 'w_chain')   # W3·W4: 강화 3단계 켬, 무기 넷을 각각 든 모습 (W1_EXTRA에 적은 시안만)
 W2_STYLES = ('flat', 'a', 'd')               # W2 비교판의 가로 (flat·A·D)
@@ -113,6 +117,7 @@ def shoot(out):
 
     default_style = config.HUD_WEAPON_STYLE
     extra = os.environ.get('W1_EXTRA', '').split(',')
+    w5_off = os.environ.get('W5_OFF', '').split(',')
     for style in os.environ.get('W1_ONLY', ','.join(STYLES)).split(','):   # W1_ONLY=flat,a,d 로 일부만
         config.HUD_WEAPON_STYLE = style
         for room, (seed, target) in ROOMS.items():
@@ -137,6 +142,10 @@ def shoot(out):
                 run(1)
                 p.aura_time = 0.1
                 grab(play_mode, f'{style}_{room}_{state}')
+                if style in w5_off and (state in W5_HINT_STATES or state.startswith('w_')):
+                    run(150)                                   # 설명 줄이 사라진 뒤 (WEAPON_HINT_TIME 2초 + 여유)
+                    p.aura_time = 0.1
+                    grab(play_mode, f'{style}_{room}_{state}_off')
         # 증강 카드 화면 (그 시안의 HUD가 뒤에 깔린다)
         p = new_run(27)
         go('stage1')
@@ -184,6 +193,35 @@ def _full_and_set(src, out, style, prefix):
     im.paste(_label(Image.open(os.path.join(src, f'w1_{style}_cards.png')), f'{style.upper()} cards'), (W + 20, 0))
     im.save(os.path.join(out, f'{prefix}_set_{style}.png'))
     return [f'{prefix}_full_{style}.png', f'{prefix}_set_{style}.png']
+
+
+def board5(src, before, out):
+    """W5: 설명 줄이 뜬 순간 / 사라진 뒤(1번 듦·2번 듦·강화 1단계·궁극기, 두 방, 원래 크기), 무기 넷의 콤보 칸 W4 전·후, 평소 전체 화면."""
+    os.makedirs(out, exist_ok=True)
+    made = []
+    cw, ch = PANEL_BOX[2] - PANEL_BOX[0], PANEL_BOX[3] - PANEL_BOX[1]
+    rows = [(room, s) for room in ROOMS for s in W5_HINT_STATES]
+    im = Image.new('RGB', ((cw + 20) * 2 - 20, (ch + 10) * len(rows)), (20, 20, 24))
+    for r, (room, s) in enumerate(rows):
+        for c, tail in enumerate(('', '_off')):
+            path = os.path.join(src, f'w1_row_{room}_{s}{tail}.png')
+            im.paste(_label(Image.open(path).crop(PANEL_BOX), f'{room} {s} {"shown" if not tail else "after 2s"}'), (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'W5_hint.png'))
+    made.append('W5_hint.png')
+    weapons = EXTRA_STATES[1:]
+    im = Image.new('RGB', ((cw + 20) * 2 - 20, (ch + 10) * len(weapons)), (20, 20, 24))
+    for r, s in enumerate(weapons):
+        for c, folder in enumerate((before, src)):
+            tail = '' if c == 0 else '_off'
+            path = os.path.join(folder, f'w1_row_dark_{s}{tail}.png')
+            if not os.path.exists(path):
+                path = os.path.join(folder, f'w1_row_dark_{s}.png')
+            im.paste(_label(Image.open(path).crop(PANEL_BOX), f'{"W4" if c == 0 else "W5"} {s}'), (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'W5_combo.png'))
+    made.append('W5_combo.png')
+    _label(Image.open(os.path.join(src, 'w1_row_dark_a_ready_off.png')), 'ROW W5 dark a_ready (no hint)').save(os.path.join(out, 'W5_full.png'))
+    made.append('W5_full.png')
+    print(len(made), '장:', ', '.join(made))
 
 
 def board4(src, out):
@@ -303,7 +341,9 @@ def board(src, out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--board4':
+    if sys.argv[1] == '--board5':
+        board5(*sys.argv[2:5])
+    elif sys.argv[1] == '--board4':
         board4(*sys.argv[2:4])
     elif sys.argv[1] == '--board3':
         board3(*sys.argv[2:4])

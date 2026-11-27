@@ -3,7 +3,7 @@
 마지막 갱신: 2026-11-27 [Claude Code]
 
 ## 진행 중
-- (없음. 작업을 시작하면 `[도구명] 작업 내용 / 수정 중인 파일`을 적는다.)
+- [Claude Code] W5 글·콤보 칸 손질 + P1 패널 그림 PixelLab 시험 / src/weapon_panel.py, src/config.py, tools/make_ui_mist.py, tools/ui_w1_shots.py, tests/test_ui_skin.py, assets/ui/um_wp*, assets/sprites/pixellab/ui_wp_v1/
 
 ## 지금 상태 (2026-11-25, v8 7일 차까지)
 - **한 판의 흐름**: 타이틀 → 은신처(정비사 영구 강화, 보관인, 기록관, 무기 걸이에서 시작 무기 두 칸, 연습장) → 구역 1 슬럼(끝은 중간 보스 문지기) → 구역 2 공장(보스 크래셔) → 구역 3 탑(아크 → 헤이즈 심장) → 탈출 화면 → 크레딧. 죽으면 은신처로 돌아가고 영구 성장만 남는다.
@@ -440,3 +440,4 @@
 2026-11-27 [Claude Code] W2 무기·E 패널 시안 D(Orca 작업, 사용자 참고 그림과 "이런 느낌 안되나?"): HUD_WEAPON_STYLE 'd' 떠 있는 칸(따로 뜬 반투명 칸, 어긋난 묶음, 든 칸만 무기 색, 반쯤 걸친 키 배지, E 모서리 단계 배지), 부품 17장 코드로 굽기, 테스트 5개 먼저, 실제 창 비교판 W2_* / src/weapon_panel.py, src/hud_kit.py, src/config.py, tools/make_ui_mist.py, tools/ui_w1_shots.py, tests/test_ui_skin.py, assets/ui/um_wp_d_*.png, docs/*
 2026-11-27 [Claude Code] W3 무기·E 패널 확정(Orca 작업, 사용자 "D 배치에 A 결정 소켓으로 합쳐줘"): HUD_WEAPON_STYLE 기본값 'da'(D 배치 + A 결정 소켓, 다른 값은 남김), 지휘 쪽이 권한 약점 셋('강화' 글자 꼬리표, 켜지 않으면 단계 배지 없음, 이름 줄을 칸 묶음 위 왼쪽으로), 바탕 0.9, 부품 7장 코드로 굽기, 테스트 6개 먼저, 비교판 W3_* / src/weapon_panel.py, src/hud_kit.py, src/config.py, tools/make_ui_mist.py, tools/ui_w1_shots.py, tests/test_ui_skin.py, assets/ui/um_wp_da_*.png, docs/*
 2026-11-27 [Claude Code] W4 무기·E 패널 배치 다시 짜기(Orca 작업, 사용자 "조사해서 세팅을 해줘"): HUD_WEAPON_STYLE 기본값 'row'(한 줄 1·2·E, 자리 고정, 든 칸 96x72 / 72x56, 바탕 0.9 / 0.72, 밝은 회백 겉 테두리 + 무기 색 안쪽 줄, 결정 소켓 88, 여백 오른쪽 28·아래 40), 조사 기록 REFERENCES, 부품 13장 코드로 굽기, 테스트 6개 먼저, 비교판 W4_* / src/weapon_panel.py, src/hud_kit.py, src/config.py, tools/make_ui_mist.py, tools/ui_w1_shots.py, tests/test_ui_skin.py, assets/ui/um_wp_row_*.png, docs/*
+2026-11-27 [Claude Code] W5 글·콤보 칸 손질(Orca 작업, 사용자 "한 줄 배치로 가고 제안대로 글이랑 콤보 칸 고쳐줘"): row의 공격 설명 줄을 바꾼 직후 2초만(이름 아래, 반투명 바탕, 단계 페이드), 콤보 칸·충전 막대를 든 칸 안 오른쪽 세로 줄로, 테스트 4개 먼저, 비교판 W5_* / src/weapon_panel.py, src/ui.py, src/config.py, tools/make_ui_mist.py, tools/ui_w1_shots.py, tests/test_ui_skin.py, assets/ui/um_wp_row_combo_*.png, docs/*

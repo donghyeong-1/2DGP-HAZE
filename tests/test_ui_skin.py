@@ -940,8 +940,9 @@ MIST_DONE_DIGEST = {
     # hud_critical·hud_fade_items_curse = 맥박이 켜진 프레임의 구간 눈금을 테두리 안쪽까지만(묶음 5, 전 c4f647940e7a08a6·bdaf7e221ef01150)
     # W4(11/27): 무기·E 패널 기본값이 'da' -> 'row'(한 줄 1·2·E)라 HUD 다섯 장면이 다시 바뀌었다. 'flat' 값은 FLAT_MIST_HUD_DIGEST, 'da'는 DA_DIGEST가 본다
     # (W4 전 = da: normal 0983bb8e8fb070bd, critical 45af07c556566555, fade_items_curse 0b3e5f39d920eddc, enhanced b2965326972bc329, boss 6ef6c177c0925d67)
-    'hud_normal': '0cee15bba614f447', 'hud_critical': 'd91b8f349ea0d637', 'hud_fade_items_curse': 'c93403d845b463d6',
-    'hud_enhanced': 'beba88515de4feb2', 'hud_boss': '0efed2a7de8aeab8', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    # W5(11/27): row의 공격 설명 줄은 잠깐만(첫 프레임에는 보인다)·콤보 칸은 든 칸 안이라 다시 바뀌었다 (W5 전 = W4 row: normal 0cee15bba614f447, critical d91b8f349ea0d637, fade_items_curse c93403d845b463d6, enhanced beba88515de4feb2, boss 0efed2a7de8aeab8)
+    'hud_normal': 'f0f62e71a80383f5', 'hud_critical': '401cad53cd7ce33a', 'hud_fade_items_curse': '545badf1b23d2033',
+    'hud_enhanced': '09fc099fa437c13e', 'hud_boss': '7d9bbe677ca8d9b1', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # 무기·E 패널 'flat'일 때의 mist HUD 다섯 장면 (W3 전 기본값. W3부터 기본값 'da'라 MIST_DONE_DIGEST의 hud_*는 da 값)
 FLAT_MIST_HUD_DIGEST = {
@@ -2238,6 +2239,141 @@ def test_w4_row_parts_follow_pixel_rules():
         assert len(cols) <= 64 and hud_kit.YELLOW not in cols and CYAN not in cols, name
         if name.endswith(('_well.png', '_well_big.png', '_well_small.png')):
             assert len(cols) == 1, name
+
+
+
+# ----- 2026-11-27 W5 글·콤보 칸 손질 (사용자 "한 줄 배치로 가고 제안대로 글이랑 콤보 칸 고쳐줘". docs/opus/TASKS.md '4차' W5) -----
+# 공격 설명 줄은 평소에 감추고 무기를 바꾸거나 강화를 켜거나(단계가 바뀌거나) 형태가 바뀌거나 방에 들어선 직후 WEAPON_HINT_TIME초만 보인다.
+# 콤보 칸·충전 막대는 든 칸 안쪽(오른쪽 세로 줄)으로.
+LONGEST_HINT = '대시 공격: 관통 베기 · 표식 3개 처형'
+
+
+def _w5_ui(prep):
+    """mist·'row'에서 장면 하나를 준비한 GameUI와 플레이어 (그리기는 _w5_draw)."""
+    import ui
+    p, st, _pick = _h2_state('normal')()
+    prep(p)
+    p.aura_time = 0.1
+    return ui.GameUI(p, st), p
+
+
+def _w5_draw(u):
+    def go():
+        with _Recorder() as r:
+            u._draw_actions()
+        return r
+    return _with_skin('mist', lambda: _with_style('row', go))
+
+
+def _w5_texts(r):
+    return [row[3] for row in r.log if row[0] == 'draw_text' and row[4] != hud_kit.SHADOW]
+
+
+def _w5_hint(u, p):
+    import weapon_panel as wpn
+    return wpn._attack_line(u)[0]
+
+
+def test_w5_hint_shows_after_swap_and_enhance_then_hides():
+    """(1) 공격 설명 줄: 처음(방에 들어선 직후)·무기를 바꾼 직후·강화를 켠 직후·단계가 바뀐 직후에는 그려지고, WEAPON_HINT_TIME이 지나면 그려지지 않는다."""
+    u, p = _w5_ui(_w1_preps()[('one', 'ready')])
+    hint = _w5_hint(u, p)
+    assert hint in _w5_texts(_w5_draw(u))                              # 첫 프레임 = 방에 들어선 직후
+    u.update(config.WEAPON_HINT_TIME + 0.1)
+    assert hint not in _w5_texts(_w5_draw(u))
+    p.swap_weapon(1)                                                     # 무기를 바꾼 직후
+    hint = _w5_hint(u, p)
+    assert hint in _w5_texts(_w5_draw(u)), hint
+    u.update(config.WEAPON_HINT_TIME + 0.1)
+    assert hint not in _w5_texts(_w5_draw(u))
+    p.gauge.value = 95
+    p.gauge.zone = p.gauge._zone_of(95)
+    assert p.gauge.use_enhance()                                         # 강화를 켠 직후
+    hint = _w5_hint(u, p)
+    assert hint.startswith('강화 1단계') and hint in _w5_texts(_w5_draw(u)), hint
+    u.update(config.WEAPON_HINT_TIME + 0.1)
+    assert hint not in _w5_texts(_w5_draw(u))
+    assert p.gauge.use_enhance()                                         # 단계가 바뀐 직후
+    hint = _w5_hint(u, p)
+    assert hint.startswith('강화 2단계') and hint in _w5_texts(_w5_draw(u)), hint
+    u.update(config.WEAPON_HINT_TIME - 0.05)                             # 사라지기 직전 (단계 페이드: 글자 색이 어두워진다)
+    r = _w5_draw(u)
+    rows = [row for row in r.log if row[0] == 'draw_text' and row[3] == hint and row[4] != hud_kit.SHADOW]
+    assert rows and _luma(rows[0][4]) < _luma(config.ENHANCE_LEVEL_COLOR[2]) - 20, rows
+
+
+def test_w5_only_the_name_and_the_cost_tag_stay_on_screen():
+    """(2) 설명 줄이 사라진 평소 프레임에 패널이 그리는 글은 무기 이름과 '강화' 꼬리표뿐이다(키 배지 1·2·E, 빈 칸 글자, 켰을 때의 단계 숫자는 표시).
+    무기 넷, 1번·2번 듦, 못 씀·쓸 수 있음·켬."""
+    preps = _w1_preps()
+    for key, prep in preps.items():
+        u, p = _w5_ui(prep)
+        _w5_draw(u)
+        u.update(config.WEAPON_HINT_TIME + 0.1)
+        texts = set(_w5_texts(_w5_draw(u)))
+        marks = {'1', '2', 'E', '빈 칸', '3'}
+        rest = texts - marks
+        cost = [t for t in rest if t.startswith('강화 ') and ('%' in t)]
+        assert rest == {p.weapon.name} | set(cost) and len(cost) == 1, (key, texts)
+
+
+def _w5_slot_rect(p):
+    import weapon_panel as wpn
+    spots, _c = wpn.row_layout(p.slot)
+    return spots[p.slot]
+
+
+def test_w5_combo_marks_sit_inside_the_held_slot():
+    """(3) 콤보 칸(철파이프)·개수 칸(쌍권총·사슬)·충전 막대(건틀릿)는 든 칸의 사각형 안쪽에 그려진다(무기 넷, 1번·2번 듦). 칸 윗변에 걸치지 않는다."""
+    for wid in ('pipe', 'pistol', 'gauntlet', 'chain'):
+        for held in (0, 1):
+            def prep(p, wid=wid, held=held):
+                other = 'chain' if wid != 'chain' else 'pipe'
+                p.set_loadout(*((wid, other) if held == 0 else (other, wid)))
+                p.swap_weapon(held)
+                p.gauge.value = 62
+                p.gauge.zone = p.gauge._zone_of(62)
+            u, p = _w5_ui(prep)
+            assert p.weapon.weapon_id == wid, (wid, p.weapon.weapon_id)
+            if wid == 'pipe':
+                p.weapon.combo = 2
+            x, y, w, h = _w5_slot_rect(p)
+            r = _w5_draw(u)
+            marks = [bx for row, bx in _row_boxes(r) if (row[0] == 'draw_image' and 'um_wp_row_combo_' in row[1])
+                     or (row[0] == 'draw_rect_color' and row[1] >= x + w // 2 and row[4] > 6)]
+            assert marks, (wid, held)
+            for (l, b, rt, t) in marks:
+                assert x + 2 <= l and rt <= x + w - 2 and y + 2 <= b and t <= y + h - 2, (wid, held, (l, b, rt, t), (x, y, w, h))
+            assert not any('um_combo_' in pth or 'up_combo_' in pth for pth in r.paths()), (wid, r.paths())
+
+
+def _rect_overlap(a, b):
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
+def test_w5_hint_line_does_not_overlap_the_tag_socket_or_slots():
+    """(4) 가장 긴 설명 줄이 떠 있을 때(1번·2번 듦, 강화 켬 포함) 그 사각형이 '강화' 꼬리표·소켓·무기 칸 둘과 겹치지 않고, 무기 이름 아래에 있다(이름 위가 아니다)."""
+    import weapon_panel as wpn
+    for slot in ('one', 'two'):
+        for e in ('ready', 'on2'):
+            u, p = _w5_ui(_w1_preps()[(slot, e)])
+            u._attack_text = lambda w, g: (LONGEST_HINT, (150, 165, 190))
+            hint = _w5_hint(u, p)
+            r = _w5_draw(u)
+            boxes = _row_boxes(r)
+            hint_box = [bx for row, bx in boxes if row[0] == 'draw_text' and row[3] == hint and row[4] != hud_kit.SHADOW]
+            name_box = [bx for row, bx in boxes if row[0] == 'draw_text' and row[3] == p.weapon.name and row[4] != hud_kit.SHADOW]
+            assert hint_box and name_box, (slot, e)
+            hb, nb = hint_box[0], name_box[0]
+            assert hb[3] <= nb[1] + 4, (hb, nb)                                # 이름 아래 줄
+            spots, (cx, cy) = wpn.row_layout(p.slot)
+            solid = [(x, y, x + w, y + h) for x, y, w, h in spots]
+            solid.append((cx - 44, cy - 44, cx + 44, cy + 44))
+            tag = [bx for row, bx in boxes if row[0] == 'draw_image_tinted' and 'row_tag_well' in row[1]]
+            assert tag, slot
+            solid += tag
+            for s in solid:
+                assert not _rect_overlap(hb, s), (slot, e, hb, s)
 
 
 if __name__ == '__main__':

@@ -99,12 +99,14 @@ class GameUI:
         self.hp_ghost = 1.0         # 플레이어 체력의 깎인 자국
         self.hp_last = 1.0
         self.hp_held = 1.0
+        self.clock = 0.0            # W5: HUD가 흐른 시간 (무기·E 패널의 설명 줄을 잠깐만 보여 줄 때 쓴다)
 
     def show_pickup(self, item_id, text):
         import items
         self.pickup = (items.ITEMS[item_id]['name'], text, items.icon_path(item_id), PICKUP_TIME)
 
     def update(self, dt):
+        self.clock += dt
         if self.pickup is not None:
             name, text, icon, left = self.pickup
             self.pickup = (name, text, icon, left - dt) if left - dt > 0 else None

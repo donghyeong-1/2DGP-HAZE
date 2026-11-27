@@ -914,6 +914,11 @@ def row_parts():
     for wid, c in _weapon_colors().items():                        # 든 칸: 밝은 회백 겉선(같은 색) + 무기 색 안쪽 한 줄
         made.append(save2(_frame_only(big, WP_HOT, c), f'um_wp_row_slot_{wid}.png'))
     made.append(save2(_well_only(_round_rect(14, 52, 3)), 'um_wp_row_tag_well.png'))   # '강화' 꼬리표 104x28
+    for name, edge, inside in (('on', INK, WP_HOT), ('off', WP_GHOST, WP_WELL), ('fin', INK, (226, 58, 72))):   # W5: 든 칸 안 무기 표시 5x5 도트
+        a = np.zeros((5, 5, 4), np.uint8)
+        a[:, :] = _rgba(edge)
+        a[1:4, 1:4] = _rgba(inside)
+        made.append(save2(a, f'um_wp_row_combo_{name}.png'))
     n = ROW_SOCKET
     made.append(save2(_well_only(_diamond(n, n, n / 2, n / 2, 22, 22)), 'um_wp_row_socket_well.png'))
     for name, tone in (('line', WP_LINE), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):

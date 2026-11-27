@@ -402,6 +402,58 @@ ROW_ALPHA_HELD, ROW_ALPHA_IDLE, ROW_ALPHA_SOCKET = 0.9, 0.72, 0.86    # 바탕 �
 ROW_ICON_IDLE = ((172, 180, 196), 0.6)        # 들지 않은 칸 아이콘: 회백 곱, 불투명도 0.6
 
 
+ROW_NAME_DY = 40                              # 무기 이름 줄 (든 칸 윗변에서 위로)
+ROW_HINT_DY = 16                              # 공격 설명 줄 (이름 바로 아래, 든 칸 윗변과의 틈)
+ROW_MARK = 10                                 # 든 칸 안 무기 표시 한 칸 (화면 px, um_wp_row_combo_*)
+ROW_HINT_STEPS = ((0.3, 0.6), (0.15, 0.3))    # 사라지기 전 남은 시간 -> 밝기 (단계 페이드: 1 -> 0.6 -> 0.3 -> 없음)
+
+
+def _row_meter(w, x, y, sw, sh):
+    """든 칸 안쪽 오른쪽 세로 줄: 철파이프 콤보 칸 셋(셋째 = 3타, 빨강), 쌍권총·사슬 개수 칸(넷까지, 강화·관통이면 빨강), 건틀릿 충전 막대(다 차면 청록).
+    아래에서 위로 찬다. 재충전 줄(아래 6~10px)과 칸 테두리 안쪽."""
+    mx, my = x + sw - 8 - ROW_MARK, y + 14
+    if w.weapon_id == 'gauntlet':
+        r = max(0.0, min(1.0, w.charge_ratio))
+        hgt = sh - 24
+        assets.draw_rect_color(mx + 2, my, ROW_MARK - 4, hgt, (48, 56, 72))      # 빈 막대 (바탕보다 밝게: 비어 있어도 자리가 보이게)
+        fh = _even(hgt * r)
+        if fh > 0:
+            assets.draw_rect_color(mx + 2, my, ROW_MARK - 4, fh, (46, 230, 214) if r >= 1.0 else (216, 221, 230))
+        return
+    if w.weapon_id == 'pipe':
+        marks = [('fin' if i == 2 else 'on') if i < w.combo else 'off' for i in range(3)]
+    else:
+        count, _, hot = w.grip() if w.weapon_id == 'chain' else w.volley()
+        marks = ['fin' if hot else 'on'] * min(count, 4)
+    for i, m in enumerate(marks):
+        _put(f'row_combo_{m}', mx, my + i * (ROW_MARK + 2))
+
+
+def _row_hint(u, x, y, right):
+    """공격 설명 줄: 무기를 바꾸거나 강화를 켜거나(단계가 바뀌거나) 형태가 바뀌거나 방에 들어선 직후 config.WEAPON_HINT_TIME초만.
+    사라지기 전 두 단계로 어두워진다. 반투명 바탕(꼬리표와 같은 색) 위에 쓰고, 오른쪽 끝은 right('강화' 꼬리표 앞)를 넘지 않게 왼쪽으로 민다."""
+    import forms
+    p = u.player
+    w, g = p.weapon, p.gauge
+    room = getattr(u.stage, 'room', None) if u.stage is not None else None
+    key = (p.slot, w.weapon_id, g.enhanced, g.enhance_level if g.enhanced else 0, forms.active(w), id(room))
+    clock = getattr(u, 'clock', 0.0)
+    if getattr(u, 'hint_key', None) != key:
+        u.hint_key, u.hint_start = key, clock
+    left = config.WEAPON_HINT_TIME - (clock - u.hint_start)
+    if left <= 0:
+        return
+    level = 1.0
+    for t, lv in ROW_HINT_STEPS:
+        if left <= t:
+            level = lv
+    text, color = _attack_line(u)
+    tw = assets.text_width(text, True)
+    x0 = min(x, right - tw)
+    assets.draw_rect_color(x0 - 6, y - 12, tw + 12, 24, kit.HUD_WELL, round(0.78 * level, 2))
+    kit.text(x0, y, text, tuple(int(c * level + v * (1 - level)) for c, v in zip(color, kit.HUD_WELL)), small=True)
+
+
 def row_layout(held):
     """칸 자리 [(왼쪽, 아래, 폭, 높이) 1번, 2번], 소켓 가운데 (cx, cy). held = 든 칸 번호(0·1)."""
     R = ui.ACT_RIGHT
@@ -444,7 +496,7 @@ def draw_row(u):
             kit.text(x + sw // 2, y + sh // 2, '빈 칸', IDLE, small=True, center=True)
         else:
             img = assets.image(f'ui/icon_w_{wp.weapon_id}.png')
-            icx, iby = x + sw // 2 + 4, y + (sh - img.h) // 2
+            icx, iby = x + sw // 2 + (-4 if active else 4), y + (sh - img.h) // 2    # 든 칸: 아이콘을 왼쪽으로 비켜 오른쪽에 무기 표시 세로 줄 (W5)
             if active:
                 assets.draw_image(img, icx, iby)
                 ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)   # 재충전: 든 칸 안쪽 아래 줄 (다 차면 무기 색)
@@ -476,17 +528,14 @@ def draw_row(u):
         _put(f'd_lv_e{lv}', bx, by)
         _lv_number(g, bx, by)
     _cost(g, tag_x + ROW_TAG_W // 2, tag_y + DA_TAG_H // 2)
-    # 든 칸 위: 무기 표시(콤보 칸 등)는 윗변에 걸쳐 오른쪽, 이름은 작게 왼쪽 위, 공격 줄은 그 위 (든 칸이 바뀌면 따라간다)
+    # W5: 무기 표시(콤보 칸·개수 칸·충전 막대)는 든 칸 안쪽 오른쪽 세로 줄 (아이콘은 왼쪽으로 비켜 있다)
     hx, hy, hw, hh_ = spots[p.slot] if p.weapons[p.slot] is not None else spots[0]
     top = hy + hh_
-    if w.weapon_id == 'gauntlet':                                 # 건틀릿 충전 막대는 칸 폭에 맞춰 윗변에 (flat 막대 110px은 칸 밖으로 길게 나왔다)
-        kit.hud_bar('cyan' if w.charge_ratio >= 1.0 else 'white', hx + 12, top - 4, hw - 24, 8, w.charge_ratio)
-    else:
-        u._draw_weapon_meter(hx + hw - 6 - _meter_span(w), top - 11)
-    name_y = top + 22
+    _row_meter(w, hx, hy, hw, hh_)
+    # 늘 떠 있는 글은 무기 이름(든 칸 위, 든 칸을 따라간다)과 '강화' 꼬리표뿐. 공격 설명 줄은 이름 바로 아래(든 칸 윗변과의 틈)에 잠깐만
+    name_y = top + ROW_NAME_DY
     kit.text(hx, name_y, w.name, WHITE, small=True)
-    text, color = _attack_line(u)
-    kit.text(min(hx, R - 2 - assets.text_width(text, True)), name_y + 32, text, color, small=True)   # 긴 글은 왼쪽으로 민다 (그림자 2px까지 여백 안)
+    _row_hint(u, hx, top + ROW_HINT_DY, tag_x - 18)      # 꼬리표 글자와 붙어 보이지 않게 18px 띄운다
 
 
 DRAW = {'a': draw_a, 'b': draw_b, 'c': draw_c, 'd': draw_d, 'da': draw_da, 'row': draw_row}

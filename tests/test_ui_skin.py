@@ -384,6 +384,9 @@ def _hint_log(skin_name):
 #   이 파일의 모든 기록 표 가운데 바뀐 것: HUD boss(아크 별칭), MENU pause·options·keys·ending_clear·credits(조작·설정 설명·키 안내·탈출 문구·크레딧),
 #   OTHER cards_form·cards_curse·npc_mechanic·practice·sfx, S1 진열대·NPC·연습·효과음, MIST_DONE 같은 화면, W1·D·DA on3(궁극기 · 이름).
 #   그림·자리·색은 그대로다. 전 값은 1f2f2e1의 이 파일에 있다.
+# U1-2(11/27, UI·UX 검토): pause_ask(판 포기 확인이 어디로 가는지 말한다, 네 스킨 같은 글), mist hud_boss·hud_fade_items_curse
+#   (보스 별칭·'강화 30%+'의 흐린 글자를 명암비 4.5:1 넘는 hud_kit.FAINT로), on3 장면('궁극기 준비!' -> '궁극기 준비'). 옛 스킨 HUD 기록은 그대로. 전 값은 10da4d6.
+#   mist ending_dead·ending_dead_choose·ending_clear: 결과의 '받은 헤이즈 결정' 값은 청록(보유 결정·NPC 창과 같게), 권하는 글은 본문색.
 HUD_DIGEST = {('plate', 'normal'): '26f48c155b548dbc', ('plate', 'critical'): 'c7c9e8dc8033946b',
               ('plate', 'fade_items_curse'): '507c647ff1e06ab9', ('plate', 'enhanced'): '9f3eb5f4c7a35eea', ('plate', 'boss'): '0689f767b9a0460d',
               ('plate_code', 'normal'): '3c4cf4184ede1ad8', ('plate_code', 'critical'): '6803fdc3f439077d',
@@ -691,9 +694,9 @@ def _other_logs(skin_name):
 # mist 0_flash·2_flash = 번쩍이는 프레임에 머리글 첫 줄을 그리지 않음(묶음 1. 전 c11c65208d8510e7·683ccfdbc9a80c9c).
 # 평소·줄기·잔광 프레임(0_None·0_bolt·0_glow·0_dark 등)과 옛 스킨의 타이틀은 그대로
 MENU_DIGEST = {
-    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '039f1d56d5a2893a', 'pause_ask': '2efc7251e710fed3', 'options_0': 'baed5c4e11369fac', 'options_music': '1382968b63b6b9e3', 'options_keys': '690d89f14401eccc', 'options_back': '88322c21baa5b7f1', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
-    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '8e9ae868998c1719', 'pause_ask': '790aada02b0b20d0', 'options_0': '6f7c97363f0fecdb', 'options_music': 'ea31a03ee2067e98', 'options_keys': '27837dded66ff392', 'options_back': '17cb8512e37de282', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
-    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': 'e2048855c68b0601', 'pause_ask': 'ea9272da8158c6bf', 'options_0': '40ec2e254f4cb802', 'options_music': 'b29f84307aa857d1', 'options_keys': '3b2506b0fcf156dd', 'options_back': 'c0cdf902cc0b60eb', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'plate': {'pause_0': '3a7adcc2cb177ae0', 'pause_build_2': '039f1d56d5a2893a', 'pause_ask': 'ac3d7b2aca3ef322', 'options_0': 'baed5c4e11369fac', 'options_music': '1382968b63b6b9e3', 'options_keys': '690d89f14401eccc', 'options_back': '88322c21baa5b7f1', 'keys_0': '85f5508d571bc559', 'keys_listen': 'bca825bb1d9f4747', 'keys_buttons': '8bda51343f1afe66', 'ending_dead_choose': 'af721d2263e1944c', 'ending_dead': '4f2ce782d823d96f', 'ending_clear': '3407f630c87e6cce', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'plate_code': {'pause_0': '1ea14262c6f07cfd', 'pause_build_2': '8e9ae868998c1719', 'pause_ask': '89feb0a901922810', 'options_0': '6f7c97363f0fecdb', 'options_music': 'ea31a03ee2067e98', 'options_keys': '27837dded66ff392', 'options_back': '17cb8512e37de282', 'keys_0': 'c2666fbf7292c6e5', 'keys_listen': '2da226e898213d44', 'keys_buttons': 'b5c9cbd7001ffda5', 'ending_dead_choose': 'a47a3ae8591d9019', 'ending_dead': '15808d816142bca1', 'ending_clear': '99816a0bf313922e', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
+    'crystal': {'pause_0': 'd1a97bcf8fbaee1d', 'pause_build_2': 'e2048855c68b0601', 'pause_ask': '7db77125d2deef6c', 'options_0': '40ec2e254f4cb802', 'options_music': 'b29f84307aa857d1', 'options_keys': '3b2506b0fcf156dd', 'options_back': 'c0cdf902cc0b60eb', 'keys_0': '43aed813c19294b1', 'keys_listen': 'c0bb98803a8d37db', 'keys_buttons': '0f60bc50a509ea9c', 'ending_dead_choose': 'e86e9f0d8a7d9b22', 'ending_dead': 'bf3a7d649011bd3b', 'ending_clear': '98f3426d37b328fd', 'credits_0': '172500abe524364a', 'credits_mid': 'd19ea4512e2eaa47'},
 }
 OTHER_DIGEST = {
     'mist': {'npc_mechanic': '36c64caa73dd7b01', 'npc_keeper': 'cfa0ab2b66838723', 'npc_armory': '968fa2c2210cb7c4', 'npc_archivist': '71556d70a17ad372', 'practice': '0959cb55ced9d876', 'sfx': '28653647e3ffb732', 'cards_augment': '3da451f159297ebc', 'cards_form': '5d1f396d9b756037', 'cards_curse': 'e3f25c236caf0183'},
@@ -937,9 +940,9 @@ S1_DIGEST = {
 }
 # 이미 끝난 화면의 mist 기록 (S1 전, 50fe67f). 설정(options_*)은 묶음 5로 바뀌므로 뺀다
 MIST_DONE_DIGEST = {
-    'pause_0': 'c909b5ac2529364b', 'pause_build_2': 'b90812644e9c8d16', 'pause_ask': '57c2ae37545baf98',
+    'pause_0': 'c909b5ac2529364b', 'pause_build_2': 'b90812644e9c8d16', 'pause_ask': '2655e1c8ff2c502a',
     'keys_0': 'b44b597ad20c63dc', 'keys_listen': '42a3e9d4960cc1df', 'keys_buttons': 'f8a8e1e10811752c',
-    'ending_dead_choose': '43eade0e9df9adaa', 'ending_dead': '52682eb733096be5', 'ending_clear': 'ea03ed12209989e3',
+    'ending_dead_choose': 'cbf7e9b63a88ea38', 'ending_dead': '12ef159e411d165d', 'ending_clear': 'f10f4ce355a6fb13',
     'credits_0': 'c7ea34876ff69204', 'credits_mid': 'e877d54422d17aa2',   # Q1(11/27): 크레딧 PixelLab 첫 줄에 ', 소품' (Q1 전 67cc436ab00bde72)
     # H2(11/27)이 mist HUD 다섯 장면을 바꿨다: 위험·페이드 맥박이 바깥 띠 대신 게이지 테두리(critical·fade_items_curse),
     # 들지 않은 무기 칸 테두리 dim -> line·아이콘·숫자 밝게(모든 장면), 켜지 않았지만 쓸 수 있는 E 칸 테두리 e1 -> line(enhanced 밖의 장면).
@@ -953,15 +956,15 @@ MIST_DONE_DIGEST = {
     # R2(11/27): 기본 그림 'mix'의 E 마름모 테두리를 세로로 긴 마름모(um_wp_row_socket_mix_*, 가운데 x = cx-1, 결정과 같은 축)로, credits_mid = 크레딧 문구
     # (R2 전: normal 4686e809587db610, critical 834c88ae5ec2a70f, fade_items_curse 218265a74db90ef2, enhanced 922fbb1129555a59, boss 29c828bbbb8a8b77, credits_mid 0079b3bc44f0a3ff)
     'hud_normal': '022318b8b83d2c43', 'hud_critical': '46d9fe4d9a5cbf88', 'hud_fade_items_curse': '9394e6cf546291be',
-    'hud_enhanced': '63a75d99890e63b6', 'hud_boss': 'b4792d2d7cd123a6', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    'hud_enhanced': '63a75d99890e63b6', 'hud_boss': 'a98ffc002a626cd6', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
 }
 # 무기·E 패널 'flat'일 때의 mist HUD 다섯 장면 (W3 전 기본값. W3부터 기본값 'da'라 MIST_DONE_DIGEST의 hud_*는 da 값)
 FLAT_MIST_HUD_DIGEST = {
     'hud_normal': '23b4e49a3fc1f2c2',
     'hud_critical': '9fb9d92670150de6',
-    'hud_fade_items_curse': 'b14964aa31ca37d3',
+    'hud_fade_items_curse': '8023ff4fe9813426',
     'hud_enhanced': '9d1b7738804e202b',
-    'hud_boss': '05de908ad46a34b0',
+    'hud_boss': 'b0b9071e0886ca2b',
 }
 # mist에서도 쓰는 철판 쪽 작은 그림 (판·틀·띠·키·노란 표시가 아니다). up_step_off는 증강 카드의 진행 칸(이미 끝난 화면이라 그대로 둔다)
 MIST_PLATE_ICONS_OK = PLATE_ICONS_OK          # R1(11/27): 증강 카드의 진행 칸도 mist 부품 um_step_*으로 (전에는 up_step_off를 여기서 허용했다)
@@ -1782,9 +1785,9 @@ def test_r1_sfx_inverted_block_has_two_px_under_every_name():
 # 든 칸만 그 무기 색으로 밝고, 칸 바깥에 반쯤 걸친 동그란 키 배지(1·2·E), E 칸 모서리에 강화 단계 숫자 배지.
 # W1 뒤(3eccbd5)의 시안 a·b·c 그리기 기록. D를 더해도 그대로여야 한다 (_w1_preps의 열다섯 상태)
 W1_DIGEST = {
-    'a': {'one_low': '575a2568228c8d3f', 'one_ready': 'cbe06e3e973d2244', 'one_on1': '753f0b860479f938', 'one_on2': '09ed9121359490e0', 'one_on3': '70aa362e2e6eebe5', 'two_low': 'a4a6e6363197a925', 'two_ready': '2de3d1069c05cb6f', 'two_on1': '4d9b88ff50bcb7d1', 'two_on2': '696e6b7f2ab1bac1', 'two_on3': 'd948d62b53b73449', 'empty_low': '01ca5531c2a393c5', 'empty_ready': '79397b8cdda97cd9', 'empty_on1': '5e36eb491d6d709f', 'empty_on2': '33a8fe0255db268a', 'empty_on3': '3d2fb0cdde078282'},
-    'b': {'one_low': '8beda36e772d14c7', 'one_ready': '5d54f1a260560dca', 'one_on1': '0e215b42fa0818a4', 'one_on2': '0eb85465443cd057', 'one_on3': '484542e5c131c65f', 'two_low': '1af57f80f3d51c34', 'two_ready': '73c699e980542268', 'two_on1': '7c1a800032182465', 'two_on2': 'cb14145c87be9f9c', 'two_on3': '32fc473dc8246437', 'empty_low': '388011f7ca0eac53', 'empty_ready': 'af9067898a443c47', 'empty_on1': '0b9a844183baf8e5', 'empty_on2': '2587f3659ff94dc1', 'empty_on3': '47005c3f41c9b0ee'},
-    'c': {'one_low': 'c5ef5e612ce26ed1', 'one_ready': 'f126fe8b0531f261', 'one_on1': 'a2e06b17b396bdbd', 'one_on2': 'ee45898155a1ad85', 'one_on3': '7b63e64364f5f26f', 'two_low': 'c9d82a4cd8b5c420', 'two_ready': '2e7c6866c108d8bf', 'two_on1': 'fcf9f3fb427cfbe5', 'two_on2': 'f54eb6babe2f3a22', 'two_on3': '3b66834a81166540', 'empty_low': 'c08c4c6a3e92f93f', 'empty_ready': '38b0207eb697f21e', 'empty_on1': '0f4688f1ff5597b9', 'empty_on2': '9ad743c131fed7d0', 'empty_on3': '1b71e4759e8d7e15'},
+    'a': {'one_low': '575a2568228c8d3f', 'one_ready': 'cbe06e3e973d2244', 'one_on1': '753f0b860479f938', 'one_on2': '09ed9121359490e0', 'one_on3': '94a9392444a266dd', 'two_low': 'a4a6e6363197a925', 'two_ready': '2de3d1069c05cb6f', 'two_on1': '4d9b88ff50bcb7d1', 'two_on2': '696e6b7f2ab1bac1', 'two_on3': '32f5762191549807', 'empty_low': '01ca5531c2a393c5', 'empty_ready': '79397b8cdda97cd9', 'empty_on1': '5e36eb491d6d709f', 'empty_on2': '33a8fe0255db268a', 'empty_on3': '26bd0964226ccf59'},
+    'b': {'one_low': '8beda36e772d14c7', 'one_ready': '5d54f1a260560dca', 'one_on1': '0e215b42fa0818a4', 'one_on2': '0eb85465443cd057', 'one_on3': 'e86fd2320e611eeb', 'two_low': '1af57f80f3d51c34', 'two_ready': '73c699e980542268', 'two_on1': '7c1a800032182465', 'two_on2': 'cb14145c87be9f9c', 'two_on3': '9436480ded00adc0', 'empty_low': '388011f7ca0eac53', 'empty_ready': 'af9067898a443c47', 'empty_on1': '0b9a844183baf8e5', 'empty_on2': '2587f3659ff94dc1', 'empty_on3': 'dde675c31acf18d5'},
+    'c': {'one_low': 'c5ef5e612ce26ed1', 'one_ready': 'f126fe8b0531f261', 'one_on1': 'a2e06b17b396bdbd', 'one_on2': 'ee45898155a1ad85', 'one_on3': '5a7ccea43ca5f0cb', 'two_low': 'c9d82a4cd8b5c420', 'two_ready': '2e7c6866c108d8bf', 'two_on1': 'fcf9f3fb427cfbe5', 'two_on2': 'f54eb6babe2f3a22', 'two_on3': 'c207a55ec9528a8e', 'empty_low': 'c08c4c6a3e92f93f', 'empty_ready': '38b0207eb697f21e', 'empty_on1': '0f4688f1ff5597b9', 'empty_on2': '9ad743c131fed7d0', 'empty_on3': '1c1034a373df4a4c'},
 }
 
 
@@ -1916,17 +1919,17 @@ D_DIGEST = {
     'one_ready': 'a71726d6bc8ca591',
     'one_on1': '2d2ef4c46684a249',
     'one_on2': '26e4344a413d9cae',
-    'one_on3': 'feb5b203b06cdbdd',
+    'one_on3': '1b6ce7896336874a',
     'two_low': '983b11deba282cef',
     'two_ready': '1fe3c46b70d6e283',
     'two_on1': '4a695b84e30f7724',
     'two_on2': '2832779d5a0f2cd4',
-    'two_on3': '683d3b4f19f11ff4',
+    'two_on3': 'ce858f20c545e5f1',
     'empty_low': 'f650fc61d2a79bc7',
     'empty_ready': '9f7638518fb3e1e6',
     'empty_on1': '2fdfdcc21b4104c9',
     'empty_on2': 'f7f08d220cb92da4',
-    'empty_on3': 'b0617508fb15a48b',
+    'empty_on3': 'f0870752aa0d9cb9',
 }
 DA_OK = ('um_wp_da_', 'um_wp_d_', 'um_wp_a_crystal_')      # da가 쓰는 부품: 제 것 + D의 칸·키 배지·단계 배지 + A의 헤이즈 결정
 
@@ -2049,17 +2052,17 @@ DA_DIGEST = {
     'one_ready': 'f67e3a36655b269f',
     'one_on1': '43489531beb17133',
     'one_on2': 'd1b285bea5dac023',
-    'one_on3': '19f202ca83b750e2',
+    'one_on3': '20f444911e57f8fe',
     'two_low': '4a5362c7392e3095',
     'two_ready': 'ec77b174955ca544',
     'two_on1': '9b4d0eda19ce5933',
     'two_on2': '85725af50b4235cf',
-    'two_on3': '083daf5f031add2d',
+    'two_on3': '14c622da924fbba7',
     'empty_low': '7d9403f9ebf40807',
     'empty_ready': '71a635c840b1f2fd',
     'empty_on1': '60af987fd4fbe162',
     'empty_on2': 'b844ba93299ca7c2',
-    'empty_on3': '4e3a6eeb8f6c4826',
+    'empty_on3': '5e8e88a527147c1b',
 }
 ROW_OK = ('um_wp_row_', 'um_wp_d_key_', 'um_wp_d_lv_', 'um_wp_da_crystal_', 'um_wp_a_crystal_')
 ROW_MARGIN_RIGHT = 28        # 오른쪽 여백 = 미니맵(오른쪽 위)과 같은 ui.MARGIN
@@ -2407,17 +2410,17 @@ ROW_DIGEST = {
     'one_ready': '6ff47bf18bb4caab',
     'one_on1': '9f3c6e0a1285dcf9',
     'one_on2': '1cfefbee87bacb9d',
-    'one_on3': '27dca984d22e5e63',
+    'one_on3': '8dc11d1e5a734bd1',
     'two_low': '7cb0228b3b8356a6',
     'two_ready': '999e19ff2b6c3adc',
     'two_on1': 'dab716669d6e3be6',
     'two_on2': '20272f6e7c83c91f',
-    'two_on3': '2ec4a30b1f0cdcc3',
+    'two_on3': 'fee0cfb5fe0c0dbd',
     'empty_low': '4004778e1f5b2a74',
     'empty_ready': 'adde10a173eaeb68',
     'empty_on1': '6017decf7eefed81',
     'empty_on2': 'c52f7aae2f1bb5e8',
-    'empty_on3': 'b9f6b11e73d1024d',
+    'empty_on3': '2c1a2a5f2121b3c2',
 }
 PX_OK = ROW_OK + ('um_wpx_',)
 

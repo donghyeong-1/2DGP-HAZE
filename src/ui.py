@@ -33,6 +33,8 @@ TEAL = (130, 235, 225)
 DIM = (150, 165, 190)
 FAINT = (105, 118, 145)
 GOLD = (255, 225, 120)
+TOAST_TEXT = (236, 240, 248)   # U1-2 mist: 짧은 알림은 회백 (금은 합성·특별에만. 색 규칙)
+CLEAR_TEXT = (242, 246, 250)   # U1-2 mist: '방 클리어'도 회백 (전: 금 + 양옆 금 선)
 RED = (245, 120, 130)
 INK = (8, 11, 20)            # 막대 받침·테두리 (불투명)
 
@@ -66,6 +68,38 @@ BOSS_EPITHET = {'gatekeeper': '제9구역 관문 간수장', 'crasher': '용광�
 
 PICKUP_TIME = 2.8          # 아이템 띠를 보여 주는 시간(초)
 PICKUP_W, PICKUP_H, PICKUP_Y = 760, 96, 150
+
+
+CLEAR_HINT = '열린 문으로 이동하세요'
+CLEAR_HINT_ROOMS = 2     # 처음 하는 사람: 이 판에서 이만큼 방을 깰 때까지만 '방 클리어' 아래 안내 (U1-2)
+STUN_DROP = 60           # 기절 중 짧은 알림을 이만큼 내린다: 기절 막대·글자와 겹치지 않게 (U1-2)
+HUB_CRYSTAL = (130, 235, 225)   # 은신처 칩의 헤이즈 결정 글자 (NPC 창 오른쪽 위와 같은 청록)
+
+
+def _faint():
+    """흐린 글자색. mist는 hud_kit.FAINT (어두운 바탕 위 5.2:1). ui.FAINT는 4.2:1로 작은 글자 기준 4.5:1에 못 미친다 (U1-2)."""
+    return kit.FAINT if kit.is_mist() else FAINT
+
+
+def clear_hint(player):
+    """'방 클리어' 아래 안내 글. 처음 안내가 켜져 있고, 끝낸 판이 없고, 이 판에서 두 방까지만. 아니면 None.
+    (U1-2: 매번 같은 안내가 뜨던 것. 열린 문은 빛과 문 위 보상 판이 이미 알려 준다)"""
+    import meta
+    meta.ensure_loaded()
+    if not options.show_hints or meta.state.get('runs', 0) > 0 or getattr(player, 'run_rooms', 0) > CLEAR_HINT_ROOMS:
+        return None
+    return CLEAR_HINT
+
+
+def toast_y(player, stunned=None):
+    """짧은 알림 글의 y. 오버로드로 기절한 동안은 기절 막대 아래로 내린다 (U1-2)."""
+    s = getattr(player, 'stunned', False) if stunned is None else stunned
+    return TOAST_Y - 40 - (STUN_DROP if s else 0)
+
+
+def is_hub(stage):
+    """mist 은신처: 전투 HUD(게이지·미니맵·조각)를 빼고 헤이즈 결정을 보인다 (U1-2)."""
+    return kit.is_mist() and getattr(stage, 'name', '') == 'hideout'
 
 
 def ghost_step(ghost, ratio, dt, held=0.0):
@@ -134,11 +168,16 @@ class GameUI:
         if boss_intro.hud_hidden():     # v8 보스 등장씬 동안은 HUD를 숨긴다 (위아래 검은 띠와 대사만)
             return
         self._draw_screen_fx()          # 화면 전체 효과(오버로드 섬광, 기절 비네트)는 HUD 아래에 깐다
-        self._draw_gauge()
+        hub = is_hub(self.stage)        # U1-2: 은신처에서는 게이지·미니맵·조각을 빼고 헤이즈 결정 (처음 하는 사람은 첫 전투방에서 게이지를 처음 본다)
+        if not hub:
+            self._draw_gauge()
         self._draw_vitals()
         self._draw_actions()
-        if self.stage is not None:
+        if hub:
+            self._draw_hub_chip()
+        elif self.stage is not None:
             self._draw_minimap()
+        if self.stage is not None:
             self._draw_boss_bar()
             self._draw_toasts()
         self._draw_pickup()
@@ -224,7 +263,7 @@ class GameUI:
         extra = '' if g.zone == NORMAL else f'공격 x{mult["attack"]:g} · 이동 x{mult["speed"]:g}'
         if g.enhanced:
             lv = max(1, min(3, g.enhance_level))
-            extra = '궁극기 준비!' if g.enhance_level >= config.ENHANCE_MAX_LEVEL else f'강화 {g.enhance_level}단계 준비'
+            extra = '궁극기 준비' if g.enhance_level >= config.ENHANCE_MAX_LEVEL else f'강화 {g.enhance_level}단계 준비'
             ecolor = config.ENHANCE_LEVEL_COLOR[lv]
         else:
             ecolor = DIM
@@ -381,7 +420,7 @@ class GameUI:
                                    config.ENHANCE_LEVEL_COLOR[max(1, min(3, g.enhance_level))])
         cost = f'-{g.cost}%' if hasattr(g, 'cost') else f'-{config.ENHANCE_COST}%'
         kit.text(ex + SLOT // 2, ACT_Y + SLOT + 18, f'강화 {cost}' if (ready or hot) else f'강화 {g.enhance_min}%+',
-                 TEAL if ready else FAINT, small=True, center=True)
+                 TEAL if ready else _faint(), small=True, center=True)
         # 칸 위 한 줄: 무기 이름 · 지금 나가는 공격 · 재충전 막대, 그 왼쪽에 무기 표시(콤보·충전·발사 수)
         text, color = self._attack_text(w, g)
         if g.enhanced and g.enhance_level >= config.ENHANCE_MAX_LEVEL:      # 다음 공격이 궁극기: 그 이름
@@ -487,6 +526,12 @@ class GameUI:
                 kit.icon(('hud_map_' if mark == 'event' else 'uc_map_') + mark, x + cell_w // 2 - 10, y + cell_h // 2 - 8)
         self._draw_chips(py - 12)
 
+    def _draw_hub_chip(self):
+        """은신처 오른쪽 위: 헤이즈 결정 (정비사·보관인에게 쓰는 재화). 미니맵 자리 맨 위에 칩 하나."""
+        import meta
+        meta.ensure_loaded()
+        self._chip(W - MARGIN, H - MARGIN, f"{meta.state.get('crystals', 0)}", HUB_CRYSTAL, icon='uc_diamond')
+
     def _chip(self, right, top, text, color, icon=None):
         """오른쪽 정렬 칩: 어두운 판 + (아이콘) + 글자. 돌려주는 값은 다음 칩의 위 가장자리."""
         tw = assets.text_width(text, True)
@@ -529,7 +574,7 @@ class GameUI:
         kind = getattr(boss, 'kind', 'crasher')
         title = getattr(boss, 'title', '보스')
         kit.text(x, y + 34, title, (255, 170, 160))
-        kit.text(x + assets.text_width(title, False) + 18, y + 32, BOSS_EPITHET.get(kind, ''), FAINT, small=True)
+        kit.text(x + assets.text_width(title, False) + 18, y + 32, BOSS_EPITHET.get(kind, ''), _faint(), small=True)
         phase = getattr(boss, 'phase', 1)
         if phase > 1:
             kit.text(x + BOSS_W, y + 32, f'{phase}페이즈', (255, 120, 110), small=True, right=True)
@@ -559,19 +604,25 @@ class GameUI:
     # ----- 가운데: 잠깐 떴다 사라지는 알림 (판 없이 글자만) -----
     def _draw_toasts(self):
         import play_mode
-        if play_mode.clear_notice > 0:
+        mist = kit.is_mist()
+        stunned = mist and getattr(self.player, 'stunned', False)
+        if play_mode.clear_notice > 0 and not stunned:        # U1-2 mist: 기절 중에는 '오버로드!'와 겹치지 않게 그리지 않는다
             age = 3.0 - play_mode.clear_notice
             rise = int(max(0.0, 0.25 - age) * 120)                         # 아래에서 살짝 올라온다
             y = TOAST_Y + 40 - rise
             text = '방 클리어'
             tw = assets.text_width(text, False, True)
-            for side in (-1, 1):                                           # 양옆 장식 선
-                x0 = W // 2 + side * (tw // 2 + 30) - (160 if side < 0 else 0)
-                assets.draw_rect_color(x0, y - 2, 160, 4, GOLD)
-            kit.text(W // 2, y, text, GOLD, center=True, big=True)
-            kit.text(W // 2, y - 46, '열린 문으로 이동하세요', (205, 215, 235), small=True, center=True)
+            if not mist:                                                   # 양옆 장식 선 (U1-2 mist: 뜻 없는 대칭 장식이라 뺐다)
+                for side in (-1, 1):
+                    x0 = W // 2 + side * (tw // 2 + 30) - (160 if side < 0 else 0)
+                    assets.draw_rect_color(x0, y - 2, 160, 4, GOLD)
+            kit.text(W // 2, y, text, CLEAR_TEXT if mist else GOLD, center=True, big=True)
+            hint = clear_hint(self.player) if mist else CLEAR_HINT        # U1-2 mist: 처음 하는 사람에게만
+            if hint:
+                kit.text(W // 2, y - 46, hint, (205, 215, 235), small=True, center=True)
         if play_mode.message_time > 0:
-            kit.text(W // 2, TOAST_Y - 40, play_mode.message, GOLD, center=True)
+            y = toast_y(self.player) if mist else TOAST_Y - 40
+            kit.text(W // 2, y, play_mode.message, TOAST_TEXT if mist else GOLD, center=True)
 
     def _draw_pickup(self):
         """아이템을 얻으면 화면 아래 가운데에 아이콘·이름·효과 띠 (아래에서 올라왔다가 내려간다)."""

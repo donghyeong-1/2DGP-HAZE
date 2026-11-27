@@ -53,6 +53,11 @@ def keys(action):
     return tuple(_keys[action])
 
 
+def is_interact(key):
+    """상호작용 키인가 (창을 닫거나 고르는 'F' 자리: 키 설정을 따른다. U1-2)."""
+    return key is not None and key in _keys['interact']
+
+
 def action_for(key):
     """이 키가 하는 동작 id. 아무것도 아니면 None. 빈 칸(None)은 어떤 동작의 키도 아니다."""
     if key is None:

@@ -10,6 +10,7 @@ from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_LEFT, SDLK_RETURN, SDLK_RIGHT, S
 import assets
 import config
 import game_framework
+import keybinds
 import hud_kit as kit
 import items
 import meta
@@ -91,9 +92,11 @@ def handle_events():
             if choosing:
                 if event.key in (SDLK_a, SDLK_LEFT):
                     choice = (choice - 1) % len(choices)
+                    assets.play_sound('ui_move')               # U1-2: 고르는 소리
                 elif event.key in (SDLK_d, SDLK_RIGHT):
                     choice = (choice + 1) % len(choices)
-                elif event.key in (SDLK_RETURN, SDLK_SPACE, SDLK_f):
+                    assets.play_sound('ui_move')
+                elif event.key in (SDLK_RETURN, SDLK_SPACE) or keybinds.is_interact(event.key):   # U1-2: 'F' 대신 상호작용 키
                     kept = choices[choice]
                     meta.set_keepsake(kept)
                     choosing = False
@@ -179,7 +182,7 @@ def _draw_summary_mist(cx):
         ty = top - row * SUM_ROW
         lx = x + 34 + col * half
         kit.text(lx, ty, name, mm.PH_SOFT, small=True)
-        kit.text(lx + half - 60, ty, value, (255, 225, 140) if '결정' in name else mm.PH_TEXT, right=True)
+        kit.text(lx + half - 60, ty, value, (130, 235, 225) if '결정' in name else mm.PH_TEXT, right=True)   # U1-2: 헤이즈 결정은 청록 (아래 '보유 헤이즈 결정'·NPC 창과 같게, 전: 금)
     kit.text(cx, y + 24, f'보유 헤이즈 결정 {meta.state.get("crystals", 0)}', (130, 235, 225), small=True, center=True)
     return y
 
@@ -246,14 +249,14 @@ def draw_mist():
         mm.pick(cx, CHOOSE_NAME_Y + dy, name, True)           # 고른 물건 이름: 글자 폭으로 색 뒤집기 + 커서 (칸 위, R1)
         mm.footer(CHOOSE_FOOTER, y=256 + dy)
         if easy_hint:
-            kit.text(cx, 206 + dy, easy_hint, (255, 225, 140), center=True, small=True)
+            kit.text(cx, 206 + dy, easy_hint, mm.PH_TEXT, center=True, small=True)     # U1-2: 권하는 글은 본문색 (금은 합성·특별에만)
     else:
         if kept:
             kit.text(cx, 470 + dy, f'맡긴 물건: {items.ITEMS[kept]["name"]}', (255, 225, 140), center=True)
         if ending_line:
             kit.text(cx, (425 if kept else 450) + dy, ending_line, mm.PH_TEXT, center=True)
         if easy_hint:
-            kit.text(cx, (425 if kept else 450) + dy, easy_hint, (255, 225, 140), center=True)
+            kit.text(cx, (425 if kept else 450) + dy, easy_hint, mm.PH_TEXT, center=True)
         mm.footer([('아무 키', nxt)], y=380 + dy)
 
 

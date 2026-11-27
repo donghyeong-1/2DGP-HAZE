@@ -148,7 +148,8 @@ class Valve:
         n = 1 if int(self.time * 5) % 4 else 2                                          # 증기가 새다 가끔 덜컹 (Codex T43)
         assets.draw_image(_img('steam_valve', n), x + 8, y)                            # 기준점 x=37 (캔버스 가운데 45)
         if self.near():
-            assets.draw_text(x, y + 160, VALVE_PROMPT(), (255, 230, 140), center=True, small=True)
+            import npc
+            npc.draw_prompt(x, y + 160, VALVE_PROMPT())       # U1-2: NPC·진열대 안내와 같은 모양 (mist는 회백, 경고 노랑 없음)
 
 
 def VALVE_PROMPT():   # noqa: N802 (상수처럼 읽는 안내 글)

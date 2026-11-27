@@ -186,8 +186,10 @@ def handle_events():
                 return
             if event.key in (SDLK_w, SDLK_UP):
                 selected = (selected - 1) % len(ITEMS)
+                assets.play_sound('ui_move')                     # U1-2: 줄을 옮기면 소리 (타이틀·일시정지와 같게)
             elif event.key in (SDLK_s, SDLK_DOWN):
                 selected = (selected + 1) % len(ITEMS)
+                assets.play_sound('ui_move')
             elif event.key in (SDLK_a, SDLK_LEFT) and item not in ('back', 'keys'):
                 change(item, -1)
             elif event.key in (SDLK_d, SDLK_RIGHT) and item not in ('back', 'keys'):

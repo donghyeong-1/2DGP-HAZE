@@ -138,10 +138,13 @@ def handle_events():
                 return
             if event.key in (SDLK_w, SDLK_UP):
                 row = (row - 1) % (N + 1)
+                assets.play_sound('ui_move')                     # U1-2: 줄·칸을 옮기면 소리
             elif event.key in (SDLK_s, SDLK_DOWN):
                 row = (row + 1) % (N + 1)
+                assets.play_sound('ui_move')
             elif event.key in (SDLK_a, SDLK_LEFT, SDLK_d, SDLK_RIGHT):
                 col = 1 - col
+                assets.play_sound('ui_move')
             elif event.key in (SDLK_RETURN, SDLK_SPACE):
                 if row == BUTTON_ROW:
                     _run_button(col)

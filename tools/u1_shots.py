@@ -280,6 +280,269 @@ def keys_swap(s):
     keybinds.reset()
 
 
+# ----- 2부: 다른 도구가 찍지 않는 화면 -----
+def _gauge(p, v):
+    p.gauge.value = v
+    p.gauge.zone = p.gauge._zone_of(v)
+
+
+def _clear_enemies():
+    import game_world
+    for o in list(game_world.world[game_world.LAYER_ENEMY]):
+        game_world.remove_object(o)
+
+
+@scene
+def title_menus(s):
+    import title_mode
+    s.gf.stack[:] = [title_mode]
+    title_mode.enter()
+    for i in range(4):
+        title_mode.selected = i
+        s.grab(f'title_sel{i}', title_mode)
+
+
+@scene
+def hud_enhance_levels(s):
+    """강화 1단계·3단계(궁극기 준비)."""
+    p, st = _room(s, 51, 'stage1', 'combat', ('pipe', 'gauntlet'))
+    _clear_enemies()
+    p.mouse_screen = (1180, 520)
+    for lv in (1, 3):
+        _gauge(p, 95)
+        p.gauge.enhance_level = 0
+        for _ in range(lv):
+            p.gauge.use_enhance()
+        s.run(1)
+        s.grab(f'hud_enh{lv}')
+
+
+@scene
+def hud_overload(s):
+    """오버로드 기절 순간."""
+    p, st = _room(s, 52, 'stage1', 'combat')
+    _clear_enemies()
+    _gauge(p, p.gauge.cap - 1)
+    p.gauge.add(10, 'hit')
+    s.run(30)
+    s.grab('hud_overload')
+
+
+@scene
+def hud_overload_toast(s):
+    """오버로드 기절 중에 짧은 알림이 뜬 순간 (자리가 겹치는지)."""
+    import play_mode
+    p, st = _room(s, 52, 'stage1', 'combat')
+    play_mode.message_time = 0.0
+    _clear_enemies()
+    _gauge(p, p.gauge.cap - 1)
+    p.gauge.add(10, 'hit')
+    s.run(30)
+    play_mode._show_message('조각이 부족합니다 (3/6)')
+    s.grab('hud_overload_toast')
+
+
+@scene
+def pause_ask(s):
+    """일시정지: '판 포기하고 은신처로'를 한 번 누른 확인 상태."""
+    import pause_mode
+    import play_mode
+    s.new_run(63)
+    s.go('stage1', 'combat')
+    s.run(30)
+    play_mode.message_time = 0.0
+    s.gf.stack[:] = [play_mode, pause_mode]
+    pause_mode.enter()
+    pause_mode.selected = 2
+    pause_mode.run('hideout')
+    s.grab('pause_ask', pause_mode)
+    pause_mode._reset_labels()
+    pause_mode.asking = None
+
+
+@scene
+def hideout(s):
+    """은신처 첫 화면 (결정 40)."""
+    import meta
+    import play_mode
+    s.new_run(62)
+    meta.state['crystals'] = 40
+    s.run(200)
+    play_mode.message_time = 0.0
+    s.grab('hideout')
+
+
+@scene
+def hud_awake(s):
+    p, st = _room(s, 53, 'stage2', 'combat', ('chain', 'pistol'))
+    _gauge(p, 70)
+    p.mouse_screen = (1180, 520)
+    s.run(2)
+    s.grab('hud_awake')
+
+
+@scene
+def room_clear(s):
+    import play_mode
+    p, st = _room(s, 54, 'stage1', 'combat')
+    _clear_enemies()
+    s.run(5)
+    play_mode.clear_notice = 2.0
+    s.grab('room_clear')
+    s.run(150)
+    s.grab('room_after_clear')
+
+
+@scene
+def event_rooms(s):
+    import camera
+    for kind_seed, name in ((55, 'event_room_a'), (56, 'event_room_b')):
+        p, st = _room(s, kind_seed, 'stage1', 'event')
+        ev = st.event
+        if ev is not None:
+            p.x, p.y = ev.x - 60, ev.y
+            camera.snap(p, st.room)
+        s.run(10)
+        s.grab(name)
+
+
+@scene
+def challenge(s):
+    import play_mode
+    p = s.new_run(57)
+    st = s.go('stage1')
+    c = next(iter(getattr(st, 'challenges', []) or []), None)
+    if c is None:
+        return
+    import camera
+    st.enter_room(c, 'L')
+    play_mode.room = st.room
+    camera.snap(p, st.room)
+    s.run(120)
+    s.grab('challenge')
+
+
+@scene
+def big_room(s):
+    import camera
+    import play_mode
+    p = s.new_run(58)
+    st = s.go('stage1')
+    c = next((c for c in st.layout if st.is_big(c)), None)
+    if c is None:
+        return
+    st.enter_room(c, 'L')
+    play_mode.room = st.room
+    camera.snap(p, st.room)
+    s.run(60)
+    s.grab('big_room')
+
+
+@scene
+def boss_intro_steps(s):
+    """보스 등장씬 (이름 카드·대사 띠)과 페이즈 컷인."""
+    import config
+    import cut_in
+    import play_mode
+    config.BOSS_INTRO = True
+    try:
+        s.new_run(59)
+        play_mode._test_jump('stage2')
+        play_mode._test_jump('boss')
+        for t, name in ((90, 'boss_intro_a'), (90, 'boss_intro_b'), (90, 'boss_intro_c'), (90, 'boss_intro_d'), (120, 'boss_intro_e')):
+            for _ in range(t):
+                s.gf.frame_time = 1 / 60
+                play_mode.update()
+            s.grab(name)
+    finally:
+        config.BOSS_INTRO = False
+    b = play_mode.stage.boss
+    if b is not None:
+        cut_in.boss_phase(b, 2, '분노')
+        for _ in range(20):
+            cut_in.update(1 / 60)
+        s.grab('boss_phase_cutin')
+        cut_in.reset()
+
+
+@scene
+def ult_cutin(s):
+    import cut_in
+    import mutations as mu
+    import weapon
+    p, st = _room(s, 60, 'stage1', 'combat', ('pipe', 'pistol'))
+    mu.give(p, 'ult_awaken')
+    _gauge(p, 95)
+    for _ in range(3):
+        p.gauge.use_enhance()
+    p.mouse_screen = (1180, 520)
+    s.run(1)
+    p.weapon.attack() if hasattr(p.weapon, 'attack') else None
+    for _ in range(18):
+        cut_in.update(1 / 60)
+    s.grab('ult_cutin')
+    cut_in.reset()
+
+
+@scene
+def easy_flash(s):
+    """초보자 모드·번쩍임 줄이기 켬: 오버로드 순간."""
+    import options
+    options.easy_mode, options.reduce_flash = True, True
+    try:
+        p, st = _room(s, 52, 'stage1', 'combat')
+        _clear_enemies()
+        _gauge(p, p.gauge.cap - 1)
+        p.gauge.add(10, 'hit')
+        s.run(8)
+        s.grab('easy_flash_overload')
+    finally:
+        options.easy_mode, options.reduce_flash = False, False
+
+
+def _grab_window(s, name, mod):
+    """창 크기 그대로 읽는다 (해상도 장면: 논리 화면 1920x1080을 SDL이 창에 맞춰 줄인 결과)."""
+    import play_mode
+    import transition
+    w, h = ctypes.c_int(), ctypes.c_int()
+    s.sdl2.SDL_GetRendererOutputSize(s.p2.renderer, ctypes.byref(w), ctypes.byref(h))
+    buf = (ctypes.c_ubyte * (w.value * h.value * 4))()
+    transition._left = 0.0
+    (mod or play_mode).draw()
+    s.sdl2.SDL_RenderReadPixels(s.p2.renderer, None, s.sdl2.SDL_PIXELFORMAT_RGBA32, buf, w.value * 4)
+    Image.frombuffer('RGBA', (w.value, h.value), bytes(buf), 'raw', 'RGBA', 0, 1).convert('RGB').save(
+        os.path.join(s.out, f'{name}.png'))
+    s.p2.update_canvas()
+
+
+@scene
+def resolutions(s):
+    """해상도 1280x720·1600x900·1920x1080에서 타이틀·HUD·설정."""
+    import display
+    import options
+    import options_mode
+    import play_mode
+    import title_mode
+    for level, tag in ((0, '1280'), (1, '1600'), (2, '1920')):
+        options.set_resolution(level)
+        display.apply()
+        s.gf.stack[:] = [title_mode]
+        title_mode.enter()
+        title_mode.selected = 0
+        _grab_window(s, f'res_{tag}_title', title_mode)
+        s.gf.stack.append(options_mode)
+        options_mode.enter()
+        options_mode.selected = 4
+        _grab_window(s, f'res_{tag}_options', options_mode)
+        p, st = _room(s, 61, 'stage1', 'combat')
+        _gauge(p, 62)
+        p.mouse_screen = (1180, 520)
+        s.run(2)
+        _grab_window(s, f'res_{tag}_hud', play_mode)
+    options.set_resolution(2)
+    display.apply()
+
+
 def main():
     if '--list' in sys.argv:
         print('\n'.join(SCENES))

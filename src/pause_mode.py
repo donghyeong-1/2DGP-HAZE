@@ -42,7 +42,7 @@ def controls():
 selected = 0
 CONFIRM = ('hideout', 'title')                # 판을 포기하는 항목: 실수로 나가지 않게 두 번 누르게 한다
 LABELS = {b.key: b.label for b in MENU}
-GIVE_UP_ASK = '포기하려면 한 번 더 누르세요'
+GIVE_UP_ASK = {'hideout': '한 번 더: 판 포기, 은신처로', 'title': '한 번 더: 판 포기, 타이틀로'}   # U1-2: 어디로 가는지 (전 문구보다 짧게: 조작표와 겹치지 않게)
 asking = None                                 # 한 번 눌러 확인을 기다리는 항목
 
 
@@ -80,7 +80,7 @@ def run(key):
     if key in CONFIRM and asking != key:
         _reset_labels()
         asking = key
-        _button(key).label = GIVE_UP_ASK           # 첫 입력은 묻기만 한다
+        _button(key).label = GIVE_UP_ASK[key]      # 첫 입력은 묻기만 한다
         return
     _reset_labels()
     if key == 'resume':

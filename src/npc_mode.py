@@ -10,6 +10,7 @@
 from pico2d import SDL_KEYDOWN, SDL_QUIT, SDLK_ESCAPE, SDLK_f, clear_canvas, get_events, update_canvas
 
 import assets
+import keybinds
 import config
 import game_framework
 import hud_kit as kit
@@ -178,7 +179,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
             return
-        if event.type == SDL_KEYDOWN and event.key in (SDLK_ESCAPE, SDLK_f):
+        if event.type == SDL_KEYDOWN and (event.key == SDLK_ESCAPE or keybinds.is_interact(event.key)):   # U1-2: 'F' 대신 상호작용 키
             game_framework.pop_mode()
             return
         selected, action = kit.menu_pick(buttons, selected, event, H)

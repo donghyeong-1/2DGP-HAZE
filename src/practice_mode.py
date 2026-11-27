@@ -7,6 +7,8 @@ from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_DOWN, SDLK_ESCAPE, SDLK_LEFT, SD
                     SDLK_UP, SDLK_a, SDLK_d, SDLK_f, SDLK_s, SDLK_w, clear_canvas, get_events, update_canvas)
 
 import config
+import assets
+import keybinds
 import game_framework
 import hud_kit as kit
 import practice
@@ -105,18 +107,21 @@ def handle_events():
         if event.type != SDL_KEYDOWN:
             continue
         k = event.key
-        if k in (SDLK_ESCAPE, SDLK_f):
+        if k == SDLK_ESCAPE or keybinds.is_interact(k):       # U1-2: 'F' 대신 상호작용 키
             game_framework.pop_mode()
             return
         if k in (SDLK_w, SDLK_UP):
             selected = (selected - 1) % len(ROWS)
+            assets.play_sound('ui_move')                      # U1-2: 줄을 옮기면 소리 (다른 메뉴와 같게)
         elif k in (SDLK_s, SDLK_DOWN):
             selected = (selected + 1) % len(ROWS)
+            assets.play_sound('ui_move')
         elif k in (SDLK_a, SDLK_LEFT):
             change(ROWS[selected], -1)
         elif k in (SDLK_d, SDLK_RIGHT):
             change(ROWS[selected], 1)
         elif k in (SDLK_RETURN, SDLK_SPACE):
+            assets.play_sound('ui_select')
             run(ROWS[selected])
             return
 
@@ -144,7 +149,9 @@ def value_label(item):
     return ''
 
 
-FOOTER = [('Esc F', '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')]
+def footer():
+    """아래 키 안내. 닫기 키는 Esc와 상호작용 키 (U1-2: 'F' 고정이었다)."""
+    return [(f"Esc {keybinds.label('interact', first=True)}", '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')]
 
 
 def draw():
@@ -165,7 +172,7 @@ def draw():
         label = value_label(item)
         if label:
             kit.text(PANEL_X + PANEL_W - 34, cy, label, (255, 230, 150) if on else (170, 182, 205), small=True, right=True)
-    kit.footer([('Esc F', '닫기'), ('W S', '선택'), ('A D', '값 변경'), ('Enter', '실행')])
+    kit.footer(footer())
     update_canvas()
 
 
@@ -177,10 +184,9 @@ def _draw_mist():
     bottom = TOP_Y - (len(ROWS) - 1) * ROW_STEP
     mm.shade(PANEL_X - 10, H - 150 - 66, PANEL_X + 300, H - 150 + 24)
     mm.shade(PANEL_X, bottom - 32, PANEL_X + PANEL_W, TOP_Y + 32)
-    mm.footer_shade(FOOTER)
+    mm.footer_shade(footer())
     mm.terminal([('TOWER SURVEILLANCE // TRAINING YARD', mm.PH)])
     mm.title(PANEL_X, H - 150, '연습 메뉴')
-    kit.text(PANEL_X + 2, H - 192, '연습장', mm.PH_SOFT, small=True)
     for i, item in enumerate(ROWS):
         cy = TOP_Y - i * ROW_STEP
         on = i == selected
@@ -188,4 +194,4 @@ def _draw_mist():
         label = value_label(item)
         if label:
             kit.text(PANEL_X + PANEL_W - 34, cy, label, mm.PH if on else mm.PH_MENU, small=True, right=True)
-    mm.footer(FOOTER)
+    mm.footer(footer())

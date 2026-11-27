@@ -15,6 +15,7 @@ from pico2d import (SDL_KEYDOWN, SDL_QUIT, SDLK_DOWN, SDLK_ESCAPE, SDLK_LEFT, SD
 import assets
 import config
 import game_framework
+import keybinds
 import hud_kit as kit
 
 W, H = config.SCREEN_W, config.SCREEN_H
@@ -133,7 +134,7 @@ def handle_events():
             continue
         k = event.key
         n = len(catalog()[cat][1])
-        if k in (SDLK_ESCAPE, SDLK_f):
+        if k == SDLK_ESCAPE or keybinds.is_interact(k):       # U1-2: 'F' 대신 상호작용 키
             game_framework.pop_mode()
             return
         if k in (SDLK_w, SDLK_UP):

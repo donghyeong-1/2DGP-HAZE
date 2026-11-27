@@ -3,6 +3,9 @@ config.HUD_WEAPON_STYLE을 'flat'·'a'·'b'·'c'로 바꿔 가며 같은 시드�
 설정·저장 파일은 임시 폴더로 돌린다(사용자 파일을 건드리지 않는다). tools/ui_hud2_shots.py의 방식을 잇는다.
 
   python tools/ui_w1_shots.py <출력 폴더>                 장면 찍기: w1_<시안>_<방>_<상태>.png, w1_<시안>_cards.png
+  W1_ONLY=d,a,da W1_EXTRA=da python tools/ui_w1_shots.py <출력 폴더>  후
+  python tools/ui_w1_shots.py --board3 <출력 폴더> <비교판 폴더>
+        W3(확정 da): W3_compare_dark.png·W3_compare_bright.png(가로 D·A·da, 세로 상태 여섯 + 강화 3단계), W3_weapons.png, W3_full.png, W3_set.png
   python tools/ui_w1_shots.py --board2 <출력 폴더> <비교판 폴더>
         W2(시안 D): W2_compare_dark.png·W2_compare_bright.png(가로 flat·A·D), W2_full_d.png, W2_set_d.png
   python tools/ui_w1_shots.py --board <출력 폴더> <비교판 폴더>
@@ -24,7 +27,9 @@ os.chdir(ROOT)
 from PIL import Image, ImageDraw  # noqa: E402
 
 W, H = 1920, 1080
-STYLES = ('flat', 'a', 'b', 'c', 'd')
+STYLES = ('flat', 'a', 'b', 'c', 'd', 'da')
+W3_STYLES = ('d', 'a', 'da')                 # W3 비교판의 가로 (D·A·합친 것)
+EXTRA_STATES = ('g_on3', 'w_pipe', 'w_pistol', 'w_gauntlet', 'w_chain')   # W3: 강화 3단계 켬, 무기 넷을 각각 든 모습 (W1_EXTRA=da 인 시안만)
 W2_STYLES = ('flat', 'a', 'd')               # W2 비교판의 가로 (flat·A·D)
 SLOT_STATES = ('a_ready', 'b_on1', 'c_on2', 'd_low', 'e_slot2', 'f_empty')
 ROOMS = {'dark': (11, 'stage1'), 'bright': (12, 'stage3')}
@@ -102,20 +107,27 @@ def shoot(out):
         p.gauge.value = v
         p.gauge.zone = p.gauge._zone_of(v)
 
+    default_style = config.HUD_WEAPON_STYLE
+    extra = os.environ.get('W1_EXTRA', '').split(',')
     for style in os.environ.get('W1_ONLY', ','.join(STYLES)).split(','):   # W1_ONLY=flat,a,d 로 일부만
         config.HUD_WEAPON_STYLE = style
         for room, (seed, target) in ROOMS.items():
-            for state in SLOT_STATES:
+            for state in SLOT_STATES + (EXTRA_STATES if style in extra else ()):
                 p = new_run(seed)
-                p.set_loadout('pipe') if state == 'f_empty' else p.set_loadout('pipe', 'pistol')
+                if state.startswith('w_'):                # 무기 넷을 각각 들고, 다른 칸에는 사슬(사슬을 들 때는 철파이프)
+                    p.set_loadout(state[2:], 'chain' if state != 'w_chain' else 'pipe')
+                else:
+                    p.set_loadout('pipe') if state == 'f_empty' else p.set_loadout('pipe', 'pistol')
                 go(target)
                 if state != 'e_slot2':
                     p.swap_weapon(0)                      # 1번 무기 (set_loadout은 둘째 칸을 든다)
                 run(80)                                    # 교체 쿨다운이 다 차도록
-                gauge(p, 22 if state == 'd_low' else 62)
-                if state in ('b_on1', 'c_on2'):
+                gauge(p, 22 if state == 'd_low' else (95 if state == 'g_on3' else 62))
+                if state in ('b_on1', 'c_on2', 'g_on3'):
                     p.gauge.use_enhance()
-                if state == 'c_on2':
+                if state in ('c_on2', 'g_on3'):
+                    p.gauge.use_enhance()
+                if state == 'g_on3':
                     p.gauge.use_enhance()
                 p.mouse_screen = (1180, 520)
                 run(1)
@@ -133,7 +145,7 @@ def shoot(out):
         mutation_mode.age = 5.0
         mutation_mode.selected = 1
         grab(mutation_mode, f'{style}_cards')
-    config.HUD_WEAPON_STYLE = 'flat'
+    config.HUD_WEAPON_STYLE = default_style
     close_canvas()
     print('ok', out)
 
@@ -170,6 +182,41 @@ def _full_and_set(src, out, style, prefix):
     return [f'{prefix}_full_{style}.png', f'{prefix}_set_{style}.png']
 
 
+def board3(src, out):
+    """W3: 가로 D·A·da x 세로 상태 여섯 + 강화 3단계(원래 크기), 무기 넷을 든 모습, 전체 화면 두 장(평소·강화 켬), HUD | 증강 카드."""
+    os.makedirs(out, exist_ok=True)
+    made = []
+    cw, ch = PANEL_BOX[2] - PANEL_BOX[0], PANEL_BOX[3] - PANEL_BOX[1]
+    states = SLOT_STATES + ('g_on3',)
+    for room in ROOMS:
+        im = Image.new('RGB', ((cw + 20) * len(W3_STYLES) - 20, (ch + 10) * len(states)), (20, 20, 24))
+        for r, s in enumerate(states):
+            for c, style in enumerate(W3_STYLES):
+                path = os.path.join(src, f'w1_{style}_{room}_{s}.png')
+                if os.path.exists(path):
+                    im.paste(_label(Image.open(path).crop(PANEL_BOX), f'{style.upper()} {s}'), (c * (cw + 20), r * (ch + 10)))
+        im.save(os.path.join(out, f'W3_compare_{room}.png'))
+        made.append(f'W3_compare_{room}.png')
+    weapons = EXTRA_STATES[1:]
+    im = Image.new('RGB', ((cw + 20) * len(weapons) - 20, (ch + 10) * len(ROOMS)), (20, 20, 24))
+    for r, room in enumerate(ROOMS):
+        for c, s in enumerate(weapons):
+            im.paste(_label(Image.open(os.path.join(src, f'w1_da_{room}_{s}.png')).crop(PANEL_BOX), f'DA {room} {s}'), (c * (cw + 20), r * (ch + 10)))
+    im.save(os.path.join(out, 'W3_weapons.png'))
+    made.append('W3_weapons.png')
+    im = Image.new('RGB', (W, H * 2 + 20), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_da_dark_a_ready.png')), 'DA dark a_ready'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_da_dark_c_on2.png')), 'DA dark c_on2'), (0, H + 20))
+    im.save(os.path.join(out, 'W3_full.png'))
+    made.append('W3_full.png')
+    im = Image.new('RGB', (W * 2 + 20, H), (20, 20, 24))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_da_bright_a_ready.png')), 'DA HUD'), (0, 0))
+    im.paste(_label(Image.open(os.path.join(src, 'w1_da_cards.png')), 'DA cards'), (W + 20, 0))
+    im.save(os.path.join(out, 'W3_set.png'))
+    made.append('W3_set.png')
+    print(len(made), '장:', ', '.join(made))
+
+
 def board2(src, out):
     os.makedirs(out, exist_ok=True)
     made = _compare(src, out, W2_STYLES, 'W2') + _full_and_set(src, out, 'd', 'W2')
@@ -192,7 +239,9 @@ def board(src, out):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--board2':
+    if sys.argv[1] == '--board3':
+        board3(*sys.argv[2:4])
+    elif sys.argv[1] == '--board2':
         board2(*sys.argv[2:4])
     elif sys.argv[1] == '--board':
         board(*sys.argv[2:4])

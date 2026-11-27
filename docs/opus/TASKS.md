@@ -513,3 +513,30 @@
   비교판 `shots/review/W2_compare_dark.png`·`W2_compare_bright.png`(가로 flat·A·D, 원래 크기), `W2_full_d.png`, `W2_set_d.png`, `W2_feel.png`(여섯 가지가 D의 어디인지 번호로).
 - 바꾼 파일: `src/weapon_panel.py`(draw_d, `_texts`가 막대 없이도 그림, `_cost`에 오른쪽 맞춤), `src/hud_kit.py`(`WEAPON_STYLES`에 'd'), `src/config.py`(설명), `tools/make_ui_mist.py`(`d_parts`),
   `tools/ui_w1_shots.py`(`W1_ONLY`, `--board2`), `tests/test_ui_skin.py`, `assets/ui/um_wp_d_*.png`(새 17장).
+
+## W3 무기·E 패널 확정: D 배치 + A 결정 소켓
+지휘 쪽이 D와 A를 보여 주며 권한 것: "배치는 D가 참고 그림에 가깝고, 이 게임다운 모양은 A의 결정 소켓이 낫습니다. 둘을 합쳐 D의 배치에 E만 A의 결정 소켓으로 바꾸고 위 약점 셋(글자 받침, 빈 배지, 이름 줄 자리)을 손보는 것을 권합니다."
+사용자(11/27): **"D 배치에 A 결정 소켓으로 합쳐줘"**.
+- 사용자가 말한 것은 합치는 것까지다. 약점 셋을 같이 손본 것은 지휘 쪽 판단(권한 내용에 들어 있던 것). 합친 것을 기본값으로 한 것은 "고르시면 그 시안을 기본값으로 바꿉니다"라고 알린 대로다.
+- **기본값 `config.HUD_WEAPON_STYLE = 'da'`** (mist 스킨에서만). `'flat'`·`'a'`·`'b'`·`'c'`·`'d'`는 지우지 않았다(값만 바꾸면 돌아가고, 그리기 기록 테스트가 그대로임을 본다). 다른 스킨은 그대로.
+- 한 것 (`src/weapon_panel.draw_da`, 부품 `tools/make_ui_mist.py --wp` -> `assets/ui/um_wp_da_*.png` 7장, 코드로 굽기)
+  - 배치는 D 그대로: 따로 떠 있는 반투명 칸, 어긋나게 쌓은 무기 두 칸(100x64), 든 칸만 무기 색 테두리 + 원래 색 아이콘, 칸 왼쪽에 반쯤 걸친 키 배지 1·2, 재충전·교체기 줄.
+  - E = A의 결정 소켓(마름모 104): 뒤에 같은 반투명 바탕을 마름모 모양으로(`um_wp_da_socket_well`), 테두리는 A 소켓에서 속 바탕만 비운 것(`um_wp_da_socket_<line|e1~e3>`).
+    결정은 A의 것(`um_wp_a_crystal_empty`·`_e1~e3`), 켜면 남은 시간만큼 차 있고 위에서부터 빠진다(A와 같다).
+    쓸 수 있는 청록 결정은 한 단 어둡게 다시 구웠다(`um_wp_da_crystal_haze`): D 배치에서는 칸이 작아 A의 결정이 든 무기 칸보다 먼저 눈에 띄었다(1회차 촬영).
+    A의 소켓 안 'E' 글자는 빼고, 동그란 E 키 배지를 소켓 아래 꼭짓점에 반쯤 걸쳤다.
+  - 단계 표시: D의 숫자 배지를 남기고(소켓 오른쪽 위 변에 걸쳐서), A의 변을 따라 난 결정 조각 셋은 뺐다(같은 정보가 두 번 나온다).
+  - 약점 1 '강화' 글자: 소켓 위에 작은 반투명 꼬리표(128x28, `um_wp_da_tag_well`)를 받치고 그 위 가운데에 쓴다(그림자 글자도 그대로). 긴 띠가 아니다.
+  - 약점 2 빈 단계 배지: 켜지 않았을 때는 단계 배지를 그리지 않는다('쓸 수 있음'은 찬 청록 결정이 알린다). 켜면 단계 색 배지에 숫자.
+  - 약점 3 이름 줄: 무기 이름(위)·공격 줄(아래)·콤보 칸(이름 오른쪽)을 무기 칸 묶음 바로 위에, 묶음 왼쪽 끝(1번 키 배지 바깥)에 맞춰 왼쪽 정렬. 긴 공격 글자는 화면 오른쪽 끝을 넘지 않게 왼쪽으로 민다.
+    든 칸이 바뀌어도 자리는 그대로(칸 묶음의 머리글). 강화 중 '강화 n단계 …'·궁극기 이름은 그대로.
+  - 바탕 불투명도: D 0.84 -> 0.9(`DA_ALPHA`). 어두운 방에서 칸 뒤 상자 무늬가 아이콘을 흐리던 것이 줄고, 칸이 떠 있는 느낌은 남는다(두 방 촬영으로 정함).
+  - 무기 색은 바꾸지 않았다(전투 이펙트와 이어진 색). 쌍권총을 들면 든 칸 테두리(무기 색 (40,235,180))가 바로 옆 청록 결정과 거의 같은 색으로 보이고, 사슬을 들면 보라 테두리가 강화 1단계 결정·소켓 색과 가깝다(`shots/review/W3_weapons.png`).
+  - 넓이: 바깥 상자 어림 약 256x218 = flat(약 316x198)의 약 0.89배.
+- 확인: 테스트 6개를 먼저 쓰고 실패를 본 뒤 고쳤다(`tests/test_ui_skin.py` test_w3_*: 기본값 'da'·다른 값 기록 그대로, 열다섯 상태가 철판 없이·da/D/A 결정 부품만으로 그려짐, E 결정·소켓·단계 배지가 상태와 맞음,
+  '강화' 글자 뒤 꼬리표가 먼저 그려지고 글자가 그 안, 이름 줄이 칸 묶음 위 왼쪽, 새 부품 픽셀 규칙·바탕 반투명). 기본값이 바뀌어 mist HUD 다섯 장면의 기록 해시(`MIST_DONE_DIGEST` hud_*)를 갱신했고,
+  'flat' 값은 `FLAT_MIST_HUD_DIGEST`로 옮겼다. H2·R1 검사(flat의 E 칸·무기 칸)는 `_h2_log`가 'flat'을 그리게 했다.
+  실제 창 촬영 `W1_ONLY=d,a,da W1_EXTRA=da python tools/ui_w1_shots.py <폴더>` 후 `--board3`, 세 번 돌며 고침(1회차: 결정이 든 칸보다 먼저 눈에 띔 -> 2회차: 쓸 수 있는 결정 한 단 어둡게 -> 3회차: 무기 넷·강화 3단계까지 확인).
+  비교판 `shots/review/W3_compare_dark.png`·`W3_compare_bright.png`(가로 D·A·da, 세로 상태 여섯 + 강화 3단계, 원래 크기), `W3_weapons.png`, `W3_full.png`(평소·강화 2단계 켬), `W3_set.png`.
+- 바꾼 파일: `src/weapon_panel.py`(draw_da·da_layout, d의 무기 칸 그리기를 `_d_weapon_slot`으로 나눔(그리기 기록 그대로), `_attack_line`), `src/hud_kit.py`, `src/config.py`(기본값 'da'),
+  `tools/make_ui_mist.py`(`da_parts`), `tools/ui_w1_shots.py`(`W1_EXTRA`, `--board3`), `tests/test_ui_skin.py`, `assets/ui/um_wp_da_*.png`(새 7장).

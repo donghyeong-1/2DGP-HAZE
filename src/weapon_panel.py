@@ -62,8 +62,8 @@ def _weapon_in_slot(p, i, x, y, w, h, icon_cx, icon_bottom, key_x, key_y, bar):
         assets.draw_rect_color(bx, by, _even(bw * ratio), 4, combo.COLORS[wp.weapon_id] if ratio >= 1.0 else COOL)
 
 
-def _texts(u, bar_x, bar_y, bar_w, atk_y, name_y, right):
-    """무기 이름·지금 나가는 공격·재충전 막대·무기 표시 (문구와 색은 flat과 같다)."""
+def _attack_line(u):
+    """지금 나가는 공격 글자와 색 (강화 중이면 '강화 n단계 …', 3단계면 궁극기 이름). 문구는 flat과 같다."""
     p = u.player
     w, g = p.weapon, p.gauge
     text, color = u._attack_text(w, g)
@@ -72,6 +72,14 @@ def _texts(u, bar_x, bar_y, bar_w, atk_y, name_y, right):
         text, color = '궁극기 ' + weapon_mod.ULT_NAMES[w.weapon_id], (255, 200, 120)
     elif g.enhanced:
         text, color = f'강화 {g.enhance_level}단계 ' + text.split(':')[0], config.ENHANCE_LEVEL_COLOR[_tier(g)]
+    return text, color
+
+
+def _texts(u, bar_x, bar_y, bar_w, atk_y, name_y, right):
+    """무기 이름·지금 나가는 공격·재충전 막대·무기 표시 (문구와 색은 flat과 같다)."""
+    p = u.player
+    w = p.weapon
+    text, color = _attack_line(u)
     kit.text(right, atk_y, text, color, small=True, right=True)
     kit.text(right, name_y, w.name, WHITE, right=True)
     if bar_x is not None:                                          # d는 재충전을 든 칸 안 줄로 보여 준다
@@ -230,9 +238,9 @@ D_INK = (8, 11, 20)             # 단계 배지 숫자 (밝은 단계 색 위)
 D_RECHARGE = ((216, 221, 230), (128, 137, 152))   # 든 칸 아래 재충전 줄: 다 참 / 차는 중 (flat 막대의 흰색·회색)
 
 
-def _well(name, left, bottom):
+def _well(name, left, bottom, alpha=D_ALPHA):
     img = assets.image(f'ui/um_wp_{name}.png')
-    assets.draw_image_tinted(img, left + img.w // 2, bottom, '', (255, 255, 255), D_ALPHA)
+    assets.draw_image_tinted(img, left + img.w // 2, bottom, '', (255, 255, 255), alpha)
 
 
 def _key_badge(label, cx, cy, hot, text_color):
@@ -261,26 +269,7 @@ def draw_d(u):
         _well('d_well', x, y)
     _well('d_e_well', ex, ey)
     for i, (x, y) in enumerate(spots):
-        wp = p.weapons[i]
-        active = i == p.slot and wp is not None
-        _put(f'd_slot_{wp.weapon_id}' if active else 'd_slot_line', x, y)
-        cy = y + D_SLOT_H // 2
-        if wp is None:
-            kit.text(x + D_SLOT_W // 2 + 8, cy, '빈 칸', IDLE, small=True, center=True)
-        else:
-            img = assets.image(f'ui/icon_w_{wp.weapon_id}.png')
-            icx = x + D_SLOT_W // 2 + 8
-            if active:
-                assets.draw_image(img, icx, y + (D_SLOT_H - img.h) // 2)
-                ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)   # 재충전: 든 칸 아래 안쪽 줄
-                assets.draw_rect_color(x + 22, y + 6, _even((D_SLOT_W - 32) * ratio), 4, D_RECHARGE[0 if w.ready else 1])
-            else:
-                assets.draw_image_tinted(img, icx, y + (D_SLOT_H - img.h) // 2, '', IDLE, 0.85)
-                if p.weapons[p.slot] is not None:                   # 교체기 (flat과 같은 뜻: 다 차면 그 무기 색)
-                    import combo
-                    r = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
-                    assets.draw_rect_color(x + 22, y + 6, _even((D_SLOT_W - 32) * r), 4, combo.COLORS[wp.weapon_id] if r >= 1.0 else COOL)
-        _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x, cy, active, (242, 246, 250) if active else IDLE)
+        _d_weapon_slot(p, i, x, y)
     # E 칸: 쓸 수 있음 = 회백, 못 씀 = 회백 테두리 + 흐린 아이콘·키·글자, 켬 = 단계 색 테두리 + 단계 배지 + 위쪽 안 시간 줄
     ready, hot = g.can_enhance(), g.enhanced
     lv = _tier(g)
@@ -298,13 +287,106 @@ def draw_d(u):
         bx, by = ex + D_E - D_LV + 8, ey + D_E - D_LV + 8
         _put(f'd_lv_e{lv}' if hot else 'd_lv_off', bx, by)
         if hot:
-            assets.draw_text(bx + D_LV // 2, by + D_LV // 2 + 2, str(g.enhance_level), D_INK, small=True, center=True)   # 글자가 아래로 처져 보여 2px 올림
+            _lv_number(g, bx, by)
     _cost(g, R, ey + D_E + 30, center=False, right=True)
     # 무기 이름·지금 나가는 공격 (오른쪽 맞춤, 묶음 위), 무기 표시(콤보 칸 등)는 이름 왼쪽
     _texts(u, None, None, None, y1 + D_SLOT_H + 26, y1 + D_SLOT_H + 60, R)
 
 
-DRAW = {'a': draw_a, 'b': draw_b, 'c': draw_c, 'd': draw_d}
+def _lv_number(g, bx, by):
+    assets.draw_text(bx + D_LV // 2, by + D_LV // 2 + 2, str(g.enhance_level), D_INK, small=True, center=True)   # 글자가 아래로 처져 보여 2px 올림
+
+
+def _d_weapon_slot(p, i, x, y):
+    """D 무기 칸 하나: 테두리(든 칸 = 무기 색), 아이콘, 빈 칸 글자, 든 칸 재충전 줄 / 다른 칸 교체기 줄, 왼쪽에 반쯤 걸친 키 배지."""
+    import keybinds
+    w = p.weapon
+    wp = p.weapons[i]
+    active = i == p.slot and wp is not None
+    _put(f'd_slot_{wp.weapon_id}' if active else 'd_slot_line', x, y)
+    cy = y + D_SLOT_H // 2
+    if wp is None:
+        kit.text(x + D_SLOT_W // 2 + 8, cy, '빈 칸', IDLE, small=True, center=True)
+    else:
+        img = assets.image(f'ui/icon_w_{wp.weapon_id}.png')
+        icx = x + D_SLOT_W // 2 + 8
+        if active:
+            assets.draw_image(img, icx, y + (D_SLOT_H - img.h) // 2)
+            ratio = 1.0 if w.ready else 1.0 - w.cooldown / max(w.cooldown_max, 0.01)   # 재충전: 든 칸 아래 안쪽 줄
+            assets.draw_rect_color(x + 22, y + 6, _even((D_SLOT_W - 32) * ratio), 4, D_RECHARGE[0 if w.ready else 1])
+        else:
+            assets.draw_image_tinted(img, icx, y + (D_SLOT_H - img.h) // 2, '', IDLE, 0.85)
+            if p.weapons[p.slot] is not None:                   # 교체기 (flat과 같은 뜻: 다 차면 그 무기 색)
+                import combo
+                r = max(0.0, 1.0 - p.swap_cool / max(0.01, getattr(p, 'swap_cool_max', config.SWAP_COOLDOWN)))
+                assets.draw_rect_color(x + 22, y + 6, _even((D_SLOT_W - 32) * r), 4, combo.COLORS[wp.weapon_id] if r >= 1.0 else COOL)
+    _key_badge(keybinds.label(f'weapon{i + 1}', first=True)[:3], x, cy, active, (242, 246, 250) if active else IDLE)
+
+
+# ----- da = D 배치 + A 결정 소켓 (2026-11-27 W3, 기본값) -----
+# 사용자(11/27): "D 배치에 A 결정 소켓으로 합쳐줘". 지휘 쪽 판단으로 W2 약점 셋도 같이 손봤다:
+#  1) '강화 -25%' 글자는 소켓 위에 작은 반투명 꼬리표(um_wp_da_tag_well)를 받치고 그 위에 쓴다(긴 띠 아님)
+#  2) 켜지 않았을 때는 단계 배지를 그리지 않는다('쓸 수 있음'은 찬 청록 결정이 알린다). 켜면 소켓 오른쪽 위 변에 단계 숫자 배지
+#  3) 무기 이름·공격 줄·콤보 칸은 무기 칸 묶음 바로 위, 칸 묶음 왼쪽 끝(키 배지 바깥)에 맞춰 왼쪽 정렬
+# A의 변을 따라 난 결정 조각(단계)은 숫자 배지와 뜻이 겹쳐 뺐다. A의 소켓 안 'E' 글자도 빼고 소켓 아래 꼭짓점에 걸친 키 배지 하나로.
+DA_ALPHA = 0.9                  # 칸·소켓·꼬리표 바탕 불투명도 (D 0.84에서 올림: 뒤 상자 무늬가 아이콘을 덜 흐리게. 촬영으로 정함)
+DA_SOCKET = 104                 # 소켓 마름모 한 변 대각 (캔버스 112)
+DA_TAG_W, DA_TAG_H = 128, 28
+
+
+def da_layout():
+    """자리: 무기 1번 칸(위, 왼쪽으로 비킴)·2번 칸(아래)의 왼쪽 아래, 소켓 가운데 (cx, cy)."""
+    R, B = ui.ACT_RIGHT, ui.ACT_Y
+    cx, cy = R - DA_SOCKET // 2, B + 16 + DA_SOCKET // 2
+    x2, y2 = cx - DA_SOCKET // 2 - 12 - D_SLOT_W, B + 12
+    x1, y1 = x2 - 24, y2 + D_SLOT_H + 10
+    return (x1, y1), (x2, y2), (cx, cy)
+
+
+def draw_da(u):
+    import keybinds
+    p = u.player
+    w, g = p.weapon, p.gauge
+    R = ui.ACT_RIGHT
+    (x1, y1), (x2, y2), (cx, cy) = da_layout()
+    spots = [(x1, y1), (x2, y2)]
+    tag_x, tag_y = cx - 14 - DA_TAG_W // 2, cy + DA_SOCKET // 2 + 6
+    for x, y in spots:                                             # 바탕 먼저 (반투명, 칸마다 따로)
+        _well('d_well', x, y, DA_ALPHA)
+    _well('da_socket_well', cx - 56, cy - 56, DA_ALPHA)
+    _well('da_tag_well', tag_x, tag_y, DA_ALPHA)
+    for i, (x, y) in enumerate(spots):
+        _d_weapon_slot(p, i, x, y)
+    # E 결정 소켓 (A와 같은 뜻): 못 씀 = 빈 결정 윤곽, 쓸 수 있음 = 청록 결정, 켬 = 단계 색 소켓·결정(남은 시간만큼 차 있고 위에서부터 빠진다)
+    ready, hot = g.can_enhance(), g.enhanced
+    lv = _tier(g)
+    _put(f'da_socket_e{lv}' if hot else 'da_socket_line', cx - 56, cy - 56)
+    cl, cb = cx - 12, cy - 26
+    if hot:
+        _put('a_crystal_empty', cl, cb)
+        img = assets.image(f'ui/um_wp_a_crystal_e{lv}.png')
+        hh = _even(img.h * max(0.0, min(1.0, g.enhance_timer / config.ENHANCE_TIME)))
+        if hh > 0:
+            assets.draw_clip(img, 0, 0, img.w, hh, cl, cb)
+    else:
+        _put('da_crystal_haze' if ready else 'a_crystal_empty', cl, cb)       # 쓸 수 있음: A보다 한 단 어두운 청록 (든 무기 칸이 먼저 읽히게)
+    _key_badge(keybinds.label('enhance', first=True)[:3], cx, cy - DA_SOCKET // 2, ready or hot, (242, 246, 250) if (ready or hot) else IDLE)
+    if hot:                                                        # 단계 배지: 소켓 오른쪽 위 변에 걸쳐서, 켰을 때만
+        bx, by = cx + 24, cy + 24
+        _put(f'd_lv_e{lv}', bx, by)
+        _lv_number(g, bx, by)
+    _cost(g, tag_x + DA_TAG_W // 2, tag_y + DA_TAG_H // 2)
+    # 무기 이름(위)·지금 나가는 공격(아래)·무기 표시: 무기 칸 묶음 바로 위, 칸 묶음 왼쪽 끝에 맞춰 왼쪽 정렬
+    left = x1 - D_KEY // 2
+    text, color = _attack_line(u)
+    atk_y, name_y = y1 + D_SLOT_H + 22, y1 + D_SLOT_H + 54
+    kit.text(min(left, R - assets.text_width(text, True)), atk_y, text, color, small=True)
+    kit.text(left, name_y, w.name, WHITE)
+    tw = assets.text_width(w.name, False)
+    u._draw_weapon_meter(left + tw + 14 - {'pipe': 40, 'gauntlet': 10}.get(w.weapon_id, 20), name_y - 12)
+
+
+DRAW = {'a': draw_a, 'b': draw_b, 'c': draw_c, 'd': draw_d, 'da': draw_da}
 
 
 def draw(u, style):

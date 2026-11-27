@@ -27,7 +27,7 @@ config.UI_SKIN = 'mist'가 쓰는 그림을 굽는다. 그림(로고·테두리�
       python tools/make_ui_mist.py --hud    (플레이 중 HUD 부품만)
       python tools/make_ui_mist.py --menu   (메뉴 화면 부품만)
       python tools/make_ui_mist.py --pick   (고르는 화면 부품만: um_pick_cursor·um_pick_cursor_off)
-      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2))
+      python tools/make_ui_mist.py --wp     (무기·E 패널 시안 부품만: um_wp_a_*·um_wp_b_*·um_wp_c_*(W1)·um_wp_d_*(W2)·um_wp_da_*(W3))
       python tools/make_ui_mist.py --storm  (타이틀 배경·대비 판·줄기 판·잔광 판·글자 뒤 어둠만, R1)
       python tools/make_ui_mist.py --step   (증강 카드 진행 칸 um_step_off·um_step_on만, R1)
 """
@@ -862,6 +862,27 @@ def d_parts():
     return made
 
 
+# ----- W3 무기·E 패널 확정 'da' = D 배치 + A 결정 소켓 (2026-11-27, docs/opus/TASKS.md '4차' W3) -----
+# 소켓은 D의 다른 칸처럼 따로 떠 있게: 바탕(마름모 한 색, 실행 중 반투명)과 테두리(A 소켓의 겉선·자리 선·단계 색 빛, 속 투명)를 따로 굽는다.
+# 결정은 A의 um_wp_a_crystal_*(빈 윤곽·단계 색)를 그대로 쓰고, 쓸 수 있는 청록 결정만 한 단 어둡게 다시 굽는다(um_wp_da_crystal_haze). '강화' 글자 밑 꼬리표 바탕(둥근 네모 한 색, 실행 중 반투명).
+DA_TAG = (64, 14)                       # 꼬리표 (도트. 화면 128x28)
+DA_HAZE = ((78, 186, 176), (22, 126, 120), (10, 82, 80), (6, 44, 46))   # 쓸 수 있는 헤이즈 결정 (WP_HAZE보다 한 단 어둡게)
+
+
+def da_parts():
+    made = []
+    n = 56
+    made.append(save2(_well_only(_diamond(n, n, 28, 28, 26, 26)), 'um_wp_da_socket_well.png'))
+    for name, tone in (('line', WP_LINE), ('e1', WP_TIER[1]), ('e2', WP_TIER[2]), ('e3', WP_TIER[3])):
+        a = _socket(tone)                                          # A 소켓에서 속 바탕만 비운다 (겉선·자리 선·빛은 그대로)
+        well = (a[:, :, 3] > 0) & (a[:, :, :3] == WP_WELL).all(axis=2)
+        a[well] = 0
+        made.append(save2(a, f'um_wp_da_socket_{name}.png'))
+    made.append(save2(_well_only(_round_rect(DA_TAG[1], DA_TAG[0], 3)), 'um_wp_da_tag_well.png'))
+    made.append(save2(_crystal(DA_HAZE), 'um_wp_da_crystal_haze.png'))   # 쓸 수 있음: A보다 한 단 어둡게 (D 배치에서는 칸이 작아 결정이 든 무기 칸보다 먼저 눈에 띄었다)
+    return made
+
+
 def wp_parts():
     made = []
     # a 결정 소켓
@@ -899,6 +920,7 @@ def wp_parts():
     made.append(save2(_rule(WP_LINE), 'um_wp_c_rule_line.png'))
     made.append(save2(_pip(None, False), 'um_wp_c_pip_off.png'))
     made += d_parts()                             # W2 시안 D
+    made += da_parts()                            # W3 확정 da (D 배치 + A 결정 소켓)
     return made
 
 

@@ -452,7 +452,9 @@ def test_h1_mist_hud_calls_no_plate_frames():
         for row in r.log:
             assert hud_kit.YELLOW not in row, row
     paths = set().union(*(r.paths() for r in logs))
-    assert 'ui/um_hud_frame_line.png' in paths and 'ui/um_hud_frame_hot.png' in paths
+    assert 'ui/um_hud_frame_line.png' in paths
+    flat = _with_style('flat', lambda: _hud_log('mist', _hud_states()[0][1]))     # 든 무기 칸의 밝은 테두리는 'flat' 패널의 것 (W3부터 기본값 'da'는 무기 색 테두리)
+    assert 'ui/um_hud_frame_hot.png' in flat.paths()
     assert any(p.startswith('ui/um_fill_') for p in paths)
 
 
@@ -936,8 +938,18 @@ MIST_DONE_DIGEST = {
     # S1 전 값: normal 8efe4fcd6336eccb, critical b31072f9b278ac7c, fade_items_curse 3bb41f6c79aa52a0, enhanced 865db9d39038e5d6, boss 00693a953f9a52ad
     # R1(11/27): ending_dead_choose = 맡길 물건 이름을 칸 위로·칸 간격 88(묶음 6, 전 b9e6f5c9ad866e37), credits_mid = 크레딧 문구(묶음 4, 전 0b0823fe314bdbc0),
     # hud_critical·hud_fade_items_curse = 맥박이 켜진 프레임의 구간 눈금을 테두리 안쪽까지만(묶음 5, 전 c4f647940e7a08a6·bdaf7e221ef01150)
-    'hud_normal': '23b4e49a3fc1f2c2', 'hud_critical': '9fb9d92670150de6', 'hud_fade_items_curse': 'b14964aa31ca37d3',
-    'hud_enhanced': '9d1b7738804e202b', 'hud_boss': 'f572fa1d75edfce9', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+    # W3(11/27): 무기·E 패널 기본값이 'flat' -> 'da'(D 배치 + A 결정 소켓)라 HUD 다섯 장면이 바뀌었다. 'flat' 값은 FLAT_MIST_HUD_DIGEST
+    # (W3 전: normal 23b4e49a3fc1f2c2, critical 9fb9d92670150de6, fade_items_curse b14964aa31ca37d3, enhanced 9d1b7738804e202b, boss f572fa1d75edfce9)
+    'hud_normal': '0983bb8e8fb070bd', 'hud_critical': '45af07c556566555', 'hud_fade_items_curse': '0b3e5f39d920eddc',
+    'hud_enhanced': 'b2965326972bc329', 'hud_boss': '6ef6c177c0925d67', 'room_reward': 'a24a0f1ce3f66cfd', 'hint': 'dbe7a284f9ac069a',
+}
+# 무기·E 패널 'flat'일 때의 mist HUD 다섯 장면 (W3 전 기본값. W3부터 기본값 'da'라 MIST_DONE_DIGEST의 hud_*는 da 값)
+FLAT_MIST_HUD_DIGEST = {
+    'hud_normal': '23b4e49a3fc1f2c2',
+    'hud_critical': '9fb9d92670150de6',
+    'hud_fade_items_curse': 'b14964aa31ca37d3',
+    'hud_enhanced': '9d1b7738804e202b',
+    'hud_boss': 'f572fa1d75edfce9',
 }
 # mist에서도 쓰는 철판 쪽 작은 그림 (판·틀·띠·키·노란 표시가 아니다). up_step_off는 증강 카드의 진행 칸(이미 끝난 화면이라 그대로 둔다)
 MIST_PLATE_ICONS_OK = PLATE_ICONS_OK          # R1(11/27): 증강 카드의 진행 칸도 mist 부품 um_step_*으로 (전에는 up_step_off를 여기서 허용했다)
@@ -1146,8 +1158,8 @@ def test_s1fix_inverted_block_holds_its_whole_text():
 
 
 # ----- 2026-11-27 H2 HUD 손질 셋 (지휘 쪽 검토 셋, 사용자 "HUD 세 가지 다 고쳐줘". docs/opus/TASKS.md '4차' H2) -----
-def _h2_log(state, aura=None, prep=None):
-    """mist에서 _hud_states의 한 장면을 aura_time·준비를 바꿔 그린 기록."""
+def _h2_log(state, aura=None, prep=None, style='flat'):
+    """mist에서 _hud_states의 한 장면을 aura_time·준비를 바꿔 그린 기록. style: 무기·E 패널 (H2·R1 검사는 'flat'을 본다. W3부터 기본값은 'da')."""
     import ui
 
     def go():
@@ -1159,7 +1171,7 @@ def _h2_log(state, aura=None, prep=None):
         with _Recorder() as r:
             ui.GameUI(p, st).draw()
         return r, p
-    return _with_skin('mist', go)
+    return _with_skin('mist', lambda: _with_style(style, go))
 
 
 def _frame_at(r, x, y):
@@ -1346,15 +1358,15 @@ def _w1_preps():
 
 
 def _w1_log(style, prep):
-    return _with_style(style, lambda: _h2_log(_h2_state('normal'), 0.1, prep))
+    return _h2_log(_h2_state('normal'), 0.1, prep, style=style)
 
 
 def test_w1_default_style_is_flat_and_flat_draws_the_same_hud():
-    """(1) 기본값은 'flat'이고, 'flat'이면 mist HUD 다섯 장면의 그리기 기록이 지금(771abb4)과 같다. 다른 스킨에서는 시안 값이 무엇이든 'flat'."""
-    assert config.HUD_WEAPON_STYLE == 'flat'
+    """(1) 'flat'이면 mist HUD 다섯 장면의 그리기 기록이 W1 전과 같다(R1 손질 포함). 다른 스킨에서는 시안 값이 무엇이든 'flat'.
+    (기본값은 W3부터 'da': test_w3_default_is_da_and_other_values_still_work)"""
     for name, st in _hud_states():
         got = _with_style('flat', lambda: _hud_log('mist', st)).digest()
-        assert got == MIST_DONE_DIGEST['hud_' + name], name
+        assert got == FLAT_MIST_HUD_DIGEST['hud_' + name], name
     for skin_name in ('plate', 'plate_code', 'crystal'):
         for style in W1_STYLES:
             assert _with_skin(skin_name, lambda: _with_style(style, hud_kit.weapon_style)) == 'flat'
@@ -1554,9 +1566,8 @@ def test_r1_flat_low_e_slot_outline_matches_the_idle_weapon_slot():
     """(묶음 5-1) HUD_WEAPON_STYLE 'flat'(기본): 게이지가 모자라 강화를 못 쓰는 E 칸의 테두리 = 들지 않은 무기 칸 테두리(같은 부품, 같은 밝기).
     못 쓴다는 것은 흐린 아이콘(색 곱)·흐린 키 글자·'강화 N%+' 흐린 글자·빈 단계 점으로 알린다."""
     import ui
-    assert config.HUD_WEAPON_STYLE == 'flat'
 
-    def low(p):
+    def low(p):                                                            # _h2_log는 'flat'을 그린다 (W3부터 기본값은 'da')
         p.gauge.value = 22
         p.gauge.zone = p.gauge._zone_of(22)
     r, p = _h2_log(_h2_state('normal'), 0.1, low)
@@ -1766,9 +1777,8 @@ W1_DIGEST = {
 
 
 def test_w2_d_is_a_style_and_other_styles_draw_the_same():
-    """(1) 'd'는 고를 수 있는 시안이다(mist에서만, 다른 스킨은 'flat'). 기본값은 'flat' 그대로이고,
+    """(1) 'd'는 고를 수 있는 시안이다(mist에서만, 다른 스킨은 'flat'). 기본값은 W3부터 'da'이고,
     'a'·'b'·'c'는 열다섯 상태의 그리기 기록이 D를 더하기 전과 같다('flat'과 옛 스킨은 test_w1_*가 본다)."""
-    assert config.HUD_WEAPON_STYLE == 'flat'
     assert _with_skin('mist', lambda: _with_style('d', hud_kit.weapon_style)) == 'd'
     for skin_name in ('plate', 'plate_code', 'crystal'):
         assert _with_skin(skin_name, lambda: _with_style('d', hud_kit.weapon_style)) == 'flat'
@@ -1884,6 +1894,137 @@ def test_w2_d_parts_follow_pixel_rules():
     r, _p = _w1_log('d', _w1_preps()[('one', 'ready')])
     wells = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1].endswith('_well.png')]
     assert len(wells) == 3 and all(0.6 <= row[6] < 1.0 for row in wells), wells
+
+
+
+# ----- 2026-11-27 W3 무기·E 패널 확정: D 배치 + A 결정 소켓 = 'da' (사용자 "D 배치에 A 결정 소켓으로 합쳐줘". docs/opus/TASKS.md '4차' W3) -----
+# W2 뒤(fb1d342)의 시안 d 그리기 기록 (열다섯 상태). 'da'를 더하고 기본값으로 바꿔도 그대로여야 한다
+D_DIGEST = {
+    'one_low': '80713cc2a813d3ec',
+    'one_ready': 'a71726d6bc8ca591',
+    'one_on1': '2d2ef4c46684a249',
+    'one_on2': '26e4344a413d9cae',
+    'one_on3': '2596027f6381db1a',
+    'two_low': '983b11deba282cef',
+    'two_ready': '1fe3c46b70d6e283',
+    'two_on1': '4a695b84e30f7724',
+    'two_on2': '2832779d5a0f2cd4',
+    'two_on3': 'cb242d1b7a05b3bd',
+    'empty_low': 'f650fc61d2a79bc7',
+    'empty_ready': '9f7638518fb3e1e6',
+    'empty_on1': '2fdfdcc21b4104c9',
+    'empty_on2': 'f7f08d220cb92da4',
+    'empty_on3': '97415cadc7c5c795',
+}
+DA_OK = ('um_wp_da_', 'um_wp_d_', 'um_wp_a_crystal_')      # da가 쓰는 부품: 제 것 + D의 칸·키 배지·단계 배지 + A의 헤이즈 결정
+
+
+def test_w3_default_is_da_and_other_values_still_work():
+    """(1) 기본값은 'da'(mist에서만, 다른 스킨은 'flat'). 'flat'·'a'·'b'·'c'·'d'는 남아 있고 그리기 기록이 그대로다."""
+    assert config.HUD_WEAPON_STYLE == 'da'
+    assert _with_skin('mist', hud_kit.weapon_style) == 'da'
+    for skin_name in ('plate', 'plate_code', 'crystal'):
+        assert _with_skin(skin_name, hud_kit.weapon_style) == 'flat'
+    for name, st in _hud_states():
+        assert _with_style('flat', lambda: _hud_log('mist', st)).digest() == FLAT_MIST_HUD_DIGEST['hud_' + name], name
+    for style, want in list(W1_DIGEST.items()) + [('d', D_DIGEST)]:
+        got = {'_'.join(k): _w1_log(style, prep)[0].digest() for k, prep in _w1_preps().items()}
+        assert got == want, (style, [k for k in want if got.get(k) != want[k]])
+
+
+def test_w3_da_draws_every_state_without_plate_parts():
+    """(2) 'da'에서 무기 칸 세 상태 x E 다섯 상태가 오류 없이 그려지고, da·D·A 결정 부품만 쓰며 철판 판·틀과 경고 노랑을 부르지 않는다.
+    무기 이름·빈 칸·'강화 -25%'/'강화 30%+'·키 글자(1·2·E)가 그대로 나온다. A의 결정 조각(단계)과 A의 E 글자 자리는 쓰지 않는다."""
+    for key, prep in _w1_preps().items():
+        r, p = _w1_log('da', prep)
+        _assert_no_plate(('da', key), r, PLATE_ICONS_OK)
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
+        assert wp and all(x.startswith(DA_OK) for x in wp), (key, wp)
+        assert not any(x.startswith('um_wp_a_shard') or x.startswith('um_wp_a_socket') for x in wp), (key, wp)
+        texts = [row[3] for row in r.log if row[0] == 'draw_text']
+        assert p.weapon.name in texts, key
+        assert '1' in texts and '2' in texts and 'E' in texts, (key, texts)
+        assert ('빈 칸' in texts) == (key[0] == 'empty'), key
+        if key[1] == 'low':
+            assert any(t.startswith('강화 ') and t.endswith('%+') for t in texts), (key, texts)
+        else:
+            assert any(t.startswith('강화 -') for t in texts), (key, texts)
+
+
+def test_w3_e_socket_crystal_and_level_badge_follow_the_state():
+    """(3) E = 결정 소켓: 못 씀 = 빈 결정 윤곽(청록 결정 없음), 쓸 수 있음 = 청록 결정(A보다 한 단 어두운 um_wp_da_crystal_haze), 켬 n단계 = 단계 색 소켓 테두리 + 단계 색 결정(남은 시간만큼).
+    단계 배지는 켰을 때만 그 단계의 배지와 숫자, 켜지 않았을 때는 그리지 않는다. 못 쓸 때 소켓 겉 윤곽 밝기 ≥ IDLE_MIN_LUMA."""
+    preps = _w1_preps()
+    for e in ('low', 'ready', 'on1', 'on2', 'on3'):
+        r, p = _w1_log('da', preps[('one', e)])
+        wp = {os.path.basename(x) for x in r.paths() if 'um_wp_' in x}
+        sockets = [x for x in wp if x.startswith('um_wp_da_socket_') and x != 'um_wp_da_socket_well.png']
+        badges = [x for x in wp if x.startswith('um_wp_d_lv_')]
+        import weapon_panel as wpn
+        _s1, _s2, (cx, cy) = wpn.da_layout()
+        nums = [row[3] for row in r.log if row[0] == 'draw_text' and row[3] in ('1', '2', '3') and cx + 20 <= row[1] <= cx + 56
+                and cy + 20 <= row[2] <= cy + 56]                     # 소켓 오른쪽 위 단계 배지 자리의 숫자
+        if e.startswith('on'):
+            n = int(e[2])
+            assert sockets == [f'um_wp_da_socket_e{n}.png'], (e, sockets)
+            assert f'um_wp_a_crystal_e{n}.png' in wp and 'um_wp_da_crystal_haze.png' not in wp, (e, wp)
+            assert badges == [f'um_wp_d_lv_e{n}.png'] and nums == [str(n)], (e, badges, nums)
+        else:
+            assert sockets == ['um_wp_da_socket_line.png'], (e, sockets)
+            assert not badges and not nums, (e, badges, nums)
+            want, other = ('um_wp_a_crystal_empty.png', 'um_wp_da_crystal_haze.png') if e == 'low' else ('um_wp_da_crystal_haze.png', 'um_wp_a_crystal_empty.png')
+            assert want in wp and other not in wp, (e, wp)
+    assert _luma(_outer_color('um_wp_da_socket_line.png')) >= IDLE_MIN_LUMA
+
+
+def test_w3_cost_text_sits_on_a_backing():
+    """(4) '강화 -25%'/'강화 30%+' 글자 뒤에 반투명 꼬리표 바탕(um_wp_da_tag_well)이 먼저 그려지고, 글자는 그 안에 있다(긴 띠가 아니다: 폭 ≤ 160)."""
+    preps = _w1_preps()
+    for e in ('low', 'ready', 'on2'):
+        r, _p = _w1_log('da', preps[('one', e)])
+        tag = [i for i, row in enumerate(r.log) if row[0] == 'draw_image_tinted' and row[1] == 'ui/um_wp_da_tag_well.png']
+        cost = [i for i, row in enumerate(r.log) if row[0] == 'draw_text' and row[3].startswith('강화 ') and '단계' not in row[3]]
+        assert len(tag) == 1 and cost, (e, tag, cost)
+        assert tag[0] < cost[0], (e, tag, cost)
+        img = Image.open(os.path.join(UI, 'um_wp_da_tag_well.png'))
+        assert img.width <= 160, img.size
+        row = r.log[tag[0]]
+        cx, bottom = row[2], row[3]
+        for i in cost:
+            tx, ty = r.log[i][1], r.log[i][2]
+            assert cx - img.width // 2 - 4 <= tx <= cx + img.width // 2 and bottom <= ty <= bottom + img.height, (e, r.log[i], row)
+
+
+def test_w3_name_line_sits_over_the_weapon_slots():
+    """(5) 무기 이름 줄은 무기 칸 묶음 위에 칸과 왼쪽을 맞춰 놓인다(소켓 위 오른쪽 끝에 떨어져 있지 않다)."""
+    import weapon_panel as wpn
+    (x1, y1), _s2, _e = wpn.da_layout()
+    r, p = _w1_log('da', _w1_preps()[('one', 'ready')])
+    names = [row for row in r.log if row[0] == 'draw_text' and row[3] == p.weapon.name and row[4] != hud_kit.SHADOW]
+    assert names, p.weapon.name
+    x, y = names[0][1], names[0][2]
+    assert abs(x - (x1 - 16)) <= 4 and y > y1 + wpn.D_SLOT_H, (x, y, x1, y1)
+
+
+def test_w3_da_parts_follow_pixel_rules():
+    """(6) 새 부품 um_wp_da_*: 알파 0/255, 2px 격자, 64색 이하, 경고 노랑 없음, 청록은 헤이즈 결정(da_crystal_haze)에만 — 카드 청록 (46,230,214) 자체는 없음. 바탕(_well)은 한 색이고 실행 중 반투명으로 그린다."""
+    files = sorted(glob.glob(os.path.join(UI, 'um_wp_da_*.png')))
+    names = {os.path.basename(f) for f in files}
+    want = {'um_wp_da_socket_well.png', 'um_wp_da_socket_line.png', 'um_wp_da_tag_well.png'} | {f'um_wp_da_socket_e{n}.png' for n in (1, 2, 3)}
+    assert want <= names, want - names
+    for f in files:
+        a = np.array(Image.open(f).convert('RGBA'))
+        name = os.path.basename(f)
+        assert a.shape[0] % 2 == 0 and a.shape[1] % 2 == 0, name
+        assert set(np.unique(a[:, :, 3])) <= {0, 255}, name
+        assert (a[0::2, 0::2] == a[1::2, 0::2]).all() and (a[0::2, 0::2] == a[0::2, 1::2]).all(), name
+        cols = {tuple(int(v) for v in c) for c in a[a[:, :, 3] > 0][:, :3]}
+        assert len(cols) <= 64 and hud_kit.YELLOW not in cols and CYAN not in cols, name
+        if name.endswith('_well.png'):
+            assert len(cols) == 1, name
+    r, _p = _w1_log('da', _w1_preps()[('one', 'ready')])
+    wells = [row for row in r.log if row[0] == 'draw_image_tinted' and row[1].endswith('_well.png')]
+    assert len(wells) == 4 and all(0.6 <= row[6] < 1.0 for row in wells), wells
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@
 아래 날짜별 절은 만든 순서대로 쌓인 **기록**이다. 서로 어긋나면 이 표를 따른다. 외부에서 가져온 완성 에셋은 폰트, 효과음 녹음 원본(Kenney), 배경음악(OpenGameArt)이다.
 2026-11-27 R2에서 게임이 실제로 불러오는 파일(`src/sprites.py`의 SKIN·skin_*.json, 그리는 코드의 그림 경로)과 원본 폴더를 맞대어 고쳤다(전에는 11-19 상태라 캐릭터를 Codex로 적고 있었다).
 2026-11-27 Q1에서 소품(무기 걸이·연습장 표지판·장치 셋·진열대·은신처 모루와 화로)을 PixelLab 그림으로 바꾸고 이 표를 고쳤다.
+2026-11-27 I1에서 무기 아이콘 넷·아이템 아이콘 10종을 PixelLab 그림으로 바꾸고(형태·분노 아이콘은 새 그림에서 코드로) 이 표를 고쳤다.
 
 | 구분 | 위치 | 만든 방법 | 출처·라이선스 |
 |---|---|---|---|
@@ -22,8 +23,8 @@
 | 구역 제목 카드 3장 | `assets/backgrounds/zone_cell.png`, `zone_foundry.png`, `zone_haze.png` | Codex T33 (내장 image_gen, hibit 마감) | AI 생성물 (Codex) |
 | 멈춘 방 장식 18종 | `assets/decor/<테마>_<이름>.png` | Codex T31 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py`로 2배 규격 | AI 생성물 (Codex) |
 | 움직이는 배경 소품 10종 x 4장 (은신처 모루·화로는 위 소품 줄) | `assets/props/<테마>_<소품>_1~4.png` | Codex T28 (내장 image_gen, hibit 마감), 11-23 `tools/pixel2x.py` | AI 생성물 (Codex) |
-| 아이템 아이콘 10종 | `assets/ui/icon_<아이템>.png` | Codex T13 결과를 그대로 복사(2026-11-17, 커밋 `06746a8`). `assets/sprites/forge/icons_v1/`의 원본과 픽셀까지 같다(R2에서 비교, `tests/test_options.py`). 그 전의 `tools/make_icons.py` 코드 그림은 쓰지 않는다. 진열대(Codex T14)는 11-27 Q1에 PixelLab으로 바뀌었다(위 소품 줄) | AI 생성물 (Codex) |
-| 균열의 분노 아이콘 | `assets/ui/icon_fury.png` | `tools/make_fury_icon.py`: Codex T13 공격력 아이콘의 색을 보라로 돌림 (11-19 줄) | Codex 그림을 코드로 가공 |
+| 무기 아이콘 넷·아이템 아이콘 10종 | `assets/ui/icon_w_<무기>.png`, `assets/ui/icon_<아이템>.png` | PixelLab `create_image_pro_flash`(한 장에 24x24 칸으로 여럿, 무기는 Q1 걸이 그림·아이템은 증강 갈래 아이콘을 화풍 기준으로) -> `tools/apply_pixellab_icons.py`(칸 자르기, 떠 있는 조각 지우기, 색 고정, 무기 몸통 밝히기, 최근접 2배 48x48). 기록 `assets/sprites/pixellab/icons_v6/GENERATION_LOG.md` (11-27 I1). 그 전: 무기는 코드 그림(`tools/make_weapons.py`), 아이템은 Codex T13(`assets/sprites/forge/icons_v1/`, 원본 그대로 남김) | AI 생성물 (PixelLab) |
+| 균열의 분노 아이콘, 형태 아이콘 넷 | `assets/ui/icon_fury.png`, `icon_f_<무기>.png` | `tools/make_fury_icon.py`: 공격력 아이콘(I1부터 PixelLab)의 색을 보라로 돌림. `tools/make_form_icons.py`: 무기 아이콘(I1부터 PixelLab) + 코드로 그린 금별 | PixelLab 그림을 코드로 가공 |
 | 스팀 상점 그림 (캡슐 4장·라이브러리 배경·로고) | `assets/store/` | Codex T29 + `tools/make_store_art.py`. 게임 안에서는 쓰지 않는다 | AI 생성물 (Codex) |
 | UI 'mist' 스킨 (기본): 증강 카드 테두리·장식선·안개, 타이틀 로고·커서·꺾쇠, 번갯줄기 조각 | `assets/ui/um_card_*`, `um_divider_*`, `um_mist_pool`, `um_logo_title`, `um_cursor`, `um_bracket`, `um_bolt_1~3` | PixelLab(`create_image_pro_flash`·`create_ui_asset`) 원본을 `tools/make_ui_mist.py`가 자르고 색만 바꿈 (11-26·11-27 줄) | AI 생성물 (PixelLab) |
 | HUD 무기·E 패널의 결정과 무기 칸 틀 (기본 그림 'mix') | `assets/ui/um_wpx_crystal_*`, `um_wpx_slot_*` | PixelLab `create_image_pro_flash`(P1 원본 `assets/sprites/pixellab/ui_wp_v1/raw/`) → `tools/make_ui_mist.py --wp`(색·틀 다듬기) (11-27 P1·W6 줄) | AI 생성물 (PixelLab) |
@@ -33,7 +34,7 @@
 | 옛 스킨 UI 부품(철판·크리스털) | `assets/ui/up_*` (갈래 아이콘 빼고), `upx_*`, `ui_*` | `up_*`는 `tools/make_ui_plate.py`(code-drawn), `upx_*`는 PixelLab `create_ui_asset` 원본을 `tools/apply_ui_plate.py`로, `ui_*`는 `tools/make_ui.py`(code-drawn). `config.UI_SKIN`을 바꿀 때만 쓴다. HUD의 하트·물약·조준점·미니맵 표시·조각·바늘은 mist에서도 `up_*`(code-drawn)를 쓴다 | 자체 제작 / PixelLab |
 | 타일 세트 | `assets/tiles/tile_set_*.png` | `tools/make_world.py` (code-drawn), 11-23 `tools/pixel2x.py`로 2배 규격 | 자체 제작 |
 | 전투 이펙트 | `assets/effects/`, 빛 시트 `assets/light/glow_*` | `tools/make_fx2.py` + `tools/fxkit.py`, `make_fx.py`, `make_slash_hq.py`, `make_aura.py`, `recolor_fx.py` (모두 code-drawn) | 자체 제작 |
-| 무기 그림(무기 아이콘 4종·식칼·건틀릿 충격파·형태 아이콘) | `assets/ui/icon_w_*`, `icon_f_*`, `assets/sprites/unified/proj_*` | `tools/make_weapons.py`, `tools/make_form_icons.py`, `tools/make_codeart.py` (code-drawn). 사슬 줄·갈고리·탄환은 실행 중 코드로 그림 | 자체 제작 |
+| 무기 그림(식칼·건틀릿 충격파 투사체) | `assets/sprites/unified/proj_*`, 옛 `assets/ui/icon_w_knife.png`(부르는 코드 없음) | `tools/make_weapons.py`, `tools/make_codeart.py` (code-drawn). 사슬 줄·갈고리·탄환은 실행 중 코드로 그림. 무기 아이콘 넷은 I1부터 PixelLab(위 줄) | 자체 제작 |
 | 피해 숫자 픽셀 글꼴 | `assets/ui/dmg_tiny·small·big.png` | `tools/make_digits.py` (코드 그림) | 자체 제작 |
 | 화면 분위기·빛 | `assets/ui/vignette.png`, `assets/backgrounds/fog_strip.png`, `assets/light/` | `tools/make_atmosphere.py`, `make_light.py`, `make_glow.py` (code-drawn) | 자체 제작 |
 | 효과음 116종 | `assets/sfx/` | `tools/make_sfx.py`(numpy 합성) + `tools/make_sfx_v2.py`(Kenney 녹음 원본 74개를 자르고 겹치고 합성음을 더함, 원본 `assets/sfx_src/kenney/`) (11-24 줄) | 자체 제작 + Kenney (kenney.nl) **CC0 1.0** |

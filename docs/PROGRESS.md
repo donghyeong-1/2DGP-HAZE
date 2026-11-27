@@ -36,6 +36,7 @@
 **완료 (11/18~11/19):** 기획서 범위 전부(스테이지 3·적 4종·보스 2종·무기 4종·업그레이드 7종 3단계), v4 전부(로그라이트 전환: 은신처·영구 성장·보관인, E 중첩 궁극기 12종·무기별 대시/점프 공격, 균열방, 황금방 잠금), Codex T12~T23 적용, 엔딩 크레딧·접근성 옵션·설정 창, 페이드 공격 버그·달리기 걸음 교대·밝기 수정. 대기 중인 Codex 작업 없음.
 
 ## 열린 질문
+- (사용자) I1 아이콘(11/27) 확인: 비교판 `shots/review/I1_*.png`. 새 무기 아이콘은 옛 회백 아이콘보다 어두워 HUD의 들지 않은 칸에서 덜 튄다(모양은 읽힘). 더 밝게 할지는 `tools/apply_pixellab_icons.py`의 `LIFT`로 정한다.
 - (사용자) U1-2의 결정 셋은 N1에서 추천대로 반영(설정은 고른 줄 설명만, 패드 키 안내, 해상도 960x540 추가). **새로 정할 것: 패드 물약 버튼**(지금 패드 배치에 물약이 없다. 예: 십자 위). **사용자가 확인할 것: 게임패드로 메뉴·플레이를 오가며 안내가 바뀌는지**(비교판 `shots/review/N1_pad.png`).
 - (사용자) 글 검토 C는 N1-1에서 추천대로 반영. 하나만 남김: 균열방 아이템 '균열의 분노'(추천 '균열 과부하'는 오버로드와 헷갈려 두었다. 대신 '균열의 힘'?). '연쇄 ~' 이름이 넷이 된 것도 괜찮은지(`docs/opus/TASKS.md` N1-1).
 - (사용자) Q1 소품 그림(11/27) 확인: 비교판 `shots/review/Q1_*.png`(은신처 무기 걸이·표지판·모루·화로, 상자·분출구·레이저 머리, 진열대). 크레딧 Codex 줄의 '진열대'는 U1-1에서 뺐다. 방 장식 18종·배경 소품 10종(Codex)은 원경과 한 벌이라 두었다: 바꾼다면 테마 한 벌을 한꺼번에(`docs/opus/TASKS.md` Q1).
@@ -453,3 +454,4 @@
 2026-11-27 [Claude Code] U1-3 색 번짐 확인: U1 비교판의 색 번짐은 촬영 탓(실제 시간 연출이 빠르게 돌린 다음 장면에 남음)이었고, 게임에서도 오버로드 직후 판 포기 등으로 다음 화면에 남을 수 있어 새 판·구역·방 이동 때 postfx를 비움, 비교판 다시 찍음 / src/postfx.py, src/play_mode.py, src/stage.py, tools/u1_shots.py, tests/test_u1_postfx.py(새), docs/opus/TASKS.md, docs/DECISIONS.md
 2026-11-27 [Claude Code] N1-1 이름·대사 변경(글 검토 C 추천대로): 이름 열여덟 + 완벽 회피, 대사 아홉, 쌍권총 궁극기 '일제 사격'·저주 '벼랑 끝'·심장 대사(지휘 쪽 해석), '균열의 분노'는 둠 / src/mutations.py·forms.py·combo.py·items.py·curse.py·player.py·weapon.py·boss_intro.py·npc_mode.py, data/dialogue.py, tests/test_ui_skin.py, tools/u1_shots.py, docs/*
 2026-11-27 [Claude Code] N1-2~4: 설정(mist)은 고른 줄 설명만, 키 안내가 마지막 입력 장치(키보드·패드)를 따름(input_device, 패드 조작표·처음 안내·HUD 배지), 해상도 960x540 추가(이름으로 저장, 옛 번호 호환) / src/input_device.py(새)·keybinds.py·gamepad.py·game_framework.py·hud_kit.py·mist_menu.py·mist_pick.py·mutation_mode.py·boss_intro.py·practice_mode.py·pause_mode.py·tutorial.py·keys_mode.py·ui.py·weapon_panel.py·options.py·options_mode.py, tests/test_n1_options.py·test_n1_pad.py·test_n1_res.py(새)·test_ui_skin.py·test_options.py, tools/u1_shots.py, docs/*
+2026-11-27 [Claude Code] I1 무기·아이템 아이콘 다시 뽑기: 무기 넷(걸이 무기와 같은 생김새, 어두운 HUD에 맞춰 몸통 밝힘)·아이템 10종을 PixelLab(한 장에 24x24 칸 여럿, 40회)으로, 형태·분노 아이콘은 새 그림에서 코드로, 크레딧 아이콘 출처 세 줄 / assets/ui/icon_*, assets/sprites/pixellab/icons_v6/, tools/apply_pixellab_icons.py, tools/i1_icon_shots.py, src/credits_mode.py, tests/test_i1_icons.py, tests/test_options.py, tests/test_ui_skin.py, docs/*

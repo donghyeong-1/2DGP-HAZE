@@ -254,7 +254,7 @@ def test_credits_scenes_change_as_credits_scroll():
 
 def test_r2_credits_match_the_art_the_game_draws():
     """R2(11/27): 크레딧 도구 표기가 게임이 실제로 그리는 그림과 맞다.
-    - 아이템 아이콘 10종(ui/icon_<id>)은 Codex T13 원본(assets/sprites/forge/icons_v1)과 픽셀까지 같다 -> Codex 줄
+    - 아이템 아이콘 10종(ui/icon_<id>)은 R2 때 Codex T13 원본과 같았으나 I1(11/27)에 PixelLab으로 바뀌었다 -> PixelLab 줄
       (진열대 3종은 Q1(11/27)에 PixelLab으로 바뀌었다 -> PixelLab 줄의 '소품'. Codex 줄의 '진열대'는 U1-1에서 뺐다)
       (무기 아이콘·형태 아이콘은 코드 그림이라 '아이템 아이콘'으로 좁힌다).
     - HUD 무기·E 패널의 결정·무기 칸 틀(ui/um_wpx_*, 기본 그림 'mix')은 PixelLab -> PixelLab 줄.
@@ -263,10 +263,13 @@ def test_r2_credits_match_the_art_the_game_draws():
     from PIL import Image
     import credits_mode
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets')
+    # I1(11/27): 아이템 아이콘 10종도 PixelLab으로 바뀌었다(원본 assets/sprites/pixellab/icons_v6/raw/items.png, tools/apply_pixellab_icons.py).
+    # 크기(48x48)는 그대로이고 Codex 원본과는 더는 같지 않다 -> Codex 줄에서 '아이템 아이콘'을 빼고 PixelLab 줄에 넣었다
     for i in ('absorb', 'cap', 'dash', 'enhance', 'heal', 'power', 'resist', 'shard', 'steady', 'vigor'):
         a = np.array(Image.open(os.path.join(root, 'ui', f'icon_{i}.png')).convert('RGBA'))
         b = np.array(Image.open(os.path.join(root, 'sprites', 'forge', 'icons_v1', f'icon_{i}.png')).convert('RGBA'))
-        assert a.shape == b.shape and (a == b).all(), i
+        assert a.shape == b.shape and not (a == b).all(), i
+    assert os.path.exists(os.path.join(root, 'sprites', 'pixellab', 'icons_v6', 'raw', 'items.png'))
     # Q1(11/27): 진열대는 PixelLab 그림으로 바뀌었다(원본 assets/sprites/pixellab/props_v6/pedestal/raw/). Codex 원본과 더는 같지 않다
     for k in ('gold', 'shop', 'gone'):
         a = np.array(Image.open(os.path.join(root, 'ui', f'pedestal_{k}.png')).convert('RGBA'))
@@ -277,13 +280,17 @@ def test_r2_credits_match_the_art_the_game_draws():
     i = lines.index('AI 도구')
     j = lines.index('그래픽')
     ai, gfx = lines[i:j], lines[j:lines.index('소리')]
-    codex = ' '.join(t for t in ai[ai.index(next(t for t in ai if t.startswith('Codex'))):] if not t.startswith(('PixelLab', 'Gemini', 'agent'))).split('PixelLab')[0]
-    assert '아이템 아이콘' in codex, codex
+    c0 = ai.index(next(t for t in ai if t.startswith('Codex')))
+    c1 = next(n for n, t in enumerate(ai) if n > c0 and t.startswith(('PixelLab', 'Gemini', 'agent')))
+    codex = ' '.join(ai[c0:c1])                                     # I1: Codex 줄부터 다음 도구 줄 앞까지 (전에는 PixelLab 뒷줄까지 섞였다)
+    assert '아이템 아이콘' not in codex, codex                        # I1: 아이템 아이콘은 PixelLab
     assert '진열대' not in codex, codex                               # U1-1: 진열대는 PixelLab
     k = next(n for n, t in enumerate(ai) if t.startswith('PixelLab'))
     pix = ' '.join(ai[k:k + 3])
     assert 'HUD 결정' in pix and '무기 칸 틀' in pix, pix
     assert '소품' in ai[k], ai[k]                                    # Q1: 무기 걸이·연습장 표지판·장치·진열대·모루
+    assert '무기·아이템 아이콘' in pix, pix                            # I1: 무기 넷·아이템 아이콘은 PixelLab
+    assert not any('무기 아이콘' in t and 'code-drawn' in t for t in gfx), gfx   # I1: 무기 아이콘은 이제 코드 그림이 아니다
     assert not any('AI 생성 원화를 직접 픽셀로' in t for t in gfx), gfx
     assert any(t.startswith('캐릭터') and 'PixelLab' in t for t in gfx), gfx
 

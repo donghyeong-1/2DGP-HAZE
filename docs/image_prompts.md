@@ -365,3 +365,7 @@ One tall mature sinister male prison warden final boss. FIRST reference is exact
 
 ## 2026-11-27 소품 Q1 (PixelLab create_image_pro_flash·edit_image_pro_flash·animate_image_pixminimax, 화풍 기준 = 간수 `guard_v6/raw/base.png`. 기록 `assets/sprites/pixellab/props_v6/GENERATION_LOG.md`)
 - 무기 걸이·연습장 표지판·상자(+부서짐 편집)·증기 분출구·감시 레이저 머리·진열대(제단·선반)·은신처 모루·화로(+불꽃 4장). 프롬프트 원문과 고른 seed·버린 시안·까닭은 기록 파일에 모두 적었다. 프롬프트는 모두 "Side view game prop, no character. ..."로 시작해 "Muted ... colours, dark navy outline, soft shading lit from the upper left."로 끝난다. 121회.
+
+## 2026-11-27 무기·아이템 아이콘 I1 (PixelLab create_image_pro_flash, 한 장에 24x24 칸 여럿. 기록 `assets/sprites/pixellab/icons_v6/GENERATION_LOG.md`)
+- 무기 넷: 화풍 기준 = Q1 무기 걸이 원본의 무기 부분 96x24. "Game UI icon sheet: a row of four separate weapon icons, each one centred inside its own 24x24 pixel square cell, ..." (seed 3·11, 칸마다 골라 씀), 사슬은 24x24 한 장으로 다시(seed 3).
+- 아이템 10종: 화풍 기준 = 증강 갈래 아이콘 기호 24x24. "Game UI icon sheet: a grid of twelve separate item icons, 4 columns by 3 rows, each icon filling almost its whole 24x24 pixel square cell ..." (seed 29를 씀). 원문 전체와 버린 시안은 기록 파일. 40회.
